@@ -6,24 +6,10 @@ from commands import command
 
 import random
 
-"""
-These are attack commands
-"""
-
-class CmdStrike(Command):
+class Helper():
     """
-    issues an attack
-
-    Usage:
-
-    strike <target>
-
-    This will calculate an attack score based on your weapon and master of arms level.
+    Class for general combat helper commands.
     """
-
-    key = "strike"
-    aliases = ["hit", "slash", "bash"]
-    help_category = "combat"
 
     def masterOfArms(self, level):
         """
@@ -55,6 +41,28 @@ class CmdStrike(Command):
 
         return die_result
 
+
+"""
+These are attack commands
+"""
+
+class CmdStrike(Command):
+    """
+    issues an attack
+
+    Usage:
+
+    strike <target>
+
+    This will calculate an attack score based on your weapon and master of arms level.
+    """
+
+    key = "strike"
+    aliases = ["hit", "slash", "bash"]
+    help_category = "combat"
+
+    # Init combat helper class for logic
+    h = Helper()
 
     def parse(self):
         "Very trivial parser"
@@ -90,10 +98,11 @@ class CmdStrike(Command):
         if not hasMelee:
             self.caller.msg("|yBefore you strike you must equip a melee weapon using the command setmelee 1.")
         else:
+            # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
-                die_result = self.wyldingHand(wylding_hand)
+                die_result = h.wyldingHand(wylding_hand)
             else:
-                die_result = self.masterOfArms(master_of_arms)
+                die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
@@ -119,11 +128,43 @@ class CmdShoot(Command):
     key = "shoot"
     help_category = "mush"
 
+    def masterOfArms(self, level):
+        """
+        Returns die result based on master of arms level
+        """
+        if level == 0:
+            die_result = random.randint(1,6)
+        elif level == 1:
+            die_result = random.randint(1,10)
+        elif level == 2:
+            die_result = random.randint(1,6) + random.randint(1,6)
+        elif level == 3:
+            die_result = random.randint(1,8) + random.randint(1,8)
+
+        return die_result
+
+    def wyldingHand(self, level):
+        """
+        Returns die result based on wylding hand level
+        """
+        if level == 0:
+            die_result = random.randint(1,6)
+        elif level == 1:
+            die_result = random.randint(1,10)
+        elif level == 2:
+            die_result = random.randint(1,6) + random.randint(1,6)
+        elif level == 3:
+            die_result = random.randint(1,8) + random.randint(1,8)
+
+        return die_result
+
     def parse(self):
         "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
+        # Get weapon level to add to attack
+        weapon_level = self.caller.db.weapon_level
         master_of_arms = self.caller.db.master_of_arms
         hasBow = self.caller.db.bow
         hasMelee = self.caller.db.melee
@@ -148,27 +189,18 @@ class CmdShoot(Command):
         elif hasMelee:
             self.caller.msg("|yBefore you can shoot, you must first unequip your melee weapon using the command setmelee 0.")
         else:
-            if master_of_arms == 0:
-                die_result = random.randint(1,6)
-            elif master_of_arms == 1:
-                die_result = random.randint(1,10)
-            elif master_of_arms == 2:
-                die_result = random.randint(1,6) + random.randint(1,6)
-            elif master_of_arms == 3:
-                die_result = random.randint(1,8) + random.randint(1,8)
 
-            self.caller.db.attack_result = die_result
+            # Return die roll based on level in master of arms or wylding hand.
+            if wylding_hand:
+                die_result = self.wyldingHand(wylding_hand)
+            else:
+                die_result = self.masterOfArms(master_of_arms)
 
-            # Get weapon level to add to attack
-            weapon_level = self.caller.db.weapon_level
+            # Get final attack result and damage
+            attack_result = die_result + weapon_level
 
             # Return message to area and caller
-            string = f"|b{self.caller.key} lets loose an arrow straight for {target.key}!|n"
-
-            self.caller.location.msg_contents(string)
-
-            self.caller.msg(f"|bYou take aim and let loose an arrow.|n\n|yYour attack result is:|n |g{(die_result + weapon_level) - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
-
+            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
 class CmdCleave(Command):
     """
