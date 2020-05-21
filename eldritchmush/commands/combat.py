@@ -129,41 +129,15 @@ class CmdShoot(Command):
     key = "shoot"
     help_category = "mush"
 
-    def masterOfArms(self, level):
-        """
-        Returns die result based on master of arms level
-        """
-        if level == 0:
-            die_result = random.randint(1,6)
-        elif level == 1:
-            die_result = random.randint(1,10)
-        elif level == 2:
-            die_result = random.randint(1,6) + random.randint(1,6)
-        elif level == 3:
-            die_result = random.randint(1,8) + random.randint(1,8)
-
-        return die_result
-
-    def wyldingHand(self, level):
-        """
-        Returns die result based on wylding hand level
-        """
-        if level == 0:
-            die_result = random.randint(1,6)
-        elif level == 1:
-            die_result = random.randint(1,10)
-        elif level == 2:
-            die_result = random.randint(1,6) + random.randint(1,6)
-        elif level == 3:
-            die_result = random.randint(1,8) + random.randint(1,8)
-
-        return die_result
 
     def parse(self):
         "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
+        # Init combat helper
+        h = Helper()
+
         # Get weapon level to add to attack
         weapon_level = self.caller.db.weapon_level
         master_of_arms = self.caller.db.master_of_arms
@@ -193,9 +167,9 @@ class CmdShoot(Command):
 
             # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
-                die_result = self.wyldingHand(wylding_hand)
+                die_result = h.wyldingHand(wylding_hand)
             else:
-                die_result = self.masterOfArms(master_of_arms)
+                die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
@@ -218,40 +192,39 @@ class CmdCleave(Command):
     help_category = "mush"
 
     def func(self):
-            "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-            master_of_arms = self.caller.db.master_of_arms
-            hasBow = self.caller.db.bow
-            hasMelee = self.caller.db.melee
-            cleavesRemaining = self.caller.db.cleave
+        h = Helper()
+        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
+        # Get weapon level to add to attack
+        weapon_level = self.caller.db.weapon_level
+        master_of_arms = self.caller.db.master_of_arms
+        hasBow = self.caller.db.bow
+        hasMelee = self.caller.db.melee
+        wylding_hand = self.caller.db.wyldinghand
+        cleavesRemaining = self.caller.db.cleave
 
-            # Check for equip proper weapon type
-            if hasBow:
-                self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee:
-                self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
-            else:
-                if cleavesRemaining > 0:
-                    if master_of_arms == 0:
-                        die_result = random.randint(1,6)
-                    elif master_of_arms == 1:
-                        die_result = random.randint(1,10)
-                    elif master_of_arms == 2:
-                        die_result = random.randint(1,6) + random.randint(1,6)
-                    elif master_of_arms == 3:
-                        die_result = random.randint(1,8) + random.randint(1,8)
-
-                    self.caller.db.attack_result = die_result
-
-                    # Get weapon level to add to attack
-                    weapon_level = self.caller.db.weapon_level
-
-                    # Decrement amount of cleaves from amount in database
-                    self.caller.db.cleave -= 1
-
-                    # Return attack result message
-                    self.caller.msg(f"|rYou strike with great ferocity and cleave your foe!|n\n|gYour attack result is: {die_result + weapon_level}, dealing 2 damage and bypassing target Armor Value on a successful hit.|n\nRoll: {die_result}\nWeapon Level: {weapon_level}")
+        # Check for equip proper weapon type
+        if hasBow:
+            self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
+        elif not hasMelee:
+            self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
+        else:
+            if cleavesRemaining > 0:
+            # Return die roll based on level in master of arms or wylding hand.
+                if wylding_hand:
+                    die_result = h.wyldingHand(wylding_hand)
                 else:
-                    self.caller.msg("|yYou have 0 cleaves remaining. To add more please return to the chargen room.")
+                    die_result = h.masterOfArms(master_of_arms)
+
+                # Decrement amount of cleaves from amount in database
+                self.caller.db.cleave -= 1
+
+                # Get final attack result and damage
+                attack_result = die_result + weapon_level
+
+                # Return attack result message
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+            else:
+                self.caller.msg("|yYou have 0 cleaves remaining. To add more please return to the chargen room.")
 
 
 class CmdResist(Command):
