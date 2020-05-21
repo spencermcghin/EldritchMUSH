@@ -72,16 +72,12 @@ class CmdStrike(Command):
             else:
                 die_result = masterOfArms(master_of_arms)
 
-            # Get final attack result
+            # Get final attack result and damage
             attack_result = die_result + weapon_level
-
-            # Get damage value based on weapon type
             damage = 2 if self.caller.db.twohanded == True else 1
 
             # Return message to area and caller
-            string = f"|b{self.caller.key} strikes deftly at {target.key}!|n"
-
-            self.caller.location.msg_contents(string)
+            self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
             self.caller.msg(f"|bYou strike deftly at your target.|n\n|yYour attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
