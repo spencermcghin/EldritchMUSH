@@ -99,9 +99,9 @@ class CmdStrike(Command):
             # elif master_of_arms == 3:
             #     die_result = random.randint(1,8) + random.randint(1,8)
             if wylding_hand:
-                die_result = wyldingHand(wylding_hand)
+                die_result = self.wyldingHand(wylding_hand)
             else:
-                die_result = masterOfArms(master_of_arms)
+                die_result = self.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
