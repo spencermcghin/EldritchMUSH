@@ -52,6 +52,7 @@ class Character(DefaultCharacter):
         self.db.av = 2
         self.db.weapon_level = 0
         self.db.twohanded = 0
+        self.db.wyldinghand = 0
 
     # def get_abilities(self):
     #     """

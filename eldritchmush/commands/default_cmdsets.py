@@ -64,6 +64,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetMelee())
         self.add(command.SetWeaponLevel())
         self.add(command.CmdSmile())
+        self.add(command.SetArmor())
+        self.add(command.SetTough())
+        self.add(command.SetBody())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -135,12 +138,10 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetTracking())
         self.add(command.SetPerception())
         self.add(command.SetMasterOfArms())
-        self.add(command.SetArmor())
-        self.add(command.SetTough())
-        self.add(command.SetBody())
         self.add(command.SetArmorSpecialist())
         self.add(command.SetResist())
         self.add(command.SetDisarm())
         self.add(command.SetCleave())
         self.add(command.SetStun())
         self.add(command.SetStagger())
+        self.add(command.SetWyldingHand())
