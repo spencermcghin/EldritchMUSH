@@ -197,7 +197,7 @@ class Command(BaseCommand):
 #                 self.character = None
 
 class SetArmor(Command):
-    """Set the tracking of a character
+    """Set the armor level of a character
 
     Usage: setarmor <0-3>
 
