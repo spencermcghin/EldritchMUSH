@@ -135,6 +135,8 @@ class ChargenCmdset(CmdSet):
     key = "Chargen"
     def at_cmdset_creation(self):
         "This is called at initialization"
+        super().at_cmdset_creation()
+        
         self.add(command.SetTracking())
         self.add(command.SetPerception())
         self.add(command.SetMasterOfArms())
