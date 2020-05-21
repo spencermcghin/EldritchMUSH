@@ -6,6 +6,8 @@ from commands import command
 
 import random
 
+Make a reaondom save
+
 """
 These are attack commands
 """
