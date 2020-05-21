@@ -584,3 +584,4 @@
 20-05-21 22:54:12  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55322)
 20-05-21 22:54:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55316)
 20-05-21 22:59:36  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/mush_test/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/mush_test/eldritchmush/server/server.pid']
+20-05-21 23:04:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/mush_test/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/mush_test/eldritchmush/server/server.pid']

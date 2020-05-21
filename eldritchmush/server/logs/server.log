@@ -3835,3 +3835,61 @@
 20-05-21 23:00:31 [::]     die_result = masterOfArms(master_of_arms)
 20-05-21 23:00:31 [::] UnboundLocalError: local variable 'masterOfArms' referenced before assignment
 20-05-21 23:00:31 [EE] User input was: 'strike testcharacter'.
+20-05-21 23:04:18 [..] Server disconnected from the portal.
+20-05-21 23:04:18 Main loop terminated.
+20-05-21 23:04:18 Server Shut Down.
+20-05-21 23:04:18 Loading /home/ubuntu/mush_test/evennia/evennia/server/server.py...
+20-05-21 23:04:19 Loaded.
+20-05-21 23:04:19 twistd 19.10.0 (/home/ubuntu/mush_test/evenv/bin/python 3.7.5) starting up.
+20-05-21 23:04:19 reactor class: twisted.internet.epollreactor.EPollReactor.
+20-05-21 23:04:19 Webserver starting on 4005
+20-05-21 23:04:19 Server successfully reloaded.
+20-05-21 23:04:19 [::] Traceback (most recent call last):
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/typeclasses/models.py", line 243, in set_class_from_typeclass
+20-05-21 23:04:19 [::]     self.__class__ = class_from_module(self.db_typeclass_path)
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/utils/utils.py", line 1511, in class_from_module
+20-05-21 23:04:19 [::]     raise ImportError(err)
+20-05-21 23:04:19 [::] ImportError: 
+20-05-21 23:04:19 [::] Could not load typeclass 'typeclasses.combat_handler.CombatHandler'.
+20-05-21 23:04:19 [::] Traceback (most recent call last):
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/typeclasses/models.py", line 243, in set_class_from_typeclass
+20-05-21 23:04:19 [::]     self.__class__ = class_from_module(self.db_typeclass_path)
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/utils/utils.py", line 1511, in class_from_module
+20-05-21 23:04:19 [::]     raise ImportError(err)
+20-05-21 23:04:19 [::] ImportError: 
+20-05-21 23:04:19 [::] Could not load typeclass 'typeclasses.combat_handler.CombatHandler'.
+20-05-21 23:04:19 [::] Traceback (most recent call last):
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/typeclasses/models.py", line 243, in set_class_from_typeclass
+20-05-21 23:04:19 [::]     self.__class__ = class_from_module(self.db_typeclass_path)
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/utils/utils.py", line 1511, in class_from_module
+20-05-21 23:04:19 [::]     raise ImportError(err)
+20-05-21 23:04:19 [::] ImportError: 
+20-05-21 23:04:19 [::] Could not load typeclass 'typeclasses.combat_handler.CombatHandler'.
+20-05-21 23:04:19 [::] Traceback (most recent call last):
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/typeclasses/models.py", line 243, in set_class_from_typeclass
+20-05-21 23:04:19 [::]     self.__class__ = class_from_module(self.db_typeclass_path)
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/utils/utils.py", line 1511, in class_from_module
+20-05-21 23:04:19 [::]     raise ImportError(err)
+20-05-21 23:04:19 [::] ImportError: 
+20-05-21 23:04:19 [::] Could not load typeclass 'typeclasses.combat_handler.CombatHandler'.
+20-05-21 23:04:19 [::] Traceback (most recent call last):
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/typeclasses/models.py", line 243, in set_class_from_typeclass
+20-05-21 23:04:19 [::]     self.__class__ = class_from_module(self.db_typeclass_path)
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/utils/utils.py", line 1511, in class_from_module
+20-05-21 23:04:19 [::]     raise ImportError(err)
+20-05-21 23:04:19 [::] ImportError: 
+20-05-21 23:04:19 [::] Could not load typeclass 'typeclasses.combat_handler.CombatHandler'.
+20-05-21 23:04:19 [::] Traceback (most recent call last):
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/typeclasses/models.py", line 243, in set_class_from_typeclass
+20-05-21 23:04:19 [::]     self.__class__ = class_from_module(self.db_typeclass_path)
+20-05-21 23:04:19 [::]   File "/home/ubuntu/mush_test/evennia/evennia/utils/utils.py", line 1511, in class_from_module
+20-05-21 23:04:19 [::]     raise ImportError(err)
+20-05-21 23:04:19 [::] ImportError: 
+20-05-21 23:04:19 [::] Could not load typeclass 'typeclasses.combat_handler.CombatHandler'.
+20-05-21 23:04:25 [::] Traceback (most recent call last):
+20-05-21 23:04:25 [::]   File "/home/ubuntu/mush_test/evennia/evennia/commands/cmdhandler.py", line 631, in _run_command
+20-05-21 23:04:25 [::]     ret = cmd.func()
+20-05-21 23:04:25 [::]   File "/home/ubuntu/mush_test/eldritchmush/commands/combat.py", line 104, in func
+20-05-21 23:04:25 [::]     die_result = masterOfArms(master_of_arms)
+20-05-21 23:04:25 [::] NameError: name 'masterOfArms' is not defined
+20-05-21 23:04:25 [EE] User input was: 'strike testcharacter'.
