@@ -25,6 +25,37 @@ class CmdStrike(Command):
     aliases = ["hit", "slash", "bash"]
     help_category = "combat"
 
+    def masterOfArms(self, level):
+        """
+        Returns die result based on master of arms level
+        """
+        if level == 0:
+            die_result = random.randint(1,6)
+        elif level == 1:
+            die_result = random.randint(1,10)
+        elif level == 2:
+            die_result = random.randint(1,6) + random.randint(1,6)
+        elif level == 3:
+            die_result = random.randint(1,8) + random.randint(1,8)
+
+        return die_result
+
+    def wyldingHand(self, level):
+        """
+        Returns die result based on wylding hand level
+        """
+        if level == 0:
+            die_result = random.randint(1,6)
+        elif level == 1:
+            die_result = random.randint(1,10)
+        elif level == 2:
+            die_result = random.randint(1,6) + random.randint(1,6)
+        elif level == 3:
+            die_result = random.randint(1,8) + random.randint(1,8)
+
+        return die_result
+
+
     def parse(self):
         "Very trivial parser"
         self.target = self.args.strip()
@@ -80,36 +111,6 @@ class CmdStrike(Command):
             self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
             self.caller.msg(f"|bYou strike deftly at your target.|n\n|yYour attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
-
-        def masterOfArms(self, level):
-            """
-            Returns die result based on master of arms level
-            """
-            if level == 0:
-                die_result = random.randint(1,6)
-            elif level == 1:
-                die_result = random.randint(1,10)
-            elif level == 2:
-                die_result = random.randint(1,6) + random.randint(1,6)
-            elif level == 3:
-                die_result = random.randint(1,8) + random.randint(1,8)
-
-            return die_result
-
-        def wyldingHand(self, level):
-            """
-            Returns die result based on wylding hand level
-            """
-            if level == 0:
-                die_result = random.randint(1,6)
-            elif level == 1:
-                die_result = random.randint(1,10)
-            elif level == 2:
-                die_result = random.randint(1,6) + random.randint(1,6)
-            elif level == 3:
-                die_result = random.randint(1,8) + random.randint(1,8)
-
-            return die_result
 
 
 class CmdShoot(Command):
