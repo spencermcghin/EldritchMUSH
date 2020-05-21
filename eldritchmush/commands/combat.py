@@ -61,8 +61,6 @@ class CmdStrike(Command):
     aliases = ["hit", "slash", "bash"]
     help_category = "combat"
 
-    # Init combat helper class for logic
-    h = Helper()
 
     def parse(self):
         "Very trivial parser"
@@ -70,6 +68,9 @@ class CmdStrike(Command):
 
 
     def func(self):
+        # Init combat helper class for logic
+        h = Helper()
+
         # Check for correct command
         if not self.args:
             self.caller.msg("Usage: strike <target>")
