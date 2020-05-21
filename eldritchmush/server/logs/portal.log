@@ -1,0 +1,572 @@
+20-05-06 03:05:24  |Portal| Loading /home/ubuntu/eldritch/evennia/evennia/server/portal/portal.py...
+20-05-06 03:05:24  |Portal| Loaded.
+20-05-06 03:05:24  |Portal| twistd 19.10.0 (/home/ubuntu/eldritch/evenv/bin/python3.7 3.7.5) starting up.
+20-05-06 03:05:24  |Portal| reactor class: twisted.internet.epollreactor.EPollReactor.
+20-05-06 03:05:24  |Portal| AMP starting on 4006
+20-05-06 03:05:24  |Portal| Telnet starting on 4000
+20-05-06 03:05:24  |Portal| Websocket starting on 4002
+20-05-06 03:05:24  |Portal| Webserver-proxy starting on 4001
+20-05-06 03:05:25  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-06 03:05:27  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-06 03:08:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50170)
+20-05-06 03:08:49  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50169)
+20-05-06 03:37:16  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50441)
+20-05-06 03:37:23  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50436)
+20-05-06 03:37:23  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50440)
+20-05-06 03:37:23  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50435)
+20-05-06 03:37:23  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50443)
+20-05-06 03:37:54  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50442)
+20-05-06 03:39:39  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50453)
+20-05-06 03:39:39  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50454)
+20-05-06 03:39:39  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50456)
+20-05-06 03:39:39  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50455)
+20-05-06 03:39:39  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50452)
+20-05-06 03:40:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50464)
+20-05-06 03:40:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50461)
+20-05-06 03:40:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50459)
+20-05-06 03:40:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50460)
+20-05-06 03:40:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50463)
+20-05-06 03:40:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50462)
+20-05-06 03:41:31  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62145)
+20-05-06 03:41:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62155)
+20-05-06 03:41:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62156)
+20-05-06 03:43:07  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50483)
+20-05-06 03:43:07  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50480)
+20-05-06 03:43:07  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50479)
+20-05-06 03:43:07  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50478)
+20-05-06 03:43:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62184)
+20-05-06 03:43:45  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50484)
+20-05-06 03:49:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62275)
+20-05-06 03:50:30  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62287)
+20-05-06 03:50:30  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62295)
+20-05-06 03:50:30  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62296)
+20-05-06 03:50:30  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62294)
+20-05-06 03:53:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62288)
+20-05-06 03:53:52  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62343)
+20-05-06 03:54:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62349)
+20-05-06 03:56:03  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50553)
+20-05-06 03:56:03  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50561)
+20-05-06 03:56:03  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50563)
+20-05-06 03:56:03  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50562)
+20-05-06 03:56:03  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50560)
+20-05-06 03:56:03  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50552)
+20-05-06 03:57:20  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50572)
+20-05-06 03:57:20  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50567)
+20-05-06 03:57:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50575)
+20-05-06 03:57:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50573)
+20-05-06 03:57:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50568)
+20-05-06 03:57:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50574)
+20-05-06 03:58:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62400)
+20-05-06 03:59:39  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50596)
+20-05-06 04:00:43  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50586)
+20-05-06 04:00:53  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50598)
+20-05-06 04:01:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62432)
+20-05-06 04:04:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62519)
+20-05-06 04:15:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62547)
+20-05-06 04:19:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62723)
+20-05-06 04:22:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62754)
+20-05-06 04:27:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62782)
+20-05-06 04:31:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62858)
+20-05-06 04:34:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62894)
+20-05-06 04:37:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62927)
+20-05-06 04:43:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63000)
+20-05-06 04:43:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50781)
+20-05-06 04:43:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50771)
+20-05-06 04:43:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50772)
+20-05-06 04:43:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50782)
+20-05-06 04:43:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50783)
+20-05-06 04:43:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50773)
+20-05-06 04:47:49  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50789)
+20-05-06 04:47:49  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50790)
+20-05-06 04:49:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63077)
+20-05-06 04:51:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50793)
+20-05-06 04:51:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50791)
+20-05-06 04:51:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50795)
+20-05-06 04:51:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50792)
+20-05-06 04:51:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=50794)
+20-05-06 04:52:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63107)
+20-05-06 04:53:19  |Portal| (TCP Port 4001 Closed)
+20-05-06 04:53:19  |Portal| (TCP Port 4002 Closed)
+20-05-06 04:53:19  |Portal| (TCP Port 4000 Closed)
+20-05-06 04:53:19  |Portal| (TCP Port 4006 Closed)
+20-05-06 04:53:19  |Portal| Main loop terminated.
+20-05-06 04:53:19  |Portal| Server Shut Down.
+20-05-06 04:53:20  |Portal| Loading /home/ubuntu/eldritch/evennia/evennia/server/portal/portal.py...
+20-05-06 04:53:20  |Portal| Loaded.
+20-05-06 04:53:20  |Portal| twistd 19.10.0 (/home/ubuntu/eldritch/evenv/bin/python3.7 3.7.5) starting up.
+20-05-06 04:53:20  |Portal| reactor class: twisted.internet.epollreactor.EPollReactor.
+20-05-06 04:53:20  |Portal| AMP starting on 4006
+20-05-06 04:53:20  |Portal| Telnet starting on 4000
+20-05-06 04:53:20  |Portal| Websocket starting on 4002
+20-05-06 04:53:20  |Portal| Webserver-proxy starting on 4001
+20-05-06 04:53:21  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-06 04:54:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63145)
+20-05-06 04:57:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63158)
+20-05-06 05:00:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63193)
+20-05-06 05:04:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63231)
+20-05-06 05:06:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63282)
+20-05-06 05:12:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63311)
+20-05-06 05:16:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63386)
+20-05-06 05:19:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63436)
+20-05-06 05:21:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63474)
+20-05-06 05:22:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63511)
+20-05-06 05:24:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63528)
+20-05-06 05:27:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63570)
+20-05-06 05:31:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63589)
+20-05-06 05:36:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63636)
+20-05-06 05:46:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63733)
+20-05-06 05:51:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63817)
+20-05-06 05:54:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63899)
+20-05-06 05:58:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63912)
+20-05-06 06:00:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63965)
+20-05-06 06:04:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63987)
+20-05-06 06:06:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64040)
+20-05-06 06:10:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64057)
+20-05-07 00:54:01  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=51974)
+20-05-07 00:54:01  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=51973)
+20-05-07 00:54:01  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=51978)
+20-05-07 00:54:01  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=51979)
+20-05-07 00:54:01  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=51976)
+20-05-07 00:54:01  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=51975)
+20-05-07 01:12:23  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 01:17:09  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 01:20:38  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 01:22:41  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 01:53:59  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=52349)
+20-05-07 01:54:02  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=52348)
+20-05-07 01:54:02  |Portal| Timing out client: IPv4Address(type='TCP', host='71.212.219.187', port=52350)
+20-05-07 02:40:35  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 02:41:38  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 02:46:09  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 02:48:12  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 02:52:28  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-07 02:55:41  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 10:20:03  |Portal| Unhandled Error
+	Traceback (most recent call last):
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 103, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 86, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 614, in _doReadOrWrite
+	    why = selectable.doRead()
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 243, in doRead
+	    return self._dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 249, in _dataReceived
+	    rval = self.protocol.dataReceived(data)
+	  File "/home/ubuntu/eldritch/evennia/evennia/server/portal/telnet.py", line 84, in dataReceived
+	    super().dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/conch/telnet.py", line 585, in dataReceived
+	    raise ValueError("Stumped", b)
+	builtins.ValueError: ('Stumped', b'\x02')
+	
+20-05-09 21:49:19  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 21:51:28  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 21:56:56  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 21:59:05  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 21:59:14  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:10:58  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:12:20  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:16:03  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:17:09  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:20:25  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:24:54  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:27:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:28:24  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:31:46  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:32:43  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:34:17  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:40:34  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:41:31  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:42:47  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:44:07  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:45:06  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:46:06  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:47:17  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:47:52  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:49:12  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:51:00  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:52:30  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:54:25  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 22:55:12  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 23:00:53  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 23:01:53  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-09 23:03:05  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:12:40  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:14:12  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:15:21  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:18:11  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:22:53  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:23:56  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=56922)
+20-05-10 03:23:58  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=56925)
+20-05-10 03:23:58  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=56921)
+20-05-10 03:23:58  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=56923)
+20-05-10 03:23:58  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=56924)
+20-05-10 03:23:58  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=56926)
+20-05-10 03:27:10  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:34:11  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:35:29  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:38:00  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:40:07  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:41:44  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:52:42  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:54:07  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 03:56:58  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:01:53  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:06:47  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:08:42  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:15:33  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:17:05  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:21:07  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:25:51  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:27:20  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:30:52  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:33:26  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:34:06  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:36:23  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 04:59:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:00:20  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:03:29  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:06:51  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:08:28  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:12:27  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:14:31  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:16:25  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:25:26  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:26:29  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:28:20  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-10 05:29:26  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 01:20:10  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60307)
+20-05-13 01:21:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60302)
+20-05-13 01:21:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60305)
+20-05-13 01:21:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60304)
+20-05-13 01:21:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60313)
+20-05-13 01:21:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60303)
+20-05-13 01:22:02  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60306)
+20-05-13 01:25:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60326)
+20-05-13 01:28:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60398)
+20-05-13 01:34:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60423)
+20-05-13 01:37:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60399)
+20-05-13 01:40:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60447)
+20-05-13 01:44:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60480)
+20-05-13 01:47:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60487)
+20-05-13 01:50:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60494)
+20-05-13 01:52:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60440)
+20-05-13 01:56:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60509)
+20-05-13 01:58:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60501)
+20-05-13 02:01:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60523)
+20-05-13 02:04:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60515)
+20-05-13 02:10:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60540)
+20-05-13 02:15:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60579)
+20-05-13 02:15:23  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60555)
+20-05-13 02:59:11  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:02:03  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:14:38  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:16:39  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:27:24  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:32:40  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:34:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:35:13  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:36:16  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 03:39:55  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:08:54  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:11:13  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:15:45  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:34:14  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:39:27  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:53:12  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:57:47  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 04:58:44  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 05:02:11  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 05:07:34  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=61731)
+20-05-13 05:11:50  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=61769)
+20-05-13 05:14:49  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=61787)
+20-05-13 05:16:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=61797)
+20-05-13 19:09:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62159)
+20-05-13 19:09:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62134)
+20-05-13 19:09:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62158)
+20-05-13 19:09:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62157)
+20-05-13 19:09:09  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62152)
+20-05-13 19:09:09  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62160)
+20-05-13 19:15:54  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62172)
+20-05-13 19:19:34  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62184)
+20-05-13 19:36:34  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62318)
+20-05-13 19:39:29  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62325)
+20-05-13 19:41:48  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 19:42:29  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62354)
+20-05-13 19:42:54  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 19:45:29  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62380)
+20-05-13 19:45:50  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 19:48:53  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62405)
+20-05-13 19:51:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62526)
+20-05-13 19:54:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62547)
+20-05-13 19:57:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62550)
+20-05-13 20:00:43  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62579)
+20-05-13 20:03:42  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62614)
+20-05-13 20:06:45  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62661)
+20-05-13 20:08:06  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62682)
+20-05-13 20:08:06  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62681)
+20-05-13 20:12:37  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62694)
+20-05-13 20:15:51  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62697)
+20-05-13 20:17:51  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62695)
+20-05-13 20:18:05  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 20:21:57  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-13 20:25:37  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62757)
+20-05-13 20:57:58  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=62867)
+20-05-13 21:07:15  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63179)
+20-05-13 21:21:36  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63579)
+20-05-13 21:57:56  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=63945)
+20-05-14 00:36:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64136)
+20-05-14 00:39:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64166)
+20-05-14 00:42:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64222)
+20-05-14 00:45:18  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64225)
+20-05-14 00:48:48  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64233)
+20-05-14 00:51:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64238)
+20-05-14 00:54:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64245)
+20-05-14 00:58:24  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64250)
+20-05-14 01:00:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64254)
+20-05-14 01:04:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64260)
+20-05-14 01:06:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64272)
+20-05-14 01:09:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64276)
+20-05-14 01:12:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64290)
+20-05-14 01:15:25  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64293)
+20-05-14 01:19:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64301)
+20-05-14 01:21:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64308)
+20-05-14 01:24:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64316)
+20-05-14 01:27:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64324)
+20-05-14 01:30:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64327)
+20-05-14 01:34:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64333)
+20-05-14 01:36:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64347)
+20-05-14 01:39:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64352)
+20-05-14 01:42:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64359)
+20-05-14 01:45:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64369)
+20-05-14 01:48:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64379)
+20-05-14 01:51:29  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64381)
+20-05-14 01:54:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64382)
+20-05-14 01:58:24  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64385)
+20-05-14 02:00:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64411)
+20-05-14 02:03:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64423)
+20-05-14 02:06:46  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64433)
+20-05-14 02:09:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64439)
+20-05-14 02:12:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64446)
+20-05-14 02:15:20  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64455)
+20-05-14 02:18:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64469)
+20-05-14 02:21:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64477)
+20-05-14 02:24:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64489)
+20-05-14 02:27:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64504)
+20-05-14 02:30:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64519)
+20-05-14 02:33:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64530)
+20-05-14 02:36:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64542)
+20-05-14 02:39:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64559)
+20-05-14 02:43:25  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64565)
+20-05-14 02:45:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64570)
+20-05-14 02:49:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64573)
+20-05-14 02:51:51  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64575)
+20-05-14 02:54:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64583)
+20-05-14 02:57:57  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64589)
+20-05-14 03:00:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64592)
+20-05-14 03:04:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64597)
+20-05-14 03:06:51  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64604)
+20-05-14 03:09:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64613)
+20-05-14 03:13:23  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64618)
+20-05-14 03:15:20  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64621)
+20-05-14 03:19:08  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64627)
+20-05-14 03:21:26  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64632)
+20-05-14 03:24:22  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64647)
+20-05-14 03:27:17  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64660)
+20-05-14 03:30:20  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64679)
+20-05-14 03:33:59  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64707)
+20-05-14 03:35:09  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64714)
+20-05-14 03:35:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64716)
+20-05-14 03:35:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64715)
+20-05-14 03:35:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64717)
+20-05-14 03:35:13  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64708)
+20-05-14 03:35:21  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64709)
+20-05-14 03:38:55  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64740)
+20-05-14 03:38:57  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64741)
+20-05-14 03:40:34  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 03:40:40  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64743)
+20-05-14 03:40:41  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=64742)
+20-05-14 03:41:54  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 03:42:39  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 03:43:55  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 03:51:31  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 03:53:57  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 03:54:49  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 04:02:28  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-14 04:03:51  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 05:43:57  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 05:49:25  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 05:53:20  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:01:12  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:02:51  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:04:42  |Portal| Unhandled Error
+	Traceback (most recent call last):
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 103, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 86, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 614, in _doReadOrWrite
+	    why = selectable.doRead()
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 243, in doRead
+	    return self._dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 249, in _dataReceived
+	    rval = self.protocol.dataReceived(data)
+	  File "/home/ubuntu/eldritch/evennia/evennia/server/portal/telnet.py", line 84, in dataReceived
+	    super().dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/conch/telnet.py", line 585, in dataReceived
+	    raise ValueError("Stumped", b)
+	builtins.ValueError: ('Stumped', b'\xec')
+	
+20-05-15 06:04:48  |Portal| Unhandled Error
+	Traceback (most recent call last):
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 103, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 86, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 614, in _doReadOrWrite
+	    why = selectable.doRead()
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 243, in doRead
+	    return self._dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 249, in _dataReceived
+	    rval = self.protocol.dataReceived(data)
+	  File "/home/ubuntu/eldritch/evennia/evennia/server/portal/telnet.py", line 84, in dataReceived
+	    super().dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/conch/telnet.py", line 585, in dataReceived
+	    raise ValueError("Stumped", b)
+	builtins.ValueError: ('Stumped', b'\xec')
+	
+20-05-15 06:11:35  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:17:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:23:16  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:31:07  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:37:37  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:40:46  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:43:26  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:44:14  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:49:40  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-15 06:57:40  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 03:40:29  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 03:51:34  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 03:58:09  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 03:58:15  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 03:59:54  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:03:14  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:07:09  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:15:32  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:20:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:21:19  |Portal| Unhandled Error
+	Traceback (most recent call last):
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 103, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 86, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 614, in _doReadOrWrite
+	    why = selectable.doRead()
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 243, in doRead
+	    return self._dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 249, in _dataReceived
+	    rval = self.protocol.dataReceived(data)
+	  File "/home/ubuntu/eldritch/evennia/evennia/server/portal/telnet.py", line 84, in dataReceived
+	    super().dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/conch/telnet.py", line 585, in dataReceived
+	    raise ValueError("Stumped", b)
+	builtins.ValueError: ('Stumped', b'\xec')
+	
+20-05-17 04:24:08  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:32:17  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:33:04  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:42:24  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:44:56  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:47:50  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:51:50  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 04:55:25  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 05:02:22  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 05:05:44  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 05:11:58  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 05:17:55  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 05:20:40  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-17 05:24:52  |Portal| Unhandled Error
+	Traceback (most recent call last):
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 103, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 86, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 614, in _doReadOrWrite
+	    why = selectable.doRead()
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 243, in doRead
+	    return self._dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 249, in _dataReceived
+	    rval = self.protocol.dataReceived(data)
+	  File "/home/ubuntu/eldritch/evennia/evennia/server/portal/telnet.py", line 84, in dataReceived
+	    super().dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/conch/telnet.py", line 585, in dataReceived
+	    raise ValueError("Stumped", b)
+	builtins.ValueError: ('Stumped', b'\xec')
+	
+20-05-17 05:24:56  |Portal| Unhandled Error
+	Traceback (most recent call last):
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 103, in callWithLogger
+	    return callWithContext({"system": lp}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/log.py", line 86, in callWithContext
+	    return context.call({ILogContext: newCtx}, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	--- <exception caught here> ---
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 614, in _doReadOrWrite
+	    why = selectable.doRead()
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 243, in doRead
+	    return self._dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 249, in _dataReceived
+	    rval = self.protocol.dataReceived(data)
+	  File "/home/ubuntu/eldritch/evennia/evennia/server/portal/telnet.py", line 84, in dataReceived
+	    super().dataReceived(data)
+	  File "/home/ubuntu/eldritch/evenv/lib/python3.7/site-packages/twisted/conch/telnet.py", line 585, in dataReceived
+	    raise ValueError("Stumped", b)
+	builtins.ValueError: ('Stumped', b'\xec')
+	
+20-05-17 22:56:37  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55292)
+20-05-17 22:56:38  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55291)
+20-05-17 22:56:38  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55290)
+20-05-17 22:56:38  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55294)
+20-05-17 22:56:38  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55293)
+20-05-17 22:56:38  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55289)
+20-05-18 01:14:54  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-18 01:16:06  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=57147)
+20-05-18 01:16:06  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=57136)
+20-05-18 01:16:06  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=57134)
+20-05-18 01:16:06  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=57135)
+20-05-18 02:06:02  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/eldritch/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/eldritch/eldritchmush/server/server.pid']
+20-05-18 19:59:14  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60720)
+20-05-18 19:59:14  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60719)
+20-05-18 19:59:14  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60718)
+20-05-18 19:59:14  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60721)
+20-05-18 19:59:14  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60715)
+20-05-18 19:59:15  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60705)
+20-05-18 20:01:31  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60816)
