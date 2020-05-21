@@ -453,6 +453,36 @@ class SetArmorSpecialist(Command):
         # Return armor value to console.
         self.caller.msg(f"Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}")
 
+class SetWyldingHand(Command):
+    """Set the wylding hand level of a character
+
+    Usage: setwyldinghand <1-3>
+
+    This sets the wylding hand level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setwyldinghand"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "You must supply a number between 1 and 3."
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            wyldinghand = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (1 <= wyldinghand <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.wyldinghand = wyldinghand
+        self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
+
 
 class SetWeaponLevel(Command):
     """Set the weapon level of a character
