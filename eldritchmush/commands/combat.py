@@ -309,17 +309,33 @@ class CmdResist(Command):
     help_category = "mush"
 
     def func(self):
-            "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-            resistsRemaining = self.caller.db.resist
+        h = helper()
 
-            if resistsRemaining > 0:
-                # Decrement amount of cleaves from amount in database
-                self.caller.db.resist -= 1
+        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
+        resistsRemaining = self.caller.db.resist
+        master_of_arms = self.caller.db.master_of_arms
+        wylding_hand = self.caller.db.wyldinghand
 
-                # Return attack result message
-                self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|If attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
+
+        if resistsRemaining > 0:
+        # Return die roll based on level in master of arms or wylding hand.
+            if wylding_hand:
+                die_result = h.wyldingHand(wylding_hand)
             else:
-                self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
+                die_result = h.masterOfArms(master_of_arms)
+
+
+            # Decrement amount of cleaves from amount in database
+            self.caller.db.resist -= 1
+
+            # Get final attack result and damage
+            dmg_penalty = h.bodyChecker(self.caller.db.body)
+            attack_result = (die_result + weapon_level) - dmg_penalty
+
+            # Return attack result message
+            self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|If attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
+        else:
+            self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
 
 class CmdDisarm(Command):
     """
