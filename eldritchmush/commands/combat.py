@@ -78,12 +78,15 @@ class Helper():
 
         return damage_penalty
 
-    def weaknessChecker(self, hasWeakness):
+    def weaknessChecker(self, hasWeakness, caller):
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
         if hasWeakness:
             attack_penalty = 2
+
+            # Set active martial skills flag in db to 0. Character will now not be able to use AMS.
+            caller.db.activemartialskills = 0
 
         return attack_penalty
 
