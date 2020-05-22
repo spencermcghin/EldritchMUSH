@@ -1101,6 +1101,10 @@ class SetWeakness(Command):
     Sets the weakness status on a character. If set to 0, it also sets activemartialskill in db to 0.
     Likewise, if set to 1, it also sets activemartialskills to 1.
     """
+
+    key = "setweakness"
+    help_category = "mush"
+
     def func(self):
         "This performs the actual command"
         errmsg = "Usage: setweakness <0/1>"
