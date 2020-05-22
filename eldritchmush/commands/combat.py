@@ -78,15 +78,12 @@ class Helper():
 
         return damage_penalty
 
-    def weaknessChecker(self, hasWeakness, caller):
+    def weaknessChecker(self, hasWeakness):
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
         if hasWeakness:
             attack_penalty = 2
-
-            # Set active martial skills flag in db to 0. Character will now not be able to use AMS.
-            caller.db.activemartialskills = 0
 
         return attack_penalty
 
@@ -154,6 +151,7 @@ class CmdStrike(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty
             damage = 2 if self.caller.db.twohanded == True else 1
