@@ -1084,4 +1084,7 @@ class SetStabilize(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.stabilize = stabilize
-        self.caller.msg("Your have activated the stabilize ability.")
+        if stabilize:
+            self.caller.msg("Your have activated the stabilize ability.")
+        else:
+            self.caller.msg("Your have deactivated the stabilize ability.")
