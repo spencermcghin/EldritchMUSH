@@ -54,6 +54,15 @@ class Character(DefaultCharacter):
         self.db.twohanded = 0
         self.db.wyldinghand = 0
 
+        # Entries for hit location system
+        self.db.targetArray = ["torso", "right arm", "left arm", "right leg" "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+
     # def get_abilities(self):
     #     """
     #     Simple access method to return ability
