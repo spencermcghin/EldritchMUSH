@@ -56,6 +56,22 @@ class Helper():
 
         return target
 
+    def bodyChecker(self, bodyScore):
+        """
+        Just checks amount of body and applies penalty based on number character is down.
+        """
+        if bodyScore >= 3:
+            damage_penalty = 0
+        elif bodyScore == 2:
+            damage_penalty = 1
+        elif bodyScore == 1:
+            damage_penalty = 2
+        else:
+            return
+
+        return damage_penalty
+
+
 """
 These are attack commands
 """
@@ -120,7 +136,8 @@ class CmdStrike(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
-            attack_result = die_result + weapon_level
+            dmg_penalty = h.bodyChecker(self.caller.db.body)
+            attack_result = (die_result + weapon_level) - dmg_penalty
             damage = 2 if self.caller.db.twohanded == True else 1
 
             # Return message to area and caller
@@ -187,11 +204,12 @@ class CmdShoot(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
-            attack_result = die_result + weapon_level
+            dmg_penalty = h.bodyChecker(self.caller.db.body)
+            attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty
             shot_location = h.shotFinder(target.db.targetArray)
 
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
 class CmdCleave(Command):
     """
@@ -253,7 +271,8 @@ class CmdCleave(Command):
                 self.caller.db.cleave -= 1
 
                 # Get final attack result and damage
-                attack_result = die_result + weapon_level
+                dmg_penalty = h.bodyChecker(self.caller.db.body)
+                attack_result = (die_result + weapon_level) - dmg_penalty       
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
