@@ -384,7 +384,7 @@ class SetTough(Command):
 class SetBody(Command):
     """Set the body of a character
 
-    Usage: setbody <1-3>
+    Usage: setbody <-3-3>
 
     This sets the tough of the current character. This can only be
     used during character generation.
@@ -395,7 +395,7 @@ class SetBody(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "You must supply a number between -3 and 3."
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -404,7 +404,7 @@ class SetBody(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= body <= 3):
+        if not (-3 <= body <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
