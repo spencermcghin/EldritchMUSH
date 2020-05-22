@@ -601,7 +601,7 @@ class SetMelee(Command):
 class SetResist(Command):
     """Set the resist level of a character
 
-    Usage: setresist <1,2,3>
+    Usage: setresist <1,2,3,4,5>
 
     This sets the resist level of the current character. This can only be
     used during character generation.
@@ -612,7 +612,7 @@ class SetResist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "You must supply a number between 1 and 5."
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -621,7 +621,7 @@ class SetResist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= resist <= 3):
+        if not (1 <= resist <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -643,7 +643,7 @@ class SetDisarm(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "You must supply a number between 1 and 5."
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -652,7 +652,7 @@ class SetDisarm(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= disarm <= 3):
+        if not (1 <= disarm <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -674,7 +674,7 @@ class SetCleave(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "You must supply a number between 1 and 5."
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -683,7 +683,7 @@ class SetCleave(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= cleave <= 3):
+        if not (1 <= cleave <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -693,7 +693,7 @@ class SetCleave(Command):
 class SetStun(Command):
     """Set the stun level of a character
 
-    Usage: setstun <1,2,3>
+    Usage: setstun <1,2,3,4,5>
 
     This sets the stun level of the current character. This can only be
     used during character generation.
@@ -704,7 +704,7 @@ class SetStun(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "You must supply a number between 1 and 5."
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -724,7 +724,7 @@ class SetStun(Command):
 class SetStagger(Command):
     """Set the stagger level of a character
 
-    Usage: setstun <1,2,3>
+    Usage: setstun <1,2,3,4,5>
 
     This sets the stagger level of the current character. This can only be
     used during character generation.
@@ -735,7 +735,7 @@ class SetStagger(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "You must supply a number between 1 and 5."
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -744,7 +744,7 @@ class SetStagger(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= stagger <= 3):
+        if not (1 <= stagger <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
