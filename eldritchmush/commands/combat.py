@@ -78,17 +78,21 @@ class Helper():
 
         return damage_penalty
 
-    def weaknessChecker(self, hasWeakness, caller):
+    def weaknessChecker(self, hasWeakness, cmdString):
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
-        if hasWeakness:
+        if hasWeakness and cmdString in ["strike", "hit", "slash", "bash", "punch", "shoot"]:
             attack_penalty = 2
+            return attack_penalty
 
-            # Set active martial skills flag in db to 0. Character will now not be able to use AMS.
-            caller.db.activemartialskills = 0
+        elif hasWeakness and cmdString in ["cleave", "resist", "disarm", "stagger", "stun", "sunder"]:
+            self.caller.msg(f"|yYou are too weak to perform this attack!\nYou may only perform basic attacks until you are healed of your weakness.|n")
+            return
 
-        return attack_penalty
+        else:
+            attack_penalty = 0
+            return attack_penalty
 
 """
 These are attack commands
@@ -106,7 +110,7 @@ class CmdStrike(Command):
     """
 
     key = "strike"
-    aliases = ["hit", "slash", "bash"]
+    aliases = ["hit", "slash", "bash", "punch"]
     help_category = "combat"
 
 
@@ -154,8 +158,9 @@ class CmdStrike(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
-            attack_result = (die_result + weapon_level) - dmg_penalty
+            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
             damage = 2 if self.caller.db.twohanded == True else 1
             target_av = target.db.av
             shot_location = h.shotFinder(target.db.targetArray)
@@ -227,8 +232,9 @@ class CmdShoot(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
-            attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty
+            attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty - weakness
             shot_location = h.shotFinder(target.db.targetArray)
 
             # Return message to area and caller
@@ -295,14 +301,15 @@ class CmdCleave(Command):
                 self.caller.db.cleave -= 1
 
                 # Get final attack result and damage
+                weakness = h.weaknessChecker(self.caller.db.weakness)
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
             else:
-                self.caller.msg("|yYou have 0 cleaves remaining. To add more please return to the chargen room.")
+                self.caller.msg("|yYou have 0 cleaves remaining.")
 
 
 class CmdResist(Command):
@@ -341,13 +348,14 @@ class CmdResist(Command):
             self.caller.db.resist -= 1
 
             # Get final attack result and damage
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
-            attack_result = (die_result + weapon_level) - dmg_penalty
+            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
             # Return attack result message
-            self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|yIf attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} tries to resist the brunt of the attack!|n\n|yIf attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
         else:
-            self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
+            self.caller.msg("|yYou have 0 resists remaining.")
 
 
 class CmdDisarm(Command):
@@ -356,7 +364,7 @@ class CmdDisarm(Command):
 
     Usage:
 
-    disarm
+    disarm <target>
 
     This will issue a disarm command that reduces the next amount of damage taken by master of arms level.
     """
@@ -364,12 +372,32 @@ class CmdDisarm(Command):
     key = "disarm"
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
             "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
             disarmsRemaining = self.caller.db.disarm
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
+            weapon_level = self.caller.db.weapon_level
+
+            if not self.args:
+                self.caller.msg("Usage: disarm <target>")
+                return
+
+            target = self.caller.search(self.target)
+
+            if not target:
+                self.caller.msg("There is nothing here that matches that description.")
+                return
+
+            if target == self.caller:
+                self.caller.msg(f"|rDon't disarm yourself {self.caller}!|n")
+                return
+
 
             # Check for equip proper weapon type
             if hasBow:
@@ -378,13 +406,24 @@ class CmdDisarm(Command):
                 self.caller.msg("|yBefore you can attack, you must first equip a melee weapon using the command setmelee 1.")
             else:
                 if disarmsRemaining > 0:
+                # Return die roll based on level in master of arms or wylding hand.
+                    if wylding_hand:
+                        die_result = h.wyldingHand(wylding_hand)
+                    else:
+                        die_result = h.masterOfArms(master_of_arms)
+
                     # Decrement amount of disarms from amount in database
                     self.caller.db.disarm -= 1
 
+                    # Get final attack result and damage
+                    weakness = h.weaknessChecker(self.caller.db.weakness)
+                    dmg_penalty = h.bodyChecker(self.caller.db.body)
+                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
                     # Return attack result message
-                    self.caller.msg(f"|rYou counter the next attack by disarming your opponent for the round.|n\n|gReduce the next amount of damage taken by {master_of_arms}")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|yReduce the next amount of damage taken by {master_of_arms}")
                 else:
-                    self.caller.msg("|yYou have 0 disarms remaining. To add more please return to the chargen room.")
+                    self.caller.msg("|yYou have 0 disarms remaining.")
 
 
 class CmdStun(Command):
@@ -393,7 +432,7 @@ class CmdStun(Command):
 
     Usage:
 
-    stun
+    stun <target>
 
     This will issue a stun command that denotes a target of an attack will lose their next turn if they are hit.
     """
@@ -401,12 +440,19 @@ class CmdStun(Command):
     key = "stun"
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
+            h = Helper()
+
             "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
             stunsRemaining = self.caller.db.stun
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
+            weapon_level = self.caller.db.weapon_level
 
             # Check for equip proper weapon type
             if hasBow:
@@ -415,13 +461,24 @@ class CmdStun(Command):
                 self.caller.msg("|yBefore you can attack, you must first equip a melee weapon using the command setmelee 1.")
             else:
                 if stunsRemaining > 0:
+                # Return die roll based on level in master of arms or wylding hand.
+                    if wylding_hand:
+                        die_result = h.wyldingHand(wylding_hand)
+                    else:
+                        die_result = h.masterOfArms(master_of_arms)
+
                     # Decrement amount of disarms from amount in database
                     self.caller.db.stun -= 1
 
+                    # Get final attack result and damage
+                    weakness = h.weaknessChecker(self.caller.db.weakness)
+                    dmg_penalty = h.bodyChecker(self.caller.db.body)
+                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
                     # Return attack result message
-                    self.caller.msg(f"|rYou're able to stun your opponent such that they're unable to attack for a moment.|n\n|gThe target of your attack may not attack next round.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {target.key} such that they're unable to attack for a moment.|n\n|y{target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
-                    self.caller.msg("|yYou have 0 stuns remaining. To add more please return to the chargen room.")
+                    self.caller.msg("|yYou have 0 stuns remaining.|n")
 
 class CmdStagger(Command):
     """
@@ -429,7 +486,7 @@ class CmdStagger(Command):
 
     Usage:
 
-    stagger
+    stagger <target>
 
     This will calculate an attack score based on your weapon and master of arms level.
     """
@@ -437,41 +494,46 @@ class CmdStagger(Command):
     key = "stagger"
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
-            "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-            master_of_arms = self.caller.db.master_of_arms
-            hasBow = self.caller.db.bow
-            hasMelee = self.caller.db.melee
-            staggersRemaining = self.caller.db.stagger
+        h = Helper()
 
-            # Check for equip proper weapon type
-            if hasBow:
-                self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee:
-                self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
-            else:
-                if staggersRemaining > 0:
-                    if master_of_arms == 0:
-                        die_result = random.randint(1,6)
-                    elif master_of_arms == 1:
-                        die_result = random.randint(1,10)
-                    elif master_of_arms == 2:
-                        die_result = random.randint(1,6) + random.randint(1,6)
-                    elif master_of_arms == 3:
-                        die_result = random.randint(1,8) + random.randint(1,8)
+        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
+        master_of_arms = self.caller.db.master_of_arms
+        hasBow = self.caller.db.bow
+        hasMelee = self.caller.db.melee
+        staggersRemaining = self.caller.db.stagger
+        weapon_level = self.caller.db.weapon_level
 
-                    self.caller.db.attack_result = die_result
-
-                    # Get weapon level to add to attack
-                    weapon_level = self.caller.db.weapon_level
-
-                    # Decrement amount of cleaves from amount in database
-                    self.caller.db.stagger -= 1
-
-                    # Return attack result message
-                    self.caller.msg(f"|rYou strike, setting your opponent off their guard!|n\n|gYour attack result is: {(die_result + weapon_level) - 2}, dealing 2 damage on a successful hit.|n\nRoll: {die_result}\nWeapon Level: {weapon_level}")
+        # Check for equip proper weapon type
+        if hasBow:
+            self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
+        elif not hasMelee:
+            self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
+        else:
+            if staggersRemaining > 0:
+            # Return die roll based on level in master of arms or wylding hand.
+                if wylding_hand:
+                    die_result = h.wyldingHand(wylding_hand)
                 else:
-                    self.caller.msg("|yYou have 0 staggers remaining. To add more please return to the chargen room.")
+                    die_result = h.masterOfArms(master_of_arms)
+
+                # Decrement amount of cleaves from amount in database
+                self.caller.db.stagger -= 1
+
+                # Get final attack result and damage
+                weakness = h.weaknessChecker(self.caller.db.weakness)
+                dmg_penalty = h.bodyChecker(self.caller.db.body)
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
+                # Return attack result message
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
+            else:
+                self.caller.msg("|yYou have 0 staggers remaining.")
+
 
 class CmdDisengage(Command):
     """
@@ -488,4 +550,5 @@ class CmdDisengage(Command):
 
     def func(self):
         "Implements the command"
+        # To disengage
         self.caller.msg("You disengage from the attack!")
