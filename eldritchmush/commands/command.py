@@ -1056,3 +1056,32 @@ class CmdStabilize(Command):
         if target_body <= 0 and stabilize:
             # Return message to area and caller
             self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+
+class SetStabilize(Command):
+    """Set the stabilize status of a character
+
+    Usage: setstabilize <0,1>
+
+    This adds stabilize to the character's character sheet.
+    """
+
+    key = "setstabilize"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "Usage: setstabilize <0/1>"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            stabilize = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if stabilize not in (0,1):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.stabilize = stabilize
+        self.caller.msg("Your have activated the stabilize ability.")
