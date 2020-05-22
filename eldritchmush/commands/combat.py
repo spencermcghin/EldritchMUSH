@@ -188,11 +188,11 @@ class CmdShoot(Command):
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
-            self.caller.location.msg_contents(self.target.targetArray)
-            shot_location = h.shotFinder(self.target.targetArray)
+            self.caller.location.msg_contents(target.db.targetArray)
+            # shot_location = h.shotFinder(self.target.targetArray)
 
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}'!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+            # self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}'!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
 class CmdCleave(Command):
     """
@@ -425,29 +425,3 @@ class CmdDisengage(Command):
     def func(self):
         "Implements the command"
         self.caller.msg("You disengage from the attack!")
-
-
-
-"""
-Combat command set
-"""
-
-class CombatCmdSet(CmdSet):
-    key = "combat_cmdset"
-    mergetype = "Replace"
-    priority = 10
-    no_exits = True
-
-    def at_cmdset_creation(self):
-        self.add(default_cmds.CmdPose())
-        self.add(default_cmds.CmdSay())
-        self.add(CmdShoot())
-        self.add(CmdCleave())
-        self.add(CmdResist())
-        self.add(CmdDisarm())
-        self.add(CmdStun())
-        self.add(CmdStagger())
-        self.add(CmdStrike())
-        self.add(CmdDisengage())
-        self.add(command.SetBow())
-        self.add(command.SetMelee())
