@@ -1022,10 +1022,8 @@ class CmdSmile(Command):
 Healing commands
 """
 class CmdStabilize(Command):
-    key = "smile"
-    aliases = ["smile at", "grin", "grin at"]
-    locks = "cmd:all()"
-    help_category = "General"
+    key = "stabilize"
+    help_category = "mush"
 
     def parse(self):
         "Very trivial parser"
@@ -1047,3 +1045,14 @@ class CmdStabilize(Command):
         if target == self.caller:
             self.caller.msg(f"|r{self.caller}, quit hitting yourself!|n")
             return
+
+        # Get caller level of stabilize and emote how many points the caller will heal target that round.
+        # May not increase targets body past 1
+        # Only works on targets with body <= 0
+
+        target_body = target.db.body
+        stabilize = self.caller.db.stabilize
+
+        if target_body <= 0 and stabilize:
+            # Return message to area and caller
+            self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
