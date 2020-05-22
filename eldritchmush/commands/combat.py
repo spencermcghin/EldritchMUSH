@@ -401,6 +401,12 @@ class CmdDisarm(Command):
                 self.caller.msg("|yBefore you can attack, you must first equip a melee weapon using the command setmelee 1.")
             else:
                 if disarmsRemaining > 0:
+                # Return die roll based on level in master of arms or wylding hand.
+                    if wylding_hand:
+                        die_result = h.wyldingHand(wylding_hand)
+                    else:
+                        die_result = h.masterOfArms(master_of_arms)
+
                     # Decrement amount of disarms from amount in database
                     self.caller.db.disarm -= 1
 
@@ -450,6 +456,12 @@ class CmdStun(Command):
                 self.caller.msg("|yBefore you can attack, you must first equip a melee weapon using the command setmelee 1.")
             else:
                 if stunsRemaining > 0:
+                # Return die roll based on level in master of arms or wylding hand.
+                    if wylding_hand:
+                        die_result = h.wyldingHand(wylding_hand)
+                    else:
+                        die_result = h.masterOfArms(master_of_arms)
+
                     # Decrement amount of disarms from amount in database
                     self.caller.db.stun -= 1
 
@@ -469,7 +481,7 @@ class CmdStagger(Command):
 
     Usage:
 
-    stagger
+    stagger <target>
 
     This will calculate an attack score based on your weapon and master of arms level.
     """
@@ -477,41 +489,45 @@ class CmdStagger(Command):
     key = "stagger"
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
-            "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-            master_of_arms = self.caller.db.master_of_arms
-            hasBow = self.caller.db.bow
-            hasMelee = self.caller.db.melee
-            staggersRemaining = self.caller.db.stagger
+        h = Helper()
 
-            # Check for equip proper weapon type
-            if hasBow:
-                self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee:
-                self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
-            else:
-                if staggersRemaining > 0:
-                    if master_of_arms == 0:
-                        die_result = random.randint(1,6)
-                    elif master_of_arms == 1:
-                        die_result = random.randint(1,10)
-                    elif master_of_arms == 2:
-                        die_result = random.randint(1,6) + random.randint(1,6)
-                    elif master_of_arms == 3:
-                        die_result = random.randint(1,8) + random.randint(1,8)
+        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
+        master_of_arms = self.caller.db.master_of_arms
+        hasBow = self.caller.db.bow
+        hasMelee = self.caller.db.melee
+        staggersRemaining = self.caller.db.stagger
+        weapon_level = self.caller.db.weapon_level
 
-                    self.caller.db.attack_result = die_result
-
-                    # Get weapon level to add to attack
-                    weapon_level = self.caller.db.weapon_level
-
-                    # Decrement amount of cleaves from amount in database
-                    self.caller.db.stagger -= 1
-
-                    # Return attack result message
-                    self.caller.msg(f"|rYou strike, setting your opponent off their guard!|n\n|gYour attack result is: {(die_result + weapon_level) - 2}, dealing 2 damage on a successful hit.|n\nRoll: {die_result}\nWeapon Level: {weapon_level}")
+        # Check for equip proper weapon type
+        if hasBow:
+            self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
+        elif not hasMelee:
+            self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
+        else:
+            if staggersRemaining > 0:
+            # Return die roll based on level in master of arms or wylding hand.
+                if wylding_hand:
+                    die_result = h.wyldingHand(wylding_hand)
                 else:
-                    self.caller.msg("|yYou have 0 staggers remaining.")
+                    die_result = h.masterOfArms(master_of_arms)
+            
+                # Decrement amount of cleaves from amount in database
+                self.caller.db.stagger -= 1
+
+                # Get final attack result and damage
+                weakness = h.weaknessChecker(self.caller.db.weakness)
+                dmg_penalty = h.bodyChecker(self.caller.db.body)
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
+                # Return attack result message
+                self.caller.msg(f"|bYou strike, setting your opponent off their guard!|n\n|gYour attack result is: {(die_result + weapon_level) - 2}, dealing 2 damage on a successful hit.|n\nRoll: {die_result}\nWeapon Level: {weapon_level}")
+            else:
+                self.caller.msg("|yYou have 0 staggers remaining.")
 
 class CmdDisengage(Command):
     """
