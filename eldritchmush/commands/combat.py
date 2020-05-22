@@ -188,7 +188,7 @@ class CmdShoot(Command):
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
-            self.caller.location.msg_contents(self.target.db.targetArray)
+            self.caller.location.msg_contents(target.targetArray)
             # shot_location = h.shotFinder(self.target.targetArray)
 
             # Return message to area and caller
