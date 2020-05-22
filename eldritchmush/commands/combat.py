@@ -223,6 +223,7 @@ class CmdShoot(Command):
             # Return message to area and caller
             self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
+
 class CmdCleave(Command):
     """
     Issues a cleave command.
@@ -313,11 +314,10 @@ class CmdResist(Command):
 
             if resistsRemaining > 0:
                 # Decrement amount of cleaves from amount in database
-                self.caller.db.body += 1
                 self.caller.db.resist -= 1
 
                 # Return attack result message
-                self.caller.msg(f"|rYou deftly manage to resist the brunt of the attack.|n\n|gNegate the effects of the last attack and gain a point of body.|n\nBody Point Total: {self.caller.db.body}")
+                self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|If attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
             else:
                 self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
 

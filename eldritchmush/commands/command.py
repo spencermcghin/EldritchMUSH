@@ -838,6 +838,7 @@ class SetTwoHanded(Command):
         else:
             self.caller.msg("You have unequipped a two-handed melee weapon.")
 
+
 """
 General commands
 """
