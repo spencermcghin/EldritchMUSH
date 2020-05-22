@@ -337,6 +337,7 @@ class CmdResist(Command):
         else:
             self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
 
+
 class CmdDisarm(Command):
     """
     Issues a disarm command.
