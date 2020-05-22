@@ -55,7 +55,7 @@ class Character(DefaultCharacter):
         self.db.wyldinghand = 0
 
         # Entries for hit location system
-        self.db.targetArray = ["torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
         self.db.right_arm = 1
         self.db.left_arm = 1
         self.db.right_leg = 1
