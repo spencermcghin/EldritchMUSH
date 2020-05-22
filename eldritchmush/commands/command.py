@@ -1056,6 +1056,8 @@ class CmdStabilize(Command):
         if target_body <= 0 and stabilize:
             # Return message to area and caller
             self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+        else:
+            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
 class SetStabilize(Command):
     """Set the stabilize status of a character
