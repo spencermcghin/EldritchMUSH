@@ -139,9 +139,14 @@ class CmdStrike(Command):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty
             damage = 2 if self.caller.db.twohanded == True else 1
+            target_av = target.db.av
+            shot_location = h.shotFinder(target.db.targetArray)
 
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
+            if target.db.av:
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
+            else:
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
             # self.caller.msg(f"|bYou strike deftly at your target.|n\n|yYour attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
@@ -272,7 +277,7 @@ class CmdCleave(Command):
 
                 # Get final attack result and damage
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty       
+                attack_result = (die_result + weapon_level) - dmg_penalty
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
