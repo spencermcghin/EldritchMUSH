@@ -188,7 +188,8 @@ class CmdShoot(Command):
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
-            shot_location = h.shotFinder(target.db.targetArray)
+            self.caller.location.msg_contents(target.targetArray)
+            shot_location = h.shotFinder(target.targetArray)
 
             # Return message to area and caller
             self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}'!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
