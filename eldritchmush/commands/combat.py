@@ -78,6 +78,14 @@ class Helper():
 
         return damage_penalty
 
+    def weaknessChecker(self, hasWeakness):
+        """
+        Checks to see if caller has weakness and then applies corresponding penalty.
+        """
+        if hasWeakness:
+            attack_penalty = 2
+
+        return attack_penalty
 
 """
 These are attack commands
