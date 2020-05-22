@@ -78,16 +78,21 @@ class Helper():
 
         return damage_penalty
 
-    def weaknessChecker(self, hasWeakness):
+    def weaknessChecker(self, hasWeakness, cmdString):
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
-        if hasWeakness:
+        if hasWeakness and cmdString in ["strike", "hit", "slash", "bash", "punch", "shoot"]:
             attack_penalty = 2
+            return attack_penalty
+
+        elif hasWeakness and cmdString in ["cleave", "resist", "disarm", "stagger", "stun", "sunder"]:
+            self.caller.msg(f"|yYou are too weak to perform this attack!\nYou may only perform basic attacks until you are healed of your weakness.|n")
+            return
+
         else:
             attack_penalty = 0
-
-        return attack_penalty
+            return attack_penalty
 
 """
 These are attack commands
@@ -105,7 +110,7 @@ class CmdStrike(Command):
     """
 
     key = "strike"
-    aliases = ["hit", "slash", "bash"]
+    aliases = ["hit", "slash", "bash", "punch"]
     help_category = "combat"
 
 
@@ -515,7 +520,7 @@ class CmdStagger(Command):
                     die_result = h.wyldingHand(wylding_hand)
                 else:
                     die_result = h.masterOfArms(master_of_arms)
-            
+
                 # Decrement amount of cleaves from amount in database
                 self.caller.db.stagger -= 1
 
@@ -525,9 +530,10 @@ class CmdStagger(Command):
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                 # Return attack result message
-                self.caller.msg(f"|bYou strike, setting your opponent off their guard!|n\n|gYour attack result is: {(die_result + weapon_level) - 2}, dealing 2 damage on a successful hit.|n\nRoll: {die_result}\nWeapon Level: {weapon_level}")
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
             else:
                 self.caller.msg("|yYou have 0 staggers remaining.")
+
 
 class CmdDisengage(Command):
     """
@@ -544,4 +550,5 @@ class CmdDisengage(Command):
 
     def func(self):
         "Implements the command"
+        # To disengage
         self.caller.msg("You disengage from the attack!")
