@@ -62,6 +62,9 @@ class Character(DefaultCharacter):
         self.db.left_leg = 1
         self.db.torso = 1
 
+        # Entries for healing
+        self.db.stabilize = 0
+
 
     # def get_abilities(self):
     #     """
