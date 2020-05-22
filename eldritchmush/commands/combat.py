@@ -315,6 +315,7 @@ class CmdResist(Command):
         resistsRemaining = self.caller.db.resist
         master_of_arms = self.caller.db.master_of_arms
         wylding_hand = self.caller.db.wyldinghand
+        weapon_level = self.caller.db.weapon_level
 
 
         if resistsRemaining > 0:
