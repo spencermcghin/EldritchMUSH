@@ -66,7 +66,14 @@ class Helper():
             damage_penalty = 1
         elif bodyScore == 1:
             damage_penalty = 2
-        else:
+        elif bodyScore == 0:
+            damage_penalty = 3
+        elif bodyScore == -1:
+            damage_penalty = 4
+        elif bodyScore == -2:
+            damage_penalty = 5
+        elif bodyScore == -3:
+            damage_penalty = 6                
             return
 
         return damage_penalty
