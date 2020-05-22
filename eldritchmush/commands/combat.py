@@ -84,6 +84,8 @@ class Helper():
         """
         if hasWeakness:
             attack_penalty = 2
+        else:
+            attack_penalty = 0
 
         return attack_penalty
 
