@@ -359,7 +359,7 @@ class CmdDisarm(Command):
 
     Usage:
 
-    disarm
+    disarm <target>
 
     This will issue a disarm command that reduces the next amount of damage taken by master of arms level.
     """
@@ -377,6 +377,7 @@ class CmdDisarm(Command):
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
+            weapon_level = self.caller.db.weapon_level
 
             if not self.args:
                 self.caller.msg("Usage: disarm <target>")
@@ -409,7 +410,7 @@ class CmdDisarm(Command):
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                     # Return attack result message
-                    self.caller.msg(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|yReduce the next amount of damage taken by {master_of_arms}")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|yReduce the next amount of damage taken by {master_of_arms}")
                 else:
                     self.caller.msg("|yYou have 0 disarms remaining.")
 
@@ -420,7 +421,7 @@ class CmdStun(Command):
 
     Usage:
 
-    stun
+    stun <target>
 
     This will issue a stun command that denotes a target of an attack will lose their next turn if they are hit.
     """
@@ -428,12 +429,19 @@ class CmdStun(Command):
     key = "stun"
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
+            h = Helper()
+
             "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
             stunsRemaining = self.caller.db.stun
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
+            weapon_level = self.caller.db.weapon_level
 
             # Check for equip proper weapon type
             if hasBow:
@@ -445,10 +453,15 @@ class CmdStun(Command):
                     # Decrement amount of disarms from amount in database
                     self.caller.db.stun -= 1
 
+                    # Get final attack result and damage
+                    weakness = h.weaknessChecker(self.caller.db.weakness)
+                    dmg_penalty = h.bodyChecker(self.caller.db.body)
+                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
                     # Return attack result message
-                    self.caller.msg(f"|rYou're able to stun your opponent such that they're unable to attack for a moment.|n\n|gThe target of your attack may not attack next round.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {target.key} such that they're unable to attack for a moment.|n\n|y{target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
-                    self.caller.msg("|yYou have 0 stuns remaining.")
+                    self.caller.msg("|yYou have 0 stuns remaining.|n")
 
 class CmdStagger(Command):
     """
