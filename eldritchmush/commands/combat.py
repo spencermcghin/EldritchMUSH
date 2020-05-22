@@ -49,7 +49,7 @@ class Helper():
         # Return the value from the target array and remove it from the current character's targetArray value in the db
 
         # Roll random number
-        result = random.randint(0,4)
+        result = random.randint(0,5)
 
         # Get part of body based on targetArray input
         target = targetArray[result]
@@ -73,7 +73,7 @@ class Helper():
         elif bodyScore == -2:
             damage_penalty = 5
         elif bodyScore == -3:
-            damage_penalty = 6                
+            damage_penalty = 6
             return
 
         return damage_penalty
