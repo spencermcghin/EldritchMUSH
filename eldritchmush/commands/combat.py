@@ -49,7 +49,7 @@ class Helper():
         # Return the value from the target array and remove it from the current character's targetArray value in the db
 
         # Roll random number
-        result = random.randint(1,5)
+        result = random.randint(0,4)
 
         # Get part of body based on targetArray input
         target = targetArray[result]
