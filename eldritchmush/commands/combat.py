@@ -334,7 +334,7 @@ class CmdResist(Command):
             attack_result = (die_result + weapon_level) - dmg_penalty
 
             # Return attack result message
-            self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|If attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|yIf attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
         else:
             self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
 
