@@ -191,7 +191,7 @@ class CmdShoot(Command):
             shot_location = h.shotFinder(target.db.targetArray)
 
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}'!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
 class CmdCleave(Command):
     """
