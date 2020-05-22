@@ -33,26 +33,15 @@ class Character(DefaultCharacter):
 
     def at_object_creation(self):
         "This is called when object is first created, only."
+        # Entries for general stats
         self.db.tracking = 0
         self.db.perception = 0
         self.db.master_of_arms = 0
         self.db.armor = 2
-        self.db.shield = 0
         self.db.armor_specialist = 0
         self.db.tough = 0
         self.db.body = 3
-        self.db.bow = 0
-        self.db.melee = 0
-        self.db.resist = 0
-        self.db.disarm = 0
-        self.db.cleave = 0
-        self.db.sunder = 0
-        self.db.stun = 0
-        self.db.stagger = 0
         self.db.av = 2
-        self.db.weapon_level = 0
-        self.db.twohanded = 0
-        self.db.wyldinghand = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -64,6 +53,24 @@ class Character(DefaultCharacter):
 
         # Entries for healing
         self.db.stabilize = 0
+
+        # Entries for status effects
+        self.db.weakness = 0
+
+        # Entries for combat
+        self.db.melee = 0
+        self.db.resist = 0
+        self.db.disarm = 0
+        self.db.cleave = 0
+        self.db.sunder = 0
+        self.db.stun = 0
+        self.db.stagger = 0
+        self.db.weapon_level = 0
+        self.db.twohanded = 0
+        self.db.wyldinghand = 0
+        self.db.shield = 0
+        self.db.bow = 0
+
 
 
     # def get_abilities(self):
