@@ -153,6 +153,7 @@ class CmdShoot(Command):
         h = Helper()
 
         # Get weapon level to add to attack
+        wylding_hand = self.caller.db.wylding_hand
         weapon_level = self.caller.db.weapon_level
         master_of_arms = self.caller.db.master_of_arms
         hasBow = self.caller.db.bow
