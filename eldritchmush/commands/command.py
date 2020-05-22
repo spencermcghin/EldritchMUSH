@@ -1016,3 +1016,34 @@ class CmdSmile(Command):
             string = f"{caller.key} smiles at {target.key}"
 
         caller.location.msg_contents(string)
+
+
+"""
+Healing commands
+"""
+class CmdStabilize(Command):
+    key = "smile"
+    aliases = ["smile at", "grin", "grin at"]
+    locks = "cmd:all()"
+    help_category = "General"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+        "This actually does things"
+        # Check for correct command
+        if not self.args:
+            self.caller.msg("Usage: stabilize <target>")
+            return
+
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("There is nothing here by that description.")
+            return
+
+        if target == self.caller:
+            self.caller.msg(f"|r{self.caller}, quit hitting yourself!|n")
+            return
