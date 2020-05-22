@@ -135,7 +135,7 @@ class CmdShoot(Command):
 
     Usage:
 
-    shoot
+    shoot <target>
 
     This will calculate an attack score based on your weapon and master of arms level.
     """
@@ -206,6 +206,10 @@ class CmdCleave(Command):
 
     key = "cleave"
     help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
 
     def func(self):
         h = Helper()
