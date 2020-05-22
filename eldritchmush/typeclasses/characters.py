@@ -70,7 +70,7 @@ class Character(DefaultCharacter):
         self.db.wyldinghand = 0
         self.db.shield = 0
         self.db.bow = 0
-
+        self.db.activemartialskill = 1
 
 
     # def get_abilities(self):

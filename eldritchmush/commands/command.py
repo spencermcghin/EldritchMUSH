@@ -1091,3 +1091,37 @@ class SetStabilize(Command):
             self.caller.msg("Your have activated the stabilize ability.")
         else:
             self.caller.msg("Your have deactivated the stabilize ability.")
+
+"""
+Effects status commands
+"""
+
+class SetWeakness(Command):
+    """
+    Sets the weakness status on a character. If set to 0, it also sets activemartialskill in db to 0.
+    Likewise, if set to 1, it also sets activemartialskills to 1.
+    """
+    def func(self):
+        "This performs the actual command"
+        errmsg = "Usage: setweakness <0/1>"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            weakness = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if weakness not in (0,1):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.weakness = weakness
+
+        if weakness:
+            self.caller.db.activemartialskill = 0
+            self.caller.msg("|bYou have become weakned, finding it difficult to run or use your active martial skills.|n\n
+            |yAs long as you are weakened you may not run or use active martial skills.|n")
+        else:
+            self.caller.msg("|bYour weakened state has subsided.|n\n
+            |yYou may now run and use your active martial skills.|n")

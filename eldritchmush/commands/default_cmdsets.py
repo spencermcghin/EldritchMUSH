@@ -68,6 +68,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetTough())
         self.add(command.SetBody())
         self.add(command.CmdStabilize())
+        self.add(command.SetWeakness())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
