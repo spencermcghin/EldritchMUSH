@@ -155,7 +155,7 @@ class CmdStrike(Command):
             # Get final attack result and damage
             weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
-            attack_result = (die_result + weapon_level) - dmg_penalty
+            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
             damage = 2 if self.caller.db.twohanded == True else 1
             target_av = target.db.av
             shot_location = h.shotFinder(target.db.targetArray)
@@ -227,8 +227,9 @@ class CmdShoot(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
-            attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty
+            attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty - weakness
             shot_location = h.shotFinder(target.db.targetArray)
 
             # Return message to area and caller
@@ -295,14 +296,15 @@ class CmdCleave(Command):
                 self.caller.db.cleave -= 1
 
                 # Get final attack result and damage
+                weakness = h.weaknessChecker(self.caller.db.weakness)
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
             else:
-                self.caller.msg("|yYou have 0 cleaves remaining. To add more please return to the chargen room.")
+                self.caller.msg("|yYou have 0 cleaves remaining.")
 
 
 class CmdResist(Command):
@@ -341,13 +343,14 @@ class CmdResist(Command):
             self.caller.db.resist -= 1
 
             # Get final attack result and damage
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
-            attack_result = (die_result + weapon_level) - dmg_penalty
+            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
             # Return attack result message
-            self.caller.location.msg_contents(f"|b{self.caller.key} deftly manages to resist the brunt of the attack!|n\n|yIf attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} tries to resist the brunt of the attack!|n\n|yIf attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
         else:
-            self.caller.msg("|yYou have 0 resists remaining. To add more please return to the chargen room.")
+            self.caller.msg("|yYou have 0 resists remaining.")
 
 
 class CmdDisarm(Command):
@@ -364,12 +367,31 @@ class CmdDisarm(Command):
     key = "disarm"
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
             "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
             disarmsRemaining = self.caller.db.disarm
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
+
+            if not self.args:
+                self.caller.msg("Usage: disarm <target>")
+                return
+
+            target = self.caller.search(self.target)
+
+            if not target:
+                self.caller.msg("There is nothing here that matches that description.")
+                return
+
+            if target == self.caller:
+                self.caller.msg(f"|rDon't disarm yourself {self.caller}!|n")
+                return
+
 
             # Check for equip proper weapon type
             if hasBow:
@@ -381,10 +403,15 @@ class CmdDisarm(Command):
                     # Decrement amount of disarms from amount in database
                     self.caller.db.disarm -= 1
 
+                    # Get final attack result and damage
+                    weakness = h.weaknessChecker(self.caller.db.weakness)
+                    dmg_penalty = h.bodyChecker(self.caller.db.body)
+                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
                     # Return attack result message
-                    self.caller.msg(f"|rYou counter the next attack by disarming your opponent for the round.|n\n|gReduce the next amount of damage taken by {master_of_arms}")
+                    self.caller.msg(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|yReduce the next amount of damage taken by {master_of_arms}")
                 else:
-                    self.caller.msg("|yYou have 0 disarms remaining. To add more please return to the chargen room.")
+                    self.caller.msg("|yYou have 0 disarms remaining.")
 
 
 class CmdStun(Command):
@@ -421,7 +448,7 @@ class CmdStun(Command):
                     # Return attack result message
                     self.caller.msg(f"|rYou're able to stun your opponent such that they're unable to attack for a moment.|n\n|gThe target of your attack may not attack next round.")
                 else:
-                    self.caller.msg("|yYou have 0 stuns remaining. To add more please return to the chargen room.")
+                    self.caller.msg("|yYou have 0 stuns remaining.")
 
 class CmdStagger(Command):
     """
@@ -471,7 +498,7 @@ class CmdStagger(Command):
                     # Return attack result message
                     self.caller.msg(f"|rYou strike, setting your opponent off their guard!|n\n|gYour attack result is: {(die_result + weapon_level) - 2}, dealing 2 damage on a successful hit.|n\nRoll: {die_result}\nWeapon Level: {weapon_level}")
                 else:
-                    self.caller.msg("|yYou have 0 staggers remaining. To add more please return to the chargen room.")
+                    self.caller.msg("|yYou have 0 staggers remaining.")
 
 class CmdDisengage(Command):
     """
