@@ -67,6 +67,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetArmor())
         self.add(command.SetTough())
         self.add(command.SetBody())
+        self.add(command.CmdStabilize())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -136,7 +137,7 @@ class ChargenCmdset(CmdSet):
     def at_cmdset_creation(self):
         "This is called at initialization"
         super().at_cmdset_creation()
-        
+
         self.add(command.SetTracking())
         self.add(command.SetPerception())
         self.add(command.SetMasterOfArms())
