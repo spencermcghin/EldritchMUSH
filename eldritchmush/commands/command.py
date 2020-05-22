@@ -1120,8 +1120,6 @@ class SetWeakness(Command):
 
         if weakness:
             self.caller.db.activemartialskill = 0
-            self.caller.msg("|bYou have become weakned, finding it difficult to run or use your active martial skills.|n\n
-            |yAs long as you are weakened you may not run or use active martial skills.|n")
+            self.caller.msg("|bYou have become weakned, finding it difficult to run or use your active martial skills.|n\n|yAs long as you are weakened you may not run or use active martial skills.|n")
         else:
-            self.caller.msg("|bYour weakened state has subsided.|n\n
-            |yYou may now run and use your active martial skills.|n")
+            self.caller.msg("|bYour weakened state has subsided.|n\n|yYou may now run and use your active martial skills.|n")
