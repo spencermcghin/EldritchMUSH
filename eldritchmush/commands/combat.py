@@ -41,6 +41,20 @@ class Helper():
 
         return die_result
 
+    def shotFinder(self, targetArray):
+        """
+        Rolls a number between 1 and 5 and then maps it to an area of the body for the hit
+        """
+        # Roll a d5 and then map the result to the targetArray.
+        # Return the value from the target array and remove it from the current character's targetArray value in the db
+
+        # Roll random number
+        result = random.randint(1,5)
+
+        # Get part of body based on targetArray input
+        target = targetArray[result]
+
+        return target
 
 """
 These are attack commands
@@ -173,9 +187,10 @@ class CmdShoot(Command):
 
             # Get final attack result and damage
             attack_result = die_result + weapon_level
+            shot_location = h.shotFinder(target.targetArray)
 
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}'!|n\n|yTheir attack result is:|n |g{attack_result - bow_penalty}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
 class CmdCleave(Command):
     """
@@ -183,7 +198,7 @@ class CmdCleave(Command):
 
     Usage:
 
-    cleave
+    cleave <target>
 
     This will calculate an attack score based on your weapon and master of arms level.
     """
@@ -201,6 +216,20 @@ class CmdCleave(Command):
         hasMelee = self.caller.db.melee
         wylding_hand = self.caller.db.wyldinghand
         cleavesRemaining = self.caller.db.cleave
+
+        if not self.args:
+            self.caller.msg("Usage: cleave <target>")
+            return
+
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("Usage: cleave <target>")
+            return
+
+        if target == self.caller:
+            self.caller.msg(f"|rDon't cleave yourself {self.caller}!|n")
+            return
 
         # Check for equip proper weapon type
         if hasBow:
