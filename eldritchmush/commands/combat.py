@@ -225,7 +225,7 @@ class CmdCleave(Command):
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("Usage: cleave <target>")
+            self.caller.msg("There is nothing here that matches that description.")
             return
 
         if target == self.caller:
@@ -250,9 +250,10 @@ class CmdCleave(Command):
 
                 # Get final attack result and damage
                 attack_result = die_result + weapon_level
+                shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
             else:
                 self.caller.msg("|yYou have 0 cleaves remaining. To add more please return to the chargen room.")
 
