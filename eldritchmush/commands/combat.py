@@ -309,7 +309,7 @@ class CmdResist(Command):
     help_category = "mush"
 
     def func(self):
-        h = helper()
+        h = Helper()
 
         "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
         resistsRemaining = self.caller.db.resist
