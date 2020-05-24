@@ -78,7 +78,7 @@ class Helper():
 
         return damage_penalty
 
-    def weaknessChecker(self, hasWeakness, cmdString):
+    def weaknessChecker(self, hasWeakness):
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
@@ -152,11 +152,13 @@ class CmdStrike(Command):
             else:
                 die_result = h.masterOfArms(master_of_arms)
 
-            # Get final attack result and damage
-            weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
+            # Get stats for final attack result and damage
 
-            if int(weakness):
+            # Get damange penaltys if players have them
+            weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
+
+            # Get damage result and damage for weapon type
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
             damage = 2 if self.caller.db.twohanded == True else 1
             target_av = target.db.av
