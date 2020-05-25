@@ -1062,27 +1062,21 @@ class CmdStabilize(Command):
         target_body = target.db.body
         stabilize = self.caller.db.stabilize
 
-        if target == self.caller:
-            self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
+        # Check for using on self
+        if (- 3 <= target_body <= -1) and stabilize:
+            # Return message to area and caller
+            if target == self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds healing |r{stabilize}|n |bbody points.|n")
+            elif target != self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |bbody points.|n")
+        # Apply stabilize to other target
+        elif (-6 <= target_body <= -4) and stabilize:
+            if target == self.caller:
+                self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
+            elif target != self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
         else:
-            return
-
-
-        # # Check for using on self
-        # if (- 3 <= target_body <= -1) and stabilize:
-        #     # Return message to area and caller
-        #     if target == self.caller:
-        #         self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
-        #     elif target != self.caller:
-        #         self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
-        # # Apply stabilize to other target
-        # elif (-6 <= target_body <= -4) and stabilize:
-        #     if target == self.caller:
-        #         self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
-        #     elif target != self.caller:
-        #         self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
-        # else:
-        #     self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
 
 class SetStabilize(Command):
@@ -1148,7 +1142,7 @@ class CmdMedicine(Command):
         if (- 3 <= target_body <= -1) and medicine:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds, healing themselves for |r{stabilize}|n body points.|n")
             elif target != self.caller:
                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
         elif (-6 <= target_body <= -4) and medicine:
