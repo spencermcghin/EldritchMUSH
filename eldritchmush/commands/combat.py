@@ -240,7 +240,7 @@ class CmdKill(Command):
             if not target.db.body:
                 self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and attempts a killing blow on {target.key}.|n\n|yTheir attack result is:|n |g{attack_result}.|n")
             else:
-                self.caller.lmsg(f"|y{self.caller.key}, you cannot kill your opponent until they are at 0 body or lower.|n")
+                self.caller.msg(f"|y{self.caller.key}, you cannot kill your opponent until they are at 0 body or lower.|n")
 
 
 class CmdShoot(Command):
