@@ -424,7 +424,7 @@ class SetBody(Command):
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
 
-    Usage: setarmorspecialist <0/1>
+    Usage: setarmorspecialist <1,2,3,4>
 
     This sets the armor specialist of the current character. This can only be
     used during character generation.
@@ -444,7 +444,7 @@ class SetArmorSpecialist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if armor_specialist not in (0,1):
+        if not (1 <= armor_specialist <= 4):
             self.caller.msg(errmsg)
             return
 
@@ -454,7 +454,6 @@ class SetArmorSpecialist(Command):
         armor = self.caller.db.armor
         tough = self.caller.db.tough
         shield = 1 if self.caller.db.shield is 1 else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
         # Add them up and set the curent armor value in the database
         currentArmorValue = armor + tough + shield + armor_specialist
