@@ -82,12 +82,17 @@ class Helper():
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
-        if hasWeakness:
+        if hasWeakness and cmdString in ["strike", "hit", "slash", "bash", "punch", "shoot"]:
             attack_penalty = 2
+            return attack_penalty
+
+        elif hasWeakness and cmdString in ["cleave", "resist", "disarm", "stagger", "stun", "sunder"]:
+            # self.caller.msg(f"|yYou are too weak to perform this attack!\nYou may only perform basic attacks until you are healed of your weakness.|n")
+            return "|yYou are unable to perform this attack.|n"
+
         else:
             attack_penalty = 0
-
-        return attack_penalty
+            return attack_penalty
 
 """
 These are attack commands
@@ -154,8 +159,6 @@ class CmdStrike(Command):
 
             # Get final attack result and damage
             weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
-
-            if int(weakness):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
             damage = 2 if self.caller.db.twohanded == True else 1
