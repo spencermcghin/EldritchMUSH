@@ -670,6 +670,8 @@ class CmdBattlefieldCommander(Command):
     aliases = ["battlefieldcommander"]
     help_category = "combat"
 
+    bolsterRemaining = self.caller.db.disarm
+
     def parse(self):
         "Very trivial parser"
         self.speech = self.args.strip()
@@ -679,5 +681,8 @@ class CmdBattlefieldCommander(Command):
             self.caller.msg("Usage: bolster <target>")
             return
 
-        if self.caller.db.battlefieldcommander:
+        if bolsterRemaining > 0:
             self.caller.location.msg_contents(f"|bAmidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |r{self.speech}|n.\n|yEveryone in the room may now add 1 Tough to their av, using the command settough # (Should be one more than your current value).|n")
+            bolsterRemaining -= 1
+        else:
+            self.caller.msg("You have no uses of your battlefield commander ability remaining.")
