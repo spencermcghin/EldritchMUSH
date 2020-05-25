@@ -1446,7 +1446,7 @@ class SetBattleFieldCommander(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.battlefieldcommander = battlefieldcommander
-        self.caller.msg(f"|yYour medicine level was set to {battlefieldcommander}.|n")
+        self.caller.msg(f"|yYou have activated the battlefield commander ability.|n")
 
 
 """
