@@ -1332,6 +1332,44 @@ class SetMedicine(Command):
         self.caller.msg(f"|yYour medicine level was set to {medicine}.|n")
 
 
+class SetBattleFieldMedicine(Command):
+    """Set the medicine level of a character
+
+    Usage: setbattlefieldmedicine <1,2,3>
+
+    This sets the medicine level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setbattlefieldmedicine"
+    help_category = "mush"
+
+    def func(self):
+        key = "setbattlefieldmedicine"
+        help_category = "mush"
+
+        def func(self):
+            "This performs the actual command"
+            errmsg = "Usage: setbattlefieldmedicine <0/1>"
+            if not self.args:
+                self.caller.msg(errmsg)
+                return
+            try:
+                battlefieldmedicine = int(self.args)
+            except ValueError:
+                self.caller.msg(errmsg)
+                return
+            if battlefieldmedicine not in (0,1):
+                self.caller.msg(errmsg)
+                return
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.battlefieldmedicine = battlefieldmedicine
+
+            if battlefieldmedicine:
+                self.caller.msg("|yYou have activated the battlefield medicine ability.|n")
+            else:
+                self.caller.msg("|yYou have deactivated the battlefield medicine ability.|n")
+
 """
 Effects status commands
 """
