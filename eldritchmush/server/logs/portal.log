@@ -570,3 +570,18 @@
 20-05-18 19:59:14  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60715)
 20-05-18 19:59:15  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60705)
 20-05-18 20:01:31  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=60816)
+20-05-21 22:51:41  |Portal| Removing stale pidfile /home/ubuntu/mush_test/eldritchmush/server/portal.pid
+20-05-21 22:51:41  |Portal| Loading /home/ubuntu/mush_test/evennia/evennia/server/portal/portal.py...
+20-05-21 22:51:41  |Portal| Loaded.
+20-05-21 22:51:41  |Portal| twistd 19.10.0 (/home/ubuntu/mush_test/evenv/bin/python 3.7.5) starting up.
+20-05-21 22:51:41  |Portal| reactor class: twisted.internet.epollreactor.EPollReactor.
+20-05-21 22:51:41  |Portal| AMP starting on 4006
+20-05-21 22:51:41  |Portal| Telnet starting on 4000
+20-05-21 22:51:41  |Portal| Websocket starting on 4002
+20-05-21 22:51:41  |Portal| Webserver-proxy starting on 4001
+20-05-21 22:51:42  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/mush_test/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/mush_test/eldritchmush/server/server.pid']
+20-05-21 22:54:12  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55315)
+20-05-21 22:54:12  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55322)
+20-05-21 22:54:19  |Portal| Timing out client: IPv4Address(type='TCP', host='24.143.121.191', port=55316)
+20-05-21 22:59:36  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/mush_test/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/mush_test/eldritchmush/server/server.pid']
+20-05-21 23:04:18  |Portal| Portal starting server ... ['twistd', '--python=/home/ubuntu/mush_test/evennia/evennia/server/server.py', '--pidfile=/home/ubuntu/mush_test/eldritchmush/server/server.pid']
