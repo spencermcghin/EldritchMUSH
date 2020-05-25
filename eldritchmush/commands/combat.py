@@ -153,7 +153,7 @@ class CmdStrike(Command):
             else:
                 die_result = h.masterOfArms(master_of_arms)
 
-            weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
 
             # Get damage result and damage for weapon type
@@ -229,7 +229,7 @@ class CmdShoot(Command):
                 die_result = h.masterOfArms(master_of_arms)
 
             # Get final attack result and damage
-            weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty - weakness
             shot_location = h.shotFinder(target.db.targetArray)
@@ -281,11 +281,16 @@ class CmdCleave(Command):
             self.caller.msg(f"|rDon't cleave yourself {self.caller}!|n")
             return
 
-        # Check for equip proper weapon type
-        if hasBow:
-            self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
+        # Check for weakness on character
+        weakness = h.weaknessChecker(self.caller.db.weakness)
+
+        # Check for equip proper weapon type or weakness
+        if weakness:
+            self.caller.msg("|yYou are too weak to use this attack.|n")
+        elif hasBow:
+            self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.|n")
         elif not hasMelee:
-            self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
+            self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.|n")
         else:
             if cleavesRemaining > 0:
             # Return die roll based on level in master of arms or wylding hand.
@@ -298,9 +303,8 @@ class CmdCleave(Command):
                 self.caller.db.cleave -= 1
 
                 # Get final attack result and damage
-                weakness = h.weaknessChecker(self.caller.db.weakness, self.cmdstring)
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+                attack_result = (die_result + weapon_level) - dmg_penalty
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
@@ -332,14 +336,18 @@ class CmdResist(Command):
         wylding_hand = self.caller.db.wyldinghand
         weapon_level = self.caller.db.weapon_level
 
+        # Check for weakness on character
+        weakness = h.weaknessChecker(self.caller.db.weakness)
 
-        if resistsRemaining > 0:
+        # Check for equip proper weapon type or weakness
+        if weakness:
+            self.caller.msg("|yYou are too weak to use this attack.|n")
+        elif resistsRemaining > 0:
         # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
                 die_result = h.wyldingHand(wylding_hand)
             else:
                 die_result = h.masterOfArms(master_of_arms)
-
 
             # Decrement amount of cleaves from amount in database
             self.caller.db.resist -= 1
@@ -395,9 +403,13 @@ class CmdDisarm(Command):
                 self.caller.msg(f"|rDon't disarm yourself {self.caller}!|n")
                 return
 
+            # Check for weakness on character
+            weakness = h.weaknessChecker(self.caller.db.weakness)
 
-            # Check for equip proper weapon type
-            if hasBow:
+            # Check for equip proper weapon type or weakness
+            if weakness:
+                self.caller.msg("|yYou are too weak to use this attack.|n")
+            elif hasBow:
                 self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
             elif not hasMelee:
                 self.caller.msg("|yBefore you can attack, you must first equip a melee weapon using the command setmelee 1.")
@@ -451,8 +463,13 @@ class CmdStun(Command):
             hasMelee = self.caller.db.melee
             weapon_level = self.caller.db.weapon_level
 
-            # Check for equip proper weapon type
-            if hasBow:
+            # Check for weakness on character
+            weakness = h.weaknessChecker(self.caller.db.weakness)
+
+            # Check for equip proper weapon type or weakness
+            if weakness:
+                self.caller.msg("|yYou are too weak to use this attack.|n")
+            elif hasBow:
                 self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
             elif not hasMelee:
                 self.caller.msg("|yBefore you can attack, you must first equip a melee weapon using the command setmelee 1.")
@@ -476,6 +493,7 @@ class CmdStun(Command):
                     self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {target.key} such that they're unable to attack for a moment.|n\n|y{target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
                     self.caller.msg("|yYou have 0 stuns remaining.|n")
+
 
 class CmdStagger(Command):
     """
@@ -505,8 +523,15 @@ class CmdStagger(Command):
         staggersRemaining = self.caller.db.stagger
         weapon_level = self.caller.db.weapon_level
 
+
         # Check for equip proper weapon type
-        if hasBow:
+        # Check for weakness on character
+        weakness = h.weaknessChecker(self.caller.db.weakness)
+
+        # Check for equip proper weapon type or weakness
+        if weakness:
+            self.caller.msg("|yYou are too weak to use this attack.|n")
+        elif hasBow:
             self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
         elif not hasMelee:
             self.caller.msg("|yBefore you can attack, you must first equip a weapon using the command setmelee 1.")
