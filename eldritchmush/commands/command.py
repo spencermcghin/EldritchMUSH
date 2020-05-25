@@ -424,7 +424,7 @@ class SetBody(Command):
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
 
-    Usage: setarmorspecialist <0/1>
+    Usage: setarmorspecialist <1,2,3,4>
 
     This sets the armor specialist of the current character. This can only be
     used during character generation.
@@ -444,7 +444,7 @@ class SetArmorSpecialist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if armor_specialist not in (0,1):
+        if not (1 <= armor_specialist <= 4):
             self.caller.msg(errmsg)
             return
 
@@ -454,7 +454,6 @@ class SetArmorSpecialist(Command):
         armor = self.caller.db.armor
         tough = self.caller.db.tough
         shield = 1 if self.caller.db.shield is 1 else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
         # Add them up and set the curent armor value in the database
         currentArmorValue = armor + tough + shield + armor_specialist
@@ -1270,6 +1269,52 @@ class CmdStabilize(Command):
             self.caller.msg("Better not. You aren't quite that skilled.")
 
 
+# class CmdBattlefieldMedicine(Command):
+#     key = "battlefieldmedicine"
+#     help_category = "mush"
+#
+#     def parse(self):
+#         "Very trivial parser"
+#         self.target = self.args.strip()
+#
+#     def func(self):
+#         "This actually does things"
+#         # Check for correct command
+#         if not self.args:
+#             self.caller.msg("|yUsage: battlefieldmedicine <target>|n")
+#             return
+#
+#         target = self.caller.search(self.target)
+#
+#         if not target:
+#             self.caller.msg("|yThere is nothing here by that description.|n")
+#             return
+#
+#         # Get caller level of stabilize and emote how many points the caller will heal target that round.
+#         # May not increase targets body past 1
+#         # Only works on targets with body <= 0
+#         target_body = target.db.body
+#         battlefieldmedicine = self.caller.db.battlefieldmedicine
+#
+#         # Check for using on self
+#         if (- 3 <= target_body <= 0) and stabilize:
+#             # Return message to area and caller
+#             if target == self.caller:
+#                 self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+#             elif target != self.caller:
+#                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |bbody points.|n")
+#         # Apply stabilize to other target
+#         elif (-6 <= target_body <= -4) and stabilize:
+#             if target == self.caller:
+#                 self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
+#             elif target != self.caller:
+#                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+#         elif target_body > 0 and stabilize:
+#             self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+#         else:
+#             self.caller.msg("Better not. You aren't quite that skilled.")
+
+
 class SetStabilize(Command):
     """Set the stun level of a character
 
@@ -1331,6 +1376,44 @@ class SetMedicine(Command):
         self.caller.db.medicine = medicine
         self.caller.msg(f"|yYour medicine level was set to {medicine}.|n")
 
+
+class SetBattleFieldMedicine(Command):
+    """Set the medicine level of a character
+
+    Usage: setbattlefieldmedicine <1,2,3>
+
+    This sets the medicine level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setbattlefieldmedicine"
+    help_category = "mush"
+
+    def func(self):
+        key = "setbattlefieldmedicine"
+        help_category = "mush"
+
+        def func(self):
+            "This performs the actual command"
+            errmsg = "Usage: setbattlefieldmedicine <0/1>"
+            if not self.args:
+                self.caller.msg(errmsg)
+                return
+            try:
+                battlefieldmedicine = int(self.args)
+            except ValueError:
+                self.caller.msg(errmsg)
+                return
+            if battlefieldmedicine not in (0,1):
+                self.caller.msg(errmsg)
+                return
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.battlefieldmedicine = battlefieldmedicine
+
+            if battlefieldmedicine:
+                self.caller.msg("|yYou have activated the battlefield medicine ability.|n")
+            else:
+                self.caller.msg("|yYou have deactivated the battlefield medicine ability.|n")
 
 """
 Effects status commands
