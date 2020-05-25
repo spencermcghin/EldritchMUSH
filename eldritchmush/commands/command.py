@@ -1130,7 +1130,7 @@ class CmdMedicine(Command):
         # Only works on targets with body <= 0
 
         target_body = target.db.body
-        stabilize = self.caller.db.stabilize
+        medicine = self.caller.db.medicine
 
         if target_body <= 0 and stabilize:
             # Return message to area and caller
