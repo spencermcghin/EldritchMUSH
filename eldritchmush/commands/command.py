@@ -1146,7 +1146,7 @@ class CmdMedicine(Command):
             if target == self.caller:
                 self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |r{medicine}|n |ybody points per round as long as their work remains uninterrupted.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.\n{self.caller.key} heals {target.key} for|n |r{medicine}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |r{medicine}|n |ybody points per round as long as their work remains uninterrupted.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and medicine:
             if target == self.caller:
