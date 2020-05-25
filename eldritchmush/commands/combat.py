@@ -655,3 +655,31 @@ class CmdDisengage(Command):
         "Implements the command"
         # To disengage
         self.caller.msg("You disengage from the attack!")
+
+"""
+Knight commands
+"""
+
+class CmdBattlefieldCommander(Command):
+    """
+    Usage: bolster <speech>
+
+    Use the bolster command followed by a speech to give all in the room 1 tough.
+    """
+    key = "bolster"
+    aliases = ["battlefieldcommander"]
+    help_category = "combat"
+
+    def parse(self):
+        "Very trivial parser"
+        self.speech = self.args.strip()
+
+    def func(self):
+        if not self.args:
+            self.caller.msg("Usage: bolster <target>")
+            return
+
+        speech = self.caller.search(self.speech)
+
+        if self.caller.db.battlefieldcommander:
+            self.caller.location.msg_contents(f"|bAmidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |r"{speech}"|n.\n|yEveryone in the room may now add 1 Tough to their av, using the command settough # (Should be one more than your current value.)|n")
