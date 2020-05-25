@@ -1,0 +1,4 @@
+# Custom
+*.db3
+*.log
+*.pid
