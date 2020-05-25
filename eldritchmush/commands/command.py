@@ -1047,13 +1047,13 @@ class CmdStabilize(Command):
         "This actually does things"
         # Check for correct command
         if not self.args:
-            self.caller.msg("Usage: stabilize <target>")
+            self.caller.msg("|yUsage: stabilize <target>|n")
             return
 
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("There is nothing here by that description.")
+            self.caller.msg("|yThere is nothing here by that description.|n")
             return
 
         # Get caller level of stabilize and emote how many points the caller will heal target that round.
@@ -1069,8 +1069,14 @@ class CmdStabilize(Command):
                 self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
             elif target != self.caller:
                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
-            else:
-                self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+        elif (-6 <= target_body <= -4) and stabilize:
+            if target == self.caller:
+                self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
+            elif target != self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+        else:
+            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+
 
 class SetStabilize(Command):
     """Set the stabilize status of a character
@@ -1125,18 +1131,27 @@ class CmdMedicine(Command):
             self.caller.msg("There is nothing here by that description.")
             return
 
-        # Get caller level of stabilize and emote how many points the caller will heal target that round.
+        # Get caller level of medicine and emote how many points the caller will heal target that round.
         # May not increase targets body past 1
         # Only works on targets with body <= 0
 
         target_body = target.db.body
         medicine = self.caller.db.medicine
 
-        if target_body <= 0 and stabilize:
+        # Check for using on self
+        if (- 3 <= target_body <= -1) and medicine:
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+            if target == self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
+            elif target != self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+        elif (-6 <= target_body <= -4) and medicine:
+            if target == self.caller:
+                self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
+            elif target != self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, though {target.key}'s condition is too fargone for {self.caller.key}'s skill.|n")
         else:
-            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+            self.caller.msg(f"|b{target.key} doesn't require the application of your healing skills. They seem to be healthy enough.|n")
 
 class SetMedicine(Command):
     """Set the medicine status of a character
