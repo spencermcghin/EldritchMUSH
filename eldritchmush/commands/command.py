@@ -1117,7 +1117,7 @@ class SetStabilize(Command):
 
 
 class CmdMedicine(Command):
-    key = "stabilize"
+    key = "medicine"
     help_category = "mush"
 
     def parse(self):
