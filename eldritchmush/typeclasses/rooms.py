@@ -50,8 +50,6 @@ class Room(DefaultRoom):
         else:
             return "There is nothing matching that description."
 
-        # if perception_details:
-        #     return perception_details.get(perceptionkey.lower(), None)
 
     def set_perception(self, perceptionkey, level, description):
         """
