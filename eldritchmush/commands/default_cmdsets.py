@@ -72,6 +72,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdMedicine())
         self.add(command.SetWeakness())
         self.add(combat.CmdKill())
+        self.add(combat.CmdBattlefieldCommander())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -155,3 +156,4 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetStabilize())
         self.add(command.SetMedicine())
         self.add(command.SetBattleFieldMedicine())
+        self.add(command.SetBattleFieldCommander())
