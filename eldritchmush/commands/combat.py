@@ -82,12 +82,13 @@ class Helper():
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
-        if hasWeakness and cmdString in ["strike", "hit", "slash", "bash", "punch", "shoot"]:
+        if hasWeakness:
             attack_penalty = 2
-            return attack_penalty
+
         else:
             attack_penalty = 0
-            return attack_penalty
+
+        return attack_penalty
 
 """
 These are attack commands
