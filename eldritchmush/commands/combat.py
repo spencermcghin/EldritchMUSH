@@ -166,7 +166,6 @@ class CmdStrike(Command):
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
-
 class CmdKill(Command):
     """
     issues a finishing action
