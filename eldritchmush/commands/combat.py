@@ -679,7 +679,5 @@ class CmdBattlefieldCommander(Command):
             self.caller.msg("Usage: bolster <target>")
             return
 
-        speech = self.caller.search(self.speech)
-
         if self.caller.db.battlefieldcommander:
-            self.caller.location.msg_contents(f"|bAmidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |r{speech}|n.\n|yEveryone in the room may now add 1 Tough to their av, using the command settough # (Should be one more than your current value).|n")
+            self.caller.location.msg_contents(f"|bAmidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |r{self.speech}|n.\n|yEveryone in the room may now add 1 Tough to their av, using the command settough # (Should be one more than your current value).|n")
