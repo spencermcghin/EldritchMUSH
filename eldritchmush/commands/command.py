@@ -18,12 +18,12 @@ _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
 # Helper class
 
-class CommandHelper():
-    """
-    Basic functions to avoid a bunch of repeated code.
-    """
-
-    def
+# class CommandHelper():
+#     """
+#     Basic functions to avoid a bunch of repeated code.
+#     """
+#
+#     def
 
 
 # from evennia import default_cmds
