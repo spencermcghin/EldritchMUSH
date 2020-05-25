@@ -1080,6 +1080,7 @@ class CmdStabilize(Command):
         else:
             self.caller.msg("Better not. You aren't quite that skilled.")
 
+
 class SetStabilize(Command):
     """Set the stun level of a character
 
