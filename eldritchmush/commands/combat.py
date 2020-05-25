@@ -382,6 +382,8 @@ class CmdDisarm(Command):
         self.target = self.args.strip()
 
     def func(self):
+            h = Helper()
+
             "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
             disarmsRemaining = self.caller.db.disarm
             master_of_arms = self.caller.db.master_of_arms
