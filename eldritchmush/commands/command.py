@@ -910,7 +910,7 @@ class CmdInspect(default_cmds.MuxCommand):
 
                 if perception:
                     # Format results
-                    self.caller.msg(f"|bAfter a thorough examination of {args}, this is what you eventually discover.\n{_ + "\n" for _ in perception}|n")
+                    self.caller.msg(f"|bAfter a thorough examination of {args}, this is what you eventually discover.\n{_ for _ in perception}|n")
                     return
                 else:
                     # no detail found, delegate our result to the normal
