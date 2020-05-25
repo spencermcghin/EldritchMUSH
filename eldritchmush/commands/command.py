@@ -16,8 +16,17 @@ from evennia import default_cmds, utils, search_object
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
 
-# from evennia import default_cmds
+# Helper class
 
+class CommandHelper():
+    """
+    Basic functions to avoid a bunch of repeated code.
+    """
+
+    def
+
+
+# from evennia import default_cmds
 
 class Command(BaseCommand):
     """
@@ -1047,22 +1056,21 @@ class CmdStabilize(Command):
             self.caller.msg("There is nothing here by that description.")
             return
 
-        if target == self.caller:
-            self.caller.msg(f"|r{self.caller}, quit hitting yourself!|n")
-            return
-
         # Get caller level of stabilize and emote how many points the caller will heal target that round.
         # May not increase targets body past 1
         # Only works on targets with body <= 0
-
         target_body = target.db.body
         stabilize = self.caller.db.stabilize
 
-        if target_body <= 0 and stabilize:
+        # Check for using on self
+        if (- 3 <= target_body <= -1) and stabilize:
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
-        else:
-            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+            if target == self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
+            elif target != self.caller:
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+            else:
+                self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
 class SetStabilize(Command):
     """Set the stabilize status of a character
@@ -1095,6 +1103,73 @@ class SetStabilize(Command):
             self.caller.msg("Your have activated the stabilize ability.")
         else:
             self.caller.msg("Your have deactivated the stabilize ability.")
+
+class CmdMedicine(Command):
+    key = "stabilize"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+        "This actually does things"
+        # Check for correct command
+        if not self.args:
+            self.caller.msg("Usage: medicine <target>")
+            return
+
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("There is nothing here by that description.")
+            return
+
+        # Get caller level of stabilize and emote how many points the caller will heal target that round.
+        # May not increase targets body past 1
+        # Only works on targets with body <= 0
+
+        target_body = target.db.body
+        stabilize = self.caller.db.stabilize
+
+        if target_body <= 0 and stabilize:
+            # Return message to area and caller
+            self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+        else:
+            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+
+class SetMedicine(Command):
+    """Set the medicine status of a character
+
+    Usage: setstabilize <0,1>
+
+    This adds stabilize to the character's character sheet.
+    """
+
+    key = "setstabilize"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "Usage: setstabilize <0/1>"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            stabilize = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if stabilize not in (0,1):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.stabilize = stabilize
+        if stabilize:
+            self.caller.msg("Your have activated the stabilize ability.")
+        else:
+            self.caller.msg("Your have deactivated the stabilize ability.")
+
 
 """
 Effects status commands
