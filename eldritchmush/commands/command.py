@@ -1063,7 +1063,7 @@ class CmdStabilize(Command):
         stabilize = self.caller.db.stabilize
 
         # Check for using on self
-        if (- 3 <= target_body <= -1) and stabilize:
+        if (- 3 <= target_body <= 0) and stabilize:
             # Return message to area and caller
             if target == self.caller:
                 self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
@@ -1075,9 +1075,10 @@ class CmdStabilize(Command):
                 self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
             elif target != self.caller:
                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
-        else:
+        elif target_body > 0 and stabilize:
             self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-
+        else:
+            self.caller.msg("Better not. You aren't quite that skilled.")
 
 class SetStabilize(Command):
     """Set the stun level of a character
@@ -1139,19 +1140,22 @@ class CmdMedicine(Command):
         medicine = self.caller.db.medicine
 
         # Check for using on self
-        if (- 3 <= target_body <= -1) and medicine:
+        if (- 3 <= target_body <= 0) and medicine:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds, healing themselves for |r{stabilize}|n body points.|n")
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.\n{self.caller.key} heals {target.key} for|n |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+        # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and medicine:
             if target == self.caller:
                 self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, though {target.key}'s condition is too fargone for {self.caller.key}'s skill.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, though they are too fargone. {target.key} may require the aid of more advanced chiurgical techniques.|n")
+        elif target_body > 0 and medicine:
+            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
         else:
-            self.caller.msg(f"|b{target.key} doesn't require the application of your healing skills. They seem to be healthy enough.|n")
+            self.caller.msg("Better not. You aren't quite that skilled.")
 
 
 class SetMedicine(Command):
