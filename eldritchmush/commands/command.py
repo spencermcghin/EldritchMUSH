@@ -23,6 +23,7 @@ _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 #     Basic functions to avoid a bunch of repeated code.
 #     """
 #
+#     # Random text generation for battle wounds when a limb or torso is struck
 #     def
 
 
@@ -968,7 +969,7 @@ class CmdTrack(default_cmds.MuxCommand):
 
     def func(self):
         """
-        Handle the inspecting. This is a copy of the default look
+        Handle the tracking. This is a copy of the default look
         code except for adding in the details.
         """
         caller = self.caller
