@@ -132,7 +132,7 @@ WEATHER_STRINGS = (
     "Large clouds rush across the sky, throwing their load of rain over the world.",
 )
 
-class WeatherRoom(DefaultRoom):
+class WeatherRoom(Room):
     """
     This should probably better be called a rainy room...
     This sets up an outdoor room typeclass. At irregular intervals,
