@@ -259,7 +259,7 @@ class SetTracking(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -273,7 +273,7 @@ class SetTracking(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.tracking = tracking
-        self.caller.msg("Your Tracking was set to %i." % tracking)
+        self.caller.msg("|yYour Tracking was set to %i.|n" % tracking)
 
 
 
@@ -291,7 +291,7 @@ class SetPerception(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -305,7 +305,7 @@ class SetPerception(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.perception = perception
-        self.caller.msg("Your Perception was set to %i." % perception)
+        self.caller.msg("|yYour Perception was set to %i.|n" % perception)
 
 
 class SetMasterOfArms(Command):
@@ -322,7 +322,7 @@ class SetMasterOfArms(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -336,7 +336,7 @@ class SetMasterOfArms(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.master_of_arms = master_of_arms
-        self.caller.msg("Your Master of Arms was set to %i." % master_of_arms)
+        self.caller.msg("|yYour Master of Arms was set to %i.|n" % master_of_arms)
 
 class SetTough(Command):
     """Set the tough of a character
@@ -352,7 +352,7 @@ class SetTough(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -366,7 +366,7 @@ class SetTough(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.tough = tough
-        self.caller.msg("Your Tough was set to %i." % tough)
+        self.caller.msg("|yYour Tough was set to %i.|n" % tough)
 
         # Get armor value objects
         armor = self.caller.db.armor
@@ -379,7 +379,7 @@ class SetTough(Command):
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}")
+        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
 
 class SetBody(Command):
     """Set the body of a character
@@ -395,7 +395,7 @@ class SetBody(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between -3 and 3."
+        errmsg = "|rYou must supply a number between -3 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -409,7 +409,7 @@ class SetBody(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.body = body
-        self.caller.msg("Your Body was set to %i." % body)
+        self.caller.msg("|yYour Body was set to %i.|n" % body)
 
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
@@ -451,7 +451,7 @@ class SetArmorSpecialist(Command):
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}")
+        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
 
 class SetWyldingHand(Command):
     """Set the wylding hand level of a character
@@ -467,7 +467,7 @@ class SetWyldingHand(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a number between 1 and 3."
+        errmsg = "|rYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -481,7 +481,7 @@ class SetWyldingHand(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.wyldinghand = wyldinghand
-        self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
+        self.caller.msg(f"|yYour level of Wylding Hand was set to {wyldinghand}|n")
 
 
 class SetWeaponLevel(Command):
