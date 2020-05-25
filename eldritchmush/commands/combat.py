@@ -86,6 +86,7 @@ class Helper():
             attack_penalty = 2
 <<<<<<< HEAD
 =======
+            return attack_penalty
 
         elif hasWeakness and cmdString in ["cleave", "resist", "disarm", "stagger", "stun", "sunder"]:
             # self.caller.msg(f"|yYou are too weak to perform this attack!\nYou may only perform basic attacks until you are healed of your weakness.|n")
