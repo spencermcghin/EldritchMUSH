@@ -685,4 +685,4 @@ class CmdBattlefieldCommander(Command):
             self.caller.location.msg_contents(f"|bAmidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |r{self.speech}|n.\n|yEveryone in the room may now add 1 Tough to their av, using the command settough #|n |r(Should be one more than your current value).|n")
             self.caller.db.battlefieldcommander -= 1
         else:
-            self.caller.msg("You have no uses of your battlefield commander ability remaining.")
+            self.caller.msg("|yYou have no uses of your battlefield commander ability remaining.|n")
