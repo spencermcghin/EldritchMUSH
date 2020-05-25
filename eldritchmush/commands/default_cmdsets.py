@@ -68,6 +68,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetTough())
         self.add(command.SetBody())
         self.add(command.CmdStabilize())
+        self.add(command.CmdMedicine())
         self.add(command.SetWeakness())
 
 
@@ -150,3 +151,4 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetStagger())
         self.add(command.SetWyldingHand())
         self.add(command.SetStabilize())
+        self.add(command.SetMedicine())

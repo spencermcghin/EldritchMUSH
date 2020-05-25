@@ -1079,11 +1079,12 @@ class CmdStabilize(Command):
 
 
 class SetStabilize(Command):
-    """Set the stabilize status of a character
+    """Set the stun level of a character
 
-    Usage: setstabilize <0,1>
+    Usage: setstabilize <1,2,3>
 
-    This adds stabilize to the character's character sheet.
+    This sets the stabilize level of the current character. This can only be
+    used during character generation.
     """
 
     key = "setstabilize"
@@ -1091,7 +1092,7 @@ class SetStabilize(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "Usage: setstabilize <0/1>"
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1100,15 +1101,13 @@ class SetStabilize(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if stabilize not in (0,1):
+        if not (1 <= stabilize <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.stabilize = stabilize
-        if stabilize:
-            self.caller.msg("Your have activated the stabilize ability.")
-        else:
-            self.caller.msg("Your have deactivated the stabilize ability.")
+        self.caller.msg(f"|yYour stabilize level was set to {stabilize}.|n")
+
 
 class CmdMedicine(Command):
     key = "stabilize"
@@ -1153,37 +1152,36 @@ class CmdMedicine(Command):
         else:
             self.caller.msg(f"|b{target.key} doesn't require the application of your healing skills. They seem to be healthy enough.|n")
 
+
 class SetMedicine(Command):
-    """Set the medicine status of a character
+    """Set the medicine level of a character
 
-    Usage: setstabilize <0,1>
+    Usage: setmedicine <1,2,3>
 
-    This adds stabilize to the character's character sheet.
+    This sets the medicine level of the current character. This can only be
+    used during character generation.
     """
 
-    key = "setstabilize"
+    key = "setmedicine"
     help_category = "mush"
 
     def func(self):
         "This performs the actual command"
-        errmsg = "Usage: setstabilize <0/1>"
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
         try:
-            stabilize = int(self.args)
+            medicine = int(self.args)
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if stabilize not in (0,1):
+        if not (1 <= medicine <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.stabilize = stabilize
-        if stabilize:
-            self.caller.msg("Your have activated the stabilize ability.")
-        else:
-            self.caller.msg("Your have deactivated the stabilize ability.")
+        self.caller.db.medicine = medicine
+        self.caller.msg(f"|yYour medicine level was set to {medicine}.|n")
 
 
 """
