@@ -153,3 +153,4 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetWyldingHand())
         self.add(command.SetStabilize())
         self.add(command.SetMedicine())
+        self.add(command.SetBattleFieldMedicine())
