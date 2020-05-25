@@ -74,6 +74,9 @@ class Character(DefaultCharacter):
         self.db.bow = 0
         self.db.activemartialskill = 1
 
+        # Entries for combat
+        self.db.battlefieldcommander = 0
+
 
     # def get_abilities(self):
     #     """

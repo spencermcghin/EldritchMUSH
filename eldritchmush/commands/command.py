@@ -567,8 +567,6 @@ class SetBow(Command):
                     self.caller.location.msg_contents(f"|b{self.caller.key} unequips their bow.|n")
 
 
-
-
 class SetMelee(Command):
     """Set the melee property of a character
 
