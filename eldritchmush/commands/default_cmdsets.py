@@ -31,7 +31,8 @@ class RoomCmdSet(CmdSet):
 
         self.add(command.CmdPerception())
         self.add(command.CmdInspect())
-
+        self.add(command.CmdTracking())
+        self.add(command.CmdTrack())
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -70,7 +71,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdStabilize())
         self.add(command.CmdMedicine())
         self.add(command.SetWeakness())
-        self.add(command.CmdTrack())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
