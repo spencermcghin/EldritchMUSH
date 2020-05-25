@@ -180,7 +180,7 @@ class CmdKill(Command):
     This will calculate an attack score based on your weapon and master of arms level.
     """
 
-    key = "strike"
+    key = "kill"
     aliases = ["finish"]
     help_category = "combat"
 
