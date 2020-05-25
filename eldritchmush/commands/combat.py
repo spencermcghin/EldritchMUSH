@@ -82,21 +82,11 @@ class Helper():
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
-        if hasWeakness:
+        if hasWeakness and cmdString in ["strike", "hit", "slash", "bash", "punch", "shoot"]:
             attack_penalty = 2
-<<<<<<< HEAD
-            return attack_penalty
-
-        elif hasWeakness and cmdString in ["cleave", "resist", "disarm", "stagger", "stun", "sunder"]:
-            # self.caller.msg(f"|yYou are too weak to perform this attack!\nYou may only perform basic attacks until you are healed of your weakness.|n")
-            return
-
-=======
->>>>>>> bad7798a5b771542b97bd5883b0a135cee8ae6e5
         else:
             attack_penalty = 0
-
-        return attack_penalty
+            return attack_penalty
 
 """
 These are attack commands
@@ -161,9 +151,6 @@ class CmdStrike(Command):
             else:
                 die_result = h.masterOfArms(master_of_arms)
 
-            # Get stats for final attack result and damage
-
-            # Get damange penaltys if players have them
             weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
 
