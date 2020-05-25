@@ -10,6 +10,8 @@ from evennia import CmdSet, default_cmds
 from commands.default_cmdsets import ChargenCmdset, RoomCmdSet
 from commands import command
 
+import random
+
 
 class Room(DefaultRoom):
     """
