@@ -944,13 +944,14 @@ class CmdInspect(default_cmds.MuxCommand):
         looking_at_obj.at_desc(looker=caller)
         return
 
+
 class CmdTrack(default_cmds.MuxCommand):
     """
     looks at the room and on details
     Usage:
         track <obj>
         track <room detail>
-        inspect *<account>
+        track *<account>
     Observes your location, details at your location or
     in your vicinity.
     Tutorial: This is a child of the default Look command, that also
@@ -994,7 +995,7 @@ class CmdTrack(default_cmds.MuxCommand):
 
                 tracking_level = caller.db.tracking
 
-                tracking = self.obj.return_perception(args, tracking_level)
+                tracking = self.obj.return_tracking(args, tracking_level)
 
                 if tracking:
                     # Format results
