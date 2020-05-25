@@ -944,6 +944,94 @@ class CmdInspect(default_cmds.MuxCommand):
         looking_at_obj.at_desc(looker=caller)
         return
 
+class CmdTrack(default_cmds.MuxCommand):
+    """
+    looks at the room and on details
+    Usage:
+        track <obj>
+        track <room detail>
+        inspect *<account>
+    Observes your location, details at your location or
+    in your vicinity.
+    Tutorial: This is a child of the default Look command, that also
+    allows us to look at tracking attrs in the room.  These details are
+    things to examine and offers some extra description without
+    actually having to be actual database objects. It uses the
+    return_perception() hook on the Room class for this.
+    """
+
+    # we don't need to specify key/locks etc, this is already
+    # set by the parent.
+    help_category = "mush"
+    key = "track"
+
+    def func(self):
+        """
+        Handle the inspecting. This is a copy of the default look
+        code except for adding in the details.
+        """
+        caller = self.caller
+        args = self.args
+        errmsg = "Usage: track <current location>"
+
+
+        if args:
+            # we use quiet=True to turn off automatic error reporting.
+            # This tells search that we want to handle error messages
+            # ourself. This also means the search function will always
+            # return a list (with 0, 1 or more elements) rather than
+            # result/None.
+            looking_at_obj = caller.search(
+                args,
+                # note: excludes room/room aliases
+                candidates=caller.location.contents + caller.contents,
+                use_nicks=True,
+                quiet=True,
+            )
+            if len(looking_at_obj) != 1:
+                # no target found or more than one target found (multimatch)
+                # look for a detail that may match
+
+                tracking_level = caller.db.tracking
+
+                tracking = self.obj.return_perception(args, tracking_level)
+
+                if tracking:
+                    # Format results
+                    self.caller.msg(f"|bAfter a thorough examination of the {args} using your keen tracking, this is what you eventually discover.\n|n")
+                    for result in tracking:
+                        self.caller.msg(f"|y{result}\n|n")
+                    return
+                else:
+                    # no detail found, delegate our result to the normal
+                    # error message handler.
+                    _SEARCH_AT_RESULT(looking_at_obj, caller, args)
+                    return
+            else:
+                # we found a match, extract it from the list and carry on
+                # normally with the look handling.
+                looking_at_obj = looking_at_obj[0]
+
+        else:
+            # looking_at_obj = caller.location
+            # if not looking_at_obj:
+            #     caller.msg("You have nothing to inspect!")
+            #     return
+            self.caller.msg(errmsg)
+            return
+
+        if not hasattr(looking_at_obj, "return_appearance"):
+            # this is likely due to us having an account instead
+            looking_at_obj = looking_at_obj.character
+        if not looking_at_obj.access(caller, "view"):
+            caller.msg("Could not find '%s'." % args)
+            return
+        # get object's appearance
+        caller.msg(looking_at_obj.return_appearance(caller))
+        # the object's at_desc() method.
+        looking_at_obj.at_desc(looker=caller)
+        return
+
 
 class CmdPerception(default_cmds.MuxCommand):
     """
@@ -994,6 +1082,54 @@ class CmdPerception(default_cmds.MuxCommand):
 
         self.caller.msg(f"Perception {level} set on {key}: {self.rhs}")
 
+class CmdTracking(default_cmds.MuxCommand):
+    """
+    sets a detail on a room
+    Usage:
+        @tracking <level> <key> = <description>
+        @tracking <level> <key>;<alias>;... = description
+    Example:
+        @tracking 1 walls = The walls are covered in ...
+        @tracking 3 castle;ruin;tower = The distant ruin ...
+    This sets a "perception" on the object this command is defined on
+    . This detail can be accessed with
+    the TutorialRoomLook command sitting on TutorialRoom objects (details
+    are set as a simple dictionary on the room). This is a Builder command.
+    We custom parse the key for the ;-separator in order to create
+    multiple aliases to the detail all at once.
+    """
+
+    key = "@tracking"
+    locks = "cmd:perm(Builder)"
+    help_category = "mush"
+
+    def func(self):
+        """
+        All this does is to check if the object has
+        the set_perception method and uses it.
+        """
+        if not self.args or not self.rhs:
+            self.caller.msg("Usage: @tracking level key = description")
+            return
+        if not hasattr(self.obj, "set_tracking"):
+            self.caller.msg("Tracking cannot be set on %s." % self.obj)
+            return
+
+        # Get level of perception
+        # TODO: Error handle perception level
+        level = int(self.args[0])
+
+
+        # Get perception setting objects
+        equals = self.args.index("=")
+        key = str(self.args[1:equals]).strip()
+
+        # for key in self.lhs.split(";"):
+        #     # loop over all aliases, if any (if not, this will just be
+        #     # the one key to loop over)
+        self.obj.set_tracking(key, level, self.rhs)
+
+        self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
 
 class CmdSmile(Command):
     """

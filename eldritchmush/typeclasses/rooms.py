@@ -50,6 +50,27 @@ class Room(DefaultRoom):
         else:
             return "There is nothing matching that description."
 
+    def return_tracking(self, trackingkey, trackinglevel):
+        """
+        This looks for an Attribute "obj_tracking" and possibly
+        returns the value of it.
+        Args:
+            trackingkey (str): The perception detail being looked at. This is
+                case-insensitive.
+        """
+        tracking_details = self.db.tracking_details
+
+        look_results = []
+
+        if tracking_details.get(trackingkey.lower(), None) is not None:
+            for details in tracking_details[trackingkey.lower()]:
+                if details[0] <= trackinglevel:
+                    look_results.append(details[1])
+
+            return look_results
+        else:
+            return "There is nothing matching that description."
+
 
     def set_perception(self, perceptionkey, level, description):
         """
@@ -67,6 +88,21 @@ class Room(DefaultRoom):
         else:
             self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
+    def set_tracking(self, trackingkey, level, description):
+        """
+        This sets a perception on the room.
+        Args:
+            trackingkey (str): The detail identifier to add (for
+                aliases you need to add multiple keys to the
+                same description). Case-insensitive.
+            level (int): Level of the perception needed to access the information.
+            description (str): The text to return when looking
+                at the given perceptionkey.
+        """
+        if self.db.tracking_details:
+            self.db.tracking_details[trackingkey.lower()].append((level, description))
+        else:
+            self.db.tracking_details = {trackingkey.lower(): [(level, description)]}
 
 class ChargenRoom(Room):
     """
