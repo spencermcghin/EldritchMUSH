@@ -91,7 +91,7 @@ class Helper():
         return attack_penalty
 
 """
-These are attack commands
+Basic Combat commands
 """
 
 class CmdStrike(Command):
@@ -168,7 +168,79 @@ class CmdStrike(Command):
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
-            # self.caller.msg(f"|bYou strike deftly at your target.|n\n|yYour attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
+
+class CmdKill(Command):
+    """
+    issues a finishing action
+
+    Usage:
+
+    kill <target>
+
+    This will calculate an attack score based on your weapon and master of arms level.
+    """
+
+    key = "strike"
+    aliases = ["finish"]
+    help_category = "combat"
+
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+
+    def func(self):
+        # Init combat helper class for logic
+        h = Helper()
+
+        # Check for correct command
+        if not self.args:
+            self.caller.msg("Usage: kill <target>")
+            return
+
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("Usage: kill <target>")
+            return
+
+        if target == self.caller:
+            self.caller.msg(f"|r{self.caller}, please don't kill yourself.|n")
+            return
+
+
+        # Get hasMelee for character to check that they've armed themselves.
+        hasMelee = self.caller.db.melee
+
+        # Vars for attack_result logic
+        master_of_arms = self.caller.db.master_of_arms
+        weapon_level = self.caller.db.weapon_level
+        wylding_hand = self.caller.db.wylding_hand
+
+        # Get die result based on master of arms level
+        if not hasMelee:
+            self.caller.msg("|yBefore you strike you must equip a melee weapon using the command setmelee 1.")
+        else:
+            # Return die roll based on level in master of arms or wylding hand.
+            if wylding_hand:
+                die_result = h.wyldingHand(wylding_hand)
+            else:
+                die_result = h.masterOfArms(master_of_arms)
+
+            weakness = h.weaknessChecker(self.caller.db.weakness)
+            dmg_penalty = h.bodyChecker(self.caller.db.body)
+
+            # Get damage result and damage for weapon type
+            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+            damage = 2 if self.caller.db.twohanded == True else 1
+            target_body = target.db.body
+
+            # Return message to area and caller
+            if not target.db.body:
+                self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and attempts a killing blow on {target.key}.|n\n|yTheir attack result is:|n |g{attack_result}.|n")
+            else:
+                self.caller.lmsg(f"|y{self.caller.key}, you cannot kill your opponent until they are at 0 body or lower.|n")
 
 
 class CmdShoot(Command):
@@ -236,6 +308,13 @@ class CmdShoot(Command):
 
             # Return message to area and caller
             self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+
+
+
+
+"""
+Active Martial Skills
+"""
 
 
 class CmdCleave(Command):
