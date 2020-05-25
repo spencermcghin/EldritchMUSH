@@ -53,6 +53,7 @@ class Character(DefaultCharacter):
 
         # Entries for healing
         self.db.stabilize = 0
+        self.db.medicine = 0
 
         # Entries for status effects
         self.db.weakness = 0
