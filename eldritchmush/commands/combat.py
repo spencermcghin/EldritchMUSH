@@ -670,7 +670,7 @@ class CmdBattlefieldCommander(Command):
     aliases = ["battlefieldcommander"]
     help_category = "combat"
 
-    bolsterRemaining = self.caller.db.disarm
+    bolsterRemaining = self.caller.db.battlefieldcommander
 
     def parse(self):
         "Very trivial parser"
