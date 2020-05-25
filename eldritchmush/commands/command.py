@@ -552,8 +552,11 @@ class SetBow(Command):
                 # Quippy message when setting a shield as 0 or 1.
                 if bow:
                     self.caller.msg("You have equipped your bow.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their bow.|n")
                 else:
                     self.caller.msg("You have unequipped your bow.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their bow.|n")
+
 
 
 
@@ -594,9 +597,10 @@ class SetMelee(Command):
                 # Quippy message when setting a shield as 0 or 1.
                 if melee:
                     self.caller.msg("You have equipped your melee weapon.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their melee weapon.|n")
                 else:
                     self.caller.msg("You have unequipped your melee weapon.")
-
+                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their melee weapon.|n")
 
 class SetResist(Command):
     """Set the resist level of a character
