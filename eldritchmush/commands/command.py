@@ -904,19 +904,23 @@ class CmdInspect(default_cmds.MuxCommand):
 
                 perception_level = caller.db.perception
 
-                perception = self.obj.return_perception(args, perception_level)
+                try:
+                    perception = self.obj.return_perception(args, perception_level)
 
-                if perception:
+                except:
+                    self.caller.msg()
+
+                else:
                     # Format results
                     self.caller.msg(f"|bAfter a thorough examination of the {args} using your keen perception, this is what you eventually discover.\n|n")
                     for result in perception:
                         self.caller.msg(f"|y{result}\n|n")
-                    return
-                else:
-                    # no detail found, delegate our result to the normal
-                    # error message handler.
-                    _SEARCH_AT_RESULT(looking_at_obj, caller, args)
-                    return
+                        return
+                    else:
+                        # no detail found, delegate our result to the normal
+                        # error message handler.
+                        _SEARCH_AT_RESULT(looking_at_obj, caller, args)
+                        return
             else:
                 # we found a match, extract it from the list and carry on
                 # normally with the look handling.
