@@ -1131,11 +1131,10 @@ class CmdTracking(default_cmds.MuxCommand):
                 equals = self.args.index("=")
                 key = str(self.args[1:equals]).strip()
 
-                # for key in self.lhs.split(";"):
-                #     # loop over all aliases, if any (if not, this will just be
-                #     # the one key to loop over)
+                # Set the tracking object in the database
                 self.obj.set_tracking(key, level, self.rhs)
 
+                # Message to admin for confirmation.
                 self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
             else:
                 self.caller.msg(errmsg)
