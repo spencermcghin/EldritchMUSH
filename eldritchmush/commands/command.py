@@ -1101,6 +1101,8 @@ class CmdTracking(default_cmds.MuxCommand):
     key = "@tracking"
     locks = "cmd:perm(Builder)"
     help_category = "mush"
+    errmsg = "Usage: @tracking level key = description"
+
 
     def func(self):
         """
@@ -1108,7 +1110,7 @@ class CmdTracking(default_cmds.MuxCommand):
         the set_perception method and uses it.
         """
         if not self.args or not self.rhs:
-            self.caller.msg("Usage: @tracking level key = description")
+            self.caller.msg(err_msg)
             return
         if not hasattr(self.obj, "set_tracking"):
             self.caller.msg("Tracking cannot be set on %s." % self.obj)
@@ -1116,19 +1118,21 @@ class CmdTracking(default_cmds.MuxCommand):
 
         # Get level of perception
         # TODO: Error handle perception level
-        level = int(self.args[0])
+        if isinstance(self.args[0], int):
 
+            # Get perception setting objects
+            equals = self.args.index("=")
+            key = str(self.args[1:equals]).strip()
 
-        # Get perception setting objects
-        equals = self.args.index("=")
-        key = str(self.args[1:equals]).strip()
+            # for key in self.lhs.split(";"):
+            #     # loop over all aliases, if any (if not, this will just be
+            #     # the one key to loop over)
+            self.obj.set_tracking(key, level, self.rhs)
 
-        # for key in self.lhs.split(";"):
-        #     # loop over all aliases, if any (if not, this will just be
-        #     # the one key to loop over)
-        self.obj.set_tracking(key, level, self.rhs)
-
-        self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
+            self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
+        else:
+            self.caller.msg(err_msg)
+            return
 
 class CmdSmile(Command):
     """
