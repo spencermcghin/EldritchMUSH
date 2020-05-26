@@ -39,16 +39,21 @@ class Room(DefaultRoom):
             perceptionkey (str): The perception detail being looked at. This is
                 case-insensitive.
         """
-        perception_details = self.db.perception_details
 
         look_results = []
 
-        if perception_details.get(perceptionkey.lower(), None) is not None:
-            for details in perception_details[perceptionkey.lower()]:
-                if details[0] <= perceptionlevel:
-                    look_results.append(details[1])
-        else:
+        try:
+            perception_details = self.db.perception_details
+
+        except:
             look_results.append("There is nothing matching that description.")
+
+        else:
+
+            if perception_details.get(perceptionkey.lower(), None) is not None:
+                for details in perception_details[perceptionkey.lower()]:
+                    if details[0] <= perceptionlevel:
+                        look_results.append(details[1])
 
         return look_results
 
