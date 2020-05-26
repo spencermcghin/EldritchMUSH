@@ -904,35 +904,28 @@ class CmdInspect(default_cmds.MuxCommand):
 
                 perception_level = caller.db.perception
 
-                try:
-                    perception = self.obj.return_perception(args, perception_level)
+                perception = self.obj.return_perception(args, perception_level)
 
-                except:
-                    self.caller.msg()
-
+                # Format results
+                self.caller.msg(f"|bAfter a thorough examination of the {args} using your keen perception, this is what you eventually discover.\n|n")
+                for result in perception:
+                    self.caller.msg(f"|y{result}\n|n")
+                    return
                 else:
-                    # Format results
-                    self.caller.msg(f"|bAfter a thorough examination of the {args} using your keen perception, this is what you eventually discover.\n|n")
-                    for result in perception:
-                        self.caller.msg(f"|y{result}\n|n")
-                        return
-                    else:
-                        # no detail found, delegate our result to the normal
-                        # error message handler.
-                        _SEARCH_AT_RESULT(looking_at_obj, caller, args)
-                        return
+                    # no detail found, delegate our result to the normal
+                    # error message handler.
+                    _SEARCH_AT_RESULT(looking_at_obj, caller, args)
+                    return
             else:
                 # we found a match, extract it from the list and carry on
                 # normally with the look handling.
                 looking_at_obj = looking_at_obj[0]
 
         else:
-            # looking_at_obj = caller.location
-            # if not looking_at_obj:
-            #     caller.msg("You have nothing to inspect!")
-            #     return
-            self.caller.msg(errmsg)
-            return
+            looking_at_obj = caller.location
+            if not looking_at_obj:
+                caller.msg("You have nothing to inspect!")
+                return
 
         if not hasattr(looking_at_obj, "return_perception"):
             # this is likely due to us having an account instead
@@ -940,7 +933,7 @@ class CmdInspect(default_cmds.MuxCommand):
         if not looking_at_obj.access(caller, "view"):
             caller.msg("Could not find '%s'." % args)
             return
-        # get object's appearance
+        # get object's perception details
         caller.msg(looking_at_obj.return_appearance(caller))
         # the object's at_desc() method.
         looking_at_obj.at_desc(looker=caller)
