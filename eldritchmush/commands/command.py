@@ -934,7 +934,7 @@ class CmdInspect(default_cmds.MuxCommand):
             self.caller.msg(errmsg)
             return
 
-        if not hasattr(looking_at_obj, "return_appearance"):
+        if not hasattr(looking_at_obj, "return_perception"):
             # this is likely due to us having an account instead
             looking_at_obj = looking_at_obj.character
         if not looking_at_obj.access(caller, "view"):
@@ -1023,7 +1023,7 @@ class CmdTrack(default_cmds.MuxCommand):
             self.caller.msg(errmsg)
             return
 
-        if not hasattr(looking_at_obj, "return_appearance"):
+        if not hasattr(looking_at_obj, "return_tracking"):
             # this is likely due to us having an account instead
             looking_at_obj = looking_at_obj.character
         if not looking_at_obj.access(caller, "view"):
