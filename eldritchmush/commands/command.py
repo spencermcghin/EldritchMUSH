@@ -1119,7 +1119,7 @@ class CmdTracking(default_cmds.MuxCommand):
 
         # Get level of perception
         # TODO: Error handle perception level
-        if isinstance(self.args[0], int):
+        if self.args[0] in (1,2,3):
 
             # Get perception setting objects
             equals = self.args.index("=")
@@ -1132,7 +1132,7 @@ class CmdTracking(default_cmds.MuxCommand):
 
             self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
         else:
-            self.caller.msg(self.args[0])
+            self.caller.msg(key)
             return
 
 class CmdSmile(Command):
