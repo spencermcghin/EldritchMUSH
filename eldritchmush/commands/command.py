@@ -1101,7 +1101,6 @@ class CmdTracking(default_cmds.MuxCommand):
     key = "@tracking"
     locks = "cmd:perm(Builder)"
     help_category = "mush"
-    errmsg = "Usage: @tracking level key = description"
 
 
     def func(self):
@@ -1109,6 +1108,8 @@ class CmdTracking(default_cmds.MuxCommand):
         All this does is to check if the object has
         the set_perception method and uses it.
         """
+        errmsg = "Usage: @tracking level key = description"
+
         if not self.args or not self.rhs:
             self.caller.msg(errmsg)
             return
