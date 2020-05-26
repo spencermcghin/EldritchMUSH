@@ -47,10 +47,10 @@ class Room(DefaultRoom):
             for details in perception_details[perceptionkey.lower()]:
                 if details[0] <= perceptionlevel:
                     look_results.append(details[1])
-
-            return look_results
         else:
-            return "There is nothing matching that description."
+            look_results.append("There is nothing matching that description.")
+
+        return look_results
 
     def return_tracking(self, trackingkey, trackinglevel):
         """
@@ -68,11 +68,10 @@ class Room(DefaultRoom):
             for details in tracking_details[trackingkey.lower()]:
                 if details[0] <= trackinglevel:
                     look_results.append(details[1])
-
-            return look_results
         else:
-            return "There is nothing matching that description."
+            look_results.append("There is nothing matching that description.")
 
+        return look_results
 
     def set_perception(self, perceptionkey, level, description):
         """
