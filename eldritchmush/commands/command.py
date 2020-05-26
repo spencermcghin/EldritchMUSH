@@ -1119,7 +1119,9 @@ class CmdTracking(default_cmds.MuxCommand):
 
         # Get level of perception
         # TODO: Error handle perception level
-        if self.args[0] in (1,2,3):
+        level = int(self.args[0])
+
+        if level in (1,2,3):
 
             # Get perception setting objects
             equals = self.args.index("=")
