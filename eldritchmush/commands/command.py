@@ -1119,23 +1119,27 @@ class CmdTracking(default_cmds.MuxCommand):
 
         # Get level of perception
         # TODO: Error handle perception level
-        level = int(self.args[0])
+        try:
+            level = int(self.args[0])
 
-        if level in (1,2,3):
-
-            # Get perception setting objects
-            equals = self.args.index("=")
-            key = str(self.args[1:equals]).strip()
-
-            # for key in self.lhs.split(";"):
-            #     # loop over all aliases, if any (if not, this will just be
-            #     # the one key to loop over)
-            self.obj.set_tracking(key, level, self.rhs)
-
-            self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
-        else:
+        except:
             self.caller.msg(errmsg)
-            return
+
+        else:
+            if level in (1,2,3):
+                # Get perception setting objects
+                equals = self.args.index("=")
+                key = str(self.args[1:equals]).strip()
+
+                # for key in self.lhs.split(";"):
+                #     # loop over all aliases, if any (if not, this will just be
+                #     # the one key to loop over)
+                self.obj.set_tracking(key, level, self.rhs)
+
+                self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
+            else:
+                self.caller.msg(errmsg)
+                return
 
 class CmdSmile(Command):
     """
