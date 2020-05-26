@@ -1110,7 +1110,7 @@ class CmdTracking(default_cmds.MuxCommand):
         the set_perception method and uses it.
         """
         if not self.args or not self.rhs:
-            self.caller.msg(err_msg)
+            self.caller.msg(errmsg)
             return
         if not hasattr(self.obj, "set_tracking"):
             self.caller.msg("Tracking cannot be set on %s." % self.obj)
@@ -1131,7 +1131,7 @@ class CmdTracking(default_cmds.MuxCommand):
 
             self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
         else:
-            self.caller.msg(err_msg)
+            self.caller.msg(errmsg)
             return
 
 class CmdSmile(Command):
