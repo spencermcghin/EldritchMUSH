@@ -1132,7 +1132,7 @@ class CmdTracking(default_cmds.MuxCommand):
 
             self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
         else:
-            self.caller.msg(key)
+            self.caller.msg(errmsg)
             return
 
 class CmdSmile(Command):
