@@ -155,8 +155,7 @@ class CmdStrike(Command):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
 
             # Get damage result and damage for weapon type
-            attack_result = (die_result + weapon_level) - weakness
-            # attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
             damage = 2 if self.caller.db.twohanded == True else 1
             target_av = target.db.av
             shot_location = h.shotFinder(target.db.targetArray)
