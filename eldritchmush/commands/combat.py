@@ -82,11 +82,7 @@ class Helper():
         """
         Checks to see if caller has weakness and then applies corresponding penalty.
         """
-        if hasWeakness:
-            attack_penalty = 2
-
-        else:
-            attack_penalty = 0
+        attack_penalty = 2 if hasWeakness else 0
 
         return attack_penalty
 
