@@ -187,36 +187,36 @@ class WeatherRoom(Room):
         "Boots, shoes, ladies' slippers...children's shoes, booties. Come and size a pair for yourself...",
     )
 
-    class MarketRoom(WeatherRoom):
-        """
-        Text for the market callers
-        """
+class MarketRoom(WeatherRoom):
+    """
+    Text for the market callers
+    """
 
-        def at_object_creation(self):
-            """
-            Called when object is first created.
-            We set up a ticker to update this room regularly.
-            Note that we could in principle also use a Script to manage
-            the ticking of the room; the TickerHandler works fine for
-            simple things like this though.
-            """
-            super().at_object_creation()
-            # subscribe ourselves to a ticker to repeatedly call the hook
-            # "update_weather" on this object. The interval is randomized
-            # so as to not have all weather rooms update at the same time.
-            self.db.interval = random.randint(10, 30)
-            TICKER_HANDLER.add(
-                interval=self.db.interval, callback=self.update_market, idstring="tutorial"
-            )
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        Note that we could in principle also use a Script to manage
+        the ticking of the room; the TickerHandler works fine for
+        simple things like this though.
+        """
+        super().at_object_creation()
+        # subscribe ourselves to a ticker to repeatedly call the hook
+        # "update_weather" on this object. The interval is randomized
+        # so as to not have all weather rooms update at the same time.
+        self.db.interval = random.randint(10, 30)
+        TICKER_HANDLER.add(
+            interval=self.db.interval, callback=self.update_market, idstring="tutorial"
+        )
 
-        def update_market(self, *args, **kwargs):
-            """
-            Called by the tickerhandler at regular intervals. Even so, we
-            only update 80% of the time, picking a random weather message
-            when we do. The tickerhandler requires that this hook accepts
-            any arguments and keyword arguments (hence the *args, **kwargs
-            even though we don't actually use them in this example)
-            """
-            if random.random() < 0.9:
-                # only update 20 % of the time
-                self.msg_contents("In the distance, you can hear someone shout:\n|w%s|n" % random.choice(MARKET_STRINGS))
+    def update_market(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals. Even so, we
+        only update 80% of the time, picking a random weather message
+        when we do. The tickerhandler requires that this hook accepts
+        any arguments and keyword arguments (hence the *args, **kwargs
+        even though we don't actually use them in this example)
+        """
+        if random.random() < 0.9:
+            # only update 20 % of the time
+            self.msg_contents("In the distance, you can hear someone shout:\n|w%s|n" % random.choice(MARKET_STRINGS))
