@@ -158,7 +158,7 @@ class WeatherRoom(Room):
         # so as to not have all weather rooms update at the same time.
         self.db.interval = random.randint(50, 70)
         TICKER_HANDLER.add(
-            interval=self.db.interval, callback=self.update_weather, idstring="tutorial"
+            interval=self.db.interval, callback=self.update_weather, idstring="weather"
         )
 
     def update_weather(self, *args, **kwargs):
@@ -204,19 +204,19 @@ class MarketRoom(WeatherRoom):
         # subscribe ourselves to a ticker to repeatedly call the hook
         # "update_weather" on this object. The interval is randomized
         # so as to not have all weather rooms update at the same time.
-        self.db.interval = random.randint(10, 30)
+        self.db.interval = random.randint(8, 20)
         TICKER_HANDLER.add(
-            interval=self.db.interval, callback=self.update_market, idstring="tutorial"
+            interval=self.db.interval, callback=self.update_market, idstring="market"
         )
 
     def update_market(self, *args, **kwargs):
         """
         Called by the tickerhandler at regular intervals. Even so, we
-        only update 80% of the time, picking a random weather message
+        only update 90% of the time, picking a random weather message
         when we do. The tickerhandler requires that this hook accepts
         any arguments and keyword arguments (hence the *args, **kwargs
         even though we don't actually use them in this example)
         """
         if random.random() < 0.9:
-            # only update 20 % of the time
+            # only update 90 % of the time
             self.msg_contents("In the distance, you can hear someone shout:\n|w%s|n" % random.choice(MARKET_STRINGS))
