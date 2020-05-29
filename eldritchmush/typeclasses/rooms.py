@@ -122,17 +122,7 @@ class ChargenRoom(Room):
 # Weather room
 
 # These are rainy weather strings
-
-
-class WeatherRoom(Room):
-    """
-    This should probably better be called a rainy room...
-    This sets up an outdoor room typeclass. At irregular intervals,
-    the effects of weather will show in the room. Outdoor rooms should
-    inherit from this.
-    """
-
-    WEATHER_STRINGS = (
+    WEATHER_STRINGS = [
         "Clouds cover the sky, obscuring might otherwise have been a pleasant day.",
         "It begins to sprinkle in a soft all-encompassing mist. You would harldy call it rain, though it is certainly wet.",
         "The rainfall eases a bit and the sky momentarily brightens.",
@@ -143,8 +133,16 @@ class WeatherRoom(Room):
         "It rains so hard you can hardly see your hand in front of you. You'll soon be drenched to the bone.",
         "Lightning strikes in several thundering bolts, striking the trees in the forest to your west.",
         "You hear the distant howl of what sounds like some sort of dog or wolf.",
-        "Large clouds rush across the sky, throwing their load of rain over the world.",
-    )
+        "Large clouds rush across the sky, throwing their load of rain over the world."
+    ]
+
+class WeatherRoom(Room):
+    """
+    This should probably better be called a rainy room...
+    This sets up an outdoor room typeclass. At irregular intervals,
+    the effects of weather will show in the room. Outdoor rooms should
+    inherit from this.
+    """
 
     def at_object_creation(self):
         """
@@ -159,9 +157,7 @@ class WeatherRoom(Room):
         # "update_weather" on this object. The interval is randomized
         # so as to not have all weather rooms update at the same time.
         # self.db.interval = random.randint(5, 8)
-        TICKER_HANDLER.add(
-            interval=1, callback=self.update_weather, idstring="weather", persistent=True
-        )
+        TICKER_HANDLER.add(interval=1, callback=self.update_weather, idstring="weather", persistent=True)
 
     def update_weather(self, *args, **kwargs):
         """
