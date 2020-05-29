@@ -158,7 +158,7 @@ class WeatherRoom(Room):
         # so as to not have all weather rooms update at the same time.
         self.db.interval = random.randint(5, 8)
         TICKER_HANDLER.add(
-            interval=self.db.interval, callback=self.update_weather, idstring="weather"
+            interval=self.db.interval, callback=self.update_weather, idstring="weather", persistent=True
         )
 
     def update_weather(self, *args, **kwargs):
@@ -169,9 +169,9 @@ class WeatherRoom(Room):
         any arguments and keyword arguments (hence the *args, **kwargs
         even though we don't actually use them in this example)
         """
-        if random.random() < 0.95:
+        # if random.random() < 0.1:
             # only update 20 % of the time
-            self.msg_contents("|w%s|n" % random.choice(WEATHER_STRINGS))
+        self.msg_contents("|w%s|n" % random.choice(WEATHER_STRINGS))
 
 
 # # Market room
