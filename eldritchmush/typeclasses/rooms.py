@@ -156,9 +156,9 @@ class WeatherRoom(Room):
         # subscribe ourselves to a ticker to repeatedly call the hook
         # "update_weather" on this object. The interval is randomized
         # so as to not have all weather rooms update at the same time.
-        self.db.interval = random.randint(5, 8)
+        # self.db.interval = random.randint(5, 8)
         TICKER_HANDLER.add(
-            interval=self.db.interval, callback=self.update_weather, idstring="weather", persistent=True
+            interval=1, callback=self.update_weather, idstring="weather", persistent=True
         )
 
     def update_weather(self, *args, **kwargs):
