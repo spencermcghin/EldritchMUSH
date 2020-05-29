@@ -156,7 +156,7 @@ class WeatherRoom(Room):
         # subscribe ourselves to a ticker to repeatedly call the hook
         # "update_weather" on this object. The interval is randomized
         # so as to not have all weather rooms update at the same time.
-        self.db.interval = random.randint(50, 70)
+        self.db.interval = random.randint(5, 8)
         TICKER_HANDLER.add(
             interval=self.db.interval, callback=self.update_weather, idstring="weather"
         )
@@ -174,49 +174,50 @@ class WeatherRoom(Room):
             self.msg_contents("|w%s|n" % random.choice(WEATHER_STRINGS))
 
 
-    # Market room
+# # Market room
+#
+# # These are rainy weather strings
+# MARKET_STRINGS = (
+#     "Get your smoked meats here..two for a copper...",
+#     "Fresh cuts today...chops, liver, ribs, get it before the flies do..."
+#     "Come and see the man of many cheeses! Finest cheeses in all the kingdom...",
+#     "Tomatoes, olives, grapes...fresh bread. Get it at Gilfrain's...",
+#     "Fine wrought iron...intricate metalwork...artisan quality...",
+#     "Good wool and linen for dresses. Leather hides for your saddles and armor. Nearly out...good prices...",
+#     "Boots, shoes, ladies' slippers...children's shoes, booties. Come and size a pair for yourself...",
+#     "Cutlery from the Dusklands...sharp as the day it left the smithy..."
+# )
 
-    # These are rainy weather strings
-    MARKET_STRINGS = (
-        "Get your smoked meats here..two for a copper...",
-        "Fresh cuts today...chops, liver, ribs, get it before the flies do..."
-        "Come and see the man of many cheeses! Finest cheeses in all the kingdom...",
-        "Tomatoes, olives, grapes...fresh bread. Get it at Gilfrain's...",
-        "Fine wrought iron...intricate metalwork...artisan quality...",
-        "Good wool and linen for dresses. Leather hides for your saddles and armor. Nearly out...good prices...",
-        "Boots, shoes, ladies' slippers...children's shoes, booties. Come and size a pair for yourself...",
-    )
-
-class MarketRoom(WeatherRoom):
-    """
-    Text for the market callers
-    """
-
-    def at_object_creation(self):
-        """
-        Called when object is first created.
-        We set up a ticker to update this room regularly.
-        Note that we could in principle also use a Script to manage
-        the ticking of the room; the TickerHandler works fine for
-        simple things like this though.
-        """
-        super().at_object_creation()
-        # subscribe ourselves to a ticker to repeatedly call the hook
-        # "update_weather" on this object. The interval is randomized
-        # so as to not have all weather rooms update at the same time.
-        self.db.interval = random.randint(8, 20)
-        TICKER_HANDLER.add(
-            interval=self.db.interval, callback=self.update_market, idstring="market"
-        )
-
-    def update_market(self, *args, **kwargs):
-        """
-        Called by the tickerhandler at regular intervals. Even so, we
-        only update 90% of the time, picking a random weather message
-        when we do. The tickerhandler requires that this hook accepts
-        any arguments and keyword arguments (hence the *args, **kwargs
-        even though we don't actually use them in this example)
-        """
-        if random.random() < 0.9:
-            # only update 90 % of the time
-            self.msg_contents("In the distance, you can hear someone shout:\n|w%s|n" % random.choice(MARKET_STRINGS))
+# class MarketRoom(WeatherRoom):
+#     """
+#     Text for the market callers
+#     """
+#
+#     def at_object_creation(self):
+#         """
+#         Called when object is first created.
+#         We set up a ticker to update this room regularly.
+#         Note that we could in principle also use a Script to manage
+#         the ticking of the room; the TickerHandler works fine for
+#         simple things like this though.
+#         """
+#         super().at_object_creation()
+#         # subscribe ourselves to a ticker to repeatedly call the hook
+#         # "update_weather" on this object. The interval is randomized
+#         # so as to not have all weather rooms update at the same time.
+#         self.db.interval = random.randint(8, 20)
+#         TICKER_HANDLER.add(
+#             interval=self.db.interval, callback=self.update_market, idstring="market"
+#         )
+#
+#     def update_market(self, *args, **kwargs):
+#         """
+#         Called by the tickerhandler at regular intervals. Even so, we
+#         only update 90% of the time, picking a random weather message
+#         when we do. The tickerhandler requires that this hook accepts
+#         any arguments and keyword arguments (hence the *args, **kwargs
+#         even though we don't actually use them in this example)
+#         """
+#         if random.random() < 0.9:
+#             # only update 90 % of the time
+#             self.msg_contents("In the distance, you can hear someone shout:\n|w%s|n" % random.choice(MARKET_STRINGS))
