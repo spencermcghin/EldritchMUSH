@@ -169,7 +169,7 @@ class WeatherRoom(Room):
         any arguments and keyword arguments (hence the *args, **kwargs
         even though we don't actually use them in this example)
         """
-        if random.random() < 0.2:
+        if random.random() < 0.95:
             # only update 20 % of the time
             self.msg_contents("|w%s|n" % random.choice(WEATHER_STRINGS))
 
