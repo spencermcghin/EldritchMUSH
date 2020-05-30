@@ -162,23 +162,39 @@ class Object(DefaultObject):
 
     pass
 
+# class Fortune(DefaultObject):
+#     """
+#     Returns instance of a fortune default object with a character's fortune so
+#     they can pick it up when the Artessa machine drops it.
+#     """
+#     def __init__(self):
+
+
 class Artessa(DefaultObject):
     """
     Object that generates fortune cards for players in the Carnival area.
     """
-    # Chance of getting a jester card = .03. All others get a skull card with a nude man and woman
-    # sitting in the empty eye sockets
 
-    # Stores value to see whether or not jester fortune has been found
-
-    def at_get(self, getter):
-        # Try and find getter key in fortuneStrings. If found, return fortune Value
+    def func(self):
+        # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
+        caller = self.caller
+        args = self.args
 
+        err_msg = "Usage: pull crank"
         fortuneStrings = {"eldritchadmin":"This is a test fortune."}
 
-        if getter in fortuneStrings:
-            return fortuneStrings[getter]
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            args == "crank"
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
         else:
-            return "You get nothing."
+            if caller in fortuneStrings:
+                return fortuneStrings[caller]
+            else:
+                return "You get nothing."
