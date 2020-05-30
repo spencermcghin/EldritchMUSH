@@ -162,8 +162,6 @@ class Object(DefaultObject):
 
     pass
 
-[]
-
 class Artessa(DefaultObject):
     """
     Object that generates fortune cards for players in the Carnival area.
@@ -173,14 +171,14 @@ class Artessa(DefaultObject):
 
     # Stores value to see whether or not jester fortune has been found
 
-    fortuneStrings = {"eldritchadmin":"This is a test fortune."}
+    self.fortuneStrings = {"eldritchadmin":"This is a test fortune."}
 
     def at_get(self, getter):
         # Try and find getter key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
 
-        if getter in fortuneStrings:
-            return fortuneStrings[getter]
+        if getter in self.fortuneStrings:
+            return self.fortuneStrings[getter]
         else:
             return "You get nothing."
