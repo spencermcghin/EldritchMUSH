@@ -1182,6 +1182,33 @@ class CmdSmile(Command):
 
         caller.location.msg_contents(string)
 
+# Fortune teller in Carnival
+class CmdPull(Command):
+
+    def func(self):
+        # Try and find caller key in fortuneStrings. If found, return fortune Value
+        # Remove it from the fortuneString dict
+        # If not found return a default fortune string
+        caller = self.caller
+        args = self.args
+
+        err_msg = "Usage: pull crank"
+        fortuneStrings = {"eldritchadmin":"This is a test fortune."}
+
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            args == "crank"
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        else:
+            if caller in fortuneStrings:
+                return fortuneStrings[caller]
+            else:
+                return "You get nothing."
+
 
 """
 Healing commands

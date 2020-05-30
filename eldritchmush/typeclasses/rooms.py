@@ -119,6 +119,14 @@ class ChargenRoom(Room):
         "this is called only at first creation"
         self.cmdset.add(ChargenCmdset, permanent=True)
 
+class ArtessaRoom(Room):
+    """
+    This room used for the Artessa command.
+    """
+    def at_object_creation(self):
+        "this is called only at first creation"
+        self.cmdset.add(ArtessaCmdSet, permanent=True)
+
 # Weather room
 
 # These are rainy weather strings
