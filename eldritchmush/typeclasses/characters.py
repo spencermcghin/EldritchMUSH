@@ -85,10 +85,8 @@ class Character(DefaultCharacter):
         """
         text = super().return_appearance(looker)
         isBleeding = True if self.db.body <= 0 else False
-        target = text.split("\n")
+        # target = text.split("\n")
         if not isBleeding:
             return text
         else:
-            text = f"|r{target} is bleeing profusely from mutliple wounds. They may need a healer.|n\n" += text
-
-        return text
+            return f"|r{target} is bleeing profusely from mutliple wounds. They may need a healer.|n\n"
