@@ -78,9 +78,15 @@ class Character(DefaultCharacter):
         self.db.battlefieldcommander = 0
 
 
-    # def get_abilities(self):
-    #     """
-    #     Simple access method to return ability
-    #     scores as a tuple (str,agi,mag)
-    #     """
-    #     return self.db.strength, self.db.agility, self.db.magic
+    def return_appearance(self, looker):
+        """
+        The return from this method is what
+        looker sees when looking at this object.
+        """
+        text = super().return_appearance(looker)
+        isBleeding = True if self.db.body <= 0 else False
+        target = text.split("\n")
+        if not isBleeding:
+            return text
+        else:
+            return f"|r{target} is bleeing profusely from mutliple wounds. They may need a healer.|n\n" += text
