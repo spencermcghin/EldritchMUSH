@@ -32,13 +32,6 @@ class RoomCmdSet(CmdSet):
         self.add(command.CmdTracking())
         self.add(command.CmdTrack())
 
-class ArtessaCmdSet(CharacterCmdSet):
-
-    """Command set for fortune machine"""
-    def at_cmdset_creation(self):
-        super().at_cmdset_creation()
-        super.add(command.CmdPull())
-
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
@@ -80,6 +73,13 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(combat.CmdBattlefieldCommander())
         self.add(combat.CmdRally())
 
+
+class ArtessaCmdSet(CharacterCmdSet):
+
+    """Command set for fortune machine"""
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        super.add(command.CmdPull())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
