@@ -953,7 +953,7 @@ class CmdTrack(default_cmds.MuxCommand):
     allows us to look at tracking attrs in the room.  These details are
     things to examine and offers some extra description without
     actually having to be actual database objects. It uses the
-    return_perception() hook on the Room class for this.
+    return_tracking() hook on the Room class for this.
     """
 
     # we don't need to specify key/locks etc, this is already

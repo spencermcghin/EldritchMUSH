@@ -11,6 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject
+import random
 
 
 class Object(DefaultObject):
@@ -160,3 +161,26 @@ class Object(DefaultObject):
      """
 
     pass
+
+[]
+
+class Artessa(DefaultObject):
+    """
+    Object that generates fortune cards for players in the Carnival area.
+    """
+    # Chance of getting a jester card = .03. All others get a skull card with a nude man and woman
+    # sitting in the empty eye sockets
+
+    # Stores value to see whether or not jester fortune has been found
+
+    fortuneStrings = {"eldritchadmin":"This is a test fortune."}
+
+    def at_get(self, getter):
+        # Try and find getter key in fortuneStrings. If found, return fortune Value
+        # Remove it from the fortuneString dict
+        # If not found return a default fortune string
+
+        if getter in fortuneStrings:
+            return fortuneStrings[getter]
+        else:
+            return "You get nothing."
