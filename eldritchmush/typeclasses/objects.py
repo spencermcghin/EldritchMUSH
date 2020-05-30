@@ -178,7 +178,7 @@ class Artessa(DefaultObject):
 
         fortuneStrings = {"eldritchadmin":"This is a test fortune."}
 
-        if getter in self.fortuneStrings:
-            return self.fortuneStrings[getter]
+        if getter in fortuneStrings:
+            return fortuneStrings[getter]
         else:
             return "You get nothing."
