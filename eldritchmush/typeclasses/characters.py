@@ -89,4 +89,6 @@ class Character(DefaultCharacter):
         if not isBleeding:
             return text
         else:
-            return f"|r{target} is bleeing profusely from mutliple wounds. They may need a healer.|n\n" += text
+            text = f"|r{target} is bleeing profusely from mutliple wounds. They may need a healer.|n\n" += text
+
+        return text
