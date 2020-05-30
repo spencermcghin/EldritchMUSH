@@ -122,7 +122,7 @@ class ChargenRoom(Room):
 # Weather room
 
 # These are rainy weather strings
-    WEATHER_STRINGS = ["Clouds cover the sky, obscuring might otherwise have been a pleasant day.",
+WEATHER_STRINGS = ["Clouds cover the sky, obscuring might otherwise have been a pleasant day.",
                       "It begins to sprinkle in a soft all-encompassing mist. You would harldy call it rain, though it is certainly wet.",
                       "The rainfall eases a bit and the sky momentarily brightens.",
                       "For a moment it looks like the rain is slowing, then it begins anew with renewed force.",
@@ -150,12 +150,12 @@ class WeatherRoom(DefaultRoom):
         the ticking of the room; the TickerHandler works fine for
         simple things like this though.
         """
-        super().at_object_creation()
+        super(WeatherRoom, self).at_object_creation()
         # subscribe ourselves to a ticker to repeatedly call the hook
         # "update_weather" on this object. The interval is randomized
         # so as to not have all weather rooms update at the same time.
         # self.db.interval = random.randint(5, 8)
-        TICKER_HANDLER.add(interval=1, callback=self.update_weather, persistent=True)
+        TICKER_HANDLER.add(interval=(5*60), callback=self.update_weather, persistent=True)
 
     def update_weather(self, *args, **kwargs):
         """
@@ -168,7 +168,6 @@ class WeatherRoom(DefaultRoom):
         # if random.random() < 0.1:
             # only update 20 % of the time
         self.msg_contents("|w%s|n" % random.choice(WEATHER_STRINGS))
-
 
 # # Market room
 #
