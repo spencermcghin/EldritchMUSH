@@ -1470,7 +1470,7 @@ class SetRally(Command):
     used during character generation.
     """
 
-    key = "setbattlefieldcommander"
+    key = "setrally"
     help_category = "mush"
 
     def func(self):
