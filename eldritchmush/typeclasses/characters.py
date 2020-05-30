@@ -76,6 +76,7 @@ class Character(DefaultCharacter):
 
         # Entries for combat
         self.db.battlefieldcommander = 0
+        self.db.rally = 0
 
 
     def return_appearance(self, looker):
