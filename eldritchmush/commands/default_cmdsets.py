@@ -79,7 +79,7 @@ class ArtessaCmdSet(CharacterCmdSet):
     """Command set for fortune machine"""
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
-        super.add(command.CmdPull())
+        self.add(command.CmdPull())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
