@@ -22,17 +22,22 @@ from commands import combat
 
 class RoomCmdSet(CmdSet):
 
-    key = "tutorial_cmdset"
-    priority = 1
+    """General room command set"""
 
     def at_cmdset_creation(self):
-        """add the tutorial-room commands"""
         super().at_cmdset_creation()
 
         self.add(command.CmdPerception())
         self.add(command.CmdInspect())
         self.add(command.CmdTracking())
         self.add(command.CmdTrack())
+
+class ArtessaCmdSet(CharacterCmdSet):
+
+    """Command set for fortune machine"""
+    def at_cmdset_creation(self):
+
+        super.add(command.CmdPull())
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
