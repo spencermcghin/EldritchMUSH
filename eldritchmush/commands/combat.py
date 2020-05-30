@@ -684,3 +684,29 @@ class CmdBattlefieldCommander(Command):
             self.caller.db.battlefieldcommander -= 1
         else:
             self.caller.msg("|yYou have no uses of your battlefield commander ability remaining.|n")
+
+class CmdRally(Command):
+    """
+    Usage: rally <speech>
+
+    Use the rally command followed by a speech to remove a fear effect from those in the room.
+    """
+    key = "rally"
+    help_category = "combat"
+
+    def parse(self):
+        "Very trivial parser"
+        self.speech = self.args.strip()
+
+    def func(self):
+        if not self.args:
+            self.caller.msg("Usage: rally <speech>")
+            return
+
+        rallyRemaining = self.caller.db.rally
+
+        if rallyRemaining > 0:
+            self.caller.location.msg_contents(f"|b{self.caller.key} shouts so all can hear,|n |r{self.speech}|n.\n|yEveryone in the room now feels unafraid. Cancel the fear effect.|n")
+            self.caller.db.rally -= 1
+        else:
+            self.caller.msg("|yYou have no uses of your rally ability remaining.|n")

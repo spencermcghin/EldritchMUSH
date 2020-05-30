@@ -1432,7 +1432,7 @@ Knight skills
 """
 
 class SetBattleFieldCommander(Command):
-    """Set the medicine level of a character
+    """Set the battlefield commander level of a character
 
     Usage: setbattlefieldcommander <1,2,3>
 
@@ -1459,7 +1459,37 @@ class SetBattleFieldCommander(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.battlefieldcommander = battlefieldcommander
-        self.caller.msg(f"|yYou have activated the battlefield commander ability.|n")
+        self.caller.msg(f"|yYour battlefield commander was set to {battlefieldcommander}.|n")
+
+class SetRally(Command):
+    """Set the rally level of a knight character
+
+    Usage: setrally <1,2,3>
+
+    This sets the rally level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setbattlefieldcommander"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|yYou must supply a number between 1 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            rally = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (1 <= rally <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.rally = rally
+        self.caller.msg(f"|yYour rally was set to {rally}.|n")
 
 
 """
