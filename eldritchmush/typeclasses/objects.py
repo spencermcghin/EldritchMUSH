@@ -11,6 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject
+from commands.default_cmdsets import BoxCmdSet
 import random
 
 
@@ -162,39 +163,44 @@ class Object(DefaultObject):
 
     pass
 
-# class Fortune(DefaultObject):
-#     """
-#     Returns instance of a fortune default object with a character's fortune so
-#     they can pick it up when the Artessa machine drops it.
-#     """
-#     def __init__(self):
 
-
-class Artessa(DefaultObject):
+class ObjTicketBox(DefaultObject):
     """
-    Object that generates fortune cards for players in the Carnival area.
+    Available command:
+
+    push button
+
+    """
+    def at_object_creation(self):
+        "Called when object is first created"
+        # Maintain state of object
+        self.db.hasWinner = False
+
+        desc = "|yThis is a large wooden box, carved with filligree and inlaid at \
+        odd places with ruddy, fake looking gems. On the top of the box is a small black button. \
+        Just beneath this button is a small, tarnished bronze plaque that reads, 'Push Me for a Smile'|n\n
+        |r OOG - Usage: push button|n"
+
+        # Add command set for interacting with box
+        self.cmdset.add_default(BoxCmdSet, permanent=True)
+
+
+class ObjJesterTicket(DefaultObject):
+    """
+    Object that simply generates a description
+    based on the result from a box button push.
     """
 
-    def func(self):
-        # Try and find caller key in fortuneStrings. If found, return fortune Value
-        # Remove it from the fortuneString dict
-        # If not found return a default fortune string
-        caller = self.caller
-        args = self.args
+    def return_appearance(self, looker):
+        desc = "|yThis is a small, rectangular slip of stained paper. One one side is the black and white stamp of a sinister looking jester."
+        return desc
 
-        err_msg = "Usage: pull crank"
-        fortuneStrings = {"eldritchadmin":"This is a test fortune."}
+class ObjSkullTicket(DefaultObject):
+    """
+    Object that simply generates a description
+    based on the result from a box button push.
+    """
 
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            args == "crank"
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-        else:
-            if caller in fortuneStrings:
-                return fortuneStrings[caller]
-            else:
-                return "You get nothing."
+    def return_appearance(self):
+        desc = "|yThis is a small, rectangular slip of stained paper. One one side is the faded black and white stamp of a grinning skull."
+        return desc
