@@ -12,6 +12,8 @@ from django.conf import settings
 from evennia import Command as BaseCommand
 from evennia import default_cmds, utils, search_object
 from commands.combat import Helper
+from commands.fortuneStrings import FORTUNE_STRINGS
+from typeclasses.objects import ObjTicketBox
 
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
@@ -1217,8 +1219,8 @@ class CmdPull(Command):
             self.caller.msg(err_msg)
             return
         else:
-            if self.caller.key in fortuneStrings:
-                return self.caller.msg(fortuneStrings[self.caller.key])
+            if self.caller.key in FORTUNE_STRINGS:
+                return self.caller.msg(FORTUNE_STRINGS[self.caller.key])
             else:
                 return self.caller.msg("You get nothing.")
 
@@ -1239,6 +1241,7 @@ class CmdThrow(Command):
         args = self.args
 
         err_msg = "Usage: throw dagger"
+
         # Generate dc for target.
         target_dc = random.randint(1,6)
 
@@ -1256,11 +1259,52 @@ class CmdThrow(Command):
             return
         else:
             if die_result > target_dc:
+                # If the caller has done this before they will always get a skull ticket. Update their pariticpant status in the db as 1.
+                # If the caller has not done this before, they should get a result from the random ticket chance.
+                # Check the database to make sure that the jester ticket hasn't been chosen yet.
+                # If a player gets the random jester ticket from this booth, it should log the entry in the database and not allow it to be generated again.
                 self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
-                # TODO: Add logic here to output a ticket object
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
+
+class CmdPushButton(Command):
+    """
+    Usage: push button
+
+    Pushes button on the box in each carnival attraction.
+    Generates either a jester or skull card object. Each box only has one jester card with a 1/30 chance to draw it.
+    Once the jester card has been drawn, update the corresponding database entry to True for the box object.
+    If anyone tries to push the button once a winner has been chosen, only skull tickets are generated.
+    """
+
+    key = "push button"
+    aliases = ["push", "button", "press button"]
+    locks = "cmd:all()"
+
+    def func(self):
+        """
+        Push the button. Check the database for a winner.
+        If none, there's 1/30 chance you'll draw the jester card.
+        If drawn, update entry with hasWinner = 1. Drop card object with description of jester on it.
+        If not, player gets a skull ticket.
+        """
+        hasWinner = self.obj.db.hasWinner
+
+        # Commands to generate tickets
+        jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
+        skull_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjSkullTicket"
+
+        if not hasWinner:
+            draw = random.randint(1,30)
+            if draw == 30:
+                self.obj.db.hasWinner = True
+                # Generate and drop a ticket object with a jester description.
+                # Should indicate that character picks it up.
+                self.execute_cmd(jester_command)
+        else:
+            # Drop a ticket object with a skull description
+            self.execute_cmd(skull_command)
 
 """
 Healing commands
