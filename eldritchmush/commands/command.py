@@ -1205,7 +1205,7 @@ class CmdPull(Command):
             self.caller.msg(err_msg)
             return
         else:
-            if self.key in fortuneStrings:
+            if self.caller.key in fortuneStrings:
                 return self.caller.location.msg_contents(fortuneStrings[caller])
             else:
                 return self.caller.msg("You get nothing.")
