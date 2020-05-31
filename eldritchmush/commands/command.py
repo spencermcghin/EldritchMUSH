@@ -11,7 +11,7 @@ from django.conf import settings
 # Local imports
 from evennia import Command as BaseCommand
 from evennia import default_cmds, utils, search_object
-from commands import combat
+from commands.combat import Helper
 
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
