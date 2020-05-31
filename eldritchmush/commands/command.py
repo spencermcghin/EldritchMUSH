@@ -1184,6 +1184,11 @@ class CmdSmile(Command):
 
 # Fortune teller in Carnival
 class CmdPull(Command):
+    """
+    Usage: pull crank
+
+    Should get a fortune from the Artessa machine in the room. Command tied to room only.
+    """
 
     key = "pull"
 
@@ -1194,7 +1199,8 @@ class CmdPull(Command):
         args = self.args
 
         err_msg = "Usage: pull crank"
-        fortuneStrings = {'eldritchadmin':"This is a test fortune."}
+        fortuneStrings = {'eldritchadmin':'This is a test fortune.',
+                          'jess': 'You will marry a very handsome man who love you very much.'}
 
         if not self.args:
             self.caller.msg(err_msg)
