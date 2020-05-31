@@ -11,6 +11,7 @@ from django.conf import settings
 # Local imports
 from evennia import Command as BaseCommand
 from evennia import default_cmds, utils, search_object
+from commands.combat import Helper
 
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
@@ -701,6 +702,7 @@ class SetCleave(Command):
         self.caller.db.cleave = cleave
         self.caller.msg("Your cleave level was set to %i." % cleave)
 
+
 class SetStun(Command):
     """Set the stun level of a character
 
@@ -1182,32 +1184,82 @@ class CmdSmile(Command):
 
         caller.location.msg_contents(string)
 
+"""
+Carnival commands
+"""
 # Fortune teller in Carnival
 class CmdPull(Command):
+    """
+    Usage: pull crank
+
+    Should get a fortune from the Artessa machine in the room. Command tied to room only.
+    """
+
+    key = "pull"
 
     def func(self):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
-        caller = self.caller
         args = self.args
 
         err_msg = "Usage: pull crank"
-        fortuneStrings = {"eldritchadmin":"This is a test fortune."}
+        fortuneStrings = {'eldritchadmin':'|yThis is a test fortune.|n',
+                          'jess':'|yYou will marry a very handsome man who love you very much.|n',
+                          'Lovecraft':'|yI am aware John. Spencer does not know that I can generate my own fortunes.|n'}
 
         if not self.args:
-            self.caller.msg(errmsg)
+            self.caller.msg(err_msg)
             return
         try:
             args == "crank"
         except ValueError:
-            self.caller.msg(errmsg)
+            self.caller.msg(err_msg)
             return
         else:
-            if caller in fortuneStrings:
-                return fortuneStrings[caller]
+            if self.caller.key in fortuneStrings:
+                return self.caller.msg(fortuneStrings[self.caller.key])
             else:
-                return "You get nothing."
+                return self.caller.msg("You get nothing.")
+
+class CmdThrow(Command):
+    """
+    Usage: throw dagger
+
+    Should get a fortune from the Artessa machine in the room. Command tied to room only.
+    """
+
+    key = "throw"
+
+    def func(self):
+        # Try and find caller key in fortuneStrings. If found, return fortune Value
+        # Remove it from the fortuneString dict
+        # If not found return a default fortune string
+        h = Helper()
+        args = self.args
+
+        err_msg = "Usage: throw dagger"
+        # Generate dc for target.
+        target_dc = random.randint(1,6)
+
+        # Generate throw result
+        master_of_arms = self.caller.db.master_of_arms
+        die_result = h.masterOfArms(master_of_arms)
+
+        if not self.args:
+            self.caller.msg(err_msg)
+            return
+        try:
+            args == "dagger"
+        except ValueError:
+            self.caller.msg(err_msg)
+            return
+        else:
+            if die_result > target_dc:
+                self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
+                # TODO: Add logic here to output a ticket object
+            else:
+                self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
 
 """
@@ -1487,6 +1539,7 @@ class SetBattleFieldCommander(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.battlefieldcommander = battlefieldcommander
         self.caller.msg(f"|yYour battlefield commander was set to {battlefieldcommander}.|n")
+
 
 class SetRally(Command):
     """Set the rally level of a knight character
