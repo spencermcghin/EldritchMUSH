@@ -258,7 +258,7 @@ class MarketRoom(WeatherRoom):
         """
         super(MarketRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(8*60, self.update_market, idstring="market_ticker", persistent=False)
+        TICKER_HANDLER.add(10*60, self.update_market, idstring="market_ticker", persistent=False)
 
     def update_market(self, *args, **kwargs):
         """
@@ -274,6 +274,52 @@ class MarketRoom(WeatherRoom):
         # Retrieve a new market broadcast that has not been played yet.
         while next_phrase in self.used_phrases:
             next_phrase = random.choice(MARKET_STRINGS)
+
+        # Add the new phrase to the used_phrases list.
+        self.used_phrases.append(next_phrase)
+
+        self.msg_contents("|w%s|n" % next_phrase)
+
+# These are rookery strings
+ROOKERY_STRINGS = ["Ravens peer down from several perches with their beady black eyes. It feels like they're studying you.",
+                      "*splat* ... White poo lands on the stone floor, dangerously close.",
+                      "A group of ravens croak loudly as their neighbor lands on their perch and ruffles its feathers, getting comfortable.",
+                      "The soft sh-sh-sh sounds of feather moving against feather is constant.",
+                      "A raven takes flight from the floor, disturbing dust and feathers which float up in the rays of light coming from the windows.",
+                      "Several ravens exchange a series of gurgling croaks before settling down into soft beak snaps.",
+                      "A few ravens look up as one of their brethren soars in from a high window.",
+                      "Nearby, a jet black bird intently preens itself.",
+                      "One rather large raven hops from one roost to the next, stopping now and then to wipe its beak across the wooden perches.",
+                      "A fight breaks out between two ravens. They exchange snaps and shrill caws before one flies away from the other."]
+
+class RookeryRoom(DefaultRoom):
+
+    # A list to keep track of the phrases that have already been broadcast.
+    used_phrases = []
+
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        """
+        super(RookeryRoom, self).at_object_creation()
+
+        TICKER_HANDLER.add(10*60, self.update_rookery, idstring="rookery_ticker", persistent=False)
+
+    def update_rookery(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals.
+        """
+        
+        # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
+        if len(self.used_phrases) == len(ROOKERY_STRINGS):
+            self.used_phrases.clear()
+        
+        next_phrase = random.choice(ROOKERY_STRINGS)
+
+        # Retrieve a new market broadcast that has not been played yet.
+        while next_phrase in self.used_phrases:
+            next_phrase = random.choice(ROOKERY_STRINGS)
 
         # Add the new phrase to the used_phrases list.
         self.used_phrases.append(next_phrase)
