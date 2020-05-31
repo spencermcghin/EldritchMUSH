@@ -1185,6 +1185,8 @@ class CmdSmile(Command):
 # Fortune teller in Carnival
 class CmdPull(Command):
 
+    key = "pull"
+
     def func(self):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
