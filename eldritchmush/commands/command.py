@@ -1191,7 +1191,6 @@ class CmdPull(Command):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
-        caller = self.caller
         args = self.args
 
         err_msg = "Usage: pull crank"
@@ -1206,10 +1205,10 @@ class CmdPull(Command):
             self.caller.msg(err_msg)
             return
         else:
-            if caller in fortuneStrings:
-                return caller.location.msg_contents(fortuneStrings[caller])
+            if self.caller in fortuneStrings:
+                return self.caller.location.msg_contents(fortuneStrings[caller])
             else:
-                return "You get nothing."
+                return self.caller.msg("You get nothing.")
 
 
 """
