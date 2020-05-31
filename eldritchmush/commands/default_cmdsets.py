@@ -74,7 +74,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(combat.CmdRally())
 
 
-class ArtessaCmdSet(CharacterCmdSet):
+class ArtessaCmdSet(RoomCmdSet):
 
     """Command set for fortune machine"""
     def at_cmdset_creation(self):

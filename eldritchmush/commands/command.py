@@ -1496,6 +1496,7 @@ class SetBattleFieldCommander(Command):
         self.caller.db.battlefieldcommander = battlefieldcommander
         self.caller.msg(f"|yYour battlefield commander was set to {battlefieldcommander}.|n")
 
+
 class SetRally(Command):
     """Set the rally level of a knight character
 
