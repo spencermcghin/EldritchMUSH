@@ -1240,7 +1240,7 @@ class CmdThrow(Command):
 
         err_msg = "Usage: throw dagger"
         # Generate dc for target.
-        target_dc = rand.randint(1,6)
+        target_dc = random.randint(1,6)
 
         # Generate throw result
         master_of_arms = self.caller.db.master_of_arms
