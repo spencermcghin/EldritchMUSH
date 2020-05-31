@@ -126,101 +126,141 @@ class ArtessaRoom(Room):
     def at_object_creation(self):
         "this is called only at first creation"
         self.cmdset.add(ArtessaCmdSet, permanent=True)
-
 # Weather room
 
 # These are rainy weather strings
-WEATHER_STRINGS = ["Clouds cover the sky, obscuring might otherwise have been a pleasant day.",
-                      "It begins to sprinkle in a soft all-encompassing mist. You would harldy call it rain, though it is certainly wet.",
+RAINY_STRINGS = ["Clouds move in to cover the sky, obscuring what might otherwise have been a pleasant day.",
+                      "It begins to sprinkle in a soft all-encompassing mist. You would hardly call it rain, though it is certainly wet.",
                       "The rainfall eases a bit and the sky momentarily brightens.",
                       "For a moment it looks like the rain is slowing, then it begins anew with renewed force.",
                       "The rain pummels you with large, heavy drops. You hear the rumble of thunder in the distance.",
                       "The wind is picking up, howling around you, throwing water droplets in your face. It's cold.",
                       "Bright fingers of lightning flash over the sky, moments later followed by a deafening rumble.",
                       "It rains so hard you can hardly see your hand in front of you. You'll soon be drenched to the bone.",
-                      "Lightning strikes in several thundering bolts, striking the trees in the forest to your west.",
-                      "You hear the distant howl of what sounds like some sort of dog or wolf.",
-                      "Large clouds rush across the sky, throwing their load of rain over the world."]
+                      "Large clouds rush across the sky, throwing their load of rain over the world.",
+                      "The rain ceases, giving you a welcome reprieve, though the clouds seem to be sticking around.",
+                      "Cloud cover persists. The air feels heavy and humid."]
+# These are sunny weather strings
+SUNNY_STRINGS = ["The skies begin to clear and you can see patches of blue among the grey.",
+                      "The clouds float away and above you is a gorgeous, clear sky. Birds flit over your head.",
+                      "The wind picks up, catching your clothes. Soft, white clouds scuttle quickly across the sky.",
+                      "The air stills and the sun warms you.",
+                      "You hear the breeze before it reaches you; the trees whisper as it passes through their leaves.",
+                      "Rays of sunshine beam through the clouds in the sky.",
+                      "The area darkens slightly as a cloud passes over the sun. The drop in temperature is noticeable, but not extreme.",
+                      "Recent rains make the air smell fresh, but damp. Water droplets on the grass sparkle in the sun.",
+                      "A bird of prey soars overhead on a warm draft. White clouds hang in the air high above.",
+                      "The sun peaks out from behind intermittent clouds, suggesting the threat of spring rain."]
 
 class WeatherRoom(DefaultRoom):
     """
-    This should probably better be called a rainy room...
     This sets up an outdoor room typeclass. At irregular intervals,
     the effects of weather will show in the room. Outdoor rooms should
     inherit from this.
     """
+    current_weather = ""
+    current_weather_type = []
+    weather_counter = 0
 
     def at_object_creation(self):
         """
         Called when object is first created.
         We set up a ticker to update this room regularly.
-        Note that we could in principle also use a Script to manage
-        the ticking of the room; the TickerHandler works fine for
-        simple things like this though.
         """
         super(WeatherRoom, self).at_object_creation()
-        # subscribe ourselves to a ticker to repeatedly call the hook
-        # "update_weather" on this object. The interval is randomized
-        # so as to not have all weather rooms update at the same time.
-        # self.db.interval = random.randint(5, 8)
-        TICKER_HANDLER.add(interval=(5*60), callback=self.update_weather, persistent=True)
+        
+        weather_choice = random.randint(0, 1)
+        if weather_choice == 0:
+            self.current_weather_type = RAINY_STRINGS
+        else:
+            self.current_weather_type = SUNNY_STRINGS
+        
+        TICKER_HANDLER.add(30*60, self.update_weather, idstring="weather_ticker", persistent=False)
 
     def update_weather(self, *args, **kwargs):
         """
-        Called by the tickerhandler at regular intervals. Even so, we
-        only update 20% of the time, picking a random weather message
-        when we do. The tickerhandler requires that this hook accepts
-        any arguments and keyword arguments (hence the *args, **kwargs
-        even though we don't actually use them in this example)
+        Called by the tickerhandler at regular intervals.
         """
-        # if random.random() < 0.1:
-            # only update 20 % of the time
-        self.msg_contents("|w%s|n" % random.choice(WEATHER_STRINGS))
+        previous_weather = self.current_weather
+    
+        # When the weather has broadcasted 2 times (every 30 minutes)...
+        if self.weather_counter >= 1:
+            previous_weather_type = self.current_weather_type
 
-# # Market room
-#
-# # These are rainy weather strings
-# MARKET_STRINGS = (
-#     "Get your smoked meats here..two for a copper...",
-#     "Fresh cuts today...chops, liver, ribs, get it before the flies do..."
-#     "Come and see the man of many cheeses! Finest cheeses in all the kingdom...",
-#     "Tomatoes, olives, grapes...fresh bread. Get it at Gilfrain's...",
-#     "Fine wrought iron...intricate metalwork...artisan quality...",
-#     "Good wool and linen for dresses. Leather hides for your saddles and armor. Nearly out...good prices...",
-#     "Boots, shoes, ladies' slippers...children's shoes, booties. Come and size a pair for yourself...",
-#     "Cutlery from the Dusklands...sharp as the day it left the smithy..."
-# )
+            # On the last weather broadcast, randomly decide whether the next hour will be sunny or rainy.
+            # There is a 75% chance the weather will be the same, and a 25% chance the weather will be different.
+            new_weather_choice = random.randint(0, 100)
+            if new_weather_choice > 75:
+                if previous_weather_type == RAINY_STRINGS:
+                    self.current_weather_type = SUNNY_STRINGS
+                else:
+                    self.current_weather_type = RAINY_STRINGS
+            
+            # Set the weather broadcast to the first value in the weather type array, to indicate that the 
+            # weather is changing. If the weather is not changing, pick a random value from the array.
+            if self.current_weather_type == previous_weather_type:
+                while self.current_weather == previous_weather or self.current_weather == self.current_weather_type[0]:
+                    self.current_weather = random.choice(self.current_weather_type)
+            else:
+                self.current_weather = self.current_weather_type[0]
 
-# class MarketRoom(WeatherRoom):
-#     """
-#     Text for the market callers
-#     """
-#
-#     def at_object_creation(self):
-#         """
-#         Called when object is first created.
-#         We set up a ticker to update this room regularly.
-#         Note that we could in principle also use a Script to manage
-#         the ticking of the room; the TickerHandler works fine for
-#         simple things like this though.
-#         """
-#         super().at_object_creation()
-#         # subscribe ourselves to a ticker to repeatedly call the hook
-#         # "update_weather" on this object. The interval is randomized
-#         # so as to not have all weather rooms update at the same time.
-#         self.db.interval = random.randint(8, 20)
-#         TICKER_HANDLER.add(
-#             interval=self.db.interval, callback=self.update_market, idstring="market"
-#         )
-#
-#     def update_market(self, *args, **kwargs):
-#         """
-#         Called by the tickerhandler at regular intervals. Even so, we
-#         only update 90% of the time, picking a random weather message
-#         when we do. The tickerhandler requires that this hook accepts
-#         any arguments and keyword arguments (hence the *args, **kwargs
-#         even though we don't actually use them in this example)
-#         """
-#         if random.random() < 0.9:
-#             # only update 90 % of the time
-#             self.msg_contents("In the distance, you can hear someone shout:\n|w%s|n" % random.choice(MARKET_STRINGS))
+            # Reset the weather counter to 0.
+            self.weather_counter = 0
+        else:
+            while self.current_weather == previous_weather or self.current_weather == self.current_weather_type[0]:
+                self.current_weather = random.choice(self.current_weather_type)
+            self.weather_counter += 1
+            
+        self.msg_contents("|w%s|n" % self.current_weather)
+
+MARKET_STRINGS = [
+    "\"Get your smoked meats here! Two for a coppa'...\"",
+    "\"Fresh cuts today! Chops, liver, ribs, get it before the flies do, friends!\"",
+    "\"Come and see the man of many cheeses! Finest cheeses in all of Arnesse...!\"",
+    "\"Tomatoes, olives, grapes... fresh bread, he'ah! Get it at Gilfrain's...!\"",
+    "\"Fine wrought iron! Intricate metalwork... artisan quality...\"",
+    "\"Good wool and linen for dresses. Leather hides for your saddles and armor. Nearly out... good prices!\"",
+    "\"Boots, shoes, ladies' slippers... children's shoes, booties. Produced in Highcourt! Come and size a pair for yourself...\"",
+    "\"Cutlery from the Dusklands... sharp as the day it left the smithy! Guarenteed!\"",
+    "\"Brought in some horses to thin me herd, stout geldings and mares... This one would made a good palfrey, he would!\"",
+    "\"Mule for sale! Won't find a more reliable animal!\"",
+    "\"Sturdy farm tools at Red's Smithy... These'll last ye a life time!\"",
+    "\"Freshly cut flowers! Fit even for Queen Aline herself, your loved ones will be delighted!\"",
+    "\"Git yer fine leather goods here... Pouches designed to deter thieves! Don't believe me? Come see fer yerself!\"",
+    "\"Refreshing beer, cooled in the nearby stream! Got a couple barrels of Beggar's Amber!\"",
+    "\"Fine wines! Imports from Orgonne and Corsicana, come by for a tasting...\"",
+    "\"Pelts and furs from the Barrier Mountains... Never too early to prepare for winter!\"",
+    "\"Tarkathi crafts! Fine Tarkathi crafts, direct from Tyranthis!\"",
+    "\"Khalico has wares if you have coin...\"",
+    "A merchant is overheard saying, \"Come back when you're ready to spend more coin... goodness knows I could use it.\"",
+    "\"Got some good pieces out here if yer looking to buy. More inside the tent!\""
+]
+
+class MarketRoom(WeatherRoom):
+
+    used_phrases = []
+
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        """
+        super(MarketRoom, self).at_object_creation()
+
+        TICKER_HANDLER.add(20, self.update_market, idstring="market_ticker", persistent=False)
+
+    def update_market(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals.
+        """
+        # if len(used_phrases) == len(MARKET_STRINGS):
+        #     self.used_phrases.clear()
+        
+        next_phrase = random.choice(MARKET_STRINGS)
+
+        # while next_phrase in self.used_phrases:
+        #     next_phrase = random.choice(MARKET_STRINGS)
+
+        # self.used_phrases.append(next_phrase)
+
+        self.msg_contents("|w%s|n" % next_phrase)
