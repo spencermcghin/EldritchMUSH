@@ -1194,7 +1194,7 @@ class CmdPull(Command):
         args = self.args
 
         err_msg = "Usage: pull crank"
-        fortuneStrings = {"eldritchadmin":"This is a test fortune."}
+        fortuneStrings = {'eldritchadmin':"This is a test fortune."}
 
         if not self.args:
             self.caller.msg(err_msg)
@@ -1205,7 +1205,7 @@ class CmdPull(Command):
             self.caller.msg(err_msg)
             return
         else:
-            if self.caller in fortuneStrings:
+            if self.key in fortuneStrings:
                 return self.caller.location.msg_contents(fortuneStrings[caller])
             else:
                 return self.caller.msg("You get nothing.")
