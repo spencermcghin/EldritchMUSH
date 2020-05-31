@@ -241,13 +241,14 @@ MARKET_STRINGS = [
     "\"Fine wines! Imports from Orgonne and Corsicana, come by for a tasting...\"",
     "\"Pelts and furs from the Barrier Mountains... Never too early to prepare for winter!\"",
     "\"Tarkathi crafts! Fine Tarkathi crafts, direct from Tyranthis!\"",
-    "\"Khalico has wares if you have coin...\"",
-    "A merchant is overheard saying, \"Come back when you're ready to spend more coin... goodness knows I could use it.\"",
+    "A nearby merchant tells a customer, \"Khalico has wares if you have coin...\"",
+    "A merchant is overheard saying, \"Come back when you're ready to spend more coin... goodness knows I could use it...\"",
     "\"Got some good pieces out here if yer looking to buy. More inside the tent!\""
 ]
 
 class MarketRoom(WeatherRoom):
 
+    # A list to keep track of the phrases that have already been broadcast.
     used_phrases = []
 
     def at_object_creation(self):
@@ -257,20 +258,24 @@ class MarketRoom(WeatherRoom):
         """
         super(MarketRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(20, self.update_market, idstring="market_ticker", persistent=False)
+        TICKER_HANDLER.add(8*60, self.update_market, idstring="market_ticker", persistent=False)
 
     def update_market(self, *args, **kwargs):
         """
         Called by the tickerhandler at regular intervals.
         """
-        # if len(used_phrases) == len(MARKET_STRINGS):
-        #     self.used_phrases.clear()
+        
+        # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
+        if len(self.used_phrases) == len(MARKET_STRINGS):
+            self.used_phrases.clear()
         
         next_phrase = random.choice(MARKET_STRINGS)
 
-        # while next_phrase in self.used_phrases:
-        #     next_phrase = random.choice(MARKET_STRINGS)
+        # Retrieve a new market broadcast that has not been played yet.
+        while next_phrase in self.used_phrases:
+            next_phrase = random.choice(MARKET_STRINGS)
 
-        # self.used_phrases.append(next_phrase)
+        # Add the new phrase to the used_phrases list.
+        self.used_phrases.append(next_phrase)
 
         self.msg_contents("|w%s|n" % next_phrase)
