@@ -7,7 +7,7 @@ Rooms are simple containers that has no location of their own.
 
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
-from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet
+from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet
 from commands import command
 
 import random
@@ -127,6 +127,14 @@ class ArtessaRoom(Room):
     def at_object_creation(self):
         "this is called only at first creation"
         self.cmdset.add(ArtessaCmdSet, permanent=True)
+
+class NotchRoom(Room):
+    """
+    This room used for the Notch command.
+    """
+    def at_object_creation(self):
+        "this is called only at first creation"
+        self.cmdset.add(NotchCmdSet, permanent=True)
 
 # Weather room
 

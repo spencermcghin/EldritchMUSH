@@ -701,6 +701,7 @@ class SetCleave(Command):
         self.caller.db.cleave = cleave
         self.caller.msg("Your cleave level was set to %i." % cleave)
 
+
 class SetStun(Command):
     """Set the stun level of a character
 
@@ -1182,6 +1183,9 @@ class CmdSmile(Command):
 
         caller.location.msg_contents(string)
 
+"""
+Carnival commands
+"""
 # Fortune teller in Carnival
 class CmdPull(Command):
     """
@@ -1216,6 +1220,45 @@ class CmdPull(Command):
                 return self.caller.msg(fortuneStrings[self.caller.key])
             else:
                 return self.caller.msg("You get nothing.")
+
+class CmdThrow(Command):
+    """
+    Usage: throw dagger
+
+    Should get a fortune from the Artessa machine in the room. Command tied to room only.
+    """
+
+    key = "throw"
+
+    def func(self):
+        # Try and find caller key in fortuneStrings. If found, return fortune Value
+        # Remove it from the fortuneString dict
+        # If not found return a default fortune string
+        h = Helper()
+        args = self.args
+
+        err_msg = "Usage: throw dagger"
+        # Generate dc for target.
+        target_dc = rand.randint(1,6)
+
+        # Generate throw result
+        master_of_arms = self.caller.db.master_of_arms
+        die_result = h.masterOfArms(master_of_arms)
+
+        if not self.args:
+            self.caller.msg(err_msg)
+            return
+        try:
+            args == "dagger"
+        except ValueError:
+            self.caller.msg(err_msg)
+            return
+        else:
+            if die_result > target_dc:
+                self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
+                # TODO: Add logic here to output a ticket object
+            else:
+                self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
 
 """

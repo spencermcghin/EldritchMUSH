@@ -81,6 +81,14 @@ class ArtessaCmdSet(RoomCmdSet):
         super().at_cmdset_creation()
         self.add(command.CmdPull())
 
+
+class NotchCmdSet(RoomCmdSet):
+
+    """Command set for fortune machine"""
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(command.CmdThrow())
+
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
     This is the cmdset available to the Account at all times. It is
