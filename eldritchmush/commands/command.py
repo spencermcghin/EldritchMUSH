@@ -1199,8 +1199,9 @@ class CmdPull(Command):
         args = self.args
 
         err_msg = "Usage: pull crank"
-        fortuneStrings = {'eldritchadmin':'This is a test fortune.',
-                          'jess': 'You will marry a very handsome man who love you very much.'}
+        fortuneStrings = {'eldritchadmin':'|yThis is a test fortune.|n',
+                          'jess':'|yYou will marry a very handsome man who love you very much.|n',
+                          'johnadmin':'|yI am aware John. Spencer does not know that I can generate my own fortunes.|n'}
 
         if not self.args:
             self.caller.msg(err_msg)
@@ -1212,7 +1213,7 @@ class CmdPull(Command):
             return
         else:
             if self.caller.key in fortuneStrings:
-                return self.caller.location.msg_contents(fortuneStrings[self.caller.key])
+                return self.caller.msg(fortuneStrings[self.caller.key])
             else:
                 return self.caller.msg("You get nothing.")
 
