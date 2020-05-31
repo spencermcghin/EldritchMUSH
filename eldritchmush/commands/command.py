@@ -1198,12 +1198,12 @@ class CmdPull(Command):
         fortuneStrings = {"eldritchadmin":"This is a test fortune."}
 
         if not self.args:
-            self.caller.msg(errmsg)
+            self.caller.msg(err_msg)
             return
         try:
             args == "crank"
         except ValueError:
-            self.caller.msg(errmsg)
+            self.caller.msg(err_msg)
             return
         else:
             if caller in fortuneStrings:
