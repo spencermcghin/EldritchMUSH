@@ -1207,7 +1207,7 @@ class CmdPull(Command):
             return
         else:
             if caller in fortuneStrings:
-                return fortuneStrings[caller]
+                return caller.location.msg_contents(fortuneStrings[caller])
             else:
                 return "You get nothing."
 
