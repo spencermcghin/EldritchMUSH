@@ -74,12 +74,20 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(combat.CmdRally())
 
 
-class ArtessaCmdSet(CharacterCmdSet):
+class ArtessaCmdSet(RoomCmdSet):
 
     """Command set for fortune machine"""
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
         self.add(command.CmdPull())
+
+
+class NotchCmdSet(RoomCmdSet):
+
+    """Command set for fortune machine"""
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(command.CmdThrow())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
