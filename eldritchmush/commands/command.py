@@ -1278,7 +1278,6 @@ class CmdPushButton(Command):
 
     key = "push button"
     aliases = ["push", "button", "press button"]
-    locks = "cmd:all()"
 
     def func(self):
         """
