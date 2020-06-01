@@ -1310,7 +1310,7 @@ class CmdPushButton(Command):
         #     # Drop a ticket object with a skull description
         #     self.caller.location.msg_contents(button_emote)
         #     self.execute_cmd(jester_command)
-        self.caller.location.msg_content(button_emote)
+        self.caller.location.msg_contents(button_emote)
 
 """
 Healing commands
