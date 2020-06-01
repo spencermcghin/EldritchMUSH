@@ -1660,7 +1660,8 @@ class DefaultObject(ObjectDB, metaclass=TypeclassBase):
             return ""
         # get and identify all objects
         visible = (con for con in self.contents if con != looker and con.access(looker, "view"))
-        exits, users, things = [], [], defaultdict(list)
+        # exits, users, things = [], [], defaultdict(list)
+        exits, users, things = [], [], []
         for con in visible:
             key = con.get_display_name(looker)
             if con.destination:
@@ -1669,7 +1670,8 @@ class DefaultObject(ObjectDB, metaclass=TypeclassBase):
                 users.append("|c%s|n" % key)
             else:
                 # things can be pluralized
-                things[key].append(con)
+                # things[key].append(con)
+                things.append("|c%s|n" % key)
         # get description, build string
         string = "|c%s|n\n" % self.get_display_name(looker)
         desc = self.db.desc
@@ -1679,18 +1681,25 @@ class DefaultObject(ObjectDB, metaclass=TypeclassBase):
             string += "\n|wExits:|n " + list_to_string(exits)
         if users or things:
             # handle pluralization of things (never pluralize users)
-            thing_strings = []
-            for key, itemlist in sorted(things.items()):
-                nitem = len(itemlist)
-                if nitem == 1:
-                    key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
-                else:
-                    key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][
-                        0
-                    ]
-                thing_strings.append(key)
+            # thing_strings = []
+            # for key, itemlist in sorted(things.items()):
+            #     nitem = len(itemlist)
+            #     if nitem == 1:
+            #         key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+            #     else:
+            #         key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][
+            #             0
+            #         ]
+            #     thing_strings.append(key)
 
-            string += "\n|wYou see:|n " + list_to_string(users + thing_strings)
+            # string += "\n|wYou see:|n " + list_to_string(users + thing_strings)
+            # string += "\n|wYou see:|n " + list_to_string(users + things)
+            string += "\n|wYou see:|n "
+
+            if users:
+                string += "\n|wUsers:|n " + list_to_string(users)
+            if things:
+                string += "\n|wThings:|n " + list_to_string(things)
 
         return string
 
