@@ -176,7 +176,7 @@ class ObjTicketBox(DefaultObject):
         # Maintain state of object
         self.db.hasWinner = False
 
-        self.db.desc = "|y\nThis is a large wooden box, carved with filigree and inlaid at odd places with ruddy, fake looking gems. On the top of the box is a small black button. Just beneath this button is a small, tarnished bronze plaque that reads, 'Push Me for a Smile'|n\n
+        self.db.desc = "|y\nThis is a large wooden box, carved with filigree and inlaid at odd places with ruddy, fake looking gems. On the top of the box is a small black button. Just beneath this button is a small, tarnished bronze plaque that reads, 'Push Me for a Smile'|n\n\
         |rOOG - Usage: push button|n"
 
         # Add command set for interacting with box
