@@ -32,6 +32,16 @@ class RoomCmdSet(CmdSet):
         self.add(command.CmdTracking())
         self.add(command.CmdTrack())
 
+class BoxCmdSet(CmdSet):
+    """
+    Command set for box object in carnival
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(command.CmdPushButton())
+
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
