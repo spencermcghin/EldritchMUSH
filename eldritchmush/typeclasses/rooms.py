@@ -7,7 +7,7 @@ Rooms are simple containers that has no location of their own.
 
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
-from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet
+from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, BridgeCmdSet
 from commands import command
 
 import random
@@ -178,13 +178,13 @@ class WeatherRoom(DefaultRoom):
         We set up a ticker to update this room regularly.
         """
         super(WeatherRoom, self).at_object_creation()
-        
+
         weather_choice = random.randint(0, 1)
         if weather_choice == 0:
             self.current_weather_type = RAINY_STRINGS
         else:
             self.current_weather_type = SUNNY_STRINGS
-        
+
         TICKER_HANDLER.add(30*60, self.update_weather, idstring="weather_ticker", persistent=False)
 
     def update_weather(self, *args, **kwargs):
@@ -192,7 +192,7 @@ class WeatherRoom(DefaultRoom):
         Called by the tickerhandler at regular intervals.
         """
         previous_weather = self.current_weather
-    
+
         # When the weather has broadcasted 2 times (every 30 minutes)...
         if self.weather_counter >= 1:
             previous_weather_type = self.current_weather_type
@@ -205,8 +205,8 @@ class WeatherRoom(DefaultRoom):
                     self.current_weather_type = SUNNY_STRINGS
                 else:
                     self.current_weather_type = RAINY_STRINGS
-            
-            # Set the weather broadcast to the first value in the weather type array, to indicate that the 
+
+            # Set the weather broadcast to the first value in the weather type array, to indicate that the
             # weather is changing. If the weather is not changing, pick a random value from the array.
             if self.current_weather_type == previous_weather_type:
                 while self.current_weather == previous_weather or self.current_weather == self.current_weather_type[0]:
@@ -220,7 +220,7 @@ class WeatherRoom(DefaultRoom):
             while self.current_weather == previous_weather or self.current_weather == self.current_weather_type[0]:
                 self.current_weather = random.choice(self.current_weather_type)
             self.weather_counter += 1
-            
+
         self.msg_contents("|w%s|n" % self.current_weather)
 
 MARKET_STRINGS = [
@@ -264,11 +264,11 @@ class MarketRoom(WeatherRoom):
         """
         Called by the tickerhandler at regular intervals.
         """
-        
+
         # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
         if len(self.used_phrases) == len(MARKET_STRINGS):
             self.used_phrases.clear()
-        
+
         next_phrase = random.choice(MARKET_STRINGS)
 
         # Retrieve a new market broadcast that has not been played yet.
@@ -310,11 +310,11 @@ class RookeryRoom(DefaultRoom):
         """
         Called by the tickerhandler at regular intervals.
         """
-        
+
         # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
         if len(self.used_phrases) == len(ROOKERY_STRINGS):
             self.used_phrases.clear()
-        
+
         next_phrase = random.choice(ROOKERY_STRINGS)
 
         # Retrieve a new market broadcast that has not been played yet.
@@ -325,3 +325,103 @@ class RookeryRoom(DefaultRoom):
         self.used_phrases.append(next_phrase)
 
         self.msg_contents("|w%s|n" % next_phrase)
+
+
+"""
+Bridge Room
+"""
+
+BRIDGE_WEATHER = (
+    "The rain intensifies, making the planks of the bridge even more slippery.",
+    "A gust of wind throws the rain right in your face.",
+    "The rainfall eases a bit and the sky momentarily brightens.",
+    "The bridge shakes under the thunder of a closeby thunder strike.",
+    "The rain pummels you with large, heavy drops. You hear the distinct howl of a large hound in the distance.",
+    "The wind is picking up, howling around you and causing the bridge to sway from side to side.",
+    "Some sort of large bird sweeps by overhead, giving off an eery screech. Soon it has disappeared in the gloom.",
+    "The bridge sways from side to side in the wind.",
+    "Below you a particularly large wave crashes into the rocks.",
+    "From the ruin you hear a distant, otherwordly howl. Or maybe it was just the wind.",
+)
+
+class BridgeRoom(DefaultRoom):
+    """
+    The bridge room implements an unsafe bridge. It also enters the player into
+    a state where they get new commands so as to try to cross the bridge.
+     We want this to result in the account getting a special set of
+     commands related to crossing the bridge. The result is that it
+     will take several steps to cross it, despite it being represented
+     by only a single room.
+     We divide the bridge into steps:
+        self.db.west_exit     -   -  |  -   -     self.db.east_exit
+                              0   1  2  3   4
+     The position is handled by a variable stored on the character
+     when entering and giving special move commands will
+     increase/decrease the counter until the bridge is crossed.
+     We also has self.db.fall_exit, which points to a gathering
+     location to end up if we happen to fall off the bridge (used by
+     the CmdLookBridge command).
+    """
+
+    def at_object_creation(self):
+        """Setups the room"""
+        # this will start the weather room's ticker and tell
+        # it to call update_weather regularly.
+        super().at_object_creation()
+        # this identifies the exits from the room (should be the command
+        # needed to leave through that exit). These are defaults, but you
+        # could of course also change them after the room has been created.
+        self.db.west_exit = "cliff"
+        self.db.east_exit = "gate"
+        self.db.fall_exit = "cliffledge"
+        # add the cmdset on the room.
+        self.cmdset.add_default(BridgeCmdSet)
+        # since the default Character's at_look() will access the room's
+        # return_description (this skips the cmdset) when
+        # first entering it, we need to explicitly turn off the room
+        # as a normal view target - once inside, our own look will
+        # handle all return messages.
+        self.locks.add("view:false()")
+
+    def update_weather(self, *args, **kwargs):
+        """
+        This is called at irregular intervals and makes the passage
+        over the bridge a little more interesting.
+        """
+        if random.random() < 80:
+            # send a message most of the time
+            self.msg_contents("|w%s|n" % random.choice(BRIDGE_WEATHER))
+
+    def at_object_receive(self, character, source_location):
+        """
+        This hook is called by the engine whenever the player is moved
+        into this room.
+        """
+        if character.has_account:
+            # we only run this if the entered object is indeed a player object.
+            # check so our east/west exits are correctly defined.
+            wexit = search_object(self.db.west_exit)
+            eexit = search_object(self.db.east_exit)
+            fexit = search_object(self.db.fall_exit)
+            if not (wexit and eexit and fexit):
+                character.msg(
+                    "The bridge's exits are not properly configured. "
+                    "Contact an admin. Forcing west-end placement."
+                )
+                character.db.tutorial_bridge_position = 0
+                return
+            if source_location == eexit[0]:
+                # we assume we enter from the same room we will exit to
+                character.db.tutorial_bridge_position = 4
+            else:
+                # if not from the east, then from the west!
+                character.db.tutorial_bridge_position = 0
+            character.execute_cmd("look")
+
+    def at_object_leave(self, character, target_location):
+        """
+        This is triggered when the player leaves the bridge room.
+        """
+        if character.has_account:
+            # clean up the position attribute
+            del character.db.tutorial_bridge_position

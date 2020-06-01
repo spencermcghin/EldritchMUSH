@@ -1313,6 +1313,201 @@ class CmdPushButton(Command):
         else:
             self.caller.msg("Usage: push button")
 
+
+"""
+Custom Bridge Room Commands
+"""
+
+class CmdEast(Command):
+    """
+    Go eastwards across the bridge.
+    Tutorial info:
+        This command relies on the caller having two Attributes
+        (assigned by the room when entering):
+            - east_exit: a unique name or dbref to the room to go to
+              when exiting east.
+            - west_exit: a unique name or dbref to the room to go to
+              when exiting west.
+       The room must also have the following Attributes
+           - tutorial_bridge_posistion: the current position on
+             on the bridge, 0 - 4.
+    """
+
+    key = "east"
+    aliases = ["e"]
+    locks = "cmd:all()"
+    help_category = "bridge"
+
+    def func(self):
+        """move one step eastwards"""
+        caller = self.caller
+
+        bridge_step = min(5, caller.db.tutorial_bridge_position + 1)
+
+        if bridge_step > 4:
+            # we have reached the far east end of the bridge.
+            # Move to the east room.
+            eexit = search_object(self.obj.db.east_exit)
+            if eexit:
+                caller.move_to(eexit[0])
+            else:
+                caller.msg("No east exit was found for this room. Contact an admin.")
+            return
+        caller.db.tutorial_bridge_position = bridge_step
+        # since we are really in one room, we have to notify others
+        # in the room when we move.
+        caller.location.msg_contents(
+            "%s steps eastwards across the bridge." % caller.name, exclude=caller
+        )
+        caller.execute_cmd("look")
+
+
+# go back across the bridge
+class CmdWest(Command):
+    """
+    Go westwards across the bridge.
+    Tutorial info:
+       This command relies on the caller having two Attributes
+       (assigned by the room when entering):
+           - east_exit: a unique name or dbref to the room to go to
+             when exiting east.
+           - west_exit: a unique name or dbref to the room to go to
+             when exiting west.
+       The room must also have the following property:
+           - tutorial_bridge_posistion: the current position on
+             on the bridge, 0 - 4.
+    """
+
+    key = "west"
+    aliases = ["w"]
+    locks = "cmd:all()"
+    help_category = "bridge"
+
+    def func(self):
+        """move one step westwards"""
+        caller = self.caller
+
+        bridge_step = max(-1, caller.db.tutorial_bridge_position - 1)
+
+        if bridge_step < 0:
+            # we have reached the far west end of the bridge.
+            # Move to the west room.
+            wexit = search_object(self.obj.db.west_exit)
+            if wexit:
+                caller.move_to(wexit[0])
+            else:
+                caller.msg("No west exit was found for this room. Contact an admin.")
+            return
+        caller.db.tutorial_bridge_position = bridge_step
+        # since we are really in one room, we have to notify others
+        # in the room when we move.
+        caller.location.msg_contents(
+            "%s steps westwards across the bridge." % caller.name, exclude=caller
+        )
+        caller.execute_cmd("look")
+
+BRIDGE_POS_MESSAGES = (
+    "You are standing |wvery close to the the bridge's western foundation|n."
+    " If you go west you will be back on solid ground ...",
+    "The bridge slopes precariously where it extends eastwards"
+    " towards the lowest point - the center point of the hang bridge.",
+    "You are |whalfways|n out on the unstable bridge.",
+    "The bridge slopes precariously where it extends westwards"
+    " towards the lowest point - the center point of the hang bridge.",
+    "You are standing |wvery close to the bridge's eastern foundation|n."
+    " If you go east you will be back on solid ground ...",
+)
+BRIDGE_MOODS = (
+    "The bridge sways in the wind.",
+    "The hanging bridge creaks dangerously.",
+    "You clasp the ropes firmly as the bridge sways and creaks under you.",
+    "From the castle you hear a distant howling sound, like that of a large dog or other beast.",
+    "The bridge creaks under your feet. Those planks does not seem very sturdy.",
+    "Far below you the ocean roars and throws its waves against the cliff,"
+    " as if trying its best to reach you.",
+    "Parts of the bridge come loose behind you, falling into the chasm far below!",
+    "A gust of wind causes the bridge to sway precariously.",
+    "Under your feet a plank comes loose, tumbling down. For a moment you dangle over the abyss ...",
+    "The section of rope you hold onto crumble in your hands,"
+    " parts of it breaking apart. You sway trying to regain balance.",
+)
+
+FALL_MESSAGE = (
+    "Suddenly the plank you stand on gives way under your feet! You fall!"
+    "\nYou try to grab hold of an adjoining plank, but all you manage to do is to "
+    "divert your fall westwards, towards the cliff face. This is going to hurt ... "
+    "\n ... The world goes dark ...\n\n"
+)
+
+
+class CmdLookBridge(Command):
+    """
+    looks around at the bridge.
+    Tutorial info:
+        This command assumes that the room has an Attribute
+        "fall_exit", a unique name or dbref to the place they end upp
+        if they fall off the bridge.
+    """
+
+    key = "look"
+    aliases = ["l"]
+    locks = "cmd:all()"
+    help_category = "bridge"
+
+    def func(self):
+        """Looking around, including a chance to fall."""
+        caller = self.caller
+        bridge_position = self.caller.db.tutorial_bridge_position
+        # this command is defined on the room, so we get it through self.obj
+        location = self.obj
+        # randomize the look-echo
+        message = "|c%s|n\n%s\n%s" % (
+            location.key,
+            BRIDGE_POS_MESSAGES[bridge_position],
+            random.choice(BRIDGE_MOODS),
+        )
+
+        chars = [obj for obj in self.obj.contents_get(exclude=caller) if obj.has_account]
+        if chars:
+            # we create the You see: message manually here
+            message += "\n You see: %s" % ", ".join("|c%s|n" % char.key for char in chars)
+        self.caller.msg(message)
+
+        # there is a chance that we fall if we are on the western or central
+        # part of the bridge.
+        if bridge_position < 3 and random.random() < 0.05 and not self.caller.is_superuser:
+            # we fall 5% of time.
+            fall_exit = search_object(self.obj.db.fall_exit)
+            if fall_exit:
+                self.caller.msg("|r%s|n" % FALL_MESSAGE)
+                self.caller.move_to(fall_exit[0], quiet=True)
+                # inform others on the bridge
+                self.obj.msg_contents(
+                    "A plank gives way under %s's feet and "
+                    "they fall from the bridge!" % self.caller.key
+                )
+
+
+# custom help command
+class CmdBridgeHelp(Command):
+    """
+    Overwritten help command while on the bridge.
+    """
+
+    key = "help"
+    aliases = ["h", "?"]
+    locks = "cmd:all()"
+    help_category = "bridge"
+
+    def func(self):
+        """Implements the command."""
+        string = (
+            "You are trying hard not to fall off the bridge ..."
+            "\n\nWhat you can do is trying to cross the bridge |weast|n"
+            " or try to get back to the mainland |wwest|n)."
+        )
+        self.caller.msg(string)
+
 """
 Healing commands
 """

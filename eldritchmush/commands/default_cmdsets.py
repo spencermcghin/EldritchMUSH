@@ -42,6 +42,20 @@ class BoxCmdSet(CmdSet):
 
         self.add(command.CmdPushButton())
 
+class BridgeCmdSet(CmdSet):
+    """This groups the bridge commands. We will store it on the room."""
+
+    key = "Bridge commands"
+    priority = 1  # this gives it precedence over the normal look/help commands.
+
+    def at_cmdset_creation(self):
+        """Called at first cmdset creation"""
+        self.add(CmdTutorial())
+        self.add(CmdEast())
+        self.add(CmdWest())
+        self.add(CmdLookBridge())
+        self.add(CmdBridgeHelp())
+
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
