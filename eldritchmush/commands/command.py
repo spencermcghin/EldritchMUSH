@@ -1406,17 +1406,17 @@ class CmdWest(Command):
         )
         caller.execute_cmd("look")
 
-BRIDGE_POS_MESSAGES = (
-    "You are standing |wvery close to the the bridge's western foundation|n."
+BRIDGE_POS_MESSAGES = [
+    "You are standing |wvery close to the the bridge's western foundation|n.",
     " If you go west you will be back on solid ground ...",
     "The bridge slopes precariously where it extends eastwards"
     " towards the lowest point - the center point of the hang bridge.",
     "You are |whalfways|n out on the unstable bridge.",
     "The bridge slopes precariously where it extends westwards"
     " towards the lowest point - the center point of the hang bridge.",
-    "You are standing |wvery close to the bridge's eastern foundation|n."
-    " If you go east you will be back on solid ground ...",
-)
+    "You are standing |wvery close to the bridge's eastern foundation|n.",
+    " If you go east you will be back on solid ground ..."]
+
 BRIDGE_MOODS = (
     "The bridge sways in the wind.",
     "The hanging bridge creaks dangerously.",
