@@ -12,7 +12,7 @@ from django.conf import settings
 from evennia import Command as BaseCommand
 from evennia import default_cmds, utils, search_object
 from commands.combat import Helper
-from commands.fortuneStrings import FORTUNE_STRINGS
+from commands.fortunestrings import FORTUNE_STRINGS
 from typeclasses.objects import ObjTicketBox
 
 
