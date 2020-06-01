@@ -1278,6 +1278,7 @@ class CmdPushButton(Command):
 
     key = "push button"
     aliases = ["push", "button", "press button"]
+    locks = "cmd:all()"    
 
     def func(self):
         """
@@ -1289,8 +1290,8 @@ class CmdPushButton(Command):
         hasWinner = self.obj.db.hasWinner
 
         # Commands to generate tickets
-        button_emote = f"{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box."
-        get_ticket_emote = "A ticket pops up from a small slit in the top of the box"
+        button_emote = f"|b{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        get_ticket_emote = "|yA ticket pops up from a small slit in the top of the box.|n"
 
         # Ticket objects
         jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
