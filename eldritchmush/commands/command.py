@@ -1291,7 +1291,9 @@ class CmdPushButton(Command):
 
         # Commands to generate tickets
         button_emote = f"{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box."
+        get_ticket_emote = "A ticket pops up from a small slit in the top of the box"
 
+        # Ticket objects
         jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
         skull_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjSkullTicket"
 
@@ -1301,7 +1303,7 @@ class CmdPushButton(Command):
                 self.obj.db.hasWinner = True
                 # Generate and drop a ticket object with a jester description.
                 # Should indicate that character picks it up.
-                self.caller.msg()
+                self.caller.msg(get_ticket_emote)
                 self.caller.location.msg_contents(button_emote)
                 self.execute_cmd(skull_command)
         else:
