@@ -50,7 +50,6 @@ class BridgeCmdSet(CmdSet):
 
     def at_cmdset_creation(self):
         """Called at first cmdset creation"""
-        self.add(CmdTutorial())
         self.add(CmdEast())
         self.add(CmdWest())
         self.add(CmdLookBridge())
