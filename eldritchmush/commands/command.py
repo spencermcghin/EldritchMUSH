@@ -1297,19 +1297,20 @@ class CmdPushButton(Command):
         jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
         skull_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjSkullTicket"
 
-        if hasWinner == False:
-            draw = random.randint(1,30)
-            if draw == 30:
-                self.obj.db.hasWinner = True
-                # Generate and drop a ticket object with a jester description.
-                # Should indicate that character picks it up.
-                self.caller.msg(get_ticket_emote)
-                self.caller.location.msg_contents(button_emote)
-                self.execute_cmd(skull_command)
-        else:
-            # Drop a ticket object with a skull description
+        if not hasWinner:
+        #     draw = random.randint(1,30)
+        #     if draw == 30:
+        #         self.obj.db.hasWinner = True
+        #         # Generate and drop a ticket object with a jester description.
+        #         # Should indicate that character picks it up.
+        #         self.caller.msg(get_ticket_emote)
+        #         self.caller.location.msg_contents(button_emote)
+        #         self.execute_cmd(skull_command)
+        # else:
+        #     # Drop a ticket object with a skull description
+        #     self.caller.location.msg_contents(button_emote)
+        #     self.execute_cmd(jester_command)
             self.caller.location.msg_contents(button_emote)
-            self.execute_cmd(jester_command)
 
 """
 Healing commands
