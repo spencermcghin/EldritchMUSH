@@ -176,9 +176,7 @@ class ObjTicketBox(DefaultObject):
         # Maintain state of object
         self.db.hasWinner = False
 
-        self.db.desc = "|yThis is a large wooden box, carved with filligree and inlaid at\
-        odd places with ruddy, fake looking gems. On the top of the box is a small black button. \
-        Just beneath this button is a small, tarnished bronze plaque that reads, 'Push Me for a Smile'|n\n\
+        self.db.desc = "|yThis is a large wooden box, carved with filigree and inlaid at odd places with ruddy, fake looking gems. On the top of the box is a small black button. Just beneath this button is a small, tarnished bronze plaque that reads, 'Push Me for a Smile'|n\n
         |r OOG - Usage: push button|n"
 
         # Add command set for interacting with box
@@ -191,9 +189,9 @@ class ObjJesterTicket(DefaultObject):
     based on the result from a box button push.
     """
 
-    def return_appearance(self, looker):
-        desc = "|yThis is a small, rectangular slip of stained paper. One one side is the black and white stamp of a sinister looking jester."
-        return desc
+    def at_object_creation(self):
+        self.db.desc = "|yThis is a small, rectangular slip of stained paper. One one side is the black and white stamp of a sinister looking jester."
+
 
 class ObjSkullTicket(DefaultObject):
     """
@@ -201,6 +199,5 @@ class ObjSkullTicket(DefaultObject):
     based on the result from a box button push.
     """
 
-    def return_appearance(self):
-        desc = "|yThis is a small, rectangular slip of stained paper. One one side is the faded black and white stamp of a grinning skull."
-        return desc
+    def at_object_creation(self):
+        self.db.desc = "|yThis is a small, rectangular slip of stained paper. One one side is the faded black and white stamp of a grinning skull."
