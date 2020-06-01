@@ -139,7 +139,7 @@ class NotchRoom(Room):
 # Weather room
 
 # These are rainy weather strings
-RAINY_STRINGS = ["Clouds move in to cover the sky, obscuring what might otherwise have been a pleasant day.",
+RAINY_STRINGS = ["Clouds move in to completely cover the sky, obscuring what might otherwise have been a pleasant day.",
                       "It begins to sprinkle in a soft all-encompassing mist. You would hardly call it rain, though it is certainly wet.",
                       "The rainfall eases a bit and the sky momentarily brightens.",
                       "For a moment it looks like the rain is slowing, then it begins anew with renewed force.",
