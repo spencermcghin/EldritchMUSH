@@ -42,7 +42,8 @@ class Room(DefaultRoom):
         if perception_results:
             for result in perception_results:
                 self.caller.msg(f"|y{result}\n|n")
-                return
+        else:
+            return string
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
