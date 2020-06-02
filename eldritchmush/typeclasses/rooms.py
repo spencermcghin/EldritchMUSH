@@ -39,9 +39,14 @@ class Room(DefaultRoom):
         # Returns list of messages if anything
         perception_results = self.return_perception(perception_search_key, looker_perception)
 
+        
         if perception_results:
-            looker.msg("|300After careful inspection of the area, you discover the following:|n\n")
-            for result in perception_results:
+            perception_message = "|300After careful inspection of the area, you discover the following:|n"
+            results = [perception_message, string]
+
+            for perception_result in perception_results:
+                results.append(perception_result)
+            for result in results:
                 looker.msg(f"|430{result}\n|n")
         else:
             return string
