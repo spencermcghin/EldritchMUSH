@@ -34,7 +34,7 @@ class Room(DefaultRoom):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
         # Set value of perception/tracking key for returning values.
-        perception_search_key = looker.location
+        perception_search_key = looker.location.key
         looker_perception = looker.db.perception
         # Returns list of messages if anything
         perception_results = self.return_perception(perception_search_key, looker_perception)
@@ -64,8 +64,8 @@ class Room(DefaultRoom):
 
         else:
 
-            if perception_details.get(perceptionkey, None) is not None:
-                for details in perception_details[perceptionkey]:
+            if perception_details.get(perceptionkey.lower(), None) is not None:
+                for details in perception_details[perceptionkey.lower()]:
                     if details[0] <= perceptionlevel:
                         look_results.append(details[1])
 
