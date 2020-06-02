@@ -1071,7 +1071,7 @@ class CmdPerception(default_cmds.MuxCommand):
             level = int(self.args[0])
 
         except:
-            self.caller.msg(errmsg)
+            self.caller.msg("Usage: @perception level key = description")
 
         else:
             if level in (1,2,3):
@@ -1086,19 +1086,17 @@ class CmdPerception(default_cmds.MuxCommand):
                     use_nicks=True,
                     quiet=True,
                 )
-                # if looking_at_obj !=
+                # Check to see if there are search results
+                if looking_at_obj[0]:
+
                 # Set the perception object in the database
-                # self.obj.set_perception(object, level, self.rhs)
-                if not looking_at_obj:
-                    self.caller.msg("There is nothing here matching that description.")
-                else:
-                    self.caller.msg(looking_at_obj)
+                    self.obj.set_perception(looking_at_obj[0], level, self.rhs)
 
                 # Message to admin for confirmation.
-            #     self.caller.msg(f"Perception set on {key}\nLevel: {level}\nDescription: {self.rhs}")
-            # else:
-            #     self.caller.msg(errmsg)
-            #     return
+                    self.caller.msg(f"Perception set on {key}\nLevel: {level}\nDescription: {self.rhs}")
+                else:
+                    self.caller.msg("Usage: @perception level key = description")
+                    return
 
 class CmdTracking(default_cmds.MuxCommand):
     """
