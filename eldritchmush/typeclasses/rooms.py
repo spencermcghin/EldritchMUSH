@@ -41,7 +41,7 @@ class Room(DefaultRoom):
 
         if perception_results:
             for result in perception_results:
-                self.caller.msg(f"|y{result}\n|n")
+                looker.msg(f"|y{result}\n|n")
         else:
             return string
 
