@@ -173,9 +173,9 @@ class Object(DefaultObject):
                 at the given perceptionkey.
         """
         if self.db.perception_details:
-            self.db.perception_details[perceptionkey.lower()].append((level, description))
+            self.db.perception_details[perceptionkey].append((level, description))
         else:
-            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+            self.db.perception_details = {perceptionkey: [(level, description)]}
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
