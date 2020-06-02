@@ -39,7 +39,6 @@ class Room(DefaultRoom):
         # Returns list of messages if anything
         perception_results = self.return_perception(perception_search_key, looker_perception)
 
-
         if perception_results:
             perception_message = f"|400Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
@@ -70,10 +69,13 @@ class Room(DefaultRoom):
 
         else:
 
-            if perception_details.get(perceptionkey.lower(), None) is not None:
-                for details in perception_details[perceptionkey.lower()]:
-                    if details[0] <= perceptionlevel:
-                        look_results.append(details[1])
+            if perception_details is not None:
+                if perception_details.get(perceptionkey.lower(), None) is not None:
+                    for details in perception_details[perceptionkey.lower()]:
+                        if details[0] <= perceptionlevel:
+                            look_results.append(details[1])
+            else:
+
 
         return look_results
 
@@ -89,6 +91,7 @@ class Room(DefaultRoom):
         tracking_details = self.db.tracking_details
 
         look_results = []
+
 
         if tracking_details.get(trackingkey.lower(), None) is not None:
             for details in tracking_details[trackingkey.lower()]:
