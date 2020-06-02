@@ -105,9 +105,9 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.perception_details:
-            self.db.perception_details[perceptionkey.name.lower()].append((level, description))
+            self.db.perception_details[perceptionkey.lower()].append((level, description))
         else:
-            self.db.perception_details = {perceptionkey.name.lower(): [(level, description)]}
+            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
     def set_tracking(self, trackingkey, level, description):
         """
