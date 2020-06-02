@@ -34,16 +34,16 @@ class Room(DefaultRoom):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
         # Set value of perception/tracking key for returning values.
-        perception_search_key = looker.location
+        room_perception_search_key = looker.location
         looker_perception = looker.db.perception
         # Returns list of messages if anything
-        perception_results = self.return_perception(perception_search_key, looker_perception)
+        room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
 
-        if perception_results:
-            perception_message = f"|400Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
+        if room_perception_results:
+            perception_message = f"|400Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
 
-            for perception_result in perception_results:
+            for perception_result in room_perception_results:
                 results.append(perception_result)
             for result in results:
                 looker.msg(f"|430{result}\n|n")
