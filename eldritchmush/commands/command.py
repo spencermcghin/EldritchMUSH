@@ -896,6 +896,7 @@ class CmdInspect(default_cmds.MuxCommand):
             looking_at_obj = caller.search(
                 args,
                 # note: excludes room/room aliases
+                # look for args in room and on self
                 candidates=caller.location.contents + caller.contents,
                 use_nicks=True,
                 quiet=True,
@@ -1057,6 +1058,7 @@ class CmdPerception(default_cmds.MuxCommand):
         All this does is to check if the object has
         the set_perception method and uses it.
         """
+        # No args error handler
         if not self.args or not self.rhs:
             self.caller.msg("Usage: @perception level key = description")
             return
@@ -1081,7 +1083,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 self.obj.set_perception(key, level, self.rhs)
 
                 # Message to admin for confirmation.
-                self.caller.msg(f"Perception {level} set on {key}: {self.rhs}")
+                self.caller.msg(f"Perception {level} set on item {key}: {self.rhs}")
             else:
                 self.caller.msg(errmsg)
                 return
