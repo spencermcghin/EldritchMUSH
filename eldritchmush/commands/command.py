@@ -1088,7 +1088,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 )
 
                 # Set the tracking object in the database
-                self.obj.set_perception(looking_at_object, level, self.rhs)
+                self.obj.set_perception(looking_at_object[0], level, self.rhs)
 
                 # Message to admin for confirmation.
                 self.caller.msg(f"Perception {level} set on item {key}: {self.rhs}")
