@@ -40,8 +40,9 @@ class Room(DefaultRoom):
         perception_results = self.return_perception(perception_search_key, looker_perception)
 
         if perception_results:
+            looker.msg("|300After careful inspection of the area, you discover the following:|n\n")
             for result in perception_results:
-                looker.msg(f"|y{result}\n|n")
+                looker.msg(f"|430{result}\n|n")
         else:
             return string
 
