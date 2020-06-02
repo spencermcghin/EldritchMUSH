@@ -4,3 +4,6 @@
 *.pid
 __pycache__
 jessmushtest
+devevenv
+prodevenv
+evenv
