@@ -165,12 +165,13 @@ class Object(DefaultObject):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
         # Set value of perception/tracking key for returning values.
-        perception_search_key = looker.obj
+        perception_search_key = looker.location
         looker_perception = looker.db.perception
+
         # Returns list of messages if anything
         perception_results = self.return_perception(perception_search_key, looker_perception)
 
-
+        # If there are results, format and print them
         if perception_results:
             perception_message = f"|400Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
@@ -180,6 +181,7 @@ class Object(DefaultObject):
             for result in results:
                 looker.msg(f"|430{result}\n|n")
         else:
+        # If not, return normal room description
             return string
 
 
