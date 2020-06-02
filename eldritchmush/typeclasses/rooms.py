@@ -109,7 +109,7 @@ class Room(DefaultRoom):
                 self.db.perception_details[perceptionkey.lower()].append((level, description))
 
             else:
-                self.db.perception_details.update(perceptionkey.lower(): [(level, description)])
+                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
         else:
             self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
