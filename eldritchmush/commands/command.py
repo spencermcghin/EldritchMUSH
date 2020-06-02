@@ -1092,7 +1092,7 @@ class CmdPerception(default_cmds.MuxCommand):
                     return
                 else:
                     # Set the perception object in the database
-                    self.obj.set_perception(looking_at_obj[0].key, level, self.rhs)
+                    self.obj.set_perception(looking_at_obj[0], level, self.rhs)
 
                     # Message to admin for confirmation.
                     self.caller.msg(f"Perception set on {key}\nLevel: {level}\nDescription: {self.rhs}")
