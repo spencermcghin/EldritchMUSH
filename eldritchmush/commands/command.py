@@ -1077,10 +1077,10 @@ class CmdPerception(default_cmds.MuxCommand):
             if level in (1,2,3):
                 # Get perception setting objects
                 equals = self.args.index("=")
-                key = str(self.args[1:equals]).strip()
+                object = str(self.args[1:equals]).strip()
 
                 # Set the tracking object in the database
-                self.obj.set_perception(key, level, self.rhs)
+                self.obj.set_perception(object.key, level, self.rhs)
 
                 # Message to admin for confirmation.
                 self.caller.msg(f"Perception {level} set on item {key}: {self.rhs}")
