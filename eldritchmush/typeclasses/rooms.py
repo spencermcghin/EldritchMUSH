@@ -41,7 +41,7 @@ class Room(DefaultRoom):
 
 
         if perception_results:
-            perception_message = "|400Perception - After careful inspection of the area, you discover the following:|n"
+            perception_message = f"|400Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
 
             for perception_result in perception_results:
