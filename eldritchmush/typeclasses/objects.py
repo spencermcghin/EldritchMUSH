@@ -173,7 +173,7 @@ class Object(DefaultObject):
 
         # If there are results, format and print them
         if perception_results:
-            perception_message = f"|400Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
+            perception_message = f"|015Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
 
             for perception_result in perception_results:
