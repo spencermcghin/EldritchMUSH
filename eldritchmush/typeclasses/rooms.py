@@ -62,8 +62,8 @@ class Room(DefaultRoom):
         look_results = []
 
         if self.db.perception_details:
-            perception_details = self.db.perception_details.get(perceptionkey.lower(), None)
-            for details in perception_details[perceptionkey.lower()]:
+            perception_details = self.db.perception_details.get(perceptionkey.name.lower(), None)
+            for details in perception_details[perceptionkey.name.lower()]:
                 if details[0] <= perceptionlevel:
                     look_results.append(details[1])
             return look_results
