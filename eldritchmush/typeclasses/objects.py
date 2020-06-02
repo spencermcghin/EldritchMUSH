@@ -161,7 +161,67 @@ class Object(DefaultObject):
 
      """
 
-    pass
+    def set_perception(self, perceptionkey, level, description):
+        """
+        This sets a perception on the room.
+        Args:
+            perceptionkey (str): The detail identifier to add (for
+                aliases you need to add multiple keys to the
+                same description). Case-insensitive.
+            level (int): Level of the perception needed to access the information.
+            description (str): The text to return when looking
+                at the given perceptionkey.
+        """
+        if self.db.perception_details:
+            self.db.perception_details[perceptionkey.lower()].append((level, description))
+        else:
+            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        # Set value of perception/tracking key for returning values.
+        perception_search_key = looker.location.key
+        looker_perception = looker.db.perception
+        # Returns list of messages if anything
+        perception_results = self.return_perception(perception_search_key, looker_perception)
+
+
+        if perception_results:
+            perception_message = "|400Perception - After careful inspection of the area, you discover the following:|n"
+            results = [string, perception_message]
+
+            for perception_result in perception_results:
+                results.append(perception_result)
+            for result in results:
+                looker.msg(f"|430{result}\n|n")
+        else:
+            return string
+
+    def return_perception(self, perceptionkey, perceptionlevel):
+        """
+        This looks for an Attribute "obj_perception" and possibly
+        returns the value of it.
+        Args:
+            perceptionkey (str): The perception detail being looked at. This is
+                case-insensitive.
+        """
+
+        look_results = []
+
+        try:
+            perception_details = self.db.perception_details
+
+        except:
+            look_results.append("There is nothing matching that description.")
+
+        else:
+
+            if perception_details.get(perceptionkey.lower(), None) is not None:
+                for details in perception_details[perceptionkey.lower()]:
+                    if details[0] <= perceptionlevel:
+                        look_results.append(details[1])
+
+        return look_results
 
 
 class ObjTicketBox(DefaultObject):
