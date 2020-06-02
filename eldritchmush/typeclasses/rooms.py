@@ -59,8 +59,8 @@ class Room(DefaultRoom):
 
         else:
 
-            if perception_details.get(perceptionkey.lower(), None) is not None:
-                for details in perception_details[perceptionkey.lower()]:
+            if perception_details.get(perceptionkey, None) is not None:
+                for details in perception_details[perceptionkey]:
                     if details[0] <= perceptionlevel:
                         look_results.append(details[1])
 
