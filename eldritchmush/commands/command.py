@@ -1087,7 +1087,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 #     quiet=True,
                 # )
                 # Check to see if there are search results
-                if not looking_at_obj:
+                if not object:
                     self.caller.msg("Nothing here by that name or description")
                     return
                 else:
