@@ -161,21 +161,6 @@ class Object(DefaultObject):
 
      """
 
-    def set_perception(self, perceptionkey, level, description):
-        """
-        This sets a perception on the room.
-        Args:
-            perceptionkey (str): The detail identifier to add (for
-                aliases you need to add multiple keys to the
-                same description). Case-insensitive.
-            level (int): Level of the perception needed to access the information.
-            description (str): The text to return when looking
-                at the given perceptionkey.
-        """
-        if self.db.perception_details:
-            self.db.perception_details[perceptionkey.lower()].append((level, description))
-        else:
-            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
@@ -187,7 +172,7 @@ class Object(DefaultObject):
 
 
         if perception_results:
-            perception_message = "|400Perception - After careful inspection of the area, you discover the following:|n"
+            perception_message = f"|400Perception - After careful inspection of {perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
 
             for perception_result in perception_results:
@@ -196,6 +181,25 @@ class Object(DefaultObject):
                 looker.msg(f"|430{result}\n|n")
         else:
             return string
+
+
+    def set_perception(self, perceptionkey, level, description):
+        """
+        This sets a perception on the room.
+        Args:
+            perceptionkey (str): The detail identifier to add (for
+                aliases you need to add multiple keys to the
+                same description). Case-insensitive.
+            level (int): Level of the perception needed to access the information.
+            description (str): The text to return when looking
+                at the given perceptionkey.
+        """
+
+        if self.db.perception_details:
+            self.db.perception_details[perceptionkey.lower()].append((level, description))
+        else:
+            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
