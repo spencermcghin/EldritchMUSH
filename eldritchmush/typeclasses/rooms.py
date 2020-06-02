@@ -36,9 +36,13 @@ class Room(DefaultRoom):
         # Set value of perception/tracking key for returning values.
         perception_search_key = looker.location
         looker_perception = looker.db.perception
+        # Returns list of messages if anything
         perception_results = self.return_perception(perception_search_key, looker_perception)
 
-        return string + perception_results
+        if perception_results:
+            for result in perception_results:
+                self.caller.msg(f"|y{result}\n|n")
+                return
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
