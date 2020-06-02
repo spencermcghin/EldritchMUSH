@@ -31,6 +31,15 @@ class Room(DefaultRoom):
 
         self.cmdset.add_default(RoomCmdSet)
 
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        # Set value of perception/tracking key for returning values.
+        perception_search_key = looker.location
+        looker_perception = looker.db.perception
+        perception_results = self.return_perception(perception_search_key, looker_perception)
+
+        return perception_results
+
     def return_perception(self, perceptionkey, perceptionlevel):
         """
         This looks for an Attribute "obj_perception" and possibly
