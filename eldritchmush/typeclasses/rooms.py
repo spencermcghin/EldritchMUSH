@@ -38,7 +38,7 @@ class Room(DefaultRoom):
         looker_perception = looker.db.perception
         perception_results = self.return_perception(perception_search_key, looker_perception)
 
-        return perception_results
+        return string + perception_results
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
