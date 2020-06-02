@@ -1089,7 +1089,10 @@ class CmdPerception(default_cmds.MuxCommand):
                 # if looking_at_obj !=
                 # Set the perception object in the database
                 # self.obj.set_perception(object, level, self.rhs)
-                self.caller.msg(looking_at_obj)
+                if not looking_at_obj:
+                    self.caller.msg("There is nothing here matching that description.")
+                else:
+                    self.caller.msg(looking_at_obj)
 
                 # Message to admin for confirmation.
             #     self.caller.msg(f"Perception set on {key}\nLevel: {level}\nDescription: {self.rhs}")
