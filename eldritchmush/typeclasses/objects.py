@@ -183,24 +183,6 @@ class Object(DefaultObject):
             return string
 
 
-    def set_perception(self, perceptionkey, level, description):
-        """
-        This sets a perception on the room.
-        Args:
-            perceptionkey (str): The detail identifier to add (for
-                aliases you need to add multiple keys to the
-                same description). Case-insensitive.
-            level (int): Level of the perception needed to access the information.
-            description (str): The text to return when looking
-                at the given perceptionkey.
-        """
-
-        if self.db.perception_details:
-            self.db.perception_details[perceptionkey.db.key].append((level, description))
-        else:
-            self.db.perception_details = {perceptionkey.db.key: [(level, description)]}
-
-
     def return_perception(self, perceptionkey, perceptionlevel):
         """
         This looks for an Attribute "obj_perception" and possibly
