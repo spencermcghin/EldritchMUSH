@@ -34,7 +34,7 @@ class Room(DefaultRoom):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
         # Set value of perception/tracking key for returning values.
-        perception_search_key = looker.location.key
+        perception_search_key = looker.location
         looker_perception = looker.db.perception
         # Returns list of messages if anything
         perception_results = self.return_perception(perception_search_key, looker_perception)
@@ -62,6 +62,7 @@ class Room(DefaultRoom):
         look_results = []
 
         try:
+            # TODO: Fix this no results handling.
             perception_details = self.db.perception_details
 
         except:
