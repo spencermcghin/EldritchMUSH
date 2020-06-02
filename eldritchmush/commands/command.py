@@ -1078,17 +1078,17 @@ class CmdPerception(default_cmds.MuxCommand):
                 # Get perception setting objects
                 equals = self.args.index("=")
                 object = str(self.args[1:equals]).strip()
-                looking_at_obj = self.caller.search(
-                    object,
-                    # note: excludes room/room aliases
-                    # look for args in room and on self
-                    candidates=self.caller.location.contents + self.caller.contents,
-                    use_nicks=True,
-                    quiet=True,
-                )
-
+                # looking_at_obj = self.caller.search(
+                #     object,
+                #     # note: excludes room/room aliases
+                #     # look for args in room and on self
+                #     candidates=self.caller.location.contents + self.caller.contents,
+                #     use_nicks=True,
+                #     quiet=True,
+                # )
+                # if looking_at_obj !=
                 # Set the perception object in the database
-                self.obj.set_perception(looking_at_obj[0], level, self.rhs)
+                self.obj.set_perception(object, level, self.rhs)
 
                 # Message to admin for confirmation.
                 self.caller.msg(f"Perception {level} set on item {key}: {self.rhs}")
