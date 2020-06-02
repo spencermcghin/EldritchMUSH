@@ -194,20 +194,14 @@ class Object(DefaultObject):
 
         look_results = []
 
-        try:
-            perception_details = self.db.perception_details
-
-        except:
-            look_results.append("There is nothing matching that description.")
-
-        else:
-
-            if perception_details.get(perceptionkey.lower(), None) is not None:
-                for details in perception_details[perceptionkey.lower()]:
+        if self.db.perception_details:
+            self.db.perception_details.get(perceptionkey.lower(), None)
+                for details in self.db.perception_details[perceptionkey.lower()]:
                     if details[0] <= perceptionlevel:
                         look_results.append(details[1])
-
-        return look_results
+                return look_results
+        else:
+            return
 
 
 class ObjTicketBox(DefaultObject):
