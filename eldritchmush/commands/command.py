@@ -1078,11 +1078,11 @@ class CmdPerception(default_cmds.MuxCommand):
                 # Get perception setting objects
                 equals = self.args.index("=")
                 object = str(self.args[1:equals]).strip()
-                looking_at_obj = caller.search(
+                looking_at_obj = self.caller.search(
                     object,
                     # note: excludes room/room aliases
                     # look for args in room and on self
-                    candidates=caller.location.contents + caller.contents,
+                    candidates=self.caller.location.contents + self.caller.contents,
                     use_nicks=True,
                     quiet=True,
                 )
