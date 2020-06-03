@@ -1091,7 +1091,8 @@ class CmdPerception(default_cmds.MuxCommand):
                 quiet=True,
             )
             if looking_at_obj:
-                self.caller.msg(looking_at_obj)
+                self.obj = looking_at_obj
+                self.caller.msg(f"You are looking at {self.obj}")
             #     # Check to see if there are search results
             #     else:
             #         # Set the perception object in the database
