@@ -94,24 +94,24 @@ class Room(DefaultRoom):
 
         return look_results
 
-    # def set_perception(self, perceptionkey, level, description):
-    #     """
-    #     This sets a perception on the room.
-    #     Args:
-    #         perceptionkey (str): The detail identifier to add (for
-    #             aliases you need to add multiple keys to the
-    #             same description). Case-insensitive.
-    #         level (int): Level of the perception needed to access the information.
-    #         description (str): The text to return when looking
-    #             at the given perceptionkey.
-    #     """
-    #     if self.db.perception_details:
-    #         if perceptionkey.lower() in self.db.perception_details:
-    #             self.db.perception_details[perceptionkey.lower()].append((level, description))
-    #         else:
-    #             self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
-    #     else:
-    #         self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+    def set_perception(self, perceptionkey, level, description):
+        """
+        This sets a perception on the room.
+        Args:
+            perceptionkey (str): The detail identifier to add (for
+                aliases you need to add multiple keys to the
+                same description). Case-insensitive.
+            level (int): Level of the perception needed to access the information.
+            description (str): The text to return when looking
+                at the given perceptionkey.
+        """
+        if self.db.perception_details:
+            if perceptionkey.lower() in self.db.perception_details:
+                self.db.perception_details[perceptionkey.lower()].append((level, description))
+            else:
+                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
+        else:
+            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
     def set_tracking(self, trackingkey, level, description):
         """
