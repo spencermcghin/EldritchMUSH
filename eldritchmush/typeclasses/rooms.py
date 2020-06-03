@@ -66,7 +66,7 @@ class Room(DefaultRoom):
         else:
             results = [string]
 
-            return results
+        return results
 
         for result in results:
             looker.msg(f"{result}\n")
