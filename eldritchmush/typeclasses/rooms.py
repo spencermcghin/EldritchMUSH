@@ -47,7 +47,7 @@ class Room(DefaultRoom):
             for perception_result in room_perception_results:
                 results.append(perception_result)
             for result in results:
-                looker.msg(f"|430{result}\n|n")
+                looker.msg(f"|430{result}|n\n\n")
         else:
             return string
 
