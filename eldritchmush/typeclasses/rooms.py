@@ -50,25 +50,25 @@ class Room(DefaultRoom):
         if room_tracking_results:
             format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
 
-        # Message headers for look_results
-        perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
-        tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n"
+        # # Message headers for look_results
+        # perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
+        # tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n"
+        #
+        # # If just room perception results, return the desc and header
+        # if room_perception_results and not room_tracking_results:
+        #     results = [perception_message].append(format_room_perception_results)
+        # elif room_tracking_results and not room_perception_results:
+        #     results = [tracking_message].append(format_room_tracking_results)
+        # elif room_perception_results and room_tracking_results:
+        #     perception_results = [perception_message].append(format_room_perception_results)
+        #     tracking_results = [tracking_message].append(format_room_tracking_results)
+        #     results = [string, perception_results, tracking_results]
+        # else:
+        #     results = [string]
+        #
+        # return results
 
-        # If just room perception results, return the desc and header
-        if room_perception_results and not room_tracking_results:
-            results = [perception_message].append(format_room_perception_results)
-        elif room_tracking_results and not room_perception_results:
-            results = [tracking_message].append(format_room_tracking_results)
-        elif room_perception_results and room_tracking_results:
-            perception_results = [perception_message].append(format_room_perception_results)
-            tracking_results = [tracking_message].append(format_room_tracking_results)
-            results = [string, perception_results, tracking_results]
-        else:
-            results = [string]
-
-        return results
-
-        for result in results:
+        for result in format_room_perception_results:
             looker.msg(f"{result}\n")
 
     def return_perception(self, perceptionkey, perceptionlevel):
