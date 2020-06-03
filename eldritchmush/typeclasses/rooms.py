@@ -37,17 +37,33 @@ class Room(DefaultRoom):
         # Set value of perception/tracking key for returning values.
         room_perception_search_key = looker.location
         looker_perception = looker.db.perception
+        looker_tracking = looker.db.tracking
+
         # Returns list of messages if anything
         room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
+        room_tracking_results = self.return_tracking(room_perception_search_key, looker_tracking)
 
-        if room_perception_results:
+        if room_perception_results or room_tracking_results:
             perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
-            results = [string, perception_message]
+            tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n"
 
-            for perception_result in room_perception_results:
-                results.append(perception_result)
+            # If just room perception results, return the desc and header
+            if room_perception_results:
+                results = [string, perception_message, result for result in room_perception_results]
+            elif room_tracking_results:
+                results = [string, tracking_message, result for result in room_tracking_results]
+            elif room_perception_results and room_tracking_results:
+                results = [string,
+                           perception_message,
+                           result for result in room_perception_results,
+                           tracking_message,
+                           results for result in room_tracking_results]
+                                           ]
+
+                return results
+
             for result in results:
-                looker.msg(f"|430{result}|n\n\n")
+                looker.msg(f"{result}|\n")
         else:
             return string
 
@@ -80,19 +96,16 @@ class Room(DefaultRoom):
             trackingkey (str): The perception detail being looked at. This is
                 case-insensitive.
         """
-        tracking_details = self.db.tracking_details
-
         look_results = []
 
-
-        if tracking_details.get(trackingkey.lower(), None) is not None:
-            for details in tracking_details[trackingkey.lower()]:
-                if details[0] <= trackinglevel:
+        if self.db.tracking_details:
+            perception_details = self.db.tracking_details.get(perceptionkey.name.lower(), None)
+            for details in perception_details:
+                if details[0] <= perceptionlevel:
                     look_results.append(details[1])
+            return look_results
         else:
-            look_results.append("There is nothing matching that description.")
-
-        return look_results
+            return
 
     def set_perception(self, perceptionkey, level, description):
         """
@@ -125,9 +138,12 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.tracking_details:
-            self.db.tracking_details[trackingkey.lower()].append((level, description))
+            if perceptionkey.lower() in self.db.tracking_details:
+                self.db.tracking_details[perceptionkey.lower()].append((level, description))
+            else:
+                self.db.tracking_details.update({perceptionkey.lower(): [(level, description)]})
         else:
-            self.db.tracking_details = {trackingkey.lower(): [(level, description)]}
+            self.db.tracking_details = {perceptionkey.lower(): [(level, description)]}
 
 class ChargenRoom(Room):
     """
