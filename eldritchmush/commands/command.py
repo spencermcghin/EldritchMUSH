@@ -1086,7 +1086,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 object,
                 # note: excludes room/room aliases
                 # look for args in room and on self
-                candidates=self.caller.location.contents + self.caller.contents + self.caller.location,
+                # candidates=self.caller.location.contents + self.caller.contents,
                 use_nicks=True,
                 quiet=True,
             )
