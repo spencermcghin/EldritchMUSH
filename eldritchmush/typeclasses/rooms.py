@@ -50,7 +50,7 @@ class Room(DefaultRoom):
         # Format room perception results for printing
         if room_perception_results:
             format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
-            # perception_results = [perception_message].append(format_room_perception_results)
+            perception_results = [perception_message].extend(format_room_perception_results)
 
         if room_tracking_results:
             format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
@@ -70,7 +70,7 @@ class Room(DefaultRoom):
         #
         # return results
 
-        for result in format_room_perception_results:
+        for result in perception_results:
             looker.msg(f"{result}\n")
 
     def return_perception(self, perceptionkey, perceptionlevel):
