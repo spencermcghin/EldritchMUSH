@@ -1075,6 +1075,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 # Get perception setting objects
                 equals = self.args.index("=")
                 object = str(self.args[1:equals]).strip()
+                self.obj = object
             # if not object:
             #     self.caller.msg("Nothing here by that name or description")
             #     return
