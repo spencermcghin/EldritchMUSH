@@ -40,7 +40,7 @@ class Room(DefaultRoom):
         looker_tracking = looker.db.tracking
 
         # Message headers for look_results
-        perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
+        perception_message = f"|015Perception - After careful inspection of the {room_perception_search_key}, you discover the following:|n"
         tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n"
 
         # Returns list of messages if anything
