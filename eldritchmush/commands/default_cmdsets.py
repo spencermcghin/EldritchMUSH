@@ -18,6 +18,7 @@ from evennia import default_cmds
 from evennia import CmdSet
 from commands import command
 from commands import combat
+from commands import npc
 
 
 class RoomCmdSet(CmdSet):
@@ -116,7 +117,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
-
+        self.add(npc.CmdCreateNPC())
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """

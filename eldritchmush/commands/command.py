@@ -1035,6 +1035,7 @@ class CmdSmile(Command):
 
         caller.location.msg_contents(string)
 
+
 """
 Carnival commands
 """
