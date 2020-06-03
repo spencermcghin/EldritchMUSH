@@ -28,9 +28,7 @@ class RoomCmdSet(CmdSet):
         super().at_cmdset_creation()
 
         self.add(command.CmdPerception())
-        self.add(command.CmdInspect())
         self.add(command.CmdTracking())
-        self.add(command.CmdTrack())
 
 class BoxCmdSet(CmdSet):
     """
@@ -42,18 +40,6 @@ class BoxCmdSet(CmdSet):
 
         self.add(command.CmdPushButton())
 
-class BridgeCmdSet(CmdSet):
-    """This groups the bridge commands. We will store it on the room."""
-
-    key = "Bridge commands"
-    priority = 1  # this gives it precedence over the normal look/help commands.
-
-    def at_cmdset_creation(self):
-        """Called at first cmdset creation"""
-        self.add(command.CmdEast())
-        self.add(command.CmdWest())
-        self.add(command.CmdLookBridge())
-        self.add(command.CmdBridgeHelp())
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
