@@ -40,8 +40,8 @@ class Room(DefaultRoom):
         looker_tracking = looker.db.tracking
 
         # Message headers for look_results
-        perception_message = f"|015Perception - After careful inspection of the {room_perception_search_key}, you discover the following:|n"
-        tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n"
+        perception_message = f"|015Perception - After careful inspection of the {room_perception_search_key}, you discover the following:|n\n"
+        tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n\n"
 
         # Returns list of messages if anything
         room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
@@ -52,12 +52,12 @@ class Room(DefaultRoom):
 
         # Format room perception results for printing
         if room_perception_results:
-            format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
+            format_room_perception_results = [f"|y{result}|n\n" for result in room_perception_results]
             perception_results = [perception_message] + format_room_perception_results
             final_payload.extend(perception_results)
 
         if room_tracking_results:
-            format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
+            format_room_tracking_results = [f"|y{result}|n\n" for result in room_tracking_results]
             tracking_results = [tracking_message] + format_room_tracking_results
             final_payload.extend(tracking_results)
 
