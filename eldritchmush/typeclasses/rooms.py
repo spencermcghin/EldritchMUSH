@@ -47,14 +47,19 @@ class Room(DefaultRoom):
         room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
         room_tracking_results = self.return_tracking(room_perception_search_key, looker_tracking)
 
+        # List for final print
+        final_payload = [string]
+
         # Format room perception results for printing
         if room_perception_results:
             format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
             perception_results = [perception_message] + format_room_perception_results
+            final_payload.append(perception_results)
 
         if room_tracking_results:
             format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
-            # tracking_results = [tracking_message].append(format_room_tracking_results)
+            tracking_results = [tracking_message] + format_room_tracking_results
+            final_payload.append(tracking_results)
 
         # # If just room perception results, return the desc and header
         # if room_perception_results and not room_tracking_results:
@@ -70,8 +75,8 @@ class Room(DefaultRoom):
         #
         # return results
 
-        for result in perception_results:
-            looker.msg(f"{result}\n")
+        for line in final_payload:
+            looker.msg(f"{line}\n")
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
