@@ -1095,8 +1095,8 @@ class CmdPerception(default_cmds.MuxCommand):
                 self.caller.msg(f"You are looking at {self.obj}")
             #     # Check to see if there are search results
             #     else:
-            #         # Set the perception object in the database
-            #         self.obj.set_perception(object, level, self.rhs)
+                # Set the perception object in the database
+                self.obj.set_perception(self.obj.name, level, self.rhs)
             #
             #         # Message to admin for confirmation.
             #         self.caller.msg(f"Perception set on {object}\nLevel: {level}\nDescription: {self.rhs}")
