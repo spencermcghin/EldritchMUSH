@@ -1083,7 +1083,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 self.caller.msg("Perception cannot be set on %s." % self.obj)
                 return
                 looking_at_obj = self.caller.search(
-                    object,
+                    self.obj,
                     # note: excludes room/room aliases
                     # look for args in room and on self
                     candidates=self.caller.location.contents + self.caller.contents,
