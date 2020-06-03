@@ -54,12 +54,12 @@ class Room(DefaultRoom):
         if room_perception_results:
             format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
             perception_results = [perception_message] + format_room_perception_results
-            final_payload.append(perception_results)
+            final_payload.extend(perception_results)
 
         if room_tracking_results:
             format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
             tracking_results = [tracking_message] + format_room_tracking_results
-            final_payload.append(tracking_results)
+            final_payload.extend(tracking_results)
 
         # # If just room perception results, return the desc and header
         # if room_perception_results and not room_tracking_results:
