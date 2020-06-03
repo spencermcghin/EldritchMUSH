@@ -182,6 +182,27 @@ class Object(DefaultObject):
             self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
 
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+
+        object = self.obj
+        # Set value of perception/tracking key for returning values.
+        looker_perception = looker.db.perception
+        # Returns list of messages if anything
+        object_perception_results = self.return_perception(object, looker_perception)
+
+        if object_perception_results:
+            perception_message = f"|015Perception - After careful inspection of {object}, you discover the following:|n"
+            results = [string, perception_message]
+
+            for perception_result in object_perception_results:
+                results.append(perception_result)
+            for result in results:
+                looker.msg(f"|430{result}|n\n\n")
+        else:
+            return string
+
+
 class ObjTicketBox(DefaultObject):
     """
     Available command:
