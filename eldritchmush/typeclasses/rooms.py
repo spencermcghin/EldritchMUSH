@@ -55,11 +55,11 @@ class Room(DefaultRoom):
         tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n"
 
         # If just room perception results, return the desc and header
-        if format_room_perception_results and not format_room_tracking_results:
-            results = [perception_message].append(room_perception_results)
-        elif format_room_tracking_results and not format_room_perception_results:
-            results = [tracking_message].append(room_tracking_results)
-        elif format_room_perception_results and format_room_tracking_results:
+        if room_perception_results and not room_tracking_results:
+            results = [perception_message].append(format_room_perception_results)
+        elif room_tracking_results and not perception_results:
+            results = [tracking_message].append(format_room_tracking_results)
+        elif room_perception_results and room_tracking_results:
             perception_results = [perception_message].append(format_room_perception_results)
             tracking_results = [tracking_message].append(format_room_tracking_results)
             results = [string, perception_results, tracking_results]
