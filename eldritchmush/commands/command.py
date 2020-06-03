@@ -1097,7 +1097,7 @@ class CmdPerception(default_cmds.MuxCommand):
             #
             #         # Message to admin for confirmation.
             #         self.caller.msg(f"Perception set on {object}\nLevel: {level}\nDescription: {self.rhs}")
-            self.caller.msg(self.obj)
+            self.caller.msg(looking_at_obj)
 
 class CmdTracking(default_cmds.MuxCommand):
     """
