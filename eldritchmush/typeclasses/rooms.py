@@ -50,7 +50,7 @@ class Room(DefaultRoom):
         # Format room perception results for printing
         if room_perception_results:
             format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
-            perception_results = [perception_message] + room_perception_results
+            perception_results = [perception_message] + format_room_perception_results
 
         if room_tracking_results:
             format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
