@@ -1132,12 +1132,8 @@ class CmdTracking(default_cmds.MuxCommand):
         if not self.args or not self.rhs:
             self.caller.msg(errmsg)
             return
-        if not hasattr(self.obj, "set_tracking"):
-            self.caller.msg("Tracking cannot be set on %s." % self.obj)
-            return
 
         # Get level of perception
-        # TODO: Error handle perception level
         try:
             level = int(self.args[0])
 
@@ -1148,16 +1144,32 @@ class CmdTracking(default_cmds.MuxCommand):
             if level in (1,2,3):
                 # Get perception setting objects
                 equals = self.args.index("=")
-                key = str(self.args[1:equals]).strip()
-
-                # Set the tracking object in the database
-                self.obj.set_tracking(key, level, self.rhs)
-
-                # Message to admin for confirmation.
-                self.caller.msg(f"Tracking {level} set on {key}: {self.rhs}")
-            else:
-                self.caller.msg(errmsg)
+                object = str(self.args[1:equals]).strip()
+            if not object:
+                self.caller.msg("Nothing here by that name or description")
                 return
+            # if not hasattr(self.obj, "set_perception"):
+            #     self.caller.msg("Perception cannot be set on %s." % self.obj)
+            #     return
+            # self.obj = object
+            looking_at_obj = self.caller.search(
+                object,
+                # note: excludes room/room aliases
+                # look for args in room and on self
+                # candidates=self.caller.location.contents + self.caller.contents,
+                use_nicks=True,
+                quiet=True,
+            )
+            if looking_at_obj:
+                self.obj = looking_at_obj[0]
+                # self.caller.msg(f"You are looking at {self.obj}")
+                # Set the perception object in the database
+                self.obj.set_perception(self.obj.name, level, self.rhs)
+                # Message to admin for confirmation.
+                self.caller.msg(f"Tracking set on {self.obj.name}\nLevel: {level}\nDescription: {self.rhs}")
+            else:
+                self.caller.msg("Search didn't return anything.")
+
 
 class CmdSmile(Command):
     """
