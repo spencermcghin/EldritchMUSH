@@ -48,7 +48,7 @@ class Room(DefaultRoom):
             format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
 
         if room_tracking_results:
-            format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results if]
+            format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
 
         # Message headers for look_results
         perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
