@@ -193,7 +193,7 @@ class Object(DefaultObject):
         look_results = []
 
         if self.db.perception_details:
-            perception_details = self.db.perception_details.get(perceptionkey.name.lower(), None)
+            perception_details = self.db.perception_details.get(perceptionkey.lower(), None)
             for details in perception_details:
                 if details[0] <= perceptionlevel:
                     look_results.append(details[1])
