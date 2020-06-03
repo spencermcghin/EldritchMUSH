@@ -1078,9 +1078,9 @@ class CmdPerception(default_cmds.MuxCommand):
             if not object:
                 self.caller.msg("Nothing here by that name or description")
                 return
-            if not hasattr(self.obj, "set_perception"):
-                self.caller.msg("Perception cannot be set on %s." % self.obj)
-                return
+            # if not hasattr(self.obj, "set_perception"):
+            #     self.caller.msg("Perception cannot be set on %s." % self.obj)
+            #     return
                 looking_at_obj = self.caller.search(
                     object,
                     # note: excludes room/room aliases
