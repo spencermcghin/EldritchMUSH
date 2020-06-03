@@ -181,6 +181,25 @@ class Object(DefaultObject):
         else:
             self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
+    def return_perception(self, perceptionkey, perceptionlevel):
+        """
+        This looks for an Attribute "obj_perception" and possibly
+        returns the value of it.
+        Args:
+            perceptionkey (str): The perception detail being looked at. This is
+                case-insensitive.
+        """
+
+        look_results = []
+
+        if self.db.perception_details:
+            perception_details = self.db.perception_details.get(perceptionkey.name.lower(), None)
+            for details in perception_details:
+                if details[0] <= perceptionlevel:
+                    look_results.append(details[1])
+            return look_results
+        else:
+            return
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
