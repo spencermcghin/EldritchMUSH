@@ -1062,9 +1062,6 @@ class CmdPerception(default_cmds.MuxCommand):
         if not self.args or not self.rhs:
             self.caller.msg("Usage: @perception level key = description")
             return
-        if not hasattr(self.obj, "set_perception"):
-            self.caller.msg("Perception cannot be set on %s." % self.obj)
-            return
 
         # Get level of perception
         try:
@@ -1078,6 +1075,9 @@ class CmdPerception(default_cmds.MuxCommand):
                 # Get perception setting objects
                 equals = self.args.index("=")
                 object = str(self.args[1:equals]).strip()
+            if not hasattr(object, "set_perception"):
+                self.caller.msg("Perception cannot be set on %s." % self.obj)
+                return
                 # looking_at_obj = self.caller.search(
                 #     object,
                 #     # note: excludes room/room aliases
