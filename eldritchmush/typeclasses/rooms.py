@@ -63,13 +63,11 @@ class Room(DefaultRoom):
             perception_results = [perception_message].append(format_room_perception_results)
             tracking_results = [tracking_message].append(format_room_tracking_results)
             results = [string, perception_results, tracking_results]
-
-            return results
-
-            for result in results:
-                looker.msg(f"{result}\n")
         else:
-            return string
+            results = [string]
+
+        for result in results:
+            looker.msg(f"{result}\n")
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
