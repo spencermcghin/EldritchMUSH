@@ -304,7 +304,7 @@ class RookeryRoom(DefaultRoom):
         """
         super(RookeryRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(1*60, self.update_rookery, idstring="rookery_ticker", persistent=False)
+        TICKER_HANDLER.add(8*60, self.update_rookery, idstring="rookery_ticker", persistent=False)
 
     def update_rookery(self, *args, **kwargs):
         """
