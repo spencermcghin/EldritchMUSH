@@ -1090,7 +1090,8 @@ class CmdPerception(default_cmds.MuxCommand):
                 use_nicks=True,
                 quiet=True,
             )
-            if
+            if looking_at_obj:
+                self.caller.msg(looking_at_obj)
             #     # Check to see if there are search results
             #     else:
             #         # Set the perception object in the database
@@ -1098,7 +1099,8 @@ class CmdPerception(default_cmds.MuxCommand):
             #
             #         # Message to admin for confirmation.
             #         self.caller.msg(f"Perception set on {object}\nLevel: {level}\nDescription: {self.rhs}")
-            self.caller.msg(looking_at_obj)
+            else:
+                self.caller.msg("Search didn't return anything.")
 
 class CmdTracking(default_cmds.MuxCommand):
     """
