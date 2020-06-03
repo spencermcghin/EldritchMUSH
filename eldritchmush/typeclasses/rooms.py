@@ -61,20 +61,6 @@ class Room(DefaultRoom):
             tracking_results = [tracking_message] + format_room_tracking_results
             final_payload.extend(tracking_results)
 
-        # # If just room perception results, return the desc and header
-        # if room_perception_results and not room_tracking_results:
-        #     results = [perception_message].append(format_room_perception_results)
-        # elif room_tracking_results and not room_perception_results:
-        #     results = [tracking_message].append(format_room_tracking_results)
-        # elif room_perception_results and room_tracking_results:
-        #     perception_results = [perception_message].append(format_room_perception_results)
-        #     tracking_results = [tracking_message].append(format_room_tracking_results)
-        #     results = [string, perception_results, tracking_results]
-        # else:
-        #     results = [string]
-        #
-        # return results
-
         for line in final_payload:
             looker.msg(f"{line}\n")
 
