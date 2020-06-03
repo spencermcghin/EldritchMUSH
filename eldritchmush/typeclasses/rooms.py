@@ -33,6 +33,7 @@ class Room(DefaultRoom):
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
+
         # Set value of perception/tracking key for returning values.
         room_perception_search_key = looker.location
         looker_perception = looker.db.perception
@@ -40,7 +41,7 @@ class Room(DefaultRoom):
         room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
 
         if room_perception_results:
-            perception_message = f"|400Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
+            perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
             results = [string, perception_message]
 
             for perception_result in room_perception_results:
@@ -93,24 +94,24 @@ class Room(DefaultRoom):
 
         return look_results
 
-    def set_perception(self, perceptionkey, level, description):
-        """
-        This sets a perception on the room.
-        Args:
-            perceptionkey (str): The detail identifier to add (for
-                aliases you need to add multiple keys to the
-                same description). Case-insensitive.
-            level (int): Level of the perception needed to access the information.
-            description (str): The text to return when looking
-                at the given perceptionkey.
-        """
-        if self.db.perception_details:
-            if perceptionkey.lower() in self.db.perception_details:
-                self.db.perception_details[perceptionkey.lower()].append((level, description))
-            else:
-                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
-        else:
-            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+    # def set_perception(self, perceptionkey, level, description):
+    #     """
+    #     This sets a perception on the room.
+    #     Args:
+    #         perceptionkey (str): The detail identifier to add (for
+    #             aliases you need to add multiple keys to the
+    #             same description). Case-insensitive.
+    #         level (int): Level of the perception needed to access the information.
+    #         description (str): The text to return when looking
+    #             at the given perceptionkey.
+    #     """
+    #     if self.db.perception_details:
+    #         if perceptionkey.lower() in self.db.perception_details:
+    #             self.db.perception_details[perceptionkey.lower()].append((level, description))
+    #         else:
+    #             self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
+    #     else:
+    #         self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
     def set_tracking(self, trackingkey, level, description):
         """
