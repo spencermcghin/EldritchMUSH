@@ -44,8 +44,8 @@ class Room(DefaultRoom):
         room_tracking_results = self.return_tracking(room_perception_search_key, looker_tracking)
 
         # Format room perception results for printing
-        format_room_perception_results = [f"|y{result}|n" for result in room_perception_results]
-        format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results]
+        format_room_perception_results = [f"|y{result}|n" for result in room_perception_results if result]
+        format_room_tracking_results = [f"|y{result}|n" for result in room_tracking_results if result]
 
         # Message headers for look_results
         perception_message = f"|015Perception - After careful inspection of {room_perception_search_key}, you discover the following:|n"
