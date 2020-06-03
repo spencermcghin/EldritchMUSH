@@ -31,6 +31,39 @@ class Room(DefaultRoom):
 
         self.cmdset.add_default(RoomCmdSet)
 
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+
+        # Set value of perception/tracking key for returning values.
+        room_perception_search_key = looker.location
+        looker_perception = looker.db.perception
+        looker_tracking = looker.db.tracking
+
+        # Message headers for look_results
+        perception_message = f"|015Perception - After careful inspection of the {room_perception_search_key}, you discover the following:|n\n"
+        tracking_message = f"|015Tracking - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:|n\n"
+
+        # Returns list of messages if anything
+        room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
+        room_tracking_results = self.return_tracking(room_perception_search_key, looker_tracking)
+
+        # List for final print
+        final_payload = [string]
+
+        # Format room perception results for printing
+        if room_perception_results:
+            format_room_perception_results = [f"|y{result}|n\n" for result in room_perception_results]
+            perception_results = [perception_message] + format_room_perception_results
+            final_payload.extend(perception_results)
+
+        if room_tracking_results:
+            format_room_tracking_results = [f"|y{result}|n\n" for result in room_tracking_results]
+            tracking_results = [tracking_message] + format_room_tracking_results
+            final_payload.extend(tracking_results)
+
+        for line in final_payload:
+            looker.msg(f"{line}\n")
+
     def return_perception(self, perceptionkey, perceptionlevel):
         """
         This looks for an Attribute "obj_perception" and possibly
@@ -42,20 +75,14 @@ class Room(DefaultRoom):
 
         look_results = []
 
-        try:
-            perception_details = self.db.perception_details
-
-        except:
-            look_results.append("There is nothing matching that description.")
-
+        if self.db.perception_details:
+            perception_details = self.db.perception_details.get(perceptionkey.name.lower(), None)
+            for details in perception_details:
+                if details[0] <= perceptionlevel:
+                    look_results.append(details[1])
+            return look_results
         else:
-
-            if perception_details.get(perceptionkey.lower(), None) is not None:
-                for details in perception_details[perceptionkey.lower()]:
-                    if details[0] <= perceptionlevel:
-                        look_results.append(details[1])
-
-        return look_results
+            return
 
 
     def return_tracking(self, trackingkey, trackinglevel):
@@ -66,18 +93,16 @@ class Room(DefaultRoom):
             trackingkey (str): The perception detail being looked at. This is
                 case-insensitive.
         """
-        tracking_details = self.db.tracking_details
-
         look_results = []
 
-        if tracking_details.get(trackingkey.lower(), None) is not None:
-            for details in tracking_details[trackingkey.lower()]:
+        if self.db.tracking_details:
+            tracking_details = self.db.tracking_details.get(trackingkey.name.lower(), None)
+            for details in tracking_details:
                 if details[0] <= trackinglevel:
                     look_results.append(details[1])
+            return look_results
         else:
-            look_results.append("There is nothing matching that description.")
-
-        return look_results
+            return
 
     def set_perception(self, perceptionkey, level, description):
         """
@@ -91,7 +116,10 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.perception_details:
-            self.db.perception_details[perceptionkey.lower()].append((level, description))
+            if perceptionkey.lower() in self.db.perception_details:
+                self.db.perception_details[perceptionkey.lower()].append((level, description))
+            else:
+                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
         else:
             self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
 
@@ -107,7 +135,10 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.tracking_details:
-            self.db.tracking_details[trackingkey.lower()].append((level, description))
+            if trackingkey.lower() in self.db.tracking_details:
+                self.db.tracking_details[trackingkey.lower()].append((level, description))
+            else:
+                self.db.tracking_details.update({trackingkey.lower(): [(level, description)]})
         else:
             self.db.tracking_details = {trackingkey.lower(): [(level, description)]}
 
