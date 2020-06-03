@@ -57,7 +57,7 @@ class Room(DefaultRoom):
         # If just room perception results, return the desc and header
         if room_perception_results and not room_tracking_results:
             results = [perception_message].append(format_room_perception_results)
-        elif room_tracking_results and not perception_results:
+        elif room_tracking_results and not room_perception_results:
             results = [tracking_message].append(format_room_tracking_results)
         elif room_perception_results and room_tracking_results:
             perception_results = [perception_message].append(format_room_perception_results)
