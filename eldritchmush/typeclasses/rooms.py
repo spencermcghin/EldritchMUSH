@@ -103,9 +103,9 @@ class Room(DefaultRoom):
         look_results = []
 
         if self.db.tracking_details:
-            perception_details = self.db.tracking_details.get(perceptionkey.name.lower(), None)
-            for details in perception_details:
-                if details[0] <= perceptionlevel:
+            tracking_details = self.db.tracking_details.get(trackingkey.name.lower(), None)
+            for details in tracking_details:
+                if details[0] <= trackinglevel:
                     look_results.append(details[1])
             return look_results
         else:
