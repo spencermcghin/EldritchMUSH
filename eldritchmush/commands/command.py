@@ -1075,28 +1075,28 @@ class CmdPerception(default_cmds.MuxCommand):
                 # Get perception setting objects
                 equals = self.args.index("=")
                 object = str(self.args[1:equals]).strip()
-            if not hasattr(object, "set_perception"):
-                self.caller.msg("Perception cannot be set on %s." % self.obj)
-                return
-                # looking_at_obj = self.caller.search(
-                #     object,
-                #     # note: excludes room/room aliases
-                #     # look for args in room and on self
-                #     candidates=self.caller.location.contents + self.caller.contents,
-                #     use_nicks=True,
-                #     quiet=True,
-                # )
-                # Check to see if there are search results
-                if not object:
-                    self.caller.msg("Nothing here by that name or description")
-                    return
-                else:
-                    # Set the perception object in the database
-                    self.obj.set_perception(object, level, self.rhs)
-
-                    # Message to admin for confirmation.
-                    self.caller.msg(f"Perception set on {object}\nLevel: {level}\nDescription: {self.rhs}")
-
+            # if not object:
+            #     self.caller.msg("Nothing here by that name or description")
+            #     return
+            # if not hasattr(object, "set_perception"):
+            #     self.caller.msg("Perception cannot be set on %s." % self.obj)
+            #     return
+            #     # looking_at_obj = self.caller.search(
+            #     #     object,
+            #     #     # note: excludes room/room aliases
+            #     #     # look for args in room and on self
+            #     #     candidates=self.caller.location.contents + self.caller.contents,
+            #     #     use_nicks=True,
+            #     #     quiet=True,
+            #     # )
+            #     # Check to see if there are search results
+            #     else:
+            #         # Set the perception object in the database
+            #         self.obj.set_perception(object, level, self.rhs)
+            #
+            #         # Message to admin for confirmation.
+            #         self.caller.msg(f"Perception set on {object}\nLevel: {level}\nDescription: {self.rhs}")
+                self.caller.msg(object)
 
 class CmdTracking(default_cmds.MuxCommand):
     """
