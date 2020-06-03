@@ -1081,15 +1081,16 @@ class CmdPerception(default_cmds.MuxCommand):
             # if not hasattr(self.obj, "set_perception"):
             #     self.caller.msg("Perception cannot be set on %s." % self.obj)
             #     return
-            self.obj = object
+            # self.obj = object
             looking_at_obj = self.caller.search(
-                self.obj,
+                object,
                 # note: excludes room/room aliases
                 # look for args in room and on self
                 candidates=self.caller.location.contents + self.caller.contents,
                 use_nicks=True,
                 quiet=True,
             )
+            if
             #     # Check to see if there are search results
             #     else:
             #         # Set the perception object in the database
