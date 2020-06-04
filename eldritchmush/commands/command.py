@@ -1490,7 +1490,7 @@ class SetWeakness(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "Usage: setweakness <0/1>"
+        errmsg = "|yUsage: setweakness <0/1>|n\n|rYou must supply a number of either 0 or 1.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return

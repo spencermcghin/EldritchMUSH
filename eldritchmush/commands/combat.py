@@ -119,13 +119,13 @@ class CmdStrike(Command):
 
         # Check for correct command
         if not self.args:
-            self.caller.msg("Usage: strike <target>")
+            self.caller.msg("|yUsage: strike <target>|n")
             return
 
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("Usage: strike <target>")
+            self.caller.msg("|yUsage: strike <target>|n")
             return
 
         if target == self.caller:
@@ -651,7 +651,7 @@ class CmdDisengage(Command):
     def func(self):
         "Implements the command"
         # To disengage
-        self.caller.msg("You disengage from the attack")
+        self.caller.msg("|yYou disengage from the attack|n")
         self.caller.location.msg_contents(f"|b{self.caller} backs away and then disengages from the fight.|n")
 
 """
