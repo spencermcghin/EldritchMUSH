@@ -39,3 +39,97 @@ class CmdCreateNPC(Command):
         # announce
         message = "%s created the NPC '%s'."
         caller.msg(message % ("You", name))
+
+
+class CmdEditNPC(Command):
+    """
+    edit an existing NPC
+
+    Usage:
+      editnpc <name>[/<attribute> [= value]]
+
+    Examples:
+      editnpc mynpc/power = 5
+      editnpc mynpc/power    - displays power value
+      editnpc mynpc          - shows all editable
+                                attributes and values
+
+    This command edits an existing NPC. You must have
+    permission to edit the NPC to use this.
+    """
+    key = "+editnpc"
+    aliases = ["editNPC"]
+    locks = "cmd:not perm(nonpcs)"
+    help_category = "mush"
+
+    def parse(self):
+        "We need to do some parsing here"
+        args = self.args
+        propname, propval = None, None
+        if "=" in args:
+            args, propval = [part.strip() for part in args.rsplit("=", 1)]
+        if "/" in args:
+            args, propname = [part.strip() for part in args.rsplit("/", 1)]
+        # store, so we can access it below in func()
+        self.name = args
+        self.propname = propname
+        # a propval without a propname is meaningless
+        self.propval = propval if propname else None
+
+    def func(self):
+        "do the editing"
+
+        allowed_propnames = ("master_of_arms",
+                             "armor",
+                             "tough",
+                             "body",
+                             "av",
+                             "stabilize",
+                             "medicine",
+                             "battlefieldmedicine",
+                             "melee",
+                             "resist",
+                             "disarm",
+                             "cleave",
+                             "sunder",
+                             "stun",
+                             "stagger",
+                             "weapon_level",
+                             "twohanded",
+                             "wyldinghand",
+                             "shield",
+                             "bow",
+                             "activemartialskill")
+
+        caller = self.caller
+        if not self.args or not self.name:
+            caller.msg("Usage: editnpc name[/propname][=propval]")
+            return
+        npc = caller.search(self.name)
+        if not npc:
+            return
+        if not npc.access(caller, "edit"):
+            caller.msg("You cannot change this NPC.")
+            return
+        if not self.propname:
+            # this means we just list the values
+            output = "Properties of %s:" % npc.key
+            for propname in allowed_propnames:
+                propvalue = npc.attributes.get(propname, default="N/A")
+                output += "\n %s = %s" % (propname, propvalue)
+            caller.msg(output)
+        elif self.propname not in allowed_propnames:
+            caller.msg("You may only change %s." %
+                              ", ".join(allowed_propnames))
+        elif self.propval:
+            # assigning a new propvalue
+            # in this example, the properties are all integers...
+            intpropval = int(self.propval)
+            npc.attributes.add(self.propname, intpropval)
+            caller.msg("Set %s's property '%s' to %s" %
+                         (npc.key, self.propname, self.propval))
+        else:
+            # propname set, but not propval - show current value
+            caller.msg("%s has property %s = %s" %
+                         (npc.key, self.propname,
+                          npc.attributes.get(self.propname, default="N/A")))
