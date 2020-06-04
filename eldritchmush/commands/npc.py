@@ -133,3 +133,42 @@ class CmdEditNPC(Command):
             caller.msg("%s has property %s = %s" %
                          (npc.key, self.propname,
                           npc.attributes.get(self.propname, default="N/A")))
+
+
+class CmdNPC(Command):
+    """
+    controls an NPC
+
+    Usage:
+        npc <name> = <command>
+
+    This causes the npc to perform a command as itself. It will do so
+    with its own permissions and accesses.
+    """
+    key = "npc"
+    locks = "call:not perm(nonpcs)"
+    help_category = "mush"
+
+    def parse(self):
+        "Simple split of the = sign"
+        name, cmdname = None, None
+        if "=" in self.args:
+            name, cmdname = [part.strip()
+                             for part in self.args.rsplit("=", 1)]
+        self.name, self.cmdname = name, cmdname
+
+    def func(self):
+        "Run the command"
+        caller = self.caller
+        if not self.cmdname:
+            caller.msg("Usage: npc <name> = <command>")
+            return
+        npc = caller.search(self.name)
+        if not npc:
+            return
+        if not npc.access(caller, "edit"):
+            caller.msg("You may not order this NPC to do anything.")
+            return
+        # send the command order
+        npc.execute_cmd(self.cmdname)
+        caller.msg("You told %s to do '%s'." % (npc.key, self.cmdname))
