@@ -15,9 +15,9 @@ class CmdCreateNPC(Command):
     aliases = ["createNPC", "+createnpc", "+createNPC"]
     locks = "call:not perm(nonpcs)"
     help_category = "mush"
-    errmsg = "Usage: createnpc <name>"
 
     def func(self):
+        errmsg = "Usage: createnpc <name>"
         "create the object and name it"
         caller = self.caller
         # Error handling
