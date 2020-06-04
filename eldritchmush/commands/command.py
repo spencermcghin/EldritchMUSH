@@ -1201,9 +1201,9 @@ class CmdMedicine(Command):
         if (- 3 <= target_body <= 0) and medicine:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |r{medicine}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |r{medicine}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and medicine:
             if target == self.caller:
@@ -1247,9 +1247,9 @@ class CmdStabilize(Command):
         if (- 3 <= target_body <= 0) and stabilize:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals|n |g{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |bbody points.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |g{stabilize}|n |bbody points.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and stabilize:
             if target == self.caller:
