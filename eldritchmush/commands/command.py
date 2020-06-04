@@ -220,7 +220,7 @@ class SetArmor(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: setarmor <0-3>|n\n|rYou must supply a number between 1 and 5.|n"
+        errmsg = "|yUsage: setarmor <0-3>|n\n|rYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
