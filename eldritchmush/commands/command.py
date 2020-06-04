@@ -491,7 +491,7 @@ class SetWyldingHand(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.wyldinghand = wyldinghand
-        self.caller.msg(f"|yYour level of Wylding Hand was set to {wyldinghand}|n")
+        self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
 
 
 class SetWeaponLevel(Command):
