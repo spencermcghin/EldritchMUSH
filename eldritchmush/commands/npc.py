@@ -169,5 +169,5 @@ class CmdNPC(Command):
             caller.msg("You may not order this NPC to do anything.")
             return
         # send the command order
-        npc.execute_cmd(self.cmdname, session=self.caller)
+        npc.execute_cmd(self.cmdname, session=self.caller.sessid)
         caller.msg("You told %s to do '%s'." % (npc.key, self.cmdname))
