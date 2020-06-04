@@ -478,7 +478,7 @@ class SetWyldingHand(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|rYou must supply a number between 1 and 3.|n"
+        errmsg = "Usage: setwyldinghand <1-3>|n\n|rYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
