@@ -193,13 +193,13 @@ class CmdKill(Command):
 
         # Check for correct command
         if not self.args:
-            self.caller.msg("Usage: kill <target>")
+            self.caller.msg("|yUsage: kill <target>|n")
             return
 
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("Usage: kill <target>")
+            self.caller.msg("|yUsage: kill <target>|n")
             return
 
         if target == self.caller:
@@ -272,13 +272,13 @@ class CmdShoot(Command):
         bow_penalty = 2
 
         if not self.args:
-            self.caller.msg("Usage: shoot <target>")
+            self.caller.msg("|yUsage: shoot <target>|n")
             return
 
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("There is nothing here that matches that description.")
+            self.caller.msg("|rThere is nothing here that matches that description.|n")
             return
 
         if target == self.caller:
@@ -344,13 +344,13 @@ class CmdCleave(Command):
         cleavesRemaining = self.caller.db.cleave
 
         if not self.args:
-            self.caller.msg("Usage: cleave <target>")
+            self.caller.msg("|yUsage: cleave <target>|n")
             return
 
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("There is nothing here that matches that description.")
+            self.caller.msg("|rThere is nothing here that matches that description.|n")
             return
 
         if target == self.caller:
@@ -362,7 +362,7 @@ class CmdCleave(Command):
 
         # Check for equip proper weapon type or weakness
         if weakness:
-            self.caller.msg("|yYou are too weak to use this attack.|n")
+            self.caller.msg("|rYou are too weak to use this attack.|n")
         elif hasBow:
             self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.|n")
         elif not hasMelee:
@@ -386,7 +386,7 @@ class CmdCleave(Command):
                 # Return attack result message
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
             else:
-                self.caller.msg("|yYou have 0 cleaves remaining.")
+                self.caller.msg("|rYou have 0 cleaves remaining.")
 
 
 class CmdResist(Command):
@@ -417,7 +417,7 @@ class CmdResist(Command):
 
         # Check for equip proper weapon type or weakness
         if weakness:
-            self.caller.msg("|yYou are too weak to use this attack.|n")
+            self.caller.msg("|rYou are too weak to use this attack.|n")
         elif resistsRemaining > 0:
         # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
@@ -468,13 +468,13 @@ class CmdDisarm(Command):
             weapon_level = self.caller.db.weapon_level
 
             if not self.args:
-                self.caller.msg("Usage: disarm <target>")
+                self.caller.msg("|yUsage: disarm <target>|n")
                 return
 
             target = self.caller.search(self.target)
 
             if not target:
-                self.caller.msg("There is nothing here that matches that description.")
+                self.caller.msg("|rThere is nothing here that matches that description.|n")
                 return
 
             if target == self.caller:
@@ -486,7 +486,7 @@ class CmdDisarm(Command):
 
             # Check for equip proper weapon type or weakness
             if weakness:
-                self.caller.msg("|yYou are too weak to use this attack.|n")
+                self.caller.msg("|rYou are too weak to use this attack.|n")
             elif hasBow:
                 self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
             elif not hasMelee:
@@ -510,7 +510,7 @@ class CmdDisarm(Command):
                     # Return attack result message
                     self.caller.location.msg_contents(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|yReduce the next amount of damage taken by {master_of_arms}")
                 else:
-                    self.caller.msg("|yYou have 0 disarms remaining.")
+                    self.caller.msg("|rYou have 0 disarms remaining.")
 
 
 class CmdStun(Command):
@@ -546,7 +546,7 @@ class CmdStun(Command):
 
             # Check for equip proper weapon type or weakness
             if weakness:
-                self.caller.msg("|yYou are too weak to use this attack.|n")
+                self.caller.msg("|rYou are too weak to use this attack.|n")
             elif hasBow:
                 self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
             elif not hasMelee:
@@ -570,7 +570,7 @@ class CmdStun(Command):
                     # Return attack result message
                     self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {target.key} such that they're unable to attack for a moment.|n\n|y{target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
-                    self.caller.msg("|yYou have 0 stuns remaining.|n")
+                    self.caller.msg("|rYou have 0 stuns remaining.|n")
 
 
 class CmdStagger(Command):
@@ -608,7 +608,7 @@ class CmdStagger(Command):
 
         # Check for equip proper weapon type or weakness
         if weakness:
-            self.caller.msg("|yYou are too weak to use this attack.|n")
+            self.caller.msg("|rYou are too weak to use this attack.|n")
         elif hasBow:
             self.caller.msg("|yBefore you can attack, you must first unequip your bow using the command setbow 0.")
         elif not hasMelee:
@@ -632,7 +632,7 @@ class CmdStagger(Command):
                 # Return attack result message
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
             else:
-                self.caller.msg("|yYou have 0 staggers remaining.")
+                self.caller.msg("|rYou have 0 staggers remaining.")
 
 
 class CmdDisengage(Command):
@@ -651,7 +651,8 @@ class CmdDisengage(Command):
     def func(self):
         "Implements the command"
         # To disengage
-        self.caller.msg("You disengage from the attack!")
+        self.caller.msg("You disengage from the attack")
+        self.caller.location.msg_contents(f"|b{self.caller} backs away and then disengages from the fight.|n")
 
 """
 Knight commands
@@ -673,7 +674,7 @@ class CmdBattlefieldCommander(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("Usage: bolster <target>")
+            self.caller.msg("|yUsage: bolster <target>|n")
             return
 
         bolsterRemaining = self.caller.db.battlefieldcommander
@@ -682,7 +683,7 @@ class CmdBattlefieldCommander(Command):
             self.caller.location.msg_contents(f"|bAmidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |r{self.speech}|n.\n|yEveryone in the room may now add 1 Tough to their av, using the command settough #|n |r(Should be one more than your current value).|n")
             self.caller.db.battlefieldcommander -= 1
         else:
-            self.caller.msg("|yYou have no uses of your battlefield commander ability remaining.|n")
+            self.caller.msg("|rYou have no uses of your battlefield commander ability remaining.|n")
 
 class CmdRally(Command):
     """
@@ -699,7 +700,7 @@ class CmdRally(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("Usage: rally <speech>")
+            self.caller.msg("|yUsage: rally <speech>|n")
             return
 
         rallyRemaining = self.caller.db.rally
@@ -708,4 +709,4 @@ class CmdRally(Command):
             self.caller.location.msg_contents(f"|b{self.caller.key} shouts so all can hear,|n |r{self.speech}|n.\n|yEveryone in the room now feels unafraid. Cancel the fear effect.|n")
             self.caller.db.rally -= 1
         else:
-            self.caller.msg("|yYou have no uses of your rally ability remaining.|n")
+            self.caller.msg("|rYou have no uses of your rally ability remaining.|n")
