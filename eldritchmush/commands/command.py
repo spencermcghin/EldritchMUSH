@@ -436,7 +436,7 @@ class SetArmorSpecialist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "You must supply a value of 0 or 1."
+        errmsg = "Usage: setarmorspecialist <value>"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -445,6 +445,7 @@ class SetArmorSpecialist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        # Extending range for knight ability
         if not (1 <= armor_specialist <= 4):
             self.caller.msg(errmsg)
             return
