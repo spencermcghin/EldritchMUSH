@@ -57,7 +57,7 @@ class CmdEditNPC(Command):
     This command edits an existing NPC. You must have
     permission to edit the NPC to use this.
     """
-    key = "+editnpc"
+    key = "editnpc"
     aliases = ["editNPC"]
     locks = "cmd:not perm(nonpcs)"
     help_category = "mush"
@@ -83,7 +83,6 @@ class CmdEditNPC(Command):
                              "armor",
                              "tough",
                              "body",
-                             "av",
                              "stabilize",
                              "medicine",
                              "battlefieldmedicine",
@@ -172,3 +171,4 @@ class CmdNPC(Command):
         # send the command order
         npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)
         caller.msg("You told %s to do '%s'." % (npc.key, self.cmdname))
+        caller.msg(self.msg)
