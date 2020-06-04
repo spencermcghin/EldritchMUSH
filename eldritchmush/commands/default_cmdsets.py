@@ -119,6 +119,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         #
         self.add(npc.CmdCreateNPC())
         self.add(npc.CmdEditNPC())
+        self.add(npc.CmdNPC())
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """
