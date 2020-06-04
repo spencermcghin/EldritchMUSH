@@ -564,7 +564,7 @@ class SetBow(Command):
                     self.caller.msg("|gYou have equipped your bow.|n")
                     self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their bow.|n")
                 else:
-                    self.caller.msg("|gYou have unequipped your bow.|n")
+                    self.caller.msg("|rYou have unequipped your bow.|n")
                     self.caller.location.msg_contents(f"|b{self.caller.key} unequips their bow.|n")
 
 
