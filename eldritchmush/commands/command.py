@@ -229,19 +229,8 @@ class SetArmor(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= armor <= 3):
-            self.caller.msg(errmsg)
-            return
         # at this point the argument is tested as valid. Let's set it.
-        if armor == 0:
-            self.caller.db.armor = 2
-        elif armor == 1:
-            self.caller.db.armor = 3
-        elif armor == 2:
-            self.caller.db.armor = 4
-        elif armor == 3:
-            self.caller.db.armor = 5
-
+        self.caller.db.armor = armor
         # Get vals for armor value calc
         tough = self.caller.db.tough
         shield = 1 if self.caller.db.shield == True else 0

@@ -37,7 +37,7 @@ class Character(DefaultCharacter):
         self.db.tracking = 0
         self.db.perception = 0
         self.db.master_of_arms = 0
-        self.db.armor = 2
+        self.db.armor = 0
         self.db.armor_specialist = 0
         self.db.tough = 0
         self.db.body = 3
