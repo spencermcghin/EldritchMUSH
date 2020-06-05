@@ -585,7 +585,7 @@ class CmdStun(Command):
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                     # Return attack result message
-                    self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {self.target.key} such that they're unable to attack for a moment.|n\n|y{self.target.key} may not attack next round if {attack_result} is a successful hit.|n")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {self.target} such that they're unable to attack for a moment.|n\n|y{self.target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
                     self.caller.msg("|rYou have 0 stuns remaining.|n")
 
@@ -661,7 +661,7 @@ class CmdStagger(Command):
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                 # Return attack result message
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {self.target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {self.target} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
             else:
                 self.caller.msg("|rYou have 0 staggers remaining.|n")
 
