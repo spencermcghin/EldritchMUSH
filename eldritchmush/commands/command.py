@@ -414,6 +414,19 @@ class SetShieldValue(Command):
         self.caller.db.shield_value = shield_value
         self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
 
+        # Get armor value objects
+        armor = self.caller.db.armor
+        tough = self.caller.db.tough
+        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+
+        # Add them up and set the curent armor value in the database
+        currentArmorValue = armor + tough + shield_value + armor_specialist
+        self.caller.db.av = currentArmorValue
+
+        # Return armor value to console.
+        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
 
 
 class SetBody(Command):
