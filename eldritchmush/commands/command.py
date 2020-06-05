@@ -210,7 +210,7 @@ class Command(BaseCommand):
 class SetArmorValue(Command):
     """Set the armor level of a character
 
-    Usage: setarmorvalue <0-3>
+    Usage: setarmorvalue <value>
 
     This sets the armor of the current character. This command is available to all characters.
     """
@@ -234,19 +234,21 @@ class SetArmorValue(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.armor = armor_value
-        # Get vals for armor value calc
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor_value + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.armor = armor_value
+            # Get vals for armor value calc
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-        # Return armor value to console.
-        self.caller.msg(f"|gYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor_value + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
+
+            # Return armor value to console.
+            self.caller.msg(f"|gYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
 
 
 class SetTracking(Command):
@@ -410,22 +412,23 @@ class SetShieldValue(Command):
             self.caller.msg(errmsg)
             return
 
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.shield_value = shield_value
-        self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.shield_value = shield_value
+            self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
 
-        # Get armor value objects
-        armor = self.caller.db.armor
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
 
-        # Return armor value to console.
-        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            # Return armor value to console.
+            self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 
