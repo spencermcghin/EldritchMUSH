@@ -244,7 +244,7 @@ class SetArmorValue(Command):
             if current_armor > armor_value:
                 # Get amount of damage taken
                 damage = current_armor - armor_value
-                self.caller.location.msg_contents(f"|y{self.caller.key} takes {damage} damage to their armor.|n")
+                self.caller.location.msg_contents(f"|r{self.caller.key} takes {damage} damage to their armor.|n")
             # Get vals for armor value calc
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
