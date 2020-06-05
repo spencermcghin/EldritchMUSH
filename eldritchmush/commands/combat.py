@@ -429,7 +429,7 @@ class CmdResist(Command):
             self.caller.db.resist -= 1
 
             # Get final attack result and damage
-            weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
+            weakness = h.weaknessChecker(self.caller.db.weakness, self.cmdstring)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
@@ -466,6 +466,8 @@ class CmdDisarm(Command):
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
             weapon_level = self.caller.db.weapon_level
+            wylding_hand = self.caller.db.wyldinghand
+
 
             if not self.args:
                 self.caller.msg("|yUsage: disarm <target>|n")
@@ -540,6 +542,7 @@ class CmdStun(Command):
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
             weapon_level = self.caller.db.weapon_level
+            wylding_hand = self.caller.db.wyldinghand
 
             # Check for weakness on character
             weakness = h.weaknessChecker(self.caller.db.weakness)
@@ -600,6 +603,7 @@ class CmdStagger(Command):
         hasMelee = self.caller.db.melee
         staggersRemaining = self.caller.db.stagger
         weapon_level = self.caller.db.weapon_level
+        wylding_hand = self.caller.db.wyldinghand
 
 
         # Check for equip proper weapon type
