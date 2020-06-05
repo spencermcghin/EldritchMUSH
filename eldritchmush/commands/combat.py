@@ -632,7 +632,7 @@ class CmdStagger(Command):
                 # Return attack result message
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
             else:
-                self.caller.msg("|rYou have 0 staggers remaining.")
+                self.caller.msg("|rYou have 0 staggers remaining.|n")
 
 
 class CmdDisengage(Command):
@@ -651,7 +651,7 @@ class CmdDisengage(Command):
     def func(self):
         "Implements the command"
         # To disengage
-        self.caller.msg("|yYou disengage from the attack|n")
+        self.caller.msg("|yYou disengage from the attack.|n")
         self.caller.location.msg_contents(f"|b{self.caller} backs away and then disengages from the fight.|n")
 
 """
