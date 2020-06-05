@@ -359,9 +359,7 @@ class SetTough(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= tough <= 5):
-            self.caller.msg(errmsg)
-            return
+
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.tough = tough
         self.caller.msg("|yYour Tough was set to %i.|n" % tough)
@@ -402,9 +400,7 @@ class SetBody(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (-6 <= body <= 3):
-            self.caller.msg(errmsg)
-            return
+
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.body = body
         self.caller.msg("|yYour Body was set to %i.|n" % body)
@@ -486,7 +482,7 @@ class SetWyldingHand(Command):
 class SetWeaponLevel(Command):
     """Set the weapon level of a character
 
-    Usage: setweapon <1,2,3>
+    Usage: setweaponlevel <1,2,3>
 
     This sets the weapon level of the current character. This can only be
     used during character generation.
@@ -513,6 +509,36 @@ class SetWeaponLevel(Command):
         self.caller.db.weapon_level = weapon_level
         self.caller.msg("Your weapon level was set to %i." % weapon_level)
 
+
+class SetShieldLevel(Command):
+    """Set the weapon level of a character
+
+    Usage: setweapon <1,2,3>
+
+    This sets the weapon level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setshieldlevel"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|yUsage: setshieldlevel <1-3>|n\n|rYou must supply a number between 1 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            shield_level = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (1 <= shield_level <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.shield = shield_level
+        self.caller.msg("Your shield level was set to %i." % shield_level)
 
 class SetBow(Command):
     """Set the bow property of a character
