@@ -82,6 +82,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(combat.CmdKill())
         self.add(combat.CmdBattlefieldCommander())
         self.add(combat.CmdRally())
+        self.add(command.SetShieldLevel())
 
 
 class ArtessaCmdSet(RoomCmdSet):
