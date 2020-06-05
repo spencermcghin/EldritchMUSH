@@ -225,19 +225,24 @@ class SetArmorValue(Command):
             self.caller.msg(errmsg)
             return
         try:
-            armor = int(self.args)
+            armor_value = int(self.args)
+            # Error handling to keep from going below 0.
+            if armor_value < 0:
+                self.caller.msg("|rYou may not set a value lower than 0.|n")
+                return
+
         except ValueError:
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.armor = armor
+        self.caller.db.armor = armor_value
         # Get vals for armor value calc
         tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if shield == True else 0
+        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
         armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
         # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield + armor_specialist
+        currentArmorValue = armor_value + tough + shield_value + armor_specialist
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
@@ -340,7 +345,7 @@ class SetMasterOfArms(Command):
 class SetTough(Command):
     """Set the tough of a character
 
-    Usage: settough <1-5>
+    Usage: settough <value>
 
     This sets the tough of the current character. This is available to all characters.
     """
@@ -350,7 +355,7 @@ class SetTough(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: settough <1-5>|n\n|rYou must supply a number between 1 and 5.|n"
+        errmsg = "|yUsage: settough <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -367,7 +372,7 @@ class SetTough(Command):
         # Get armor value objects
         armor = self.caller.db.armor
         tough = self.caller.db.tough
-        shield = 1 if self.caller.db.shield == True else 0
+        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
         armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
         # Add them up and set the curent armor value in the database
@@ -375,7 +380,7 @@ class SetTough(Command):
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
+        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 class SetShieldValue(Command):
@@ -407,7 +412,7 @@ class SetShieldValue(Command):
 
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.shield_value = shield_value
-        self.caller.msg("|yYour Body was set to %i.|n" % body)
+        self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
 
 
 
