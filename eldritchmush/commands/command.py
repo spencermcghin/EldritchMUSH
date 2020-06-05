@@ -419,6 +419,9 @@ class SetShieldValue(Command):
                 self.caller.msg("|rYou may not set a value lower than 0.|n")
                 return
 
+            if shield_value == 0:
+                self.caller.msg("|rYour shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+
         except ValueError:
             self.caller.msg(errmsg)
             return
@@ -427,10 +430,6 @@ class SetShieldValue(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.shield_value = shield_value
             self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
-
-            if shield_value == 0:
-                self.caller.msg("|rYour shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
-
 
             # Get armor value objects
             armor = self.caller.db.armor
