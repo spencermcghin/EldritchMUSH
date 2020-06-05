@@ -469,9 +469,9 @@ class SetBody(Command):
         self.caller.msg("|yYour Body was set to %i.|n" % body)
         if current_body > body:
             damage = current_body - body
-            self.caller.location.msg_contents(f"|b{self.caller.key} takes {damage} damage to their body.|n")
+            self.caller.location.msg_contents(f"|r{self.caller.key} takes {damage} damage to their body.|n")
         if body == 0:
-            self.caller.location.msg_contents(f"|b{self.caller.key} is now bleeding profusely from many wounds.|n")
+            self.caller.location.msg_contents(f"|r{self.caller.key} is now bleeding profusely from many wounds.|n")
 
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
