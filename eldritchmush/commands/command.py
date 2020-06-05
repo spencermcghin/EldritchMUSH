@@ -248,7 +248,7 @@ class SetArmorValue(Command):
             self.caller.db.av = currentArmorValue
 
             # Return armor value to console.
-            self.caller.msg(f"|gYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
+            self.caller.msg(f"|gYour current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
 
 
 class SetTracking(Command):
