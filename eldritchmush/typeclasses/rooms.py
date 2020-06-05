@@ -40,7 +40,7 @@ class Room(DefaultRoom):
         looker_tracking = looker.db.tracking
 
         # Message headers for look_results
-        perception_message = f"|410Perception|n - After careful inspection of the {room_perception_search_key}, you discover the following:\n"
+        perception_message = f"|200Perception|n - After careful inspection of the {room_perception_search_key}, you discover the following:\n"
         tracking_message = f"|210Tracking|n - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:\n"
 
         # Returns list of messages if anything
@@ -52,7 +52,7 @@ class Room(DefaultRoom):
 
         # Format room perception results for printing
         if room_perception_results:
-            format_room_perception_results = [f"|005{result}|n\n" for result in room_perception_results]
+            format_room_perception_results = [f"|=t{result}|n\n" for result in room_perception_results]
             perception_results = [perception_message] + format_room_perception_results
             final_payload.extend(perception_results)
 
