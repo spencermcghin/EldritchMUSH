@@ -193,7 +193,7 @@ SUNNY_STRINGS = ["The skies begin to clear and you can see patches of blue among
                       "A bird of prey soars overhead on a warm draft. White clouds hang in the air high above.",
                       "The sun peaks out from behind intermittent clouds, suggesting the threat of spring rain."]
 
-class WeatherRoom(DefaultRoom):
+class WeatherRoom(Room):
     """
     This sets up an outdoor room typeclass. At irregular intervals,
     the effects of weather will show in the room. Outdoor rooms should
