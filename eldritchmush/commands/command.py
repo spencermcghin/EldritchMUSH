@@ -844,8 +844,10 @@ class SetShield(Command):
         # Quippy message when setting a shield as 0 or 1.
         if shield:
             self.caller.msg("|gYou now have a shield.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.name} equips their shield.|n")
         else:
             self.caller.msg("|rYou have unequipped or lost your shield.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.name} unequips their shield.|n")
 
         # Get armor value objects
         armor = self.caller.db.armor
