@@ -377,11 +377,33 @@ class SetTough(Command):
         # Return armor value to console.
         self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
 
+
 class SetShieldValue(Command):
     """Set the shield value of a shield item.
 
-    Usage:
+    Usage: setshieldvalue <value>
+
+    Available to all characters. Adds to total Armor Value db object.
     """
+    key = "setshieldvalue"
+    help_category = "mush"
+
+    def func(self):
+        """Performs the command"""
+        errmsg = "|yUsage: SetShieldLevel <value>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            shield_value = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.shield_value = shield_value
+        self.caller.msg("|yYour Body was set to %i.|n" % body)
+
 
 
 class SetBody(Command):
@@ -828,7 +850,7 @@ class SetShield(Command):
         # Get armor value objects
         armor = self.caller.db.armor
         tough = self.caller.db.tough
-        shield = 1 if self.caller.db.shield is 1 else 0
+        shield_value = self.caller.db.shield_value
         armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
         # Add them up and set the curent armor value in the database
@@ -836,7 +858,7 @@ class SetShield(Command):
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
+        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 class SetTwoHanded(Command):
