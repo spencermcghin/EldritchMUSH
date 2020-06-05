@@ -162,7 +162,7 @@ class CmdStrike(Command):
 
             # Return message to area and caller
             if target.db.av:
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|y{self.caller.key}'s attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
@@ -304,7 +304,7 @@ class CmdShoot(Command):
             shot_location = h.shotFinder(target.db.targetArray)
 
             # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|y{self.caller.key}'s attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
 
 
 
@@ -384,7 +384,7 @@ class CmdCleave(Command):
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|y{self.caller.key}'s attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
             else:
                 self.caller.msg("|rYou have 0 cleaves remaining.")
 
@@ -434,7 +434,7 @@ class CmdResist(Command):
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
             # Return attack result message
-            self.caller.location.msg_contents(f"|b{self.caller.key} tries to resist the brunt of the attack!|n\n|yIf attack roll is successful, they negate the effects of the attack and any damage.|n\n|yTheir attack result is:|n |g{attack_result}|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} tries to resist the brunt of the attack!|n\n|yIf attack roll is successful, {self.caller.key} negates the effects of the attack and any damage.|n\n|y{self.caller.key}'s attack result is:|n |g{attack_result}|n")
         else:
             self.caller.msg("|yYou have 0 resists remaining.")
 
@@ -508,7 +508,7 @@ class CmdDisarm(Command):
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                     # Return attack result message
-                    self.caller.location.msg_contents(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|yReduce the next amount of damage taken by {master_of_arms}")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|y{self.caller.key} may reduce the next amount of damage taken by {master_of_arms}")
                 else:
                     self.caller.msg("|rYou have 0 disarms remaining.")
 
@@ -632,7 +632,7 @@ class CmdStagger(Command):
                 # Return attack result message
                 self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
             else:
-                self.caller.msg("|rYou have 0 staggers remaining.")
+                self.caller.msg("|rYou have 0 staggers remaining.|n")
 
 
 class CmdDisengage(Command):
@@ -651,7 +651,7 @@ class CmdDisengage(Command):
     def func(self):
         "Implements the command"
         # To disengage
-        self.caller.msg("|yYou disengage from the attack|n")
+        self.caller.msg("|yYou disengage from the attack.|n")
         self.caller.location.msg_contents(f"|b{self.caller} backs away and then disengages from the fight.|n")
 
 """
