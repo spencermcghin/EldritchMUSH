@@ -323,7 +323,7 @@ ROOKERY_STRINGS = ["Ravens peer down from several perches with their beady black
                       "One rather large raven hops from one roost to the next, stopping now and then to wipe its beak across the wooden perches.",
                       "A fight breaks out between two ravens. They exchange snaps and shrill caws before one flies away from the other."]
 
-class RookeryRoom(DefaultRoom):
+class RookeryRoom(Room):
 
     # A list to keep track of the phrases that have already been broadcast.
     used_phrases = []
