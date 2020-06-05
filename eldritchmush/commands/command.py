@@ -245,6 +245,10 @@ class SetArmorValue(Command):
                 # Get amount of damage taken
                 damage = current_armor - armor_value
                 self.caller.location.msg_contents(f"|r{self.caller.key} takes {damage} damage to their armor.|n")
+
+            if armor_value == 0:
+                self.caller.msg("|rYour armor is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+
             # Get vals for armor value calc
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
@@ -423,6 +427,10 @@ class SetShieldValue(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.shield_value = shield_value
             self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
+
+            if shield_value == 0:
+                self.caller.msg("|rYour shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+
 
             # Get armor value objects
             armor = self.caller.db.armor
