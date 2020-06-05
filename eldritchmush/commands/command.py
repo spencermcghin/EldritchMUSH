@@ -207,7 +207,7 @@ class Command(BaseCommand):
 #             else:
 #                 self.character = None
 
-class SetArmor(Command):
+class SetArmorValue(Command):
     """Set the armor level of a character
 
     Usage: setarmorvalue <0-3>
@@ -220,7 +220,7 @@ class SetArmor(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: setarmorvalue <0-3>|n\n|rYou must supply a number between 1 and 3.|n"
+        errmsg = "|yUsage: setarmorvalue <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -233,7 +233,7 @@ class SetArmor(Command):
         self.caller.db.armor = armor
         # Get vals for armor value calc
         tough = self.caller.db.tough
-        shield = 1 if self.caller.db.shield == True else 0
+        shield_value = self.caller.db.shield_value if shield == True else 0
         armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
         # Add them up and set the curent armor value in the database
@@ -241,7 +241,7 @@ class SetArmor(Command):
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"|gYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}")
+        self.caller.msg(f"|gYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
 
 
 class SetTracking(Command):
@@ -396,6 +396,11 @@ class SetShieldValue(Command):
             return
         try:
             shield_value = int(self.args)
+            # Error handling to keep from going below 0.
+            if shield_value < 0:
+                self.caller.msg("|rYou may not set a value lower than 0.|n")
+                return
+
         except ValueError:
             self.caller.msg(errmsg)
             return
