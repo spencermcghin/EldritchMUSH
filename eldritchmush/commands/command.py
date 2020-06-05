@@ -561,36 +561,6 @@ class SetWeaponValue(Command):
         self.caller.msg("Your Weapon Value was set to %i." % weapon_value)
 
 
-class SetShieldValue(Command):
-    """Set the shield level of a character
-
-    Usage: setshieldvalue <value>
-
-    This sets the weapon level of the current character. This can only be
-    used during character generation.
-    """
-
-    key = "setshieldvalue"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|yUsage: setshieldvalue <value>|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            shield_level = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-        if not (1 <= shield_level <= 3):
-            self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.shield = shield_level
-        self.caller.msg("Your shield level was set to %i." % shield_level)
-
 class SetBow(Command):
     """Set the bow property of a character
 
@@ -883,7 +853,7 @@ class SetShield(Command):
         armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
         # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield + armor_specialist
+        currentArmorValue = armor + tough + shield_value + armor_specialist
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
