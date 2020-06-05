@@ -640,15 +640,14 @@ class SetMelee(Command):
                 self.caller.db.melee = melee
 
                 # Quippy message when setting a weapon as 0 or 1.
-                if melee:
+                if melee and hasWeapon:
                     self.caller.msg("|gYou are now ready to fight.|n")
-                if hasWeapon:
-                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their blade.|n")
-                elif not hasWeapon:
+                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their weapon.|n")
+                elif melee and not hasWeapon:
                     self.caller.location.msg_contents(f"|b{self.caller.key} assumes a defensive posture.")
                 else:
-                    self.caller.msg("|rYou have unequipped your melee weapon.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their melee weapon.|n")
+                    self.caller.msg("|rYou have unequipped your weapon.|n")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their weapon.|n")
 
 class SetResist(Command):
     """Set the resist level of a character
