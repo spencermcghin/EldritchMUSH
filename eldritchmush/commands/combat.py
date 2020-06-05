@@ -468,7 +468,6 @@ class CmdDisarm(Command):
             weapon_level = self.caller.db.weapon_level
             wylding_hand = self.caller.db.wyldinghand
 
-
             if not self.args:
                 self.caller.msg("|yUsage: disarm <target>|n")
                 return
@@ -533,6 +532,7 @@ class CmdStun(Command):
         "Very trivial parser"
         self.target = self.args.strip()
 
+
     def func(self):
             h = Helper()
 
@@ -543,6 +543,20 @@ class CmdStun(Command):
             hasMelee = self.caller.db.melee
             weapon_level = self.caller.db.weapon_level
             wylding_hand = self.caller.db.wyldinghand
+
+            if not self.args:
+                self.caller.msg("|yUsage: stun <target>|n")
+                return
+
+            target = self.caller.search(self.target)
+
+            if not target:
+                self.caller.msg("|rThere is nothing here that matches that description.|n")
+                return
+
+            if target == self.caller:
+                self.caller.msg(f"|rDon't stun yourself {self.caller}!|n")
+                return
 
             # Check for weakness on character
             weakness = h.weaknessChecker(self.caller.db.weakness)
@@ -571,7 +585,7 @@ class CmdStun(Command):
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                     # Return attack result message
-                    self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {target.key} such that they're unable to attack for a moment.|n\n|y{target.key} may not attack next round if {attack_result} is a successful hit.|n")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} goes to stun {self.target.key} such that they're unable to attack for a moment.|n\n|y{self.target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
                     self.caller.msg("|rYou have 0 stuns remaining.|n")
 
@@ -594,6 +608,10 @@ class CmdStagger(Command):
         "Very trivial parser"
         self.target = self.args.strip()
 
+        if not self.target:
+            self.caller.msg("|yUsage: stagger <target>|n")
+            return
+
     def func(self):
         h = Helper()
 
@@ -605,6 +623,15 @@ class CmdStagger(Command):
         weapon_level = self.caller.db.weapon_level
         wylding_hand = self.caller.db.wyldinghand
 
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("|rThere is nothing here that matches that description.|n")
+            return
+
+        if target == self.caller:
+            self.caller.msg(f"|rDon't stagger yourself {self.caller}!|n")
+            return
 
         # Check for equip proper weapon type
         # Check for weakness on character
@@ -634,7 +661,7 @@ class CmdStagger(Command):
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                 # Return attack result message
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} strikes a devestating blow, attempt to set {self.target.key} off their guard!|n\n|y{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
             else:
                 self.caller.msg("|rYou have 0 staggers remaining.|n")
 
