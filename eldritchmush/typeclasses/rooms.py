@@ -57,7 +57,7 @@ class Room(DefaultRoom):
             final_payload.extend(perception_results)
 
         if room_tracking_results:
-            format_room_tracking_results = [f"|020{result}|n\n" for result in room_tracking_results]
+            format_room_tracking_results = [f"|010{result}|n\n" for result in room_tracking_results]
             tracking_results = [tracking_message] + format_room_tracking_results
             final_payload.extend(tracking_results)
 
