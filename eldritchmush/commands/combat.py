@@ -429,7 +429,7 @@ class CmdResist(Command):
             self.caller.db.resist -= 1
 
             # Get final attack result and damage
-            weakness = h.weaknessChecker(self.caller.db.weakness, self.cmdstring)
+            weakness = h.weaknessChecker(self.caller.db.weakness)
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
@@ -505,7 +505,7 @@ class CmdDisarm(Command):
                     self.caller.db.disarm -= 1
 
                     # Get final attack result and damage
-                    weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
+                    weakness = h.weaknessChecker(self.caller.db.weakness)
                     dmg_penalty = h.bodyChecker(self.caller.db.body)
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
@@ -566,7 +566,7 @@ class CmdStun(Command):
                     self.caller.db.stun -= 1
 
                     # Get final attack result and damage
-                    weakness = h.weaknessChecker(self.caller.db.weakness, self.cmdstring)
+                    weakness = h.weaknessChecker(self.caller.db.weakness)
                     dmg_penalty = h.bodyChecker(self.caller.db.body)
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
@@ -629,7 +629,7 @@ class CmdStagger(Command):
                 self.caller.db.stagger -= 1
 
                 # Get final attack result and damage
-                weakness = h.weaknessChecker(self.caller.db.weakness, self.cmdstring)
+                weakness = h.weaknessChecker(self.caller.db.weakness)
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
