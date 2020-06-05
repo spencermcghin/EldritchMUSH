@@ -377,11 +377,17 @@ class SetTough(Command):
         # Return armor value to console.
         self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
 
+class SetShieldValue(Command):
+    """Set the shield value of a shield item.
+
+    Usage:
+    """
+
 
 class SetBody(Command):
     """Set the body of a character
 
-    Usage: setbody <-6 - 3>
+    Usage: setbody <value>
 
     This sets the tough of the current character. This is available to all characters.
     """
@@ -391,7 +397,7 @@ class SetBody(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: setbody <-6 - 3>|n\n|rYou must supply a number between -6 and 3.|n"
+        errmsg = "|yUsage: setbody <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return

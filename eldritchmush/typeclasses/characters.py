@@ -41,7 +41,7 @@ class Character(DefaultCharacter):
         self.db.armor_specialist = 0
         self.db.tough = 0
         self.db.body = 3
-        self.db.av = 2
+        self.db.av = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -68,6 +68,7 @@ class Character(DefaultCharacter):
         self.db.stun = 0
         self.db.stagger = 0
         self.db.weapon_level = 0
+        self.db.shield_value = 0
         self.db.twohanded = 0
         self.db.wyldinghand = 0
         self.db.shield = 0
