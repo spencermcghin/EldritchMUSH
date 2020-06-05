@@ -236,8 +236,17 @@ class SetArmorValue(Command):
             return
 
         else:
+            # Track hits by getting current armor value and looking at difference to return message.
+            current_armor = self.caller.db.armor
+
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.armor = armor_value
+            # Messages to emote that caller is taking damage
+            if current_armor > armor_value:
+                # Get amount of damage taken
+                damage = current_armor - armor_value
+                self.caller.location.msg(f"|y{self.caller.key} takes {damage} to their armor.|n")
+
             # Get vals for armor value calc
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
