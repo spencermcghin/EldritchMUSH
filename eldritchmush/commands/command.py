@@ -395,7 +395,7 @@ class SetShieldValue(Command):
 
     def func(self):
         """Performs the command"""
-        errmsg = "|yUsage: setshieldlevel <value>|n"
+        errmsg = "|yUsage: setshieldvalue <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -517,52 +517,49 @@ class SetWyldingHand(Command):
         self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
 
 
-class SetWeaponLevel(Command):
+class SetWeaponValue(Command):
     """Set the weapon level of a character
 
-    Usage: setweaponlevel <1,2,3>
+    Usage: setweaponvalue <value>
 
     This sets the weapon level of the current character. This can only be
     used during character generation.
     """
 
-    key = "setweaponlevel"
+    key = "setweaponvalue"
     help_category = "mush"
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: setweaponlevel <1-3>|n\n|rYou must supply a number between 1 and 3.|n"
+        errmsg = "|yUsage: setweaponvalue <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
         try:
-            weapon_level = int(self.args)
+            weapon_value = int(self.args)
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= weapon_level <= 3):
-            self.caller.msg(errmsg)
-            return
         # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.weapon_level = weapon_level
-        self.caller.msg("Your weapon level was set to %i." % weapon_level)
+        self.caller.db.weapon_level = weapon_value
+        self.caller.msg("Your Weapon Value was set to %i." % weapon_value)
 
 
-class SetShieldLevel(Command):
-    """Set the weapon level of a character
+class SetShieldValue(Command):
+    """Set the shield level of a character
 
-    Usage: setweapon <1,2,3>
+    Usage: setshieldvalue <value>
 
     This sets the weapon level of the current character. This can only be
     used during character generation.
     """
 
-    key = "setshieldlevel"
+    key = "setshieldvalue"
     help_category = "mush"
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: setshieldlevel <1-3>|n\n|rYou must supply a number between 1 and 3.|n"
+        errmsg = "|yUsage: setshieldvalue <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -866,7 +863,7 @@ class SetShield(Command):
         # Get armor value objects
         armor = self.caller.db.armor
         tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if shield else 0
+        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
         armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
         # Add them up and set the curent armor value in the database
