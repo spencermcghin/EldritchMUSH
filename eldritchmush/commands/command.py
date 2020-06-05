@@ -850,7 +850,7 @@ class SetShield(Command):
         # Get armor value objects
         armor = self.caller.db.armor
         tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value
+        shield_value = self.caller.db.shield_value if shield else 0
         armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
         # Add them up and set the curent armor value in the database
