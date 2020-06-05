@@ -626,6 +626,7 @@ class SetMelee(Command):
         "This performs the actual command"
         errmsg = "|yUsage: setmelee <0/1>|n\n|rYou must supply a value of 0 or 1.|n"
         hasBow = self.caller.db.bow
+        hasWeapon = self.caller.db.weapon_level
 
         # Check for valid arguments
         if not self.args:
@@ -648,7 +649,10 @@ class SetMelee(Command):
                 # Quippy message when setting a shield as 0 or 1.
                 if melee:
                     self.caller.msg("|gYou have equipped your melee weapon.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their melee weapon.|n")
+                if hasWeapon:
+                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their blade.|n")
+                elif not hasWeapon:
+                    self.caller.location.msg_contents(f"|b{self.caller.key} assumes a defensive posture.")
                 else:
                     self.caller.msg("|rYou have unequipped your melee weapon.|n")
                     self.caller.location.msg_contents(f"|b{self.caller.key} unequips their melee weapon.|n")
@@ -844,10 +848,10 @@ class SetShield(Command):
         # Quippy message when setting a shield as 0 or 1.
         if shield:
             self.caller.msg("|gYou now have a shield.|n")
-            self.caller.location.msg_contents(f"|b{self.caller.name} equips their shield.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} equips their shield.|n")
         else:
             self.caller.msg("|rYou have unequipped or lost your shield.|n")
-            self.caller.location.msg_contents(f"|b{self.caller.name} unequips their shield.|n")
+            self.caller.location.msg_contents(f"|b{self.caller.key} unequips their shield.|n")
 
         # Get armor value objects
         armor = self.caller.db.armor
