@@ -395,7 +395,7 @@ class SetShieldValue(Command):
 
     def func(self):
         """Performs the command"""
-        errmsg = "|yUsage: SetShieldLevel <value>|n"
+        errmsg = "|yUsage: setshieldlevel <value>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -477,14 +477,14 @@ class SetArmorSpecialist(Command):
         # Get armor value objects
         armor = self.caller.db.armor
         tough = self.caller.db.tough
-        shield = 1 if self.caller.db.shield is 1 else 0
+        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
 
         # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield + armor_specialist
+        currentArmorValue = armor + tough + shield_value + armor_specialist
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield}\nArmor Specialist: {armor_specialist}|n")
+        self.caller.msg(f"|yYour current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 class SetWyldingHand(Command):
     """Set the wylding hand level of a character
