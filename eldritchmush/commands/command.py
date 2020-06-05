@@ -376,7 +376,7 @@ class SetTough(Command):
         armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
         # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield + armor_specialist
+        currentArmorValue = armor + tough + shield_value + armor_specialist
         self.caller.db.av = currentArmorValue
 
         # Return armor value to console.
