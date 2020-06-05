@@ -71,9 +71,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetTwoHanded())
         self.add(command.SetBow())
         self.add(command.SetMelee())
-        self.add(command.SetWeaponLevel())
+        self.add(command.SetWeaponValue())
         self.add(command.CmdSmile())
-        self.add(command.SetArmor())
+        self.add(command.SetArmorValue())
         self.add(command.SetTough())
         self.add(command.SetBody())
         self.add(command.CmdStabilize())
@@ -82,7 +82,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(combat.CmdKill())
         self.add(combat.CmdBattlefieldCommander())
         self.add(combat.CmdRally())
-        self.add(command.SetShieldLevel())
+        self.add(command.SetShieldValue())
 
 
 class ArtessaCmdSet(RoomCmdSet):

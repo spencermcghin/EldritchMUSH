@@ -210,17 +210,17 @@ class Command(BaseCommand):
 class SetArmor(Command):
     """Set the armor level of a character
 
-    Usage: setarmor <0-3>
+    Usage: setarmorvalue <0-3>
 
     This sets the armor of the current character. This command is available to all characters.
     """
 
-    key = "setarmor"
+    key = "setarmorvalue"
     help_category = "mush"
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|yUsage: setarmor <0-3>|n\n|rYou must supply a number between 1 and 3.|n"
+        errmsg = "|yUsage: setarmorvalue <0-3>|n\n|rYou must supply a number between 1 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
