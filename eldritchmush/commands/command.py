@@ -244,7 +244,7 @@ class SetArmorValue(Command):
             if current_armor > armor_value:
                 # Get amount of damage taken
                 damage = current_armor - armor_value
-                self.caller.location.msg_contents(f"|y{self.caller.key} takes {damage} to their armor.|n")
+                self.caller.location.msg_contents(f"|y{self.caller.key} takes {damage} damage to their armor.|n")
             # Get vals for armor value calc
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
@@ -462,10 +462,15 @@ class SetBody(Command):
             self.caller.msg(errmsg)
             return
 
+        current_body = self.caller.db.body
+
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.body = body
         self.caller.msg("|yYour Body was set to %i.|n" % body)
-
+        if current_body > body:
+            self.caller.location.msg_contents(f"|b{self.caller.key} takes {damage} damage to their body.|n")
+        if body == 0:
+            self.caller.location.msg_contents(f"|b{self.caller.key} is now bleeding profusely from many wounds.|n")
 
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
