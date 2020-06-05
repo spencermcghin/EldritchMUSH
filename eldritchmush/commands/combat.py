@@ -566,7 +566,7 @@ class CmdStun(Command):
                     self.caller.db.stun -= 1
 
                     # Get final attack result and damage
-                    weakness = h.weaknessChecker(self.caller.db.weakness, self.caller.cmdstring)
+                    weakness = h.weaknessChecker(self.caller.db.weakness, self.cmdstring)
                     dmg_penalty = h.bodyChecker(self.caller.db.body)
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
