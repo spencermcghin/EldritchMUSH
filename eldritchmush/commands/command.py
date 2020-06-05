@@ -666,9 +666,9 @@ class SetMelee(Command):
             else:
                 self.caller.db.melee = melee
 
-                # Quippy message when setting a shield as 0 or 1.
+                # Quippy message when setting a weapon as 0 or 1.
                 if melee:
-                    self.caller.msg("|gYou have equipped your melee weapon.|n")
+                    self.caller.msg("|gYou are now ready to fight.|n")
                 if hasWeapon:
                     self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their blade.|n")
                 elif not hasWeapon:
