@@ -130,14 +130,14 @@ class CmdEditNPC(Command):
             # if stat is part of total armor value update it
             if self.propname in ("armor", "tough", "armor_specialist", "shield_value"):
                 # Get armor value objects
-                armor = self.caller.db.armor
-                tough = self.caller.db.tough
-                shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-                armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+                armor = npc.db.armor
+                tough = npc.db.tough
+                shield_value = npc.db.shield_value if npc.db.shield == True else 0
+                armor_specialist = 1 if npc.db.armor_specialist == True else 0
 
                 # Add them up and set the curent armor value in the database
                 currentArmorValue = armor + tough + shield_value + armor_specialist
-                self.caller.db.av = currentArmorValue
+                npc.db.av = currentArmorValue
 
                 # Return armor value to console.
                 self.caller.msg(f"|y{npc.key}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
