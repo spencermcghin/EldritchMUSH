@@ -320,8 +320,10 @@ class CmdKill(Command):
             target_body = target.db.body
 
             # Return message to area and caller
+
             if target.db.body <= 0:
-                self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and attempts a killing blow on {target.key}.|n\n|yTheir attack result is:|n |g{attack_result}.|n")
+                target.db.body = -4
+                self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon|n |g{attack_result}|n |band drives it straight down into {target.key}.|n")
             else:
                 self.caller.msg(f"|y{self.caller.key}, you cannot kill your opponent until they are at 0 body or lower.|n")
 
