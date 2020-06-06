@@ -111,13 +111,9 @@ class Helper():
                 # Set shield_value to 0
                 target.db.shield_value = 0
                 # Recalc and set av with new shield value
-                new_av = self.updateArmorValue(0, target_armor, target_tough, target_armor_specialist)
             else:
                 target.db.shield_value = shield_damage
-                new_av = self.updateArmorValue(target.db.shield_value, target_armor, target_tough, target_armor_specialist)
                 damage = 0
-
-            return new_av
 
         if target_armor_specialist and damage:
             # Get value of damage
@@ -125,13 +121,9 @@ class Helper():
             if armor_specialist_damage < 0:
                 damage = abs(armor_damage)
                 target.db.armor_specialist = 0
-                new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, 0)
             else:
                 target.db.armor_specialist = armor_specialist_damage
-                new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, target.db.armor_specialist)
                 damage = 0
-
-            return new_av
 
         if target_armor and damage:
             # Get value of damage
@@ -139,30 +131,21 @@ class Helper():
             if armor_damage < 0:
                 damage = abs(armor_damage)
                 target.db.armor = 0
-                new_av = self.updateArmorValue(target_shield_value, 0, target_tough, target_armor_specialist)
             else:
                 target.db.armor = armor_damage
                 test = target_shield_value + target.db.armor + target_tough + target_armor_specialist
-                print(f"New AV is: {test}")
-                new_av = self.updateArmorValue(target_shield_value, target.db.armor, target_tough, target_armor_specialist)
                 damage = 0
-
-            return new_av
 
         if target_tough and damage:
             tough_damage = target_tough - damage
             if tough_damage < 0:
                 damage = abs(tough_damage)
                 target.db.tough = 0
-                new_av = self.updateArmorValue(target_shield_value, target_armor, 0, target_armor_specialist)
             else:
                 target.db.tough = tough_damage
-                new_av = self.updateArmorValue(target_shield_value, target_armor, target.db.tough, target_armor_specialist)
                 damage = 0
 
-            return new_av
-
-        elif target_body and damage:
+        else target_body and damage:
             body_damage = target_body - damage
             if body_damage < 0:
                 damage = abs(body_damage)
@@ -170,8 +153,8 @@ class Helper():
             else:
                 target.db.body = body_damage
 
-        else:
-            target.db.av = new_av
+        new_av = self.updateArmorValue(target.db.shield_value, target.db.armor, target.db.tough, target.db.armor_specialist)
+        return new_av
 
     def updateArmorValue(self, shieldValue, armor, tough, armorSpecialist):
         armor_value = shieldValue + armor + tough + armorSpecialist
@@ -259,8 +242,11 @@ class CmdStrike(Command):
                 if target_av:
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly {attack_result} at {target.key} and hits {target_av}, dealing {damage} damage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                    h.damageSubtractor(damage, target)
+                    new_av = h.damageSubtractor(damage, target)
+                    # Update target av to new av score per damageSubtractor
+                    target.db.av = new_av
                 else:
+                    # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.                
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}, injuring their {shot_location} and dealing {damage} damage!|n\n|yTheir attack result is:|n |g{attack_result}|n.")
                     target.db.body -= damage
             else:
