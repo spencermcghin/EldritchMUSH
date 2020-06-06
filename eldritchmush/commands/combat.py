@@ -252,7 +252,7 @@ class CmdStrike(Command):
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits |n(|r{target_av}|n)|b, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     target.db.body -= damage
                     # Send a message to the target, letting them know their body values
-                    target.msg(f"Your new body value is {target.db.body}")
+                    target.msg(f"|yYour new body value is {target.db.body}|n")
                     if -3 <= target.db.body <= 0:
                         target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
                     elif target.db.body <= -4:
