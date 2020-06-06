@@ -242,8 +242,10 @@ class CmdStrike(Command):
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
             if attack_result > target_av:
+                self.caller.msg("You made it compare stage.")
                 # if target has any more armor points left go through the damage subtractor
                 if target_av:
+                self.caller.msg("checking target av.")
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key} and hits, dealing {damage} damage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     h.damageSubtractor(damage, target)
