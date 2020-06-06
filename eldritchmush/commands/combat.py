@@ -88,7 +88,7 @@ class Helper():
 
         return attack_penalty
 
-    def damageSubtractor(self, isBody=False, damage, target):
+    def damageSubtractor(self, damage, target):
         """
         Takes attack type of caller and assigns damage based on target stats.
         """
@@ -241,12 +241,12 @@ class CmdStrike(Command):
 
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
-            if attack_result > target.db.av:
+            if attack_result > target_av:
                 # if target has any more armor points left go through the damage subtractor
-                if target.db.av:
+                if target_av:
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key} and hits, dealing {damage} damage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                    h.damageSubtractor(isBody=False, damage=damage, target)
+                    h.damageSubtractor(damage, target)
                 else:
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}, injuring their {shot_location} and dealing {damage} damage!|n\n|yTheir attack result is:|n |g{attack_result}|n.")
                     target.db.body -= damage
