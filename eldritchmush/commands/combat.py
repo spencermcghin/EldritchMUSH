@@ -112,7 +112,6 @@ class Helper():
                 target.db.shield_value = 0
                 # Recalc and set av with new shield value
                 new_av = self.updateArmorValue(0, target_armor, target_tough, target_armor_specialist)
-                target.db.av = new_av
             else:
                 target.db.shield_value = shield_damage
                 damage = 0
@@ -124,7 +123,6 @@ class Helper():
                 damage = abs(armor_damage)
                 target.db.armor_specialist = 0
                 new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, 0)
-                target.db.av = new_av
             else:
                 target.db.armor_specialist = armor_specialist_damage
                 damage = 0
@@ -136,7 +134,6 @@ class Helper():
                 damage = abs(armor_damage)
                 target.db.armor = 0
                 new_av = self.updateArmorValue(target_shield_value, 0, target_tough, target_armor_specialist)
-                target.db.av = new_av
             else:
                 target.db.armor = armor_damage
                 damage = 0
@@ -147,7 +144,6 @@ class Helper():
                 damage = abs(tough_damage)
                 target.db.tough = 0
                 new_av = self.updateArmorValue(target_shield_value, target_armor_value, 0, target_armor_specialist)
-                target.db.av = new_av
             else:
                 target.db.tough = tough_damage
                 damage = 0
@@ -159,6 +155,10 @@ class Helper():
                 target.db.body = 0
             else:
                 target.db.body = body_damage
+
+        # Finally update with whatever new_av ended up being.
+        target.db.av = new_av
+
 
     def updateArmorValue(self, shieldValue, armor, tough, armorSpecialist):
         armor_value = shieldValue + armor + tough + armorSpecialist
