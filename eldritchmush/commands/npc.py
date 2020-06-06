@@ -87,6 +87,7 @@ class CmdEditNPC(Command):
                              "medicine",
                              "battlefieldmedicine",
                              "melee",
+                             "shield_value",
                              "resist",
                              "disarm",
                              "cleave",
