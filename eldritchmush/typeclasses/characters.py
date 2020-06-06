@@ -89,12 +89,11 @@ class Character(DefaultCharacter):
         isBleeding = True if -3 <= self.db.body <= 0 else False
         isDying = True if -6 <= self.db.body <= -4 else False
         # target = text.split("\n")
-        if not isBleeding:
-            return text
-        else:
-            return text + f"\n|r{self.key} is bleeing profusely from mutliple wounds. They may need a healer.|n"
+        if isBleeding:
+            text += f"\n|r{self.key} is bleeing profusely from mutliple wounds. They may need a healer.|n"
 
-        if not isDying:
-            return text
+        elif isDying:
+            text += f"\n|R{self.key} is now unconscious. They will soon surely be dead.|n"
+
         else:
-            return text + f"\n|R{self.key} is now unconscious. They will soon surely be dead.|n"
+            return text
