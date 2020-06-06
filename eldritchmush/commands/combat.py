@@ -239,9 +239,9 @@ class CmdStrike(Command):
             # If attack_result > target av -> hit, else miss
             if attack_result > target.av:
                 # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-
-            # If hit, run combatChecker to subtract damage from proper stage.
-
+                h.damageStageChecker(isBody=False, damage=damage, target)
+            else:
+                self.caller.location.msg(f"{self.caller.key} swings wildly, missing {target.key}")
 
             # Return message to area and caller
             if target.db.av:
