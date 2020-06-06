@@ -240,14 +240,14 @@ class CmdStrike(Command):
             if attack_result > target_av:
                 # if target has any more armor points left go through the damage subtractor
                 if target_av:
-                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n |g{attack_result}|n |bat {target.key} and hits|n |r{target_av}|n, |bdealing|n |y{damage}|n |bdamage!|n")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits|n (|r{target_av}|n), |bdealing|n |y{damage}|n |bdamage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     new_av = h.damageSubtractor(damage, target)
                     # Update target av to new av score per damageSubtractor
                     target.db.av = new_av
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n |g{attack_result}|n |bat {target.key}, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key}, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     target.db.body -= damage
             else:
                 self.caller.location.msg(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
@@ -324,6 +324,8 @@ class CmdKill(Command):
             if target.db.body <= 0:
                 target.db.body = -4
                 self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and drives it straight down into {target.key}, ending them.|n")
+                self.caller.location.msg_contents(f"|y{target.key} is now dying.")
+                target.msg(f"|rYou are now dying and will lose 1 point per round if in combat.")
             else:
                 self.caller.msg(f"|y{self.caller.key}, you cannot attmept to kill your opponent until they are at 0 body or lower.|n")
 
@@ -391,9 +393,15 @@ class CmdShoot(Command):
             attack_result = (die_result + weapon_level) - dmg_penalty - bow_penalty - weakness
             shot_location = h.shotFinder(target.db.targetArray)
 
-            # Return message to area and caller
-            self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow straight for {target.key}'s {shot_location}!|n\n|y{self.caller.key}'s attack result is:|n |g{attack_result}|n |yand deals|n |r2|n |ydamage on a successful hit.|n")
-
+            # Compare caller attack_result to target av.
+            # If attack_result > target av -> hit, else miss
+            if attack_result > target_av:
+                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) straight for {target.key}'s {shot_location} and hits|n (|r{target_av}|n), |bdealing|n |y{damage}|n |bdamage!|n")
+                # subtract damage from corresponding target body
+                target.db.body -= damage
+            else:
+                # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
+                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) at {target.key}, but it misses.")
 
 
 
