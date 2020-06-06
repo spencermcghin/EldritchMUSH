@@ -404,11 +404,11 @@ class CmdShoot(Command):
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
             if attack_result > target.db.av:
-                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow (|g{attack_result}|n) straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y2|n |bdamage!|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow |n(|g{attack_result}|n)|b straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y2|n |bdamage!|n")
                 # subtract damage from corresponding target body
                 target.db.body -= 2
                 # Send a message to the target, letting them know their body values
-                target.msg(f"Your new body value is {target.db.body}")
+                target.msg(f"|yYour new body value is {target.db.body}|n")
                 if -3 <= target.db.body <= 0:
                     target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
                 elif target.db.body <= -4:
