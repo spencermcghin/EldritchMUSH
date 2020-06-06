@@ -666,8 +666,11 @@ class SetMelee(Command):
                 elif melee and not hasWeapon:
                     self.caller.location.msg_contents(f"|b{self.caller.key} assumes a defensive posture.")
                 else:
-                    self.caller.msg("|rYou have unequipped your weapon.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their weapon.|n")
+                    if not melee and hasWeapon:
+                        self.caller.location.msg_contents(f"|b{self.caller.key} sheathes their weapon.|n")
+                    elif not melee and not hasWeapon:
+                        self.caller.location.msg_contents(f"|b{self.caller.key} relaxes their defensive posture.|n")
+
 
 class SetResist(Command):
     """Set the resist level of a character
