@@ -117,7 +117,7 @@ class Helper():
                 new_av = self.updateArmorValue(target.db.shield_value, target_armor, target_tough, target_armor_specialist)
                 damage = 0
 
-                return new_av
+            return new_av
 
         if target_armor_specialist and damage:
             # Get value of damage
@@ -131,7 +131,7 @@ class Helper():
                 new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, target.db.armor_specialist)
                 damage = 0
 
-                return new_av
+            return new_av
 
         if target_armor and damage:
             # Get value of damage
@@ -147,7 +147,7 @@ class Helper():
                 new_av = self.updateArmorValue(target_shield_value, target.db.armor, target_tough, target_armor_specialist)
                 damage = 0
 
-                return new_av
+            return new_av
 
         if target_tough and damage:
             tough_damage = target_tough - damage
@@ -160,10 +160,7 @@ class Helper():
                 new_av = self.updateArmorValue(target_shield_value, target_armor, target.db.tough, target_armor_specialist)
                 damage = 0
 
-                return new_av
-
-            # Finally update with whatever new_av ended up being.
-            target.db.av = new_av
+            return new_av
 
         elif target_body and damage:
             body_damage = target_body - damage
@@ -172,6 +169,9 @@ class Helper():
                 target.db.body = 0
             else:
                 target.db.body = body_damage
+
+        else:
+            target.db.av = new_av
 
     def updateArmorValue(self, shieldValue, armor, tough, armorSpecialist):
         armor_value = shieldValue + armor + tough + armorSpecialist
