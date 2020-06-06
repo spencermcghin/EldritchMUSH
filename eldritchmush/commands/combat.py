@@ -258,7 +258,7 @@ class CmdStrike(Command):
                     elif target.db.body <= -4:
                         target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
             else:
-                self.caller.location.msg_contents(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} swings wildly|n |r{attack_result}|n|b, missing {target.key} |n|g{target_av}|n")
 
 class CmdKill(Command):
     """
