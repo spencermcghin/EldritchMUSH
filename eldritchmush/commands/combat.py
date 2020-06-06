@@ -338,7 +338,7 @@ class CmdKill(Command):
                 target.db.body = -4
                 self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and drives it straight down into {target.key}, ending them.|n")
                 self.caller.location.msg_contents(f"|y{target.key} is now dying.")
-                target.msg(f"|rYou are now dying and will lose 1 point per round if in combat.")
+                target.msg(f"|rYou are now dying and will lose 1 point per round if in combat.|n")
             else:
                 self.caller.msg(f"|y{self.caller.key}, you cannot attmept to kill your opponent until they are at 0 body or lower.|n")
 
