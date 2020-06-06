@@ -404,7 +404,7 @@ class CmdShoot(Command):
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
             if attack_result > target.db.av:
-                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y2|n |bdamage!|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow (|g{attack_result}|n) straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y2|n |bdamage!|n")
                 # subtract damage from corresponding target body
                 target.db.body -= damage
                 # Send a message to the target, letting them know their body values
