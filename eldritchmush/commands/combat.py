@@ -410,15 +410,18 @@ class CmdShoot(Command):
             # If attack_result > target av -> hit, else miss
             if attack_result > target.db.av:
                 self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow |n(|g{attack_result}|n)|b straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y2|n |bdamage!|n")
-                # subtract damage from corresponding target body
-                target.db.body -= 2
-                # Send a message to the target, letting them know their body values
-                target.msg(f"|yYour new body value is {target.db.body}|n")
-                if -3 <= target.db.body <= 0:
-                    target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                elif target.db.body <= -4:
-                    target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
-
+                if shot_location == "torso":
+                    target.db.body = 0
+                    self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                else:
+                    target.db.body -= 2
+                    target.msg(f"|rYou {shot_location} is now injured and have taken |n|y2|n|r points of damage.|n")
+                    # Send a message to the target, letting them know their body values
+                    target.msg(f"|yYour new body value is {target.db.body}|n")
+                    if -3 <= target.db.body <= 0:
+                        target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+                    elif target.db.body <= -4:
+                        target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
             else:
                 # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                 self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) at {target.key}, but it misses.")
