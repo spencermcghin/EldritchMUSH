@@ -126,7 +126,7 @@ class Helper():
                 new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, 0)
                 target.db.av = new_av
             else:
-                target.db.armor = armor_damage
+                target.db.armor_specialist = armor_specialist_damage
                 damage = 0
 
         if target_armor and damage:
