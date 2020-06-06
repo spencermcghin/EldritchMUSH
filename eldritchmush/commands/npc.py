@@ -77,8 +77,6 @@ class CmdEditNPC(Command):
 
     def func(self):
         "do the editing"
-        # Import helper class
-        n = NPCCmdHelper()
 
         allowed_propnames = ("master_of_arms",
                              "armor_specialist",
