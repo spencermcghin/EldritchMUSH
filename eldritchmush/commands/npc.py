@@ -151,7 +151,7 @@ class CmdEditNPC(Command):
                          (npc.key, self.propname, self.propval))
 
             # if stat is part of total armor value update it
-            h.npcArmorValueUpdate(self.propname, npc.key)
+            n.npcArmorValueUpdate(self.propname, npc.key)
 
         else:
             # propname set, but not propval - show current value
