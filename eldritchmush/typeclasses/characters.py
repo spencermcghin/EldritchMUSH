@@ -86,8 +86,8 @@ class Character(DefaultCharacter):
         looker sees when looking at this object.
         """
         text = super().return_appearance(looker)
-        isBleeding = True if -3 <= self.db.body <= 0 else False
-        isDying = True if -6 <= self.db.body <= -4 else False
+        isBleeding = True if (-3 <= self.db.body <= 0) else False
+        isDying = True if (-6 <= self.db.body <= -4) else False
         # target = text.split("\n")
         if isBleeding:
             text += f"\n|r{self.key} is bleeing profusely from mutliple wounds. They may need a healer.|n"
