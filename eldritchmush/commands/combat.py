@@ -250,13 +250,18 @@ class CmdStrike(Command):
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits |n(|r{target_av}|n)|b, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
-                    target.db.body -= damage
-                    # Send a message to the target, letting them know their body values
-                    target.msg(f"|yYour new body value is {target.db.body}|n")
-                    if -3 <= target.db.body <= 0:
-                        target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                    elif target.db.body <= -4:
-                        target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
+                    if shot_location == "torso":
+                        target.db.body = 0
+                        self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                    else:
+                        target.db.body -= damage
+                        target.msg(f"|rYou {shot_location} is now injured and have taken |n|y{damage}|n|r points of damage.|n")
+                        # Send a message to the target, letting them know their body values
+                        target.msg(f"|yYour new body value is {target.db.body}|n")
+                        if -3 <= target.db.body <= 0:
+                            target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+                        elif target.db.body <= -4:
+                            target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} swings wildly|n |r{attack_result}|n|b, missing {target.key} |n|g{target_av}|n")
 
