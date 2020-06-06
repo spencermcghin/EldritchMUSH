@@ -240,17 +240,17 @@ class CmdStrike(Command):
             if attack_result > target_av:
                 # if target has any more armor points left go through the damage subtractor
                 if target_av:
-                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly {attack_result} at {target.key} and hits {target_av}, dealing {damage} damage!|n")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n |g{attack_result}|n |bat {target.key} and hits|n |r{target_av}|n, |bdealing|n |y{damage}|n |bdamage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     new_av = h.damageSubtractor(damage, target)
                     # Update target av to new av score per damageSubtractor
                     target.db.av = new_av
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}, injuring their {shot_location} and dealing {damage} damage!|n\n|yTheir attack result is:|n |g{attack_result}|n.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n |g{attack_result}|n |bat {target.key}, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     target.db.body -= damage
             else:
-                self.caller.location.msg(f"{self.caller.key} swings wildly, missing {target.key}")
+                self.caller.location.msg(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
 
 class CmdKill(Command):
     """
@@ -320,7 +320,7 @@ class CmdKill(Command):
             target_body = target.db.body
 
             # Return message to area and caller
-            if not target.db.body:
+            if target.db.body <= 0:
                 self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and attempts a killing blow on {target.key}.|n\n|yTheir attack result is:|n |g{attack_result}.|n")
             else:
                 self.caller.msg(f"|y{self.caller.key}, you cannot kill your opponent until they are at 0 body or lower.|n")
