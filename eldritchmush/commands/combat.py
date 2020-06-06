@@ -88,7 +88,7 @@ class Helper():
 
         return attack_penalty
 
-    def damageStageChecker(self, isBody=False, damage, target):
+    def damageSubtractor(self, isBody=False, damage, target):
         """
         Takes attack type of caller and assigns damage based on target stats.
         """
@@ -112,6 +112,7 @@ class Helper():
                 target.db.shield_value = 0
                 # Recalc and set av with new shield value
                 new_av = self.updateArmorValue(0, target_armor, target_tough, target_armor_specialist)
+                target.db.av = new_av
             else:
                 target.db.shield_value = shield_damage
                 damage = 0
@@ -123,6 +124,7 @@ class Helper():
                 damage = abs(armor_damage)
                 target.db.armor_specialist = 0
                 new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, 0)
+                target.db.av = new_av
             else:
                 target.db.armor = armor_damage
                 damage = 0
@@ -134,6 +136,7 @@ class Helper():
                 damage = abs(armor_damage)
                 target.db.armor = 0
                 new_av = self.updateArmorValue(target_shield_value, 0, target_tough, target_armor_specialist)
+                target.db.av = new_av
             else:
                 target.db.armor = armor_damage
                 damage = 0
@@ -144,6 +147,7 @@ class Helper():
                 damage = abs(tough_damage)
                 target.db.tough = 0
                 new_av = self.updateArmorValue(target_shield_value, target_armor_value, 0, target_armor_specialist)
+                target.db.av = new_av
             else:
                 target.db.tough = tough_damage
                 damage = 0
@@ -237,17 +241,17 @@ class CmdStrike(Command):
 
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
-            if attack_result > target.av:
-                # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                h.damageStageChecker(isBody=False, damage=damage, target)
+            if attack_result > target.db.av:
+                # if target has any more armor points left go through the damage subtractor
+                if target.db.av:
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key} and hits, dealing {damage} damage!|n")
+                    # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                    h.damageSubtractor(isBody=False, damage=damage, target)
+                else:
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}, injuring their {shot_location} and dealing {damage} damage!|n\n|yTheir attack result is:|n |g{attack_result}|n.")
+                    target.db.body -= damage
             else:
                 self.caller.location.msg(f"{self.caller.key} swings wildly, missing {target.key}")
-
-            # Return message to area and caller
-            if target.db.av:
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}!|n\n|y{self.caller.key}'s attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
-            else:
-                self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}'s {shot_location}!|n\n|yTheir attack result is:|n |g{attack_result}|n |yand deals|n |r{damage}|n |ydamage on a successful hit.|n")
 
 class CmdKill(Command):
     """
