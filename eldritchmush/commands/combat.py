@@ -163,6 +163,7 @@ class Helper():
 
 
 
+
 """
 Basic Combat commands
 """
@@ -245,6 +246,7 @@ class CmdStrike(Command):
                     new_av = h.damageSubtractor(damage, target)
                     # Update target av to new av score per damageSubtractor
                     target.db.av = new_av
+                    target.msg(f"|yYour new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits |n(|r{target_av}|n)|b, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
