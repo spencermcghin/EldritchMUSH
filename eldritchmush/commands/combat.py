@@ -323,9 +323,9 @@ class CmdKill(Command):
 
             if target.db.body <= 0:
                 target.db.body = -4
-                self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon|n |g{attack_result}|n |band drives it straight down into {target.key}.|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and drives it straight down into {target.key}, ending them.|n")
             else:
-                self.caller.msg(f"|y{self.caller.key}, you cannot kill your opponent until they are at 0 body or lower.|n")
+                self.caller.msg(f"|y{self.caller.key}, you cannot attmept to kill your opponent until they are at 0 body or lower.|n")
 
 
 class CmdShoot(Command):
