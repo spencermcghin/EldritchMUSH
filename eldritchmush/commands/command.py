@@ -432,10 +432,10 @@ class SetShieldValue(Command):
             self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
 
             # Get armor value objects
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = self.caller.db.armor_specialist
             armor = self.caller.db.armor
             tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
             # Add them up and set the curent armor value in the database
             currentArmorValue = armor + tough + shield_value + armor_specialist

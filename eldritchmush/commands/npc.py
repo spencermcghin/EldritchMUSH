@@ -134,7 +134,7 @@ class CmdEditNPC(Command):
                 armor = npc.db.armor
                 tough = npc.db.tough
                 shield_value = npc.db.shield_value if npc.db.shield == True else 0
-                armor_specialist = 1 if npc.db.armor_specialist == True else 0
+                armor_specialist = npc.db.armor_specialist
 
                 # Add them up and set the curent armor value in the database
                 currentArmorValue = armor + tough + shield_value + armor_specialist
