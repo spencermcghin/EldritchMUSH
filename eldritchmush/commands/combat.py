@@ -88,6 +88,81 @@ class Helper():
 
         return attack_penalty
 
+    def damageStageChecker(self, isBody=False, damage, target):
+        """
+        Takes attack type of caller and assigns damage based on target stats.
+        """
+        # Build the target av objects
+        target_shield_value = target.db.shield_value  # Applied conditionally
+        target_armor = target.db.armor
+        target_tough = target.db.tough
+        target_body = target.db.body
+        target_armor_specialist = target.db.armor_specialist
+        target_armor_value = target.db.av
+
+        # Apply damage in order
+        if target_shield_value:
+            # Get value of shield damage to check if it's under 0. Need to pass
+            # this on to armor
+            shield_damage = target_shield_value - damage
+            if shield_damage < 0:
+                # Check if damage would make shield go below 0
+                damage = abs(shield_damage)
+                # Set shield_value to 0
+                target.db.shield_value = 0
+                # Recalc and set av with new shield value
+                new_av = self.updateArmorValue(0, target_armor, target_tough, target_armor_specialist)
+            else:
+                target.db.shield_value = shield_damage
+                damage = 0
+
+        if target_armor_specialist and damage:
+            # Get value of damage
+            armor_specialist_damage = target_armor - damage
+            if armor_specialist_damage < 0:
+                damage = abs(armor_damage)
+                target.db.armor_specialist = 0
+                new_av = self.updateArmorValue(target_shield_value, target_armor, target_tough, 0)
+            else:
+                target.db.armor = armor_damage
+                damage = 0
+
+        if target_armor and damage:
+            # Get value of damage
+            armor_damage = target_armor - damage
+            if armor_damage < 0:
+                damage = abs(armor_damage)
+                target.db.armor = 0
+                new_av = self.updateArmorValue(target_shield_value, 0, target_tough, target_armor_specialist)
+            else:
+                target.db.armor = armor_damage
+                damage = 0
+
+        if target_tough and damage:
+            tough_damage = target_tough - damage
+            if tough_damage < 0:
+                damage = abs(tough_damage)
+                target.db.tough = 0
+                new_av = self.updateArmorValue(target_shield_value, target_armor_value, 0, target_armor_specialist)
+            else:
+                target.db.tough = tough_damage
+                damage = 0
+
+        elif target_body and damage:
+            body_damage = target_body - damage
+            if body_damage < 0:
+                damage = abs(body_damage)
+                target.db.body = 0
+            else:
+                target.db.body = body_damage
+
+    def updateArmorValue(self, shieldValue, armor, tough, armorSpecialist):
+        armor_value = shieldValue + armor + tough + armorSpecialist
+
+        return armor_value
+
+
+
 """
 Basic Combat commands
 """
@@ -159,6 +234,14 @@ class CmdStrike(Command):
             damage = 2 if self.caller.db.twohanded == True else 1
             target_av = target.db.av
             shot_location = h.shotFinder(target.db.targetArray)
+
+            # Compare caller attack_result to target av.
+            # If attack_result > target av -> hit, else miss
+            if attack_result > target.av:
+                # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+
+            # If hit, run combatChecker to subtract damage from proper stage.
+
 
             # Return message to area and caller
             if target.db.av:
