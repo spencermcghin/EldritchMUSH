@@ -142,6 +142,7 @@ class Helper():
                 new_av = self.updateArmorValue(target_shield_value, 0, target_tough, target_armor_specialist)
             else:
                 target.db.armor = armor_damage
+                self.caller.msg("New AV is: "target_shield_value + target.db.armor + target_tough + target_armor_specialist)
                 new_av = self.updateArmorValue(target_shield_value, target.db.armor, target_tough, target_armor_specialist)
                 damage = 0
 
