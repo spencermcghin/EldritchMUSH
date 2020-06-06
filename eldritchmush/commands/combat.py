@@ -134,6 +134,7 @@ class Helper():
                 damage = abs(armor_damage)
                 target.db.armor = 0
                 new_av = self.updateArmorValue(target_shield_value, 0, target_tough, target_armor_specialist)
+                return new_av
             else:
                 target.db.armor = armor_damage
                 damage = 0
@@ -144,6 +145,7 @@ class Helper():
                 damage = abs(tough_damage)
                 target.db.tough = 0
                 new_av = self.updateArmorValue(target_shield_value, target_armor_value, 0, target_armor_specialist)
+                return new_av
             else:
                 target.db.tough = tough_damage
                 damage = 0
