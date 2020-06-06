@@ -1,26 +1,6 @@
 from evennia import create_object
 from evennia import Command
 
-class NPCCmdHelper():
-    """Helper functions for NPC command classes
-    """
-    def npcArmorValueUpdate(self, stat, name):
-        # update npc armor class when updating shield, tough, armor, or armor specialist
-        if stat in ("armor", "tough", "armor_specialist", "shield_value"):
-            # Get armor value objects
-            armor = self.caller.db.armor
-            tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-
-            # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist
-            self.caller.db.av = currentArmorValue
-
-            # Return armor value to console.
-            self.caller.msg(f"|y{name}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
-
-
 class CmdCreateNPC(Command):
     """
     create a new npc
@@ -122,15 +102,14 @@ class CmdEditNPC(Command):
                              "bow",
                              "activemartialskill")
 
-        caller = self.caller
         if not self.args or not self.name:
             caller.msg("Usage: editnpc name[/propname][=propval]")
             return
-        npc = caller.search(self.name)
+        npc = self.caller.search(self.name)
         if not npc:
             return
-        if not npc.access(caller, "edit"):
-            caller.msg("You cannot change this NPC.")
+        if not npc.access(self.caller, "edit"):
+            self.caller.msg("You cannot change this NPC.")
             return
         if not self.propname:
             # this means we just list the values
@@ -138,20 +117,32 @@ class CmdEditNPC(Command):
             for propname in allowed_propnames:
                 propvalue = npc.attributes.get(propname, default="N/A")
                 output += "\n %s = %s" % (propname, propvalue)
-            caller.msg(output)
+            self.caller.msg(output)
         elif self.propname not in allowed_propnames:
-            caller.msg("You may only change %s." %
+            self.caller.msg("You may only change %s." %
                               ", ".join(allowed_propnames))
         elif self.propval:
             # assigning a new propvalue
             # in this example, the properties are all integers...
             intpropval = int(self.propval)
             npc.attributes.add(self.propname, intpropval)
-            caller.msg("Set %s's property '%s' to %s" %
+            self.caller.msg("Set %s's property '%s' to %s" %
                          (npc.key, self.propname, self.propval))
 
             # if stat is part of total armor value update it
-            n.npcArmorValueUpdate(self.propname, npc.key)
+            if self.propname in ("armor", "tough", "armor_specialist", "shield_value"):
+                # Get armor value objects
+                armor = self.caller.db.armor
+                tough = self.caller.db.tough
+                shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+                armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+
+                # Add them up and set the curent armor value in the database
+                currentArmorValue = armor + tough + shield_value + armor_specialist
+                self.caller.db.av = currentArmorValue
+
+                # Return armor value to console.
+                self.caller.msg(f"|y{name}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
         else:
             # propname set, but not propval - show current value
