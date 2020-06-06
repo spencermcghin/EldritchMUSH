@@ -157,7 +157,7 @@ class Helper():
                 target.db.body = body_damage
 
         # Finally update with whatever new_av ended up being.
-        target.db.av = new_av
+            target.db.av = new_av
 
 
     def updateArmorValue(self, shieldValue, armor, tough, armorSpecialist):
