@@ -247,7 +247,7 @@ class CmdStrike(Command):
                     target.db.av = new_av
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key}, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
+                    self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits (|r{target_av}|n), injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     target.db.body -= damage
             else:
                 self.caller.location.msg(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
