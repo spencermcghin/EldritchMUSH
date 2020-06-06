@@ -143,7 +143,7 @@ class Helper():
             else:
                 target.db.armor = armor_damage
                 test = target_shield_value + target.db.armor + target_tough + target_armor_specialist
-                self.caller.msg(f"New AV is: {test}")
+                print(f"New AV is: {test}")
                 new_av = self.updateArmorValue(target_shield_value, target.db.armor, target_tough, target_armor_specialist)
                 damage = 0
 
