@@ -237,7 +237,7 @@ class CmdStrike(Command):
 
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
-            if attack_result > target_av:
+            if attack_result >= target_av:
                 # if target has any more armor points left go through the damage subtractor
                 if target_av:
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits|n (|r{target_av}|n), |bdealing|n |y{damage}|n |bdamage!|n")
@@ -250,7 +250,7 @@ class CmdStrike(Command):
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits |n(|r{target_av}|n)|b, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     target.db.body -= damage
             else:
-                self.caller.location.msg(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
 
 class CmdKill(Command):
     """
