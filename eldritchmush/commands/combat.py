@@ -251,6 +251,12 @@ class CmdStrike(Command):
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits |n(|r{target_av}|n)|b, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     target.db.body -= damage
+                    # Send a message to the target, letting them know their body values
+                    target.msg(f"Your new body value is {target.db.body}")
+                    if -3 <= target.db.body <= 0:
+                        target.msg("|yYou are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+                    elif target.db.body <= -4:
+                        target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} swings wildly, missing {target.key}|n")
 
@@ -401,6 +407,7 @@ class CmdShoot(Command):
                 self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) straight for {target.key}'s {shot_location} and hits|n (|r{target_av}|n), |bdealing|n |y{damage}|n |bdamage!|n")
                 # subtract damage from corresponding target body
                 target.db.body -= damage
+
             else:
                 # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                 self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) at {target.key}, but it misses.")
