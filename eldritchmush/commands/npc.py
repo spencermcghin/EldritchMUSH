@@ -1,6 +1,25 @@
 from evennia import create_object
 from evennia import Command
 
+class NPCCmdHelper():
+    """Helper functions for NPC command classes
+    """
+    def npcArmorValueUpdate(self, stat, name):
+        # update npc armor class when updating shield, tough, armor, or armor specialist
+        if stat in ("armor", "tough", "armor_specialist", "shield_value"):
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
+
+            # Return armor value to console.
+            self.caller.msg(f"|y{name}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
 
 class CmdCreateNPC(Command):
     """
@@ -78,8 +97,11 @@ class CmdEditNPC(Command):
 
     def func(self):
         "do the editing"
+        # Import helper class
+        n = NPCCmdHelper()
 
         allowed_propnames = ("master_of_arms",
+                             "armor_specialist",
                              "armor",
                              "tough",
                              "body",
@@ -127,6 +149,10 @@ class CmdEditNPC(Command):
             npc.attributes.add(self.propname, intpropval)
             caller.msg("Set %s's property '%s' to %s" %
                          (npc.key, self.propname, self.propval))
+
+            # if stat is part of total armor value update it
+            h.npcArmorValueUpdate(self.propname, npc.key)
+
         else:
             # propname set, but not propval - show current value
             caller.msg("%s has property %s = %s" %
