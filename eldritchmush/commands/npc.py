@@ -140,7 +140,7 @@ class CmdEditNPC(Command):
                 self.caller.db.av = currentArmorValue
 
                 # Return armor value to console.
-                self.caller.msg(f"|y{name}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                self.caller.msg(f"|y{npc.key}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
         else:
             # propname set, but not propval - show current value
