@@ -119,7 +119,7 @@ class Helper():
 
         if target_armor_specialist and damage:
             # Get value of damage
-            armor_specialist_damage = target_armor - damage
+            armor_specialist_damage = target_armor_specialist - damage
             if armor_specialist_damage < 0:
                 damage = abs(armor_damage)
                 target.db.armor_specialist = 0
