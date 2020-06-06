@@ -145,7 +145,7 @@ class Helper():
                 target.db.tough = tough_damage
                 damage = 0
 
-        else target_body and damage:
+        else:
             body_damage = target_body - damage
             if body_damage < 0:
                 damage = abs(body_damage)
@@ -246,7 +246,7 @@ class CmdStrike(Command):
                     # Update target av to new av score per damageSubtractor
                     target.db.av = new_av
                 else:
-                    # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.                
+                    # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly at {target.key}, injuring their {shot_location} and dealing {damage} damage!|n\n|yTheir attack result is:|n |g{attack_result}|n.")
                     target.db.body -= damage
             else:
