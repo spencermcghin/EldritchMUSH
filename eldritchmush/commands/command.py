@@ -11,6 +11,7 @@ from django.conf import settings
 # Local imports
 from evennia import Command as BaseCommand
 from evennia import default_cmds, utils, search_object
+from evennia.utils import evtable
 from commands.combat import Helper
 from commands.fortunestrings import FORTUNE_STRINGS
 
@@ -1575,3 +1576,159 @@ class SetWeakness(Command):
         else:
             self.caller.db.activemartialskill = 1
             self.caller.msg("|gYour weakened state has subsided.|n\n|yYou may now run and use your active martial skills.|n")
+
+class CharSheet(Command):
+    """
+    Prints out the character's sheet and current status.
+    """
+
+    key = "charsheet"
+    aliases = ["sheet", "char sheet", "character sheet", "view sheet"]
+    help_category = "mush"
+
+    def func(self):
+        status_table = evtable.EvTable("|yStatus|n", "|yValue|n",
+            table = [
+                [
+                    "Body", 
+                    "Weapon Value", 
+                    "Melee Weapon Equipped",
+                    "Bow Equipped",
+                    "Armor Value"
+                ],
+                [
+                    self.caller.db.body,
+                    self.caller.db.weapon_level,
+                    self.caller.db.melee,
+                    self.caller.db.bow,
+                    self.caller.db.av
+                ]
+            ],
+            border = "cells")
+        active_marshall_table = evtable.EvTable("|yActive Marshall Skills|n", "|yAvailable|n",
+            table = [
+                [
+                    "Resist", 
+                    "Disarm", 
+                    "Stun",
+                    "Stagger",
+                    "Cleave"
+                ],
+                [
+                    self.caller.db.resist,
+                    self.caller.db.disarm,
+                    self.caller.db.stun,
+                    self.caller.db.stagger,
+                    self.caller.db.cleave
+                ]
+            ],
+            border = "cells")
+        pass_marshall_table = evtable.EvTable("|yPassive Marshall Skills|n", "|yLevel|n",
+            table = [
+                [
+                    "Shield", 
+                    "Tough", 
+                    "Armor", 
+                    "Master of Arms", 
+                    "Armor Specialist"
+                ],
+                [
+                    self.caller.db.shield,
+                    self.caller.db.tough,
+                    self.caller.db.armor,
+                    self.caller.db.master_of_arms,
+                    self.caller.db.armor_specialist
+                ]
+            ],
+            border = "cells")
+
+        generalist_table = evtable.EvTable("|yGeneralist Skills|n", "|yLevel|n",
+            table = [
+                [
+                    "Perception", 
+                    "Tracking", 
+                    "Medicine"
+                ],
+                [
+                    self.caller.db.perception,
+                    self.caller.db.tracking,
+                    self.caller.db.medicine
+                ]
+            ],
+            border = "cells")
+
+        profession_table = evtable.EvTable("|yProfession Skills|n", "|yLevel|n",
+            table = [
+                [
+                    "Stabilize", 
+                    "Battlefield Medicine", 
+                    "Rally",
+                    "Battlefield Commander",
+                    "Wylding Hand"
+                ],
+                [
+                    self.caller.db.stabilize,
+                    self.caller.db.battlefieldmedicine,
+                    self.caller.db.rally,
+                    self.caller.db.battlefieldcommander,
+                    self.caller.db.wyldinghand
+                ]
+            ],
+            border = "cells")
+
+        status_table.reformat_column(0, width=30, align="l")
+        status_table.reformat_column(1, width=15, align="c")
+        active_marshall_table.reformat_column(0, width=30, align="l")
+        active_marshall_table.reformat_column(1, width=15, align="c")
+        pass_marshall_table.reformat_column(0, width=30, align="l")
+        pass_marshall_table.reformat_column(1, width=15, align="c")
+        generalist_table.reformat_column(0, width=30, align="l")
+        generalist_table.reformat_column(1, width=15, align="c")
+        profession_table.reformat_column(0, width=30, align="l")
+        profession_table.reformat_column(1, width=15, align="c")
+        self.caller.msg(status_table)
+        self.caller.msg(active_marshall_table)
+        self.caller.msg(pass_marshall_table)
+        self.caller.msg(generalist_table)
+        self.caller.msg(profession_table)
+
+class CharStatus(Command):
+    """
+    Prints out the character's relevant status information.
+    """
+
+    key = "charstatus"
+    aliases = ["status", "char status"]
+    help_category = "mush"
+
+    def func(self):
+        status_table = evtable.EvTable("|yStatus|n", "|yValue|n",
+            table = [
+                [
+                    "Shield",
+                    "Armor",
+                    "Armor Specialist",
+                    "Tough",
+                    "Body", 
+                    "Weapon Value", 
+                    "Melee Weapon Equipped",
+                    "Bow Equipped",
+                    "Armor Value"
+                ],
+                [
+                    self.caller.db.shield,
+                    self.caller.db.armor,
+                    self.caller.db.armor_specialist,
+                    self.caller.db.tough,
+                    self.caller.db.body,
+                    self.caller.db.weapon_level,
+                    self.caller.db.melee,
+                    self.caller.db.bow,
+                    self.caller.db.av
+                ]
+            ],
+            border = "cells")
+
+        status_table.reformat_column(0, width=30, align="l")
+        status_table.reformat_column(1, width=15, align="c")
+        self.caller.msg(status_table)
