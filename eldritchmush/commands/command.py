@@ -1691,3 +1691,44 @@ class CharSheet(Command):
         self.caller.msg(pass_marshall_table)
         self.caller.msg(generalist_table)
         self.caller.msg(profession_table)
+
+class CharStatus(Command):
+    """
+    Prints out the character's relevant status information.
+    """
+
+    key = "charstatus"
+    aliases = ["status", "char status"]
+    help_category = "mush"
+
+    def func(self):
+        status_table = evtable.EvTable("|yStatus|n", "|yValue|n",
+            table = [
+                [
+                    "Shield",
+                    "Armor",
+                    "Armor Specialist",
+                    "Tough",
+                    "Body", 
+                    "Weapon Value", 
+                    "Melee Weapon Equipped",
+                    "Bow Equipped",
+                    "Armor Value"
+                ],
+                [
+                    self.caller.db.shield,
+                    self.caller.db.armor,
+                    self.caller.db.armor_specialist,
+                    self.caller.db.tough,
+                    self.caller.db.body,
+                    self.caller.db.weapon_level,
+                    self.caller.db.melee,
+                    self.caller.db.bow,
+                    self.caller.db.av
+                ]
+            ],
+            border = "cells")
+
+        status_table.reformat_column(0, width=30, align="l")
+        status_table.reformat_column(1, width=15, align="c")
+        self.caller.msg(status_table)
