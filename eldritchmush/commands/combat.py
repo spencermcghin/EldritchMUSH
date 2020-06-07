@@ -338,7 +338,7 @@ class CmdShoot(Command):
             if attack_result > target.db.av:
                 self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow |n(|g{attack_result}|n)|b straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y1|n |bdamage!|n")
                 if shot_location == "torso":
-                    if target.db.body > 0
+                    if target.db.body > 0:
                         target.db.body = 0
                         self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                     else:
