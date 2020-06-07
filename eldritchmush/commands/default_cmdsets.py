@@ -46,7 +46,6 @@ class BoxCmdSet(CmdSet):
         self.add(general.CmdDrop())
 
 
-
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
