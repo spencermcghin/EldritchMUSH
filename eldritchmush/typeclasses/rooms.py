@@ -400,7 +400,7 @@ class RookeryRoom(Room):
         Called by the tickerhandler at regular intervals.
         """
 
-        # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
+        # If we have gone through all of the Rookery broadcasts, then clear the used_phrases list.
         if len(self.used_phrases) == len(ROOKERY_STRINGS):
             self.used_phrases.clear()
 
@@ -409,6 +409,52 @@ class RookeryRoom(Room):
         # Retrieve a new market broadcast that has not been played yet.
         while next_phrase in self.used_phrases:
             next_phrase = random.choice(ROOKERY_STRINGS)
+
+        # Add the new phrase to the used_phrases list.
+        self.used_phrases.append(next_phrase)
+
+        self.msg_contents("|w%s|n" % next_phrase)
+
+# These are evil fun house strings
+FUNHOUSE_STRINGS = ["1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6",
+                      "7",
+                      "8",
+                      "9",
+                      "10"]
+
+class FunHouseRoom(Room):
+
+    # A list to keep track of the phrases that have already been broadcast.
+    used_phrases = []
+
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        """
+        super(FunHouseRoom, self).at_object_creation()
+
+        TICKER_HANDLER.add(10*60, self.update_funhouse, idstring="funhouse_ticker", persistent=False)
+
+    def update_funhouse(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals.
+        """
+
+        # If we have gone through all of the FunHouse broadcasts, then clear the used_phrases list.
+        if len(self.used_phrases) == len(FUNHOUSE_STRINGS):
+            self.used_phrases.clear()
+
+        next_phrase = random.choice(FUNHOUSE_STRINGS)
+
+        # Retrieve a new market broadcast that has not been played yet.
+        while next_phrase in self.used_phrases:
+            next_phrase = random.choice(FUNHOUSE_STRINGS)
 
         # Add the new phrase to the used_phrases list.
         self.used_phrases.append(next_phrase)
