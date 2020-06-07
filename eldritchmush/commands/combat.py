@@ -264,8 +264,10 @@ class CmdStrike(Command):
                         target.msg(f"|540Your new body value is {target.db.body}|n")
                         if -3 <= target.db.body <= 0:
                             target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+                            target.location.msg_contents(f"|025{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                         elif target.db.body <= -4:
                             target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
+                            target.location.msg_contents(f"|025{target.key} does not seem to be moving.|n")
             else:
                 self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n |400{attack_result}|n|025, missing {target.key} |n|020{target_av}|n")
 
