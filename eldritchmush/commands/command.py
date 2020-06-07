@@ -618,7 +618,7 @@ class SetBow(Command):
 
                 # Quippy message when setting a shield as 0 or 1.
                 if bow:
-                    self.caller.msg("|gYou have equipped your bow.|n")
+                    self.caller.msg("|015You have equipped your bow.|n")
                     self.caller.location.msg_contents(f"|015{self.caller.key} has equipped their bow.|n")
                 else:
                     self.caller.msg("|rYou have unequipped your bow.|n")
@@ -662,7 +662,7 @@ class SetMelee(Command):
 
                 # Quippy message when setting a weapon as 0 or 1.
                 if melee and hasWeapon:
-                    self.caller.msg("|gYou are now ready to fight.|n")
+                    self.caller.msg("|015You are now ready to fight.|n")
                     self.caller.location.msg_contents(f"|015{self.caller.key} has equipped their weapon.|n")
                 elif melee and not hasWeapon:
                     self.caller.location.msg_contents(f"|015{self.caller.key} assumes a defensive posture.")
@@ -863,7 +863,7 @@ class SetShield(Command):
 
         # Quippy message when setting a shield as 0 or 1.
         if shield:
-            self.caller.msg("|gYou now have a shield.|n")
+            self.caller.msg("|015You now have a shield.|n")
             self.caller.location.msg_contents(f"|015{self.caller.key} equips their shield.|n")
         else:
             self.caller.msg("|rYou have unequipped or lost your shield.|n")
@@ -912,7 +912,7 @@ class SetTwoHanded(Command):
         self.caller.db.twohanded = twohanded
 
         if twohanded:
-            self.caller.msg("|gYour have equipped a two-handed melee weapon.|n")
+            self.caller.msg("|015Your have equipped a two-handed melee weapon.|n")
         else:
             self.caller.msg("|rYou have unequipped a two-handed melee weapon.|n")
 
@@ -1266,9 +1266,9 @@ class CmdMedicine(Command):
         if (- 3 <= target_body <= 0) and medicine:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
+                self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |015{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
+                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |015{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and medicine:
             if target == self.caller:
@@ -1312,9 +1312,9 @@ class CmdStabilize(Command):
         if (- 3 <= target_body <= 0) and stabilize:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals|n |g{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals|n |015{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |g{stabilize}|n |015body points.|n")
+                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |015{stabilize}|n |015body points.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and stabilize:
             if target == self.caller:
@@ -1469,7 +1469,7 @@ class SetBattleFieldMedicine(Command):
             self.caller.db.battlefieldmedicine = battlefieldmedicine
 
             if battlefieldmedicine:
-                self.caller.msg("|gYou have activated the battlefield medicine ability.|n")
+                self.caller.msg("|015You have activated the battlefield medicine ability.|n")
             else:
                 self.caller.msg("|rYou have deactivated the battlefield medicine ability.|n")
 
@@ -1575,7 +1575,7 @@ class SetWeakness(Command):
             self.caller.msg("|rYou have become weakened, finding it difficult to run or use your active martial skills.|n\n|yAs long as you are weakened you may not run or use active martial skills.|n")
         else:
             self.caller.db.activemartialskill = 1
-            self.caller.msg("|gYour weakened state has subsided.|n\n|yYou may now run and use your active martial skills.|n")
+            self.caller.msg("|015Your weakened state has subsided.|n\n|yYou may now run and use your active martial skills.|n")
 
 class CharSheet(Command):
     """
