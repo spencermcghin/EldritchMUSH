@@ -109,7 +109,7 @@ class CmdEditNPC(Command):
         if not npc:
             return
         if not npc.access(self.caller, "edit"):
-            self.caller.msg("You cannot change this NPC.")
+            self.caller.msg("|400You cannot change this NPC.|n")
             return
         if not self.propname:
             # this means we just list the values
