@@ -586,7 +586,12 @@ class CmdDisarm(Command):
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                     # Return attack result message
-                    self.caller.location.msg_contents(f"|025{self.caller.key} tries to counter the next attack by disarming {target.key} for the round.|n\n|540{self.caller.key} may reduce the next amount of damage taken by {master_of_arms}")
+                    if attack_result >= target.db.av:
+                        self.caller.location.msg_contents(f"|025{self.caller.key} counters {target.key}'s next attack by disarming them for the round.|n")
+                        self.caller.db.body += 1
+                        self.caller.msg(f"|540Disarm adds one body back to you total.\nYour new total body value is {self.caller.db.body}|n")
+                    elif attack_result < target.db.av:
+                        self.caller.location.msg_contents(f"|025{self.caller.key} attempts|n (|400{attack_result}|n)|025 to disarm {target.key}|n (|020{target.db.av}|n)|025, but fumbles their attack.|n")
                 else:
                     self.caller.msg("|400You have 0 disarms remaining.")
 
@@ -662,6 +667,7 @@ class CmdStun(Command):
                     attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                     # Return attack result message
+
                     self.caller.location.msg_contents(f"|025{self.caller.key} goes to stun {self.target} such that they're unable to attack for a moment.|n\n|540{self.target.key} may not attack next round if {attack_result} is a successful hit.|n")
                 else:
                     self.caller.msg("|400You have 0 stuns remaining.|n")
