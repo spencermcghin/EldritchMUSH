@@ -1209,11 +1209,11 @@ class CmdPushButton(Command):
                 # Should indicate that character picks it up.
                 self.caller.msg(get_ticket_emote)
                 self.caller.location.msg_contents(button_emote)
-                self.obj.execute_cmd(skull_command)
+                self.execute_cmd(skull_command, obj=eldritchadmin)
             else:
                 # Drop a ticket object with a skull description
                 self.caller.location.msg_contents(button_emote)
-                self.obj.execute_cmd(jester_command)
+                self.execute_cmd(jester_command, obj=eldritchadmin)
         else:
             self.caller.msg("|540Usage: push button|n")
 
