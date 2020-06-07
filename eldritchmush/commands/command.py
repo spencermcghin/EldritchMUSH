@@ -432,10 +432,10 @@ class SetShieldValue(Command):
             self.caller.msg("|yYour Shield Value was set to %i.|n" % shield_value)
 
             # Get armor value objects
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = self.caller.db.armor_specialist
             armor = self.caller.db.armor
             tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
             # Add them up and set the curent armor value in the database
             currentArmorValue = armor + tough + shield_value + armor_specialist
@@ -618,10 +618,10 @@ class SetBow(Command):
                 # Quippy message when setting a shield as 0 or 1.
                 if bow:
                     self.caller.msg("|gYou have equipped your bow.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their bow.|n")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} has equipped their bow.|n")
                 else:
                     self.caller.msg("|rYou have unequipped your bow.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their bow.|n")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} unequips their bow.|n")
 
 
 class SetMelee(Command):
@@ -662,12 +662,15 @@ class SetMelee(Command):
                 # Quippy message when setting a weapon as 0 or 1.
                 if melee and hasWeapon:
                     self.caller.msg("|gYou are now ready to fight.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} has equipped their weapon.|n")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} has equipped their weapon.|n")
                 elif melee and not hasWeapon:
-                    self.caller.location.msg_contents(f"|b{self.caller.key} assumes a defensive posture.")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} assumes a defensive posture.")
                 else:
-                    self.caller.msg("|rYou have unequipped your weapon.|n")
-                    self.caller.location.msg_contents(f"|b{self.caller.key} unequips their weapon.|n")
+                    if not melee and hasWeapon:
+                        self.caller.location.msg_contents(f"|025{self.caller.key} sheathes their weapon.|n")
+                    elif not melee and not hasWeapon:
+                        self.caller.location.msg_contents(f"|025{self.caller.key} relaxes their defensive posture.|n")
+
 
 class SetResist(Command):
     """Set the resist level of a character
@@ -860,10 +863,10 @@ class SetShield(Command):
         # Quippy message when setting a shield as 0 or 1.
         if shield:
             self.caller.msg("|gYou now have a shield.|n")
-            self.caller.location.msg_contents(f"|b{self.caller.key} equips their shield.|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} equips their shield.|n")
         else:
             self.caller.msg("|rYou have unequipped or lost your shield.|n")
-            self.caller.location.msg_contents(f"|b{self.caller.key} unequips their shield.|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} unequips their shield.|n")
 
         # Get armor value objects
         armor = self.caller.db.armor
@@ -1174,9 +1177,9 @@ class CmdThrow(Command):
                 # If the caller has not done this before, they should get a result from the random ticket chance.
                 # Check the database to make sure that the jester ticket hasn't been chosen yet.
                 # If a player gets the random jester ticket from this booth, it should log the entry in the database and not allow it to be generated again.
-                self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
             else:
-                self.caller.location.msg_contents(f"|b{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
 
 class CmdPushButton(Command):
@@ -1203,7 +1206,7 @@ class CmdPushButton(Command):
         hasWinner = self.obj.db.hasWinner
 
         # Commands to generate tickets
-        button_emote = f"|b{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        button_emote = f"|025{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
         get_ticket_emote = "|yA ticket pops up from a small slit in the top of the box.|n\n|yUse the |nget ticket|ycommand to pick it up|n\n|yUse the |nlook ticket|ycommand to examine it.|n"
 
         # Ticket objects
@@ -1262,17 +1265,17 @@ class CmdMedicine(Command):
         if (- 3 <= target_body <= 0) and medicine:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
+                self.caller.location.msg_contents(f"|025{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|y{self.caller.key} heals {target.key} for|n |g{medicine}|n |ybody points per round as long as their work remains uninterrupted for the round.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and medicine:
             if target == self.caller:
                 self.caller.msg(f"|r{self.caller} You are too fargone to attempt this action.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, though they are too fargone. {target.key} may require the aid of more advanced chiurgical techniques.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} comes to {target.key}'s rescue, though they are too fargone. {target.key} may require the aid of more advanced chiurgical techniques.|n")
         elif target_body > 0 and medicine:
-            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+            self.caller.msg(f"|025{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
         else:
             self.caller.msg("|yBetter not. You aren't quite that skilled.|n")
 
@@ -1308,17 +1311,17 @@ class CmdStabilize(Command):
         if (- 3 <= target_body <= 0) and stabilize:
             # Return message to area and caller
             if target == self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals|n |g{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|025{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|y{self.caller} heals|n |g{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |g{stabilize}|n |bbody points.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |g{stabilize}|n |025body points.|n")
         # Apply stabilize to other target
         elif (-6 <= target_body <= -4) and stabilize:
             if target == self.caller:
                 self.caller.msg(f"|r{self.caller} You are too fargone to attempt this action.|n")
             elif target != self.caller:
-                self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |r{stabilize}|n |ybody points per round as long as their work remains uninterrupted.|n")
         elif target_body > 0 and stabilize:
-            self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+            self.caller.msg(f"|025{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
         else:
             self.caller.msg("|yBetter not. You aren't quite that skilled.|n")
 
