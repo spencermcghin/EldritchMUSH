@@ -711,6 +711,7 @@ class CmdStagger(Command):
         staggersRemaining = self.caller.db.stagger
         weapon_level = self.caller.db.weapon_level
         wylding_hand = self.caller.db.wyldinghand
+        stagger_penalty = 2
 
         target = self.caller.search(self.target)
 
@@ -747,12 +748,16 @@ class CmdStagger(Command):
                 # Get final attack result and damage
                 weakness = h.weaknessChecker(self.caller.db.weakness)
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness - stagger_penalty
 
                 # Return attack result message
-                self.caller.location.msg_contents(f"|025{self.caller.key} strikes a devestating blow, attempt to set {self.target} off their guard!|n\n|540{self.caller.key}'s attack result is: {attack_result}, dealing 2 damage on a successful hit.|n")
+                if attack_result > target.db.av:
+                    self.caller.location.msg_contents(f"|025{self.caller.key}|n (|020{attack_result}|n) |025staggers {target.key}|n (|400{target.db.av}|n) |025, putting them off their guard.|n")
+                elif attack_result < target.db.av:
+                    self.caller.location.msg_contents(f"|025{self.caller.key} attempts|n (|400{attack_result}|n)|025 to stagger {target.key}|n (|020{target.db.av}|n)|025, but fumbles their attack.|n")
             else:
                 self.caller.msg("|400You have 0 staggers remaining.|n")
+
 
 
 class CmdDisengage(Command):
