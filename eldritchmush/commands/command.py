@@ -18,19 +18,6 @@ from commands.fortunestrings import FORTUNE_STRINGS
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
 
-# Helper class
-
-# class CommandHelper():
-#     """
-#     Basic functions to avoid a bunch of repeated code.
-#     """
-#
-#     # Random text generation for battle wounds when a limb or torso is struck
-#     def
-
-
-# from evennia import default_cmds
-
 class Command(BaseCommand):
     """
     Inherit from this if you want to create your own command styles

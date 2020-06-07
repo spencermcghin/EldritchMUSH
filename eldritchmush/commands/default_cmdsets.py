@@ -19,6 +19,7 @@ from evennia import CmdSet
 from commands import command
 from commands import combat
 from commands import npc
+from commands import dice
 
 
 class RoomCmdSet(CmdSet):
@@ -85,6 +86,16 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CharSheet())
         self.add(command.CharStatus())
 
+#### Special command sets
+class DiceCmdSet(CmdSet):
+    """
+    a small cmdset for testing purposes.
+    Add with @py self.cmdset.add("contrib.dice.DiceCmdSet")
+    """
+
+    def at_cmdset_creation(self):
+        """Called when set is created"""
+        self.add(dice.CmdDice())
 
 class ArtessaCmdSet(RoomCmdSet):
 
