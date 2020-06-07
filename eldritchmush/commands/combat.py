@@ -241,7 +241,7 @@ class CmdStrike(Command):
             if attack_result >= target_av:
                 # if target has any more armor points left go through the damage subtractor
                 if target_av:
-                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|g{attack_result}|n) |025at {target.key} and hits|n (|400{target_av}|n), |025dealing|n |540{damage}|n |025damage!|n")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|020{attack_result}|n) |025at {target.key} and hits|n (|400{target_av}|n), |025dealing|n |540{damage}|n |025damage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     new_av = h.damageSubtractor(damage, target)
                     # Update target av to new av score per damageSubtractor
@@ -249,7 +249,7 @@ class CmdStrike(Command):
                     target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|g{attack_result}|n) |025at {target.key} and hits |n(|400{target_av}|n)|025, injuring their {shot_location} and dealing|n |540{damage}|n |025damage!|n.")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|020{attack_result}|n) |025at {target.key} and hits |n(|400{target_av}|n)|025, injuring their {shot_location} and dealing|n |540{damage}|n |025damage!|n.")
                     if shot_location == "torso":
                         if target.db.body > 0:
                             target.db.body = 0
@@ -267,7 +267,7 @@ class CmdStrike(Command):
                         elif target.db.body <= -4:
                             target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
             else:
-                self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n |400{attack_result}|n|025, missing {target.key} |n|g{target_av}|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n |400{attack_result}|n|025, missing {target.key} |n|020{target_av}|n")
 
 
 class CmdShoot(Command):
@@ -336,7 +336,7 @@ class CmdShoot(Command):
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
             if attack_result > target.db.av:
-                self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow |n(|g{attack_result}|n)|025 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |025dealing|n |5401|n |025damage!|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow |n(|020{attack_result}|n)|025 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |025dealing|n |5401|n |025damage!|n")
                 if shot_location == "torso":
                     if target.db.body > 0:
                         target.db.body = 0
@@ -433,7 +433,7 @@ class CmdCleave(Command):
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
-                self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|540{self.caller.key}'s attack result is:|n |g{attack_result}|n |540and deals|n |4002|n |540damage on a successful hit.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|540{self.caller.key}'s attack result is:|n |020{attack_result}|n |540and deals|n |4002|n |540damage on a successful hit.|n")
             else:
                 self.caller.msg("|400You have 0 cleaves remaining.")
 
@@ -483,7 +483,7 @@ class CmdResist(Command):
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
             # Return attack result message
-            self.caller.location.msg_contents(f"|025{self.caller.key} tries to resist the brunt of the attack!|n\n|540If attack roll is successful, {self.caller.key} negates the effects of the attack and any damage.|n\n|540{self.caller.key}'s attack result is:|n |g{attack_result}|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} tries to resist the brunt of the attack!|n\n|540If attack roll is successful, {self.caller.key} negates the effects of the attack and any damage.|n\n|540{self.caller.key}'s attack result is:|n |020{attack_result}|n")
         else:
             self.caller.msg("|540You have 0 resists remaining.")
 
