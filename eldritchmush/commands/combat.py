@@ -251,8 +251,12 @@ class CmdStrike(Command):
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                     self.caller.location.msg_contents(f"|b{self.caller.key} strikes deftly|n (|g{attack_result}|n) |bat {target.key} and hits |n(|r{target_av}|n)|b, injuring their {shot_location} and dealing|n |y{damage}|n |bdamage!|n.")
                     if shot_location == "torso":
-                        target.db.body = 0
-                        self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                        if target.db.body > 0
+                            target.db.body = 0
+                            self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                        else:
+                            target.db.body -= 1
+                            target.msg(f"|yYour new body value is {target.db.body}|n")            
                     else:
                         target.db.body -= damage
                         target.msg(f"|rYou {shot_location} is now injured and have taken |n|y{damage}|n|r points of damage.|n")
@@ -264,84 +268,6 @@ class CmdStrike(Command):
                             target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
             else:
                 self.caller.location.msg_contents(f"|b{self.caller.key} swings wildly|n |r{attack_result}|n|b, missing {target.key} |n|g{target_av}|n")
-
-class CmdKill(Command):
-    """
-    issues a finishing action
-
-    Usage:
-
-    kill <target>
-
-    This will calculate an attack score based on your weapon and master of arms level.
-    """
-
-    key = "kill"
-    aliases = ["finish"]
-    help_category = "combat"
-
-
-    def parse(self):
-        "Very trivial parser"
-        self.target = self.args.strip()
-
-
-    def func(self):
-        # Init combat helper class for logic
-        h = Helper()
-
-        # Check for correct command
-        if not self.args:
-            self.caller.msg("|yUsage: kill <target>|n")
-            return
-
-        target = self.caller.search(self.target)
-
-        if not target:
-            self.caller.msg("|yUsage: kill <target>|n")
-            return
-
-        if target == self.caller:
-            self.caller.msg(f"|r{self.caller}, please don't kill yourself.|n")
-            return
-
-
-        # Get hasMelee for character to check that they've armed themselves.
-        hasMelee = self.caller.db.melee
-        hasBow = self.caller.db.bow
-
-        # Vars for attack_result logic
-        master_of_arms = self.caller.db.master_of_arms
-        weapon_level = self.caller.db.weapon_level
-        wylding_hand = self.caller.db.wylding_hand
-
-        # Get die result based on master of arms level
-        if not hasMelee or not hasBow:
-            self.caller.msg("|yBefore you strike you must prepare for combat by using the command setmelee 1 or setbow 1.")
-        else:
-            # Return die roll based on level in master of arms or wylding hand.
-            if wylding_hand:
-                die_result = h.wyldingHand(wylding_hand)
-            else:
-                die_result = h.masterOfArms(master_of_arms)
-
-            weakness = h.weaknessChecker(self.caller.db.weakness)
-            dmg_penalty = h.bodyChecker(self.caller.db.body)
-
-            # Get damage result and damage for weapon type
-            attack_result = (die_result + weapon_level) - dmg_penalty - weakness
-            damage = 2 if self.caller.db.twohanded == True else 1
-            target_body = target.db.body
-
-            # Return message to area and caller
-
-            if target.db.body <= 0:
-                target.db.body = -4
-                self.caller.location.msg_contents(f"|b{self.caller.key} raises their weapon and drives it straight down into {target.key}, ending them.|n")
-                self.caller.location.msg_contents(f"|y{target.key} is now dying.")
-                target.msg(f"|rYou are now dying and will lose 1 point per round if in combat.|n")
-            else:
-                self.caller.msg(f"|y{self.caller.key}, you cannot attmept to kill your opponent until they are at 0 body or lower.|n")
 
 
 class CmdShoot(Command):
@@ -410,12 +336,13 @@ class CmdShoot(Command):
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
             if attack_result > target.db.av:
-                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow |n(|g{attack_result}|n)|b straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y2|n |bdamage!|n")
+                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow |n(|g{attack_result}|n)|b straight for {target.key}'s {shot_location} and hits|n (|r{target.db.av}|n), |bdealing|n |y1|n |bdamage!|n")
                 if shot_location == "torso":
                     target.db.body = 0
                     self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                    target.msg(f"")
                 else:
-                    target.db.body -= 2
+                    target.db.body -= 1
                     target.msg(f"|rYou {shot_location} is now injured and have taken |n|y2l|n|r points of damage.|n")
                     # Send a message to the target, letting them know their body values
                     target.msg(f"|yYour new body value is {target.db.body}|n")
