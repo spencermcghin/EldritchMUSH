@@ -417,8 +417,10 @@ class CmdCleave(Command):
         elif not hasMelee:
             self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1.|n")
         else:
+            # Check to make sure caller has cleaves remaining
             if cleavesRemaining > 0:
-            # Return die roll based on level in master of arms or wylding hand.
+
+                # Return die roll based on level in master of arms or wylding hand.
                 if wylding_hand:
                     die_result = h.wyldingHand(wylding_hand)
                 else:
@@ -432,8 +434,28 @@ class CmdCleave(Command):
                 attack_result = (die_result + weapon_level) - dmg_penalty
                 shot_location = h.shotFinder(target.db.targetArray)
 
-                # Return attack result message
-                self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity and cleaves {target.key}'s {shot_location}!|n\n|540{self.caller.key}'s attack result is:|n |020{attack_result}|n |540and deals|n |4002|n |540damage on a successful hit.|n")
+                if attack_result >= target.db.av:
+                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n |025with great ferocity and cleaves {target.key}'s {shot_location}|n |400{target.db.av}!|n |025 dealing |n|5402|n |025damage|n.")
+                    if shot_location == "torso":
+                        if target.db.body > 0:
+                            target.db.body = 0
+                            self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                        else:
+                            target.db.body -= 2
+                            target.msg(f"|540Your new body value is {target.db.body}|n")
+                    else:
+                        target.db.body -= 1
+                        target.msg(f"|400You {shot_location} is now injured and have taken |n|5402l|n|400 points of damage.|n")
+                        # Send a message to the target, letting them know their body values
+                        target.msg(f"|540Your new body value is {target.db.body}|n")
+                        if -3 <= target.db.body <= 0:
+                            target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+                        elif target.db.body <= -4:
+                            target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
+                else:
+                    # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
+                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity|n (|400{attack_result}|n)|025 at {target.key}|n(|020{target.db.av}|n)|025, but it misses.|n")
+
             else:
                 self.caller.msg("|400You have 0 cleaves remaining.")
 
