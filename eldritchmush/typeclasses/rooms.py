@@ -311,6 +311,64 @@ class MarketRoom(WeatherRoom):
 
         self.msg_contents("|w%s|n" % next_phrase)
 
+# Need to finish adding carnival shouts.
+CARNIVAL_STRINGS = [
+    "\"Test yer strength he'ah! Think yer strong enough? Prove it The Hammer!\"",
+    "\"1\"",
+    "\"2\"",
+    "\"3\"",
+    "\"4\"",
+    "\"5\"",
+    "\"6\"",
+    "\"7\"",
+    "\"8\"",
+    "\"9\"",
+    "\"10\"",
+    "\"11\"",
+    "\"12\"",
+    "\"13\"",
+    "\"14\"",
+    "\"15\"",
+    "\"16\"",
+    "A nearby Cirque member tells a customer, \"\"",
+    "A Trouper is overheard saying, \"\"",
+    "\"17\""
+]
+
+class CarnivalRoom(WeatherRoom):
+
+    # A list to keep track of the phrases that have already been broadcast.
+    used_phrases = []
+
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        """
+        super(CarnivalRoom, self).at_object_creation()
+
+        TICKER_HANDLER.add(10*60, self.update_carnival, idstring="carnival_ticker", persistent=False)
+
+    def update_carnival(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals.
+        """
+
+        # If we have gone through all of the Carnival broadcasts, then clear the used_phrases list.
+        if len(self.used_phrases) == len(CARNIVAL_STRINGS):
+            self.used_phrases = []
+
+        next_phrase = random.choice(CARNIVAL_STRINGS)
+
+        # Retrieve a new market broadcast that has not been played yet.
+        while next_phrase in self.used_phrases:
+            next_phrase = random.choice(CARNIVAL_STRINGS)
+
+        # Add the new phrase to the used_phrases list.
+        self.used_phrases.append(next_phrase)
+
+        self.msg_contents("|w%s|n" % next_phrase)
+
 # These are rookery strings
 ROOKERY_STRINGS = ["Ravens peer down from several perches with their beady black eyes. It feels like they're studying you.",
                       "*splat* ... White poo lands on the stone floor, dangerously close.",
