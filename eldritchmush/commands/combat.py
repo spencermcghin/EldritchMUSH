@@ -513,7 +513,7 @@ class CmdResist(Command):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
-            self.caller.location.msg_contents(f"|015{self.caller.key} resists {target.key}'s attack!.|n")
+            self.caller.location.msg_contents(f"|015{self.caller.key} resists the attack, taking no damage!.|n")
             self.caller.db.body += 1
             self.caller.msg(f"|540Resist adds one body back to you total.\nYour new total body value is {self.caller.db.body}|n")
         else:
