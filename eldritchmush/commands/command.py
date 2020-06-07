@@ -1210,11 +1210,13 @@ class CmdPushButton(Command):
                 self.caller.msg(get_ticket_emote)
                 self.caller.location.msg_contents(button_emote)
                 self.obj.execute_cmd(skull_command)
+                self.obj.location.msg_contents("Box command executed.")
             else:
                 # Drop a ticket object with a skull description
                 self.caller.msg(get_ticket_emote)
                 self.caller.location.msg_contents(button_emote)
                 self.obj.execute_cmd(jester_command)
+                self.obj.location.msg_contents("Box command executed.")
         else:
             self.caller.msg("|540Usage: push button|n")
 
