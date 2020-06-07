@@ -515,7 +515,7 @@ class CmdResist(Command):
 
             self.caller.location.msg_contents(f"|015{self.caller.key} resists the attack, taking no damage!.|n")
             self.caller.db.body += 1
-            self.caller.msg(f"|540Resist adds one body back to you total.\nYour new total body value is {self.caller.db.body}|n")
+            self.caller.msg(f"|540Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
         else:
             self.caller.msg("|400You have 0 resists remaining.")
 
