@@ -446,7 +446,7 @@ class CmdCleave(Command):
                             target.db.body -= 2
                             target.msg(f"|540Your new body value is {target.db.body}|n")
                     else:
-                        target.db.body -= 1
+                        target.db.body -= 2
                         target.msg(f"|400You {shot_location} is now injured and have taken |n|5402l|n|400 points of damage.|n")
                         # Send a message to the target, letting them know their body values
                         target.msg(f"|540Your new body value is {target.db.body}|n")
