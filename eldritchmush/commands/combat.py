@@ -308,6 +308,7 @@ class CmdKill(Command):
 
         # Get hasMelee for character to check that they've armed themselves.
         hasMelee = self.caller.db.melee
+        hasBow = self.caller.db.bow
 
         # Vars for attack_result logic
         master_of_arms = self.caller.db.master_of_arms
@@ -315,8 +316,8 @@ class CmdKill(Command):
         wylding_hand = self.caller.db.wylding_hand
 
         # Get die result based on master of arms level
-        if not hasMelee:
-            self.caller.msg("|yBefore you strike you must equip a melee weapon using the command setmelee 1.")
+        if not hasMelee or not hasBow:
+            self.caller.msg("|yBefore you strike you must prepare for combat by using the command setmelee 1 or setbow 1.")
         else:
             # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
@@ -415,7 +416,7 @@ class CmdShoot(Command):
                     self.caller.location.msg_contents(f"|b{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                 else:
                     target.db.body -= 2
-                    target.msg(f"|rYou {shot_location} is now injured and have taken |n|y2|n|r points of damage.|n")
+                    target.msg(f"|rYou {shot_location} is now injured and have taken |n|y2l|n|r points of damage.|n")
                     # Send a message to the target, letting them know their body values
                     target.msg(f"|yYour new body value is {target.db.body}|n")
                     if -3 <= target.db.body <= 0:
