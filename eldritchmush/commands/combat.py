@@ -355,8 +355,7 @@ class CmdShoot(Command):
                         target.msg("|rYou are now unconscious and can no longer move of your own volition.|n")
             else:
                 # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow ({attack_result}) at {target.key}, but it misses.")
-
+                self.caller.location.msg_contents(f"|b{self.caller.key} lets loose an arrow |n(|r{attack_result}|n)|b at {target.key}, but it misses.|n")
 
 
 """
