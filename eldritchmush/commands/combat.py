@@ -592,7 +592,7 @@ class CmdDisarm(Command):
                             self.caller.body += 1
                             self.caller.msg(f"|540Disarm adds one body back to you total.\nYour new total body value is {self.caller.db.body}|n")
                         elif attack_result < target.db.av:
-                            self.caller.location.msg_contents(f"|025{self.caller.key} goes to disarm {target.key}, but fumbles their attack.|n")
+                            self.caller.location.msg_contents(f"|025{self.caller.key} attempts|n (|400{attack_result}|n|025 to disarm {target.key}|n (|020{target.db.av}|n|025, but fumbles their attack.|n")
                     else:
                         self.caller.msg("|400You have 0 disarms remaining.")
 
