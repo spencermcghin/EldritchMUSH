@@ -15,6 +15,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
+from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import command
 from commands import combat
@@ -32,7 +33,7 @@ class RoomCmdSet(CmdSet):
         self.add(command.CmdPerception())
         self.add(command.CmdTracking())
 
-class BoxCmdSet(default_cmds):
+class BoxCmdSet(CmdSet):
     """
     Command set for box object in carnival
     """
@@ -41,8 +42,8 @@ class BoxCmdSet(default_cmds):
         super().at_cmdset_creation()
 
         self.add(command.CmdPushButton())
-        self.add(default_cmds.CmdCreate())
-        self.add(default_cmds.CmdDrop())
+        self.add(building.CmdCreate())
+        self.add(general.CmdDrop())
 
 
 
