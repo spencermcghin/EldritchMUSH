@@ -587,7 +587,7 @@ class CmdDisarm(Command):
 
                     # Return attack result message
                     if attack_result >= target.db.av:
-                        self.caller.location.msg_contents(f"|025{self.caller.key} counters the next attack by disarming {target.key} for the round.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} counters {target.key}'s next attack by disarming them for the round.|n")
                         self.caller.db.body += 1
                         self.caller.msg(f"|540Disarm adds one body back to you total.\nYour new total body value is {self.caller.db.body}|n")
                     elif attack_result < target.db.av:
