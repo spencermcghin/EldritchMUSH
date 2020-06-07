@@ -460,3 +460,66 @@ class FunHouseRoom(Room):
         self.used_phrases.append(next_phrase)
 
         self.msg_contents("|w%s|n" % next_phrase)
+
+OPHIDIA_STRINGS = [
+    "\"Get your smoked meats here! Two for a coppa'...\"",
+    "\"Fresh cuts today! Chops, liver, ribs, get it before the flies do, friends!\"",
+    "\"Come and see the man of many cheeses! Finest cheeses in all of Arnesse...!\"",
+    "\"Tomatoes, olives, grapes... fresh bread, he'ah! Get it at Gilfrain's...!\"",
+    "\"Fine wrought iron! Intricate metalwork... artisan quality...\"",
+    "\"Good wool and linen for dresses. Leather hides for your saddles and armor. Nearly out... good prices!\"",
+    "\"Boots, shoes, ladies' slippers... children's shoes, booties. Produced in Highcourt! Come and size a pair for yourself...\"",
+    "\"Cutlery from the Dusklands... sharp as the day it left the smithy! Guarenteed!\"",
+    "\"Brought in some horses to thin me herd, stout geldings and mares... This one would made a good palfrey, he would!\"",
+    "\"Mule for sale! Won't find a more reliable animal!\"",
+    "\"Sturdy farm tools at Red's Smithy... These'll last ye a life time!\"",
+    "\"Freshly cut flowers! Fit even for Queen Aline herself, your loved ones will be delighted!\"",
+    "\"Git yer fine leather goods here... Pouches designed to deter thieves! Don't believe me? Come see fer yerself!\"",
+    "\"Refreshing beer, cooled in the nearby stream! Got a couple barrels of Beggar's Amber!\"",
+    "\"Fine wines! Imports from Orgonne and Corsicana, come by for a tasting...\"",
+    "\"Pelts and furs from the Barrier Mountains... Never too early to prepare for winter!\"",
+    "\"Tarkathi crafts! Fine Tarkathi crafts, direct from Tyranthis!\"",
+    "A nearby merchant tells a customer, \"Khalico has wares if you have coin...\"",
+    "A merchant is overheard saying, \"Come back when you're ready to spend more coin... goodness knows I could use it...\"",
+    "\"Got some good pieces out here if yer looking to buy. More inside the tent!\""
+]
+
+class OphidiaRoom(WeatherRoom):
+
+    # A list to keep track of the phrases that have already been broadcast.
+    used_phrases = []
+
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        """
+        super(MarketRoom, self).at_object_creation()
+
+        TICKER_HANDLER.add(60*60, self.start_show idstring="ophidia__show_ticker", persistent=False)
+
+
+    def start_show(self):
+        # create ticker - go through all phrases - delete ticker
+        return
+
+
+    def update_show(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals.
+        """
+
+        # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
+        if len(self.used_phrases) == len(OPHIDIA_STRINGS):
+            self.used_phrases.clear()
+
+        next_phrase = random.choice(OPHIDIA_STRINGS)
+
+        # Retrieve a new market broadcast that has not been played yet.
+        while next_phrase in self.used_phrases:
+            next_phrase = random.choice(OPHIDIA_STRINGS)
+
+        # Add the new phrase to the used_phrases list.
+        self.used_phrases.append(next_phrase)
+
+        self.msg_contents("|w%s|n" % next_phrase)
