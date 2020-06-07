@@ -435,7 +435,7 @@ class CmdCleave(Command):
                 shot_location = h.shotFinder(target.db.targetArray)
 
                 if attack_result >= target.db.av:
-                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {target.key}'s {shot_location}|n |400{target.db.av}|n|025! dealing|n|5402|n |025damage|n.")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|025! dealing|n |5402|n |025damage|n.")
                     if shot_location == "torso":
                         if target.db.body > 0:
                             target.db.body = 0
