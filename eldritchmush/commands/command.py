@@ -1698,7 +1698,7 @@ class CharStatus(Command):
     """
 
     key = "charstatus"
-    aliases = ["status", "char status"]
+    aliases = ["status", "char status", "character status", "view status"]
     help_category = "mush"
 
     def func(self):
