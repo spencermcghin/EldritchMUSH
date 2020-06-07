@@ -1195,7 +1195,7 @@ class CmdPushButton(Command):
 
         # Commands to generate tickets
         button_emote = f"|015{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
-        get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540command to pick it up|n\n|540Use the |nlook ticket|540command to examine it.|n"
+        get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540 command to pick it up|n\n|540Use the |nlook ticket|540 command to examine it.|n"
 
         # Ticket objects
         jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
