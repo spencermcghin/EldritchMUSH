@@ -32,7 +32,7 @@ class RoomCmdSet(CmdSet):
         self.add(command.CmdPerception())
         self.add(command.CmdTracking())
 
-class BoxCmdSet(default_cmds.CharacterCmdSet):
+class BoxCmdSet(default_cmds):
     """
     Command set for box object in carnival
     """
@@ -41,6 +41,8 @@ class BoxCmdSet(default_cmds.CharacterCmdSet):
         super().at_cmdset_creation()
 
         self.add(command.CmdPushButton())
+        self.add(default_cmds.CmdCreate())
+        self.add(default_cmds.CmdDrop())
 
 
 
