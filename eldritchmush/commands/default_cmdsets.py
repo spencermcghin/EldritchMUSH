@@ -42,8 +42,6 @@ class BoxCmdSet(CmdSet):
         super().at_cmdset_creation()
 
         self.add(command.CmdPushButton())
-        self.add(building.CmdCreate())
-        self.add(general.CmdDrop())
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
