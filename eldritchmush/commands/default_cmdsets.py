@@ -186,3 +186,13 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetBattleFieldMedicine())
         self.add(command.SetBattleFieldCommander())
         self.add(command.SetRally())
+
+class LockCmdSet(CmdSet):
+    """
+    Command set for box object in carnival
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(command.CmdDisarmDevice())

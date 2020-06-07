@@ -259,3 +259,18 @@ class ObjSkullTicket(DefaultObject):
     def at_object_creation(self):
         self.db.desc = "|yThis is a small, rectangular slip of stained paper. One one side is the faded black and white stamp of a grinning skull."
         return
+
+class ObjLock(DefaultObject):
+    """
+    Object that bars a user from entering a room
+    or interacting with an object until it is 
+    unlocked.
+    """
+
+    def at_object_creation(self):
+
+        self.locks.add("get:false()")
+        self.db.desc = "|yThis is a lock. It is quite secure and pulling on it doesn't seem to do anything.|n"
+
+        self.cmdset.add_default(LockCmdSet, permanent=True)
+        return
