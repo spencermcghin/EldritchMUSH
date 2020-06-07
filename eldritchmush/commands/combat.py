@@ -668,7 +668,10 @@ class CmdStun(Command):
 
                     # Return attack result message
 
-                    self.caller.location.msg_contents(f"|025{self.caller.key} goes to stun {self.target} such that they're unable to attack for a moment.|n\n|540{self.target.key} may not attack next round if {attack_result} is a successful hit.|n")
+                    if attack_result > target.db.av:
+                        self.caller.location.msg_contents(f"|025{self.caller.key}|n (|020{attack_result}|n) stuns {target.key}|n (|400{target.db.av}|n) such that they're unable to attack for a moment.|n\n{target.key} may noy attack next round.")
+                    elif attack_result < target.db.av:
+                        self.caller.location.msg_contents(f"|025{self.caller.key} attempts|n (|400{attack_result}|n)|025 to stun {target.key}|n (|020{target.db.av}|n)|025, but fumbles their attack.|n")
                 else:
                     self.caller.msg("|400You have 0 stuns remaining.|n")
 
