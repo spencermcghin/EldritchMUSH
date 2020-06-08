@@ -1197,30 +1197,42 @@ class CmdPushButton(Command):
         button_emote = f"|015{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
         get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540 command to pick it up|n\n|540Use the |nlook ticket|540 command to examine it.|n"
 
-        # Ticket objects
-        # jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
-        # skull_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjSkullTicket"
-
-        if not hasWinner:
+        # If the player has already pressed the button on this particular box, nothing happens.
+        if self.caller in self.obj.db.characters:
+            self.caller.msg(f"|540\"I'm sorry {self.caller},\" a mysterious voice whispers. \"You've already played my little game... I would very much like it if your friends played. You could try your luck in another tent...\" The voice seemed to come from the wooden box, but how is difficult to tell.|n")
+    
+        # If the box counter is under thirty and there is no winner yet...
+        elif self.obj.db.counter < 30 and not hasWinner:
             draw = random.randint(1,30)
+            self.obj.db.counter += 1
             if draw == 30:
-                self.obj.db.hasWinner = True
-                # Generate and drop a ticket object with a jester description.
-                # Should indicate that character picks it up.
-                self.caller.msg(get_ticket_emote)
-                self.caller.location.msg_contents(button_emote)
-                # self.caller.execute_cmd(skull_command)
-                # Call spawner
-                skull_ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull.", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
-            else:
-                # Drop a ticket object with a skull description
-                self.caller.msg(get_ticket_emote)
-                self.caller.location.msg_contents(button_emote)
-                # self.caller.execute_cmd(jester_command)
-                # Call spawner
-                jester_ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a sinister looking jester.", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
+                self.obj.db.hasWinner = True                
+                self.dropCard("grinning skull")
+            else:                
+                self.dropCard("sinister looking jester")
+
+        # If the box counter is over thirty and there is no winner yet...
+        elif self.obj.db.counter >= 30 and not hasWinner:
+            self.obj.db.hasWinner = True
+            self.obj.db.counter += 1
+            self.dropCard("grinning skull")
+        
+        # If the box counter is over thirty and the winning ticket has already been given out...
         else:
-            self.caller.msg("|540Usage: push button|n")
+            self.obj.db.counter += 1
+            self.dropCard("sinister looking jester")
+
+    def dropCard(self, cardType):
+        # Commands to generate tickets
+        button_emote = f"|015{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540 command to pick it up|n\n|540Use the |nlook ticket|540 command to examine it.|n"
+
+        # Drop a ticket object with a skull description
+        self.caller.msg(get_ticket_emote)
+        self.caller.location.msg_contents(button_emote)
+        self.obj.db.characters.append(self.caller)
+        # Call spawner
+        ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a " + cardType + ".", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
 
 """
 Healing commands
