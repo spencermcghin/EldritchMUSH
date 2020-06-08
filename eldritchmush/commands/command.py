@@ -10,7 +10,7 @@ from django.conf import settings
 
 # Local imports
 from evennia import Command as BaseCommand
-from evennia import default_cmds, utils, search_object
+from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
 from commands.combat import Helper
 from commands.fortunestrings import FORTUNE_STRINGS
@@ -1198,8 +1198,8 @@ class CmdPushButton(Command):
         get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540 command to pick it up|n\n|540Use the |nlook ticket|540 command to examine it.|n"
 
         # Ticket objects
-        jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
-        skull_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjSkullTicket"
+        # jester_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjJesterTicket"
+        # skull_command = "create/drop A Small Paper Ticket:typeclasses.objects.ObjSkullTicket"
 
         if not hasWinner:
             draw = random.randint(1,30)
@@ -1209,12 +1209,16 @@ class CmdPushButton(Command):
                 # Should indicate that character picks it up.
                 self.caller.msg(get_ticket_emote)
                 self.caller.location.msg_contents(button_emote)
-                self.caller.execute_cmd(skull_command)
+                # self.caller.execute_cmd(skull_command)
+                # Call spawner
+                skull_ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull.", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
             else:
                 # Drop a ticket object with a skull description
                 self.caller.msg(get_ticket_emote)
                 self.caller.location.msg_contents(button_emote)
-                self.caller.execute_cmd(jester_command)
+                # self.caller.execute_cmd(jester_command)
+                # Call spawner
+                jester_ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a sinister looking jester.", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
         else:
             self.caller.msg("|540Usage: push button|n")
 
