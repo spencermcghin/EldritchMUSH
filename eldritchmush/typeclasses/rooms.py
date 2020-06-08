@@ -507,6 +507,6 @@ class OphidiaRoom(WeatherRoom):
             phrase = OPHIDIA_STRINGS[current_index]
             self.msg_contents("%s" % phrase)
             if current_index == len(OPHIDIA_STRINGS) - 1:
-                TICKER_HANDLER.remove(10, self.update_show, idstring="ophidia_start_show_ticker")
+                TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
             else:
                 current_index += 1
