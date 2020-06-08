@@ -462,26 +462,15 @@ class FunHouseRoom(Room):
         self.msg_contents("|w%s|n" % next_phrase)
 
 OPHIDIA_STRINGS = [
-    "\"Get your smoked meats here! Two for a coppa'...\"",
-    "\"Fresh cuts today! Chops, liver, ribs, get it before the flies do, friends!\"",
-    "\"Come and see the man of many cheeses! Finest cheeses in all of Arnesse...!\"",
-    "\"Tomatoes, olives, grapes... fresh bread, he'ah! Get it at Gilfrain's...!\"",
-    "\"Fine wrought iron! Intricate metalwork... artisan quality...\"",
-    "\"Good wool and linen for dresses. Leather hides for your saddles and armor. Nearly out... good prices!\"",
-    "\"Boots, shoes, ladies' slippers... children's shoes, booties. Produced in Highcourt! Come and size a pair for yourself...\"",
-    "\"Cutlery from the Dusklands... sharp as the day it left the smithy! Guarenteed!\"",
-    "\"Brought in some horses to thin me herd, stout geldings and mares... This one would made a good palfrey, he would!\"",
-    "\"Mule for sale! Won't find a more reliable animal!\"",
-    "\"Sturdy farm tools at Red's Smithy... These'll last ye a life time!\"",
-    "\"Freshly cut flowers! Fit even for Queen Aline herself, your loved ones will be delighted!\"",
-    "\"Git yer fine leather goods here... Pouches designed to deter thieves! Don't believe me? Come see fer yerself!\"",
-    "\"Refreshing beer, cooled in the nearby stream! Got a couple barrels of Beggar's Amber!\"",
-    "\"Fine wines! Imports from Orgonne and Corsicana, come by for a tasting...\"",
-    "\"Pelts and furs from the Barrier Mountains... Never too early to prepare for winter!\"",
-    "\"Tarkathi crafts! Fine Tarkathi crafts, direct from Tyranthis!\"",
-    "A nearby merchant tells a customer, \"Khalico has wares if you have coin...\"",
-    "A merchant is overheard saying, \"Come back when you're ready to spend more coin... goodness knows I could use it...\"",
-    "\"Got some good pieces out here if yer looking to buy. More inside the tent!\""
+    "\"Come one, come all and feast your eyes on the amber jewel of Tarkath, for your viewing pleasure...\"",
+    "|015The lights dim, as candles at the wooden tables are snuffed out by the servants...\nMusic begins to play, though you don't see any musicians present.|n",
+    "|015The curtain draws back, revealing a well dressed, portly man with slicked back, black hair that shines with a fresh applicaiton of grease.",
+    "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"",
+    "\"Kneel and worship at her altar, bow your head, pay homage...dine upon her divinity...\"",
+    "|015The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n"
+    "|015What little light there is now completely fades away, until the room goes black and the music dies.|n",
+    "|015And then from nowhere, a thousand points of light, like the stars in the night sky illuminate the stage, rotating in celestial accord.\n",
+    "|015The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n",
 ]
 
 class OphidiaRoom(WeatherRoom):
@@ -496,13 +485,14 @@ class OphidiaRoom(WeatherRoom):
         """
         super(MarketRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(60*60, self.start_show idstring="ophidia__show_ticker", persistent=False)
+        TICKER_HANDLER.add(60*60, self.start_show, idstring="ophidia_show_ticker", persistent=False)
 
 
     def start_show(self):
         # create ticker - go through all phrases - delete ticker
-        return
+        TICKER_HANDLER.add(30, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
 
+        # show_ticker.remove()
 
     def update_show(self, *args, **kwargs):
         """
@@ -512,6 +502,7 @@ class OphidiaRoom(WeatherRoom):
         # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
         if len(self.used_phrases) == len(OPHIDIA_STRINGS):
             self.used_phrases.clear()
+            TICKER_HANDLER.remove(30, self.update_show, idstring="ophidia_start_show_ticker")
 
         next_phrase = random.choice(OPHIDIA_STRINGS)
 
