@@ -487,7 +487,7 @@ class OphidiaRoom(WeatherRoom):
         Called when object is first created.
         We set up a ticker to update this room regularly.
         """
-        super(MarketRoom, self).at_object_creation()
+        super(OphidiaRoom, self).at_object_creation()
 
         TICKER_HANDLER.add(300, self.start_show, idstring="ophidia_show_ticker", persistent=False)
 
