@@ -233,12 +233,13 @@ class ObjTicketBox(DefaultObject):
         "Called when object is first created"
         # Maintain state of object
         self.db.hasWinner = False
+        self.db.characters = []
+        self.db.counter = 0
         self.locks.add("get:false()")
         self.db.desc = "\n|yThis is a large wooden box, carved with filigree and inlaid at odd places with ruddy, fake looking gems. On the top of the box is a small black button. Just beneath this button is a small, tarnished bronze plaque that reads, 'Push Me for a Smile'|n\n|rOOG - Usage: push button|n"
 
         # Add command set for interacting with box
         self.cmdset.add_default(BoxCmdSet, permanent=True)
-
 
 class ObjJesterTicket(DefaultObject):
     """
@@ -247,7 +248,7 @@ class ObjJesterTicket(DefaultObject):
     """
 
     def at_object_creation(self):
-        self.db.desc = "|yThis is a small, rectangular slip of stained paper. One one side is the black and white stamp of a sinister looking jester."
+        self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the black and white stamp of a sinister looking jester."
         return
 
 class ObjSkullTicket(DefaultObject):
@@ -257,5 +258,5 @@ class ObjSkullTicket(DefaultObject):
     """
 
     def at_object_creation(self):
-        self.db.desc = "|yThis is a small, rectangular slip of stained paper. One one side is the faded black and white stamp of a grinning skull."
+        self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull."
         return
