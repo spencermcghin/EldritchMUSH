@@ -502,11 +502,11 @@ class OphidiaRoom(Room):
         """
         Called by the tickerhandler at regular intervals.
         """
-            current_index = 0
-            # Retrieve a new market broadcast that has not been played yet.
-            phrase = OPHIDIA_STRINGS[current_index]
-            if current_index > len(OPHIDIA_STRINGS) - 1:
-                TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
-            else:
-                self.msg_contents("%s" % phrase)
-                current_index += 1
+        current_index = 0
+        # Retrieve a new market broadcast that has not been played yet.
+        phrase = OPHIDIA_STRINGS[current_index]
+        if current_index > len(OPHIDIA_STRINGS) - 1:
+            TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
+        else:
+            self.msg_contents("%s" % phrase)
+            current_index += 1
