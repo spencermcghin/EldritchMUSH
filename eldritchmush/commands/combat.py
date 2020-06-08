@@ -10,6 +10,19 @@ class Helper():
     """
     Class for general combat helper commands.
     """
+    def weaponValueConverter(self, level):
+        """
+        Returns bonus for weapon level based on value set
+        """
+        if level == 1:
+            bonus = 2
+        elif level == 2:
+            bonus = 4
+        elif level == 3:
+            bonus = 6
+
+        return bonus
+
 
     def masterOfArms(self, level):
         """
