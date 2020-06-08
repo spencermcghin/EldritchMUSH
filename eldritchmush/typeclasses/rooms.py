@@ -477,7 +477,7 @@ OPHIDIA_STRINGS = [
     "|015She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty."
 ]
 
-class OphidiaRoom(WeatherRoom):
+class OphidiaRoom(Room):
 
     # A list to keep track of the phrases that have already been broadcast.
     used_phrases = []
