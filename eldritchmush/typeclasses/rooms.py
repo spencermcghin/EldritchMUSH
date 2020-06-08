@@ -473,7 +473,8 @@ OPHIDIA_STRINGS = [
     "|015The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n\n",
     "|015As the melody reaches its crescendo, the curtains begin to part, slowly curling in on themselves, until reaching the edge of the stage|n\n",
     "|015At a break in the melody, a woman then emerges from the nighted abyss beyond the curtain. She is goregous;voluptuous and as soft as new silk, covered minimally in the same. Wrapped around her neck and covering her breasts is a large python, its shining scales a brackish green in the low light of the twinkling stars..|n",
-    "|015She begins to dance, slowly at first, the python moving in time with her lithe gestations. In one practiced motion, she twirls, her hair, dark and shining, comes undone from its long braid"
+    "|015She begins to dance, slowly at first, the python moving in time with her lithe gestations. In one practiced motion, she twirls, her hair, dark and shining, comes undone from its long braid. From the crowd comes an audible gasp.|n\n",
+    "|015She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty."
 ]
 
 class OphidiaRoom(WeatherRoom):
@@ -488,12 +489,12 @@ class OphidiaRoom(WeatherRoom):
         """
         super(MarketRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(60*60, self.start_show, idstring="ophidia_show_ticker", persistent=False)
+        TICKER_HANDLER.add(300, self.start_show, idstring="ophidia_show_ticker", persistent=False)
 
 
     def start_show(self):
         # create ticker - go through all phrases - delete ticker
-        TICKER_HANDLER.add(30, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
+        TICKER_HANDLER.add(10, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
 
         # show_ticker.remove()
 
@@ -505,7 +506,7 @@ class OphidiaRoom(WeatherRoom):
         # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
         if len(self.used_phrases) == len(OPHIDIA_STRINGS):
             self.used_phrases.clear()
-            TICKER_HANDLER.remove(30, self.update_show, idstring="ophidia_start_show_ticker")
+            TICKER_HANDLER.remove(10, self.update_show, idstring="ophidia_start_show_ticker")
 
         next_phrase = random.choice(OPHIDIA_STRINGS)
 
@@ -516,4 +517,4 @@ class OphidiaRoom(WeatherRoom):
         # Add the new phrase to the used_phrases list.
         self.used_phrases.append(next_phrase)
 
-        self.msg_contents("|w%s|n" % next_phrase)
+        self.msg_contents("%s" % next_phrase)
