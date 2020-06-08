@@ -480,7 +480,7 @@ OPHIDIA_STRINGS = [
 class OphidiaRoom(Room):
 
     # A list to keep track of the phrases that have already been broadcast.
-    used_phrases = []
+    show_counter = 0
 
     def at_object_creation(self):
         """
@@ -489,24 +489,21 @@ class OphidiaRoom(Room):
         """
         super(OphidiaRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(45, self.start_show, idstring="ophidia_show_ticker", persistent=False)
+        TICKER_HANDLER.add(60*60, self.start_show, idstring="ophidia_show_ticker", persistent=True)
 
-
-    def start_show(self):
+    def start_show(self, *args, **kwargs):
         # create ticker - go through all phrases - delete ticker
-        TICKER_HANDLER.add(2, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
-
-        # show_ticker.remove()
+        TICKER_HANDLER.add(20, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
 
     def update_show(self, *args, **kwargs):
         """
         Called by the tickerhandler at regular intervals.
         """
-        current_index = 0
-        # Retrieve a new market broadcast that has not been played yet.
-        phrase = OPHIDIA_STRINGS[current_index]
-        if current_index > len(OPHIDIA_STRINGS) - 1:
+        
+        if self.show_counter >= len(OPHIDIA_STRINGS):
+            self.show_counter = 0
             TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
         else:
+            phrase = OPHIDIA_STRINGS[self.show_counter]
             self.msg_contents("%s" % phrase)
-            current_index += 1
+            self.show_counter += 1
