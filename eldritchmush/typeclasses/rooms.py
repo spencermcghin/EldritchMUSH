@@ -494,7 +494,7 @@ class OphidiaRoom(WeatherRoom):
 
     def start_show(self):
         # create ticker - go through all phrases - delete ticker
-        TICKER_HANDLER.add(3, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
+        TICKER_HANDLER.add(2, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
 
         # show_ticker.remove()
 
@@ -502,20 +502,11 @@ class OphidiaRoom(WeatherRoom):
         """
         Called by the tickerhandler at regular intervals.
         """
-
-        # If we have gone through all of the performance broadcasts, then clear the used_phrases list.
-        if len(self.used_phrases) == len(OPHIDIA_STRINGS):
-            self.used_phrases.clear()
-            TICKER_HANDLER.remove(10, self.update_show, idstring="ophidia_start_show_ticker")
-
-        else:
-            next_phrase = random.choice(OPHIDIA_STRINGS)
-
+            current_index = 0
             # Retrieve a new market broadcast that has not been played yet.
-            while next_phrase in self.used_phrases:
-                next_phrase = random.choice(OPHIDIA_STRINGS)
-
-                # Add the new phrase to the used_phrases list.
-                self.used_phrases.append(next_phrase)
-
-                self.msg_contents("%s" % next_phrase)
+            phrase = OPHIDIA_STRINGS[current_index]
+            self.msg_contents("%s" % phrase)
+            if current_index == len(OPHIDIA_STRINGS) - 1:
+                TICKER_HANDLER.remove(10, self.update_show, idstring="ophidia_start_show_ticker")
+            else:
+                current_index += 1
