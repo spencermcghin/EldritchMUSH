@@ -1251,6 +1251,7 @@ class CmdMedicine(Command):
         medicine = self.caller.db.medicine
 
         # Check for using on self
+
         if (- 3 <= target_body <= 0) and medicine:
             # Return message to area and caller
             if target == self.caller:
