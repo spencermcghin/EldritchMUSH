@@ -470,7 +470,10 @@ OPHIDIA_STRINGS = [
     "|015The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n"
     "|015What little light there is now completely fades away, until the room goes black and the music dies.|n",
     "|015And then from nowhere, a thousand points of light, like the stars in the night sky illuminate the stage, rotating in celestial accord.\n",
-    "|015The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n",
+    "|015The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n\n",
+    "|015As the melody reaches its crescendo, the curtains begin to part, slowly curling in on themselves, until reaching the edge of the stage|n\n",
+    "|015At a break in the melody, a woman then emerges from the nighted abyss beyond the curtain. She is goregous;voluptuous and as soft as new silk, covered minimally in the same. Wrapped around her neck and covering her breasts is a large python, its shining scales a brackish green in the low light of the twinkling stars..|n",
+    "|015She begins to dance, slowly at first, the python moving in time with her lithe gestations. In one practiced motion, she twirls, her hair, dark and shining, comes undone from its long braid"
 ]
 
 class OphidiaRoom(WeatherRoom):
