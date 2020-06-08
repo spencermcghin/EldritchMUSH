@@ -211,7 +211,7 @@ class Object(DefaultObject):
         object_perception_results = self.return_perception(object, looker_perception)
 
         if object_perception_results:
-            perception_message = f"|015Perception - After careful inspection of {object}, you discover the following:|n"
+            perception_message = f"|015Perception|n - After careful inspection of the {object}, you discover the following:"
             results = [string, perception_message]
 
             for perception_result in object_perception_results:
