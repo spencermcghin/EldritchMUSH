@@ -489,12 +489,12 @@ class OphidiaRoom(WeatherRoom):
         """
         super(OphidiaRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(300, self.start_show, idstring="ophidia_show_ticker", persistent=False)
+        TICKER_HANDLER.add(45, self.start_show, idstring="ophidia_show_ticker", persistent=False)
 
 
     def start_show(self):
         # create ticker - go through all phrases - delete ticker
-        TICKER_HANDLER.add(10, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
+        TICKER_HANDLER.add(3, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
 
         # show_ticker.remove()
 
