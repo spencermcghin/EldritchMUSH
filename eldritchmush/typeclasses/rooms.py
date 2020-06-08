@@ -477,7 +477,7 @@ OPHIDIA_STRINGS = [
     "|015She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty."
 ]
 
-class OphidiaRoom(WeatherRoom):
+class OphidiaRoom(Room):
 
     # A list to keep track of the phrases that have already been broadcast.
     used_phrases = []
@@ -489,12 +489,12 @@ class OphidiaRoom(WeatherRoom):
         """
         super(OphidiaRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(300, self.start_show, idstring="ophidia_show_ticker", persistent=False)
+        TICKER_HANDLER.add(45, self.start_show, idstring="ophidia_show_ticker", persistent=False)
 
 
     def start_show(self):
         # create ticker - go through all phrases - delete ticker
-        TICKER_HANDLER.add(10, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
+        TICKER_HANDLER.add(2, self.update_show, idstring="ophidia_start_show_ticker", persistent=False)
 
         # show_ticker.remove()
 
@@ -502,19 +502,11 @@ class OphidiaRoom(WeatherRoom):
         """
         Called by the tickerhandler at regular intervals.
         """
-
-        # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
-        if len(self.used_phrases) == len(OPHIDIA_STRINGS):
-            self.used_phrases.clear()
-            TICKER_HANDLER.remove(10, self.update_show, idstring="ophidia_start_show_ticker")
-
-        next_phrase = random.choice(OPHIDIA_STRINGS)
-
-        # Retrieve a new market broadcast that has not been played yet.
-        while next_phrase in self.used_phrases:
-            next_phrase = random.choice(OPHIDIA_STRINGS)
-
-        # Add the new phrase to the used_phrases list.
-        self.used_phrases.append(next_phrase)
-
-        self.msg_contents("%s" % next_phrase)
+            current_index = 0
+            # Retrieve a new market broadcast that has not been played yet.
+            phrase = OPHIDIA_STRINGS[current_index]
+            if current_index > len(OPHIDIA_STRINGS) - 1:
+                TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
+            else:
+                self.msg_contents("%s" % phrase)
+                current_index += 1
