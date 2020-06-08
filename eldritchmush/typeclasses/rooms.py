@@ -503,18 +503,19 @@ class OphidiaRoom(WeatherRoom):
         Called by the tickerhandler at regular intervals.
         """
 
-        # If we have gone through all of the Market broadcasts, then clear the used_phrases list.
+        # If we have gone through all of the performance broadcasts, then clear the used_phrases list.
         if len(self.used_phrases) == len(OPHIDIA_STRINGS):
             self.used_phrases.clear()
             TICKER_HANDLER.remove(10, self.update_show, idstring="ophidia_start_show_ticker")
 
-        next_phrase = random.choice(OPHIDIA_STRINGS)
-
-        # Retrieve a new market broadcast that has not been played yet.
-        while next_phrase in self.used_phrases:
+        else:
             next_phrase = random.choice(OPHIDIA_STRINGS)
 
-        # Add the new phrase to the used_phrases list.
-        self.used_phrases.append(next_phrase)
+            # Retrieve a new market broadcast that has not been played yet.
+            while next_phrase in self.used_phrases:
+                next_phrase = random.choice(OPHIDIA_STRINGS)
 
-        self.msg_contents("%s" % next_phrase)
+                # Add the new phrase to the used_phrases list.
+                self.used_phrases.append(next_phrase)
+
+                self.msg_contents("%s" % next_phrase)
