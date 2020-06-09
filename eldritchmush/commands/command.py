@@ -1601,9 +1601,9 @@ class CharSheet(Command):
 
     def func(self):
 
-        target = self.caller.search(self.target)
+        # target = self.caller.search(self.target)
 
-        if target == "self" or target == "me" or not target:
+        if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|540Status|n", "|540Value|n",
                 table = [
                     [
@@ -1725,9 +1725,9 @@ class CharStatus(Command):
         self.target = self.args.strip()
 
     def func(self):
-        target = self.caller.search(self.target)
+        # target = self.caller.search(self.target)
 
-        if target == "self" or target == "me" or not target:
+        if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|540Status|n", "|540Value|n",
                 table = [
                     [
