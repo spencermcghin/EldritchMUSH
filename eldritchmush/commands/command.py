@@ -253,7 +253,7 @@ class SetArmorValue(Command):
 class SetTracking(Command):
     """Set the tracking of a character
 
-    Usage: settracking <1-3>
+    Usage: settracking <0-3>
 
     This sets the tracking of the current character. This can only be
     used during character generation.
@@ -264,7 +264,7 @@ class SetTracking(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: settracking <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: settracking <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -273,7 +273,7 @@ class SetTracking(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= tracking <= 3):
+        if not (0 <= tracking <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -285,7 +285,7 @@ class SetTracking(Command):
 class SetPerception(Command):
     """Set the perception of a character
 
-    Usage: setperception <1-3>
+    Usage: setperception <0-3>
 
     This sets the perception of the current character. This can only be
     used during character generation.
@@ -296,7 +296,7 @@ class SetPerception(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setperception <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setperception <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -305,7 +305,7 @@ class SetPerception(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= perception <= 3):
+        if not (0 <= perception <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -316,7 +316,7 @@ class SetPerception(Command):
 class SetMasterOfArms(Command):
     """Set the tracking of a character
 
-    Usage: setmasterofarms <1-3>
+    Usage: setmasterofarms <0-3>
 
     This sets the master of arms of the current character. This is available to all characters.
     """
@@ -326,7 +326,7 @@ class SetMasterOfArms(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setmasterofarms <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setmasterofarms <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -335,7 +335,7 @@ class SetMasterOfArms(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= master_of_arms <= 3):
+        if not (0 <= master_of_arms <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -356,7 +356,7 @@ class SetTough(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: settough <value>|n"
+        errmsg = "|540Usage: settough <value>|n\n|400You must supply a number 0 or greater.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -365,23 +365,26 @@ class SetTough(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        
+        if tough < 0:
+            self.caller.msg(errmsg)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.tough = tough
+            self.caller.msg("|540Your Tough was set to %i.|n" % tough)
 
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.tough = tough
-        self.caller.msg("|540Your Tough was set to %i.|n" % tough)
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-        # Get armor value objects
-        armor = self.caller.db.armor
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
-
-        # Return armor value to console.
-        self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            # Return armor value to console.
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 class SetShieldValue(Command):
@@ -402,18 +405,16 @@ class SetShieldValue(Command):
             return
         try:
             shield_value = int(self.args)
-            # Error handling to keep from going below 0.
-            if shield_value < 0:
-                self.caller.msg("|400You may not set a value lower than 0.|n")
-                return
-
-            if shield_value == 0:
-                self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
-
         except ValueError:
             self.caller.msg(errmsg)
             return
 
+        # Error handling to keep from going below 0.
+        if shield_value < 0:
+            self.caller.msg("|540Usage: setshieldvalue <value>|n\n|400You may not set a value lower than 0.|n")
+        elif shield_value == 0:
+            self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.shield_value = shield_value
@@ -432,14 +433,12 @@ class SetShieldValue(Command):
             # Return armor value to console.
             self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
-
-
 class SetBody(Command):
     """Set the body of a character
 
     Usage: setbody <value>
 
-    This sets the tough of the current character. This is available to all characters.
+    This sets the body of the current character. This is available to all characters.
     """
 
     key = "setbody"
@@ -457,21 +456,27 @@ class SetBody(Command):
             self.caller.msg(errmsg)
             return
 
-        current_body = self.caller.db.body
+        # Error handling to keep from going below -6.
+        if body < -6:
+            self.caller.msg("|540Usage: setbody <value>|n\n|400You may not set a value lower than -6.|n")
+        elif body > 3:
+            self.caller.msg("|540Usage: setbody <value>|n\n|400You may not set a value higher than 3.|n")
+        else:
+            current_body = self.caller.db.body
 
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.body = body
-        self.caller.msg("|540Your Body was set to %i.|n" % body)
-        if current_body > body:
-            damage = current_body - body
-            self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their body.|n")
-        if body == 0:
-            self.caller.location.msg_contents(f"|400{self.caller.key} is now bleeding profusely from many wounds.|n")
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.body = body
+            self.caller.msg("|540Your Body was set to %i.|n" % body)
+            if current_body > body:
+                damage = current_body - body
+                self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their body.|n")
+            if body == 0:
+                self.caller.location.msg_contents(f"|400{self.caller.key} is now bleeding profusely from many wounds.|n")
 
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
 
-    Usage: setarmorspecialist <1,2,3,4>
+    Usage: setarmorspecialist <0,1,2,3,4>
 
     This sets the armor specialist of the current character. This can only be
     used during character generation.
@@ -482,7 +487,7 @@ class SetArmorSpecialist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setarmorspecialist <1-4>|n\n|400You must supply a value between 1 and 4.|n"
+        errmsg = "|540Usage: setarmorspecialist <0-4>|n\n|400You must supply a value between 0 and 4.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -491,29 +496,29 @@ class SetArmorSpecialist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        
         # Extending range for knight ability
-        if not (1 <= armor_specialist <= 4):
+        if not (0 <= armor_specialist <= 4):
             self.caller.msg(errmsg)
-            return
+        else:
+            self.caller.db.armor_specialist = armor_specialist
 
-        self.caller.db.armor_specialist = armor_specialist
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
 
-        # Get armor value objects
-        armor = self.caller.db.armor
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
-
-        # Return armor value to console.
-        self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            # Return armor value to console.
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 class SetWyldingHand(Command):
     """Set the wylding hand level of a character
 
-    Usage: setwyldinghand <1-3>
+    Usage: setwyldinghand <0-3>
 
     This sets the wylding hand level of the current character. This can only be
     used during character generation.
@@ -524,7 +529,7 @@ class SetWyldingHand(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setwyldinghand <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setwyldinghand <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -533,12 +538,12 @@ class SetWyldingHand(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= wyldinghand <= 3):
+        if not (0 <= wyldinghand <= 3):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.wyldinghand = wyldinghand
-        self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.wyldinghand = wyldinghand
+            self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
 
 
 class SetWeaponValue(Command):
@@ -595,7 +600,6 @@ class SetBow(Command):
             return
         if bow not in (0,1):
             self.caller.msg(errmsg)
-            return
         else:
             # Bow/melee error handling
             if hasMelee:
@@ -653,17 +657,16 @@ class SetMelee(Command):
                     self.caller.location.msg_contents(f"|015{self.caller.key} has equipped their weapon.|n")
                 elif melee and not hasWeapon:
                     self.caller.location.msg_contents(f"|015{self.caller.key} assumes a defensive posture.")
+                elif not melee and hasWeapon:
+                    self.caller.location.msg_contents(f"|015{self.caller.key} sheathes their weapon.|n")
                 else:
-                    if not melee and hasWeapon:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} sheathes their weapon.|n")
-                    elif not melee and not hasWeapon:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} relaxes their defensive posture.|n")
+                    self.caller.location.msg_contents(f"|015{self.caller.key} relaxes their defensive posture.|n")
 
 
 class SetResist(Command):
     """Set the resist level of a character
 
-    Usage: setresist <1,2,3,4,5>
+    Usage: setresist <0,1,2,3,4,5>
 
     This sets the resist level of the current character. This can only be
     used during character generation.
@@ -674,7 +677,7 @@ class SetResist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setresist <1-5>|n\n|400You must supply a number between 1 and 5.|n"
+        errmsg = "|540Usage: setresist <0-5>|n\n|400You must supply a number between 0 and 5.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -683,18 +686,18 @@ class SetResist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= resist <= 5):
+        if not (0 <= resist <= 5):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.resist = resist
-        self.caller.msg("Your resist level was set to %i." % resist)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.resist = resist
+            self.caller.msg("Your resist level was set to %i." % resist)
 
 
 class SetDisarm(Command):
     """Set the disarm level of a character
 
-    Usage: setdisarm <1,2,3>
+    Usage: setdisarm <0,1,2,3,4,5>
 
     This sets the disarm level of the current character. This can only be
     used during character generation.
@@ -705,7 +708,7 @@ class SetDisarm(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setdisarm <1-3>|n\n|400You must supply a number between 1 and 5.|n"
+        errmsg = "|540Usage: setdisarm <0-5>|n\n|400You must supply a number between 0 and 5.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -714,7 +717,7 @@ class SetDisarm(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= disarm <= 5):
+        if not (0 <= disarm <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -725,7 +728,7 @@ class SetDisarm(Command):
 class SetCleave(Command):
     """Set the cleave level of a character
 
-    Usage: setcleave <1,2,3>
+    Usage: setcleave <0,1,2,3,4,5>
 
     This sets the cleave level of the current character. This can only be
     used during character generation.
@@ -736,7 +739,7 @@ class SetCleave(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setcleave <1-3>|n\n|400You must supply a number between 1 and 5.|n"
+        errmsg = "|540Usage: setcleave <0-5>|n\n|400You must supply a number between 0 and 5.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -745,18 +748,18 @@ class SetCleave(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= cleave <= 5):
+        if not (0 <= cleave <= 5):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.cleave = cleave
-        self.caller.msg("Your cleave level was set to %i." % cleave)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.cleave = cleave
+            self.caller.msg("Your cleave level was set to %i." % cleave)
 
 
 class SetStun(Command):
     """Set the stun level of a character
 
-    Usage: setstun <1,2,3,4,5>
+    Usage: setstun <0,1,2,3,4,5>
 
     This sets the stun level of the current character. This can only be
     used during character generation.
@@ -767,7 +770,7 @@ class SetStun(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setstun <1-5>|n\n|400You must supply a number between 1 and 5.|n"
+        errmsg = "|540Usage: setstun <0-5>|n\n|400You must supply a number between 0 and 5.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -776,18 +779,18 @@ class SetStun(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= stun <= 3):
+        if not (0 <= stun <= 5):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.stun = stun
-        self.caller.msg("Your stun level was set to %i." % stun)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.stun = stun
+            self.caller.msg("Your stun level was set to %i." % stun)
 
 
 class SetStagger(Command):
     """Set the stagger level of a character
 
-    Usage: setstun <1,2,3,4,5>
+    Usage: setstun <0,1,2,3,4,5>
 
     This sets the stagger level of the current character. This can only be
     used during character generation.
@@ -798,7 +801,7 @@ class SetStagger(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setstagger <1-5>|n\n|400You must supply a number between 1 and 5.|n"
+        errmsg = "|540Usage: setstagger <0-5>|n\n|400You must supply a number between 0 and 5.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -807,12 +810,12 @@ class SetStagger(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= stagger <= 5):
+        if not (0 <= stagger <= 5):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.stagger = stagger
-        self.caller.msg("Your stagger level was set to %i." % stagger)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.stagger = stagger
+            self.caller.msg("Your stagger level was set to %i." % stagger)
 
 
 """
@@ -842,32 +845,32 @@ class SetShield(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        
         if shield not in (0,1):
             self.caller.msg(errmsg)
-            return
-
-        self.caller.db.shield = shield
-
-        # Quippy message when setting a shield as 0 or 1.
-        if shield:
-            self.caller.msg("|030You now have a shield.|n")
-            self.caller.location.msg_contents(f"|015{self.caller.key} equips their shield.|n")
         else:
-            self.caller.msg("|400You have unequipped or lost your shield.|n")
-            self.caller.location.msg_contents(f"|015{self.caller.key} unequips their shield.|n")
+            self.caller.db.shield = shield
 
-        # Get armor value objects
-        armor = self.caller.db.armor
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
+            # Quippy message when setting a shield as 0 or 1.
+            if shield:
+                self.caller.msg("|030You now have a shield.|n")
+                self.caller.location.msg_contents(f"|015{self.caller.key} equips their shield.|n")
+            else:
+                self.caller.msg("|400You have unequipped or lost your shield.|n")
+                self.caller.location.msg_contents(f"|015{self.caller.key} unequips their shield.|n")
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
 
-        # Return armor value to console.
-        self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
+
+            # Return armor value to console.
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 class SetTwoHanded(Command):
@@ -892,22 +895,22 @@ class SetTwoHanded(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        
         if twohanded not in (0,1):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.twohanded = twohanded
-
-        if twohanded:
-            self.caller.msg("|030Your have equipped a two-handed melee weapon.|n")
         else:
-            self.caller.msg("|400You have unequipped a two-handed melee weapon.|n")
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.twohanded = twohanded
+
+            if twohanded:
+                self.caller.msg("|030Your have equipped a two-handed melee weapon.|n")
+            else:
+                self.caller.msg("|400You have unequipped a two-handed melee weapon.|n")
 
 
 """
 General commands
 """
-
 
 class CmdPerception(default_cmds.MuxCommand):
     """
@@ -1380,7 +1383,7 @@ class CmdStabilize(Command):
 class SetStabilize(Command):
     """Set the stun level of a character
 
-    Usage: setstabilize <1,2,3>
+    Usage: setstabilize <0,1,2,3>
 
     This sets the stabilize level of the current character. This can only be
     used during character generation.
@@ -1391,7 +1394,7 @@ class SetStabilize(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setstabilize <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setstabilize <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1400,18 +1403,19 @@ class SetStabilize(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= stabilize <= 3):
+        
+        if not (0 <= stabilize <= 3):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.stabilize = stabilize
-        self.caller.msg(f"Your stabilize level was set to {stabilize}")
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.stabilize = stabilize
+            self.caller.msg(f"Your stabilize level was set to {stabilize}")
 
 
 class SetMedicine(Command):
     """Set the medicine level of a character
 
-    Usage: setmedicine <1,2,3>
+    Usage: setmedicine <0,1,2,3>
 
     This sets the medicine level of the current character. This can only be
     used during character generation.
@@ -1422,7 +1426,7 @@ class SetMedicine(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setmedicine <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setmedicine <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1431,12 +1435,13 @@ class SetMedicine(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= medicine <= 3):
+        
+        if not (0 <= medicine <= 3):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.medicine = medicine
-        self.caller.msg(f"Your medicine level was set to {medicine}")
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.medicine = medicine
+            self.caller.msg(f"Your medicine level was set to {medicine}")
 
 
 class SetBattleFieldMedicine(Command):
@@ -1485,7 +1490,7 @@ Knight skills
 class SetBattleFieldCommander(Command):
     """Set the battlefield commander level of a character
 
-    Usage: setbattlefieldcommander <1,2,3>
+    Usage: setbattlefieldcommander <0,1,2,3>
 
     This sets the battlefield commander level of the current character. This can only be
     used during character generation.
@@ -1496,7 +1501,7 @@ class SetBattleFieldCommander(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setbattlefieldcommander <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setbattlefieldcommander <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1505,18 +1510,18 @@ class SetBattleFieldCommander(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= battlefieldcommander <= 3):
+        if not (0 <= battlefieldcommander <= 3):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.battlefieldcommander = battlefieldcommander
-        self.caller.msg(f"Your battlefield commander was set to {battlefieldcommander}")
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.battlefieldcommander = battlefieldcommander
+            self.caller.msg(f"Your battlefield commander was set to {battlefieldcommander}")
 
 
 class SetRally(Command):
     """Set the rally level of a knight character
 
-    Usage: setrally <1,2,3>
+    Usage: setrally <0,1,2,3>
 
     This sets the rally level of the current character. This can only be
     used during character generation.
@@ -1527,7 +1532,7 @@ class SetRally(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setrally <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setrally <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1536,12 +1541,12 @@ class SetRally(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= rally <= 3):
+        if not (0 <= rally <= 3):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.rally = rally
-        self.caller.msg(f"Your rally was set to {rally}")
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.rally = rally
+            self.caller.msg(f"Your rally was set to {rally}")
 
 
 """
@@ -1570,16 +1575,16 @@ class SetWeakness(Command):
             return
         if weakness not in (0,1):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.weakness = weakness
-
-        if weakness:
-            self.caller.db.activemartialskill = 0
-            self.caller.msg("|400You have become weakened, finding it difficult to run or use your active martial skills.|n\n|540As long as you are weakened you may not run or use active martial skills.|n")
         else:
-            self.caller.db.activemartialskill = 1
-            self.caller.msg("|030Your weakened state has subsided.|n\n|540You may now run and use your active martial skills.|n")
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.weakness = weakness
+
+            if weakness:
+                self.caller.db.activemartialskill = 0
+                self.caller.msg("|400You have become weakened, finding it difficult to run or use your active martial skills.|n\n|540As long as you are weakened you may not run or use active martial skills.|n")
+            else:
+                self.caller.db.activemartialskill = 1
+                self.caller.msg("|030Your weakened state has subsided.|n\n|540You may now run and use your active martial skills.|n")
 
 class CharSheet(Command):
     """
@@ -1590,111 +1595,121 @@ class CharSheet(Command):
     aliases = ["sheet", "char sheet", "character sheet", "view sheet"]
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
-        status_table = evtable.EvTable("|540Status|n", "|540Value|n",
-            table = [
-                [
-                    "Body",
-                    "Weapon Value",
-                    "Melee Weapon Equipped",
-                    "Bow Equipped",
-                    "Armor Value"
-                ],
-                [
-                    self.caller.db.body,
-                    self.caller.db.weapon_level,
-                    self.caller.db.melee,
-                    self.caller.db.bow,
-                    self.caller.db.av
-                ]
-            ],
-            border = "cells")
-        active_marshall_table = evtable.EvTable("|540Active Marshall Skills|n", "|540Available|n",
-            table = [
-                [
-                    "Resist",
-                    "Disarm",
-                    "Stun",
-                    "Stagger",
-                    "Cleave"
-                ],
-                [
-                    self.caller.db.resist,
-                    self.caller.db.disarm,
-                    self.caller.db.stun,
-                    self.caller.db.stagger,
-                    self.caller.db.cleave
-                ]
-            ],
-            border = "cells")
-        pass_marshall_table = evtable.EvTable("|540Passive Marshall Skills|n", "|540Level|n",
-            table = [
-                [
-                    "Shield",
-                    "Tough",
-                    "Armor",
-                    "Master of Arms",
-                    "Armor Specialist"
-                ],
-                [
-                    self.caller.db.shield,
-                    self.caller.db.tough,
-                    self.caller.db.armor,
-                    self.caller.db.master_of_arms,
-                    self.caller.db.armor_specialist
-                ]
-            ],
-            border = "cells")
 
-        generalist_table = evtable.EvTable("|540Generalist Skills|n", "|540Level|n",
-            table = [
-                [
-                    "Perception",
-                    "Tracking",
-                    "Medicine"
-                ],
-                [
-                    self.caller.db.perception,
-                    self.caller.db.tracking,
-                    self.caller.db.medicine
-                ]
-            ],
-            border = "cells")
+        # target = self.caller.search(self.target)
 
-        profession_table = evtable.EvTable("|540Profession Skills|n", "|540Level|n",
-            table = [
-                [
-                    "Stabilize",
-                    "Battlefield Medicine",
-                    "Rally",
-                    "Battlefield Commander",
-                    "Wylding Hand"
+        if self.target == "self" or self.target == "me" or not self.target:
+            status_table = evtable.EvTable("|540Status|n", "|540Value|n",
+                table = [
+                    [
+                        "Body",
+                        "Weapon Value",
+                        "Melee Weapon Equipped",
+                        "Bow Equipped",
+                        "Armor Value"
+                    ],
+                    [
+                        self.caller.db.body,
+                        self.caller.db.weapon_level,
+                        self.caller.db.melee,
+                        self.caller.db.bow,
+                        self.caller.db.av
+                    ]
                 ],
-                [
-                    self.caller.db.stabilize,
-                    self.caller.db.battlefieldmedicine,
-                    self.caller.db.rally,
-                    self.caller.db.battlefieldcommander,
-                    self.caller.db.wyldinghand
-                ]
-            ],
-            border = "cells")
+                border = "cells")
+            active_marshall_table = evtable.EvTable("|540Active Marshall Skills|n", "|540Available|n",
+                table = [
+                    [
+                        "Resist",
+                        "Disarm",
+                        "Stun",
+                        "Stagger",
+                        "Cleave"
+                    ],
+                    [
+                        self.caller.db.resist,
+                        self.caller.db.disarm,
+                        self.caller.db.stun,
+                        self.caller.db.stagger,
+                        self.caller.db.cleave
+                    ]
+                ],
+                border = "cells")
+            pass_marshall_table = evtable.EvTable("|540Passive Marshall Skills|n", "|540Level|n",
+                table = [
+                    [
+                        "Shield",
+                        "Tough",
+                        "Armor",
+                        "Master of Arms",
+                        "Armor Specialist"
+                    ],
+                    [
+                        self.caller.db.shield,
+                        self.caller.db.tough,
+                        self.caller.db.armor,
+                        self.caller.db.master_of_arms,
+                        self.caller.db.armor_specialist
+                    ]
+                ],
+                border = "cells")
 
-        status_table.reformat_column(0, width=30, align="l")
-        status_table.reformat_column(1, width=15, align="c")
-        active_marshall_table.reformat_column(0, width=30, align="l")
-        active_marshall_table.reformat_column(1, width=15, align="c")
-        pass_marshall_table.reformat_column(0, width=30, align="l")
-        pass_marshall_table.reformat_column(1, width=15, align="c")
-        generalist_table.reformat_column(0, width=30, align="l")
-        generalist_table.reformat_column(1, width=15, align="c")
-        profession_table.reformat_column(0, width=30, align="l")
-        profession_table.reformat_column(1, width=15, align="c")
-        self.caller.msg(status_table)
-        self.caller.msg(active_marshall_table)
-        self.caller.msg(pass_marshall_table)
-        self.caller.msg(generalist_table)
-        self.caller.msg(profession_table)
+            generalist_table = evtable.EvTable("|540Generalist Skills|n", "|540Level|n",
+                table = [
+                    [
+                        "Perception",
+                        "Tracking",
+                        "Medicine"
+                    ],
+                    [
+                        self.caller.db.perception,
+                        self.caller.db.tracking,
+                        self.caller.db.medicine
+                    ]
+                ],
+                border = "cells")
+
+            profession_table = evtable.EvTable("|540Profession Skills|n", "|540Level|n",
+                table = [
+                    [
+                        "Stabilize",
+                        "Battlefield Medicine",
+                        "Rally",
+                        "Battlefield Commander",
+                        "Wylding Hand"
+                    ],
+                    [
+                        self.caller.db.stabilize,
+                        self.caller.db.battlefieldmedicine,
+                        self.caller.db.rally,
+                        self.caller.db.battlefieldcommander,
+                        self.caller.db.wyldinghand
+                    ]
+                ],
+                border = "cells")
+
+            status_table.reformat_column(0, width=30, align="l")
+            status_table.reformat_column(1, width=15, align="c")
+            active_marshall_table.reformat_column(0, width=30, align="l")
+            active_marshall_table.reformat_column(1, width=15, align="c")
+            pass_marshall_table.reformat_column(0, width=30, align="l")
+            pass_marshall_table.reformat_column(1, width=15, align="c")
+            generalist_table.reformat_column(0, width=30, align="l")
+            generalist_table.reformat_column(1, width=15, align="c")
+            profession_table.reformat_column(0, width=30, align="l")
+            profession_table.reformat_column(1, width=15, align="c")
+            self.caller.msg(status_table)
+            self.caller.msg(active_marshall_table)
+            self.caller.msg(pass_marshall_table)
+            self.caller.msg(generalist_table)
+            self.caller.msg(profession_table)
+        else:
+            self.caller.msg("|540Usage: charsheet|n\n|400You can only see your own character sheet.|n")
 
 class CharStatus(Command):
     """
@@ -1705,34 +1720,43 @@ class CharStatus(Command):
     aliases = ["status", "char status", "character status", "view status"]
     help_category = "mush"
 
-    def func(self):
-        status_table = evtable.EvTable("|540Status|n", "|540Value|n",
-            table = [
-                [
-                    "Shield",
-                    "Armor",
-                    "Armor Specialist",
-                    "Tough",
-                    "Body",
-                    "Weapon Value",
-                    "Melee Weapon Equipped",
-                    "Bow Equipped",
-                    "Armor Value"
-                ],
-                [
-                    self.caller.db.shield,
-                    self.caller.db.armor,
-                    self.caller.db.armor_specialist,
-                    self.caller.db.tough,
-                    self.caller.db.body,
-                    self.caller.db.weapon_level,
-                    self.caller.db.melee,
-                    self.caller.db.bow,
-                    self.caller.db.av
-                ]
-            ],
-            border = "cells")
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
 
-        status_table.reformat_column(0, width=30, align="l")
-        status_table.reformat_column(1, width=15, align="c")
-        self.caller.msg(status_table)
+    def func(self):
+        # target = self.caller.search(self.target)
+
+        if self.target == "self" or self.target == "me" or not self.target:
+            status_table = evtable.EvTable("|540Status|n", "|540Value|n",
+                table = [
+                    [
+                        "Shield",
+                        "Armor",
+                        "Armor Specialist",
+                        "Tough",
+                        "Body",
+                        "Weapon Value",
+                        "Melee Weapon Equipped",
+                        "Bow Equipped",
+                        "Armor Value"
+                    ],
+                    [
+                        self.caller.db.shield,
+                        self.caller.db.armor,
+                        self.caller.db.armor_specialist,
+                        self.caller.db.tough,
+                        self.caller.db.body,
+                        self.caller.db.weapon_level,
+                        self.caller.db.melee,
+                        self.caller.db.bow,
+                        self.caller.db.av
+                    ]
+                ],
+                border = "cells")
+
+            status_table.reformat_column(0, width=30, align="l")
+            status_table.reformat_column(1, width=15, align="c")
+            self.caller.msg(status_table)
+        else:
+            self.caller.msg("|540Usage: charstatus|n\n|400You can only see your own character status.|n")
