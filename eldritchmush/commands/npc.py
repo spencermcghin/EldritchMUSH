@@ -100,7 +100,8 @@ class CmdEditNPC(Command):
                              "shield",
                              "bow",
                              "activemartialskill",
-                             "weakness")
+                             "weakness",
+                             "chirurgeon")
 
         if not self.args or not self.name:
             caller.msg("Usage: editnpc name[/propname][=propval]")
