@@ -1407,50 +1407,64 @@ class CmdStabilize(Command):
         else:
             self.caller.msg("|400You had better not try that.|n")
 
-# class CmdBattlefieldMedicine(Command):
-#     key = "battlefieldmedicine"
-#     help_category = "mush"
-#
-#     def parse(self):
-#         "Very trivial parser"
-#         self.target = self.args.strip()
-#
-#     def func(self):
-#         "This actually does things"
-#         # Check for correct command
-#         if not self.args:
-#             self.caller.msg("|540Usage: battlefieldmedicine <target>|n")
-#             return
-#
-#         target = self.caller.search(self.target)
-#
-#         if not target:
-#             self.caller.msg("|540There is nothing here by that description.|n")
-#             return
-#
-#         # Get caller level of stabilize and emote how many points the caller will heal target that round.
-#         # May not increase targets body past 1
-#         # Only works on targets with body <= 0
-#         target_body = target.db.body
-#         battlefieldmedicine = self.caller.db.battlefieldmedicine
-#
-#         # Check for using on self
-#         if (- 3 <= target_body <= 0) and stabilize:
-#             # Return message to area and caller
-#             if target == self.caller:
-#                 self.caller.location.msg_contents(f"|b{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals |400{stabilize}|n |540body points per round as long as their work remains uninterrupted.|n")
-#             elif target != self.caller:
-#                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |400{stabilize}|n |bbody points.|n")
-#         # Apply stabilize to other target
-#         elif (-6 <= target_body <= -4) and stabilize:
-#             if target == self.caller:
-#                 self.caller.msg(f"|b{self.caller} You are too fargone to attempt this action.|n")
-#             elif target != self.caller:
-#                 self.caller.location.msg_contents(f"|b{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |400{stabilize}|n |540body points per round as long as their work remains uninterrupted.|n")
-#         elif target_body > 0 and stabilize:
-#             self.caller.msg(f"|b{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-#         else:
-#             self.caller.msg("Better not. You aren't quite that skilled.")
+class CmdBattlefieldMedicine(Command):
+    key = "medic"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+        "This actually does things"
+        # Check for correct command
+        if not self.args:
+            self.caller.msg("|540Usage: medic <target>|n")
+            return
+
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("|540There is nothing here by that description.|n")
+            return
+
+        # Get target body and BM to validate target and caller has skill.
+        target_body = target.db.body
+        battlefieldmedicine = self.caller.db.battlefieldmedicine
+
+        if battlefieldmedicine and target_body is not None:
+            if target_body >= 1:
+                # Return message to area and caller
+
+                if target == self.caller:
+                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    # Check to see if caller would go over 1 body with application of skill.
+                    if (self.caller.db.body + 1) > 3:
+                        # If so set body to 1
+                        self.caller.db.body = 3
+                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}\nYou may not exceed three.|n")
+                    else:
+                        # If not over 1, add points to total
+                        self.caller.db.body += 1
+                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
+
+                elif target != self.caller:
+                    target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{stabilize}|n |015body points.|n")
+                    if (target.db.body + 1) > 3:
+                        # If so set body to 1
+                        target.db.body = 3
+                        target.msg(f"|540Your new body value is:|n {target.db.body}\nYou may not exceed three.|n")
+                    else:
+                        # If not over 1, add points to total
+                        target.db.body += 1
+
+            # Check to see if the target is already healed to max.
+            elif target_body >= 1:
+                self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+
+        else:
+            self.caller.msg("|400You had better not try that.|n")
+
 
 
 class SetStabilize(Command):
