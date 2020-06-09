@@ -221,6 +221,9 @@ class CmdStrike(Command):
             self.caller.msg(f"|400{self.caller}, quit hitting yourself!|n")
             return
 
+        if target.db.body is None:
+            self.caller.msg("|400You had better not try that.")
+            return
 
         # Get hasMelee for character to check that they've armed themselves.
         hasMelee = self.caller.db.melee
@@ -332,6 +335,11 @@ class CmdShoot(Command):
             self.caller.msg(f"|400{self.caller}, quit hitting yourself!|n")
             return
 
+        # Handle attack non-character objects.
+        if target.db.body is None:
+            self.caller.msg("|400You had better not try that.")
+            return
+
         if not hasBow:
             self.caller.msg("|540Before you can shoot, you must first equip your bow using the command setbow 1.")
         elif hasMelee:
@@ -424,6 +432,10 @@ class CmdCleave(Command):
 
         if target == self.caller:
             self.caller.msg(f"|400Don't cleave yourself {self.caller}!|n")
+            return
+
+        if target.db.body is None:
+            self.caller.msg("|400You had better not try that.")
             return
 
         # Check for weakness on character
@@ -581,6 +593,10 @@ class CmdDisarm(Command):
                 self.caller.msg(f"|400Don't disarm yourself {self.caller}!|n")
                 return
 
+            if target.db.body is None:
+                self.caller.msg("|400You had better not try that.")
+                return
+
             # Check for weakness on character
             weakness = h.weaknessChecker(self.caller.db.weakness)
 
@@ -663,6 +679,10 @@ class CmdStun(Command):
                 self.caller.msg(f"|400Don't stun yourself {self.caller}!|n")
                 return
 
+            if target.db.body is None:
+                self.caller.msg("|400You had better not try that.")
+                return
+
             # Check for weakness on character
             weakness = h.weaknessChecker(self.caller.db.weakness)
 
@@ -742,6 +762,10 @@ class CmdStagger(Command):
 
         if target == self.caller:
             self.caller.msg(f"|400Don't stagger yourself {self.caller}!|n")
+            return
+
+        if target.db.body is None:
+            self.caller.msg("|400You had better not try that.")
             return
 
         # Check for equip proper weapon type
@@ -831,6 +855,10 @@ class CmdSunder(Command):
 
         if target == self.caller:
             self.caller.msg(f"|400Don't sunder yourself {self.caller}!|n")
+            return
+
+        if target.db.body is None:
+            self.caller.msg("|400You had better not try that.")
             return
 
         # Check for equip proper weapon type

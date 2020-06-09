@@ -55,6 +55,7 @@ class Character(DefaultCharacter):
         self.db.stabilize = 0
         self.db.medicine = 0
         self.db.battlefieldmedicine = 0
+        self.db.chiurgeon = 0
 
         # Entries for status effects
         self.db.weakness = 0
