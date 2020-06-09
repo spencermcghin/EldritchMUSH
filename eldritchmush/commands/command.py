@@ -1459,11 +1459,11 @@ class CmdBattlefieldMedicine(Command):
                         target.db.body += 1
 
             # Check to see if the target is already healed to max.
-        elif target_body >= 3:
-            self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+            elif target_body >= 3:
+                self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
-        elif target_body <= 0:
-            self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
+            elif target_body <= 0:
+                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
 
         else:
             self.caller.msg("|400You had better not try that.|n")
