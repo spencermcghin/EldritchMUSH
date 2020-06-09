@@ -1251,23 +1251,30 @@ class CmdMedicine(Command):
         medicine = self.caller.db.medicine
 
         # Check for using on self
-        if (- 3 <= target_body <= 0) and medicine:
-            # Return message to area and caller
-            if target == self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|030{medicine}|n |540body points per round as long as their work remains uninterrupted for the round.|n")
-            elif target != self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|540{self.caller.key} heals {target.key} for|n |030{medicine}|n |540body points per round as long as their work remains uninterrupted for the round.|n")
-        # Apply stabilize to other target
-        elif (-6 <= target_body <= -4) and medicine:
-            if target == self.caller:
-                self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
-            elif target != self.caller:
-                self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone. {target.key} may require the aid of more advanced chiurgical techniques.|n")
-        elif target_body >= 0 and medicine:
-            self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-        else:
-            self.caller.msg("|540Better not. You aren't quite that skilled.|n")
+        if medicine:
 
+            if (- 3 <= target_body <= 0):
+                # Return message to area and caller
+                if target == self.caller:
+                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|030{medicine}|n |540body points per round as long as their work remains uninterrupted for the round.|n")
+                elif target != self.caller:
+                    self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|540{self.caller.key} heals {target.key} for|n |030{medicine}|n |540body points per round as long as their work remains uninterrupted for the round.|n")
+
+            # Apply stabilize to other target
+            elif (-6 <= target_body <= -4):
+                if target == self.caller:
+                    self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
+                elif target != self.caller:
+                    self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
+
+            elif target_body >= 1:
+                self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+
+            else:
+                self.caller.msg("|540Better not. You aren't quite that skilled.|n")
+
+        else:
+            self.caller.msg("|400You had better not try that.")
 
 class CmdStabilize(Command):
     key = "stabilize"
@@ -1300,72 +1307,77 @@ class CmdStabilize(Command):
 
         # Check to make sure caller has the skill.
         if stabilize:
-            if (- 3 <= target_body <= 0) and medicine
+            if (- 3 <= target_body <= 0) and medicine:
                 # Return message to area and caller
                 if target == self.caller:
-                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |030{stabilize}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |030{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
 
                     # Check to see if caller would go over 1 body with application of skill.
                     if (self.caller.db.body += medicine) > 1:
                         # If so set body to 1
                         self.caller.db.body = 1
-                        # Check to see if weakness set. If not, set it.
-                        if not weakness:
-                            self.caller.db.weakness = 1
+                        self.caller.msg(f"|540{self.caller.key}, your new total body value is: ")
                     else:
                         # If not over 1, add points to total
                         self.caller.db.body += medicine
-                        # Check to see if weakness set. If not, set it.
-                        if not weakness:
-                            self.caller.db.weakness = 1
+
+                    # Check to see if weakness set. If not, set it.
+                    if not weakness:
+                        self.caller.db.weakness = 1
 
                 # If target is someone else, do checks and apply healing.
-            elif target != self.caller and medicine:
+                elif target != self.caller and medicine:
                     target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |030{medicine}|n |015body points.|n")
                     if (self.caller.db.body += medicine) > 1:
                         # If so set body to 1
                         self.caller.db.body = 1
                         # Check to see if weakness set. If not, set it.
-                        if not weakness:
-                            self.caller.db.weakness = 1
                     else:
                         # If not over 1, add points to total
                         self.caller.db.body += medicine
-                        # Check to see if weakness set. If not, set it.
-                        if not weakness:
-                            self.caller.db.weakness = 1
-                    # Apply weakness if not already
+
+                    # Check to see if weakness set. If not, set it.
                     if not weakness:
-                        target.db.weakness = 1
+                        self.caller.db.weakness = 1
 
             # Apply stabilize to other target
-            elif (-6 <= target_body <= -0) and stabilize:
+            elif (-6 <= target_body <= -0):
 
+                # You can't stabilize yourself...
                 if target == self.caller:
                     self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
                     # Check to see if caller would go over 1 body with application of skill.
                     if (self.caller.db.body += stabilize) > 1:
                         # If so set body to 1
                         self.caller.db.body = 1
-                        # Check to see if weakness set. If not, set it.
-                        if not weakness:
-                            self.caller.db.weakness = 1
                     else:
                         # If not over 1, add points to total
                         self.caller.db.body += stabilize
-                        # Check to see if weakness set. If not, set it.
-                        if not weakness:
-                            self.caller.db.weakness = 1
+                    # Check to see if weakness set. If not, set it.
+                    if not weakness:
+                        self.caller.db.weakness = 1
 
                 elif target != self.caller:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |400{stabilize}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |030{stabilize}|n |015body points.|n")
+                    if (self.caller.db.body += stabilize) > 1:
+                        # If so set body to 1
+                        self.caller.db.body = 1
+                        # Check to see if weakness set. If not, set it.
+                    else:
+                        # If not over 1, add points to total
+                        self.caller.db.body += stabilize
+
+                    # Check to see if weakness set. If not, set it.
+                    if not weakness:
+                        self.caller.db.weakness = 1
 
 
-            elif target_body >= 1 and stabilize:
+            # Check to see if the target is already healed to max.
+            elif target_body >= 1:
                 self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
         else:
-            self.caller.msg("|400 You probably shouldn't attempt that.|n")
+            self.caller.msg("|400You had better not try that.|n")
 
 # class CmdBattlefieldMedicine(Command):
 #     key = "battlefieldmedicine"
