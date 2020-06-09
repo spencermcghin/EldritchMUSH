@@ -1250,8 +1250,8 @@ class CmdMedicine(Command):
         target_body = target.db.body
         medicine = self.caller.db.medicine
 
-        # Check for using on self
-        if medicine:
+        # Check for skill and object is valid type.
+        if medicine and target_body is not None:
 
             if (- 3 <= target_body <= 0):
                 # Return message to area and caller
@@ -1300,7 +1300,7 @@ class CmdMedicine(Command):
                 self.caller.msg("|540Better not. You aren't quite that skilled.|n")
 
         else:
-            self.caller.msg("|400You had better not try that.")
+            self.caller.msg("|400You had better not try that.|n")
 
 class CmdStabilize(Command):
     key = "stabilize"
