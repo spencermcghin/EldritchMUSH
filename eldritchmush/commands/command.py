@@ -1434,17 +1434,18 @@ class CmdBattlefieldMedicine(Command):
         battlefieldmedicine = self.caller.db.battlefieldmedicine
 
         if battlefieldmedicine and target_body is not None:
+
             if 1 <= target_body <= 3:
                 # Return message to area and caller
                 if target == self.caller:
-                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|0201|n |540body point per round as long as their work remains uninterrupted.|n")
                     # Check to see if caller would go over 1 body with application of skill.
                     if (self.caller.db.body + 1) > 3:
                         # If so set body to 1
                         self.caller.db.body = 3
-                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}\nYou may not exceed three.|n")
+                        self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
                     else:
                         # If not over 1, add points to total
+                        self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|0201|n |540body point per round as long as their work remains uninterrupted.|n")
                         self.caller.db.body += 1
                         self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
 
@@ -1457,10 +1458,6 @@ class CmdBattlefieldMedicine(Command):
                     else:
                         # If not over 1, add points to total
                         target.db.body += 1
-
-            # Check to see if the target is already healed to max.
-            elif target_body >= 3:
-                self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
             elif target_body <= 0:
                 self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
