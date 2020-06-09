@@ -1542,30 +1542,26 @@ class SetBattleFieldMedicine(Command):
     help_category = "mush"
 
     def func(self):
-        key = "setbattlefieldmedicine"
-        help_category = "mush"
+        "This performs the actual command"
+        errmsg = "|540Usage: setmedic <0/1>|n\n|400You must supply a number of either 0 or 1.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            battlefieldmedicine = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if battlefieldmedicine not in (0,1):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.battlefieldmedicine = battlefieldmedicine
 
-        def func(self):
-            "This performs the actual command"
-            errmsg = "|540Usage: setmedic <0/1>|n\n|400You must supply a number of either 0 or 1.|n"
-            if not self.args:
-                self.caller.msg(errmsg)
-                return
-            try:
-                battlefieldmedicine = int(self.args)
-            except ValueError:
-                self.caller.msg(errmsg)
-                return
-            if battlefieldmedicine not in (0,1):
-                self.caller.msg(errmsg)
-                return
-            # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.battlefieldmedicine = battlefieldmedicine
-
-            if battlefieldmedicine:
-                self.caller.msg("|030You have activated the battlefield medicine ability.|n")
-            else:
-                self.caller.msg("|400You have deactivated the battlefield medicine ability.|n")
+        if battlefieldmedicine:
+            self.caller.msg("|030You have activated the battlefield medicine ability.|n")
+        else:
+            self.caller.msg("|400You have deactivated the battlefield medicine ability.|n")
 
 
 """
