@@ -1513,35 +1513,43 @@ class CmdChirurgery(Command):
         # Get target body and BM to validate target and caller has skill.
         target_body = target.db.body
         chirurgeon = self.caller.db.chirurgeon
+        weakness = target.db.weakness
+
+        # Condition = body cant be below -6 or above 3
 
         if chirurgeon and target_body is not None:
-            if 1 <= target_body <= 2:
-                # Return message to area and caller
-                if target == self.caller:
-                    if (target.db.body + 1) > 3:
-                        # If so set body to 1
-                        target.db.body = 3
-                        self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-                    else:
-                        self.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the procedure.|n")
-                        self.caller.db.body = 3
-                        self.caller.db.weakness = 0
-                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
+            # Return message to area and caller
+            if target == self.caller:
 
-                elif target != self.caller:
-                    if (target.db.body + 1) > 3:
-                        # If so set body to 1
-                        target.db.body = 3
-                        self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-                    else:
-                        # If not over 1, add points to total
-                        target.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |0201|n |206body point.|n")
-                        target.db.body += 1
-                        target.msg(f"|540Your new body value is:|n {target.db.body}|n")
+                if (target.db.body + 1) > 3 and not weakness:
+                    self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
-            elif target_body <= 0:
-                self.caller.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
+                elif (target.db.body + 1) > 3 and weakness:
+                    self.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    self.caller.db.weakness = 0
+                    self.caller.msg(f"|540The weakness condition has been removed.")
 
+                else:
+                    self.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    self.caller.db.weakness = 0
+                    self.caller.db.body = 3
+                    self.caller.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {self.caller.db.body}|n")
+
+
+            elif target != self.caller:
+
+                if (target.db.body + 1) > 3 and not weakness:
+                    self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+
+                elif target.db.body < -6:
+                    self.caller.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.")
+
+                else:
+                    target.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    target.db.body = 3
+                    target.db.weakness = 0
+                    target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
+                    
         else:
             self.caller.msg("|400You had better not try that.|n")
 
