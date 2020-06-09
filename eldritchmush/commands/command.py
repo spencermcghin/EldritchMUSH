@@ -1433,7 +1433,7 @@ class CmdBattlefieldMedicine(Command):
         battlefieldmedicine = self.caller.db.battlefieldmedicine
 
         if battlefieldmedicine and target_body is not None:
-            if target_body >= 1:
+            if 1 <= target_body <= 3:
                 # Return message to area and caller
 
                 if target == self.caller:
@@ -1459,8 +1459,8 @@ class CmdBattlefieldMedicine(Command):
                         target.db.body += 1
 
             # Check to see if the target is already healed to max.
-            elif target_body >= 1:
-                self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+        elif target_body >= 3:
+            self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
         else:
             self.caller.msg("|400You had better not try that.|n")
