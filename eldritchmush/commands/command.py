@@ -1595,111 +1595,121 @@ class CharSheet(Command):
     aliases = ["sheet", "char sheet", "character sheet", "view sheet"]
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
-        status_table = evtable.EvTable("|540Status|n", "|540Value|n",
-            table = [
-                [
-                    "Body",
-                    "Weapon Value",
-                    "Melee Weapon Equipped",
-                    "Bow Equipped",
-                    "Armor Value"
-                ],
-                [
-                    self.caller.db.body,
-                    self.caller.db.weapon_level,
-                    self.caller.db.melee,
-                    self.caller.db.bow,
-                    self.caller.db.av
-                ]
-            ],
-            border = "cells")
-        active_marshall_table = evtable.EvTable("|540Active Marshall Skills|n", "|540Available|n",
-            table = [
-                [
-                    "Resist",
-                    "Disarm",
-                    "Stun",
-                    "Stagger",
-                    "Cleave"
-                ],
-                [
-                    self.caller.db.resist,
-                    self.caller.db.disarm,
-                    self.caller.db.stun,
-                    self.caller.db.stagger,
-                    self.caller.db.cleave
-                ]
-            ],
-            border = "cells")
-        pass_marshall_table = evtable.EvTable("|540Passive Marshall Skills|n", "|540Level|n",
-            table = [
-                [
-                    "Shield",
-                    "Tough",
-                    "Armor",
-                    "Master of Arms",
-                    "Armor Specialist"
-                ],
-                [
-                    self.caller.db.shield,
-                    self.caller.db.tough,
-                    self.caller.db.armor,
-                    self.caller.db.master_of_arms,
-                    self.caller.db.armor_specialist
-                ]
-            ],
-            border = "cells")
 
-        generalist_table = evtable.EvTable("|540Generalist Skills|n", "|540Level|n",
-            table = [
-                [
-                    "Perception",
-                    "Tracking",
-                    "Medicine"
-                ],
-                [
-                    self.caller.db.perception,
-                    self.caller.db.tracking,
-                    self.caller.db.medicine
-                ]
-            ],
-            border = "cells")
+        target = self.caller.search(self.target)
 
-        profession_table = evtable.EvTable("|540Profession Skills|n", "|540Level|n",
-            table = [
-                [
-                    "Stabilize",
-                    "Battlefield Medicine",
-                    "Rally",
-                    "Battlefield Commander",
-                    "Wylding Hand"
+        if target == "self" or target == "me" or not target:
+            status_table = evtable.EvTable("|540Status|n", "|540Value|n",
+                table = [
+                    [
+                        "Body",
+                        "Weapon Value",
+                        "Melee Weapon Equipped",
+                        "Bow Equipped",
+                        "Armor Value"
+                    ],
+                    [
+                        self.caller.db.body,
+                        self.caller.db.weapon_level,
+                        self.caller.db.melee,
+                        self.caller.db.bow,
+                        self.caller.db.av
+                    ]
                 ],
-                [
-                    self.caller.db.stabilize,
-                    self.caller.db.battlefieldmedicine,
-                    self.caller.db.rally,
-                    self.caller.db.battlefieldcommander,
-                    self.caller.db.wyldinghand
-                ]
-            ],
-            border = "cells")
+                border = "cells")
+            active_marshall_table = evtable.EvTable("|540Active Marshall Skills|n", "|540Available|n",
+                table = [
+                    [
+                        "Resist",
+                        "Disarm",
+                        "Stun",
+                        "Stagger",
+                        "Cleave"
+                    ],
+                    [
+                        self.caller.db.resist,
+                        self.caller.db.disarm,
+                        self.caller.db.stun,
+                        self.caller.db.stagger,
+                        self.caller.db.cleave
+                    ]
+                ],
+                border = "cells")
+            pass_marshall_table = evtable.EvTable("|540Passive Marshall Skills|n", "|540Level|n",
+                table = [
+                    [
+                        "Shield",
+                        "Tough",
+                        "Armor",
+                        "Master of Arms",
+                        "Armor Specialist"
+                    ],
+                    [
+                        self.caller.db.shield,
+                        self.caller.db.tough,
+                        self.caller.db.armor,
+                        self.caller.db.master_of_arms,
+                        self.caller.db.armor_specialist
+                    ]
+                ],
+                border = "cells")
 
-        status_table.reformat_column(0, width=30, align="l")
-        status_table.reformat_column(1, width=15, align="c")
-        active_marshall_table.reformat_column(0, width=30, align="l")
-        active_marshall_table.reformat_column(1, width=15, align="c")
-        pass_marshall_table.reformat_column(0, width=30, align="l")
-        pass_marshall_table.reformat_column(1, width=15, align="c")
-        generalist_table.reformat_column(0, width=30, align="l")
-        generalist_table.reformat_column(1, width=15, align="c")
-        profession_table.reformat_column(0, width=30, align="l")
-        profession_table.reformat_column(1, width=15, align="c")
-        self.caller.msg(status_table)
-        self.caller.msg(active_marshall_table)
-        self.caller.msg(pass_marshall_table)
-        self.caller.msg(generalist_table)
-        self.caller.msg(profession_table)
+            generalist_table = evtable.EvTable("|540Generalist Skills|n", "|540Level|n",
+                table = [
+                    [
+                        "Perception",
+                        "Tracking",
+                        "Medicine"
+                    ],
+                    [
+                        self.caller.db.perception,
+                        self.caller.db.tracking,
+                        self.caller.db.medicine
+                    ]
+                ],
+                border = "cells")
+
+            profession_table = evtable.EvTable("|540Profession Skills|n", "|540Level|n",
+                table = [
+                    [
+                        "Stabilize",
+                        "Battlefield Medicine",
+                        "Rally",
+                        "Battlefield Commander",
+                        "Wylding Hand"
+                    ],
+                    [
+                        self.caller.db.stabilize,
+                        self.caller.db.battlefieldmedicine,
+                        self.caller.db.rally,
+                        self.caller.db.battlefieldcommander,
+                        self.caller.db.wyldinghand
+                    ]
+                ],
+                border = "cells")
+
+            status_table.reformat_column(0, width=30, align="l")
+            status_table.reformat_column(1, width=15, align="c")
+            active_marshall_table.reformat_column(0, width=30, align="l")
+            active_marshall_table.reformat_column(1, width=15, align="c")
+            pass_marshall_table.reformat_column(0, width=30, align="l")
+            pass_marshall_table.reformat_column(1, width=15, align="c")
+            generalist_table.reformat_column(0, width=30, align="l")
+            generalist_table.reformat_column(1, width=15, align="c")
+            profession_table.reformat_column(0, width=30, align="l")
+            profession_table.reformat_column(1, width=15, align="c")
+            self.caller.msg(status_table)
+            self.caller.msg(active_marshall_table)
+            self.caller.msg(pass_marshall_table)
+            self.caller.msg(generalist_table)
+            self.caller.msg(profession_table)
+        else:
+            self.caller.msg("|540Usage: charsheet|n\n|400You can only see your own character sheet.|n")
 
 class CharStatus(Command):
     """
@@ -1710,34 +1720,43 @@ class CharStatus(Command):
     aliases = ["status", "char status", "character status", "view status"]
     help_category = "mush"
 
-    def func(self):
-        status_table = evtable.EvTable("|540Status|n", "|540Value|n",
-            table = [
-                [
-                    "Shield",
-                    "Armor",
-                    "Armor Specialist",
-                    "Tough",
-                    "Body",
-                    "Weapon Value",
-                    "Melee Weapon Equipped",
-                    "Bow Equipped",
-                    "Armor Value"
-                ],
-                [
-                    self.caller.db.shield,
-                    self.caller.db.armor,
-                    self.caller.db.armor_specialist,
-                    self.caller.db.tough,
-                    self.caller.db.body,
-                    self.caller.db.weapon_level,
-                    self.caller.db.melee,
-                    self.caller.db.bow,
-                    self.caller.db.av
-                ]
-            ],
-            border = "cells")
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
 
-        status_table.reformat_column(0, width=30, align="l")
-        status_table.reformat_column(1, width=15, align="c")
-        self.caller.msg(status_table)
+    def func(self):
+        target = self.caller.search(self.target)
+
+        if target == "self" or target == "me" or not target:
+            status_table = evtable.EvTable("|540Status|n", "|540Value|n",
+                table = [
+                    [
+                        "Shield",
+                        "Armor",
+                        "Armor Specialist",
+                        "Tough",
+                        "Body",
+                        "Weapon Value",
+                        "Melee Weapon Equipped",
+                        "Bow Equipped",
+                        "Armor Value"
+                    ],
+                    [
+                        self.caller.db.shield,
+                        self.caller.db.armor,
+                        self.caller.db.armor_specialist,
+                        self.caller.db.tough,
+                        self.caller.db.body,
+                        self.caller.db.weapon_level,
+                        self.caller.db.melee,
+                        self.caller.db.bow,
+                        self.caller.db.av
+                    ]
+                ],
+                border = "cells")
+
+            status_table.reformat_column(0, width=30, align="l")
+            status_table.reformat_column(1, width=15, align="c")
+            self.caller.msg(status_table)
+        else:
+            self.caller.msg("|540Usage: charstatus|n\n|400You can only see your own character status.|n")
