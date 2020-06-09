@@ -1530,15 +1530,15 @@ class SetMedicine(Command):
 
 
 class SetBattleFieldMedicine(Command):
-    """Set the medicine level of a character
+    """Set the battlefieldmedicine level of a character
 
-    Usage: setbattlefieldmedicine <0,1>
+    Usage: setmedic <0,1>
 
     This sets the medicine level of the current character. This can only be
     used during character generation.
     """
 
-    key = "setbattlefieldmedicine"
+    key = "setmedic"
     help_category = "mush"
 
     def func(self):
@@ -1547,7 +1547,7 @@ class SetBattleFieldMedicine(Command):
 
         def func(self):
             "This performs the actual command"
-            errmsg = "|540Usage: setbattlefieldmedicine <0/1>|n\n|400You must supply a number of either 0 or 1.|n"
+            errmsg = "|540Usage: setmedic <0/1>|n\n|400You must supply a number of either 0 or 1.|n"
             if not self.args:
                 self.caller.msg(errmsg)
                 return
