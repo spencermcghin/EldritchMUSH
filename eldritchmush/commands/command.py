@@ -438,7 +438,7 @@ class SetBody(Command):
 
     Usage: setbody <value>
 
-    This sets the tough of the current character. This is available to all characters.
+    This sets the body of the current character. This is available to all characters.
     """
 
     key = "setbody"
@@ -456,21 +456,27 @@ class SetBody(Command):
             self.caller.msg(errmsg)
             return
 
-        current_body = self.caller.db.body
+        # Error handling to keep from going below -6.
+        if body < -6:
+            self.caller.msg("|540Usage: setbody <value>|n\n|400You may not set a value lower than -6.|n")
+        elif body > 3:
+            self.caller.msg("|540Usage: setbody <value>|n\n|400You may not set a value higher than 3.|n")
+        else:
+            current_body = self.caller.db.body
 
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.body = body
-        self.caller.msg("|540Your Body was set to %i.|n" % body)
-        if current_body > body:
-            damage = current_body - body
-            self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their body.|n")
-        if body == 0:
-            self.caller.location.msg_contents(f"|400{self.caller.key} is now bleeding profusely from many wounds.|n")
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.body = body
+            self.caller.msg("|540Your Body was set to %i.|n" % body)
+            if current_body > body:
+                damage = current_body - body
+                self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their body.|n")
+            if body == 0:
+                self.caller.location.msg_contents(f"|400{self.caller.key} is now bleeding profusely from many wounds.|n")
 
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
 
-    Usage: setarmorspecialist <1,2,3,4>
+    Usage: setarmorspecialist <0,1,2,3,4>
 
     This sets the armor specialist of the current character. This can only be
     used during character generation.
@@ -481,7 +487,7 @@ class SetArmorSpecialist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setarmorspecialist <1-4>|n\n|400You must supply a value between 1 and 4.|n"
+        errmsg = "|540Usage: setarmorspecialist <0-4>|n\n|400You must supply a value between 0 and 4.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -490,29 +496,29 @@ class SetArmorSpecialist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        
         # Extending range for knight ability
-        if not (1 <= armor_specialist <= 4):
+        if not (0 <= armor_specialist <= 4):
             self.caller.msg(errmsg)
-            return
+        else:
+            self.caller.db.armor_specialist = armor_specialist
 
-        self.caller.db.armor_specialist = armor_specialist
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
 
-        # Get armor value objects
-        armor = self.caller.db.armor
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
-
-        # Return armor value to console.
-        self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            # Return armor value to console.
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 class SetWyldingHand(Command):
     """Set the wylding hand level of a character
 
-    Usage: setwyldinghand <1-3>
+    Usage: setwyldinghand <0-3>
 
     This sets the wylding hand level of the current character. This can only be
     used during character generation.
@@ -523,7 +529,7 @@ class SetWyldingHand(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setwyldinghand <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setwyldinghand <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -532,12 +538,12 @@ class SetWyldingHand(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= wyldinghand <= 3):
+        if not (0 <= wyldinghand <= 3):
             self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.wyldinghand = wyldinghand
-        self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.wyldinghand = wyldinghand
+            self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
 
 
 class SetWeaponValue(Command):
