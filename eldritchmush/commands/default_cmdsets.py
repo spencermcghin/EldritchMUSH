@@ -200,3 +200,4 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetBattleFieldMedicine())
         self.add(command.SetBattleFieldCommander())
         self.add(command.SetRally())
+        self.add(command.SetChirurgeon())
