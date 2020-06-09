@@ -1437,7 +1437,7 @@ class CmdBattlefieldMedicine(Command):
                 # Return message to area and caller
 
                 if target == self.caller:
-                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|0201|n |540body point per round as long as their work remains uninterrupted.|n")
                     # Check to see if caller would go over 1 body with application of skill.
                     if (self.caller.db.body + 1) > 3:
                         # If so set body to 1
@@ -1449,7 +1449,7 @@ class CmdBattlefieldMedicine(Command):
                         self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
 
                 elif target != self.caller:
-                    target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{stabilize}|n |015body points.|n")
+                    target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |0201|n |015body point.|n")
                     if (target.db.body + 1) > 3:
                         # If so set body to 1
                         target.db.body = 3
