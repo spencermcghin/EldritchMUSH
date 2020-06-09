@@ -40,7 +40,7 @@ class Room(DefaultRoom):
         looker_tracking = looker.db.tracking
 
         # Message headers for look_results
-        perception_message = f"|015Perception|n - After careful inspection of the {room_perception_search_key}, you discover the following:\n"
+        perception_message = f"|230Perception|n - After careful inspection of the {room_perception_search_key}, you discover the following:\n"
         tracking_message = f"|210Tracking|n - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:\n"
 
         # Returns list of messages if anything
@@ -463,18 +463,18 @@ class FunHouseRoom(Room):
 
 OPHIDIA_STRINGS = [
     "\"Come one, come all and feast your eyes on the amber jewel of Tarkath, for your viewing pleasure...\"",
-    "|015The lights dim, as candles at the wooden tables are snuffed out by the servants...\nMusic begins to play, though you don't see any musicians present.|n",
-    "|015The curtain draws back, revealing a well dressed, portly man with slicked back, black hair that shines with a fresh applicaiton of grease.",
+    "|230The lights dim, as candles at the wooden tables are snuffed out by the servants...\nMusic begins to play, though you don't see any musicians present.|n",
+    "|230The curtain draws back, revealing a well dressed, portly man with slicked back, black hair that shines with a fresh applicaiton of grease.",
     "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"",
     "\"Kneel and worship at her altar, bow your head, pay homage...dine upon her divinity...\"",
-    "|015The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n"
-    "|015What little light there is now completely fades away, until the room goes black and the music dies.|n",
-    "|015And then from nowhere, a thousand points of light, like the stars in the night sky illuminate the stage, rotating in celestial accord.\n",
-    "|015The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n\n",
-    "|015As the melody reaches its crescendo, the curtains begin to part, slowly curling in on themselves, until reaching the edge of the stage|n\n",
-    "|015At a break in the melody, a woman then emerges from the nighted abyss beyond the curtain. She is goregous;voluptuous and as soft as new silk, covered minimally in the same. Wrapped around her neck and covering her breasts is a large python, its shining scales a brackish green in the low light of the twinkling stars..|n",
-    "|015She begins to dance, slowly at first, the python moving in time with her lithe gestations. In one practiced motion, she twirls, her hair, dark and shining, comes undone from its long braid. From the crowd comes an audible gasp.|n\n",
-    "|015She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty."
+    "|230The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n"
+    "|230What little light there is now completely fades away, until the room goes black and the music dies.|n",
+    "|230And then from nowhere, a thousand points of light, like the stars in the night sky illuminate the stage, rotating in celestial accord.\n",
+    "|230The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n\n",
+    "|230As the melody reaches its crescendo, the curtains begin to part, slowly curling in on themselves, until reaching the edge of the stage|n\n",
+    "|230At a break in the melody, a woman then emerges from the nighted abyss beyond the curtain. She is goregous;voluptuous and as soft as new silk, covered minimally in the same. Wrapped around her neck and covering her breasts is a large python, its shining scales a brackish green in the low light of the twinkling stars..|n",
+    "|230She begins to dance, slowly at first, the python moving in time with her lithe gestations. In one practiced motion, she twirls, her hair, dark and shining, comes undone from its long braid. From the crowd comes an audible gasp.|n\n",
+    "|230She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty."
 ]
 
 class OphidiaRoom(Room):
@@ -499,7 +499,7 @@ class OphidiaRoom(Room):
         """
         Called by the tickerhandler at regular intervals.
         """
-        
+
         if self.show_counter >= len(OPHIDIA_STRINGS):
             self.show_counter = 0
             TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
