@@ -1316,11 +1316,11 @@ class CmdStabilize(Command):
                     if (self.caller.db.body += medicine) > 1:
                         # If so set body to 1
                         self.caller.db.body = 1
-                        self.caller.msg(f"|540{self.caller.key}, your new total body value is: ")
+                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
                     else:
                         # If not over 1, add points to total
                         self.caller.db.body += medicine
-
+                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
                     # Check to see if weakness set. If not, set it.
                     if not weakness:
                         self.caller.db.weakness = 1
@@ -1328,17 +1328,18 @@ class CmdStabilize(Command):
                 # If target is someone else, do checks and apply healing.
                 elif target != self.caller and medicine:
                     target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |030{medicine}|n |015body points.|n")
-                    if (self.caller.db.body += medicine) > 1:
+                    if (target.db.body += medicine) > 1:
                         # If so set body to 1
-                        self.caller.db.body = 1
+                        target.db.body = 1
+                        target.msg(f"|540Your new body value is:|n {target.db.body}|n")
                         # Check to see if weakness set. If not, set it.
                     else:
                         # If not over 1, add points to total
-                        self.caller.db.body += medicine
-
+                        target.db.body += medicine
+                        target.msg(f"|540Your new body value is:|n {target.db.body}|n")
                     # Check to see if weakness set. If not, set it.
                     if not weakness:
-                        self.caller.db.weakness = 1
+                        target.db.weakness = 1
 
             # Apply stabilize to other target
             elif (-6 <= target_body <= -0):
@@ -1350,6 +1351,7 @@ class CmdStabilize(Command):
                     if (self.caller.db.body += stabilize) > 1:
                         # If so set body to 1
                         self.caller.db.body = 1
+                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
                     else:
                         # If not over 1, add points to total
                         self.caller.db.body += stabilize
@@ -1359,17 +1361,17 @@ class CmdStabilize(Command):
 
                 elif target != self.caller:
                     target.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |030{stabilize}|n |015body points.|n")
-                    if (self.caller.db.body += stabilize) > 1:
+                    if (target.db.body += stabilize) > 1:
                         # If so set body to 1
-                        self.caller.db.body = 1
+                        target.db.body = 1
                         # Check to see if weakness set. If not, set it.
                     else:
                         # If not over 1, add points to total
-                        self.caller.db.body += stabilize
+                        target.db.body += stabilize
 
                     # Check to see if weakness set. If not, set it.
                     if not weakness:
-                        self.caller.db.weakness = 1
+                        target.db.weakness = 1
 
 
             # Check to see if the target is already healed to max.
