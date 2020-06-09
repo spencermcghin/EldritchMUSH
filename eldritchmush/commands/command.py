@@ -1542,10 +1542,10 @@ class CmdChirurgery(Command):
                     self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
                 elif target.db.body < -6:
-                    self.caller.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.")
+                    target.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.")
 
                 else:
-                    target.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    target.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
                     target.db.body = 3
                     target.db.weakness = 0
                     target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
