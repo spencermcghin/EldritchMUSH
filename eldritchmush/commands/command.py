@@ -1267,7 +1267,7 @@ class CmdMedicine(Command):
                         self.caller.db.body += medicine
                         self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
                     # Check to see if weakness set. If not, set it.
-                    if not weakness:
+                    if not self.caller.db.weakness:
                         self.caller.db.weakness = 1
 
                 elif target != self.caller:
@@ -1282,7 +1282,7 @@ class CmdMedicine(Command):
                         target.db.body += medicine
                         target.msg(f"|540Your new body value is:|n {target.db.body}|n")
                     # Check to see if weakness set. If not, set it.
-                    if not weakness:
+                    if not target.db.weakness:
                         target.db.weakness = 1
 
 
@@ -1301,6 +1301,7 @@ class CmdMedicine(Command):
 
         else:
             self.caller.msg("|400You had better not try that.|n")
+
 
 class CmdStabilize(Command):
     key = "stabilize"
@@ -1329,10 +1330,9 @@ class CmdStabilize(Command):
         target_body = target.db.body
         stabilize = self.caller.db.stabilize
         medicine = self.caller.db.medicine
-        weakness = self.caller.db.weakness
 
         # Check to make sure caller has the skill.
-        if stabilize:
+        if stabilize and target_body is not None:
             if (- 3 <= target_body <= 0) and medicine:
                 # Return message to area and caller
                 if target == self.caller:
@@ -1348,7 +1348,7 @@ class CmdStabilize(Command):
                         self.caller.db.body += medicine
                         self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
                     # Check to see if weakness set. If not, set it.
-                    if not weakness:
+                    if not self.caller.db.weakness:
                         self.caller.db.weakness = 1
 
                 # If target is someone else, do checks and apply healing.
@@ -1364,7 +1364,7 @@ class CmdStabilize(Command):
                         target.db.body += medicine
                         target.msg(f"|540Your new body value is:|n {target.db.body}|n")
                     # Check to see if weakness set. If not, set it.
-                    if not weakness:
+                    if not target.db.weakness:
                         target.db.weakness = 1
 
             # Apply stabilize to other target
@@ -1382,7 +1382,7 @@ class CmdStabilize(Command):
                         # If not over 1, add points to total
                         self.caller.db.body += stabilize
                     # Check to see if weakness set. If not, set it.
-                    if not weakness:
+                    if not self.caller.db.weakness:
                         self.caller.db.weakness = 1
 
                 elif target != self.caller:
@@ -1396,7 +1396,7 @@ class CmdStabilize(Command):
                         target.db.body += stabilize
 
                     # Check to see if weakness set. If not, set it.
-                    if not weakness:
+                    if not target.db.weakness:
                         target.db.weakness = 1
 
 
