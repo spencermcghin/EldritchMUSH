@@ -1454,10 +1454,11 @@ class CmdBattlefieldMedicine(Command):
                     if (target.db.body + 1) > 3:
                         # If so set body to 1
                         target.db.body = 3
-                        target.msg(f"|540Your new body value is:|n {target.db.body}\nYou may not exceed three.|n")
+                        self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
                     else:
                         # If not over 1, add points to total
                         target.db.body += 1
+                        self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")                        
 
             elif target_body <= 0:
                 self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
