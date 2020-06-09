@@ -610,10 +610,10 @@ class SetBow(Command):
                 # Quippy message when setting a shield as 0 or 1.
                 if bow:
                     self.caller.msg("|030You have equipped your bow.|n")
-                    self.caller.location.msg_contents(f"|206{self.caller.key} has equipped their bow.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their bow.|n")
                 else:
                     self.caller.msg("|400You have unequipped your bow.|n")
-                    self.caller.location.msg_contents(f"|206{self.caller.key} unequips their bow.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} unequips their bow.|n")
 
 
 class SetMelee(Command):
@@ -654,13 +654,13 @@ class SetMelee(Command):
                 # Quippy message when setting a weapon as 0 or 1.
                 if melee and hasWeapon:
                     self.caller.msg("|030You are now ready to fight.|n")
-                    self.caller.location.msg_contents(f"|206{self.caller.key} has equipped their weapon.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their weapon.|n")
                 elif melee and not hasWeapon:
-                    self.caller.location.msg_contents(f"|206{self.caller.key} assumes a defensive posture.")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} assumes a defensive posture.")
                 elif not melee and hasWeapon:
-                    self.caller.location.msg_contents(f"|206{self.caller.key} sheathes their weapon.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} sheathes their weapon.|n")
                 else:
-                    self.caller.location.msg_contents(f"|206{self.caller.key} relaxes their defensive posture.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} relaxes their defensive posture.|n")
 
 
 class SetResist(Command):
@@ -854,10 +854,10 @@ class SetShield(Command):
             # Quippy message when setting a shield as 0 or 1.
             if shield:
                 self.caller.msg("|030You now have a shield.|n")
-                self.caller.location.msg_contents(f"|206{self.caller.key} equips their shield.|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} equips their shield.|n")
             else:
                 self.caller.msg("|400You have unequipped or lost your shield.|n")
-                self.caller.location.msg_contents(f"|206{self.caller.key} unequips their shield.|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} unequips their shield.|n")
 
             # Get armor value objects
             armor = self.caller.db.armor
@@ -1168,9 +1168,9 @@ class CmdThrow(Command):
                 # If the caller has not done this before, they should get a result from the random ticket chance.
                 # Check the database to make sure that the jester ticket hasn't been chosen yet.
                 # If a player gets the random jester ticket from this booth, it should log the entry in the database and not allow it to be generated again.
-                self.caller.location.msg_contents(f"|206{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
             else:
-                self.caller.location.msg_contents(f"|206{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
 
 class CmdPushButton(Command):
@@ -1197,7 +1197,7 @@ class CmdPushButton(Command):
         hasWinner = self.obj.db.hasWinner
 
         # Commands to generate tickets
-        button_emote = f"|206{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        button_emote = f"|230{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
         get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540 command to pick it up|n\n|540Use the |nlook ticket|540 command to examine it.|n"
 
         # If the player has already pressed the button on this particular box, nothing happens.
@@ -1227,7 +1227,7 @@ class CmdPushButton(Command):
 
     def dropCard(self, cardType):
         # Commands to generate tickets
-        button_emote = f"|206{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        button_emote = f"|230{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
         get_ticket_emote = "|540A ticket pops up from a small slit in the top of the box.|n\n|540Use the |nget ticket|540 command to pick it up|n\n|540Use the |nlook ticket|540 command to examine it.|n"
 
         # Drop a ticket object with a skull description
@@ -1275,7 +1275,7 @@ class CmdMedicine(Command):
             if (- 3 <= target_body <= 0):
                 # Return message to area and caller
                 if target == self.caller:
-                    self.caller.location.msg_contents(f"|206{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
                     # Check to see if caller would go over 1 body with application of skill.
                     if (self.caller.db.body + medicine) > 1:
                         # If so set body to 1
@@ -1290,7 +1290,7 @@ class CmdMedicine(Command):
                         self.caller.db.weakness = 1
 
                 elif target != self.caller:
-                    self.caller.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|540{self.caller.key} heals {target.key} for|n |020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n\n|540{self.caller.key} heals {target.key} for|n |020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
                     if (target.db.body + medicine) > 1:
                         # If so set body to 1
                         target.db.body = 1
@@ -1310,10 +1310,10 @@ class CmdMedicine(Command):
                 if target == self.caller:
                     self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
                 elif target != self.caller:
-                    self.caller.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
 
             elif target_body >= 1:
-                self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
             else:
                 self.caller.msg("|540Better not. You aren't quite that skilled.|n")
@@ -1355,7 +1355,7 @@ class CmdStabilize(Command):
             if (- 3 <= target_body <= 0) and medicine:
                 # Return message to area and caller
                 if target == self.caller:
-                    self.caller.location.msg_contents(f"|206{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
 
                     # Check to see if caller would go over 1 body with application of skill.
                     if (self.caller.db.body + medicine) > 1:
@@ -1372,7 +1372,7 @@ class CmdStabilize(Command):
 
                 # If target is someone else, do checks and apply healing.
                 elif target != self.caller and medicine:
-                    target.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{medicine}|n |206body points.|n")
+                    target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{medicine}|n |230body points.|n")
                     if (target.db.body + medicine) > 1:
                         # If so set body to 1
                         target.db.body = 1
@@ -1405,7 +1405,7 @@ class CmdStabilize(Command):
                         self.caller.db.weakness = 1
 
                 elif target != self.caller:
-                    target.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{stabilize}|n |206body points.|n")
+                    target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{stabilize}|n |230body points.|n")
                     if (target.db.body + stabilize) > 1:
                         # If so set body to 1
                         target.db.body = 1
@@ -1421,7 +1421,7 @@ class CmdStabilize(Command):
 
             # Check to see if the target is already healed to max.
             elif target_body >= 1:
-                self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
         else:
             self.caller.msg("|400You had better not try that.|n")
@@ -1461,10 +1461,10 @@ class CmdBattlefieldMedicine(Command):
                     if (self.caller.db.body + 1) > 3:
                         # If so set body to 1
                         self.caller.db.body = 3
-                        self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                        self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
                     else:
                         # If not over 1, add points to total
-                        self.caller.location.msg_contents(f"|206{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|0201|n |540body point per round as long as their work remains uninterrupted.|n")
+                        self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|0201|n |540body point per round as long as their work remains uninterrupted.|n")
                         self.caller.db.body += 1
                         self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
 
@@ -1472,15 +1472,15 @@ class CmdBattlefieldMedicine(Command):
                     if (target.db.body + 1) > 3:
                         # If so set body to 1
                         target.db.body = 3
-                        self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                        self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
                     else:
                         # If not over 1, add points to total
-                        target.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |0201|n |206body point.|n")
+                        target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |0201|n |230body point.|n")
                         target.db.body += 1
                         target.msg(f"|540Your new body value is:|n {target.db.body}|n")
 
             elif target_body <= 0:
-                self.caller.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
 
         else:
             self.caller.msg("|400You had better not try that.|n")
@@ -1522,15 +1522,15 @@ class CmdChirurgery(Command):
             if target == self.caller:
 
                 if (target.db.body + 1) > 3 and not weakness:
-                    self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
                 elif (target.db.body + 1) > 3 and weakness:
-                    self.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
                     self.caller.db.weakness = 0
                     self.caller.msg(f"|540The weakness condition has been removed.")
 
                 else:
-                    self.caller.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
                     self.caller.db.weakness = 0
                     self.caller.db.body = 3
                     self.caller.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {self.caller.db.body}|n")
@@ -1539,13 +1539,13 @@ class CmdChirurgery(Command):
             elif target != self.caller:
 
                 if (target.db.body + 1) > 3 and not weakness:
-                    self.caller.msg(f"|206{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
                 elif target.db.body < -6:
-                    target.location.msg_contents(f"|206{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.|n")
+                    target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.|n")
 
                 else:
-                    target.location.msg_contents(f"|206{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+                    target.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
                     target.db.body = 3
                     target.db.weakness = 0
                     target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
