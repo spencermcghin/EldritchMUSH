@@ -1407,6 +1407,7 @@ class CmdStabilize(Command):
         else:
             self.caller.msg("|400You had better not try that.|n")
 
+
 class CmdBattlefieldMedicine(Command):
     key = "medic"
     help_category = "mush"
@@ -1435,7 +1436,6 @@ class CmdBattlefieldMedicine(Command):
         if battlefieldmedicine and target_body is not None:
             if 1 <= target_body <= 3:
                 # Return message to area and caller
-
                 if target == self.caller:
                     self.caller.location.msg_contents(f"|015{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n\n|540{self.caller} heals |n|0201|n |540body point per round as long as their work remains uninterrupted.|n")
                     # Check to see if caller would go over 1 body with application of skill.
@@ -1462,9 +1462,11 @@ class CmdBattlefieldMedicine(Command):
         elif target_body >= 3:
             self.caller.msg(f"|015{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
+        elif target_body <= 0:
+            self.caller.location.msg_contents(f"|015{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more advanced chiurgical techniques.|n")
+
         else:
             self.caller.msg("|400You had better not try that.|n")
-
 
 
 class SetStabilize(Command):
