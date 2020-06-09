@@ -10,6 +10,19 @@ class Helper():
     """
     Class for general combat helper commands.
     """
+    def weaponValue(self, level):
+        """
+        Returns bonus for weapon level based on value set
+        """
+        if level == 1:
+            bonus = 2
+        elif level == 2:
+            bonus = 4
+        elif level == 3:
+            bonus = 6
+
+        return bonus
+
 
     def masterOfArms(self, level):
         """
@@ -214,7 +227,7 @@ class CmdStrike(Command):
 
         # Vars for attack_result logic
         master_of_arms = self.caller.db.master_of_arms
-        weapon_level = self.caller.db.weapon_level
+        weapon_level = h.weaponValue(self.db.weapon_level)
         wylding_hand = self.caller.db.wylding_hand
 
         # Get die result based on master of arms level
@@ -297,7 +310,7 @@ class CmdShoot(Command):
 
         # Get weapon level to add to attack
         wylding_hand = self.caller.db.wylding_hand
-        weapon_level = self.caller.db.weapon_level
+        weapon_level = h.weaponValue(self.db.weapon_level)
         master_of_arms = self.caller.db.master_of_arms
         hasBow = self.caller.db.bow
         hasMelee = self.caller.db.melee
@@ -389,7 +402,7 @@ class CmdCleave(Command):
         h = Helper()
         "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
         # Get weapon level to add to attack
-        weapon_level = self.caller.db.weapon_level
+        weapon_level = h.weaponValue(self.db.weapon_level)
         master_of_arms = self.caller.db.master_of_arms
         hasBow = self.caller.db.bow
         hasMelee = self.caller.db.melee
@@ -490,7 +503,7 @@ class CmdResist(Command):
         resistsRemaining = self.caller.db.resist
         master_of_arms = self.caller.db.master_of_arms
         wylding_hand = self.caller.db.wyldinghand
-        weapon_level = self.caller.db.weapon_level
+        weapon_level = h.weaponValue(self.db.weapon_level)
 
         # Check for weakness on character
         weakness = h.weaknessChecker(self.caller.db.weakness)
@@ -546,7 +559,7 @@ class CmdDisarm(Command):
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
-            weapon_level = self.caller.db.weapon_level
+            weapon_level = h.weaponValue(self.db.weapon_level)
             wylding_hand = self.caller.db.wyldinghand
 
             if not self.args:
@@ -627,7 +640,7 @@ class CmdStun(Command):
             master_of_arms = self.caller.db.master_of_arms
             hasBow = self.caller.db.bow
             hasMelee = self.caller.db.melee
-            weapon_level = self.caller.db.weapon_level
+            weapon_level = h.weaponValue(self.db.weapon_level)
             wylding_hand = self.caller.db.wyldinghand
 
             if not self.args:
@@ -710,7 +723,7 @@ class CmdStagger(Command):
         hasBow = self.caller.db.bow
         hasMelee = self.caller.db.melee
         staggersRemaining = self.caller.db.stagger
-        weapon_level = self.caller.db.weapon_level
+        weapon_level = h.weaponValue(self.db.weapon_level)
         wylding_hand = self.caller.db.wyldinghand
         stagger_penalty = 2
 
@@ -796,7 +809,7 @@ class CmdSunder(Command):
         hasBow = self.caller.db.bow
         hasTwoHanded = self.caller.db.twohanded
         staggersRemaining = self.caller.db.stagger
-        weapon_level = self.caller.db.weapon_level
+        weapon_level = h.weaponValue(self.db.weapon_level)
         wylding_hand = self.caller.db.wyldinghand
 
         target = self.caller.search(self.target)
