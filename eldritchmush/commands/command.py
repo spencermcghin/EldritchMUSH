@@ -253,7 +253,7 @@ class SetArmorValue(Command):
 class SetTracking(Command):
     """Set the tracking of a character
 
-    Usage: settracking <1-3>
+    Usage: settracking <0-3>
 
     This sets the tracking of the current character. This can only be
     used during character generation.
@@ -264,7 +264,7 @@ class SetTracking(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: settracking <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: settracking <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -273,7 +273,7 @@ class SetTracking(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= tracking <= 3):
+        if not (0 <= tracking <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -285,7 +285,7 @@ class SetTracking(Command):
 class SetPerception(Command):
     """Set the perception of a character
 
-    Usage: setperception <1-3>
+    Usage: setperception <0-3>
 
     This sets the perception of the current character. This can only be
     used during character generation.
@@ -296,7 +296,7 @@ class SetPerception(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setperception <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setperception <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -305,7 +305,7 @@ class SetPerception(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= perception <= 3):
+        if not (0 <= perception <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -316,7 +316,7 @@ class SetPerception(Command):
 class SetMasterOfArms(Command):
     """Set the tracking of a character
 
-    Usage: setmasterofarms <1-3>
+    Usage: setmasterofarms <0-3>
 
     This sets the master of arms of the current character. This is available to all characters.
     """
@@ -326,7 +326,7 @@ class SetMasterOfArms(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setmasterofarms <1-3>|n\n|400You must supply a number between 1 and 3.|n"
+        errmsg = "|540Usage: setmasterofarms <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -335,7 +335,7 @@ class SetMasterOfArms(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (1 <= master_of_arms <= 3):
+        if not (0 <= master_of_arms <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -356,7 +356,7 @@ class SetTough(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: settough <value>|n"
+        errmsg = "|540Usage: settough <value>|n\n|400You must supply a number 0 or greater.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -365,23 +365,26 @@ class SetTough(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
+        
+        if tough < 0:
+            self.caller.msg(errmsg)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.tough = tough
+            self.caller.msg("|540Your Tough was set to %i.|n" % tough)
 
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.tough = tough
-        self.caller.msg("|540Your Tough was set to %i.|n" % tough)
+            # Get armor value objects
+            armor = self.caller.db.armor
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-        # Get armor value objects
-        armor = self.caller.db.armor
-        tough = self.caller.db.tough
-        shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
 
-        # Add them up and set the curent armor value in the database
-        currentArmorValue = armor + tough + shield_value + armor_specialist
-        self.caller.db.av = currentArmorValue
-
-        # Return armor value to console.
-        self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            # Return armor value to console.
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 class SetShieldValue(Command):
@@ -402,18 +405,16 @@ class SetShieldValue(Command):
             return
         try:
             shield_value = int(self.args)
-            # Error handling to keep from going below 0.
-            if shield_value < 0:
-                self.caller.msg("|400You may not set a value lower than 0.|n")
-                return
-
-            if shield_value == 0:
-                self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
-
         except ValueError:
             self.caller.msg(errmsg)
             return
 
+        # Error handling to keep from going below 0.
+        if shield_value < 0:
+            self.caller.msg("|540Usage: setshieldvalue <value>|n\n|400You may not set a value lower than 0.|n")
+        elif shield_value == 0:
+            self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.shield_value = shield_value
@@ -431,8 +432,6 @@ class SetShieldValue(Command):
 
             # Return armor value to console.
             self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
-
-
 
 class SetBody(Command):
     """Set the body of a character
