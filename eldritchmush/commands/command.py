@@ -1549,7 +1549,7 @@ class CmdChirurgery(Command):
                     target.db.body = 3
                     target.db.weakness = 0
                     target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
-                    
+
         else:
             self.caller.msg("|400You had better not try that.|n")
 
@@ -1650,6 +1650,41 @@ class SetBattleFieldMedicine(Command):
             self.caller.msg("|030You have activated the battlefield medicine ability.|n")
         else:
             self.caller.msg("|400You have deactivated the battlefield medicine ability.|n")
+
+class SetChirurgeon(Command):
+    """Activate the chirurgery ability.
+
+    Usage: setchirurgeon <0,1>
+
+    This sets the medicine level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setchirurgeon"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|540Usage: setchirurgeon <0/1>|n\n|400You must supply a number of either 0 or 1.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            chirurgeon = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if chirurgeon not in (0,1):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.chirurgeon = chirurgeon
+
+        if chirurgeon:
+            self.caller.msg("|030You have activated the chirurgeon ability.|n")
+        else:
+            self.caller.msg("|400You have deactivated the chirurgeon ability.|n")
+
 
 
 """
