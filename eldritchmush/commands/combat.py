@@ -751,6 +751,7 @@ class CmdStagger(Command):
         staggersRemaining = self.caller.db.stagger
         weapon_level = h.weaponValue(self.caller.db.weapon_level)
         hasTwoHanded = self.caller.db.twohanded
+        stagger_penalty = 2
 
         wylding_hand = self.caller.db.wyldinghand
 
