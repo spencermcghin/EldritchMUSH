@@ -89,17 +89,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CharStatus())
         self.add(command.CmdChirurgery())
         self.add(combat.CmdSunder())
+        self.add(dice.CmdDice())
+
 
 #### Special command sets
-class DiceCmdSet(CmdSet):
-    """
-    a small cmdset for testing purposes.
-    Add with @py self.cmdset.add("contrib.dice.DiceCmdSet")
-    """
-
-    def at_cmdset_creation(self):
-        """Called when set is created"""
-        self.add(dice.CmdDice())
 
 class ArtessaCmdSet(RoomCmdSet):
 
