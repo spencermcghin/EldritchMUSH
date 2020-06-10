@@ -14,12 +14,18 @@ class Helper():
         """
         Returns bonus for weapon level based on value set
         """
-        if level == 1:
-            bonus = 2
+        if level == 0:
+            bonus = 0
+        elif level == 1:
+            bonues = 2
         elif level == 2:
             bonus = 4
         elif level == 3:
             bonus = 6
+        elif level == 4:
+            bonus = 8
+        else:
+            bonus = 0
 
         return bonus
 
