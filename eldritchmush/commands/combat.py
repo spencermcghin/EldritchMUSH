@@ -600,7 +600,7 @@ class CmdDisarm(Command):
                 self.caller.msg("|400You are too weak to use this attack.|n")
             elif hasBow:
                 self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee or hasTwoHanded:
+            elif not hasMelee or not hasTwoHanded:
                 self.caller.msg("|540Before you can attack, you must first equip a melee weapon using the command setmelee 1 or settwohanded 1.")
             else:
                 if disarmsRemaining > 0:
@@ -691,7 +691,7 @@ class CmdStun(Command):
                 self.caller.msg("|400You are too weak to use this attack.|n")
             elif hasBow:
                 self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee or hasTwoHanded:
+            elif not hasMelee or not hasTwoHanded:
                 self.caller.msg("|540Before you can attack, you must first equip a melee weapon using the command setmelee 1 or settwohanded 1.")
             else:
                 if stunsRemaining > 0:
@@ -778,7 +778,7 @@ class CmdStagger(Command):
             self.caller.msg("|400You are too weak to use this attack.|n")
         elif hasBow:
             self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-        elif not hasMelee or hasTwoHanded:
+        elif not hasMelee or not hasTwoHanded:
             self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1 or settwohanded 1.")
         else:
             if staggersRemaining > 0:
@@ -869,7 +869,7 @@ class CmdStagger(Command):
             self.caller.msg("|400You are too weak to use this attack.|n")
         elif hasBow:
             self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-        elif not hasMelee or hasTwoHanded:
+        elif not hasMelee or not hasTwoHanded:
             self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1 or settwohanded 1.")
         else:
             if staggersRemaining > 0:
