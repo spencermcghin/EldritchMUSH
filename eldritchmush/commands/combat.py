@@ -961,7 +961,7 @@ class CmdSunder(Command):
             self.caller.msg("|400You are too weak to use this attack.|n")
         elif hasBow:
             self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-        elif not hasMelee:
+        elif not hasTwoHanded:
             self.caller.msg("|540Before you can attack, you must first equip a two handed weapon using the command settwohanded 1.")
         else:
             if sundersRemaining > 0:
