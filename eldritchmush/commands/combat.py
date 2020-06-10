@@ -487,7 +487,7 @@ class CmdCleave(Command):
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                     self.caller.location.msg_contents(f"|015{self.caller.key} strikes with great ferocity|n (|400{attack_result}|n)|015 at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
             else:
-                self.caller.msg("|400You have 0 cleaves remaining.")
+                self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.")
 
 class CmdResist(Command):
     """
@@ -538,7 +538,7 @@ class CmdResist(Command):
             self.caller.db.body += 1
             self.caller.msg(f"|540Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
         else:
-            self.caller.msg("|400You have 0 resists remaining.")
+            self.caller.msg("|400You have 0 resists remaining or do not have the skill.")
 
 
 class CmdDisarm(Command):
@@ -631,7 +631,7 @@ class CmdDisarm(Command):
                     elif attack_result < target.db.av:
                         self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to disarm {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
                 else:
-                    self.caller.msg("|400You have 0 disarms remaining.")
+                    self.caller.msg("|400You have 0 disarms remaining or do not have the skill.")
 
 
 class CmdStun(Command):
@@ -717,7 +717,7 @@ class CmdStun(Command):
                     elif attack_result < target.db.av:
                         self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stun {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
                 else:
-                    self.caller.msg("|400You have 0 stuns remaining.|n")
+                    self.caller.msg("|400You have 0 stuns remaining or do not have the skill.|n")
 
 
 class CmdStagger(Command):
@@ -809,7 +809,7 @@ class CmdStagger(Command):
                 elif attack_result < target.db.av:
                     self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stagger {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
             else:
-                self.caller.msg("|400You have 0 staggers remaining.|n")
+                self.caller.msg("|400You have 0 staggers remaining or do not have the skill.|n")
 
 
 
@@ -927,7 +927,7 @@ class CmdSunder(Command):
                 else:
                     self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, |015missing {target.key}|n")
             else:
-               self.caller.msg("|400You have 0 sunders remaining.|n")
+               self.caller.msg("|400You have 0 sunders remaining or do not have the skill.|n")
 
 
 class CmdDisengage(Command):
@@ -978,7 +978,7 @@ class CmdBattlefieldCommander(Command):
             self.caller.location.msg_contents(f"|015Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room may now add 1 Tough to their av, using the command settough #|n |400(Should be one more than your current value).|n")
             self.caller.db.battlefieldcommander -= 1
         else:
-            self.caller.msg("|400You have no uses of your battlefield commander ability remaining.|n")
+            self.caller.msg("|400You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
 
 class CmdRally(Command):
@@ -1005,4 +1005,4 @@ class CmdRally(Command):
             self.caller.location.msg_contents(f"|015{self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room now feels unafraid. Cancel the fear effect.|n")
             self.caller.db.rally -= 1
         else:
-            self.caller.msg("|400You have no uses of your rally ability remaining.|n")
+            self.caller.msg("|400You have no uses of your rally ability remaining or do not have the skill.|n")
