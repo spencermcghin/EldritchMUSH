@@ -330,6 +330,7 @@ CARNIVAL_STRINGS = [
     "\"Daphne’s stitches are crooked\"",
     "\"Reynaldo couldn’t strike a spark!\"",
     "\"Reynaldo’s cloaks are made of farmer’s burlap\"",
+    "\"What does Artessa have in store for you? Find out at Artessa's Auguary!\"",
     "\"Shazar Trap-springer, hahhhh\"",
     "\"So greedy, so dumb, for the right price, Shazar’ll poison yer mum\"",
     "\"Khepri hates the queen!\"",
@@ -465,10 +466,10 @@ class FunHouseRoom(Room):
         self.msg_contents("|w%s|n" % next_phrase)
 
 OPHIDIA_STRINGS = [
-    "\"Come one, come all and feast your eyes on the amber jewel of Tarkath, for your viewing pleasure...\"",
-    "|230The lights dim, as candles at the wooden tables are snuffed out by the servants...\nMusic begins to play, though you don't see any musicians present.|n",
-    "|230The curtain draws back, revealing a well dressed, portly man with slicked back, black hair that shines with a fresh applicaiton of grease.",
-    "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"",
+    "\"Come one, come all and feast your eyes on the amber jewel of Tarkath, for your viewing pleasure...\"\n",
+    "|230The lights dim, as candles at the wooden tables are snuffed out by the servants...\nMusic begins to play, though you don't see any musicians present.|n\n",
+    "|230The curtain draws back, revealing a well dressed, portly man with slicked back, black hair that shines with a fresh applicaiton of grease.\n",
+    "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"\n",
     "\"Kneel and worship at her altar, bow your head, pay homage...dine upon her divinity...\"",
     "|230The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n"
     "|230What little light there is now completely fades away, until the room goes black and the music dies.|n\n",
@@ -513,5 +514,44 @@ class OphidiaRoom(Room):
             TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
         else:
             phrase = OPHIDIA_STRINGS[self.show_counter]
+            self.msg_contents("%s" % phrase)
+            self.show_counter += 1
+
+PUPPET_STRINGS = [
+    "|230The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n",
+    "\"Come one, come all and feast your eyes on the amber jewel of Tarkath, for your viewing pleasure...\"",
+    "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"",
+    "\"Kneel and worship at her altar, bow your head, pay homage...dine upon her divinity...\"",
+
+]
+
+class PuppetRoom(Room):
+
+    # A list to keep track of the phrases that have already been broadcast.
+    show_counter = 0
+
+    def at_object_creation(self):
+        """
+        Called when object is first created.
+        We set up a ticker to update this room regularly.
+        """
+        super(PuppetRoom, self).at_object_creation()
+
+        TICKER_HANDLER.add(60*60, self.start_show, idstring="puppet_show_ticker", persistent=True)
+
+    def start_show(self, *args, **kwargs):
+        # create ticker - go through all phrases - delete ticker
+        TICKER_HANDLER.add(20, self.update_show, idstring="puppet_start_show_ticker", persistent=False)
+
+    def update_show(self, *args, **kwargs):
+        """
+        Called by the tickerhandler at regular intervals.
+        """
+
+        if self.show_counter >= len(PUPPET_STRINGS):
+            self.show_counter = 0
+            TICKER_HANDLER.remove(2, self.update_show, idstring="puppet_start_show_ticker")
+        else:
+            phrase = PUPPET_STRINGS[self.show_counter]
             self.msg_contents("%s" % phrase)
             self.show_counter += 1
