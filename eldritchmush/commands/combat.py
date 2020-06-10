@@ -417,6 +417,7 @@ class CmdCleave(Command):
         hasMelee = self.caller.db.melee
         wylding_hand = self.caller.db.wyldinghand
         cleavesRemaining = self.caller.db.cleave
+        hasTwoHanded = self.caller.db.twohanded
 
         if not self.args:
             self.caller.msg("|540Usage: cleave <target>|n")
@@ -445,7 +446,7 @@ class CmdCleave(Command):
         elif hasBow:
             self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.|n")
         elif not hasTwoHanded:
-            self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1.|n")
+            self.caller.msg("|540Before you can attack, you must first equip a weapon using the command settwohanded 1.|n")
         else:
             if cleavesRemaining > 0:
                 # Return die roll based on level in master of arms or wylding hand.
