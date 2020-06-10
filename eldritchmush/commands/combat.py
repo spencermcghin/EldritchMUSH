@@ -810,6 +810,97 @@ class CmdStagger(Command):
                 self.caller.msg("|400You have 0 staggers remaining.|n")
 
 
+class CmdStagger(Command):
+    """
+    Issues a stagger command.
+
+    Usage:
+
+    sunder <target>
+
+    This will calculate an attack score based on your weapon and master of arms level.
+    """
+
+    key = "sunder"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+        if not self.target:
+            self.caller.msg("|540Usage: sunder <target>|n")
+            return
+
+    def func(self):
+        h = Helper()
+
+        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
+        master_of_arms = self.caller.db.master_of_arms
+        hasBow = self.caller.db.bow
+        hasMelee = self.caller.db.melee
+        sundersRemaining = self.caller.db.sunder
+        weapon_level = h.weaponValue(self.caller.db.weapon_level)
+
+        wylding_hand = self.caller.db.wyldinghand
+
+        target = self.caller.search(self.target)
+
+        if not target:
+            self.caller.msg("|400There is nothing here that matches that description.|n")
+            return
+
+        if target == self.caller:
+            self.caller.msg(f"|400Don't sunder yourself {self.caller}, silly!|n")
+            return
+
+        if target.db.body is None:
+            self.caller.msg("|400You had better not try that.")
+            return
+
+        # Check for equip proper weapon type
+        # Check for weakness on character
+        weakness = h.weaknessChecker(self.caller.db.weakness)
+
+        # Check for equip proper weapon type or weakness
+        if weakness:
+            self.caller.msg("|400You are too weak to use this attack.|n")
+        elif hasBow:
+            self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
+        elif not hasMelee:
+            self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1.")
+        else:
+            if staggersRemaining > 0:
+            # Return die roll based on level in master of arms or wylding hand.
+                if wylding_hand:
+                    die_result = h.wyldingHand(wylding_hand)
+                else:
+                    die_result = h.masterOfArms(master_of_arms)
+
+                # Decrement amount of cleaves from amount in database
+                self.caller.db.stagger -= 1
+
+                # Get final attack result and damage
+                weakness = h.weaknessChecker(self.caller.db.weakness)
+                dmg_penalty = h.bodyChecker(self.caller.db.body)
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness - stagger_penalty
+
+                # Return attack result message
+                if attack_result > target.db.av:
+                    self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015staggers {target.key}|n (|400{target.db.av}|n) |015, putting them off their guard.|n")
+                    # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                    new_av = h.damageSubtractor(2, target)
+                    # Update target av to new av score per damageSubtractor
+                    target.db.av = new_av
+                    target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
+
+                elif attack_result < target.db.av:
+                    self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stagger {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
+            else:
+                self.caller.msg("|400You have 0 staggers remaining.|n")
+
+
+
 class CmdSunder(Command):
     """
     Issues a sunder command.
@@ -839,7 +930,7 @@ class CmdSunder(Command):
         master_of_arms = self.caller.db.master_of_arms
         hasBow = self.caller.db.bow
         hasTwoHanded = self.caller.db.twohanded
-        staggersRemaining = self.caller.db.stagger
+        sundersRemaining = self.caller.db.sunder
         weapon_level = h.weaponValue(self.caller.db.weapon_level)
 
         wylding_hand = self.caller.db.wyldinghand
@@ -858,7 +949,7 @@ class CmdSunder(Command):
             return
 
         if target.db.body is None:
-            self.caller.msg("|400You had better not try that.")
+            self.caller.msg("|400You had better not try that.|n")
             return
 
         # Check for equip proper weapon type
@@ -868,63 +959,61 @@ class CmdSunder(Command):
         # Check for equip proper weapon type or weakness
         if weakness:
             self.caller.msg("|400You are too weak to use this attack.|n")
-        elif hasTwoHanded:
+        elif hasBow:
             self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
         elif not hasMelee:
-            self.caller.msg("|540Before you can attack, you must first equip a two handed weapon using the command setmelee 1.")
+            self.caller.msg("|540Before you can attack, you must first equip a two handed weapon using the command settwohanded 1.")
         else:
-            if self.caller.db.twohanded:
-                if staggersRemaining > 0:
-                # Return die roll based on level in master of arms or wylding hand.
-                    if wylding_hand:
-                        die_result = h.wyldingHand(wylding_hand)
+            if sundersRemaining > 0:
+            # Return die roll based on level in master of arms or wylding hand.
+                if wylding_hand:
+                    die_result = h.wyldingHand(wylding_hand)
+                else:
+                    die_result = h.masterOfArms(master_of_arms)
+
+                # Decrement amount of cleaves from amount in database
+                self.caller.db.sunder -= 1
+
+                # Get final attack result and damage
+                weakness = h.weaknessChecker(self.caller.db.weakness)
+                dmg_penalty = h.bodyChecker(self.caller.db.body)
+                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+
+                # Return attack result message
+                if attack_result >= (target_av - target_penalty):
+                    # if target has any more armor points left go through the damage subtractor
+                    if target_av:
+                        self.caller.location.msg_contents(f"|015{self.caller.key} sunders|n (|020{attack_result}|n) |02t {target.key} and hits|n (|400{target_av}|n), |015dealing|n |5402|n |015damage!|n")
+                        # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                        new_av = h.damageSubtractor(2, target)
+                        # Update target av to new av score per damageSubtractor
+                        target.db.av = new_av
+                        target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                     else:
-                        die_result = h.masterOfArms(master_of_arms)
-
-                    # Decrement amount of cleaves from amount in database
-                    self.caller.db.stagger -= 1
-
-                    # Get final attack result and damage
-                    weakness = h.weaknessChecker(self.caller.db.weakness)
-                    dmg_penalty = h.bodyChecker(self.caller.db.body)
-                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
-
-                    # Return attack result message
-                    if attack_result >= (target_av - target_penalty):
-                        # if target has any more armor points left go through the damage subtractor
-                        if target_av:
-                            self.caller.location.msg_contents(f"|015{self.caller.key} sunders|n (|020{attack_result}|n) |02t {target.key} and hits|n (|400{target_av}|n), |015dealing|n |5402|n |015damage!|n")
-                            # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                            new_av = h.damageSubtractor(2, target)
-                            # Update target av to new av score per damageSubtractor
-                            target.db.av = new_av
-                            target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-                        else:
-                            # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |5402|n |015damage!|n.")
-                            if shot_location == "torso":
-                                if target.db.body > 0:
-                                    target.db.body = 0
-                                    self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
-                                else:
-                                    target.db.body -= 2
-                                    target.msg(f"|540Your new body value is {target.db.body}|n")
+                        # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
+                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |5402|n |015damage!|n.")
+                        if shot_location == "torso":
+                            if target.db.body > 0:
+                                target.db.body = 0
+                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                             else:
-                                target.db.body -= damage
-                                target.msg(f"|400You {shot_location} is now injured and have taken |n|540{damage}|n|400 points of damage.|n")
-                                # Send a message to the target, letting them know their body values
+                                target.db.body -= 2
                                 target.msg(f"|540Your new body value is {target.db.body}|n")
-                                if -3 <= target.db.body <= 0:
-                                    target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                                    target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
-                                elif target.db.body <= -4:
-                                    target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
-                                    target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
-                    else:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
-
-
-
+                        else:
+                            target.db.body -= damage
+                            target.msg(f"|400You {shot_location} is now injured and have taken |n|540{damage}|n|400 points of damage.|n")
+                            # Send a message to the target, letting them know their body values
+                            target.msg(f"|540Your new body value is {target.db.body}|n")
+                            if -3 <= target.db.body <= 0:
+                                target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+                                target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                            elif target.db.body <= -4:
+                                target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
+                                target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+                else:
+                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
+            else:
+               self.caller.msg("|400You have 0 sunders remaining.|n")
 
 
 class CmdDisengage(Command):
@@ -976,6 +1065,7 @@ class CmdBattlefieldCommander(Command):
             self.caller.db.battlefieldcommander -= 1
         else:
             self.caller.msg("|400You have no uses of your battlefield commander ability remaining.|n")
+
 
 class CmdRally(Command):
     """
