@@ -258,7 +258,7 @@ class CmdStrike(Command):
             if attack_result >= target_av:
                 # if target has any more armor points left go through the damage subtractor
                 if target_av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} strikes deftly|n (|020{attack_result}|n) |230at {target.key} and hits|n (|400{target_av}|n), |230dealing|n |540{damage}|n |230damage!|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     new_av = h.damageSubtractor(damage, target)
                     # Update target av to new av score per damageSubtractor
@@ -266,11 +266,11 @@ class CmdStrike(Command):
                     target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                 else:
                     # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                    self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |540{damage}|n |015damage!|n.")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} strikes deftly|n (|020{attack_result}|n) |230at {target.key} and hits |n(|400{target_av}|n)|230, injuring their {shot_location} and dealing|n |540{damage}|n |230damage!|n.")
                     if shot_location == "torso":
                         if target.db.body > 0:
                             target.db.body = 0
-                            self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                            self.caller.location.msg_contents(f"|230{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                         else:
                             target.db.body -= damage
                             target.msg(f"|540Your new body value is {target.db.body}|n")
@@ -281,12 +281,12 @@ class CmdStrike(Command):
                         target.msg(f"|540Your new body value is {target.db.body}|n")
                         if -3 <= target.db.body <= 0:
                             target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                            target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                            target.location.msg_contents(f"|230{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                         elif target.db.body <= -4:
                             target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
-                            target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+                            target.location.msg_contents(f"|230{target.key} does not seem to be moving.|n")
             else:
-                self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} swings wildly|n |400{attack_result}|n|230, missing {target.key} |n|020{target_av}|n")
 
 
 class CmdShoot(Command):
@@ -361,11 +361,11 @@ class CmdShoot(Command):
             # Compare caller attack_result to target av.
             # If attack_result > target av -> hit, else miss
             if attack_result >= target.db.av:
-                self.caller.location.msg_contents(f"|015{self.caller.key} lets loose an arrow |n(|020{attack_result}|n)|015 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |015dealing|n |5401|n |015damage!|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} lets loose an arrow |n(|020{attack_result}|n)|230 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |230dealing|n |5401|n |230damage!|n")
                 if shot_location == "torso":
                     if target.db.body > 0:
                         target.db.body = 0
-                        self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                        self.caller.location.msg_contents(f"|230{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                     else:
                         target.db.body -= 1
                         target.msg(f"|540Your new body value is {target.db.body}|n")
@@ -376,13 +376,13 @@ class CmdShoot(Command):
                     target.msg(f"|540Your new body value is {target.db.body}|n")
                     if -3 <= target.db.body <= 0:
                         target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                        target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                        target.location.msg_contents(f"|230{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                     elif target.db.body <= -4:
                         target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
-                        target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+                        target.location.msg_contents(f"|230{target.key} does not seem to be moving.|n")
             else:
                 # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                self.caller.location.msg_contents(f"|015{self.caller.key} lets loose an arrow |n(|400{attack_result}|n)|015 at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
+                self.caller.location.msg_contents(f"|230{self.caller.key} lets loose an arrow |n(|400{attack_result}|n)|230 at {target.key}|n(|020{target.db.av}|n)|230, but it misses.|n")
 
 
 """
@@ -468,11 +468,11 @@ class CmdCleave(Command):
                     shot_location = h.shotFinder(target.db.targetArray)
 
                     if attack_result >= target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|015! dealing|n |5402|n |015damage|n.")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} strikes|n (|020{attack_result}|n) |230with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|230! dealing|n |5402|n |230damage|n.")
                         if shot_location == "torso":
                             if target.db.body > 0:
                                 target.db.body = 0
-                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                self.caller.location.msg_contents(f"|230{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                             else:
                                 target.db.body -= 2
                                 target.msg(f"|540Your new body value is {target.db.body}|n")
@@ -482,14 +482,14 @@ class CmdCleave(Command):
                             # Send a message to the target, letting them know their body values
                             target.msg(f"|540Your new body value is {target.db.body}|n")
                             if -3 <= target.db.body <= 0:
-                                target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                                target.location.msg_contents(f"|230{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                                 target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
                             elif target.db.body <= -4:
                                 target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
-                                target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+                                target.location.msg_contents(f"|230{target.key} does not seem to be moving.|n")
                     else:
                         # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes with great ferocity|n (|400{attack_result}|n)|015 at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} strikes with great ferocity|n (|400{attack_result}|n)|230 at {target.key}|n(|020{target.db.av}|n)|230, but it misses.|n")
 
                 else:
                     self.caller.msg("|400You have 0 cleaves remaining.")
@@ -542,7 +542,7 @@ class CmdResist(Command):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
-            self.caller.location.msg_contents(f"|015{self.caller.key} resists the attack, taking no damage!.|n")
+            self.caller.location.msg_contents(f"|230{self.caller.key} resists the attack, taking no damage!.|n")
             self.caller.db.body += 1
             self.caller.msg(f"|540Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
         else:
@@ -625,11 +625,11 @@ class CmdDisarm(Command):
 
                     # Return attack result message
                     if attack_result >= target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} counters {target.key}'s next attack by disarming them for the round.|n")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} counters {target.key}'s next attack by disarming them for the round.|n")
                         self.caller.db.body += 1
                         self.caller.msg(f"|540Disarm adds one body back to you total.\nYour new total body value is {self.caller.db.body}|n")
                     elif attack_result < target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to disarm {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} attempts|n (|400{attack_result}|n)|230 to disarm {target.key}|n (|020{target.db.av}|n)|230, but fumbles their attack.|n")
                 else:
                     self.caller.msg("|400You have 0 disarms remaining.")
 
@@ -712,9 +712,9 @@ class CmdStun(Command):
                     # Return attack result message
 
                     if attack_result > target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015stuns {target.key}|n (|400{target.db.av}|n) |015such that they're unable to attack for a moment.|n\n|540{target.key} may noy attack next round.|n")
+                        self.caller.location.msg_contents(f"|230{self.caller.key}|n (|020{attack_result}|n) |230stuns {target.key}|n (|400{target.db.av}|n) |230such that they're unable to attack for a moment.|n\n|540{target.key} may noy attack next round.|n")
                     elif attack_result < target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stun {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} attempts|n (|400{attack_result}|n)|230 to stun {target.key}|n (|020{target.db.av}|n)|230, but fumbles their attack.|n")
                 else:
                     self.caller.msg("|400You have 0 stuns remaining.|n")
 
@@ -797,7 +797,7 @@ class CmdStagger(Command):
 
                 # Return attack result message
                 if attack_result > target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015staggers {target.key}|n (|400{target.db.av}|n) |015, putting them off their guard.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key}|n (|020{attack_result}|n) |230staggers {target.key}|n (|400{target.db.av}|n) |230, putting them off their guard.|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     new_av = h.damageSubtractor(2, target)
                     # Update target av to new av score per damageSubtractor
@@ -805,7 +805,7 @@ class CmdStagger(Command):
                     target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
 
                 elif attack_result < target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stagger {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} attempts|n (|400{attack_result}|n)|230 to stagger {target.key}|n (|020{target.db.av}|n)|230, but fumbles their attack.|n")
             else:
                 self.caller.msg("|400You have 0 staggers remaining.|n")
 
@@ -887,7 +887,7 @@ class CmdStagger(Command):
 
                 # Return attack result message
                 if attack_result > target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015staggers {target.key}|n (|400{target.db.av}|n) |015, putting them off their guard.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key}|n (|020{attack_result}|n) |230staggers {target.key}|n (|400{target.db.av}|n) |230, putting them off their guard.|n")
                     # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                     new_av = h.damageSubtractor(2, target)
                     # Update target av to new av score per damageSubtractor
@@ -895,7 +895,7 @@ class CmdStagger(Command):
                     target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
 
                 elif attack_result < target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stagger {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} attempts|n (|400{attack_result}|n)|230 to stagger {target.key}|n (|020{target.db.av}|n)|230, but fumbles their attack.|n")
             else:
                 self.caller.msg("|400You have 0 staggers remaining.|n")
 
@@ -984,7 +984,7 @@ class CmdSunder(Command):
                 if attack_result >= (target_av - target_penalty):
                     # if target has any more armor points left go through the damage subtractor
                     if target_av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} sunders|n (|020{attack_result}|n) |02t {target.key} and hits|n (|400{target_av}|n), |015dealing|n |5402|n |015damage!|n")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} sunders|n (|020{attack_result}|n) |02t {target.key} and hits|n (|400{target_av}|n), |230dealing|n |5402|n |230damage!|n")
                         # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                         new_av = h.damageSubtractor(2, target)
                         # Update target av to new av score per damageSubtractor
@@ -992,11 +992,11 @@ class CmdSunder(Command):
                         target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                     else:
                         # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |5402|n |015damage!|n.")
+                        self.caller.location.msg_contents(f"|230{self.caller.key} strikes deftly|n (|020{attack_result}|n) |230at {target.key} and hits |n(|400{target_av}|n)|230, injuring their {shot_location} and dealing|n |5402|n |230damage!|n.")
                         if shot_location == "torso":
                             if target.db.body > 0:
                                 target.db.body = 0
-                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                self.caller.location.msg_contents(f"|230{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                             else:
                                 target.db.body -= 2
                                 target.msg(f"|540Your new body value is {target.db.body}|n")
@@ -1007,12 +1007,12 @@ class CmdSunder(Command):
                             target.msg(f"|540Your new body value is {target.db.body}|n")
                             if -3 <= target.db.body <= 0:
                                 target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                                target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                                target.location.msg_contents(f"|230{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                             elif target.db.body <= -4:
                                 target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
-                                target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+                                target.location.msg_contents(f"|230{target.key} does not seem to be moving.|n")
                 else:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{}|n")
+                    self.caller.location.msg_contents(f"|230{self.caller.key} swings wildly|n |400{attack_result}|n|230, missing {target.key} |n|020{}|n")
             else:
                self.caller.msg("|400You have 0 sunders remaining.|n")
 
@@ -1034,7 +1034,7 @@ class CmdDisengage(Command):
         "Implements the command"
         # To disengage
         self.caller.msg("|540You disengage from the attack.|n")
-        self.caller.location.msg_contents(f"|015{self.caller} backs away and then disengages from the fight.|n")
+        self.caller.location.msg_contents(f"|230{self.caller} backs away and then disengages from the fight.|n")
 
 """
 Knight commands
@@ -1062,7 +1062,7 @@ class CmdBattlefieldCommander(Command):
         bolsterRemaining = self.caller.db.battlefieldcommander
 
         if bolsterRemaining > 0:
-            self.caller.location.msg_contents(f"|015Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room may now add 1 Tough to their av, using the command settough #|n |400(Should be one more than your current value).|n")
+            self.caller.location.msg_contents(f"|230Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room may now add 1 Tough to their av, using the command settough #|n |400(Should be one more than your current value).|n")
             self.caller.db.battlefieldcommander -= 1
         else:
             self.caller.msg("|400You have no uses of your battlefield commander ability remaining.|n")
@@ -1089,7 +1089,7 @@ class CmdRally(Command):
         rallyRemaining = self.caller.db.rally
 
         if rallyRemaining > 0:
-            self.caller.location.msg_contents(f"|015{self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room now feels unafraid. Cancel the fear effect.|n")
+            self.caller.location.msg_contents(f"|230{self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room now feels unafraid. Cancel the fear effect.|n")
             self.caller.db.rally -= 1
         else:
             self.caller.msg("|400You have no uses of your rally ability remaining.|n")
