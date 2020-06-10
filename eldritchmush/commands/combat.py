@@ -979,6 +979,7 @@ class CmdSunder(Command):
                 weakness = h.weaknessChecker(self.caller.db.weakness)
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
+                shot_location = h.shotFinder(target.db.targetArray)
 
                 # Return attack result message
                 if attack_result >= (target_av - target_penalty):
