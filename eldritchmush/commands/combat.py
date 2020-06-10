@@ -1012,7 +1012,7 @@ class CmdSunder(Command):
                                 target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
                                 target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
                 else:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{}|n")
+                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, |015missing {target.key}|n")
             else:
                self.caller.msg("|400You have 0 sunders remaining.|n")
 
