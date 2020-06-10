@@ -471,13 +471,18 @@ OPHIDIA_STRINGS = [
     "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"",
     "\"Kneel and worship at her altar, bow your head, pay homage...dine upon her divinity...\"",
     "|230The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n"
-    "|230What little light there is now completely fades away, until the room goes black and the music dies.|n",
-    "|230And then from nowhere, a thousand points of light, like the stars in the night sky illuminate the stage, rotating in celestial accord.\n",
+    "|230What little light there is now completely fades away, until the room goes black and the music dies.|n\n",
+    "|230And then from nowhere, a thousand points of light, like the stars in the night sky illuminate the stage, rotating in celestial accord.|n\n",
     "|230The music starts again, slow at first. A lone stringed instruments starts to play a seductive melody in a minor key. The dreamers on the floor rouse at the sound.|n\n",
     "|230As the melody reaches its crescendo, the curtains begin to part, slowly curling in on themselves, until reaching the edge of the stage|n\n",
-    "|230At a break in the melody, a woman then emerges from the nighted abyss beyond the curtain. She is goregous;voluptuous and as soft as new silk, covered minimally in the same. Wrapped around her neck and covering her breasts is a large python, its shining scales a brackish green in the low light of the twinkling stars..|n",
+    "|230At a break in the melody, a woman then emerges from the nighted abyss beyond the curtain. She is goregous;voluptuous and as soft as new silk, covered minimally in the same. Wrapped around her neck and covering her breasts is a large python, its shining scales a brackish green in the low light of the twinkling stars..|n\n",
     "|230She begins to dance, slowly at first, the python moving in time with her lithe gestations. In one practiced motion, she twirls, her hair, dark and shining, comes undone from its long braid. From the crowd comes an audible gasp.|n\n",
-    "|230She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty."
+    "|230She moves quicker now, and from the audience comes one of the crowd, lurching at the dancing beauty.|n\n",
+    "|230A large woman erupts from a darkened corner to tackle the would be intruder, though no one seems to notice. Especially Ophidia...|n\n",
+    "|230The woman dancing on the stage moves quicker now...quicker...to a dizzying melody that is sad and gorgeous in the way twilight is these things.|n\n",
+    "|230The star lights suddenly shut off, casting the room into a pitch dark.|n\n",
+    "|230One by one, the tiny points of light illuminate once again, as though on the first days of everything...|n\n",
+    "|230Alone on the stage is the python whose shining scales are a brackish green. Nowhere to be seen is the one called Mistress Ophidia."
 ]
 
 class OphidiaRoom(Room):
