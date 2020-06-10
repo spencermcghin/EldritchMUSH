@@ -980,9 +980,9 @@ class CmdSunder(Command):
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                 # Return attack result message
-                if attack_result >= (target_av - target_penalty):
+                if attack_result >= (target.db.av - target_penalty):
                     # if target has any more armor points left go through the damage subtractor
-                    if target_av:
+                    if target.db.av:
                         self.caller.location.msg_contents(f"|015{self.caller.key} sunders|n (|020{attack_result}|n) |02t {target.key} and hits|n (|400{target_av}|n), |015dealing|n |5402|n |015damage!|n")
                         # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                         new_av = h.damageSubtractor(2, target)
