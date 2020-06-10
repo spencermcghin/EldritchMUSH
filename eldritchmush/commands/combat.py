@@ -938,7 +938,7 @@ class CmdSunder(Command):
         target = self.caller.search(self.target)
 
         # Get penalty to subtract from target
-        target_penalty = self.db.master_of_arms
+        target_penalty = self.caller.db.master_of_arms
 
         if not target:
             self.caller.msg("|400There is nothing here that matches that description.|n")
