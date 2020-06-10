@@ -840,7 +840,7 @@ class CmdStagger(Command):
         master_of_arms = self.caller.db.master_of_arms
         hasBow = self.caller.db.bow
         hasMelee = self.caller.db.melee
-        staggersRemaining = self.caller.db.sunder
+        staggersRemaining = self.caller.db.stagger
         weapon_level = h.weaponValue(self.caller.db.weapon_level)
         hasTwoHanded = self.caller.db.twohanded
 
