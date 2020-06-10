@@ -518,8 +518,12 @@ class OphidiaRoom(Room):
             self.show_counter += 1
 
 PUPPET_STRINGS = [
-    "|230The well dressed, portly man finishes his display of broad, sweeping gestures, and disappears behind the heavy dark curtain.|n\n",
-    "\"Come one, come all and feast your eyes on the amber jewel of Tarkath, for your viewing pleasure...\"",
+    "|230The lights dim and a small spot light covers the large, sad booth in a coarse and ruddy glow.|n\n",
+    "|230Two puppets emerge from below the small stage, one in a threadbare green and gold noble lady's dress, the other in an outfit that might befit a king of Arnesse.|n\n",
+    "|230The lights dim and a small spot light covers the booth in a coarse and ruddy glow.|n\n",
+    "|230The lights dim and a small spot light covers the booth in a coarse and ruddy glow.|n\n",
+
+    "\"On this day \"",
     "\"Come, sit, be not afraid, for the Mistress Ophidia is here to soothe your fears and caress your desires.\"",
     "\"Kneel and worship at her altar, bow your head, pay homage...dine upon her divinity...\"",
 

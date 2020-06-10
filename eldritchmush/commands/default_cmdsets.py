@@ -88,6 +88,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CharSheet())
         self.add(command.CharStatus())
         self.add(command.CmdChirurgery())
+        self.add(combat.CmdSunder())
 
 #### Special command sets
 class DiceCmdSet(CmdSet):
