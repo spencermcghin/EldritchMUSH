@@ -955,6 +955,7 @@ class CmdSunder(Command):
         # Check for equip proper weapon type
         # Check for weakness on character
         weakness = h.weaknessChecker(self.caller.db.weakness)
+        target_av = target.db.av
 
         # Check for equip proper weapon type or weakness
         if weakness:
@@ -980,9 +981,9 @@ class CmdSunder(Command):
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
                 # Return attack result message
-                if attack_result >= (target.db.av - target_penalty):
+                if attack_result >= (target_av - target_penalty):
                     # if target has any more armor points left go through the damage subtractor
-                    if target.db.av:
+                    if target_av:
                         self.caller.location.msg_contents(f"|015{self.caller.key} sunders|n (|020{attack_result}|n) |02t {target.key} and hits|n (|400{target_av}|n), |015dealing|n |5402|n |015damage!|n")
                         # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                         new_av = h.damageSubtractor(2, target)
@@ -1011,7 +1012,7 @@ class CmdSunder(Command):
                                 target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
                                 target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
                 else:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
+                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{}|n")
             else:
                self.caller.msg("|400You have 0 sunders remaining.|n")
 
