@@ -24,10 +24,8 @@ class Helper():
             bonus = 6
         elif level == 4:
             bonus = 8
-        else:
-            bonus = 0
 
-            return bonus
+        return bonus
 
 
     def masterOfArms(self, level):
