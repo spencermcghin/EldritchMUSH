@@ -27,7 +27,7 @@ class Helper():
         else:
             bonus = 0
 
-        return bonus
+            return bonus
 
 
     def masterOfArms(self, level):
