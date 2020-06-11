@@ -175,7 +175,6 @@ class AltarRoom(Room):
         "this is called only at first creation"
         self.cmdset.add(AltarCmdSet, permanent=True)
 
-
 # Weather room
 
 # These are rainy weather strings
