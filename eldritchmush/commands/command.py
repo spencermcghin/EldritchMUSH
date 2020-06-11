@@ -1976,7 +1976,7 @@ class CmdTouchAltar(Command):
 
         key = "touch"
         help_category = "mush"
-        name = self.caller.name
+        name = caller.name
 
         ALTAR_STRINGS = [
         "|/|230Touching the stone altar, you see a hand on your shoulder, its wrinkled fingers tipped in rotting fingernails, cracked and bleeding. One by one it removes its stinking fingers from your shoulder and slides slowly forward. Forward, forward until it penetrates the stone. As it does, another similarly grotesque hand reaches out for you from the stone. Frozen, you try to pull your hand away but are unable. Just before the hand wraps around your throat, you faint, coming to, doing whatever it was you were doing, remembering only a terrible feeling and nothing of your actions related to the vision. Whether it was real or not is impossible to tell. Who would believe you anyway?|n|/",
