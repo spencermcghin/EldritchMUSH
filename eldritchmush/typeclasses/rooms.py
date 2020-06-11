@@ -176,7 +176,6 @@ class AltarRoom(Room):
         self.cmdset.add(AltarCmdSet, permanent=True)
 
 
-
 # Weather room
 
 # These are rainy weather strings
