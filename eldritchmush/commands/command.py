@@ -2009,6 +2009,6 @@ class CmdTouchAltar(Command):
                 return
 
 
-            message = random.choice(ALTAR_STRINGS)
+            message = random.choice(self.ALTAR_STRINGS)
             self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
             self.caller.msg(message)
