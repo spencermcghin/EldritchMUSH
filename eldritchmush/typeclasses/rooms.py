@@ -7,7 +7,7 @@ Rooms are simple containers that has no location of their own.
 
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
-from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet
+from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet
 from commands import command
 
 import random
