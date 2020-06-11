@@ -2008,7 +2008,7 @@ class CmdTouchAltar(Command):
                 self.caller.msg(f"|400{self.caller}, you can't do that!|n")
                 return
 
-            if target == "altar":
-                message = random.choice(ALTAR_STRINGS)
-                self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
-                self.caller.msg(message)
+
+            message = random.choice(ALTAR_STRINGS)
+            self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
+            self.caller.msg(message)
