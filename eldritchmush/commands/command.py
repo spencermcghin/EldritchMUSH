@@ -2008,4 +2008,4 @@ class CmdTouchAltar(Command):
             if target == "altar":
                 message = random.choice(ALTAR_STRINGS)
                 self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
-                target.msg(message)
+                self.caller.msg(message)
