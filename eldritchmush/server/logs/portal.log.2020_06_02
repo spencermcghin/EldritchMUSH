@@ -1,0 +1,10 @@
+20-06-02 03:46:50  |Portal| Loading /Users/countzero/Documents/mush_test/evennia/evennia/server/portal/portal.py...
+20-06-02 03:46:52  |Portal| Loaded.
+20-06-02 03:46:52  |Portal| twistd 19.10.0 (/Users/countzero/Documents/mush_test/localevenv/bin/python 3.7.7) starting up.
+20-06-02 03:46:52  |Portal| reactor class: twisted.internet.selectreactor.SelectReactor.
+20-06-02 03:46:52  |Portal| AMP starting on 4006
+20-06-02 03:46:52  |Portal| Telnet starting on 4000
+20-06-02 03:46:52  |Portal| Websocket starting on 4002
+20-06-02 03:46:52  |Portal| Webserver-proxy starting on 4001
+20-06-02 03:46:52  |Portal| Portal starting server ... ['twistd', '--python=/Users/countzero/Documents/mush_test/evennia/evennia/server/server.py', '--pidfile=/Users/countzero/Documents/mush_test/eldritchmush/server/server.pid']
+20-06-02 03:49:08  |Portal| Timing out client: IPv4Address(type='TCP', host='127.0.0.1', port=65303)
