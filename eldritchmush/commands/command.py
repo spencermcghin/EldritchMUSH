@@ -1485,6 +1485,7 @@ class CmdBattlefieldMedicine(Command):
         else:
             self.caller.msg("|400You had better not try that.|n")
 
+
 class CmdChirurgery(Command):
     """Performs the chiurgeon skill.
     Restores a character to 3 body points, and removes the weakness state.
