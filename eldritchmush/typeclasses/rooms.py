@@ -167,6 +167,16 @@ class NotchRoom(Room):
         "this is called only at first creation"
         self.cmdset.add(NotchCmdSet, permanent=True)
 
+class AltarRoom(Room):
+    """
+    This room used for the Notch command.
+    """
+    def at_object_creation(self):
+        "this is called only at first creation"
+        self.cmdset.add(AltarCmdSet, permanent=True)
+
+
+
 # Weather room
 
 # These are rainy weather strings

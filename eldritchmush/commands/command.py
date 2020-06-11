@@ -476,7 +476,7 @@ class SetBody(Command):
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
 
-    Usage: setarmorspecialist <0,1,2,3,4>
+    Usage: setarmorspecialist <0/1>
 
     This sets the armor specialist of the current character. This can only be
     used during character generation.
@@ -487,7 +487,7 @@ class SetArmorSpecialist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setarmorspecialist <0-4>|n\n|400You must supply a value between 0 and 4.|n"
+        errmsg = "|540Usage: setarmorspecialist <0 or 1>|n\n|400You must supply a value between 0 and 1.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -498,7 +498,7 @@ class SetArmorSpecialist(Command):
             return
 
         # Extending range for knight ability
-        if not (0 <= armor_specialist <= 4):
+        if not (0 <= armor_specialist <= 1):
             self.caller.msg(errmsg)
         else:
             self.caller.db.armor_specialist = armor_specialist
@@ -549,7 +549,7 @@ class SetWyldingHand(Command):
 class SetWeaponValue(Command):
     """Set the weapon level of a character
 
-    Usage: setweaponvalue <value>
+    Usage: setweaponvalue <0 - 4>
 
     This sets the weapon level of the current character. This can only be
     used during character generation.
@@ -560,7 +560,7 @@ class SetWeaponValue(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|540Usage: setweaponvalue <value>|n"
+        errmsg = "|540Usage: setweaponvalue <0 - 4>|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1554,6 +1554,7 @@ class CmdChirurgery(Command):
         else:
             self.caller.msg("|400You had better not try that.|n")
 
+
 class SetStabilize(Command):
     """Set the stun level of a character
 
@@ -1651,6 +1652,7 @@ class SetBattleFieldMedicine(Command):
             self.caller.msg("|030You have activated the battlefield medicine ability.|n")
         else:
             self.caller.msg("|400You have deactivated the battlefield medicine ability.|n")
+
 
 class SetChirurgeon(Command):
     """Activate the chirurgery ability.
@@ -1965,3 +1967,45 @@ class CharStatus(Command):
             self.caller.msg(status_table)
         else:
             self.caller.msg("|540Usage: charstatus|n\n|400You can only see your own character status.|n")
+
+"""
+Random Commands
+"""
+ALTAR_STRINGS = [
+"|/|230Touching the stone altar, you see a hand on your shoulder, its wrinkled fingers tipped in rotting fingernails, cracked and bleeding. One by one it removes its stinking fingers from your shoulder and slides slowly forward. Forward, forward until it penetrates the mirror. As it does, another similarly grotesque hand reaches out for you from the mirror. Frozen, you try to drop the mirror but are unable to release it from your grasp. Just before the hand wraps around your throat, you faint, coming to, doing whatever it was you were doing, remembering only a terrible feeling and nothing of your actions related to the vision. Whether it was real or not is impossible to tell. Who would believe you anyway?|n|/",
+"|/|230You touch the stone and begin to feel happy. Looking up, you see someone who looks startlingly like you staring back at you. They begin to smile widely at you...wider, wider until it seems that its cheeks will come right off of its hideously grinning face. And in fact, that is what happens. Flesh tears from your cheeks, taking with it the rest of the skin from your face, until you are nothing more than a terrible grinning skull. You snap out of your trance and recall a terrible memory that you can’t quite put your finger on. Whether it was real or not is impossible to tell, though you feel your face and nothing seems to be out of place, or bleeding for that matter. Who would believe you anyway?|n|/",
+f"|/|230As you touch the stone, you feel control leave from your body. Your arms and legs feel like dead weights attached to your body. All sounds now seemed far away. Were you talking to someone just now? Where were you? Who were you? You hear a voice begin to softly whisper your name from just over your left shoulder, {self.caller.name}.... Did you imagine it? Now your right. This is certainly no dream. For a second it feels like many hands are all pulling you slowly backwards. Then it stops. There’s your name again. {self.caller.name}. Again. {self.caller.name}. Again. {self.caller.name}. And then in a rush you snap out of your trance to the sound of someone calling your name. Whether it was real or not is impossible to tell. Who would believe you anyway?|n|/",
+"|/|230You look into the mirror. You begin to feel euphorically dizzy, as though you’ve had too much wine. The world begins to spin around you and things go black. You wake up. Lying in bed you come to in a domicile you recognize as your home. From beyond the door to your room can be heard the uproarious din of a party. Music, voices, the sound of plates and cups scraping the tables. Though as you listen for a while, another sound begins to weave and crawl its way around the others. Whispers. Chattering. What was it? Lifting the sheets you set your feet upon the floor, crossing the small chamber to the bedroom door.  Slowly twisting the knob you pull the handle. Beyond the threshold it is as though you are staring into a mirror, your own perplexed expression looking back at you. But then it smiles. And it is then you realize that the face in the mirror is not yours at all. It opens its mouth as though to scream though no sounds comes out. You wake up. What was that? What are these strange memories of silent screams? Would that anyone were to believe your story, what could be done about it?|n|/",
+"|/|230Touching the altar, your head is suddenly filled with the sound of many people screaming all at once. Men, women, children. Looking deep into the woods, you can see that there are myriad humanoid shapes disappearing in and out of the trees. These are the spirits of this place. This is their graveyard. You wake up. What was that? Were these pitiful creatures really there? Who would believe you if you said something anyway?|n|/"]
+
+
+class CmdTouchAltar(Command):
+        key = "touch"
+        help_category = "mush"
+
+        def parse(self):
+            "Very trivial parser"
+            self.target = self.args.strip()
+
+        def func(self):
+            "This performs the actual command"
+            errmsg = "|540Usage: touch altar|n"
+
+            if not self.args:
+                self.caller.msg(errmsg)
+                return
+
+            target = self.caller.search(self.target)
+
+            if not target:
+                self.caller.msg(errmsg)
+                return
+
+            if target == self.caller:
+                self.caller.msg(f"|400{self.caller}, you can't do that!|n")
+                return
+
+            if target == "altar":
+                message = random.choice(ALTAR_STRINGS)
+                self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
+                target.msg(message)
