@@ -806,7 +806,7 @@ class SetSunder(Command):
             self.caller.msg(errmsg)
             return
         try:
-            stun = int(self.args)
+            sunder = int(self.args)
         except ValueError:
             self.caller.msg(errmsg)
             return
