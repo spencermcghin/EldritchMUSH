@@ -206,6 +206,7 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetDisarm())
         self.add(command.SetCleave())
         self.add(command.SetStun())
+        self.add(command.SetSunder())
         self.add(command.SetStagger())
         self.add(command.SetWyldingHand())
         self.add(command.SetStabilize())
