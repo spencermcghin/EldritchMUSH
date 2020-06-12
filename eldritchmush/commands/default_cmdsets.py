@@ -121,6 +121,13 @@ class NotchCmdSet(RoomCmdSet):
         super().at_cmdset_creation()
         self.add(command.CmdThrow())
 
+class HammerCmdSet(RoomCmdSet):
+
+    """Command set for fortune machine"""
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(command.CmdSwing())
+
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
     This is the cmdset available to the Account at all times. It is

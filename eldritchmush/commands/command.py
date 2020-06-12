@@ -1237,6 +1237,58 @@ class CmdPushButton(Command):
         # Call spawner
         ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a " + cardType + ".", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
 
+
+class CmdSwing(Command):
+    """
+    Usage: swing hammer
+
+    Swings hammer at the Hammer attraction.
+    """
+
+    key = "swing"
+
+    def func(self):
+        # Try and find caller key in fortuneStrings. If found, return fortune Value
+        # Remove it from the fortuneString dict
+        # If not found return a default fortune string
+        h = Helper()
+        args = self.args
+
+        err_msg = "|540Usage: swing hammer|n"
+
+        # Generate dc for target.
+        target_dc = random.randint(1,6)
+
+        # Generate throw result
+        master_of_arms = self.caller.db.master_of_arms
+        wyldinghand = self.caller.db.wyldinghand
+
+        if master_of_arms:
+            die_result = h.masterOfArms(master_of_arms)
+        elif wyldinghand:
+            die_result = h.wyldingHand(wyldinghand)
+
+        if not self.args:
+            self.caller.msg(err_msg)
+            return
+        try:
+            args == "hammer"
+        except ValueError:
+            self.caller.msg(err_msg)
+            return
+        else:
+            if die_result > (target_dc * 2):
+                # If the caller has done this before they will always get a skull ticket. Update their pariticpant status in the db as 1.
+                # If the caller has not done this before, they should get a result from the random ticket chance.
+                # Check the database to make sure that the jester ticket hasn't been chosen yet.
+                # If a player gets the random jester ticket from this booth, it should log the entry in the database and not allow it to be generated again.
+                self.caller.location.msg_contents(f"|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board, sending the metal pin up and up, until it hits the rusty bell. The sound it makes is a rather anti-climatic, hollow clang.|n")
+
+            elif die_result = target_dc:
+                self.caller.location.msg_contents(f"|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, just before reaching the top.|n")
+
+            else:
+                self.caller.location.msg_contents(f"|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, well before reaching the top.|n")
 """
 Healing commands
 """
