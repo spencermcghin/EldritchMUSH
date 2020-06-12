@@ -305,7 +305,7 @@ class MarketRoom(WeatherRoom):
         """
         super(MarketRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(10*60, self.update_market, idstring="market_ticker", persistent=False)
+        TICKER_HANDLER.add(5*60, self.update_market, idstring="market_ticker", persistent=False)
 
     def update_market(self, *args, **kwargs):
         """
@@ -367,7 +367,7 @@ class CarnivalRoom(WeatherRoom):
         """
         super(CarnivalRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(10*60, self.update_carnival, idstring="carnival_ticker", persistent=False)
+        TICKER_HANDLER.add(5*60, self.update_carnival, idstring="carnival_ticker", persistent=False)
 
     def update_carnival(self, *args, **kwargs):
         """
