@@ -1219,12 +1219,9 @@ class CmdStart(Command):
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
 
-        err_msg = "|540Usage: start|n"
-
         # Generate throw result
-        if key == "start":
-            self.caller.msg(f"|/|540Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.|n|/|230You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n|/")
-            self.caller.move_to('#449')
+        self.caller.msg(f"|/|540Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.|n|/|230You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n|/")
+        self.caller.move_to('#449')
 
 
 
