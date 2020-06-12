@@ -116,17 +116,24 @@ class ArtessaCmdSet(RoomCmdSet):
 
 class NotchCmdSet(RoomCmdSet):
 
-    """Command set for fortune machine"""
+    """Command set for knife throwing"""
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
         self.add(command.CmdThrow())
 
 class HammerCmdSet(RoomCmdSet):
 
-    """Command set for fortune machine"""
+    """Command set for hammer swing"""
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
         self.add(command.CmdSwing())
+
+class MirrorsCmdSet(RoomCmdSet):
+
+    """Command set for hall of mirrors"""
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(command.CmdStart())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
