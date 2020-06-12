@@ -814,7 +814,7 @@ class SetSunder(Command):
             self.caller.msg(errmsg)
         else:
             # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.stun = stun
+            self.caller.db.sunder = sunder
             self.caller.msg("Your sunder level was set to %i." % sunder)
 
 
