@@ -787,6 +787,37 @@ class SetStun(Command):
             self.caller.msg("Your stun level was set to %i." % stun)
 
 
+class SetSunder(Command):
+    """Set the stun level of a character
+
+    Usage: setsunder <0,1,2,3,4,5>
+
+    This sets the stun level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setsunder"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|540Usage: setsunder <0-5>|n\n|400You must supply a number between 0 and 5.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            stun = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= sunder <= 5):
+            self.caller.msg(errmsg)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.stun = stun
+            self.caller.msg("Your sunder level was set to %i." % sunder)
+
+
 class SetStagger(Command):
     """Set the stagger level of a character
 
