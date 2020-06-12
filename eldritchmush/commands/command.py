@@ -414,7 +414,8 @@ class SetShieldValue(Command):
             self.caller.msg("|540Usage: setshieldvalue <value>|n\n|400You may not set a value lower than 0.|n")
         elif shield_value == 0:
             self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
-            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            zero_av = self.caller.db.armor + self.caller.db.armor + self.caller.db.tough + self.caller.db.shield_value + self.caller.db.armor_specialist
+            self.caller.msg(f"|540Your current Armor Value is {zero_av}:\nArmor: {self.caller.db.armor}\nTough: {self.caller.db.tough}\nShield: {self.caller.db.shield_value}\nArmor Specialist: {self.caller.db.armor_specialist}|n")
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.shield_value = shield_value
