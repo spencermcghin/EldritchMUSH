@@ -1278,10 +1278,6 @@ class CmdSwing(Command):
             return
         else:
             if die_result > (target_dc * 2):
-                # If the caller has done this before they will always get a skull ticket. Update their pariticpant status in the db as 1.
-                # If the caller has not done this before, they should get a result from the random ticket chance.
-                # Check the database to make sure that the jester ticket hasn't been chosen yet.
-                # If a player gets the random jester ticket from this booth, it should log the entry in the database and not allow it to be generated again.
                 self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board, sending the metal pin up and up, until it hits the rusty bell. The sound it makes is a rather anti-climatic, hollow clang.|n|/")
 
             elif die_result == target_dc:
