@@ -1205,6 +1205,29 @@ class CmdThrow(Command):
                 self.caller.location.msg_contents(f"|230{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
 
+class CmdStart(Command):
+    """
+    Usage: start
+
+    Returns someone back to the start of the maze.
+    """
+
+    key = "start"
+
+    def func(self):
+        # Try and find caller key in fortuneStrings. If found, return fortune Value
+        # Remove it from the fortuneString dict
+        # If not found return a default fortune string
+
+        err_msg = "|540Usage: start|n"
+
+        # Generate throw result
+        if key == "start":
+            self.caller.msg(f"|/|540Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.|n|/|230You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n|/")
+            self.caller.move_to('#449')
+
+
+
 class CmdPushButton(Command):
     """
     Usage: push button
