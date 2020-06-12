@@ -1221,7 +1221,7 @@ class CmdStart(Command):
 
         # Generate throw result
         self.caller.msg(f"|/|540Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.|n|/|230You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n|/")
-        self.caller.move_to('#449')
+        self.caller.move_to(449)
 
 
 
