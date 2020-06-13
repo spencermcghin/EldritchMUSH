@@ -1165,7 +1165,7 @@ class CmdPull(Command):
             self.caller.msg(err_msg)
             return
         else:
-            fortune = random.choice(FORTUNE_STRINGS)
+            fortune = random.choice(fortuneStrings)
             self.caller.msg(fortune)
 
 
