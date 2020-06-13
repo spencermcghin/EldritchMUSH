@@ -335,7 +335,6 @@ CARNIVAL_STRINGS = [
     "\"Follow the cat, follow the mouse, find your way through the looking glass house...\"",
     "\"Find yer way to the golden fist...test your mettle...break a nose or get one broke! You'll never receive a finer kiss than at the golde fist!\"",
     "\"Piss off ya ruddy cunt...\"",
-    "\"Wilem Bordello gone missing while at the haunted manse...who's lucky enough to find the skeleton keys to unlock its barred doors? Who's brave enough to enter?!\"",
     "\"Exotic inhalants at the gardens...indulge your every whim...kneel at the feet of the goddess herself, ophidia!\"",
     "\"Think yer good with a dagger? Prove it at the notch...\"",
     "\"Spin the wheel of pain. Win a prize, or go insane...\"",
