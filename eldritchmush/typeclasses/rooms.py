@@ -232,7 +232,7 @@ class WeatherRoom(Room):
         else:
             self.current_weather_type = SUNNY_STRINGS
 
-        TICKER_HANDLER.add(30*60, self.update_weather, idstring="weather_ticker", persistent=False)
+        TICKER_HANDLER.add(30*60, self.update_weather, idstring="weather_ticker", persistent=True)
 
     def update_weather(self, *args, **kwargs):
         """
@@ -305,7 +305,7 @@ class MarketRoom(WeatherRoom):
         """
         super(MarketRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(5*60, self.update_market, idstring="market_ticker", persistent=False)
+        TICKER_HANDLER.add(5*60, self.update_market, idstring="market_ticker", persistent=True)
 
     def update_market(self, *args, **kwargs):
         """
@@ -366,7 +366,7 @@ class CarnivalRoom(WeatherRoom):
         """
         super(CarnivalRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(5*60, self.update_carnival, idstring="carnival_ticker", persistent=False)
+        TICKER_HANDLER.add(5*60, self.update_carnival, idstring="carnival_ticker", persistent=True)
 
     def update_carnival(self, *args, **kwargs):
         """
@@ -412,7 +412,7 @@ class RookeryRoom(Room):
         """
         super(RookeryRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(8*60, self.update_rookery, idstring="rookery_ticker", persistent=False)
+        TICKER_HANDLER.add(8*60, self.update_rookery, idstring="rookery_ticker", persistent=True)
 
     def update_rookery(self, *args, **kwargs):
         """
@@ -458,7 +458,7 @@ class FunHouseRoom(Room):
         """
         super(FunHouseRoom, self).at_object_creation()
 
-        TICKER_HANDLER.add(10*60, self.update_funhouse, idstring="funhouse_ticker", persistent=False)
+        TICKER_HANDLER.add(10*60, self.update_funhouse, idstring="funhouse_ticker", persistent=True)
 
     def update_funhouse(self, *args, **kwargs):
         """
@@ -526,7 +526,7 @@ class OphidiaRoom(Room):
 
         if self.show_counter >= len(OPHIDIA_STRINGS):
             self.show_counter = 0
-            TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
+            TICKER_HANDLER.remove(20, self.update_show, idstring="ophidia_start_show_ticker")
         else:
             phrase = OPHIDIA_STRINGS[self.show_counter]
             self.msg_contents("%s" % phrase)
