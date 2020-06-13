@@ -527,7 +527,7 @@ class OphidiaRoom(Room):
 
         if self.show_counter >= len(OPHIDIA_STRINGS):
             self.show_counter = 0
-            TICKER_HANDLER.remove(2, self.update_show, idstring="ophidia_start_show_ticker")
+            TICKER_HANDLER.remove(20, self.update_show, idstring="ophidia_start_show_ticker")
         else:
             phrase = OPHIDIA_STRINGS[self.show_counter]
             self.msg_contents("%s" % phrase)
