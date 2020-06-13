@@ -188,4 +188,3 @@ class CmdNPC(Command):
             return
         # send the command order
         npc.execute_cmd(self.cmdname, session=self.caller.sessid)
-        caller.msg("You told %s to do '%s'." % (npc.key, self.cmdname))
