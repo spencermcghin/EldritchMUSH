@@ -2060,6 +2060,7 @@ class CharStatus(Command):
                         "Body",
                         "Weapon Value",
                         "Melee Weapon Equipped",
+                        "Two-handed Equipped",
                         "Bow Equipped",
                         "Armor Value"
                     ],
@@ -2071,6 +2072,7 @@ class CharStatus(Command):
                         self.caller.db.body,
                         self.caller.db.weapon_level,
                         self.caller.db.melee,
+                        self.caller.db.twohanded,
                         self.caller.db.bow,
                         self.caller.db.av
                     ]
@@ -2082,6 +2084,63 @@ class CharStatus(Command):
             self.caller.msg(status_table)
         else:
             self.caller.msg("|540Usage: charstatus|n\n|400You can only see your own character status.|n")
+
+class CmdDiagnose(Command):
+    """
+    Prints out the character's relevant status information.
+    """
+
+    key = "diagnose"
+    aliases = ["dia", "check"]
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+
+        caller = self.caller
+   
+        if self.target == "self" or self.target == "me" or self.target == '':
+            message = ""
+            body = caller.db.body
+            if body >= 3:
+                message += "|230You are in tiptop shape!|n"
+            elif body < 3 and body > 0:
+                message += "|540You're a little roughed up and bruised, but not bleeding. It might be worth looking for someone versed in medicine before you go looking for a fight.|n"
+            elif body <= 0 and body > -4:
+                message += "|400You're bleeding to death. You cannot move from your immediate area or use active marshal skills.|n"
+            elif body <= -4 and body >= -6:
+                message += "|400You're dying. You can't do anything except lay there and hope someone comes to help.|n"
+            else:
+                message += "|400You are dead.|n"
+            
+            caller.msg(message)
+
+        else:
+            target = caller.search(self.target)
+            if not target:
+                caller.msg("|540Usage: diagnose <target>|n\n|400Your target wasn't found. Please try again.|n")
+            
+            elif not caller.db.medicine:
+                caller.msg("|540Sorry, but you don't have the Medicine skill so you can't diagnose other characters.|n")
+            
+            else:
+                message = ""
+                body = target.db.body
+                if body >= 3:
+                    message += "|230" + target.key + " is in tiptop shape and doesn't need any healing.|n"
+                elif body < 3 and body > 0:
+                    message += "|540" + target.key + " is a little roughed up and bruised, but not bleeding. They could use some tending before heading into a fight.|n"
+                elif body <= 0 and body > -4:
+                    message += "|400" + target.key + " is bleeding to death. They cannot move from their immediate position or use active marshal skills.|n"
+                elif body <= -4 and body >= -6:
+                    message += "|400" + target.key + " is dying. They need to be stabilized as soon as possible.|n"
+                else:
+                    message += "|400" + target.key + " is dead."
+
+                caller.msg(message)
 
 """
 Random Commands
