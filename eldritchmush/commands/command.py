@@ -1945,6 +1945,7 @@ class CharSheet(Command):
                         "Disarm",
                         "Stun",
                         "Stagger",
+                        "Sunder",
                         "Cleave"
                     ],
                     [
@@ -1952,6 +1953,7 @@ class CharSheet(Command):
                         self.caller.db.disarm,
                         self.caller.db.stun,
                         self.caller.db.stagger,
+                        self.caller.db.sunder,
                         self.caller.db.cleave
                     ]
                 ],
