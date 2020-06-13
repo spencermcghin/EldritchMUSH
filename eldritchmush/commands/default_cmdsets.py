@@ -100,6 +100,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CharSheet())
         self.add(command.CharStatus())
         self.add(command.CmdChirurgery())
+        self.add(command.CmdDiagnose())
         self.add(combat.CmdSunder())
         self.add(dice.CmdDice())
 
