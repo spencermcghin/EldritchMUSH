@@ -1926,6 +1926,7 @@ class CharSheet(Command):
                         "Body",
                         "Weapon Value",
                         "Melee Weapon Equipped",
+                        "Two-handed Equipped",
                         "Bow Equipped",
                         "Armor Value"
                     ],
@@ -1933,6 +1934,7 @@ class CharSheet(Command):
                         self.caller.db.body,
                         self.caller.db.weapon_level,
                         self.caller.db.melee,
+                        self.caller.db.twohanded,
                         self.caller.db.bow,
                         self.caller.db.av
                     ]
@@ -1945,6 +1947,7 @@ class CharSheet(Command):
                         "Disarm",
                         "Stun",
                         "Stagger",
+                        "Sunder",
                         "Cleave"
                     ],
                     [
@@ -1952,6 +1955,7 @@ class CharSheet(Command):
                         self.caller.db.disarm,
                         self.caller.db.stun,
                         self.caller.db.stagger,
+                        self.caller.db.sunder,
                         self.caller.db.cleave
                     ]
                 ],
