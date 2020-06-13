@@ -1143,9 +1143,18 @@ class CmdPull(Command):
         args = self.args
 
         err_msg = "|540Usage: pull crank|n"
-        fortuneStrings = {'eldritchadmin':'|540This is a test fortune.|n',
-                          'jess':'|540You will marry a very handsome man who love you very much.|n',
-                          'Lovecraft':'|540I am aware John. Spencer does not know that I can generate my own fortunes.|n'}
+        fortuneStrings = ["|540Unknow all that you think you know.|n",
+                          "|540You have what many want, though you still want more.|n",
+                          "|540Who is the little brother.|n",
+                          "|540I am not who they say I am.|n",
+                          "|540Can you help me?|n",
+                          "|540Be careful in the hall of mirrors. The cats are friends. Do not let the child catch them, for he is cruel.|n",
+                          "|540Nothing here is as it seems.|n",
+                          "|540Did you see them set up? Did you see any of it?|n",
+                          "|540Who are the Bordello Brothers|n",
+                          "|540Where is this place?|n",
+                          "|540Please...|n"
+                          ]
 
         if not self.args:
             self.caller.msg(err_msg)
@@ -1156,10 +1165,9 @@ class CmdPull(Command):
             self.caller.msg(err_msg)
             return
         else:
-            if self.caller.key in FORTUNE_STRINGS:
-                return self.caller.msg(FORTUNE_STRINGS[self.caller.key])
-            else:
-                return self.caller.msg("You get nothing.")
+            fortune = random.choice(FORTUNE_STRINGS)
+            self.caller.msg(fortune)
+
 
 class CmdThrow(Command):
     """
