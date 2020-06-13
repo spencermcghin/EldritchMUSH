@@ -1328,6 +1328,8 @@ class CmdSwing(Command):
             die_result = h.masterOfArms(master_of_arms)
         elif wyldinghand:
             die_result = h.wyldingHand(wyldinghand)
+        else:
+            die_result = random.randint(1, 4)
 
         if not self.args:
             self.caller.msg(err_msg)
