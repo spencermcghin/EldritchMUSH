@@ -30,6 +30,9 @@ class Room(DefaultRoom):
         """
 
         self.cmdset.add_default(RoomCmdSet)
+        # Holds character - command k, v pair for combat loop. Stores character,
+        # and command entered.
+        self.db.combat_loop = []
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)

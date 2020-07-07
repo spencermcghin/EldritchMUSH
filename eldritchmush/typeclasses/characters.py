@@ -75,6 +75,7 @@ class Character(DefaultCharacter):
         self.db.shield = 0
         self.db.bow = 0
         self.db.activemartialskill = 1
+        self.db.combat_turn = 0
 
         # Entries for combat
         self.db.battlefieldcommander = 0
