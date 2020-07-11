@@ -1,6 +1,7 @@
 # Local imports
 from evennia import Command
 from commands.combat_commands import Helper
+from commands.combat_commands.strike import *
 
 
 class CmdStrike(Command):
@@ -42,8 +43,6 @@ class CmdStrike(Command):
         if target.db.body is None:
             self.caller.msg("|400You had better not try that.")
             return
-
-
 
 
     def func(self):

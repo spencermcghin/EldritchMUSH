@@ -58,10 +58,9 @@ Hook ideas
 
 class CombatLoop:
 
-    def __init__(self, caller, target, combatCommand):
+    def __init__(self, caller, target):
         self.caller = caller
         self.target = target
-        self.combatCommand = combatCommand
         self.current_room = self.character.location.dbref
         self.combat_loop = self.current_room.db.combat_loop
 
@@ -122,9 +121,6 @@ class CombatLoop:
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {targetTurn} in the round order.")
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
-
-            # Caller executes command
-            self.caller.execute_cmd(self.combatCommand)
 
             # Clean up
             # Set caller's combat_turn to 0. Can no longer use combat commands.
