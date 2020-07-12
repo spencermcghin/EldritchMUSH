@@ -68,7 +68,7 @@ class CmdStrike(Command):
 
         # Clean up
         # Set caller's combat_turn to 0. Can no longer use combat commands.
-        loop.combatTurnOff(self.caller)
+        loop.combatTurnOff(strike.caller)
 
         # Check for number of elements in the combat loop
         if loop.getLoopLength() > 1:
