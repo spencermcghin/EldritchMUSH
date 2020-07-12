@@ -62,6 +62,7 @@ class CombatLoop:
         self.caller = caller
         self.target = target
 
+        # TODO: Get access to rooms combat loop
         self.current_room = self.caller.location
         self.combat_loop = self.current_room.db.combat_loop
 
