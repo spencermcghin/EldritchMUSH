@@ -134,7 +134,7 @@ class CombatLoop:
             targetTurn = self.getCombatTurn(self.target.key)
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {targetTurn} in the round order.")
             # Disable their ability to use combat commands
-            self.combatTurnOff(self.target.key)
+            self.combatTurnOff(self.target)
 
         elif not self.inLoop and loopLength > 0:
 
