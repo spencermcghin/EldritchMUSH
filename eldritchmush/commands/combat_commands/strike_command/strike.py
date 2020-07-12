@@ -1,6 +1,6 @@
 # Local imports
 from evennia import Command
-from commands.combat_commands.strike_command import strike_logic
+from commands.combat_commands.strike_command.strike_logic import Strike
 from world.combat_loop import CombatLoop
 
 
@@ -18,8 +18,6 @@ class CmdStrike(Command):
     key = "strike"
     aliases = ["hit", "slash", "bash", "punch"]
     help_category = "combat"
-
-
 
     def parse(self):
         "Very trivial parser"
