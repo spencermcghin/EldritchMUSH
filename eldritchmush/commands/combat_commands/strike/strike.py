@@ -55,7 +55,6 @@ class CmdStrike(Command):
 
     def func(self):
 
-
         # Initialize strike logic with caller and target
         strike = Strike(self.caller, target)
 
