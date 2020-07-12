@@ -4,12 +4,7 @@ from commands.combat import Helper
 
 class Strike:
 
-    def __init__(self, caller, target):
-        self.caller = caller
-        self.target = target
-
-
-    def runLogic(self):
+    def runLogic(self, caller, target):
         # Init combat helper class for logic
         h = Helper()
 
