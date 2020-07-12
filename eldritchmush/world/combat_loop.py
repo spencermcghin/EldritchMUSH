@@ -110,7 +110,7 @@ class CombatLoop:
 
 
     def gotoNext(self):
-        nextIndex = self.combat_loop.index(self.caller) + 1
+        nextIndex = self.combat_loop.index(self.caller.key) + 1
         nextTurnCharacter = self.combat_loop[nextIndex]
 
         return nextTurnCharacter
