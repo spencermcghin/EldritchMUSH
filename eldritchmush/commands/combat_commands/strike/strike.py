@@ -38,10 +38,12 @@ class CmdStrike(Command):
             self.caller.msg("|540Usage: strike <target>|n")
             return
 
+        # Error handling for
         if target == self.caller:
             self.caller.msg(f"|400{self.caller}, quit hitting yourself!|n")
             return
 
+        # Error handling for non-character objects
         if target.db.body is None:
             self.caller.msg("|400You had better not try that.")
             return
@@ -56,12 +58,18 @@ class CmdStrike(Command):
 
         # Initialize strike logic with caller and target
         strike = Strike(self.caller, target)
+
         # Run logic for strike command
-        strike.runLogic()
+        if strike.caller.isTurn():
+            strike.runLogic()
+        else:
+            strike.caller.msg("You need to wait until it is your turn before you are able to act.")
+            return
 
         # Clean up
         # Set caller's combat_turn to 0. Can no longer use combat commands.
         loop.combatTurnOff(self.caller)
+
         # Check for number of elements in the combat loop
         if loop.getLoopLength() > 1:
             # Get character at next index and set their combat_round to 1
@@ -70,4 +78,6 @@ class CmdStrike(Command):
             nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
         else:
             loop.removeFromLoop(self.caller)
-            self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}")
+            strike.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
+            # Change callers combat_turn to 1 so they can attack again.
+            strike.combatTurnOn(strike.caller)
