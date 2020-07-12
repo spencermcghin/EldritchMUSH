@@ -75,8 +75,8 @@ class CombatLoop:
             return False
 
 
-    def isTurn(self):
-        if self.caller.db.combat_turn:
+    def isTurn(self, combatant):
+        if combatant.db.combat_turn:
             return True
         else:
             return False
