@@ -40,7 +40,7 @@ element (character/npc).
 to enter command.
 
 10. If number of elements left in loop <= 1, remove remaining elements in loop.
-Combat loop is empty and now ready for a new combat.
+Change callers combat_turn to 1. Combat loop is empty and now ready for a new combat.
 
 Notes:
 Handle removal of character if body is 0 or less - check before setting combat_turn
