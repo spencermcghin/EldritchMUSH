@@ -2,14 +2,14 @@
 from commands.combat_commands import Helper
 
 
-class StrikeLogic:
+class Strike:
 
     def __init__(self, caller, target):
         self.caller = caller
         self.target = target
 
 
-    def logic(self):
+    def runLogic(self):
         # Init combat helper class for logic
         h = Helper()
 
