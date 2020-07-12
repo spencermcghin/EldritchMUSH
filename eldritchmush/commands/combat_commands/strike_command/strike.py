@@ -32,17 +32,17 @@ class CmdStrike(Command):
         # Check for designated self.target
         target = self.caller.search(self.target)
 
-        if not self.target:
+        if not target:
             self.caller.msg("|540Usage: strike <target>|n")
             return
 
         # Error handling for
-        if self.target == self.caller:
+        if target == self.caller:
             self.caller.msg(f"|400{self.caller.key}, quit hitting yourself!|n")
             return
 
         # Error handling for non-character objects
-        if self.target.db.body is None:
+        if target.db.body is None:
             self.caller.msg("|400You had better not try that.")
             return
 
