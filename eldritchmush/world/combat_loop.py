@@ -94,6 +94,11 @@ class CombatLoop:
         self.combat_loop.append(combatant)
 
 
+    def removeFromLoop(self, combatant):
+        # Remove character from combat loop
+        self.combat_loop.remove(combatant)
+
+
     def getCombatTurn(self, combatant):
         # Set character turn to index of character in combat loop, plus one
         return self.combat_loop.index(combatant) + 1
