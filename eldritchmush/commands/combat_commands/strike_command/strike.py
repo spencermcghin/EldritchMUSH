@@ -49,11 +49,11 @@ class CmdStrike(Command):
         loop = CombatLoop(self.caller, target)
         loop.resolveCommand()
 
-        # Initialize strike logic with caller and target
-        strike = Strike(self.caller, target)
-
 
     def func(self):
+
+        # Initialize strike logic with caller and target
+        strike = Strike(self.caller, target)
 
         # Run logic for strike command
         if self.caller.db.combat_turn:
