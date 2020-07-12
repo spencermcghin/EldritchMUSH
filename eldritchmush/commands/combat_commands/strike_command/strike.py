@@ -51,7 +51,7 @@ class CmdStrike(Command):
             return
 
         # Use parsed args in combat loop
-        loop = CombatLoop(self.caller, self.target)
+        loop = CombatLoop(self.caller, target)
         loop.resolveCommand()
 
         # Run logic for strike command
