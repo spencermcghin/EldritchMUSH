@@ -21,40 +21,40 @@ class CmdStrike(Command):
 
     def parse(self):
         "Very trivial parser"
-        self.self.target = self.args.strip()
+        self.target = self.args.strip()
 
         # Check for correct command
         if not self.args:
-            self.self.caller.msg("|540Usage: strike <self.target>|n")
+            self.caller.msg("|540Usage: strike <target>|n")
             return
 
         # Check for designated self.target
-        self.target = self.self.caller.search(self.self.target)
+        target = self.caller.search(self.target)
 
         if not self.target:
-            self.self.caller.msg("|540Usage: strike <self.target>|n")
+            self.caller.msg("|540Usage: strike <target>|n")
             return
 
         # Error handling for
-        if self.target == self.self.caller:
-            self.self.caller.msg(f"|400{self.self.caller}, quit hitting yourself!|n")
+        if self.target == self.caller:
+            self.caller.msg(f"|400{self.caller.key}, quit hitting yourself!|n")
             return
 
         # Error handling for non-character objects
         if self.target.db.body is None:
-            self.self.caller.msg("|400You had better not try that.")
+            self.caller.msg("|400You had better not try that.")
             return
 
 
     def func(self):
 
         # Use parsed args in combat loop
-        loop = CombatLoop(self.self.caller, self.self.target)
+        loop = CombatLoop(self.caller, self.target)
         loop.resolveCommand()
 
 
         # Run logic for strike command
-        if self.self.caller.db.combat_turn:
+        if self.caller.db.combat_turn:
             # Init combat helper class for logic
             h = Helper()
 
