@@ -62,7 +62,7 @@ class CombatLoop:
         self.caller = caller
         self.target = target
 
-        self.current_room = self.character.location.dbref
+        self.current_room = self.caller.location.dbref
         self.combat_loop = self.current_room.db.combat_loop
 
 
