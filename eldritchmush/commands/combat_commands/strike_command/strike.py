@@ -45,15 +45,15 @@ class CmdStrike(Command):
             self.caller.msg("|400You had better not try that.")
             return
 
-        # Use parsed args in combat loop
-        loop = CombatLoop(self.caller, target)
-        loop.resolveCommand()
-
 
     def func(self):
 
+        # Use parsed args in combat loop
+        loop = CombatLoop(self.caller, self.target)
+        loop.resolveCommand()
+
         # Initialize strike logic with caller and target
-        strike = Strike(self.caller, target)
+        strike = Strike(self.caller, self.target)
 
         # Run logic for strike command
         if self.caller.db.combat_turn:
