@@ -56,7 +56,7 @@ class CmdStrike(Command):
     def func(self):
 
         # Run logic for strike command
-        if self.caller.isTurn():
+        if loop.isTurn(self.caller):
             strike.runLogic()
         else:
             self.caller.msg("You need to wait until it is your turn before you are able to act.")
