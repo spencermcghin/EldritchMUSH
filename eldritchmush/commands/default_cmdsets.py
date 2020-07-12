@@ -19,7 +19,7 @@ from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import command
 from commands import combat
-from commands.combat_commmands.strike import strike
+from commands.combat_commands.strike import strike
 from commands import npc
 from commands import dice
 
