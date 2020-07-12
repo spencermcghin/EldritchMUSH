@@ -1,5 +1,5 @@
 # Local imports
-from commands import combat
+from commands.combat import Helper
 
 
 class Strike:
