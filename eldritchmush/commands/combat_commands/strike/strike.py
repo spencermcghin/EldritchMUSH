@@ -1,6 +1,5 @@
 # Local imports
 from evennia import Command
-from commands.combat_commands import combat
 from commands.combat_commands.strike import *
 from world.combat_loop import CombatLoop
 
