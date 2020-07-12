@@ -56,15 +56,15 @@ class CmdStrike(Command):
     def func(self):
 
         # Run logic for strike command
-        if strike.caller.isTurn():
+        if self.caller.isTurn():
             strike.runLogic()
         else:
-            strike.caller.msg("You need to wait until it is your turn before you are able to act.")
+            self.caller.msg("You need to wait until it is your turn before you are able to act.")
             return
 
         # Clean up
         # Set caller's combat_turn to 0. Can no longer use combat commands.
-        loop.combatTurnOff(strike.caller)
+        loop.combatTurnOff(self.caller)
 
         # Check for number of elements in the combat loop
         if loop.getLoopLength() > 1:
@@ -74,6 +74,6 @@ class CmdStrike(Command):
             nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
         else:
             loop.removeFromLoop(self.caller)
-            strike.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
+            self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
             # Change callers combat_turn to 1 so they can attack again.
-            strike.combatTurnOn(strike.caller)
+            strike.combatTurnOn(self.caller)
