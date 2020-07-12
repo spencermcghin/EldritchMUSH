@@ -115,8 +115,6 @@ class CombatLoop:
         return nextTurnCharacter
 
 
-
-
     # Main logic
     def resolveCommand(self):
         loopLength = self.getLoopLength()
