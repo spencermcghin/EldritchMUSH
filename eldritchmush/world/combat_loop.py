@@ -121,7 +121,7 @@ class CombatLoop:
         loopLength = self.getLoopLength()
 
         # If character not in loop and loop is empty
-        if not self.inLoop and loopLength == 0:
+        if not self.inLoop() and loopLength == 0:
 
             # Add character to loop
             self.addToLoop(self.caller)
