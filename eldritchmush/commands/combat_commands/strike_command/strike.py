@@ -54,7 +54,6 @@ class CmdStrike(Command):
         loop = CombatLoop(self.caller, self.target)
         loop.resolveCommand()
 
-
         # Run logic for strike command
         if self.caller.db.combat_turn:
             # Get hasMelee for character to check that they've armed themselves.
