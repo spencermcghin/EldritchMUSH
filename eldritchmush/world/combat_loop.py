@@ -141,4 +141,7 @@ class CombatLoop:
 
             # Append to end of loop
             self.combat_loop.append(self.caller)
-            # Disable their
+            # Change combat_turn to 0
+            self.combatTurnOff(self.caller)
+            callerTurn = self.getCombatTurn(self.caller)
+            self.caller.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {callerTurn} in the round order.")
