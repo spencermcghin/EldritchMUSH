@@ -61,6 +61,7 @@ class CombatLoop:
     def __init__(self, caller, target):
         self.caller = caller
         self.target = target
+
         self.current_room = self.character.location.dbref
         self.combat_loop = self.current_room.db.combat_loop
 
@@ -102,6 +103,15 @@ class CombatLoop:
         return len(self.combat_loop)
 
 
+    def gotoNext(self):
+        nextIndex = self.combat_loop.index(self.caller) + 1
+        nextTurnCharacter = self.combat_loop[nextIndex]
+
+        return nextTurnCharacter
+
+
+
+
     # Main logic
     def resolveCommand(self):
         loopLength = self.getLoopLength()
@@ -121,11 +131,6 @@ class CombatLoop:
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {targetTurn} in the round order.")
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
-
-            # Clean up
-            # Set caller's combat_turn to 0. Can no longer use combat commands.
-            self.combatTurnOff(self.caller)
-
 
         elif not self.caller.inLoop and loopLength > 0:
 
