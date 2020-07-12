@@ -83,14 +83,14 @@ class CmdStrike(Command):
                 # Get damage result and damage for weapon type
                 attack_result = (die_result + weapon_level) - dmg_penalty - weakness
                 damage = 2 if self.caller.db.twohanded == True else 1
-                self.target_av = self.target.db.av
-                shot_location = h.shotFinder(self.target.db.self.targetArray)
+                target_av = self.target.db.av
+                shot_location = h.shotFinder(self.target.db.targetArray)
 
                 # Compare self.caller attack_result to self.target av.
                 # If attack_result > self.target av -> hit, else miss
-                if attack_result >= self.target_av:
+                if attack_result >= target_av:
                     # if self.target has any more armor points left go through the damage subtractor
-                    if self.target_av:
+                    if target_av:
                         self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {self.target.key} and hits|n (|400{self.target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
                         # subtract damage from corresponding self.target stage (shield_value, armor, tough, body)
                         new_av = h.damageSubtractor(damage, self.target)
@@ -121,12 +121,12 @@ class CmdStrike(Command):
                 else:
                     self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {self.target.key} |n|020{self.target_av}|n")
         else:
-            self.self.caller.msg("You need to wait until it is your turn before you are able to act.")
+            self.caller.msg("You need to wait until it is your turn before you are able to act.")
             return
 
         # Clean up
         # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-        loop.combatTurnOff(self.self.caller)
+        loop.combatTurnOff(self.caller)
 
         # Check for number of elements in the combat loop
         if loop.getLoopLength() > 1:
@@ -135,7 +135,7 @@ class CmdStrike(Command):
             loop.combatTurnOn(nextTurn)
             nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
         else:
-            loop.removeFromLoop(self.self.caller)
-            self.self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
+            loop.removeFromLoop(self.caller)
+            self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
             # Change self.callers combat_turn to 1 so they can attack again.
-            strike.combatTurnOn(self.self.caller)
+            strike.combatTurnOn(self.caller)
