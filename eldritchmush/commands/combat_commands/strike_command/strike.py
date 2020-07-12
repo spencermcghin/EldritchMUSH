@@ -53,11 +53,11 @@ class CmdStrike(Command):
         loop.resolveCommand()
 
         # Initialize strike logic with caller and target
-        strike = Strike(self.caller, self.target)
+        strike = Strike()
 
         # Run logic for strike command
         if self.caller.db.combat_turn:
-            strike.runLogic()
+            strike.runLogic(self.caller, self.target)
         else:
             self.caller.msg("You need to wait until it is your turn before you are able to act.")
             return
