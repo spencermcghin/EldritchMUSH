@@ -82,11 +82,11 @@ class CombatLoop:
 
 
     def combatTurnOn(self, combatant):
-        combatant.db.combat_turn = 0
+        combatant.db.combat_turn = 1
 
 
     def combatTurnOff(self, combatant):
-        combatant.db.combat_turn = 1
+        combatant.db.combat_turn = 0
 
 
     def addToLoop(self, combatant):
@@ -141,3 +141,4 @@ class CombatLoop:
 
             # Append to end of loop
             self.combat_loop.append(self.caller)
+            # Disable their
