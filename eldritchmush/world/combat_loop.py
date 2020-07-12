@@ -121,7 +121,7 @@ class CombatLoop:
         loopLength = self.getLoopLength()
 
         # If character not in loop and loop is empty
-        if not self.caller.inLoop and loopLength == 0:
+        if not self.inLoop and loopLength == 0:
 
             # Add character to loop
             self.addToLoop(self.caller)
@@ -136,7 +136,7 @@ class CombatLoop:
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
 
-        elif not self.caller.inLoop and loopLength > 0:
+        elif not self.inLoop and loopLength > 0:
 
             # Append to end of loop
             self.combat_loop.append(self.caller)
