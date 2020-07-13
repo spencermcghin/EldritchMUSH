@@ -129,7 +129,7 @@ class CmdStrike(Command):
         # Check for number of elements in the combat loop
         if loop.getLoopLength() > 1:
             # If no character at next index, go back to beginning of combat_loop and prompt character for input.
-            if loop.isLast(self.caller.key):
+            if loop.isLast():
                 firstCharacter = loop.goToFirst()
                 loop.combatTurnOn(firstCharacter)
                 firstCharacter.msg(f"{firstCharacter.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
