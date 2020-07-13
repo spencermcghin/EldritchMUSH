@@ -52,7 +52,9 @@ Build command - Drag. Your turn is skipped.
 Need to fix it so you can see NPCs msgs
 
 Need to make sure error messages for caller don't execute the command and count
-as their turn.
+as their turn. DONE
+
+setmelee needs to be counted as an action in loop
 
 
 """
