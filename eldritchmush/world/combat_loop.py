@@ -109,6 +109,14 @@ class CombatLoop:
         return len(self.combat_loop)
 
 
+    def isLast(self):
+        # Check to see if caller is last in the combat_loop
+        loopLength = self.getLoopLength()
+        if self.combat_loop.index(self.caller.key) + 1 == loopLength:
+            return True
+        else:
+            return False
+
     def goToNext(self):
         nextIndex = self.combat_loop.index(self.caller.key) + 1
         nextTurnCharacter = self.combat_loop[nextIndex]
