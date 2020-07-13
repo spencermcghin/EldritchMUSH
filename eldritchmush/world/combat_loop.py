@@ -51,7 +51,8 @@ If dying, you can do nothing and be the target of a drag command
 Build command - Drag. Your turn is skipped.
 Need to fix it so you can see NPCs msgs
 
-Hook ideas
+Need to make sure error messages for caller don't execute the command and count
+as their turn.
 
 
 """
