@@ -140,7 +140,7 @@ class CmdStrike(Command):
                     # Change self.callers combat_turn to 1 so they can attack again.
                     strike.combatTurnOn(self.caller)
 
-             else:
+            else:
                  self.caller.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
         else:
             self.caller.msg("You need to wait until it is your turn before you are able to act.")
