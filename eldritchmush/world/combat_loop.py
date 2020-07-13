@@ -109,7 +109,7 @@ class CombatLoop:
         return len(self.combat_loop)
 
 
-    def gotoNext(self):
+    def goToNext(self):
         nextIndex = self.combat_loop.index(self.caller.key) + 1
         nextTurnCharacter = self.combat_loop[nextIndex]
 
@@ -117,6 +117,12 @@ class CombatLoop:
         searchCharacter = self.caller.search(nextTurnCharacter)
         return searchCharacter
 
+    def goToFirst(self):
+        firstCharacter = self.combat_loop[0]
+
+        # Search for and return first element in combat loop
+        searchCharacter = self.caller.search(firstCharacter)
+        return searchCharacter
 
     # Main logic
     def resolveCommand(self):
