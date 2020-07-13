@@ -128,10 +128,16 @@ class CmdStrike(Command):
 
         # Check for number of elements in the combat loop
         if loop.getLoopLength() > 1:
-            # Get character at next index and set their combat_round to 1
-            nextTurn = loop.gotoNext()
-            loop.combatTurnOn(nextTurn)
-            nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
+            # If no character at index, go back to beginning of combat_loop and prompt character for input.
+            if not loop.goToNext():
+                firstCharacter = loop.goToFirst()
+                loop.combatTurnOn(firstCharacter)
+                firstCharacter.msg(f"{firstCharacter.key}, it's now your turn. Please enter a combat command, or disengage from combat.")                
+            else:
+                # Get character at next index and set their combat_round to 1.
+                nextTurn = loop.goToNext()
+                loop.combatTurnOn(nextTurn)
+                nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
         else:
             loop.removeFromLoop(self.caller)
             self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
