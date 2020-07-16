@@ -56,18 +56,14 @@ class CmdStrike(Command):
 
         # Run logic for strike command
         if self.caller.db.combat_turn:
-            # Get hasMelee for character to check that they've armed themselves.
-            hasMelee = self.caller.db.melee
 
-            # Vars for attack_result logic
-            master_of_arms = self.caller.db.master_of_arms
-            weapon_level = h.weaponValue(self.caller.db.weapon_level)
-            wylding_hand = self.caller.db.wylding_hand
+            # Return db stats needed to calc melee results
+            combat_stats = h.getMeleeCombatStats(self.caller)
 
             # Get die result based on master of arms level
-            if hasMelee:
+            if combat_stats.get("melee", 0):
                 # Return die roll based on level in master of arms or wylding hand.
-                if wylding_hand:
+                if combat_stats.get("wylding_hand", 0):
                     die_result = h.wyldingHand(wylding_hand)
                 else:
                     die_result = h.masterOfArms(master_of_arms)
@@ -76,8 +72,8 @@ class CmdStrike(Command):
                 dmg_penalty = h.bodyChecker(self.caller.db.body)
 
                 # Get damage result and damage for weapon type
-                attack_result = (die_result + weapon_level) - dmg_penalty - weakness
-                damage = 2 if self.caller.db.twohanded == True else 1
+                attack_result = (die_result + combat_stats.get("weapon_level", 0)) - dmg_penalty - weakness
+                damage = 2 if combat_stats.get("two_handed", 0) == True else 1
                 target_av = target.db.av
                 shot_location = h.shotFinder(target.db.targetArray)
 
