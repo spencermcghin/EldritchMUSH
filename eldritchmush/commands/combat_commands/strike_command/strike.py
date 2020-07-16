@@ -68,9 +68,6 @@ class CmdStrike(Command):
                 else:
                     die_result = h.masterOfArms(combat_stats.get("master_of_arms", 0))
 
-                weakness = h.weaknessChecker(self.caller.db.weakness)
-                dmg_penalty = h.bodyChecker(self.caller.db.body)
-
                 # Get damage result and damage for weapon type
                 attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
                 damage = 2 if combat_stats.get("two_handed", 0) == True else 1
