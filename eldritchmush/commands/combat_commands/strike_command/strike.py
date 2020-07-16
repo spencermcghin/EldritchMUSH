@@ -11,7 +11,7 @@ class CmdStrike(Command):
 
     Usage:
 
-    strike <self.target>
+    strike <target>
 
     This will calculate an attack score based on your weapon and master of arms level.
     """
