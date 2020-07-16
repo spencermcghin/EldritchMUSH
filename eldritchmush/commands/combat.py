@@ -196,11 +196,17 @@ class Helper():
         weapon_level = self.weaponValue(combatant.db.weapon_level)
         wylding_hand = combatant.db.wylding_hand
 
+        # Penalties
+        weakness = self.weaknessChecker(combatant.db.weakness)
+        dmg_penalty = self.bodyChecker(combatant.db.body)
+
         melee_stats = {"melee": melee,
                        "two_handed": two_handed,
                        "master_of_arms": master_of_arms,
                        "weapon_level": weapon_level,
-                       "wylding_hand": wylding_hand}
+                       "wylding_hand": wylding_hand,
+                       "weakness": weakness,
+                       "dmg_penalty": dmg_penalty}
 
         return melee_stats
 """
