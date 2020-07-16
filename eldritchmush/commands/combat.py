@@ -210,8 +210,15 @@ class Helper():
 
         return melee_stats
 
-    def fayneChecker(self, combatant):
-        pass
+
+    def fayneChecker(self, master_of_arms, wylding_hand):
+        # Return die roll based on level in master of arms or wylding hand.
+        if wylding_hand:
+            die_result = self.wyldingHand(wylding_hand)
+        else:
+            die_result = self.masterOfArms(master_of_arms)
+
+        return die_result
 
 
 
