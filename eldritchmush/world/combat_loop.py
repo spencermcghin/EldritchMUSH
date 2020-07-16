@@ -135,7 +135,6 @@ class CombatLoop:
         searchCharacter = self.caller.search(firstCharacter)
         return searchCharacter
 
-    # Main logic
     def resolveCommand(self):
         loopLength = self.getLoopLength()
 
@@ -155,6 +154,7 @@ class CombatLoop:
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
 
+
         elif not self.inLoop and loopLength > 0:
 
             # Append to end of loop
@@ -163,3 +163,24 @@ class CombatLoop:
             self.combatTurnOff(self.caller)
             callerTurn = self.getCombatTurn(self.caller)
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {callerTurn} in the round order.")
+
+
+    def cleanup(self):
+        # Check for number of elements in the combat loop
+        if self.getLoopLength() > 1:
+            # If no character at next index (current character is last),
+            # go back to beginning of combat_loop and prompt character for input.
+            if self.isLast():
+                firstCharacter = self.goToFirst()
+                self.combatTurnOn(firstCharacter)
+                firstCharacter.msg(f"{firstCharacter.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
+            else:
+                # Get character at next index and set their combat_round to 1.
+                nextTurn = self.goToNext()
+                self.combatTurnOn(nextTurn)
+                nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
+        else:
+            self.removeFromLoop(self.caller)
+            self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
+            # Change self.callers combat_turn to 1 so they can attack again.
+            self.combatTurnOn(self.caller)
