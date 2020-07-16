@@ -62,11 +62,9 @@ class CmdStrike(Command):
 
             # Get die result based on master of arms level
             if combat_stats.get("melee", 0):
-                # Return die roll based on level in master of arms or wylding hand.
-                if combat_stats.get("wylding_hand", 0):
-                    die_result = h.wyldingHand(combat_stats.get("wylding_hand", 0))
-                else:
-                    die_result = h.masterOfArms(combat_stats.get("master_of_arms", 0))
+
+                # Check if damage bonus comes from fayne or master_of_arms
+                die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                 # Get damage result and damage for weapon type
                 attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
