@@ -64,7 +64,6 @@ class CmdStrike(Command):
             weapon_level = h.weaponValue(self.caller.db.weapon_level)
             wylding_hand = self.caller.db.wylding_hand
 
-
             # Get die result based on master of arms level
             if hasMelee:
                 # Return die roll based on level in master of arms or wylding hand.
