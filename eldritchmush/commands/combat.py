@@ -179,12 +179,30 @@ class Helper():
         new_av = self.updateArmorValue(target.db.shield_value, target.db.armor, target.db.tough, target.db.armor_specialist)
         return new_av
 
+
     def updateArmorValue(self, shieldValue, armor, tough, armorSpecialist):
         armor_value = shieldValue + armor + tough + armorSpecialist
 
         return armor_value
 
 
+    def getMeleeCombatStats(self, combatant):
+        # Get hasMelee for character to check that they've armed themselves.
+        melee = combatant.db.melee
+        two_handed = combatant.db.twohanded
+
+        # Vars for melee attack_result logic
+        master_of_arms = combatant.db.master_of_arms
+        weapon_level = self.weaponValue(combatant.db.weapon_level)
+        wylding_hand = combatant.db.wylding_hand
+
+        melee_stats = {"melee": melee,
+                       "two_handed": two_handed,
+                       "master_of_arms": master_of_arms,
+                       "weapon_level": weapon_level,
+                       "wylding_hand": wylding_hand}
+
+        return melee_stats
 """
 Basic Combat commands
 """
