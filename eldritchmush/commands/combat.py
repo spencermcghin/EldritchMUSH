@@ -209,6 +209,12 @@ class Helper():
                        "dmg_penalty": dmg_penalty}
 
         return melee_stats
+
+    def fayneChecker(self, combatant):
+        pass
+
+
+
 """
 Basic Combat commands
 """
