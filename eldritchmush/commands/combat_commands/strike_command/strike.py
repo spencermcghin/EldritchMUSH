@@ -120,24 +120,7 @@ class CmdStrike(Command):
                 # Clean up
                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                 loop.combatTurnOff(self.caller)
-
-                # Check for number of elements in the combat loop
-                if loop.getLoopLength() > 1:
-                    # If no character at next index, go back to beginning of combat_loop and prompt character for input.
-                    if loop.isLast():
-                        firstCharacter = loop.goToFirst()
-                        loop.combatTurnOn(firstCharacter)
-                        firstCharacter.msg(f"{firstCharacter.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
-                    else:
-                        # Get character at next index and set their combat_round to 1.
-                        nextTurn = loop.goToNext()
-                        loop.combatTurnOn(nextTurn)
-                        nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
-                else:
-                    loop.removeFromLoop(self.caller)
-                    self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
-                    # Change self.callers combat_turn to 1 so they can attack again.
-                    strike.combatTurnOn(self.caller)
+                loop.cleanup()
 
             else:
                  self.caller.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
