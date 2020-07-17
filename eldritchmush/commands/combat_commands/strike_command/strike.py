@@ -28,7 +28,7 @@ class CmdStrike(Command):
     def func(self):
 
         # Init combat helper class for logic
-        h = Helper()
+        h = Helper(self.caller)
 
         # Check for correct command
         if not self.args:
