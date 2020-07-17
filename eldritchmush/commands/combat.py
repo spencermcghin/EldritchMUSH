@@ -15,7 +15,7 @@ class Helper():
     Class for general combat helper commands.
     """
 
-    def __init__(self):
+    def __init__(self, caller):
         self.caller = caller
 
 
