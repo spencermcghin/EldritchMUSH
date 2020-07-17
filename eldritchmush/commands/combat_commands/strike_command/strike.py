@@ -114,7 +114,7 @@ class CmdStrike(Command):
                 loop.cleanup()
 
             else:
-                 self.caller.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
+                 self.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
         else:
-            self.caller.msg("You need to wait until it is your turn before you are able to act.")
+            self.msg("You need to wait until it is your turn before you are able to act.")
             return
