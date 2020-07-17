@@ -38,17 +38,8 @@ class CmdStrike(Command):
         # Check for designated target
         target = self.caller.search(self.target)
 
-        if not target:
-            self.msg("|540Usage: strike <target>|n")
-            return
-
-        if target == self.caller:
-            self.msg(f"|400{self.caller}, quit hitting yourself!|n")
-            return
-
-        if target.db.body is None:
-            self.msg("|400You had better not try that.")
-            return
+        # Error handle target
+        h.targetHandler(target)
 
         # Use parsed args in combat loop
         loop = CombatLoop(self.caller, target)
