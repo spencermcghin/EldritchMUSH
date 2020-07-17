@@ -187,4 +187,4 @@ class CmdNPC(Command):
             caller.msg("You may not order this NPC to do anything.")
             return
         # send the command order
-        npc.execute_cmd(self.cmdname, session=self.caller.sessid)
+        npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)
