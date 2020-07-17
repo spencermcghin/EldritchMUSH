@@ -67,7 +67,7 @@ class CmdStrike(Command):
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                 # Get damage result and damage for weapon type
-                attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) # - combat_stats.get("weakness", 0)
+                attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
                 damage = 2 if combat_stats.get("two_handed", 0) == True else 1
                 target_av = target.db.av
                 shot_location = h.shotFinder(target.db.targetArray)
