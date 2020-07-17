@@ -32,22 +32,22 @@ class CmdStrike(Command):
 
         # Check for correct command
         if not self.args:
-            self.caller.msg("|540Usage: strike <target>|n")
+            self.msg("|540Usage: strike <target>|n")
             return
 
         # Check for designated target
         target = self.caller.search(self.target)
 
         if not target:
-            self.caller.msg("|540Usage: strike <target>|n")
+            self.msg("|540Usage: strike <target>|n")
             return
 
         if target == self.caller:
-            self.caller.msg(f"|400{self.caller}, quit hitting yourself!|n")
+            self.msg(f"|400{self.caller}, quit hitting yourself!|n")
             return
 
         if target.db.body is None:
-            self.caller.msg("|400You had better not try that.")
+            self.msg("|400You had better not try that.")
             return
 
         # Use parsed args in combat loop
