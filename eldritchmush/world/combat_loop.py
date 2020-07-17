@@ -143,7 +143,7 @@ class CombatLoop:
 
             # Add character to loop
             self.addToLoop(self.caller.key)
-            callerTurn = self.getCombatTurn(self.caller)
+            callerTurn = self.getCombatTurn(self.caller.key)
             # Send message to attacker and resolve command
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
@@ -163,7 +163,7 @@ class CombatLoop:
 
             # Append to end of loop
             self.combat_loop.append(self.caller.key)
-            callerTurn = self.getCombatTurn(self.caller)
+            callerTurn = self.getCombatTurn(self.caller.key)
             # Change combat_turn to 0
             self.combatTurnOff(self.caller)
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
