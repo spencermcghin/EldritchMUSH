@@ -144,7 +144,7 @@ class CombatLoop:
             # Add character to loop
             self.addToLoop(self.caller.key)
             # Send message to attacker and resolve command
-            self.msg(f"You have been added to the combat loop for the {self.current_room}")
+            self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
 
             # Add target of attack to loop
             self.addToLoop(self.target.key)
@@ -162,7 +162,7 @@ class CombatLoop:
             # Change combat_turn to 0
             self.combatTurnOff(self.caller)
             callerTurn = self.getCombatTurn(self.caller)
-            self.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {callerTurn} in the round order.")
+            self.caller.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {callerTurn} in the round order.")
 
 
     def cleanup(self):
@@ -181,6 +181,6 @@ class CombatLoop:
                 nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
         else:
             self.removeFromLoop(self.caller)
-            self.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
+            self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
             # Change self.callers combat_turn to 1 so they can attack again.
             self.combatTurnOn(self.caller)
