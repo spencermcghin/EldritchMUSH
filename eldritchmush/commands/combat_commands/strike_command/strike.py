@@ -39,7 +39,7 @@ class CmdStrike(Command):
         target = h.targetHandler(self.target)
 
         # Use parsed args in combat loop
-        loop = CombatLoop(self.caller, self.target)
+        loop = CombatLoop(self.caller, target)
         loop.resolveCommand()
 
         # Run logic for strike command
