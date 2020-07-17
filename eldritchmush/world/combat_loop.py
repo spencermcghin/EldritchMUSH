@@ -145,12 +145,15 @@ class CombatLoop:
             self.addToLoop(self.caller.key)
             # Send message to attacker and resolve command
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
+            self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
+
 
             # Add target of attack to loop
             self.addToLoop(self.target.key)
             # Send message to target and resolve command
             targetTurn = self.getCombatTurn(self.target.key)
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {targetTurn} in the round order.")
+            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {targetTurn} in the round order.")
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
 
@@ -162,7 +165,7 @@ class CombatLoop:
             # Change combat_turn to 0
             self.combatTurnOff(self.caller)
             callerTurn = self.getCombatTurn(self.caller)
-            self.caller.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {callerTurn} in the round order.")
+            self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
 
     def cleanup(self):
@@ -173,14 +176,14 @@ class CombatLoop:
             if self.isLast():
                 firstCharacter = self.goToFirst()
                 self.combatTurnOn(firstCharacter)
-                firstCharacter.msg(f"{firstCharacter.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
+                firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn. Please enter a combat command, or disengage from combat.")
             else:
                 # Get character at next index and set their combat_round to 1.
                 nextTurn = self.goToNext()
                 self.combatTurnOn(nextTurn)
-                nextTurn.msg(f"{nextTurn.key}, it's now your turn. Please enter a combat command, or disengage from combat.")
+                nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn. Please enter a combat command, or disengage from combat.")
         else:
             self.removeFromLoop(self.caller)
-            self.caller.msg(f"Combat is over. You have been removed from the combat loop for {loop.current_room}.")
+            self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
             # Change self.callers combat_turn to 1 so they can attack again.
             self.combatTurnOn(self.caller)
