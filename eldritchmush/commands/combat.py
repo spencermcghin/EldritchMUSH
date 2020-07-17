@@ -35,6 +35,7 @@ class Helper():
             self.msg("|400You had better not try that.|n")
             return
 
+        return target
 
     def weaponValue(self, level):
         """
