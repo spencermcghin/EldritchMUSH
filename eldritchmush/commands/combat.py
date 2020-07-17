@@ -15,7 +15,14 @@ class Helper():
     Class for general combat helper commands.
     """
 
+    def __init__(self):
+        self.caller = caller
+
+
     def targetHandler(self, target):
+        # Check for designated target
+        target = self.caller.search(target)
+
         if not target:
             self.msg("|540Target not found.|n")
             return

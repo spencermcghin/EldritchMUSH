@@ -35,10 +35,7 @@ class CmdStrike(Command):
             self.msg("|540Usage: strike <target>|n")
             return
 
-        # Check for designated target
-        target = self.caller.search(self.target)
-
-        # Error handle target
+        # Check for and error handle designated target
         h.targetHandler(target)
 
         # Use parsed args in combat loop
