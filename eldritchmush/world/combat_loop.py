@@ -141,13 +141,13 @@ class CombatLoop:
         # If character not in loop and loop is empty
         if not self.inLoop() and loopLength == 0:
 
+            self.msg(f"I'm a derp, I think the loop length is {loopLength}")
             # Add character to loop
             self.addToLoop(self.caller.key)
             callerTurn = self.getCombatTurn(self.caller.key)
             # Send message to attacker and resolve command
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
-
 
             # Add target of attack to loop
             self.addToLoop(self.target.key)
@@ -158,8 +158,7 @@ class CombatLoop:
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
 
-
-        elif not self.inLoop and loopLength > 0:
+        elif not self.inLoop() and loopLength > 0:
 
             # Append to end of loop
             self.combat_loop.append(self.caller.key)
