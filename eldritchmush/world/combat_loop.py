@@ -139,7 +139,7 @@ class CombatLoop:
         loopLength = self.getLoopLength()
 
         # If character not in loop and loop is empty
-        if not self.inLoop() and loopLength == 0:
+        if self.inLoop() is False and loopLength == 0:
 
             self.caller.msg(f"I'm a derp, I think the loop length is {loopLength}")
             # Add character to loop
@@ -158,7 +158,7 @@ class CombatLoop:
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
 
-        elif not self.inLoop() and loopLength > 0:
+        elif self.inLoop() is False and loopLength > 1:
 
             # Append to end of loop
             self.combat_loop.append(self.caller.key)
@@ -166,6 +166,9 @@ class CombatLoop:
             # Change combat_turn to 0
             self.combatTurnOff(self.caller)
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
+
+        else:
+            self.caller.msg("You must wait until it is your turn before acting.")
 
 
     def cleanup(self):
