@@ -27,6 +27,8 @@ class CmdDisengage(Command):
             if self.caller in combat_loop:
                 # Remove from combat loop
                 combat_loop.remove(self.caller.key)
+                # Set combat_turn back to 1
+                self.caller.db.combat_turn = 1
                 # To disengage
                 self.msg("|540You disengage from the attack.|n")
                 self.caller.location.msg_contents(f"|015{self.caller} backs away and then disengages from the fight.|n")
