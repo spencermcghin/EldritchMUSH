@@ -168,7 +168,7 @@ class CombatLoop:
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
         else:
-            self.caller.msg("You must wait until it is your turn before acting.")
+            pass
 
 
     def cleanup(self):
