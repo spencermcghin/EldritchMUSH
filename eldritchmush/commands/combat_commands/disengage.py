@@ -26,6 +26,7 @@ class CmdDisengage(Command):
             # Check to see if they are in the combat loop for their current room
             if self.caller.key in combat_loop:
                 # Get and hold next combatant value to move to next turn
+                # TODO: Handle for player 
                 next_combatant = combat_loop.index(self.caller.key) + 1
                 next_comb_key = self.caller.search(combat_loop[next_combatant])
                 # Remove from combat loop
