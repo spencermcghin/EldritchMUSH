@@ -16,8 +16,10 @@ class CmdDisengage(Command):
     aliases = ["disengage", "escape", "flee"]
     help_category = "combat"
 
-    combat_loop = self.caller.location.db.combat_loop
-    caller_index = combat_loop.index(self.caller.key)
+    def parse(self):
+
+        combat_loop = self.caller.location.db.combat_loop
+        caller_index = combat_loop.index(self.caller.key)
 
     def func(self):
         # Check if it is player's combat_turn
