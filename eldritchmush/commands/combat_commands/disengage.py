@@ -18,8 +18,8 @@ class CmdDisengage(Command):
 
     def parse(self):
 
-        combat_loop = self.caller.location.db.combat_loop
-        caller_index = combat_loop.index(self.caller.key)
+        self.combat_loop = self.caller.location.db.combat_loop
+        self.caller_index = combat_loop.index(self.caller.key)
 
     def func(self):
         # Check if it is player's combat_turn
