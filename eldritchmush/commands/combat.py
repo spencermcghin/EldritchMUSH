@@ -1006,7 +1006,7 @@ class CmdDisengage(Command):
     Usage:
       disengage
 
-    Disengages from the given target.
+    Disengages from a fight.
     """
     key = "disengage"
     aliases = ["disengage", "escape", "flee"]
