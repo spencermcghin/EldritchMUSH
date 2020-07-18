@@ -24,7 +24,7 @@ class CmdDisengage(Command):
         if self.caller.db.combat_turn:
 
             # Check to see if they are in the combat loop for their current room
-            if self.caller in combat_loop:
+            if self.caller.key in combat_loop:
                 # Remove from combat loop
                 combat_loop.remove(self.caller.key)
                 # Set combat_turn back to 1
