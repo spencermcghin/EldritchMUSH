@@ -20,8 +20,6 @@ class CmdDisengage(Command):
     caller_index = combat_loop.index(self.caller.key)
 
     def func(self):
-        "Implements the command"
-
         # Check if it is player's combat_turn
         if self.caller.db.combat_turn:
             # Check to see if caller is in combat loop:
