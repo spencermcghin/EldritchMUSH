@@ -160,12 +160,25 @@ class CombatLoop:
 
         elif self.inLoop() is False and loopLength > 1:
 
-            # Append to end of loop
-            self.combat_loop.append(self.caller.key)
-            callerTurn = self.getCombatTurn(self.caller.key)
-            # Change combat_turn to 0
-            self.combatTurnOff(self.caller)
-            self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
+            if self.target.key not in self.combat_loop:
+                # Append to end of loop
+                self.combat_loop.append(self.caller.key)
+                self.combat_loop.append(self.target.key)
+                callerTurn = self.getCombatTurn(self.caller.key)
+                targetTurn = self.getCombatTurn(self.target.key)
+                # Change combat_turn to 0
+                self.combatTurnOff(self.caller)
+                self.combatTurnOff(self.target)
+                self.caller.location.msg_contents(f"{self.caller.key} and {self.target.key} have been added to the combat loop for the {self.current_room}.\nThey are currently number ({callerTurn}) and ({targetTurn}) in the round order.")
+
+            else:
+
+                # Append to end of loop
+                self.combat_loop.append(self.caller.key)
+                callerTurn = self.getCombatTurn(self.caller.key)
+                # Change combat_turn to 0
+                self.combatTurnOff(self.caller)
+                self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
         else:
             pass
