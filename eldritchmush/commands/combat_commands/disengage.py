@@ -25,6 +25,8 @@ class CmdDisengage(Command):
 
             # Check to see if they are in the combat loop for their current room
             if self.caller.key in combat_loop:
+                # Get and hold next combatant value to move to next turn
+                next_combatant =
                 # Remove from combat loop
                 combat_loop.remove(self.caller.key)
                 # Set combat_turn back to 1
@@ -32,6 +34,19 @@ class CmdDisengage(Command):
                 # To disengage
                 self.msg("|540You disengage from the attack.|n")
                 self.caller.location.msg_contents(f"|015{self.caller} backs away and then disengages from the fight.|n")
+
+                # Check to see if just one person left in loop. Remove if so and
+                # set turn to 1
+                if len(combat_loop) == 1:
+                    combatant = combat_loop[0]
+                    combat_loop.remove(combatant)
+                    comb_key = self.caller.search(combatant)
+                    comb_key.db.combat_turn = 1
+
+                else:
+                    # Go to the next combatant's turn
+
+
 
             else:
                 self.msg(f"{self.caller.key}, you are not part of this location's combat loop.")
