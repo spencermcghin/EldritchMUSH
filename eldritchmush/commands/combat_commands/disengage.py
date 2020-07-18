@@ -29,13 +29,13 @@ class CmdDisengage(Command):
 
                 # Check if combatant is at last index before disengaging and then passing turn
                 # Loop should never be less than 1 given cleanup step.
-                if len(combat_loop) > 1 and len(combat_loop) == caller_index + 1:
+                if len(self.combat_loop) > 1 and len(self.combat_loop) == self.caller_index + 1:
                     # Get and hold next combatant value to move to next turn
-                    first_combatant_str = combat_loop[0]
+                    first_combatant_str = self.combat_loop[0]
                     first_combatant_key = self.caller.search(first_combatant_str)
                     first_combatant_key.db.combat_turn = 1
                     # Remove caller from combat loop
-                    combat_loop.remove(self.caller.key)
+                    self.combat_loop.remove(self.caller.key)
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
                     self.msg("You have disengaged from combat.")
@@ -46,11 +46,11 @@ class CmdDisengage(Command):
 
                 else:
                     # Go to next player instead and set combat_turn to 1
-                    next_combatant_str = caller_index + 1
+                    next_combatant_str = self.caller_index + 1
                     next_combatant_key = self.caller.search(next_combatant_str)
                     next_combatant_key.db.combat_turn = 1
                     # Remove caller from combat loop
-                    combat_loop.remove(self.caller.key)
+                    self.combat_loop.remove(self.caller.key)
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
                     first_combatant_key.msg("You have disengaged from combat.")
@@ -68,7 +68,7 @@ class CmdDisengage(Command):
     def disengage_cleanup(self):
         if len(combat_loop) == 1:
             # Remove remaining combatants from combat loop and prompt
-            remaining_str = combat_loop.pop()
+            remaining_str = self.combat_loop.pop()
             remaining_key = self.caller.search(remaining_str)
             remaining_key.msg(f"Combat is over. You have been removed from the combat loop for {self.caller.location}")
             remaining_key.db.combat_turn = 1
