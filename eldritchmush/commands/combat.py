@@ -998,26 +998,6 @@ class CmdSunder(Command):
             else:
                self.caller.msg("|400You have 0 sunders remaining or do not have the skill.|n")
 
-
-class CmdDisengage(Command):
-    """
-    disengage from an enemy
-
-    Usage:
-      disengage
-
-    Disengages from a fight.
-    """
-    key = "disengage"
-    aliases = ["disengage", "escape", "flee"]
-    help_category = "combat"
-
-    def func(self):
-        "Implements the command"
-        # To disengage
-        self.caller.msg("|540You disengage from the attack.|n")
-        self.caller.location.msg_contents(f"|015{self.caller} backs away and then disengages from the fight.|n")
-
 """
 Knight commands
 """

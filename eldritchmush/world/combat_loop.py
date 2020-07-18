@@ -141,7 +141,6 @@ class CombatLoop:
         # If character not in loop and loop is empty
         if self.inLoop() is False and loopLength == 0:
 
-            self.caller.msg(f"I'm a derp, I think the loop length is {loopLength}")
             # Add character to loop
             self.addToLoop(self.caller.key)
             callerTurn = self.getCombatTurn(self.caller.key)
