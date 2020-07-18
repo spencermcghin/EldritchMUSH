@@ -72,7 +72,7 @@ class CombatLoop:
 
     def inLoop(self):
         # Check to see if caller is part of rooms combat loop
-        if self.caller in self.combat_loop:
+        if self.caller.key in self.combat_loop:
             return True
         else:
             return False
