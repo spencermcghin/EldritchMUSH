@@ -41,6 +41,9 @@ class CmdDisengage(Command):
                     self.msg("You have disengaged from combat.")
                     self.caller.location.msg_contents(f"{self.caller.key} breaks away from combat.")
 
+                    # Prompt for next turn
+                    first_combatant_key.location.msg_contents(f"It is now {first_combatant_key}'s turn. Please enter a combat command, or disengage from combat.")
+
                     # Run disengage_cleanup
                     self.disengage_cleanup()
 
