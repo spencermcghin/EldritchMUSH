@@ -46,7 +46,7 @@ class CmdDisengage(Command):
 
                 else:
                     # Go to next player instead and set combat_turn to 1
-                    next_combatant_str = self.caller_index + 1
+                    next_combatant_str = self.combat_loop[self.caller_index + 1]
                     next_combatant_key = self.caller.search(next_combatant_str)
                     next_combatant_key.db.combat_turn = 1
                     # Remove caller from combat loop
