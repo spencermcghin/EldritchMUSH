@@ -54,7 +54,7 @@ class CmdDisengage(Command):
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
                     next_combatant_key.msg("You have disengaged from combat.")
-                    self.caller.location.msg_contents(f"{first_combatant_key} breaks away from combat.")
+                    self.caller.location.msg_contents(f"{next_combatant_key} breaks away from combat.")
 
                     # Run disengage_cleanup
                     self.disengage_cleanup()
