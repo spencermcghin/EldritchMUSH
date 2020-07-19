@@ -179,6 +179,14 @@ class CombatLoop:
                 self.combatTurnOff(self.caller)
                 self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
+        elif self.inLoop() is True and loopLength > 1:
+            # Handle when caller in loop and target is not
+            # Need to add target to end of loop, set their combat_turn to 0.
+            self.combat_loop.append(self.target.key)
+            self.combatTurnOff(self.target)
+            self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.caller.key)} in the round order.")
+            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.caller.key)} in the round order.")
+
         else:
             pass
 
