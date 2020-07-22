@@ -51,9 +51,6 @@ If dying, you can do nothing and be the target of a drag command
 Build command - Drag. Your turn is skipped.
 Need to fix it so you can see NPCs msgs
 
-Need to make sure error messages for caller don't execute the command and count
-as their turn. DONE
-
 setmelee needs to be counted as an action in loop
 
 
@@ -179,7 +176,7 @@ class CombatLoop:
                 self.combatTurnOff(self.caller)
                 self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
-        elif self.inLoop() is True and loopLength > 1:
+        elif self.inLoop() is True and self.target.key not in self.combat_loop:
 
             # Handle when caller in loop and target is not
             # Need to add target to end of loop, set their combat_turn to 0.
