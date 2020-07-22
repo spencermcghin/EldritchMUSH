@@ -45,10 +45,13 @@ class CmdShoot(Command):
             else:
                 # Check for and error handle designated target
                 target = h.targetHandler(self.target)
-                
+
                 # Use parsed args in combat loop
                 loop = CombatLoop(self.caller, target)
                 loop.resolveCommand()
+
+                # Check if damage bonus comes from fayne or master_of_arms
+                die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                 # Get damage result and damage for weapon type
                 attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("bow_penalty", 0)
