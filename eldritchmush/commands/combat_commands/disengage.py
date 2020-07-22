@@ -76,6 +76,7 @@ class CmdDisengage(Command):
             # Remove remaining combatants from combat loop and prompt
             remaining_str = self.combat_loop.pop()
             remaining_key = self.caller.search(remaining_str)
+            remaining_key.location.msg_contents(f"{remaining_key} breaks away from combat.")
             remaining_key.msg(f"Combat is over. You have been removed from the combat loop for {self.caller.location}")
             remaining_key.db.combat_turn = 1
 
