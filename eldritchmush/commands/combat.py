@@ -132,7 +132,7 @@ class Helper():
 
         return attack_penalty
 
-    def damageSubtractor(self, damage, target):
+    def damageSubtractor(self, damage, target, caller):
         """
         Takes attack type of caller and assigns damage based on target stats.
         """
@@ -217,6 +217,10 @@ class Helper():
             else:
                 target.db.death_points = body_damage
                 damage = 0
+
+        else:
+            caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
+            caller.location.msg_contents(f"{caller.key} further mutilates the corpse of the {target.key}")
 
         new_av = self.updateArmorValue(target.db.shield_value, target.db.armor, target.db.tough, target.db.armor_specialist)
 
