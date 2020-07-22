@@ -1,6 +1,5 @@
 # Local imports
 from evennia import Command
-from commands.combat_commands.strike_command.strike_logic import Strike
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
 
@@ -38,12 +37,12 @@ class CmdStrike(Command):
         # Check for and error handle designated target
         target = h.targetHandler(self.target)
 
-        # Use parsed args in combat loop
-        loop = CombatLoop(self.caller, target)
-        loop.resolveCommand()
-
         # Run logic for strike command
         if self.caller.db.combat_turn:
+
+            # Use parsed args in combat loop
+            loop = CombatLoop(self.caller, target)
+            loop.resolveCommand()
 
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)

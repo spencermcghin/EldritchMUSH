@@ -51,9 +51,6 @@ If dying, you can do nothing and be the target of a drag command
 Build command - Drag. Your turn is skipped.
 Need to fix it so you can see NPCs msgs
 
-Need to make sure error messages for caller don't execute the command and count
-as their turn. DONE
-
 setmelee needs to be counted as an action in loop
 
 
@@ -72,7 +69,7 @@ class CombatLoop:
 
     def inLoop(self):
         # Check to see if caller is part of rooms combat loop
-        if self.caller in self.combat_loop:
+        if self.caller.key in self.combat_loop:
             return True
         else:
             return False
@@ -139,7 +136,7 @@ class CombatLoop:
         loopLength = self.getLoopLength()
 
         # If character not in loop and loop is empty
-        if not self.inLoop() and loopLength == 0:
+        if self.inLoop() is False and loopLength == 0:
 
             # Add character to loop
             self.addToLoop(self.caller.key)
@@ -147,7 +144,6 @@ class CombatLoop:
             # Send message to attacker and resolve command
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
-
 
             # Add target of attack to loop
             self.addToLoop(self.target.key)
@@ -158,15 +154,39 @@ class CombatLoop:
             # Disable their ability to use combat commands
             self.combatTurnOff(self.target)
 
+        elif self.inLoop() is False and loopLength > 1:
 
-        elif not self.inLoop and loopLength > 0:
+            if self.target.key not in self.combat_loop:
+                # Append caller and target to end of loop
+                self.combat_loop.append(self.caller.key)
+                self.combat_loop.append(self.target.key)
+                callerTurn = self.getCombatTurn(self.caller.key)
+                targetTurn = self.getCombatTurn(self.target.key)
+                # Change combat_turn to 0
+                self.combatTurnOff(self.caller)
+                self.combatTurnOff(self.target)
+                self.caller.location.msg_contents(f"{self.caller.key} and {self.target.key} have been added to the combat loop for the {self.current_room}.\nThey are currently number ({callerTurn}) and ({targetTurn}) in the round order.")
 
-            # Append to end of loop
-            self.combat_loop.append(self.caller.key)
-            callerTurn = self.getCombatTurn(self.caller.key)
-            # Change combat_turn to 0
-            self.combatTurnOff(self.caller)
-            self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
+            else:
+
+                # Append to end of loop
+                self.combat_loop.append(self.caller.key)
+                callerTurn = self.getCombatTurn(self.caller.key)
+                # Change combat_turn to 0
+                self.combatTurnOff(self.caller)
+                self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
+
+        elif self.inLoop() is True and self.target.key not in self.combat_loop:
+
+            # Handle when caller in loop and target is not
+            # Need to add target to end of loop, set their combat_turn to 0.
+            self.combat_loop.append(self.target.key)
+            self.combatTurnOff(self.target)
+            self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target.key)} in the round order.")
+            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target.key)} in the round order.")
+
+        else:
+            pass
 
 
     def cleanup(self):
