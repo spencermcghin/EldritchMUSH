@@ -25,7 +25,7 @@ class CmdShoot(Command):
     def func(self):
 
         # Init combat helper
-        h = Helper()
+        h = Helper(self.caller)
 
         # Run logic for strike command
         if self.caller.db.combat_turn:
