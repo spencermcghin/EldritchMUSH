@@ -67,7 +67,7 @@ class CmdStrike(Command):
                     if target_av:
                         self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
                         # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                        new_av = h.damageSubtractor(damage, target)
+                        new_av = h.damageSubtractor(damage, target, self.caller)
                         # Update target av to new av score per damageSubtractor
                         target.db.av = new_av
                         target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
@@ -79,20 +79,9 @@ class CmdStrike(Command):
                                 target.db.body = 0
                                 self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                             else:
-                                target.db.body -= damage
-                                target.msg(f"|540Your new body value is {target.db.body}|n")
+                                h.deathSubtractor(damage, target, self.caller)
                         else:
-                            target.db.body -= damage
-                            target.msg(f"|400You {shot_location} is now injured and have taken |n|540{damage}|n|400 points of damage.|n")
-                            # Send a message to the target, letting them know their body values
-                            target.msg(f"|540Your new body value is {target.db.body}|n")
-                            if -3 <= target.db.body <= 0:
-                                target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-                                target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
-                            elif target.db.body <= -4:
-                                target.msg("|400You are now unconscious and can no longer move of your own volition.|n")
-                                target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
-
+                            h.deathSubtractor(damage, target, self.caller)
                 else:
                     self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
 
