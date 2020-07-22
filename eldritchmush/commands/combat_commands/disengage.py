@@ -24,6 +24,7 @@ class CmdDisengage(Command):
     def func(self):
         # Check if it is player's combat_turn
         if self.caller.db.combat_turn:
+
             # Check to see if caller is in combat loop:
             if self.caller.key in self.combat_loop:
 
@@ -47,6 +48,7 @@ class CmdDisengage(Command):
                     # Run disengage_cleanup
                     self.disengage_cleanup()
 
+                # Accounts for caller being anywhere else in the loop, besides last
                 else:
                     # Go to next player instead and set combat_turn to 1
                     next_combatant_str = self.combat_loop[self.caller_index + 1]
@@ -56,14 +58,15 @@ class CmdDisengage(Command):
                     self.combat_loop.remove(self.caller.key)
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
-                    next_combatant_key.msg("You have disengaged from combat.")
-                    self.caller.location.msg_contents(f"{self.caller.key} and {next_combatant_key} break away from combat.")
+                    self.msg("You have disengaged from combat.")
+                    self.caller.location.msg_contents(f"{self.caller.key} breaks away from combat.")
 
                     # Run disengage_cleanup
                     self.disengage_cleanup()
 
             else:
                 self.msg(f"You are not part of the combat loop for {self.caller.location}.")
+
         else:
             self.caller.msg("You need to wait until it is your turn before you are able to act.")
 
