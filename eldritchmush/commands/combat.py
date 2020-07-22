@@ -132,6 +132,59 @@ class Helper():
 
         return attack_penalty
 
+    def deathSubtractor(self, damage, target, caller):
+        """
+        Handles damage at or below 3 body.
+        """
+        target_body = target.db.body
+        target_bleed_points = target.db.bleed_points
+        target_death_points = target.db.death_points
+
+        if target_body and damage:
+            body_damage = target_body - damage
+            if body_damage < 0:
+                damage = abs(body_damage)
+                target.db.body = 0
+            else:
+                target.db.body = body_damage
+                damage = 0
+
+            target.location.msg_contents(f"{caller.key} greviously wounds {target.key}.")
+            target.msg(f"|400You {shot_location} is now injured and have taken |n|540{damage}|n|400 points of damage.|n")
+            target.msg(f"|540Your new body value is {target.db.body}|n")
+
+
+        if target_bleed_points and damage:
+            bleed_damage = target_bleed_points - damage
+            if bleed_damage < 0:
+                damage = abs(bleed_damage)
+                target.db.bleed_points = 0
+            else:
+                target.db.bleed_points = bleed_damage
+                damage = 0
+
+            target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+            target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+
+
+        if target_death_points and damage:
+            death_damage = target_death_points - damage
+            if death_damage < 0:
+                damage = abs(death_damage)
+                target.db.death_points = 0
+            else:
+                target.db.death_points = death_damage
+                damage = 0
+
+            target.msg("|400You are unconscious and can no longer move of your own volition.|n")
+            target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+
+        else:
+            caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
+            caller.location.msg_contents(f"{caller.key} further mutilates the corpse of the {target.key}")
+
+
+
     def damageSubtractor(self, damage, target, caller):
         """
         Takes attack type of caller and assigns damage based on target stats.
@@ -190,37 +243,8 @@ class Helper():
             else:
                 target.db.tough = tough_damage
                 damage = 0
-
-        if target_body and damage:
-            body_damage = target_body - damage
-            if body_damage < 0:
-                damage = abs(body_damage)
-                target.db.body = 0
-            else:
-                target.db.body = body_damage
-                damage = 0
-
-        if target_bleed_points and damage:
-            bleed_damage = target_bleed_points - damage
-            if bleed_damage < 0:
-                damage = abs(bleed_damage)
-                target.db.bleed_points = 0
-            else:
-                target.db.bleed_points = bleed_damage
-                damage = 0
-
-        if target_death_points and damage:
-            death_damage = target_death_points - damage
-            if death_damage < 0:
-                damage = abs(death_damage)
-                target.db.death_points = 0
-            else:
-                target.db.death_points = body_damage
-                damage = 0
-
         else:
-            caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
-            caller.location.msg_contents(f"{caller.key} further mutilates the corpse of the {target.key}")
+            self.deathSubtractor(damage, target, caller)
 
         new_av = self.updateArmorValue(target.db.shield_value, target.db.armor, target.db.tough, target.db.armor_specialist)
 
