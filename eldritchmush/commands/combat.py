@@ -210,6 +210,7 @@ class Helper():
         # Get hasMelee for character to check that they've armed themselves.
         melee = combatant.db.melee
         two_handed = combatant.db.twohanded
+        bow = combatant.db.bow
 
         # Vars for melee attack_result logic
         master_of_arms = combatant.db.master_of_arms
