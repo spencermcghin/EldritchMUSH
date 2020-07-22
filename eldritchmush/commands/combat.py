@@ -100,6 +100,7 @@ class Helper():
 
         return target
 
+
     def bodyChecker(self, bodyScore):
         """
         Just checks amount of body and applies penalty based on number character is down.
@@ -142,6 +143,8 @@ class Helper():
         target_body = target.db.body
         target_armor_specialist = target.db.armor_specialist
         target_armor_value = target.db.av
+        target_bleed_points = target.db.bleed_points
+        target_death_points = target.db.death_points
 
         # Apply damage in order
         if target_shield_value:
@@ -188,15 +191,35 @@ class Helper():
                 target.db.tough = tough_damage
                 damage = 0
 
-        else:
+        if target_body and damage:
             body_damage = target_body - damage
             if body_damage < 0:
                 damage = abs(body_damage)
                 target.db.body = 0
             else:
                 target.db.body = body_damage
+                damage = 0
+
+        if target_bleed_points and damage:
+            bleed_damage = target_bleed_points - damage
+            if bleed_damage < 0:
+                damage = abs(bleed_damage)
+                target.db.bleed_points = 0
+            else:
+                target.db.bleed_points = bleed_damage
+                damage = 0
+
+        if target_death_points and damage:
+            death_damage = target_death_points - damage
+            if death_damage < 0:
+                damage = abs(death_damage)
+                target.db.death_points = 0
+            else:
+                target.db.death_points = body_damage
+                damage = 0
 
         new_av = self.updateArmorValue(target.db.shield_value, target.db.armor, target.db.tough, target.db.armor_specialist)
+
         return new_av
 
 
