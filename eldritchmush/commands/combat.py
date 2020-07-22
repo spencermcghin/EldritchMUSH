@@ -118,7 +118,6 @@ class Helper():
             damage_penalty = 5
         elif bodyScore == -3:
             damage_penalty = 6
-            return
         else:
             damage_penalty = 0
 
@@ -997,26 +996,6 @@ class CmdSunder(Command):
                     self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, |015missing {target.key}|n")
             else:
                self.caller.msg("|400You have 0 sunders remaining or do not have the skill.|n")
-
-
-class CmdDisengage(Command):
-    """
-    disengage from an enemy
-
-    Usage:
-      disengage
-
-    Disengages from the given target.
-    """
-    key = "disengage"
-    aliases = ["disengage", "escape", "flee"]
-    help_category = "combat"
-
-    def func(self):
-        "Implements the command"
-        # To disengage
-        self.caller.msg("|540You disengage from the attack.|n")
-        self.caller.location.msg_contents(f"|015{self.caller} backs away and then disengages from the fight.|n")
 
 """
 Knight commands
