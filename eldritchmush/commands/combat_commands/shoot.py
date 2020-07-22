@@ -43,6 +43,9 @@ class CmdShoot(Command):
                 return
 
             else:
+                # Check for and error handle designated target
+                target = h.targetHandler(self.target)
+                
                 # Use parsed args in combat loop
                 loop = CombatLoop(self.caller, target)
                 loop.resolveCommand()
