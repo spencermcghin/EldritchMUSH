@@ -181,7 +181,7 @@ class Helper():
 
         if not target_death_points and damage:
             caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
-            caller.location.msg_contents(f"{caller.key} further mutilates the corpse of the {target.key}")
+            caller.location.msg_contents(f"{caller.key} further mutilates the corpse of {target.key}.")
 
 
 
