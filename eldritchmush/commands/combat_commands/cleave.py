@@ -57,14 +57,14 @@ class CmdCleave(Command):
                         if not combat_stats.get("weakness", 0):
                             if cleavesRemaining > 0:
                                 if attack_result >= target.db.av:
-                                    self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|015! dealing|n |5402|n |015damage|n.")
+                                    self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|015! dealing|n |540{damage}|n |015damage|n.")
                                     # Decrement amount of cleaves from amount in database
                                     self.caller.db.cleave -= 1
                                     if shot_location == "torso" and target.db.body > 0:
                                         target.db.body = 0
                                         self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                                     else:
-                                        h.deathSubtractor(bow_damage, target, self.caller)
+                                        h.deathSubtractor(damage, target, self.caller)
                                 else:
                                     self.caller.location.msg_contents(f"|015{self.caller.key} swings ferociously at {target.key}, but misses.|n")
                             else:
