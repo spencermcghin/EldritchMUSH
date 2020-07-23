@@ -37,6 +37,17 @@ class Helper():
 
         return target
 
+
+    def canFight(self, caller):
+        can_fight = True if caller.db.bleed_points else False
+
+        if not can_fight:
+            caller.msg("You are too injured to act.")
+            return
+
+        return can_fight
+
+
     def weaponValue(self, level):
         """
         Returns bonus for weapon level based on value set
