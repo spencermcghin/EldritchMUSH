@@ -124,10 +124,8 @@ class Helper():
             damage_penalty = 4
         elif bodyScore == -2:
             damage_penalty = 5
-        elif bodyScore == -3:
-            damage_penalty = 6
         else:
-            damage_penalty = 0
+            damage_penalty = 6
 
         return damage_penalty
 
