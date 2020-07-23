@@ -72,7 +72,7 @@ class CmdShoot(Command):
                                 h.deathSubtractor(bow_damage, target, self.caller)
                         else:
                             # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes with great ferocity|n (|400{attack_result}|n)|015 at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
+                            self.caller.location.msg_contents(f"|015{self.caller.key} lets loose an arrow at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
                     else:
                         self.msg(f"{target.key} is dead. You only further mutiliate their body.")
                         self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
