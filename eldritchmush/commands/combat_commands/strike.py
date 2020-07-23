@@ -53,12 +53,6 @@ class CmdStrike(Command):
                 loop = CombatLoop(self.caller, target)
                 loop.resolveCommand()
 
-                # Check to make sure target still alive.
-                if not target.db.death_points:
-                    self.msg(f"{target.key} is dead. You only further mutiliate their body.")
-                    self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
-                    return
-
                 # Check if damage bonus comes from fayne or master_of_arms
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
@@ -95,10 +89,8 @@ class CmdStrike(Command):
                     else:
                         self.msg(f"{target.key} is dead. You only further mutiliate their body.")
                         self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
-
                 else:
                     self.msg("You are too injured to act.")
-
                 # Clean up
                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                 loop.combatTurnOff(self.caller)
