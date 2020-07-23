@@ -179,7 +179,7 @@ class Helper():
             target.msg("|400You are unconscious and can no longer move of your own volition.|n")
             target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
 
-        else:
+        if not target_death_points and damage:
             caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
             caller.location.msg_contents(f"{caller.key} further mutilates the corpse of the {target.key}")
 
