@@ -571,6 +571,8 @@ class SetResilience(Command):
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.resilience = resilience
+        # Add one point to total bleed points per level.
+        self.caller.db.bleed_points += resilience
         self.caller.msg("Your Resilience level was set to %i." % resilience)
 
 
