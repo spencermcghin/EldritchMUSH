@@ -62,32 +62,35 @@ class CmdStrike(Command):
 
                 # Compare caller attack_result to target av.
                 # If attack_result > target av -> hit, else miss
-                if attack_result >= target_av:
-                    # if target has any more armor points left go through the damage subtractor
-                    if target_av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
-                        # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                        new_av = h.damageSubtractor(damage, target, self.caller)
-                        # Update target av to new av score per damageSubtractor
-                        target.db.av = new_av
-                        target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-                    else:
-                        # No target armor so subtract from their body total and hit a limb.
-                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |540{damage}|n |015damage!|n.")
-                        # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
-                        if shot_location == "torso" and target.db.body > 0:
-                            target.db.body = 0
-                            self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                if target.db.death_points:
+                    if attack_result >= target_av:
+                        # if target has any more armor points left go through the damage subtractor
+                        if target_av:
+                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
+                            # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                            new_av = h.damageSubtractor(damage, target, self.caller)
+                            # Update target av to new av score per damageSubtractor
+                            target.db.av = new_av
+                            target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                         else:
-                            h.deathSubtractor(damage, target, self.caller)
+                            # No target armor so subtract from their body total and hit a limb.
+                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes deftly|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |540{damage}|n |015damage!|n.")
+                            # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
+                            if shot_location == "torso" and target.db.body > 0:
+                                target.db.body = 0
+                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                            else:
+                                h.deathSubtractor(damage, target, self.caller)
+                    else:
+                        self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
+
+                    # Clean up
+                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                    loop.combatTurnOff(self.caller)
+                    loop.cleanup()
                 else:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} swings wildly|n |400{attack_result}|n|015, missing {target.key} |n|020{target_av}|n")
-
-                # Clean up
-                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                loop.combatTurnOff(self.caller)
-                loop.cleanup()
-
+                    caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                    caller.location.msg_contents(f"{caller.key} further mutilates the corpse of {target.key}.")
             else:
                  self.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
         else:
