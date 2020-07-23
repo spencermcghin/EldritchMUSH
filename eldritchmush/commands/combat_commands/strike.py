@@ -70,7 +70,7 @@ class CmdStrike(Command):
 
                 # Compare caller attack_result to target av.
                 if h.canFight(self.caller):
-                    if h.isAlive(target)
+                    if h.isAlive(target):
                         # If attack_result > target av -> hit, else miss
                         if attack_result >= target_av:
                             # if target has any more armor points left go through the damage subtractor
