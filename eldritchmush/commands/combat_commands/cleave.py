@@ -66,7 +66,6 @@ class CmdCleave(Command):
                                     else:
                                         h.deathSubtractor(bow_damage, target, self.caller)
                                 else:
-                                    # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                                     self.caller.location.msg_contents(f"|015{self.caller.key} swings ferociously at {target.key}, but misses.|n")
                             else:
                                 self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.")
