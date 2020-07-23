@@ -43,6 +43,11 @@ class Helper():
 
         return can_fight
 
+    def isAlive(self, target):
+        is_alive = True if caller.db.death_points else False
+
+        return is_alive
+
 
     def weaponValue(self, level):
         """
