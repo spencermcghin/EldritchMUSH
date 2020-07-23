@@ -26,13 +26,13 @@ class CmdStrike(Command):
 
     def func(self):
 
-        # Init combat helper class for logic
-        h = Helper(self.caller)
-
         # Check for correct command
         if not self.args:
             self.msg("|540Usage: strike <target>|n")
             return
+
+        # Init combat helper class for logic
+        h = Helper(self.caller)
 
         # Check for and error handle designated target
         target = h.targetHandler(self.target)
@@ -43,13 +43,13 @@ class CmdStrike(Command):
             # Check to see if caller can fight
             if not h.canFight(self.caller):
                 self.msg("You are too injured to act.")
-            return
+                return
 
             # Check to make sure target still alive.
             if not target.db.death_points:
                 self.msg(f"{target.key} is dead. You only further mutiliate their body.")
                 self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
-            return
+                return
 
             # Run rest of command logic after passing checks.
 
