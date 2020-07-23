@@ -80,7 +80,7 @@ class CmdCleave(Command):
                     loop.combatTurnOff(self.caller)
                     loop.cleanup()
                 else:
-                    self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.")
+                    self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action.")
             else:
                 self.msg("|540Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.")
                 return
