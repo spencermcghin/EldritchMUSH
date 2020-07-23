@@ -23,41 +23,73 @@ class CmdCleave(Command):
         self.target = self.args.strip()
 
     def func(self):
-        h = Helper()
-        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-        # Get weapon level to add to attack
-        weapon_level = h.weaponValue(self.caller.db.weapon_level)
-
-        master_of_arms = self.caller.db.master_of_arms
-        hasBow = self.caller.db.bow
-        hasMelee = self.caller.db.melee
-        wylding_hand = self.caller.db.wyldinghand
-        cleavesRemaining = self.caller.db.cleave
-        hasTwoHanded = self.caller.db.twohanded
-
         if not self.args:
             self.caller.msg("|540Usage: cleave <target>|n")
             return
 
+        h = Helper(self.caller)
+
         target = self.caller.search(self.target)
 
-        if not target:
-            self.caller.msg("|400There is nothing here that matches that description.|n")
+
+        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
+        # Get weapon level to add to attack
+
+
+        cleavesRemaining = self.caller.db.cleave
+
+        if combat_stats.get("melee", 0):
+
+            loop = CombatLoop(self.caller, target)
+            loop.resolveCommand()
+
+            die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
+
+            # Get damage result and damage for weapon type
+            attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
+            damage = 2 if combat_stats.get("two_handed", 0) == True else 1
+            target_av = target.db.av
+            shot_location = h.shotFinder(target.db.targetArray)
+
+            if h.canFight(self.caller):
+                if h.isAlive(target):
+                    if not combat_stats.get("weakness", 0):
+                        if cleavesRemaining > 0:
+                            if attack_result >= target.db.av:
+                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|015! dealing|n |5402|n |015damage|n.")
+                                # Decrement amount of cleaves from amount in database
+                                self.caller.db.cleave -= 1
+                                if shot_location == "torso" and target.db.body > 0:
+                                    target.db.body = 0
+                                    self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                else:
+                                    h.deathSubtractor(bow_damage, target, self.caller)
+                            else:
+                                # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
+                                self.caller.location.msg_contents(f"|015{self.caller.key} lets loose an arrow |n(|400{attack_result}|n)|015 at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
+
+                        else:
+                            self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.")
+                    else:
+                        self.caller.msg("|400You are too weak to use this attack.|n")
+                else:
+                    self.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                    self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
+            else:
+                self.msg("You are too injured to act.")
+            # Clean up
+            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
+        else:
+            self.msg("You need to wait until it is your turn before you are able to act.")
             return
 
-        if target == self.caller:
-            self.caller.msg(f"|400Don't cleave yourself {self.caller}!|n")
-            return
 
-        if target.db.body is None:
-            self.caller.msg("|400You had better not try that.")
-            return
 
-        # Check for weakness on character
-        weakness = h.weaknessChecker(self.caller.db.weakness)
 
         # Check for equip proper weapon type or weakness
-        if weakness:
+        if combat_stats.get("weakness", 0):
             self.caller.msg("|400You are too weak to use this attack.|n")
         elif hasBow:
             self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.|n")
