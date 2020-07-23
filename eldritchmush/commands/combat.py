@@ -160,8 +160,6 @@ class Helper():
                 damage = 0
 
             target.location.msg_contents(f"{caller.key} greviously wounds {target.key}.")
-            target.msg(f"|400You {shot_location} is now injured and have taken |n|540{damage}|n|400 points of damage.|n")
-            target.msg(f"|540Your new body value is {target.db.body}|n")
 
 
         if target_bleed_points and damage:
