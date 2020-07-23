@@ -546,6 +546,33 @@ class SetWyldingHand(Command):
             self.caller.db.wyldinghand = wyldinghand
             self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
 
+class SetResilience(Command):
+    """Set the resilience level of a character
+
+    Usage: setresilience <0 - 3>
+
+    This sets the resilience level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setresilience"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|540Usage: setresilience <0 - 3>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            resilience = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.resilience = resilience
+        self.caller.msg("Your Resilience level was set to %i." % resilience)
+
 
 class SetWeaponValue(Command):
     """Set the weapon level of a character
@@ -2101,7 +2128,7 @@ class CmdDiagnose(Command):
     def func(self):
 
         caller = self.caller
-   
+
         if self.target == "self" or self.target == "me" or self.target == '':
             message = ""
             body = caller.db.body
@@ -2115,17 +2142,17 @@ class CmdDiagnose(Command):
                 message += "|400You're dying. You can't do anything except lay there and hope someone comes to help.|n"
             else:
                 message += "|400You are dead.|n"
-            
+
             caller.msg(message)
 
         else:
             target = caller.search(self.target)
             if not target:
                 caller.msg("|540Usage: diagnose <target>|n\n|400Your target wasn't found. Please try again.|n")
-            
+
             elif not caller.db.medicine:
                 caller.msg("|540Sorry, but you don't have the Medicine skill so you can't diagnose other characters.|n")
-            
+
             else:
                 message = ""
                 body = target.db.body
