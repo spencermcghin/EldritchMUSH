@@ -40,17 +40,6 @@ class CmdStrike(Command):
         # Run logic for strike command
         if self.caller.db.combat_turn:
 
-            # Check to see if caller can fight
-            if not h.canFight(self.caller):
-                self.msg("You are too injured to act.")
-                return
-
-            # Check to make sure target still alive.
-            if not target.db.death_points:
-                self.msg(f"{target.key} is dead. You only further mutiliate their body.")
-                self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
-                return
-
             # Run rest of command logic after passing checks.
 
             # Return db stats needed to calc melee results
@@ -63,6 +52,17 @@ class CmdStrike(Command):
                 # Use parsed args in combat loop. Handles turn order in combat.
                 loop = CombatLoop(self.caller, target)
                 loop.resolveCommand()
+
+                # Check to see if caller can fight
+                if not h.canFight(self.caller):
+                    self.msg("You are too injured to act.")
+                    return
+
+                # Check to make sure target still alive.
+                if not target.db.death_points:
+                    self.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                    self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
+                    return
 
                 # Check if damage bonus comes from fayne or master_of_arms
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
