@@ -89,8 +89,8 @@ class CmdStrike(Command):
                     loop.combatTurnOff(self.caller)
                     loop.cleanup()
                 else:
-                    caller.msg(f"{target.key} is dead. You only further mutiliate their body.")
-                    caller.location.msg_contents(f"{caller.key} further mutilates the corpse of {target.key}.")
+                    self.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                    self.caller.location.msg_contents(f"{caller.key} further mutilates the corpse of {target.key}.")
             else:
                  self.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
         else:
