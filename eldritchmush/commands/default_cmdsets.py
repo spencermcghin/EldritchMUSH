@@ -224,3 +224,4 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetBattleFieldCommander())
         self.add(command.SetRally())
         self.add(command.SetChirurgeon())
+        self.add(command.SetResilience())
