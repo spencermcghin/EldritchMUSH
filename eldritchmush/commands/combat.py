@@ -41,11 +41,12 @@ class Helper():
     def canFight(self, caller):
         can_fight = True if caller.db.bleed_points else False
 
-        if not can_fight:
-            caller.msg("You are too injured to act.")
-            return
-
         return can_fight
+
+    def isAlive(self, target):
+        is_alive = False if target.db.death_points else True
+
+        if not is_alive:
 
 
     def weaponValue(self, level):
