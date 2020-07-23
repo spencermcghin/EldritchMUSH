@@ -37,6 +37,18 @@ class Helper():
 
         return target
 
+
+    def canFight(self, caller):
+        can_fight = True if caller.db.bleed_points else False
+
+        return can_fight
+
+    def isAlive(self, target):
+        is_alive = True if target.db.death_points else False
+
+        return is_alive
+
+
     def weaponValue(self, level):
         """
         Returns bonus for weapon level based on value set
@@ -100,6 +112,7 @@ class Helper():
 
         return target
 
+
     def bodyChecker(self, bodyScore):
         """
         Just checks amount of body and applies penalty based on number character is down.
@@ -116,10 +129,8 @@ class Helper():
             damage_penalty = 4
         elif bodyScore == -2:
             damage_penalty = 5
-        elif bodyScore == -3:
-            damage_penalty = 6
         else:
-            damage_penalty = 0
+            damage_penalty = 6
 
         return damage_penalty
 
@@ -131,7 +142,56 @@ class Helper():
 
         return attack_penalty
 
-    def damageSubtractor(self, damage, target):
+    def deathSubtractor(self, damage, target, caller):
+        """
+        Handles damage at or below 3 body.
+        """
+        target_body = target.db.body
+        target_bleed_points = target.db.bleed_points
+        target_death_points = target.db.death_points
+
+        if target_body and damage:
+            body_damage = target_body - damage
+            if body_damage < 0:
+                damage = abs(body_damage)
+                target.db.body = 0
+            else:
+                target.db.body = body_damage
+                damage = 0
+
+            target.location.msg_contents(f"{caller.key} greviously wounds {target.key}.")
+
+
+        if target_bleed_points and damage:
+            bleed_damage = target_bleed_points - damage
+            if bleed_damage < 0:
+                damage = abs(bleed_damage)
+                target.db.bleed_points = 0
+            else:
+                target.db.bleed_points = bleed_damage
+                damage = 0
+
+            target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
+            target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+
+
+        if target_death_points and damage:
+            death_damage = target_death_points - damage
+            if death_damage < 0:
+                damage = abs(death_damage)
+                target.db.death_points = 0
+            else:
+                target.db.death_points = death_damage
+                damage = 0
+
+            target.msg("|400You are unconscious and can no longer move of your own volition.|n")
+            target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+
+        else:
+            pass
+
+
+    def damageSubtractor(self, damage, target, caller):
         """
         Takes attack type of caller and assigns damage based on target stats.
         """
@@ -142,6 +202,8 @@ class Helper():
         target_body = target.db.body
         target_armor_specialist = target.db.armor_specialist
         target_armor_value = target.db.av
+        target_bleed_points = target.db.bleed_points
+        target_death_points = target.db.death_points
 
         # Apply damage in order
         if target_shield_value:
@@ -187,16 +249,11 @@ class Helper():
             else:
                 target.db.tough = tough_damage
                 damage = 0
-
         else:
-            body_damage = target_body - damage
-            if body_damage < 0:
-                damage = abs(body_damage)
-                target.db.body = 0
-            else:
-                target.db.body = body_damage
+            self.deathSubtractor(damage, target, caller)
 
         new_av = self.updateArmorValue(target.db.shield_value, target.db.armor, target.db.tough, target.db.armor_specialist)
+
         return new_av
 
 

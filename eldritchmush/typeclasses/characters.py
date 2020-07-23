@@ -42,6 +42,7 @@ class Character(DefaultCharacter):
         self.db.tough = 0
         self.db.body = 3
         self.db.av = 0
+        self.db.resilience = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -59,6 +60,8 @@ class Character(DefaultCharacter):
 
         # Entries for status effects
         self.db.weakness = 0
+        self.db.bleed_points = 3
+        self.db.death_points = 3
 
         # Entries for combat
         self.db.melee = 0
