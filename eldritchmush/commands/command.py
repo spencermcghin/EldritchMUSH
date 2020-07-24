@@ -2131,16 +2131,19 @@ class CmdDiagnose(Command):
 
         caller = self.caller
 
-        if self.target == "self" or self.target == "me" or self.target == '':
+        if self.target == caller or self.target == "me" or self.target == '':
             message = ""
             body = caller.db.body
+            bleed_points = caller.db.bleed_points
+            death_points = caller.db.death_points
+
             if body >= 3:
                 message += "|230You are in tiptop shape!|n"
-            elif body < 3 and body > 0:
+            elif 0 < body < 3:
                 message += "|540You're a little roughed up and bruised, but not bleeding. It might be worth looking for someone versed in medicine before you go looking for a fight.|n"
-            elif body <= 0 and body > -4:
+            elif body <= 0 and bleed_points:
                 message += "|400You're bleeding to death. You cannot move from your immediate area or use active marshal skills.|n"
-            elif body <= -4 and body >= -6:
+            elif death_points:
                 message += "|400You're dying. You can't do anything except lay there and hope someone comes to help.|n"
             else:
                 message += "|400You are dead.|n"
@@ -2157,14 +2160,17 @@ class CmdDiagnose(Command):
 
             else:
                 message = ""
-                body = target.db.body
+                target_body = target.db.body
+                target_bleed_points = target.db.bleed_points
+                target_death_points = target.db.death_points
+
                 if body >= 3:
                     message += "|230" + target.key + " is in tiptop shape and doesn't need any healing.|n"
-                elif body < 3 and body > 0:
+                elif 0 < target_body < 3:
                     message += "|540" + target.key + " is a little roughed up and bruised, but not bleeding. They could use some tending before heading into a fight.|n"
-                elif body <= 0 and body > -4:
+                elif body <= 0 and target_bleed_points:
                     message += "|400" + target.key + " is bleeding to death. They cannot move from their immediate position or use active marshal skills.|n"
-                elif body <= -4 and body >= -6:
+                elif target_death_points:
                     message += "|400" + target.key + " is dying. They need to be stabilized as soon as possible.|n"
                 else:
                     message += "|400" + target.key + " is dead."
