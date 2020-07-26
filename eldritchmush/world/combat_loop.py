@@ -203,12 +203,12 @@ class CombatLoop:
             if self.isLast():
                 firstCharacter = self.goToFirst()
                 self.combatTurnOn(firstCharacter)
-                firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn. Please enter a combat command, or disengage from combat.")
+                firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn.")
             else:
                 # Get character at next index and set their combat_round to 1.
                 nextTurn = self.goToNext()
                 self.combatTurnOn(nextTurn)
-                nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn. Please enter a combat command, or disengage from combat.")
+                nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn.")
         else:
             self.removeFromLoop(self.caller)
             self.caller.db.in_combat = 0
