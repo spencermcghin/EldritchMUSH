@@ -260,3 +260,14 @@ class ObjSkullTicket(DefaultObject):
     def at_object_creation(self):
         self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull."
         return
+
+"""
+Begin Weapon Objects
+"""
+
+class ObjWeapon(DefaultObject):
+
+    def at_object_creation(self):
+        self.db.material_value = 0
+        self.db.weapon_type =  ''
+        pass
