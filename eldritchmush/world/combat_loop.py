@@ -140,6 +140,7 @@ class CombatLoop:
 
             # Add character to loop
             self.addToLoop(self.caller.key)
+            self.caller.db.in_combat = 1
             callerTurn = self.getCombatTurn(self.caller.key)
             # Send message to attacker and resolve command
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
@@ -147,6 +148,7 @@ class CombatLoop:
 
             # Add target of attack to loop
             self.addToLoop(self.target.key)
+            self.target.db.in_combat = 1
             # Send message to target and resolve command
             targetTurn = self.getCombatTurn(self.target.key)
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {targetTurn} in the round order.")
@@ -159,7 +161,9 @@ class CombatLoop:
             if self.target.key not in self.combat_loop:
                 # Append caller and target to end of loop
                 self.combat_loop.append(self.caller.key)
+                self.caller.db.in_combat = 1
                 self.combat_loop.append(self.target.key)
+                self.target.db.in_combat = 1
                 callerTurn = self.getCombatTurn(self.caller.key)
                 targetTurn = self.getCombatTurn(self.target.key)
                 # Change combat_turn to 0
@@ -171,6 +175,7 @@ class CombatLoop:
 
                 # Append to end of loop
                 self.combat_loop.append(self.caller.key)
+                self.caller.db.in_combat = 1
                 callerTurn = self.getCombatTurn(self.caller.key)
                 # Change combat_turn to 0
                 self.combatTurnOff(self.caller)
@@ -181,6 +186,7 @@ class CombatLoop:
             # Handle when caller in loop and target is not
             # Need to add target to end of loop, set their combat_turn to 0.
             self.combat_loop.append(self.target.key)
+            self.target.db.in_combat = 1
             self.combatTurnOff(self.target)
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target.key)} in the round order.")
             self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target.key)} in the round order.")
@@ -197,14 +203,15 @@ class CombatLoop:
             if self.isLast():
                 firstCharacter = self.goToFirst()
                 self.combatTurnOn(firstCharacter)
-                firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn. Please enter a combat command, or disengage from combat.")
+                firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn.")
             else:
                 # Get character at next index and set their combat_round to 1.
                 nextTurn = self.goToNext()
                 self.combatTurnOn(nextTurn)
-                nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn. Please enter a combat command, or disengage from combat.")
+                nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn.")
         else:
             self.removeFromLoop(self.caller)
+            self.caller.db.in_combat = 0
             self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
             # Change self.callers combat_turn to 1 so they can attack again.
             self.combatTurnOn(self.caller)

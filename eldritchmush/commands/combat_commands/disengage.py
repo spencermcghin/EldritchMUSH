@@ -35,15 +35,16 @@ class CmdDisengage(Command):
                     first_combatant_str = self.combat_loop[0]
                     first_combatant_key = self.caller.search(first_combatant_str)
                     first_combatant_key.db.combat_turn = 1
-                    # Remove caller from combat loop
+                    # Remove caller from combat loop and set status
                     self.combat_loop.remove(self.caller.key)
+                    self.caller.db.in_combat = 0
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
                     self.msg("You have disengaged from combat.")
                     self.caller.location.msg_contents(f"{self.caller.key} breaks away from combat.")
 
                     # Prompt for next turn
-                    first_combatant_key.location.msg_contents(f"It is now {first_combatant_key}'s turn. Please enter a combat command, or disengage from combat.")
+                    first_combatant_key.location.msg_contents(f"It is now {first_combatant_key}'s turn.")
 
                     # Run disengage_cleanup
                     self.disengage_cleanup()
@@ -56,10 +57,14 @@ class CmdDisengage(Command):
                     next_combatant_key.db.combat_turn = 1
                     # Remove caller from combat loop
                     self.combat_loop.remove(self.caller.key)
+                    self.caller.db.in_combat = 0
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
                     self.msg("You have disengaged from combat.")
                     self.caller.location.msg_contents(f"{self.caller.key} breaks away from combat.")
+
+                    # Prompt for next turn
+                    next_combatant_key.location.msg_contents(f"It is now {next_combatant_key}'s turn.")
 
                     # Run disengage_cleanup
                     self.disengage_cleanup()
@@ -79,6 +84,7 @@ class CmdDisengage(Command):
             remaining_key.location.msg_contents(f"{remaining_key} breaks away from combat.")
             remaining_key.msg(f"Combat is over. You have been removed from the combat loop for {self.caller.location}")
             remaining_key.db.combat_turn = 1
+            remaining_key.db.in_combat = 0
 
         else:
             return
