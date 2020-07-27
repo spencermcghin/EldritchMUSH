@@ -78,10 +78,9 @@ Begin weapon prototypes.
 Should have name, required resources, value_silver, value_gold, value_copper, material value
 
 """
-WEAPON = {
-"key": "weapon",
+BLACKSMITH = {
+"key": "blacksmith",
 "level": 0,
-"damage": 1,
 "required_resources": 0,
 "material_value": 0,
 "value_copper": 0,
@@ -90,31 +89,44 @@ WEAPON = {
 }
 
 IRON_SMALL_WEAPON = {
-"prototype_parent": "WEAPON",
+"prototype_parent": "BLACKSMITH",
 "key": "Iron Small Weapon",
 "aliases": ["small dagger", "dagger", "shortsword", "small club", "small hammer"],
 "required_resources": ["1 Iron Ingot", "1 Refined Wood"],
+"damage": 1,
 "value_copper": 70,
 "value_silver": 7,
 "value_gold": .7
 }
 
 IRON_MEDIUM_WEAPON = {
-"prototype_parent": "WEAPON",
+"prototype_parent": "BLACKSMITH",
 "key": "Iron Medium Weapon",
 "aliases": ["longsword", "medium sword", "mace", "axe", "hammer"],
 "required_resources": ["2 Iron Ingots", "1 Refined Wood", "1 Leather"],
+"damage": 1,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9
 }
 
 IRON_LARGE_WEAPON = {
-"prototype_parent": "WEAPON",
+"prototype_parent": "BLACKSMITH",
 "key": "Iron Large Weapon",
 "aliases": ["staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
 "required_resources": ["2 Iron Ingots", "1 Refined Wood", "1 Leather"],
+"damage": 2,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9
+}
+
+IRON_SHIELD = {
+"prototype_parent": "BLACKSMITH",
+"key": "Iron Shield",
+"aliases": ["iron shield, basic shield"],
+"required_resources": ["1 Iron Ingot", "1 Refined Wood", "1 Leather"],
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8
 }
