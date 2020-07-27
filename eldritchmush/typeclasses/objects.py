@@ -261,6 +261,7 @@ class ObjSkullTicket(DefaultObject):
         self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull."
         return
 
+
 """
 Begin Weapon Objects
 """
