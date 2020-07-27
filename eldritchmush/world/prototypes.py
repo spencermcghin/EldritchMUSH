@@ -71,3 +71,26 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 # "key": "goblin archwizard",
 # "prototype_parent" : ("GOBLIN_WIZARD", "ARCHWIZARD_MIXIN")
 # }
+
+"""
+Begin weapon prototypes.
+
+Should have name, required resources, value_silver, value_gold, value_copper, material value
+
+"""
+WEAPON = {
+"key": "weapon",
+"level": 0,
+"required_resources": 0,
+"material_value": 0,
+"value_copper": 0,
+"value_silver": 0,
+"value_gold": 0
+}
+
+IRON_SMALL_WEAPON = {
+"prototype_parent": "WEAPON",
+"key": "Iron Small Weapon",
+"aliases": ["small dagger", "dagger", "shortsword", "small club", "small hammer"],
+"required_resources": ["1 Iron Ingot", "1 Refined Wood"]
+}
