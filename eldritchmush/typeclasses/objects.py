@@ -222,6 +222,10 @@ class Object(DefaultObject):
             return string
 
 
+"""
+Carnival - Ticket Box
+"""
+
 class ObjTicketBox(DefaultObject):
     """
     Available command:
@@ -261,14 +265,21 @@ class ObjSkullTicket(DefaultObject):
         self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull."
         return
 
-
 """
-Begin Weapon Objects
+Crafting Objects
 """
 
-class ObjWeapon(DefaultObject):
+class Forge(DefaultObject):
+    """
+    Available command:
 
+    forge <item>
+    """
     def at_object_creation(self):
-        self.db.material_value = 0
-        self.db.weapon_type =  ''
-        pass
+        "Called when object is first created"
+        # Maintain state of object
+        self.locks.add("get:false()")
+        self.db.desc = "\n|yThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor.|n\n|rOOG - Usage: forge <item>|n"
+
+        # Add command set for interacting with box
+        self.cmdset.add_default(ForgeCmdSet, permanent=True)
