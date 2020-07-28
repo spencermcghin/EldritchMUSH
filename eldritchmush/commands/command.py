@@ -2178,7 +2178,7 @@ class CmdDiagnose(Command):
                 caller.msg(message)
 
 """
-Random Commands
+Random Encounter Commands
 """
 
 class CmdTouchAltar(Command):
@@ -2217,7 +2217,31 @@ class CmdTouchAltar(Command):
                 self.caller.msg(f"|400{self.caller}, you can't do that!|n")
                 return
 
-
             message = random.choice(self.ALTAR_STRINGS)
             self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
             self.caller.msg(message)
+
+"""
+Crafting Commands
+"""
+
+class CmdForge(Command):
+
+        key = "forge"
+        help_category = "mush"
+
+    def parse(self):
+        self.item = self.args.strip()
+
+    def func(self):
+        h = Helper(self.caller)
+
+        err_mnsg = "|540Usage: forge <item>|n"
+
+        # Logic
+        # Caller executes command - forge iron medium weapon
+        # Get resource and schematic requirements for item
+        # Check to see if the resources and schematic are in the inventory of the caller
+        # If so, remove those resources from caller's inventory, spawn item and place in caller's inventory
+        # Put resources in forge object and then delete.
+        # If not, prompt caller that they need additional resources.
