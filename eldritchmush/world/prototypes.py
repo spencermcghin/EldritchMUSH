@@ -82,17 +82,33 @@ BLACKSMITH = {
 "key": "blacksmith",
 "level": 0,
 "required_resources": 0,
-"material_value": 0,
+"iron_ingots": 0,
+"cloth": 0,
+"refined_wood": 0,
+"leather": 0,
 "value_copper": 0,
 "value_silver": 0,
 "value_gold": 0
 }
 
-IRON_SMALL_WEAPON = {
+WEAPON = {
 "prototype_parent": "BLACKSMITH",
+"damage": 0,
+"material_value": 0,
+"trait_one": None,
+"trait_two": None,
+"trait_three": None
+}
+
+IRON_SMALL_WEAPON = {
+"prototype_parent": "WEAPON",
 "key": "Iron Small Weapon",
 "aliases": ["small dagger", "dagger", "shortsword", "small club", "small hammer"],
-"required_resources": ["1 Iron Ingot", "1 Refined Wood"],
+"required_resources": 2,
+"iron_ingots": 1,
+"cloth": 0,
+"refined_wood": 1,
+"leather": 0,
 "damage": 1,
 "value_copper": 70,
 "value_silver": 7,
@@ -100,10 +116,14 @@ IRON_SMALL_WEAPON = {
 }
 
 IRON_MEDIUM_WEAPON = {
-"prototype_parent": "BLACKSMITH",
+"prototype_parent": "WEAPON",
 "key": "Iron Medium Weapon",
 "aliases": ["longsword", "medium sword", "mace", "axe", "hammer"],
-"required_resources": ["2 Iron Ingots", "1 Refined Wood", "1 Leather"],
+"required_resources": 4,
+"iron_ingots": 2,
+"cloth": 0,
+"refined_wood": 1,
+"leather": 1,
 "damage": 1,
 "value_copper": 90,
 "value_silver": 9,
@@ -111,10 +131,14 @@ IRON_MEDIUM_WEAPON = {
 }
 
 IRON_LARGE_WEAPON = {
-"prototype_parent": "BLACKSMITH",
+"prototype_parent": "WEAPON",
 "key": "Iron Large Weapon",
 "aliases": ["staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
-"required_resources": ["2 Iron Ingots", "1 Refined Wood", "1 Leather"],
+"required_resources": 4,
+"iron_ingots": 2,
+"cloth": 0,
+"refined_wood": 1,
+"leather": 1,
 "damage": 2,
 "value_copper": 90,
 "value_silver": 9,
@@ -125,7 +149,11 @@ IRON_SHIELD = {
 "prototype_parent": "BLACKSMITH",
 "key": "Iron Shield",
 "aliases": ["iron shield, basic shield"],
-"required_resources": ["1 Iron Ingot", "1 Refined Wood", "1 Leather"],
+"required_resources": 3,
+"iron_ingots": 1,
+"cloth": 0,
+"refined_wood": 1,
+"leather": 1,
 "value_copper": 80,
 "value_silver": 8,
 "value_gold": .8
