@@ -160,3 +160,8 @@ IRON_SHIELD = {
 "value_silver": 8,
 "value_gold": .8
 }
+
+LEATHER_ARMOR = {
+"prototype_parent": "BLACKSMITH",
+
+}
