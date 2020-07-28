@@ -108,9 +108,7 @@ IRON_SMALL_WEAPON = {
 "aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
 "required_resources": 2,
 "iron_ingots": 1,
-"cloth": 0,
 "refined_wood": 1,
-"leather": 0,
 "damage": 1,
 "value_copper": 70,
 "value_silver": 7,
@@ -123,7 +121,6 @@ IRON_MEDIUM_WEAPON = {
 "aliases": ["iron large weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
 "required_resources": 4,
 "iron_ingots": 2,
-"cloth": 0,
 "refined_wood": 1,
 "leather": 1,
 "damage": 1,
@@ -138,7 +135,6 @@ IRON_LARGE_WEAPON = {
 "aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
 "required_resources": 4,
 "iron_ingots": 2,
-"cloth": 0,
 "refined_wood": 1,
 "leather": 1,
 "damage": 2,
@@ -153,7 +149,6 @@ IRON_SHIELD = {
 "aliases": ["iron shield, basic shield"],
 "required_resources": 3,
 "iron_ingots": 1,
-"cloth": 0,
 "refined_wood": 1,
 "leather": 1,
 "value_copper": 80,
@@ -163,5 +158,10 @@ IRON_SHIELD = {
 
 LEATHER_ARMOR = {
 "prototype_parent": "BLACKSMITH",
-
+"required_resources": 2,
+"cloth": 1,
+"leather": 1,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
 }
