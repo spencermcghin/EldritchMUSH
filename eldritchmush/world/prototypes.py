@@ -73,9 +73,7 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 # }
 
 """
-Begin weapon prototypes.
-
-Should have name, required resources, value_silver, value_gold, value_copper, material value
+Begin blacksmith and weapon protoypes
 
 """
 BLACKSMITH = {
@@ -100,10 +98,14 @@ WEAPON = {
 "trait_three": None
 }
 
+"""
+Level 0 Blacksmith Items
+"""
+
 IRON_SMALL_WEAPON = {
 "prototype_parent": "WEAPON",
 "key": "Iron Small Weapon",
-"aliases": ["small dagger", "dagger", "shortsword", "small club", "small hammer"],
+"aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
 "required_resources": 2,
 "iron_ingots": 1,
 "cloth": 0,
@@ -118,7 +120,7 @@ IRON_SMALL_WEAPON = {
 IRON_MEDIUM_WEAPON = {
 "prototype_parent": "WEAPON",
 "key": "Iron Medium Weapon",
-"aliases": ["longsword", "medium sword", "mace", "axe", "hammer"],
+"aliases": ["iron large weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
 "required_resources": 4,
 "iron_ingots": 2,
 "cloth": 0,
@@ -133,7 +135,7 @@ IRON_MEDIUM_WEAPON = {
 IRON_LARGE_WEAPON = {
 "prototype_parent": "WEAPON",
 "key": "Iron Large Weapon",
-"aliases": ["staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
+"aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
 "required_resources": 4,
 "iron_ingots": 2,
 "cloth": 0,
