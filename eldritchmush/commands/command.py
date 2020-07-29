@@ -2245,3 +2245,4 @@ class CmdForge(Command):
         # If so, remove those resources from caller's inventory, spawn item and place in caller's inventory
         # Put resources in forge object and then delete.
         # If not, prompt caller that they need additional resources.
+        pass
