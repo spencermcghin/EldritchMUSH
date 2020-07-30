@@ -221,13 +221,6 @@ class Object(DefaultObject):
         else:
             return string
 
-    def at_get(self, getter):
-        """
-        1. Add item to char attribute 'inventory'
-        2. If item not in inventory, append it to the caller's inventory attribute, and add a count.
-        3. If item in inventory, add 1 to the items total value, as in {"Iron Short Weapon", 1} -> {"Iron Short Weapon", 2}
-        """
-
 
 
 """
