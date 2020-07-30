@@ -85,9 +85,6 @@ class Character(DefaultCharacter):
         self.db.battlefieldcommander = 0
         self.db.rally = 0
 
-        # Entries for economy
-        self.db.inventory = []
-
 
     def return_appearance(self, looker):
         """
