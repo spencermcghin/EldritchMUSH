@@ -41,10 +41,6 @@ class CmdBattlefieldMedicine(Command):
             loop = CombatLoop(caller, target)
             loop.resolveCommand()
 
-            # Apply healing skills accordingly
-            healing_handler = HealingHandler(caller, target)
-            healing_handler.resolve_healing()
-
         else:
             if battlefieldmedicine and target_body is not None:
 
