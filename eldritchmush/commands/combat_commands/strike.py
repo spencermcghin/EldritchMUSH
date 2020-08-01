@@ -37,6 +37,11 @@ class CmdStrike(Command):
         # Check for and error handle designated target
         target = h.targetHandler(self.target)
 
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
+        loop = CombatLoop(self.caller, target)
+        loop.resolveCommand()
+
         # Run logic for strike command
         if self.caller.db.combat_turn:
 
@@ -47,11 +52,6 @@ class CmdStrike(Command):
 
             # Get die result based on master of arms level
             if combat_stats.get("melee", 0):
-
-                # Pass all checks now execute command.
-                # Use parsed args in combat loop. Handles turn order in combat.
-                loop = CombatLoop(self.caller, target)
-                loop.resolveCommand()
 
                 # Check if damage bonus comes from fayne or master_of_arms
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
