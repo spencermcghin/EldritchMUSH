@@ -24,15 +24,15 @@ class Helper():
         target = self.caller.search(target)
 
         if not target:
-            self.msg("|540Target not found.|n")
+            self.caller.msg("|540Target not found.|n")
             return
 
         if target == self.caller:
-            self.msg(f"|400{self.caller}, you had better not try that.|n")
+            self.caller.msg(f"|400{self.caller}, you had better not try that.|n")
             return
 
         if target.db.body is None:
-            self.msg("|400You had better not try that.|n")
+            self.caller.msg("|400You had better not try that.|n")
             return
 
         return target
