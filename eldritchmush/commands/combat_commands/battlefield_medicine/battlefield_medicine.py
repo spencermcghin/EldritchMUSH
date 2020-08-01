@@ -2,7 +2,7 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
-from battlefield_med_handler import HealingHandler
+from combat_commands.battlefield_medicine.battlefield_med_handler import HealingHandler
 
 
 class CmdBattlefieldMedicine(Command):
