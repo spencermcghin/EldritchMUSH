@@ -20,7 +20,7 @@ from evennia import CmdSet
 from commands import command
 from commands import combat
 from commands.combat_commands import strike, disengage, shoot, cleave
-from commands.battlefield_medicine import battlefield_medicine
+from commands.combat_commands.battlefield_medicine import battlefield_medicine
 from commands import npc
 from commands import dice
 
