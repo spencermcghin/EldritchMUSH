@@ -27,6 +27,10 @@ class CmdShoot(Command):
         # Init combat helper
         h = Helper(self.caller)
 
+        # Use parsed args in combat loop
+        loop = CombatLoop(self.caller, target)
+        loop.resolveCommand()
+
         # Run logic for strike command
         if self.caller.db.combat_turn:
 
@@ -45,10 +49,6 @@ class CmdShoot(Command):
             else:
                 # Check for and error handle designated target
                 target = h.targetHandler(self.target)
-
-                # Use parsed args in combat loop
-                loop = CombatLoop(self.caller, target)
-                loop.resolveCommand()
 
                 # Check if damage bonus comes from fayne or master_of_arms
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
