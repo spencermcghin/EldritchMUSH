@@ -173,6 +173,7 @@ class CombatLoop:
 
             else:
 
+                # caller not in loop, target in loop
                 # Append to end of loop
                 self.combat_loop.append(self.caller.key)
                 self.caller.db.in_combat = 1
