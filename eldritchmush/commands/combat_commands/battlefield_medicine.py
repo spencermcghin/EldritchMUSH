@@ -43,6 +43,11 @@ class CmdBattlefieldMedicine(Command):
                 handler = HealingHandler(caller, target)
                 handler.resolve_healing()
 
+                # Clean up
+                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                loop.combatTurnOff(self.caller)
+                loop.cleanup()                
+
             else:
                 self.caller.msg("|400You had better not try that.|n")
 
