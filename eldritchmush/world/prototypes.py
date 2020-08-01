@@ -71,3 +71,98 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 # "key": "goblin archwizard",
 # "prototype_parent" : ("GOBLIN_WIZARD", "ARCHWIZARD_MIXIN")
 # }
+
+"""
+Begin blacksmith and weapon protoypes
+
+"""
+BLACKSMITH = {
+"key": "blacksmith",
+"level": 0,
+"required_resources": 0,
+"iron_ingots": 0,
+"cloth": 0,
+"refined_wood": 0,
+"leather": 0,
+"value_copper": 0,
+"value_silver": 0,
+"value_gold": 0
+}
+
+WEAPON = {
+"prototype_parent": "BLACKSMITH",
+"damage": 0,
+"material_value": 0,
+"broken": 0,
+"trait_one": None,
+"trait_two": None,
+"trait_three": None
+}
+
+"""
+Level 0 Blacksmith Items
+"""
+
+IRON_SMALL_WEAPON = {
+"prototype_parent": "WEAPON",
+"key": "Iron Small Weapon",
+"aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"damage": 1,
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": .7
+}
+
+IRON_MEDIUM_WEAPON = {
+"prototype_parent": "WEAPON",
+"key": "Iron Medium Weapon",
+"aliases": ["iron large weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"damage": 1,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+IRON_LARGE_WEAPON = {
+"prototype_parent": "WEAPON",
+"key": "Iron Large Weapon",
+"aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"damage": 2,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+IRON_SHIELD = {
+"prototype_parent": "BLACKSMITH",
+"key": "Iron Shield",
+"aliases": ["iron shield, basic shield"],
+"required_resources": 3,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8
+}
+
+LEATHER_ARMOR = {
+"prototype_parent": "BLACKSMITH",
+"required_resources": 2,
+"cloth": 1,
+"leather": 1,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
+}
