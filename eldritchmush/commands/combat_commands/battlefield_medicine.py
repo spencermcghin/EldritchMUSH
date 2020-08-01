@@ -31,11 +31,13 @@ class CmdBattlefieldMedicine(Command):
         target_body = target.db.body
         battlefieldmedicine = caller.db.battlefieldmedicine
 
+        # Go through combat loop logic
+        loop = CombatLoop(caller, target)
+        loop.resolveCommand()
+
         if caller.db.combat_turn:
             if battlefieldmedicine and target_body is not None:
                 # Use parsed args in combat loop. Handles turn order in combat.
-                loop = CombatLoop(caller, target)
-                loop.resolveCommand()
 
                 # Resolve medic command
                 handler = HealingHandler(caller, target)
