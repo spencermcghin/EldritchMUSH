@@ -26,7 +26,7 @@ class HealingHandler:
                 if (self.target.db.body + 1) > 3:
                     # If so set body to 1
                     self.target.db.body = 3
-                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                    self.caller.msg(f"|230{self.target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
                 else:
                     # If not over 1, add points to total
                     self.target.location.msg_contents(f"|230{self.caller.key} comes to {self.target.key}'s rescue, healing {self.target.key} for|n |0201|n |230body point.|n")
