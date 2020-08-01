@@ -31,22 +31,20 @@ class CmdBattlefieldMedicine(Command):
         target_body = target.db.body
         battlefieldmedicine = caller.db.battlefieldmedicine
 
-        if target.key in target.location.db.combat_loop:
-            """
-            If target of skill is in combat, use loop to resolve command and insert caller into loop.
-            Will need to wait until it is callers turn to act.
-
-            """
-            caller.msg(f"You try to heal {target.key}, but they are currently engaged in combat.")
-            loop = CombatLoop(caller, target)
-            loop.resolveCommand()
-
-        else:
+        if caller.db.combat_turn:
             if battlefieldmedicine and target_body is not None:
 
-                # Apply healing skills accordingly
-                healing_handler = HealingHandler(caller, target)
-                healing_handler.resolve_healing()
+                # Use parsed args in combat loop. Handles turn order in combat.
+                loop = CombatLoop(self.caller, target)
+                loop.resolveCommand()
+
+                # Resolve medic command
+                handler = HealingHandler()
+                handler.resolve_healing()
 
             else:
                 self.caller.msg("|400You had better not try that.|n")
+
+        else:
+            self.msg("You need to wait until it is your turn before you are able to act.")
+            return

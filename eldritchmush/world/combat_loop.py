@@ -181,7 +181,6 @@ class CombatLoop:
                 # Change combat_turn to 0
                 self.combatTurnOff(self.caller)
                 self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
-                return
 
         elif self.inLoop() is True and self.target.key not in self.combat_loop:
 
