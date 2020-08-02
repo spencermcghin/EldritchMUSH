@@ -35,6 +35,7 @@ class CmdStabilize(Command):
         target_death_points = target.db.death_points
         stabilize = self.caller.db.stabilize
         medicine = self.caller.db.medicine
+        target_resilience = target.db.resilience
 
         # Go through combat loop logic
         loop = CombatLoop(caller, target)
@@ -45,10 +46,10 @@ class CmdStabilize(Command):
                 # Check to make sure caller has the skill.
                 if medicine and target_body is not None:
 
-                    if target_bleed_points and medicine:
+                    if target_body and medicine:
                         # Return message to area and caller
                         if target == self.caller:
-                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |020{medicine}|n |540body points.|n")
+                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
 
                             # Check to see if caller would go over 1 body with application of skill.
                             if (self.caller.db.body + medicine) > 1:
@@ -68,12 +69,11 @@ class CmdStabilize(Command):
 
                         # If target is someone else, do checks and apply healing.
                         elif target != self.caller and medicine:
-                            target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{medicine}|n |230body points.|n")
+                            target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
                             if (target.db.body + medicine) > 1:
                                 # If so set body to 1
                                 target.db.body = 1
                                 target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-                                # Check to see if weakness set. If not, set it.
                             else:
                                 # If not over 1, add points to total
                                 target.db.body += medicine
@@ -83,20 +83,66 @@ class CmdStabilize(Command):
                             loop.combatTurnOff(caller)
                             loop.cleanup()
 
-                    # Apply stabilize to other target
+                elif target_bleed_points and medicine:
+                        # Return message to area and caller
+                        if target == self.caller:
+                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
+
+                            total_bleed_points = target_resilience + 3
+                            new_bp_value = target_bleed_points + target_resilience + medicine
+                            # Check to see if caller would go over 1 body with application of skill.
+                            if new_bp_value > total_bleed_points:
+                                # Set to max bleed_points
+                                self.caller.db.bleed_points = total_bleed_points
+                                # Add extra to body
+                                excess_bp = new_bp_value - total_bleed_points
+                                target_body += excess_bp
+                                self.caller.msg(f"|540You are slowly starting to heal, and your wounds are on the mend.")
+
+                            else:
+                                # If not over 1, add points to total
+                                target_bleed_points += medicine
+                                self.caller.msg(f"|540You are slowly starting to heal, though it will take more time.")
+
+                            # Clean up in combat loop
+                            loop.combatTurnOff(caller)
+                            loop.cleanup()
+
+
+                        # If target is someone else, do checks and apply healing.
+                        elif target != self.caller and medicine:
+                            target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
+                            if (target.db.body + medicine) > 1:
+                                # If so set body to 1
+                                target.db.body = 1
+                                target.msg(f"|540Your new body value is:|n {target.db.body}|n")
+                            else:
+                                # If not over 1, add points to total
+                                target.db.body += medicine
+                                target.msg(f"|540Your new body value is:|n {target.db.body}|n")
+
+                            # Clean up in combat loop
+                            loop.combatTurnOff(caller)
+                            loop.cleanup()                    pass
+
+
+                # Apply stabilize to other target
                 elif target_death_points and stabilize:
 
                         # You can't stabilize yourself...
                         if target == self.caller:
                             self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
                         elif target != self.caller:
-                            target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{stabilize}|n |230body points.|n")
-                            if (target.db.body + stabilize) > 1:
-                                # If so set body to 1
-                                target.db.body = 1
+                            target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n")
+
+                            new_dp_total = target_death_points += stabilize
+                            if new_dp_total > 3:
+                                target_death_points = 3
+                                # Add any excess to bleed_points
+                                excess_dp = new_dp_total - 3
+                                target_bleed_points += excess_dp
                             else:
-                                # If not over 1, add points to total
-                                target.db.body += stabilize
+                                target_death_points += stabilize
 
                             # Check to see if weakness set. If not, set it.
                             if not target.db.weakness:
