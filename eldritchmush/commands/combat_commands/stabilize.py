@@ -66,7 +66,6 @@ class CmdStabilize(Command):
                             loop.combatTurnOff(caller)
                             loop.cleanup()
 
-
                         # If target is someone else, do checks and apply healing.
                         elif target != self.caller and medicine:
                             target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
@@ -123,7 +122,7 @@ class CmdStabilize(Command):
 
                             # Clean up in combat loop
                             loop.combatTurnOff(caller)
-                            loop.cleanup()                    pass
+                            loop.cleanup()
 
 
                 # Apply stabilize to other target
