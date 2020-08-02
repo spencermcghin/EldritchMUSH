@@ -106,9 +106,9 @@ class CmdStabilize(Command):
                             loop.combatTurnOff(caller)
                             loop.cleanup()
 
-                    # Check to see if the target is already healed to max.
-                    elif target_body >= 1:
-                        self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                # Check to see if the target is already healed to max.
+                elif target_body >= 1:
+                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
 
                 else:
                     self.caller.msg("|400You had better not try that.|n")
