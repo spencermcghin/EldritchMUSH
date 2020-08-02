@@ -31,6 +31,8 @@ class CmdStabilize(Command):
         # May not increase targets body past 1
         # Only works on targets with body <= 0
         target_body = target.db.body
+        target_bleed_points = target.db.bleed_points
+        target_death_points = target.db.death_points
         stabilize = self.caller.db.stabilize
         medicine = self.caller.db.medicine
 
@@ -41,24 +43,28 @@ class CmdStabilize(Command):
         if caller.db.combat_turn:
             if h.canFight(caller):
                 # Check to make sure caller has the skill.
-                if stabilize and target_body is not None:
-                    if (- 3 <= target_body <= 0) and medicine:
+                if medicine and target_body is not None:
+
+                    if target_bleed_points and medicine:
                         # Return message to area and caller
                         if target == self.caller:
-                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |020{medicine}|n |540body points per round as long as their work remains uninterrupted.|n")
+                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.\n|540{self.caller} heals|n |020{medicine}|n |540body points.|n")
 
                             # Check to see if caller would go over 1 body with application of skill.
                             if (self.caller.db.body + medicine) > 1:
                                 # If so set body to 1
                                 self.caller.db.body = 1
                                 self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
+
                             else:
                                 # If not over 1, add points to total
                                 self.caller.db.body += medicine
                                 self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
-                            # Check to see if weakness set. If not, set it.
-                            if not self.caller.db.weakness:
-                                self.caller.db.weakness = 1
+
+                            # Clean up in combat loop
+                            loop.combatTurnOff(caller)
+                            loop.cleanup()
+
 
                         # If target is someone else, do checks and apply healing.
                         elif target != self.caller and medicine:
@@ -72,34 +78,22 @@ class CmdStabilize(Command):
                                 # If not over 1, add points to total
                                 target.db.body += medicine
                                 target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-                            # Check to see if weakness set. If not, set it.
-                            if not target.db.weakness:
-                                target.db.weakness = 1
+
+                            # Clean up in combat loop
+                            loop.combatTurnOff(caller)
+                            loop.cleanup()
 
                     # Apply stabilize to other target
-                    elif (-6 <= target_body <= -0):
+                elif target_death_points and stabilize:
 
                         # You can't stabilize yourself...
                         if target == self.caller:
                             self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
-                            # Check to see if caller would go over 1 body with application of skill.
-                            if (self.caller.db.body + stabilize) > 1:
-                                # If so set body to 1
-                                self.caller.db.body = 1
-                                self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
-                            else:
-                                # If not over 1, add points to total
-                                self.caller.db.body += stabilize
-                            # Check to see if weakness set. If not, set it.
-                            if not self.caller.db.weakness:
-                                self.caller.db.weakness = 1
-
                         elif target != self.caller:
                             target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key} for|n |020{stabilize}|n |230body points.|n")
                             if (target.db.body + stabilize) > 1:
                                 # If so set body to 1
                                 target.db.body = 1
-                                # Check to see if weakness set. If not, set it.
                             else:
                                 # If not over 1, add points to total
                                 target.db.body += stabilize
@@ -108,6 +102,9 @@ class CmdStabilize(Command):
                             if not target.db.weakness:
                                 target.db.weakness = 1
 
+                            # Clean up in combat loop
+                            loop.combatTurnOff(caller)
+                            loop.cleanup()
 
                     # Check to see if the target is already healed to max.
                     elif target_body >= 1:
