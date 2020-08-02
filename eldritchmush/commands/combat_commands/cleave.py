@@ -33,6 +33,9 @@ class CmdCleave(Command):
         # Get target if there is one
         target = self.caller.search(self.target)
 
+        loop = CombatLoop(self.caller, target)
+        loop.resolveCommand()
+
         # Run logic for cleave command
         if self.caller.db.combat_turn:
 
@@ -41,9 +44,6 @@ class CmdCleave(Command):
 
             if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
                 if cleavesRemaining > 0:
-
-                    loop = CombatLoop(self.caller, target)
-                    loop.resolveCommand()
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
