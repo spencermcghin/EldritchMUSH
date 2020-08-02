@@ -45,6 +45,7 @@ class CmdSunder(Command):
 
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)
+            target_stats = h.getMeleeCombatStats(target)
 
             # Get die result based on master of arms level
             if combat_stats.get("melee", 0):
@@ -81,19 +82,45 @@ class CmdSunder(Command):
                           if sundersRemaining > 0:
                             if not combat_stats.get("weakness", 0):
                                     if attack_result >= target.db.av:
-                                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s weapon|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
+
                                         # Check target left and right slots for items. Decrement material value from right and then left.
                                         # If no more items, subtract damage as normal.
+                                        if target_stats.get("right_slot", ''):
+                                            # Get item and material value for right slot.
+                                            right_item = self.caller.search(target.db.right_slot[0])
+                                            right_mv = right_item.db.material_value
+                                            # Decrement one from material value
+                                            right_mv -= 1
+                                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s weapon|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
 
+                                        elif target_stats.get("left_slot", ''):
+                                            # Get item and material value for right slot.
+                                            left_item = self.caller.search(target.db.left_slot[0])
+                                            left_mv = left_item.db.material_value
+                                            # Decrement one from material value
+                                            left_mv -= 1
+                                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s weapon|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
 
+                                        else:
+                                            if target_av:
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
+                                                # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                                                new_av = h.damageSubtractor(damage, target, self.caller)
+                                                # Update target av to new av score per damageSubtractor
+                                                target.db.av = new_av
+                                                target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
+                                            else:
+                                                # No target armor so subtract from their body total and hit a limb.
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |540{damage}|n |015damage!|n.")
+                                                # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
+                                                if shot_location == "torso" and target.db.body > 0:
+                                                    target.db.body = 0
+                                                    self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                                else:
+                                                    h.deathSubtractor(damage, target, self.caller)
 
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.sunder -= 1
-                                        if shot_location == "torso" and target.db.body > 0:
-                                            target.db.body = 0
-                                            self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
-                                        else:
-                                            h.deathSubtractor(damage, target, self.caller)
                                     else:
                                         self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow at {target.key}, but misses.|n")
                             else:
