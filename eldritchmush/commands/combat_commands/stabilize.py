@@ -43,44 +43,41 @@ class CmdStabilize(Command):
 
         if caller.db.combat_turn:
             if h.canFight(caller):
-                # Check to make sure caller has the skill.
-                if medicine and target_body is not None:
+                if target_body and medicine:
+                    # Return message to area and caller
+                    if target == self.caller:
+                        self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
 
-                    if target_body and medicine:
-                        # Return message to area and caller
-                        if target == self.caller:
-                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
+                        # Check to see if caller would go over 1 body with application of skill.
+                        if (self.caller.db.body + medicine) > 1:
+                            # If so set body to 1
+                            self.caller.db.body = 1
+                            self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
 
-                            # Check to see if caller would go over 1 body with application of skill.
-                            if (self.caller.db.body + medicine) > 1:
-                                # If so set body to 1
-                                self.caller.db.body = 1
-                                self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
+                        else:
+                            # If not over 1, add points to total
+                            self.caller.db.body += medicine
+                            self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
 
-                            else:
-                                # If not over 1, add points to total
-                                self.caller.db.body += medicine
-                                self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
+                        # Clean up in combat loop
+                        loop.combatTurnOff(caller)
+                        loop.cleanup()
 
-                            # Clean up in combat loop
-                            loop.combatTurnOff(caller)
-                            loop.cleanup()
+                    # If target is someone else, do checks and apply healing.
+                    elif target != self.caller and medicine:
+                        target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
+                        if (target.db.body + medicine) > 1:
+                            # If so set body to 1
+                            target.db.body = 1
+                            target.msg(f"|540Your new body value is:|n {target.db.body}|n")
+                        else:
+                            # If not over 1, add points to total
+                            target.db.body += medicine
+                            target.msg(f"|540Your new body value is:|n {target.db.body}|n")
 
-                        # If target is someone else, do checks and apply healing.
-                        elif target != self.caller and medicine:
-                            target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
-                            if (target.db.body + medicine) > 1:
-                                # If so set body to 1
-                                target.db.body = 1
-                                target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-                            else:
-                                # If not over 1, add points to total
-                                target.db.body += medicine
-                                target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-
-                            # Clean up in combat loop
-                            loop.combatTurnOff(caller)
-                            loop.cleanup()
+                        # Clean up in combat loop
+                        loop.combatTurnOff(caller)
+                        loop.cleanup()
 
                 elif target_bleed_points and medicine:
                         # Return message to area and caller
