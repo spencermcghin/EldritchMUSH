@@ -134,7 +134,7 @@ class CmdStabilize(Command):
                         elif target != self.caller:
                             target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n")
 
-                            new_dp_total = target_death_points += stabilize
+                            new_dp_total = target_death_points + stabilize
                             if new_dp_total > 3:
                                 target_death_points = 3
                                 # Add any excess to bleed_points
