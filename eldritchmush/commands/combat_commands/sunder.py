@@ -90,20 +90,30 @@ class CmdSunder(Command):
                                             right_item = self.caller.search(target.db.right_slot[0])
                                             right_mv = right_item.db.material_value
                                             # Decrement one from material value
-                                            right_mv -= 1
-                                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s weapon|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
+                                            if right_mv - 1 < 0:
+                                                right_mv = 0
+                                                right_item.db.broken = 1
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n.")
+                                            else:
+                                                right_mv -= 1
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av}|n).")
 
                                         elif target_stats.get("left_slot", ''):
                                             # Get item and material value for right slot.
                                             left_item = self.caller.search(target.db.left_slot[0])
                                             left_mv = left_item.db.material_value
                                             # Decrement one from material value
-                                            left_mv -= 1
-                                            self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s weapon|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
+                                            if left_mv - 1 < 0:
+                                                left_mv = 0
+                                                left_item.db.broken = 1
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n.")
+                                            else:
+                                                right_mv -= 1
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n).")
 
                                         else:
                                             if target_av:
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n), |015dealing|n |540{damage}|n |015damage!|n")
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n).")
                                                 # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                                                 new_av = h.damageSubtractor(damage, target, self.caller)
                                                 # Update target av to new av score per damageSubtractor
