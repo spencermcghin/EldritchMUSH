@@ -266,21 +266,23 @@ class CmdUnequip(Command):
 
         item = self.caller.search(self.item)
 
-        # Check if item is twohanded
-        if item.db.twohanded:
-            self.right_slot.remove(item)
-            self.left_slot.remove(item)
-        # Check to see if right hand is empty.
-        elif item in self.right_slot:
-            self.right_slot.remove(item)
-        elif item in self.left_slot:
-            self.left_slot.remove(item)
+        if item:
+            # Check if item is twohanded
+            if item.db.twohanded:
+                self.right_slot.remove(item)
+                self.left_slot.remove(item)
+            # Check to see if right hand is empty.
+            elif item in self.right_slot:
+                self.right_slot.remove(item)
+            elif item in self.left_slot:
+                self.left_slot.remove(item)
+            else:
+                self.caller.msg(f"You aren't carrying {item}.")
+                return
+
+            self.caller.msg(f"You have unequipped {item}.")
         else:
-            self.caller.msg(f"You aren't carrying {item}.")
-            return
-
-        self.caller.msg(f"You have unequipped {item}.")
-
+            self.caller.msg(f"Please be more specific.")            
 
 
 class SetArmorValue(Command):
