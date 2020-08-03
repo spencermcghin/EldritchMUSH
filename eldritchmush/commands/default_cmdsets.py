@@ -102,6 +102,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CharStatus())
         self.add(command.CmdChirurgery())
         self.add(command.CmdDiagnose())
+        self.add(command.CmdEquip())
+        self.add(command.CmdUnequip())
         self.add(sunder.CmdSunder())
         self.add(dice.CmdDice())
         self.add(command.CmdFollow())
