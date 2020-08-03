@@ -224,9 +224,9 @@ class CmdEquip(Command):
             self.right_slot.append(item)
             self.left_slot.append(item)
         # Check to see if right hand is empty.
-        elif self.right_slot is None:
+        elif not self.right_slot:
             self.right_slot.append(item)
-        elif self.left_slot is None:
+        elif not self.left_slot:
             self.left_slot.append(item)
         else:
             self.caller.msg("You are carrying items in both hands.")
