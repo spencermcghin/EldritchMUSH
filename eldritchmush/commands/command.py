@@ -216,6 +216,11 @@ class CmdEquip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
+
+        if not self.item:
+            self.caller.msg("|540Usage: equip <item>|n")
+            return
+
         item = self.caller.search(self.item)
 
         # Check if item is twohanded
@@ -254,6 +259,10 @@ class CmdUnequip(Command):
 
     def func(self):
         item = self.caller.search(self.item)
+
+        if not self.item:
+            self.caller.msg("|540Usage: unequip <item>|n")
+            return
 
         # Check if item is twohanded
         if item.db.twohanded:
