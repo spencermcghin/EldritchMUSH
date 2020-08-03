@@ -233,7 +233,7 @@ class CmdEquip(Command):
                         self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                         self.caller.msg(f"You have equipped your {item.key}")
                     else:
-                        self.caller.msg("You can't equip the {item} unless you first unequip something.")
+                        self.caller.msg(f"You can't equip the {item} unless you first unequip something.")
                         return
                 # Check to see if right hand is empty.
                 elif not self.right_slot:
