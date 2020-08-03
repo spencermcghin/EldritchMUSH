@@ -196,7 +196,7 @@ class Command(BaseCommand):
 #                 self.character = None
 
 
-class Equip(Command):
+class CmdEquip(Command):
     """Equip a weapon or shield
 
     Usage: equip <weapon or shield>
