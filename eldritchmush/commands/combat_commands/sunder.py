@@ -94,6 +94,8 @@ class CmdSunder(Command):
                                             if right_mv - 1 < 0:
                                                 right_mv = 0
                                                 right_item.db.broken = 1
+                                                # Remove weapon
+                                                target.db.right_slot.remove(right_item)
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
                                             else:
                                                 right_mv -= 1
@@ -107,6 +109,7 @@ class CmdSunder(Command):
                                             if left_mv - 1 < 0:
                                                 left_mv = 0
                                                 left_item.db.broken = 1
+                                                target.db.left_slot.remove(left_item)
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
                                             else:
                                                 right_mv -= 1
