@@ -218,7 +218,6 @@ class CmdEquip(Command):
     def func(self):
         item = self.caller.search(self.item)
 
-        self.caller.msg(f"Item is {item}")
         # Check if item is twohanded
         if item.db.twohanded:
             self.right_slot.append(item)
@@ -233,6 +232,43 @@ class CmdEquip(Command):
             return
 
         self.caller.msg(f"You have equippped your {self.item}")
+
+class CmdUnequip(Command):
+    """Equip a weapon or shield
+
+    Usage: unequip <weapon or shield>
+
+    Searches the callers right or left slot.
+    If item is denoted as 2H, remove from both slots.
+    If item is not, remove it from the equipped slot.
+    """
+
+    key = "unequip"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+        self.right_slot = self.caller.db.right_slot
+        self.left_slot = self.caller.db.left_slot
+
+    def func(self):
+        item = self.caller.search(self.item)
+
+        # Check if item is twohanded
+        if item.db.twohanded:
+            self.right_slot.remove(item)
+            self.left_slot.remove(item)
+        # Check to see if right hand is empty.
+        elif item in self.right_slot:
+            self.right_slot.remove(item)
+        elif item in self.left_slot:
+            self.left_slot.remove(item)
+        else:
+            self.caller.msg(f"You aren't carrying {item}.")
+            return
+
+        self.caller.msg(f"You have unequippped {item}.")
 
 
 
