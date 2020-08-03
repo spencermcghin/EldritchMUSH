@@ -195,6 +195,35 @@ class Command(BaseCommand):
 #             else:
 #                 self.character = None
 
+
+class Equip(Command):
+    """Equip a weapon or shield
+
+    Usage: equip <weapon or shield>
+
+    Searches the callers inventory and puts the item in the right_slot if 1H, and then the left_slot
+    if the character equips something else.
+    If the item is denoted as 2H, it will occupy both slots.
+    """
+
+    key = "equip"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+        self.right_slot = self.caller.db.right_slot
+        self.left_slot = self.caller.db.right_slot
+
+    def func(self):
+        item = self.caller.search(self.item)
+
+        if item.db.twohanded:
+
+        # Try adding to right_slot
+        try:
+            self.right_slot.append(item)
+
 class SetArmorValue(Command):
     """Set the armor level of a character
 
