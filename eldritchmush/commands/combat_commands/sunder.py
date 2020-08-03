@@ -94,7 +94,7 @@ class CmdSunder(Command):
                                             if right_mv - 1 < 0:
                                                 right_mv = 0
                                                 right_item.db.broken = 1
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n.")
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
                                             else:
                                                 right_mv -= 1
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av}|n).")
@@ -107,28 +107,25 @@ class CmdSunder(Command):
                                             if left_mv - 1 < 0:
                                                 left_mv = 0
                                                 left_item.db.broken = 1
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n.")
+                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
                                             else:
                                                 right_mv -= 1
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n).")
 
+                                        # Do damage resolution block
+                                        if target_av:
+                                            # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                                            new_av = h.damageSubtractor(damage, target, self.caller)
+                                            # Update target av to new av score per damageSubtractor
+                                            target.db.av = new_av
+                                            target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                         else:
-                                            if target_av:
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow|n (|020{attack_result}|n) |015at {target.key} and hits|n (|400{target_av}|n).")
-                                                # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                                                new_av = h.damageSubtractor(damage, target, self.caller)
-                                                # Update target av to new av score per damageSubtractor
-                                                target.db.av = new_av
-                                                target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
+                                            # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
+                                            if shot_location == "torso" and target.db.body > 0:
+                                                target.db.body = 0
+                                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                                             else:
-                                                # No target armor so subtract from their body total and hit a limb.
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow|n (|020{attack_result}|n) |015at {target.key} and hits |n(|400{target_av}|n)|015, injuring their {shot_location} and dealing|n |540{damage}|n |015damage!|n.")
-                                                # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
-                                                if shot_location == "torso" and target.db.body > 0:
-                                                    target.db.body = 0
-                                                    self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
-                                                else:
-                                                    h.deathSubtractor(damage, target, self.caller)
+                                                h.deathSubtractor(damage, target, self.caller)
 
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.sunder -= 1
