@@ -218,6 +218,7 @@ class CmdEquip(Command):
     def func(self):
         item = self.caller.search(self.item)
 
+        self.caller.msg(f"Item is {item}")
         # Check if item is twohanded
         if item.db.twohanded:
             self.right_slot.append(item)
