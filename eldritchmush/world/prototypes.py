@@ -120,7 +120,7 @@ IRON_SMALL_WEAPON = {
 IRON_MEDIUM_WEAPON = {
 "prototype_parent": "WEAPON",
 "key": "Iron Medium Weapon",
-"aliases": ["iron large weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
+"aliases": ["iron medium weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
 "required_resources": 4,
 "iron_ingots": 2,
 "refined_wood": 1,
