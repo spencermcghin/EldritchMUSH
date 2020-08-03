@@ -222,7 +222,7 @@ class CmdEquip(Command):
 
         item = self.caller.search(self.item)
 
-        return item
+        print(item)
 
         # # Check if item is twohanded
         # if item.db.twohanded:
