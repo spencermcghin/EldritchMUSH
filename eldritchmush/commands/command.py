@@ -222,10 +222,6 @@ class CmdEquip(Command):
 
         item = self.caller.search(self.item)
 
-        if len(item) > 1:
-            self.caller.msg(f"{self.item} has multiple potential matches. Please be more specific.")
-            return
-
         # Check if item is twohanded
         if item.db.twohanded:
             self.right_slot.append(item)
