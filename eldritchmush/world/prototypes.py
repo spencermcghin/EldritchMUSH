@@ -93,7 +93,8 @@ WEAPON = {
 "prototype_parent": "BLACKSMITH",
 "damage": 0,
 "material_value": 0,
-"broken": 0,
+"broken": False,
+"twohanded": False,
 "trait_one": None,
 "trait_two": None,
 "trait_three": None
