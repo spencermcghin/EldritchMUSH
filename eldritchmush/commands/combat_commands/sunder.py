@@ -89,11 +89,9 @@ class CmdSunder(Command):
                                             # Get item and material value for right slot.
                                             right_item = self.caller.search(target.db.right_slot[0])
                                             right_mv = right_item.db.material_value
-                                            if right_mv == 0:
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
-                                            # Decrement one from material value.
+                                                # Decrement one from material value.
                                             # Check to make sure it won't go below 0.
-                                            elif right_mv - 1 < 0:
+                                            if right_mv - 1 < 0:
                                                 right_mv = 0
                                                 right_item.db.broken = 1
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
