@@ -87,6 +87,11 @@ class Character(DefaultCharacter):
         self.db.battlefieldcommander = 0
         self.db.rally = 0
 
+        # Entries for following
+        self.db.isLeading = false
+        self.db.leader = ""
+        self.db.isFollowing = false
+        self.db.followers = []
 
     def return_appearance(self, looker):
         """
