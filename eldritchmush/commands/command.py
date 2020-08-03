@@ -226,8 +226,9 @@ class CmdEquip(Command):
             if not item.db.broken:
                 # Check if item is twohanded
                 if item.db.twohanded:
-                    self.right_slot.append(item)
-                    self.left_slot.append(item)
+                    if not self.right_slot and not self.left_slot:
+                        self.right_slot.append(item)
+                        self.left_slot.append(item)
                 # Check to see if right hand is empty.
                 elif not self.right_slot:
                     self.right_slot.append(item)
