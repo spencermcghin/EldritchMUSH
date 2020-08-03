@@ -222,10 +222,14 @@ class Equip(Command):
         if item.db.twohanded:
             self.right_slot.append(item)
             self.left_slot.append(item)
+        # Check to see if right hand is empty.
         elif self.right_slot is None:
             self.right_slot.append(item)
-        else:
+        elif self.left_slot is None:
             self.left_slot.append(item)
+        else:
+            self.caller.msg("You are carrying items in both hands.")
+            return
 
         self.caller.msg(f"You have equippped your {self.item}")
 
