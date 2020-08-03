@@ -216,7 +216,6 @@ class CmdEquip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
-
         if not self.item:
             self.caller.msg("|540Usage: equip <item>|n")
             return
@@ -236,7 +235,7 @@ class CmdEquip(Command):
             self.caller.msg("You are carrying items in both hands.")
             return
 
-        self.caller.msg(f"You have equippped your {self.item}")
+        self.caller.msg(f"You have equipped your {self.item}")
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
@@ -258,11 +257,11 @@ class CmdUnequip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
-        item = self.caller.search(self.item)
-
         if not self.item:
             self.caller.msg("|540Usage: unequip <item>|n")
             return
+
+        item = self.caller.search(self.item)
 
         # Check if item is twohanded
         if item.db.twohanded:
@@ -277,7 +276,7 @@ class CmdUnequip(Command):
             self.caller.msg(f"You aren't carrying {item}.")
             return
 
-        self.caller.msg(f"You have unequippped {item}.")
+        self.caller.msg(f"You have unequipped {item}.")
 
 
 
