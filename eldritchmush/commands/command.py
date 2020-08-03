@@ -277,12 +277,12 @@ class CmdUnequip(Command):
             elif item in self.left_slot:
                 self.left_slot.remove(item)
             else:
-                self.caller.msg(f"You aren't carrying {item}.")
+                self.caller.msg(f"You aren't carrying a {item}.")
                 return
 
-            self.caller.msg(f"You have unequipped {item}.")
+            self.caller.msg(f"You have unequipped your {item}.")
         else:
-            self.caller.msg(f"Please be more specific.")            
+            self.caller.msg(f"Please be more specific.")
 
 
 class SetArmorValue(Command):
