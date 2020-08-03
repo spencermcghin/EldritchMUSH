@@ -196,7 +196,7 @@ class Command(BaseCommand):
 #                 self.character = None
 
 
-class Equip(Command):
+class CmdEquip(Command):
     """Equip a weapon or shield
 
     Usage: equip <weapon or shield>
@@ -216,19 +216,76 @@ class Equip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
+        if not self.item:
+            self.caller.msg("|540Usage: equip <item>|n")
+            return
+
         item = self.caller.search(self.item)
 
-        # Check if item is twohanded
-        if item.db.twohanded:
-            self.right_slot.append(item)
-            self.left_slot.append(item)
-        elif self.right_slot is None:
-            self.right_slot.append(item)
+        if item:
+            # Check if item is twohanded
+            if item.db.twohanded:
+                self.right_slot.append(item)
+                self.left_slot.append(item)
+            # Check to see if right hand is empty.
+            elif not self.right_slot:
+                self.right_slot.append(item)
+            elif not self.left_slot:
+                self.left_slot.append(item)
+            else:
+                self.caller.msg("You are carrying items in both hands.")
+                return
+
+            # Send some messages
+            self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+            self.caller.msg(f"You have equipped your {item.key}")
         else:
-            self.left_slot.append(item)
+            self.caller.msg(f"Please be more specific.")
 
-        self.caller.msg(f"You have equippped your {self.item}")
+class CmdUnequip(Command):
+    """Equip a weapon or shield
 
+    Usage: unequip <weapon or shield>
+
+    Searches the callers right or left slot.
+    If item is denoted as 2H, remove from both slots.
+    If item is not, remove it from the equipped slot.
+    """
+
+    key = "unequip"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+        self.right_slot = self.caller.db.right_slot
+        self.left_slot = self.caller.db.left_slot
+
+    def func(self):
+        if not self.item:
+            self.caller.msg("|540Usage: unequip <item>|n")
+            return
+
+        item = self.caller.search(self.item)
+
+        if item:
+            # Check if item is twohanded
+            if item.db.twohanded:
+                self.right_slot.remove(item)
+                self.left_slot.remove(item)
+            # Check to see if right hand is empty.
+            elif item in self.right_slot:
+                self.right_slot.remove(item)
+            elif item in self.left_slot:
+                self.left_slot.remove(item)
+            else:
+                self.caller.msg(f"You aren't carrying a {item}.")
+                return
+
+            self.caller.location.msg_contents(f"{self.caller.key} unequips their {item.key}.")
+            self.caller.msg(f"You have unequipped your {item}.")
+        else:
+            self.caller.msg(f"Please be more specific.")
 
 
 class SetArmorValue(Command):
