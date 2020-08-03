@@ -213,16 +213,23 @@ class Equip(Command):
         "Very trivial parser"
         self.item = self.args.strip()
         self.right_slot = self.caller.db.right_slot
-        self.left_slot = self.caller.db.right_slot
+        self.left_slot = self.caller.db.left_slot
 
     def func(self):
         item = self.caller.search(self.item)
 
+        # Check if item is twohanded
         if item.db.twohanded:
-
-        # Try adding to right_slot
-        try:
             self.right_slot.append(item)
+            self.left_slot.append(item)
+        elif self.right_slot is None:
+            self.right_slot.append(item)
+        else:
+            self.left_slot.append(item)
+
+        self.caller.msg(f"You have equippped your {self.item}")
+
+
 
 class SetArmorValue(Command):
     """Set the armor level of a character
