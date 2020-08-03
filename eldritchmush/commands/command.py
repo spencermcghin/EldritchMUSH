@@ -236,7 +236,9 @@ class CmdEquip(Command):
                 self.caller.msg("You are carrying items in both hands.")
                 return
 
-            self.caller.msg(f"You have equipped your {self.item}")
+            # Send some messages
+            self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+            self.caller.msg(f"You have equipped your {item.key}")
         else:
             self.caller.msg(f"Please be more specific.")
 
@@ -280,6 +282,7 @@ class CmdUnequip(Command):
                 self.caller.msg(f"You aren't carrying a {item}.")
                 return
 
+            self.caller.location.msg_contents(f"{self.caller.key} unequips their {item.key}.")
             self.caller.msg(f"You have unequipped your {item}.")
         else:
             self.caller.msg(f"Please be more specific.")
