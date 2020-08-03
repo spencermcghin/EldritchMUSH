@@ -140,6 +140,7 @@ IRON_LARGE_WEAPON = {
 "refined_wood": 1,
 "leather": 1,
 "damage": 2,
+"twohanded": True,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9
