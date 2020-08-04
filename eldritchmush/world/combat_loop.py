@@ -224,9 +224,9 @@ class CombatLoop:
                 if nextTurn.db.skip_turn:
                     # Get character at next index and set their combat_round to 1.
                     nextIndex = self.combat_loop.index(nextTurn.key) + 1
-                    nextCharacter = self.combat_loop[nextTurnIndex]
+                    nextCharacter = self.combat_loop[nextIndex]
                     # Search for and return next element in combat loop
-                    searchNextTurnCharacter = self.caller.search(nextTurnCharacter)
+                    searchNextTurnCharacter = self.caller.search(nextCharacter)
                     self.combatTurnOn(searchNextTurnCharacter)
                     searchNextTurnCharacter.location.msg_contents(f"{nextTurn.key}'s turn has been skipped. It is now {searchNextTurnCharacter.key}'s turn.")
                     # Remove skip_turn flag
