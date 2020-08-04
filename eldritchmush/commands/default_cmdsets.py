@@ -19,7 +19,7 @@ from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import command
 from commands import combat
-from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder
+from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm
 from commands import npc
 from commands import dice
 
@@ -78,7 +78,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(shoot.CmdShoot())
         self.add(cleave.CmdCleave())
         self.add(combat.CmdResist())
-        self.add(combat.CmdDisarm())
+        self.add(disarm.CmdDisarm())
         self.add(combat.CmdStun())
         self.add(disengage.CmdDisengage())
         self.add(combat.CmdStagger())
