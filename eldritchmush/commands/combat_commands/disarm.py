@@ -57,7 +57,6 @@ class CmdDisarm(Command):
 
                     if h.canFight(self.caller):
                         if h.isAlive(target):
-                          if cleavesRemaining > 0:
                             if not combat_stats.get("weakness", 0):
                                     if attack_result >= target.db.av:
                                         # Decrement amount of cleaves from amount in database
