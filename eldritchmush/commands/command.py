@@ -226,23 +226,34 @@ class CmdEquip(Command):
             if not item.db.broken:
                 # Check if item is twohanded
                 if item.db.twohanded:
-                    self.right_slot.append(item)
-                    self.left_slot.append(item)
+                    if not self.right_slot and not self.left_slot:
+                        self.right_slot.append(item)
+                        self.left_slot.append(item)
+                        # Send some messages
+                        self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+                        self.caller.msg(f"You have equipped your {item.key}")
+                    else:
+                        self.caller.msg(f"You can't equip the {item} unless you first unequip something.")
+                        return
                 # Check to see if right hand is empty.
                 elif not self.right_slot:
                     self.right_slot.append(item)
+                    # Send some messages
+                    self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+                    self.caller.msg(f"You have equipped your {item.key}")
                 elif not self.left_slot:
                     self.left_slot.append(item)
+                    # Send some messages
+                    self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+                    self.caller.msg(f"You have equipped your {item.key}")
                 else:
                     self.caller.msg("You are carrying items in both hands.")
                     return
-                # Send some messages
-                self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
-                self.caller.msg(f"You have equipped your {item.key}")
             else:
                 self.caller.msg(f"{item} is broken and may not be equipped.")
         else:
             self.caller.msg(f"Please be more specific.")
+
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
