@@ -207,7 +207,7 @@ class CombatLoop:
                 firstCharacter = self.goToFirst()
                 if firstCharacter.db.skip_turn:
                     # Get character at next index and set their combat_round to 1.
-                    secondIndex = self.combat_loop.index(firstCharacter) + 1
+                    secondIndex = self.combat_loop.index(firstCharacter.key) + 1
                     secondTurnCharacter = self.combat_loop[secondIndex]
                     # Search for and return next element in combat loop
                     searchSecondCharacter = self.caller.search(secondTurnCharacter)
@@ -223,8 +223,8 @@ class CombatLoop:
                 nextTurn = self.goToNext()
                 if nextTurn.db.skip_turn:
                     # Get character at next index and set their combat_round to 1.
-                    nextTurnIndex = self.combat_loop.index(nextTurn) + 1
-                    nextTurnCharacter = self.combat_loop[nextTurnIndex]
+                    nextIndex = self.combat_loop.index(nextTurn.key) + 1
+                    nextCharacter = self.combat_loop[nextTurnIndex]
                     # Search for and return next element in combat loop
                     searchNextTurnCharacter = self.caller.search(nextTurnCharacter)
                     self.combatTurnOn(searchNextTurnCharacter)
