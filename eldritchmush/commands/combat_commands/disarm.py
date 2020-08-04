@@ -79,7 +79,7 @@ class CmdDisarm(Command):
                                             else:
                                                 h.deathSubtractor(damage, target, self.caller)
                                         # Disarm status message to target
-                                        self.target.msg("You have been disarmed. Your next turn will be skipped.")
+                                        target.msg("You have been disarmed. Your next turn will be skipped.")
 
                                     else:
                                         self.caller.location.msg_contents(f"|015{self.caller.key} swings deftly (|020{attack_result}|n) at {target.key}, but misses (|400{target.db.av}|n).|n")
