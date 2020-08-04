@@ -55,7 +55,6 @@ class CmdCleave(Command):
 
                     if h.canFight(self.caller):
                         if h.isAlive(target):
-                          if cleavesRemaining > 0:
                             if not combat_stats.get("weakness", 0):
                                     if attack_result >= target.db.av:
                                         self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
