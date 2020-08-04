@@ -202,14 +202,38 @@ class CombatLoop:
             # If no character at next index (current character is last),
             # go back to beginning of combat_loop and prompt character for input.
             if self.isLast():
+                # Add in check if character disarmed/stunned
+                # If next character has disarmed/stunned flag, pass them for the next character.
                 firstCharacter = self.goToFirst()
-                self.combatTurnOn(firstCharacter)
-                firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn.")
+                if firstCharacter.db.skip_turn:
+                    # Get character at next index and set their combat_round to 1.
+                    secondIndex = self.combat_loop.index(firstCharacter) + 1
+                    secondTurnCharacter = self.combat_loop[secondIndex]
+                    # Search for and return next element in combat loop
+                    searchSecondCharacter = self.caller.search(secondTurnCharacter)
+                    self.combatTurnOn(searchSecondCharacter)
+                    searchSecondCharacter.location.msg_contents(f"{firstCharacter.key}'s turn has been skipped. It is now {searchSecondCharacter.key}'s turn.'")
+                    # Remove skip_turn flag
+                    firstCharacter.db.skip_turn = False
+                else:
+                    self.combatTurnOn(firstCharacter)
+                    firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn.")
             else:
                 # Get character at next index and set their combat_round to 1.
                 nextTurn = self.goToNext()
-                self.combatTurnOn(nextTurn)
-                nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn.")
+                if nextTurn.db.skip_turn:
+                    # Get character at next index and set their combat_round to 1.
+                    nextTurnIndex = self.combat_loop.index(nextTurn) + 1
+                    nextTurnCharacter = self.combat_loop[nextTurnIndex]
+                    # Search for and return next element in combat loop
+                    searchNextTurnCharacter = self.caller.search(nextTurnCharacter)
+                    self.combatTurnOn(searchNextTurnCharacter)
+                    searchNextTurnCharacter.location.msg_contents(f"{nextTurn.key}'s turn has been skipped. It is now {searchNextTurnCharacter.key}'s turn.'")
+                    # Remove skip_turn flag
+                    nextTurn.db.skip_turn = False
+                else:
+                    self.combatTurnOn(nextTurn)
+                    nextTurn.location.msg_contents(f"It is now {nextTurn.key}'s turn.")
         else:
             self.removeFromLoop(self.caller)
             self.caller.db.in_combat = 0
