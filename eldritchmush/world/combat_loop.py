@@ -212,7 +212,7 @@ class CombatLoop:
                     # Search for and return next element in combat loop
                     searchSecondCharacter = self.caller.search(secondTurnCharacter)
                     self.combatTurnOn(searchSecondCharacter)
-                    searchSecondCharacter.location.msg_contents(f"{firstCharacter.key}'s turn has been skipped. It is now {searchSecondCharacter.key}'s turn.'")
+                    searchSecondCharacter.location.msg_contents(f"{firstCharacter.key}'s turn has been skipped. It is now {searchSecondCharacter.key}'s turn.")
                     # Remove skip_turn flag
                     firstCharacter.db.skip_turn = False
                 else:
@@ -228,7 +228,7 @@ class CombatLoop:
                     # Search for and return next element in combat loop
                     searchNextTurnCharacter = self.caller.search(nextTurnCharacter)
                     self.combatTurnOn(searchNextTurnCharacter)
-                    searchNextTurnCharacter.location.msg_contents(f"{nextTurn.key}'s turn has been skipped. It is now {searchNextTurnCharacter.key}'s turn.'")
+                    searchNextTurnCharacter.location.msg_contents(f"{nextTurn.key}'s turn has been skipped. It is now {searchNextTurnCharacter.key}'s turn.")
                     # Remove skip_turn flag
                     nextTurn.db.skip_turn = False
                 else:
