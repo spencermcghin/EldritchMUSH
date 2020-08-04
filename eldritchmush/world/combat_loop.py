@@ -132,6 +132,9 @@ class CombatLoop:
         searchCharacter = self.caller.search(firstCharacter)
         return searchCharacter
 
+   def turnCycle(self):
+       
+
     def resolveCommand(self):
         loopLength = self.getLoopLength()
 
@@ -219,7 +222,7 @@ class CombatLoop:
                     self.combatTurnOn(firstCharacter)
                     firstCharacter.location.msg_contents(f"It is now {firstCharacter.key}'s turn.")
             else:
-                # Get character at next index and set their combat_round to 1.
+                # Get character at next index and set their combat_turn to 1.
                 nextTurn = self.goToNext()
                 if nextTurn.db.skip_turn:
                     # Get character at next index and set their combat_round to 1.
