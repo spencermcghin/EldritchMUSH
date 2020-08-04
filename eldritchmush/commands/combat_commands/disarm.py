@@ -82,7 +82,7 @@ class CmdDisarm(Command):
                                         self.target.msg("You have been disarmed. Your next turn will be skipped.")
 
                                     else:
-                                        self.caller.location.msg_contents(f"|015{self.caller.key} swings deftly at {target.key}, but misses.|n")
+                                        self.caller.location.msg_contents(f"|015{self.caller.key} swings deftly (|020{attack_result}|n) at {target.key}, but misses (|400{target.db.av}|n).|n")
                             else:
                                 self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
