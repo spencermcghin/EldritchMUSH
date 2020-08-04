@@ -293,7 +293,8 @@ class Helper():
                        "weakness": weakness,
                        "dmg_penalty": dmg_penalty,
                        "left_slot": left_slot,
-                       "right_slot": right_slot}
+                       "right_slot": right_slot,
+                       "disarm_penalty": 2}
 
         return melee_stats
 
