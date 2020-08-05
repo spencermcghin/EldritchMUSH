@@ -33,7 +33,6 @@ class CmdMedicine(Command):
         target_body = target.db.body
         target_bleed_points = target.db.bleed_points
         target_death_points = target.db.death_points
-        stabilize = self.caller.db.stabilize
         medicine = self.caller.db.medicine
         target_resilience = target.db.resilience
 
@@ -43,8 +42,7 @@ class CmdMedicine(Command):
 
         if caller.db.combat_turn:
             if h.canFight(caller):
-                if target_body and medicine:
-                    # Return message to area and caller
+                # Return message to area and caller
                     if target == self.caller:
                         self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
 
@@ -122,7 +120,7 @@ class CmdMedicine(Command):
                             loop.cleanup()
 
                 elif not target_bleed_points:
-                    self.caller.msg(f"|230Treating {target.key}'s injuries is beyond your skill as a healer.")
+                    self.caller.msg(f"|230{target.key}'s injuries are beyond your skill as a healer.")
 
                 # Check to see if the target is already healed to max.
                 elif target_body >= 1:
@@ -130,9 +128,11 @@ class CmdMedicine(Command):
 
                 else:
                     self.caller.msg("|400You had better not try that.|n")
+
             else:
                 caller.msg("You are too injured to act.")
                 return
+
         else:
             caller.msg("You need to wait until it is your turn before you are able to act.")
             return
