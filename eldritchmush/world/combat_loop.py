@@ -214,9 +214,10 @@ class CombatLoop:
                     nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
                 except IndexError:
                     nextCharacter = self.caller.search(self.combat_loop[0])
-                else:
-                    self.combatTurnOn(nextCharacter)
-                    nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
+                    nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")                    
+            else:
+                self.combatTurnOn(nextCharacter)
+                nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
 
         else:
             self.removeFromLoop(self.caller)
