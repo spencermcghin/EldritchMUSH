@@ -160,17 +160,16 @@ class Helper():
                 target.db.body = body_damage
                 damage = 0
 
-            target.location.msg_contents(f"{caller.key} greviously wounds {target.key}.")
-
-
         if target_bleed_points and damage:
             bleed_damage = target_bleed_points - damage
             if bleed_damage < 0:
                 damage = abs(bleed_damage)
                 target.db.bleed_points = 0
+                target.db.weakness = 1
             else:
                 target.db.bleed_points = bleed_damage
                 damage = 0
+                target.db.weakness = 1
 
             target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
             target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
