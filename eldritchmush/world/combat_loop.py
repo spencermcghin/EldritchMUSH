@@ -218,8 +218,6 @@ class CombatLoop:
 
             self.combatTurnOn(nextCharacter)
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
-            nextCharacter.location.msg_contents("Hitting else.")
-
 
         else:
             self.removeFromLoop(self.caller)
