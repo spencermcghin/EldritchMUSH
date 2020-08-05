@@ -132,8 +132,6 @@ class CombatLoop:
         searchCharacter = self.caller.search(firstCharacter)
         return searchCharacter
 
-   def turnCycle(self):
-       
 
     def resolveCommand(self):
         loopLength = self.getLoopLength()
