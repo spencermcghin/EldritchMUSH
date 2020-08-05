@@ -26,8 +26,8 @@ class CmdStagger(Command):
             self.caller.msg("|540Usage: stagger <target>|n")
             return
 
-        h = Helper()
-
+        # Instantiate helper function class
+        h = Helper(self.caller)
 
         # Check for and error handle designated target
         target = h.targetHandler(self.target)
