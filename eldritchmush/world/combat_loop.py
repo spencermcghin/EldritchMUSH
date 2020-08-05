@@ -219,10 +219,9 @@ class CombatLoop:
                     nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
                     nextCharacter.location.msg_contents("Hitting except.")
 
-            else:
-                self.combatTurnOn(nextCharacter)
-                nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
-                nextCharacter.location.msg_contents("Hitting else.")
+            self.combatTurnOn(nextCharacter)
+            nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
+            nextCharacter.location.msg_contents("Hitting else.")
 
 
         else:
