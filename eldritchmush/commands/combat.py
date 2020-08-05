@@ -295,7 +295,8 @@ class Helper():
                        "right_slot": right_slot,
                        "disarm_penalty": 2,
                        "stagger_penalty": 2,
-                       "stagger_damage": 2}
+                       "stagger_damage": 2,
+                       "stun_penalty": 1}
 
         return melee_stats
 
