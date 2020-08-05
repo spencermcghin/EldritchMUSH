@@ -72,7 +72,7 @@ class CmdStagger(Command):
                                             # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
                                             if shot_location == "torso" and target.db.body > 0:
                                                 target.db.body = 0
-                                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is bleeding to death. They will soon be unconscious.|n")
                                             else:
                                                 h.deathSubtractor(damage, target, self.caller)
 
