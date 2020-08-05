@@ -55,7 +55,6 @@ class CmdCleave(Command):
 
                     if h.canFight(self.caller):
                         if h.isAlive(target):
-                          if cleavesRemaining > 0:
                             if not combat_stats.get("weakness", 0):
                                     if attack_result >= target.db.av:
                                         self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
@@ -68,6 +67,10 @@ class CmdCleave(Command):
                                             h.deathSubtractor(damage, target, self.caller)
                                     else:
                                         self.caller.location.msg_contents(f"|015{self.caller.key} swings ferociously at {target.key}, but misses.|n")
+                                    # Clean up
+                                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                    loop.combatTurnOff(self.caller)
+                                    loop.cleanup()
                             else:
                                 self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
@@ -75,10 +78,6 @@ class CmdCleave(Command):
                             self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
                     else:
                         self.msg("You are too injured to act.")
-                    # Clean up
-                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                    loop.combatTurnOff(self.caller)
-                    loop.cleanup()
                 else:
                     self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action.")
             else:
