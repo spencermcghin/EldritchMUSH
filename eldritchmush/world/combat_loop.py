@@ -211,13 +211,9 @@ class CombatLoop:
                     # Try going to the next character based on the character that had skip_turn active
                     nextTurn = self.combat_loop.index(nextCharacter.key) + 1
                     nextCharacter = self.caller.search(self.combat_loop[nextTurn])
-                    nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
-                    nextCharacter.location.msg_contents("Hitting try.")
 
                 except IndexError:
                     nextCharacter = self.caller.search(self.combat_loop[0])
-                    nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
-                    nextCharacter.location.msg_contents("Hitting except.")
 
             self.combatTurnOn(nextCharacter)
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
