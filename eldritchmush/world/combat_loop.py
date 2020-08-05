@@ -201,19 +201,17 @@ class CombatLoop:
         if self.getLoopLength() > 1:
             # If no character at next index (current character is last),
             # go back to beginning of combat_loop and prompt character for input.
-            if self.isLast():
-                nextCharacter = self.goToFirst()
-            else:
-                # Get character at next index and set their combat_round to 1.
-                nextCharacter = self.goToNext()
+            nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
 
             # Iterate through combat_loop until finding a character w/out the skip_turn flag set.
             while nextCharacter.db.skip_turn:
                 # Turn off the skip_turn flag and then try to go to the next character in the loop
                 nextCharacter.db.skip_turn = False
                 try:
+                    # Try going to the next character based on the character that had skip_turn active
                     nextTurn = self.combat_loop.index(nextCharacter.key) + 1
                     nextCharacter = self.caller.search(self.combat_loop[nextTurn])
+                    nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
                 except IndexError:
                     nextCharacter = self.caller.search(self.combat_loop[0])
                 else:
