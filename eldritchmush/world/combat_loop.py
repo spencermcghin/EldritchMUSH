@@ -212,7 +212,7 @@ class CombatLoop:
                 # Turn off the skip_turn flag and then try to go to the next character in the loop
                 nextCharacter.db.skip_turn = False
                 try:
-                    nextTurn = self.combat_loop.index(nextCharacter) + 1
+                    nextTurn = self.combat_loop.index(nextCharacter.key) + 1
                     nextCharacter = self.caller.search(self.combat_loop[nextTurn])
                 except IndexError:
                     nextCharacter = self.caller.search(self.combat_loop[0])
