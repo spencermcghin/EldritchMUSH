@@ -18,10 +18,10 @@ class CmdStabilize(Command):
             self.caller.msg("|540Usage: stabilize <target>|n")
             return
 
-        target = self.caller.search(self.target)
-
         # Init combat helper functions
         h = Helper(self.caller)
+
+        target = h.targetHandler(self.target)
 
         # Get target if there is one
         target = self.caller.search(self.target)
