@@ -38,34 +38,13 @@ class CmdSunder(Command):
         loop = CombatLoop(self.caller, target)
         loop.resolveCommand()
 
-        # Run logic for strike command
-        if self.caller.db.combat_turn:
-
-            # Run rest of command logic after passing checks.
-
-            # Return db stats needed to calc melee results
-            combat_stats = h.getMeleeCombatStats(self.caller)
-            target_stats = h.getMeleeCombatStats(target)
-
-            # Get die result based on master of arms level
-            if combat_stats.get("melee", 0):
-
-                # Check if damage bonus comes from fayne or master_of_arms
-                die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
-
-                # Get damage result and damage for weapon type
-                attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
-                damage = 2 if combat_stats.get("two_handed", 0) == True else 1
-                target_av = target.db.av
-                shot_location = h.shotFinder(target.db.targetArray)
-
         # Run logic for cleave command
         if self.caller.db.combat_turn:
 
             combat_stats = h.getMeleeCombatStats(self.caller)
             sundersRemaining = self.caller.db.sunder
 
-            if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
+            if combat_stats.get("two_handed", 0) or combat_stats.get("bow", 0):
                 if sundersRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
