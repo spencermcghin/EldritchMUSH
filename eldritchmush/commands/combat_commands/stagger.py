@@ -44,7 +44,7 @@ class CmdStagger(Command):
             staggersRemaining = self.caller.db.stagger
 
             if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
-                if sundersRemaining > 0:
+                if staggersRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
