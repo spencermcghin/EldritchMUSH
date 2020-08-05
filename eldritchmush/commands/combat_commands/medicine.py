@@ -121,7 +121,7 @@ class CmdMedicine(Command):
                             loop.combatTurnOff(caller)
                             loop.cleanup()
 
-                elif not target_bleed_points and medicine:
+                elif not target_bleed_points:
                     self.caller.msg(f"|230Treating {target.key}'s injuries is beyond your skill as a healer.")
 
                 # Check to see if the target is already healed to max.
