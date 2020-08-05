@@ -207,6 +207,7 @@ class CombatLoop:
             while nextCharacter.db.skip_turn:
                 # Turn off the skip_turn flag and then try to go to the next character in the loop
                 nextCharacter.db.skip_turn = False
+                nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
                 try:
                     # Try going to the next character based on the character that had skip_turn active
                     nextTurn = self.combat_loop.index(nextCharacter.key) + 1
