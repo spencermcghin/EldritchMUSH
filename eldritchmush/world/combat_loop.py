@@ -132,6 +132,10 @@ class CombatLoop:
         searchCharacter = self.caller.search(firstCharacter)
         return searchCharacter
 
+    def isDying(self, combatant):
+        dying = True if combatant.db.bleed_points == 0 else False
+        return dying
+
     def resolveCommand(self):
         loopLength = self.getLoopLength()
 
@@ -204,7 +208,7 @@ class CombatLoop:
             nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
 
             # Iterate through combat_loop until finding a character w/out the skip_turn flag set.
-            while nextCharacter.db.skip_turn:
+            while nextCharacter.db.skip_turn or self.isDying(nextCharacter):
                 # Turn off the skip_turn flag and then try to go to the next character in the loop
                 nextCharacter.db.skip_turn = False
                 nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
