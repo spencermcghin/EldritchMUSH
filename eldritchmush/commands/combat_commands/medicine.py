@@ -18,8 +18,6 @@ class CmdMedicine(Command):
             self.caller.msg("|540Usage: heal <target>|n")
             return
 
-        target = self.caller.search(self.target)
-
         # Init combat helper functions
         h = Helper(self.caller)
 

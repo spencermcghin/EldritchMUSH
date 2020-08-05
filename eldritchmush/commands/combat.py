@@ -21,21 +21,16 @@ class Helper():
 
     def targetHandler(self, target):
         # Check for designated target
-        target = self.caller.search(target)
 
-        if not target:
-            self.caller.msg("|540Target not found.|n")
+        try:
+            target = self.caller.search(target)
+
+        except:
+            self.caller.msg(f"|400No such target, {target}, or target not legal.|n")
             return
 
-        if target == self.caller:
-            self.caller.msg(f"|400{self.caller}, you had better not try that.|n")
-            return
-
-        if target.db.body is None:
-            self.caller.msg("|400You had better not try that.|n")
-            return
-
-        return target
+        else:
+            return target
 
 
     def canFight(self, caller):
