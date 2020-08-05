@@ -93,7 +93,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetTough())
         self.add(command.SetBody())
         self.add(stabilize.CmdStabilize())
-        self.add(command.CmdMedicine())
+        self.add(medicine.CmdMedicine())
         self.add(command.SetWeakness())
         self.add(combat.CmdBattlefieldCommander())
         self.add(battlefield_medicine.CmdBattlefieldMedicine())
