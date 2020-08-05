@@ -21,75 +21,81 @@ class CmdStagger(Command):
         "Very trivial parser"
         self.target = self.args.strip()
 
+    def func(self):
         if not self.target:
             self.caller.msg("|540Usage: stagger <target>|n")
             return
 
-    def func(self):
         h = Helper()
 
-        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-        master_of_arms = self.caller.db.master_of_arms
-        hasBow = self.caller.db.bow
-        hasMelee = self.caller.db.melee
-        staggersRemaining = self.caller.db.stagger
-        weapon_level = h.weaponValue(self.caller.db.weapon_level)
-        hasTwoHanded = self.caller.db.twohanded
-        stagger_penalty = 2
 
-        wylding_hand = self.caller.db.wyldinghand
+        # Check for and error handle designated target
+        target = h.targetHandler(self.target)
 
-        target = self.caller.search(self.target)
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
+        loop = CombatLoop(self.caller, target)
+        loop.resolveCommand()
 
-        if not target:
-            self.caller.msg("|400There is nothing here that matches that description.|n")
-            return
+        # Run logic for cleave command
+        if self.caller.db.combat_turn:
 
-        if target == self.caller:
-            self.caller.msg(f"|400Don't stagger yourself {self.caller}, silly!|n")
-            return
+            combat_stats = h.getMeleeCombatStats(self.caller)
+            staggersRemaining = self.caller.db.stagger
 
-        if target.db.body is None:
-            self.caller.msg("|400You had better not try that.")
-            return
+            if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
+                if sundersRemaining > 0:
 
-        # Check for equip proper weapon type
-        # Check for weakness on character
-        weakness = h.weaknessChecker(self.caller.db.weakness)
+                    die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
-        # Check for equip proper weapon type or weakness
-        if weakness:
-            self.caller.msg("|400You are too weak to use this attack.|n")
-        elif hasBow:
-            self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-        elif not hasMelee or not hasTwoHanded:
-            self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1 or settwohanded 1.")
-        else:
-            if staggersRemaining > 0:
-            # Return die roll based on level in master of arms or wylding hand.
-                if wylding_hand:
-                    die_result = h.wyldingHand(wylding_hand)
+                    # Get damage result and damage for weapon type
+                    attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("stagger_penalty", 0)
+                    damage = combat_stats.get("stagger_damage", 0)
+                    target_av = target.db.av
+                    shot_location = h.shotFinder(target.db.targetArray)
+
+                    # Do all the checks
+                    if h.canFight(self.caller):
+                        if h.isAlive(target):
+                          if staggersRemaining > 0:
+                            if not combat_stats.get("weakness", 0):
+                                    if attack_result >= target.db.av:
+                                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with a powerful blow and puts {target.key} off of their footing (|400{target.db.av}|n)|015, dealing {damage} damage.|n")
+                                        # Do damage resolution block
+                                        if target_av:
+                                            # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                                            new_av = h.damageSubtractor(damage, target, self.caller)
+                                            # Update target av to new av score per damageSubtractor
+                                            target.db.av = new_av
+                                            target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
+                                        else:
+                                            # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
+                                            if shot_location == "torso" and target.db.body > 0:
+                                                target.db.body = 0
+                                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                            else:
+                                                h.deathSubtractor(damage, target, self.caller)
+
+                                        # Decrement amount of cleaves from amount in database
+                                        self.caller.db.sunder -= 1
+                                    else:
+                                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes with a powerful blow at {target.key}, but misses.|n")
+                            else:
+                                self.caller.msg("|400You are too weak to use this attack.|n")
+                        else:
+                            self.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                            self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
+                    else:
+                        self.msg("You are too injured to act.")
+                    # Clean up
+                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                    loop.combatTurnOff(self.caller)
+                    loop.cleanup()
                 else:
-                    die_result = h.masterOfArms(master_of_arms)
-
-                # Decrement amount of cleaves from amount in database
-                self.caller.db.stagger -= 1
-
-                # Get final attack result and damage
-                weakness = h.weaknessChecker(self.caller.db.weakness)
-                dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty - weakness - stagger_penalty
-
-                # Return attack result message
-                if attack_result > target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015staggers {target.key}|n (|400{target.db.av}|n) |015, putting them off their guard.|n")
-                    # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                    new_av = h.damageSubtractor(2, target)
-                    # Update target av to new av score per damageSubtractor
-                    target.db.av = new_av
-                    target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-
-                elif attack_result < target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stagger {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
+                    self.caller.msg("|400You have 0 staggers remaining or do not have the skill.\nPlease choose another action.")
             else:
-                self.caller.msg("|400You have 0 staggers remaining or do not have the skill.|n")
+                self.msg("|540Before you attack you must equip a weapon using the command setmelee 1 or setbow 1.")
+                return
+        else:
+            self.msg("You need to wait until it is your turn before you are able to act.")
+            return
