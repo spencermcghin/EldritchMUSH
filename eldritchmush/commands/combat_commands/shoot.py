@@ -73,15 +73,15 @@ class CmdShoot(Command):
                         else:
                             # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                             self.caller.location.msg_contents(f"|015{self.caller.key} lets loose an arrow at {target.key}|n(|020{target.db.av}|n)|015, but it misses.|n")
+                        # Clean up
+                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                        loop.combatTurnOff(self.caller)
+                        loop.cleanup()
                     else:
                         self.msg(f"{target.key} is dead. You only further mutiliate their body.")
                         self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
                 else:
                     self.msg("You are too injured to act.")
-                # Clean up
-                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                loop.combatTurnOff(self.caller)
-                loop.cleanup()
         else:
             self.msg("You need to wait until it is your turn before you are able to act.")
             return

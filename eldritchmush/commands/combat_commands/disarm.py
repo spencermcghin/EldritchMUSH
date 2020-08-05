@@ -83,6 +83,10 @@ class CmdDisarm(Command):
 
                                     else:
                                         self.caller.location.msg_contents(f"|015{self.caller.key} swings deftly (|020{attack_result}|n) |015at {target.key}, but misses|n (|400{target.db.av}|n)|n")
+                                    # Clean up
+                                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                    loop.combatTurnOff(self.caller)
+                                    loop.cleanup()
                             else:
                                 self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
@@ -90,10 +94,6 @@ class CmdDisarm(Command):
                             self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
                     else:
                         self.msg("You are too injured to act.")
-                    # Clean up
-                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                    loop.combatTurnOff(self.caller)
-                    loop.cleanup()
                 else:
                     self.caller.msg("|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.")
             else:
