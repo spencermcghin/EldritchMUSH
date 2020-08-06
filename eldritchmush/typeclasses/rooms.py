@@ -4,12 +4,16 @@ Room
 Rooms are simple containers that has no location of their own.
 
 """
-
+# Local imports
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
 from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet
 from commands import command
+from evennia import utils
+from characters import Character
+from npc import Npc
 
+# Imports
 import random
 
 
@@ -144,6 +148,16 @@ class Room(DefaultRoom):
                 self.db.tracking_details.update({trackingkey.lower(): [(level, description)]})
         else:
             self.db.tracking_details = {trackingkey.lower(): [(level, description)]}
+
+    def at_object_receive(self, obj, source_location):
+        if utils.inherits_from(obj, 'Npc'):
+            pass
+        else:
+            if utils.inherits_from(obj, 'Character'):
+                obj.execute_cmd('look')
+                for items in self.contents:
+                    if utils.inherits_from(item, 'Npc'):
+                        item.at_char_entered(obj)
 
 class ChargenRoom(Room):
     """
