@@ -193,8 +193,8 @@ class CombatLoop:
             self.combat_loop.append(self.target)
             self.target.db.in_combat = 1
             self.combatTurnOff(self.target)
-            self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target.key)} in the round order.")
-            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target.key)} in the round order.")
+            self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target)} in the round order.")
+            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target)} in the round order.")
 
         else:
             pass
