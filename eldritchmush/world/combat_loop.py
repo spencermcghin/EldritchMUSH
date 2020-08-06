@@ -69,7 +69,7 @@ class CombatLoop:
 
     def inLoop(self):
         # Check to see if caller is part of rooms combat loop
-        if self.caller.key in self.combat_loop:
+        if self.caller in self.combat_loop:
             return True
         else:
             return False
@@ -112,13 +112,13 @@ class CombatLoop:
     def isLast(self):
         # Check to see if caller is last in the combat_loop
         loopLength = self.getLoopLength()
-        if self.combat_loop.index(self.caller.key) + 1 == loopLength:
+        if self.combat_loop.index(self.caller) + 1 == loopLength:
             return True
         else:
             return False
 
     def goToNext(self):
-        nextIndex = self.combat_loop.index(self.caller.key) + 1
+        nextIndex = self.combat_loop.index(self.caller) + 1
         nextTurnCharacter = self.combat_loop[nextIndex]
 
         # Search for and return next element in combat loop
@@ -186,11 +186,11 @@ class CombatLoop:
                 self.combatTurnOff(self.caller)
                 self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
-        elif self.inLoop() is True and self.target.key not in self.combat_loop:
+        elif self.inLoop() is True and self.target not in self.combat_loop:
 
             # Handle when caller in loop and target is not
             # Need to add target to end of loop, set their combat_turn to 0.
-            self.combat_loop.append(self.target.key)
+            self.combat_loop.append(self.target)
             self.target.db.in_combat = 1
             self.combatTurnOff(self.target)
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target.key)} in the round order.")
