@@ -161,7 +161,7 @@ class Room(DefaultRoom):
                     if utils.inherits_from(item, 'Npc'):
                         # An NPC is in the room
                         item.at_char_entered(obj)
-T
+
 class ChargenRoom(Room):
     """
     This room class is used by character-generation rooms. It makes
