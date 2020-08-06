@@ -10,6 +10,6 @@ class Npc(Character):
          Can be expanded upon later.
         """
         if self.db.is_aggressive:
-            self.msg("Graaah, die %s!" % character)
+            self.msg_contents("Graaah, die %s!" % character)
         else:
-            self.msg("Greetings, %s!" % character)
+            self.msg_contents("Greetings, %s!" % character)
