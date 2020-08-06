@@ -10,8 +10,8 @@ from evennia import CmdSet, default_cmds, DefaultRoom
 from evennia import utils
 from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet
 from commands import command
-from typeclasses.characters import Character
-from typeclasses.npc import Npc
+from eldritchmush.typeclasses.characters import Character
+from eldritchmush.typeclasses.npc import Npc
 
 # Imports
 import random
