@@ -321,7 +321,7 @@ class CmdResist(Command):
 
     resist
 
-    This will issue a resist command that adds one to your body, and decrements one from a character's available resists.
+    This will issue a resist command that adds one to your body or tough, and decrements one from a character's available resists.
     """
 
     key = "resist"
