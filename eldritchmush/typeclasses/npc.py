@@ -1,4 +1,4 @@
-from characters import Character
+from typeclasses.characters import Character
 
 class Npc(Character):
     """
