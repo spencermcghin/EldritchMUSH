@@ -177,9 +177,9 @@ class CombatLoop:
 
                 # caller not in loop, target in loop
                 # Append to end of loop
-                self.combat_loop.append(self.caller.key)
+                self.combat_loop.append(self.caller)
                 self.caller.db.in_combat = 1
-                callerTurn = self.getCombatTurn(self.caller.key)
+                callerTurn = self.getCombatTurn(self.caller)
                 # Change combat_turn to 0
                 self.combatTurnOff(self.caller)
                 self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
