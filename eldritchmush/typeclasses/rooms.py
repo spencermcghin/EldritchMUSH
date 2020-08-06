@@ -48,7 +48,7 @@ class Room(DefaultRoom):
         """
 
         self.cmdset.add_default(RoomCmdSet)
-        # Holds character - command k, v pair for combat loop. Stores character,
+        # Holds character in for combat loop. Stores character,
         # and command entered.
         self.db.combat_loop = []
 
