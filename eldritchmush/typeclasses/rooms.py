@@ -10,8 +10,8 @@ from evennia import CmdSet, default_cmds, DefaultRoom
 from evennia import utils
 from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet
 from commands import command
-from eldritchmush.typeclasses.characters import Character
-from eldritchmush.typeclasses.npc import Npc
+from typeclasses.characters import Character
+from typeclasses.npc import Npc
 
 # Imports
 import random
@@ -31,15 +31,14 @@ class Room(DefaultRoom):
     def at_object_receive(self, obj, source_location):
         if utils.inherits_from(obj, 'Npc'): # An NPC has entered
             pass
-        else:
-            if utils.inherits_from(obj, 'Character'):
-                # A PC has entered, NPC is caught above.
-                # Cause the character to look around
-                obj.execute_cmd('look')
-                for item in self.contents:
-                    if utils.inherits_from(item, 'Npc'):
-                        # An NPC is in the room
-                        item.at_char_entered(obj)
+        elif utils.inherits_from(obj, 'Character'):
+            # A PC has entered, NPC is caught above.
+            # Cause the character to look around
+            obj.execute_cmd('look')
+            for item in self.contents:
+                if utils.inherits_from(item, 'Npc'):
+                    # An NPC is in the room
+                    item.at_char_entered(obj)
 
 
     def at_object_creation(self):
