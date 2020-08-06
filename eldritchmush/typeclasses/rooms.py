@@ -11,7 +11,7 @@ from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, N
 from commands import command
 from evennia import utils
 from typeclasses.characters import Character
-from npc import Npc
+from typeclasses.npc import Npc
 
 # Imports
 import random
