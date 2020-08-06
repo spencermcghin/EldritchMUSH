@@ -30,17 +30,17 @@ class Room(DefaultRoom):
 
     def at_object_receive(self, obj, source_location):
         obj.msg("if statement")
-        if utils.inherits_from(obj, 'Npc'): # An NPC has entered
+        if utils.inherits_from(obj, Npc): # An NPC has entered
             obj.msg("if statement")
             pass
         else:
-            if utils.inherits_from(obj, 'Character'):
+            if utils.inherits_from(obj, Character):
                 obj.msg("character")
                 # A PC has entered, NPC is caught above.
                 # Cause the character to look around
-                obj.execute_cmd('look')
+                obj.execute_cmd("look")
                 for item in self.contents:
-                    if utils.inherits_from(item, 'Npc'):
+                    if utils.inherits_from(item, Npc):
                         # An NPC is in the room
                         item.at_char_entered(obj)
 
