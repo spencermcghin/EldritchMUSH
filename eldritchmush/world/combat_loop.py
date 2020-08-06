@@ -123,7 +123,7 @@ class CombatLoop:
 
         # Search for and return next element in combat loop
         # searchCharacter = self.caller.search(nextTurnCharacter)
-        return searchCharacter
+        return nextTurnCharacter
 
     def goToFirst(self):
         firstCharacter = self.combat_loop[0]
