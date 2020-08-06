@@ -29,6 +29,7 @@ class Room(DefaultRoom):
     """
 
     def at_object_receive(self, obj, source_location):
+        obj.msg("if statement")
         if utils.inherits_from(obj, 'Npc'): # An NPC has entered
             obj.msg("if statement")
             pass
