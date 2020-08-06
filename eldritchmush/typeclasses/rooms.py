@@ -27,7 +27,7 @@ class Room(DefaultRoom):
     See examples/object.py for a list of
     properties and methods available on all Objects.
     """
-    
+
     def at_object_receive(self, obj, source_location):
         if utils.inherits_from(obj, 'Npc'): # An NPC has entered
             pass
@@ -41,6 +41,7 @@ class Room(DefaultRoom):
                         # An NPC is in the room
                         item.at_char_entered(obj)
 
+
     def at_object_creation(self):
         """
         Called when room is first created
@@ -50,6 +51,7 @@ class Room(DefaultRoom):
         # Holds character - command k, v pair for combat loop. Stores character,
         # and command entered.
         self.db.combat_loop = []
+
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
