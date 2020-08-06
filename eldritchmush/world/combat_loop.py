@@ -128,9 +128,7 @@ class CombatLoop:
     def goToFirst(self):
         firstCharacter = self.combat_loop[0]
 
-        # Search for and return first element in combat loop
-        searchCharacter = self.caller.search(firstCharacter)
-        return searchCharacter
+        return firstCharacter
 
     def isDying(self, combatant):
         dying = True if combatant.db.bleed_points == 0 else False
