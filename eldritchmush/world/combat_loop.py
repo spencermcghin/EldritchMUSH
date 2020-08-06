@@ -162,14 +162,14 @@ class CombatLoop:
 
         elif self.inLoop() is False and loopLength > 1:
 
-            if self.target.key not in self.combat_loop:
+            if self.target not in self.combat_loop:
                 # Append caller and target to end of loop
-                self.combat_loop.append(self.caller.key)
+                self.combat_loop.append(self.caller)
                 self.caller.db.in_combat = 1
-                self.combat_loop.append(self.target.key)
+                self.combat_loop.append(self.target)
                 self.target.db.in_combat = 1
-                callerTurn = self.getCombatTurn(self.caller.key)
-                targetTurn = self.getCombatTurn(self.target.key)
+                callerTurn = self.getCombatTurn(self.caller)
+                targetTurn = self.getCombatTurn(self.target)
                 # Change combat_turn to 0
                 self.combatTurnOff(self.caller)
                 self.combatTurnOff(self.target)
