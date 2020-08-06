@@ -29,7 +29,7 @@ class Room(DefaultRoom):
     """
 
     def at_object_receive(self, obj, source_location):
-        self.msg("Hi there stranger.")
+        self.msg_contents("Hi there stranger.")
         # if utils.inherits_from(obj, 'Npc'): # An NPC has entered
         #     pass
         # else:
