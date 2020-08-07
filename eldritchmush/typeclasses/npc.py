@@ -16,7 +16,7 @@ class Npc(Character):
             self.execute_cmd("say Greetings, %s!" % character)
 
 
-class MeleeSoldier(Character):
+class MeleeSoldier(Npc):
     """
     Generic solider NPC
     """
