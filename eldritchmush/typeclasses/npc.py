@@ -41,6 +41,15 @@ class MeleeSoldier(Npc):
 
         helper = Helper()
 
-        action_string = f"strike {target}"
+        combat_bank = helper.activeMartialCounter(self)
+
+        # Generate an array of possible commands. There will be
+        ams_commands = [command*value for command, value in combat_bank.items() if value != 0]
+        all_commands = ["strike"].extend(ams_commands)
+
+        # Choose random command
+        chosen_command = random.choice(all_commands)
+
+        action_string = f"{chosen_command} {target}"
 
         return action_string
