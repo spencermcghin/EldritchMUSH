@@ -38,18 +38,17 @@ class MeleeSoldier(Npc):
         4. Choose a random element of the array and execute_cmd
         """
         # Form execute_cmd template, choosing from random commands
-
         helper = Helper()
-
         combat_bank = helper.activeMartialCounter(self)
 
         # Generate an array of possible commands. There will be
-        ams_commands = [command*value for command, value in combat_bank.items() if value != 0]
-        all_commands = ["strike"].extend(ams_commands)
+        ams_commands = [(command,)*value for command, value in combat_bank.items() if value != 0]
+        flat_ams_commands = [attack for groups in ams_commands for attack in groups]
+        all_commands = ["strike"].extend(flat_ams_commands)
 
         # Choose random command
         chosen_command = random.choice(all_commands)
-
+        # Establish command string
         action_string = f"{chosen_command} {target}"
 
         return action_string
