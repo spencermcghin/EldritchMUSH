@@ -60,6 +60,6 @@ class MeleeSoldier(Npc):
         # Choose random command
         chosen_command = random.choice(flat_ams_commands)
         # Establish command string
-        action_string = chosen_command + ' ' + target
+        action_string = chosen_command + ' ' + target.key
 
         return action_string
