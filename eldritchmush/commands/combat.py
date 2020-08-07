@@ -306,16 +306,6 @@ class Helper():
         return die_result
 
 
-    def activeMartialCounter(self, combatant):
-        amSkills = {"stun": combatant.db.stun,
-        "disarm": combatant.db.disarm,
-        "sunder": combatant.db.sunder,
-        "stagger": combatant.db.stagger,
-        "cleave": combatant.db.cleave}
-
-        return amSkills
-
-
 """
 Active Martial Skills
 """

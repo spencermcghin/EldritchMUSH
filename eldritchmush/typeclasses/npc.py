@@ -1,10 +1,18 @@
 
 # Local imports
 from typeclasses.characters import Character
-from commands.combat import Helper
+# from commands.combat import Helper
 
 # Imports
 import random
+
+# Dict for active martial skills
+amSkills = {"stun": combatant.db.stun,
+"disarm": combatant.db.disarm,
+"sunder": combatant.db.sunder,
+"stagger": combatant.db.stagger,
+"cleave": combatant.db.cleave}
+
 
 class Npc(Character):
     """
@@ -43,11 +51,11 @@ class MeleeSoldier(Npc):
         4. Choose a random element of the array and execute_cmd
         """
         # Form execute_cmd template, choosing from random commands
-        helper = Helper(self)
-        combat_bank = helper.activeMartialCounter(self)
+        # helper = Helper(self)
+        # combat_bank = helper.activeMartialCounter(self)
 
         # Generate an array of possible commands. There will be
-        ams_commands = [(command,)*value for command, value in combat_bank.items() if value != 0]
+        ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
         flat_ams_commands = [attack for groups in ams_commands for attack in groups]
         all_commands = ["strike"].extend(flat_ams_commands)
 
