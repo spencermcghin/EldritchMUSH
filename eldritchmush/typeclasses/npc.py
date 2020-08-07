@@ -43,24 +43,23 @@ class MeleeSoldier(Npc):
         3. Generate array of possible commands as ["strike", other values are made by calling the combat_bank keys based on value != 0]
         4. Choose a random element of the array and execute_cmd
         """
-        # # Form execute_cmd template, choosing from random commands
-        # # helper = Helper(self)
-        # # combat_bank = helper.activeMartialCounter(self)
-        # amSkills = {"stun": self.db.stun,
-        # "disarm": self.db.disarm,
-        # "sunder": self.db.sunder,
-        # "stagger": self.db.stagger,
-        # "cleave": self.db.cleave}
-        #
-        # # Generate an array of possible commands. There will be
-        # ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
-        # flat_ams_commands = [attack for groups in ams_commands for attack in groups]
-        # all_commands = ["strike"].extend(flat_ams_commands)
-        #
-        # # Choose random command
-        # chosen_command = random.choice(all_commands)
-        # # Establish command string
-        action_string = f"strike {target}"
+        # Form execute_cmd template, choosing from random commands
+        # helper = Helper(self)
+        # combat_bank = helper.activeMartialCounter(self)
+        amSkills = {"stun": self.db.stun,
+        "disarm": self.db.disarm,
+        "sunder": self.db.sunder,
+        "stagger": self.db.stagger,
+        "cleave": self.db.cleave}
 
+        # Generate an array of possible commands. There will be
+        ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
+        flat_ams_commands = [attack for groups in ams_commands for attack in groups]
+        # Add free command to list
+        flat_ams_commands.append("strike")
+        # Choose random command
+        chosen_command = random.choice(flat_ams_commands)
+        # Establish command string
+        action_string = chosen_command + ' ' + target
 
         return action_string
