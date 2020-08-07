@@ -12,4 +12,5 @@ class Npc(Character):
         if self.db.is_aggressive:
             self.execute_cmd("say Graaah, die %s!" % character)
         else:
+            yield 10
             self.execute_cmd("say Greetings, %s!" % character)
