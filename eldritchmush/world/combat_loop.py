@@ -1,6 +1,7 @@
 from evennia import utils
 from typeclasses.characters import Character
 from typeclasses.npc import Npc
+import random
 
 """
 Combat Loop
@@ -227,8 +228,11 @@ class CombatLoop:
 
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc): # An NPC has entered
-                # Hook into the npcs command generator
-                nextCharacter.at_char_entered()
+                # Hook into the npcs command generator. 
+                # TODO: pick a random character from inside the combat_loop
+                targets = [target for target in self.combat_loop if utils.inherits_from(target, Character)]
+                random_target = random.choice(targets)
+                nextCharacter.at_char_entered(random_target)
 
         else:
             self.removeFromLoop(self.caller)
