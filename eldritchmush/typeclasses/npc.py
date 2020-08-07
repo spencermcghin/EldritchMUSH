@@ -1,7 +1,7 @@
 
 # Local imports
 from typeclasses.characters import Character
-from commands import combat
+from commands.combat import Helper
 
 # Imports
 import random
