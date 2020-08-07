@@ -43,7 +43,7 @@ class MeleeSoldier(Npc):
         4. Choose a random element of the array and execute_cmd
         """
         # Form execute_cmd template, choosing from random commands
-        helper = Helper()
+        helper = Helper(self)
         combat_bank = helper.activeMartialCounter(self)
 
         # Generate an array of possible commands. There will be
