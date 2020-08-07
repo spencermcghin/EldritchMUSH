@@ -1,3 +1,6 @@
+from evennia import utils
+from typeclasses.characters import Character
+from typeclasses.npc import Npc
 
 """
 Combat Loop
@@ -141,6 +144,7 @@ class CombatLoop:
         if self.inLoop() is False and loopLength == 0:
 
             # Add character to loop
+            # Check to see if this is an npc. If so, do nothing. They will have attacked already.
             self.addToLoop(self.caller)
             self.caller.db.in_combat = 1
             callerTurn = self.getCombatTurn(self.caller)
@@ -220,6 +224,11 @@ class CombatLoop:
 
             self.combatTurnOn(nextCharacter)
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
+
+            # Check to see if the character is an npc. If so run it's random command generator
+            if utils.inherits_from(nextCharacter, Npc): # An NPC has entered
+                # Hook into the npcs command generator
+                nextCharacter.at_char_entered()
 
         else:
             self.removeFromLoop(self.caller)
