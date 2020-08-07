@@ -26,7 +26,7 @@ class CmdDisengage(Command):
         if self.caller.db.combat_turn:
 
             # Check to see if caller is in combat loop:
-            if self.caller.key in self.combat_loop:
+            if self.caller in self.combat_loop:
 
                 # Check if combatant is at last index before disengaging and then passing turn
                 # Loop should never be less than 1 given cleanup step.
