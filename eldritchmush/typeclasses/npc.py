@@ -6,13 +6,6 @@ from typeclasses.characters import Character
 # Imports
 import random
 
-# Dict for active martial skills
-amSkills = {"stun": combatant.db.stun,
-"disarm": combatant.db.disarm,
-"sunder": combatant.db.sunder,
-"stagger": combatant.db.stagger,
-"cleave": combatant.db.cleave}
-
 
 class Npc(Character):
     """
@@ -53,6 +46,11 @@ class MeleeSoldier(Npc):
         # Form execute_cmd template, choosing from random commands
         # helper = Helper(self)
         # combat_bank = helper.activeMartialCounter(self)
+        amSkills = {"stun": self.db.stun,
+        "disarm": self.db.disarm,
+        "sunder": self.db.sunder,
+        "stagger": self.db.stagger,
+        "cleave": self.db.cleave}
 
         # Generate an array of possible commands. There will be
         ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
