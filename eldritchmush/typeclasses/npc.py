@@ -1,7 +1,7 @@
 
 # Local imports
 from typeclasses.characters import Character
-from eldritchmush.commands.combat import Helper
+from commands.combat import Helper
 
 # Imports
 import random
