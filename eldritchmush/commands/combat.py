@@ -268,12 +268,6 @@ class Helper():
         master_of_arms = combatant.db.master_of_arms
         weapon_level = self.weaponValue(combatant.db.weapon_level)
         wylding_hand = combatant.db.wylding_hand
-        stun = combatant.db.stun
-        disarm = combatant.db.disarm
-        sunder = combatant.db.sunder
-        stagger = combatant.db.stagger
-        cleave = combatant.db.cleave
-
 
         # Penalties
         weakness = self.weaknessChecker(combatant.db.weakness)
@@ -311,15 +305,13 @@ class Helper():
 
         return die_result
 
-    def activeMartialCounter(self, combatant):
 
-        amSkills = {
-        "stun": combatant.db.stun,
+    def activeMartialCounter(self, combatant):
+        amSkills = {"stun": combatant.db.stun,
         "disarm": combatant.db.disarm,
         "sunder": combatant.db.sunder,
         "stagger": combatant.db.stagger,
-        "cleave": combatant.db.cleave
-        }
+        "cleave": combatant.db.cleave}
 
         return amSkills
 
