@@ -217,7 +217,7 @@ class CombatLoop:
                 nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
                 try:
                     # Try going to the next character based on the character that had skip_turn active
-                    nextTurn = self.combat_loop.index(nextCharacter.key) + 1
+                    nextTurn = self.combat_loop.index(nextCharacter) + 1
                     nextCharacter = self.caller.search(self.combat_loop[nextTurn])
 
                 except IndexError:
@@ -228,10 +228,11 @@ class CombatLoop:
 
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc): # An NPC has entered
-                # Hook into the npcs command generator. 
-                # TODO: pick a random character from inside the combat_loop
+                # Hook into the npcs command generator.
                 targets = [target for target in self.combat_loop if utils.inherits_from(target, Character)]
+                # Pick a random target from the loops possible targets
                 random_target = random.choice(targets)
+                # Run the npcs do-something command
                 nextCharacter.at_char_entered(random_target)
 
         else:
