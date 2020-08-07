@@ -20,7 +20,7 @@ class MeleeSoldier(Npc):
     """
     Generic solider NPC
     """
-    def at_object_creations(self):
+    def at_object_creation(self):
         """
         Called when soldier first created.
         """
