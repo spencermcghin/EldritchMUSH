@@ -16,28 +16,10 @@ class Npc(Character):
             self.execute_cmd("say Greetings, %s!" % character)
 
 
-class MeleeSoldier(Npc):
+class MeleeSoldier(Character):
     """
     Generic solider NPC
     """
-    def at_object_creation(self):
-        """
-        Called when soldier first created.
-        """
-        # Set defensive stats
-        self.db.master_of_arms = 1
-        self.db.armor = 2
-        self.db.armor_specialist = 1
-        self.db.tough = 1
-        self.db.resilience = 1
-
-        # Set offensive stats
-        self.db.melee = 1
-        self.db.stagger = 2
-        self.db.weapon_level = 1
-        self.db.shield = 1
-        self.db.disarm = 1
-
 
     def at_char_entered(self, character):
         # Choose a random command and run it
