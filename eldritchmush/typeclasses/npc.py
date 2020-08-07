@@ -1,5 +1,10 @@
+
+# Local imports
 from typeclasses.characters import Character
-from commands.combat_commands import combat
+from commands import combat
+
+# Imports
+import random
 
 class Npc(Character):
     """
