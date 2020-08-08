@@ -78,6 +78,7 @@ class CmdDisengage(Command):
 
     def disengage_cleanup(self):
         if len(self.combat_loop) == 1:
+            self.location.msg_contents("if in disengage cleanup.")
             # Remove remaining combatants from combat loop and prompt
             # Messages
             remaining_key = self.caller.search(self.combat_loop[0])
@@ -89,6 +90,7 @@ class CmdDisengage(Command):
             remaining_key.db.in_combat = 0
 
         else:
+            self.location.msg_contents("Else in disengage cleanup.")
             loop = CombatLoop(self.caller, target=None)
             loop.combatTurnOff(self.caller)
             loop.cleanup()
