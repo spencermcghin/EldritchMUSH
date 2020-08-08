@@ -247,7 +247,7 @@ class CombatLoop:
                 remaining_character = self.combat_loop[0]
                 remaining_character.location.msg_contents("caught <= 1 player in cleanup else")
                 self.caller.location.msg_contents(f"{remaining_character} is still in the combat loop")
-                self.caller.location.msg_contents(f"Combat is now over for {remaining_character.location}.")
+                self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
                 self.removeFromLoop(remaining_character)
                 self.caller.db.in_combat = 0
                 # Change self.callers combat_turn to 1 so they can attack again.
