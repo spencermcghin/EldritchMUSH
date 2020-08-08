@@ -34,11 +34,11 @@ class CmdDisengage(Command):
             # Check to see if caller is in combat loop:
             if self.caller in self.combat_loop:
                 self.caller.location.msg_contents(f"{self.caller.key} breaks away from combat.")
-
+                # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
-                loop.cleanup()
-
+                # Run cleanup to move to next target
                 self.combat_loop.remove(self.caller)
+                loop.cleanup()
 
                 # # Check if combatant is at last index before disengaging and then passing turn
                 # # Loop should never be less than 1 given cleanup step.
