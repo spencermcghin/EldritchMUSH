@@ -234,7 +234,7 @@ class CombatLoop:
                 # random_target = random.choice(targets)
                 # # Run the npcs do-something command
                 # nextCharacter.at_char_entered(random_target)
-                self.msg(f"{targets}")
+                self.msg_contents(f"{targets}")
 
         else:
             self.removeFromLoop(self.caller)
