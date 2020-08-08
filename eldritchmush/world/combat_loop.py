@@ -246,7 +246,7 @@ class CombatLoop:
                         char.db.combat_turn = 1
                         char.db.in_combat = 0
                     # TODO: Reset npc stats
-                    ######
+                    ###### here ######
                     # Empty combat_loop and msg
                     nextCharacter.location.db.combat_loop.clear()
                     nextCharacter.location.msg_contents(f"Combat is now over for the {nextCharacter.location}")
