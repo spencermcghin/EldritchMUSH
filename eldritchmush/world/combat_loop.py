@@ -227,7 +227,7 @@ class CombatLoop:
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
 
             # Check to see if the character is an npc. If so run it's random command generator
-            if utils.inherits_from(nextCharacter, Npc): # An NPC has entered
+            if utils.inherits_from(nextCharacter, Npc):
                 # Hook into the npcs command generator.
                 targets = [target for target in self.combat_loop if utils.inherits_from(target, Character)]
                 # Pick a random target from the loops possible targets
