@@ -242,7 +242,7 @@ class CombatLoop:
                     # If no non-NPC targets, remove all items from loop and end combat
                     nextCharacter.location.db.combat_loop.clear()
                     # TODO: Reset all npc stats
-                    self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
+                    nextCharacter.location.msg_contents(f"Combat is now over for the {nextCharacter.location}")
 
         else:
             try:
