@@ -38,8 +38,8 @@ class CmdDisengage(Command):
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
                 self.caller.location.msg_contents(f"{self.caller.key} removed.")
-                self.caller.location.msg_contents(f"{self.combat_loop}")
                 self.combat_loop.remove(self.caller)
+                self.caller.location.msg_contents(f"{self.combat_loop}")                
                 loop.cleanup()
 
                 # # Check if combatant is at last index before disengaging and then passing turn
