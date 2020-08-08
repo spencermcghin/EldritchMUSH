@@ -233,7 +233,12 @@ class CombatLoop:
                 # Pick a random target from the loops possible targets
                 random_target = random.choice(targets)
                 # Run the npcs do-something command
-                nextCharacter.at_char_entered(random_target)
+                if random_target:
+                    # If character target, attack a random one.
+                    nextCharacter.at_char_entered(random_target)
+                else:
+                    # If no non-NPC targets, disengage
+                    nextCharacter.execute_cmd("disengage")
 
         else:
             self.removeFromLoop(self.caller)
