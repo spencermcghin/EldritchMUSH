@@ -4,12 +4,16 @@ Room
 Rooms are simple containers that has no location of their own.
 
 """
-
+# Local imports
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
+from evennia import utils
 from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet
 from commands import command
+from typeclasses.characters import Character
+from typeclasses.npc import Npc
 
+# Imports
 import random
 
 
@@ -24,15 +28,30 @@ class Room(DefaultRoom):
     properties and methods available on all Objects.
     """
 
+    def at_object_receive(self, obj, source_location):
+        if utils.inherits_from(obj, Npc): # An NPC has entered
+            pass
+        else:
+            if utils.inherits_from(obj, Character):
+                # A PC has entered, NPC is caught above.
+                # Cause the character to look around
+                obj.execute_cmd("look")
+                for item in self.contents:
+                    if utils.inherits_from(item, Npc):
+                        # An NPC is in the room
+                        item.at_char_entered(obj)
+
+
     def at_object_creation(self):
         """
         Called when room is first created
         """
 
         self.cmdset.add_default(RoomCmdSet)
-        # Holds character - command k, v pair for combat loop. Stores character,
+        # Holds character in for combat loop. Stores character,
         # and command entered.
         self.db.combat_loop = []
+
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)

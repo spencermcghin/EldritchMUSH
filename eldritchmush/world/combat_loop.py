@@ -1,3 +1,7 @@
+from evennia import utils
+from typeclasses.characters import Character
+from typeclasses.npc import Npc
+import random
 
 """
 Combat Loop
@@ -69,7 +73,7 @@ class CombatLoop:
 
     def inLoop(self):
         # Check to see if caller is part of rooms combat loop
-        if self.caller.key in self.combat_loop:
+        if self.caller in self.combat_loop:
             return True
         else:
             return False
@@ -112,25 +116,23 @@ class CombatLoop:
     def isLast(self):
         # Check to see if caller is last in the combat_loop
         loopLength = self.getLoopLength()
-        if self.combat_loop.index(self.caller.key) + 1 == loopLength:
+        if self.combat_loop.index(self.caller) + 1 == loopLength:
             return True
         else:
             return False
 
     def goToNext(self):
-        nextIndex = self.combat_loop.index(self.caller.key) + 1
+        nextIndex = self.combat_loop.index(self.caller) + 1
         nextTurnCharacter = self.combat_loop[nextIndex]
 
         # Search for and return next element in combat loop
-        searchCharacter = self.caller.search(nextTurnCharacter)
-        return searchCharacter
+        # searchCharacter = self.caller.search(nextTurnCharacter)
+        return nextTurnCharacter
 
     def goToFirst(self):
         firstCharacter = self.combat_loop[0]
 
-        # Search for and return first element in combat loop
-        searchCharacter = self.caller.search(firstCharacter)
-        return searchCharacter
+        return firstCharacter
 
     def isDying(self, combatant):
         dying = True if combatant.db.bleed_points == 0 else False
@@ -143,18 +145,19 @@ class CombatLoop:
         if self.inLoop() is False and loopLength == 0:
 
             # Add character to loop
-            self.addToLoop(self.caller.key)
+            # Check to see if this is an npc. If so, do nothing. They will have attacked already.
+            self.addToLoop(self.caller)
             self.caller.db.in_combat = 1
-            callerTurn = self.getCombatTurn(self.caller.key)
+            callerTurn = self.getCombatTurn(self.caller)
             # Send message to attacker and resolve command
             self.caller.msg(f"You have been added to the combat loop for the {self.current_room}")
             self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
             # Add target of attack to loop
-            self.addToLoop(self.target.key)
+            self.addToLoop(self.target)
             self.target.db.in_combat = 1
             # Send message to target and resolve command
-            targetTurn = self.getCombatTurn(self.target.key)
+            targetTurn = self.getCombatTurn(self.target)
             self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {targetTurn} in the round order.")
             self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {targetTurn} in the round order.")
             # Disable their ability to use combat commands
@@ -162,14 +165,14 @@ class CombatLoop:
 
         elif self.inLoop() is False and loopLength > 1:
 
-            if self.target.key not in self.combat_loop:
+            if self.target not in self.combat_loop:
                 # Append caller and target to end of loop
-                self.combat_loop.append(self.caller.key)
+                self.combat_loop.append(self.caller)
                 self.caller.db.in_combat = 1
-                self.combat_loop.append(self.target.key)
+                self.combat_loop.append(self.target)
                 self.target.db.in_combat = 1
-                callerTurn = self.getCombatTurn(self.caller.key)
-                targetTurn = self.getCombatTurn(self.target.key)
+                callerTurn = self.getCombatTurn(self.caller)
+                targetTurn = self.getCombatTurn(self.target)
                 # Change combat_turn to 0
                 self.combatTurnOff(self.caller)
                 self.combatTurnOff(self.target)
@@ -179,22 +182,22 @@ class CombatLoop:
 
                 # caller not in loop, target in loop
                 # Append to end of loop
-                self.combat_loop.append(self.caller.key)
+                self.combat_loop.append(self.caller)
                 self.caller.db.in_combat = 1
-                callerTurn = self.getCombatTurn(self.caller.key)
+                callerTurn = self.getCombatTurn(self.caller)
                 # Change combat_turn to 0
                 self.combatTurnOff(self.caller)
                 self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
 
-        elif self.inLoop() is True and self.target.key not in self.combat_loop:
+        elif self.inLoop() is True and self.target not in self.combat_loop:
 
             # Handle when caller in loop and target is not
             # Need to add target to end of loop, set their combat_turn to 0.
-            self.combat_loop.append(self.target.key)
+            self.combat_loop.append(self.target)
             self.target.db.in_combat = 1
             self.combatTurnOff(self.target)
-            self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target.key)} in the round order.")
-            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target.key)} in the round order.")
+            self.target.msg(f"You have been added to the combat loop for the {self.current_room}.\nYou are currently number {self.getCombatTurn(self.target)} in the round order.")
+            self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target)} in the round order.")
 
         else:
             pass
@@ -214,7 +217,7 @@ class CombatLoop:
                 nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
                 try:
                     # Try going to the next character based on the character that had skip_turn active
-                    nextTurn = self.combat_loop.index(nextCharacter.key) + 1
+                    nextTurn = self.combat_loop.index(nextCharacter) + 1
                     nextCharacter = self.caller.search(self.combat_loop[nextTurn])
 
                 except IndexError:
@@ -222,6 +225,15 @@ class CombatLoop:
 
             self.combatTurnOn(nextCharacter)
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
+
+            # Check to see if the character is an npc. If so run it's random command generator
+            if utils.inherits_from(nextCharacter, Npc):
+                # Hook into the npcs command generator.
+                targets = [target for target in self.combat_loop if target.has_account]
+                # Pick a random target from the loops possible targets
+                random_target = random.choice(targets)
+                # Run the npcs do-something command
+                nextCharacter.at_char_entered(random_target)
 
         else:
             self.removeFromLoop(self.caller)
