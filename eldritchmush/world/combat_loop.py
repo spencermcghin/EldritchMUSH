@@ -243,8 +243,11 @@ class CombatLoop:
                     nextCharacter.execute_cmd("disengage")
 
         else:
-            if self.getLoopLength() == 1:
+            try:
                 remaining_character = self.combat_loop[0]
+            except IndexError:
+                self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
+            else:
                 remaining_character.location.msg_contents("caught <= 1 player in cleanup else")
                 self.caller.location.msg_contents(f"{remaining_character} is still in the combat loop")
                 self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
@@ -252,5 +255,3 @@ class CombatLoop:
                 self.caller.db.in_combat = 0
                 # Change self.callers combat_turn to 1 so they can attack again.
                 self.combatTurnOn(remaining_character)
-            else:
-                self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
