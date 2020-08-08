@@ -90,7 +90,44 @@ class CmdDisengage(Command):
             remaining_key.db.in_combat = 0
 
         else:
-            self.caller.location.msg_contents("Else in disengage cleanup.")
-            loop = CombatLoop(self.caller, target=None)
-            loop.combatTurnOff(self.caller)
-            loop.cleanup()
+            if self.getLoopLength() > 1:
+                # If no character at next index (current character is last),
+                # go back to beginning of combat_loop and prompt character for input.
+                nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
+
+                # Iterate through combat_loop until finding a character w/out the skip_turn flag set.
+                while nextCharacter.db.skip_turn or self.isDying(nextCharacter):
+                    # Turn off the skip_turn flag and then try to go to the next character in the loop
+                    nextCharacter.db.skip_turn = False
+                    nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
+                    try:
+                        # Try going to the next character based on the character that had skip_turn active
+                        nextTurn = self.combat_loop.index(nextCharacter) + 1
+                        nextCharacter = self.caller.search(self.combat_loop[nextTurn])
+
+                    except IndexError:
+                        nextCharacter = self.caller.search(self.combat_loop[0])
+
+                self.combatTurnOn(nextCharacter)
+                nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
+
+                ###### NPC Turn Resolver ######
+                # Check to see if the character is an npc. If so run it's random command generator
+                if utils.inherits_from(nextCharacter, Npc):
+                    # Hook into the npcs command generator.
+                    targets = [target for target in self.combat_loop if target.has_account]
+                    # Pick a random target from the loops possible targets
+                    if targets:
+                        random_target = random.choice(targets)
+                        # If character target, attack a random one.
+                        nextCharacter.at_char_entered(random_target)
+                    else:
+                        # If no non-NPC targets, disengage
+                        nextCharacter.execute_cmd("disengage")
+
+            else:
+                self.removeFromLoop(self.caller)
+                self.caller.db.in_combat = 0
+                self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
+                # Change self.callers combat_turn to 1 so they can attack again.
+                self.combatTurnOn(self.caller)
