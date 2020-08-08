@@ -231,9 +231,10 @@ class CombatLoop:
                 # Hook into the npcs command generator.
                 targets = [target for target in self.combat_loop if utils.inherits_from(target, Character)]
                 # Pick a random target from the loops possible targets
-                random_target = random.choice(targets)
-                # Run the npcs do-something command
-                nextCharacter.at_char_entered(random_target)
+                # random_target = random.choice(targets)
+                # # Run the npcs do-something command
+                # nextCharacter.at_char_entered(random_target)
+                self.msg(f"{targets}")
 
         else:
             self.removeFromLoop(self.caller)
