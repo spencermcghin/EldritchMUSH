@@ -46,11 +46,13 @@ class MeleeSoldier(Npc):
         # Form execute_cmd template, choosing from random commands
         # helper = Helper(self)
         # combat_bank = helper.activeMartialCounter(self)
-        amSkills = {"stun": self.db.stun,
+        amSkills = {
+        "stun": self.db.stun,
         "disarm": self.db.disarm,
         "sunder": self.db.sunder,
         "stagger": self.db.stagger,
-        "cleave": self.db.cleave}
+        "cleave": self.db.cleave
+        }
 
         # Generate an array of possible commands. There will be
         ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
@@ -59,6 +61,11 @@ class MeleeSoldier(Npc):
         flat_ams_commands.append("strike")
         # Choose random command
         chosen_command = random.choice(flat_ams_commands)
+        # Catch exceptions to running active martial skills - weakness condition
+        if chosen_command not in amSkills:
+            pass
+        else:
+            chosen_command = 'strike' if self.db.weakness else chosen_command
         # Establish command string
         action_string = chosen_command + ' ' + target.key
 
