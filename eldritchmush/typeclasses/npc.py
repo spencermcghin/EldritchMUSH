@@ -65,7 +65,11 @@ class MeleeSoldier(Npc):
         if chosen_command not in amSkills:
             pass
         else:
-            chosen_command = 'strike' if self.db.weakness else chosen_command
+            # If target is in dying count, disengage, else run free combat command.
+            if not target.db.bleed_points:
+                chosen_command = 'disengage'
+            else:
+                chosen_command = 'strike' if self.db.weakness else chosen_command
         # Establish command string
         action_string = chosen_command + ' ' + target.key
 
