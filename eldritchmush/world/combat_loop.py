@@ -230,7 +230,9 @@ class CombatLoop:
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc):
                 # Hook into the npcs command generator.
-                targets = [target for target in self.combat_loop if target.has_account]
+                nextCharacter.location.msg_contents(f"{nextCharacter.location.db.combat_loop}")
+                targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account]
+                nextCharacter.location.msg_contents(f"{targets}")
                 # Pick a random target from the loops possible targets
                 if targets:
                     random_target = random.choice(targets)
@@ -241,8 +243,14 @@ class CombatLoop:
                     nextCharacter.execute_cmd("disengage")
 
         else:
-            self.removeFromLoop(self.caller)
-            self.caller.db.in_combat = 0
-            self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
-            # Change self.callers combat_turn to 1 so they can attack again.
-            self.combatTurnOn(self.caller)
+            if self.getLoopLength() == 1:
+                remaining_character = self.combat_loop[0]
+                remaining_character.location.msg_contents("caught <= 1 player in cleanup else")
+                self.caller.location.msg_contents(f"{remaining_character} is still in the combat loop")
+                self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
+                self.removeFromLoop(remaining_character)
+                self.caller.db.in_combat = 0
+                # Change self.callers combat_turn to 1 so they can attack again.
+                self.combatTurnOn(remaining_character)
+            else:
+                self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
