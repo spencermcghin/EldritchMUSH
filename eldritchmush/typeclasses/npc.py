@@ -65,7 +65,7 @@ class MeleeSoldier(Npc):
         # Make sure npc is equipped:
         if not self.db.melee:
             self.execute_cmd('setmelee 1')
-            self.command_picker()
+            pass
 
         if chosen_command not in amSkills:
             pass
