@@ -231,7 +231,7 @@ class CombatLoop:
             if utils.inherits_from(nextCharacter, Npc):
                 # Hook into the npcs command generator.
                 nextCharacter.location.msg_contents(f"{nextCharacter.location.db.combat_loop}")
-                targets = [target for target in self.combat_loop if target.has_account]
+                targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account]
                 nextCharacter.location.msg_contents(f"{targets}")
                 # Pick a random target from the loops possible targets
                 if targets:
