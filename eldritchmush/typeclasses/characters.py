@@ -106,3 +106,12 @@ class Character(DefaultCharacter):
 
         else:
             return text
+
+    # Changed for AI room response
+    def at_after_move(self, source_location):
+        """
+        Default is to look around after a move
+        Note:  This has been moved to room.at_object_receive
+        """
+        #self.execute_cmd('look')
+        pass

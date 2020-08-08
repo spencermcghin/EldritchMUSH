@@ -35,12 +35,15 @@ class CmdStrike(Command):
         h = Helper(self.caller)
 
         # Check for and error handle designated target
-        target = h.targetHandler(self.target)
+        target = self.caller.search(self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
-        loop = CombatLoop(self.caller, target)
-        loop.resolveCommand()
+        if target:
+            loop = CombatLoop(self.caller, target)
+            loop.resolveCommand()
+        else:
+            return
 
         # Run logic for strike command
         if self.caller.db.combat_turn:

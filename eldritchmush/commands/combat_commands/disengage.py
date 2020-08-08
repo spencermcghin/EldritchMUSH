@@ -19,14 +19,14 @@ class CmdDisengage(Command):
     def parse(self):
 
         self.combat_loop = self.caller.location.db.combat_loop
-        self.caller_index = self.combat_loop.index(self.caller.key)
+        self.caller_index = self.combat_loop.index(self.caller)
 
     def func(self):
         # Check if it is player's combat_turn
         if self.caller.db.combat_turn:
 
             # Check to see if caller is in combat loop:
-            if self.caller.key in self.combat_loop:
+            if self.caller in self.combat_loop:
 
                 # Check if combatant is at last index before disengaging and then passing turn
                 # Loop should never be less than 1 given cleanup step.
@@ -36,7 +36,7 @@ class CmdDisengage(Command):
                     first_combatant_key = self.caller.search(first_combatant_str)
                     first_combatant_key.db.combat_turn = 1
                     # Remove caller from combat loop and set status
-                    self.combat_loop.remove(self.caller.key)
+                    self.combat_loop.remove(self.caller)
                     self.caller.db.in_combat = 0
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
@@ -56,7 +56,7 @@ class CmdDisengage(Command):
                     next_combatant_key = self.caller.search(next_combatant_str)
                     next_combatant_key.db.combat_turn = 1
                     # Remove caller from combat loop
-                    self.combat_loop.remove(self.caller.key)
+                    self.combat_loop.remove(self.caller)
                     self.caller.db.in_combat = 0
                     # Set combat_turn back to 1
                     self.caller.db.combat_turn = 1
