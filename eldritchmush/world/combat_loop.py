@@ -239,9 +239,9 @@ class CombatLoop:
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
                 else:
-                    # If no non-NPC targets, remove from loop and end combat
-                    nextCharacter.location.db.combat_loop.remove(nextCharacter)
-                    self.caller.location.msg_contents("{nextCharacter.key} has been removed from combat loop")
+                    # If no non-NPC targets, remove all items from loop and end combat
+                    nextCharacter.location.db.combat_loop.clear()
+                    # TODO: Reset all npc stats
                     self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
 
         else:
