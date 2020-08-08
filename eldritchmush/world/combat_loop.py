@@ -242,8 +242,9 @@ class CombatLoop:
                     # If no non-NPC targets, remove all items from loop and end combat
                     nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
                     # Reset combat_loop related stats for all remaining characters:
-                    char.db.combat_turn = 1 for char in nextCharacter.location.db.combat_loop
-                    char.db.in_combat = 0 for char in nextCharacter.location.db.combat_loop
+                    for char in nextCharacter.location.db.combat_loop:
+                        char.db.combat_turn = 1
+                        char.db.in_combat = 0
                     # TODO: Reset npc stats
                     ######
                     # Empty combat_loop and msg
