@@ -62,6 +62,11 @@ class MeleeSoldier(Npc):
         # Choose random command
         chosen_command = random.choice(flat_ams_commands)
         # Catch exceptions to running active martial skills - weakness condition
+        # Make sure npc is equipped:
+        if not self.db.melee:
+            execute_cmd('setmelee 1')
+            command_picker()
+
         if chosen_command not in amSkills:
             pass
         else:
