@@ -79,10 +79,12 @@ class CmdDisengage(Command):
     def disengage_cleanup(self):
         if len(self.combat_loop) == 1:
             # Remove remaining combatants from combat loop and prompt
-            remaining_str = self.combat_loop.pop()
-            remaining_key = self.caller.search(remaining_str)
+            # Messages
+            remaining_key = self.caller.search(self.combat_loop[0])
             remaining_key.location.msg_contents(f"{remaining_key} breaks away from combat.")
             remaining_key.msg(f"Combat is over. You have been removed from the combat loop for {self.caller.location}")
+            # Actions
+            self.combat_loop.remove(remaining_key)
             remaining_key.db.combat_turn = 1
             remaining_key.db.in_combat = 0
 
