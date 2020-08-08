@@ -243,8 +243,11 @@ class CombatLoop:
                     nextCharacter.execute_cmd("disengage")
 
         else:
-            self.removeFromLoop(self.caller)
-            self.caller.db.in_combat = 0
-            self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
-            # Change self.callers combat_turn to 1 so they can attack again.
-            self.combatTurnOn(self.caller)
+            if self.caller in self.combat_loop:
+                self.removeFromLoop(self.caller)
+                self.caller.db.in_combat = 0
+                self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
+                # Change self.callers combat_turn to 1 so they can attack again.
+                self.combatTurnOn(self.caller)
+            else:
+                self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
