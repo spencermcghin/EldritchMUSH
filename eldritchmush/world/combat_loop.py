@@ -226,6 +226,7 @@ class CombatLoop:
             self.combatTurnOn(nextCharacter)
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
 
+            ###### NPC Turn Resolver ######
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc):
                 # Hook into the npcs command generator.
@@ -238,7 +239,7 @@ class CombatLoop:
                 else:
                     # If no non-NPC targets, disengage
                     nextCharacter.execute_cmd("disengage")
-                    
+
         else:
             self.removeFromLoop(self.caller)
             self.caller.db.in_combat = 0

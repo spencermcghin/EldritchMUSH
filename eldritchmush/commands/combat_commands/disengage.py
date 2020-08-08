@@ -87,4 +87,6 @@ class CmdDisengage(Command):
             remaining_key.db.in_combat = 0
 
         else:
-            return
+            loop = CombatLoop(self.caller, target=None)
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
