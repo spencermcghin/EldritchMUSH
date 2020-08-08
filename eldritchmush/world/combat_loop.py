@@ -230,17 +230,19 @@ class CombatLoop:
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc):
                 # Hook into the npcs command generator.
-                nextCharacter.location.msg_contents(f"{nextCharacter.location.db.combat_loop}")
+                nextCharacter.location.msg_contents(f"Contents of loop: {nextCharacter.location.db.combat_loop}")
                 targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
-                nextCharacter.location.msg_contents(f"{targets}")
+                nextCharacter.location.msg_contents(f"Possible npc targets: {targets}")
                 # Pick a random target from the loops possible targets
                 if targets:
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
                 else:
-                    # If no non-NPC targets, disengage
-                    nextCharacter.execute_cmd("disengage")
+                    # If no non-NPC targets, remove from loop and end combat
+                    nextCharacter.location.db.combat_loop.remove(nextCharacter)
+                    self.caller.location.msg_contents("{nextCharacter.key} has been removed from combat loop")
+                    self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
 
         else:
             try:
