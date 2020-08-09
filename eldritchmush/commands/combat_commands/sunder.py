@@ -118,12 +118,12 @@ class CmdSunder(Command):
                                     loop.combatTurnOff(self.caller)
                                     loop.cleanup()
                             else:
-                                self.caller.msg("|400You are too weak to use this attack.|n")
+                                self.caller.msg("|540You are too weak to use this attack.|n")
                         else:
                             self.msg(f"{target.key} is dead. You only further mutiliate their body.")
                             self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
                     else:
-                        self.msg("You are too injured to act.")
+                        self.msg("|400You are too injured to act.|n")
 
                 else:
                     self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.")
@@ -131,5 +131,5 @@ class CmdSunder(Command):
                 self.msg("|540Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.")
                 return
         else:
-            self.msg("You need to wait until it is your turn before you are able to act.")
+            self.msg("|540You need to wait until it is your turn before you are able to act.|n")
             return

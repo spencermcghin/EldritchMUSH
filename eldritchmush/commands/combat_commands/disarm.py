@@ -65,7 +65,7 @@ class CmdDisarm(Command):
                                         target.db.skip_turn = True
                                         # Resolve damage
                                         if target_av:
-                                            self.caller.location.msg_contents(f"|015{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |015with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|015, dealing|n |540{damage}|n |015damage|n.")
+                                            self.caller.location.msg_contents(f"|015{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |015with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|015, dealing|n (|540{damage}|n) |015damage|n.")
                                             new_av = h.damageSubtractor(damage, target, self.caller)
                                             # Update target av to new av score per damageSubtractor
                                             target.db.av = new_av
