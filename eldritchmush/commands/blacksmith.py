@@ -35,15 +35,17 @@ class CmdForge(Command):
             return
 
         # Spawn item and move to callers inventory
-        try:
-            blacksmith_item = evennia.prototypes.spawner.spawn({"key": f"{self.item}"}, quiet=True)
+        # try:
+        blacksmith_item = evennia.prototypes.spawner.spawn({"key": f"{self.item}"}, quiet=True)
 
-            self.msg(f"{blacksmith_item}")
-        except Exception:
-            self.msg("Please enter a valid item name.")
+        self.msg(f"{blacksmith_item}")
 
-        else:
-            self.msg("Foo")
+        #     self.msg(f"{blacksmith_item}")
+        # except Exception:
+        #     self.msg("Please enter a valid item name.")
+        #
+        # else:
+        #     self.msg("Foo")
 
         # if blacksmith_item:
         #     # Check for items in callers inventory.
