@@ -38,7 +38,7 @@ class CmdForge(Command):
 
         # Spawn item and move to callers inventory
         blacksmith_item = spawn({f"key": "{self.item}",
-                                  "location": self.caller.location})
+                                  "location": self.caller.location})[0]
 
 
         # Check for items in callers inventory.
