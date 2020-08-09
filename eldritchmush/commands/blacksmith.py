@@ -15,8 +15,8 @@ Crafting Commands
 
 class CmdForge(Command):
 
-        key = "forge"
-        help_category = "mush"
+    key = "forge"
+    help_category = "mush"
 
     def parse(self):
         "Very trivial parser"
