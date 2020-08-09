@@ -276,7 +276,9 @@ class Forge(DefaultObject):
     Available command:
 
     forge <item>
+    repair <item>
     """
+
     def at_object_creation(self):
         "Called when object is first created"
         # Maintain state of object

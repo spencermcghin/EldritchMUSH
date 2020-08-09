@@ -20,7 +20,7 @@ class CmdForge(Command):
 
     def parse(self):
         "Very trivial parser"
-        self.target = self.args.strip()
+        self.item = self.args.strip()
 
 
     def func(self):
