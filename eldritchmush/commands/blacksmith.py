@@ -49,22 +49,30 @@ class CmdForge(Command):
         "leather": self.caller.db.leather
         }
 
+        # Get item requirements
+        item_requirements = {
+        "iron_ingots": blacksmith_item.db.iron_ingots,
+        "cloth": blacksmith_item.db.cloth,
+        "refined_wood": blacksmith_item.db.refined_wood,
+        "leather": blacksmith_item.db.leather
+        }
 
-        item_requirements = [
-        character_resources["iron_ingots"] >= blacksmith_item.db.iron_ingots,
-        character_resources["cloth"] >= blacksmith_item.db.cloth,
-        character_resources["refined_wood"] >= blacksmith_item.db.refined_wood,
-        character_resources["leather"] >= blacksmith_item.db.leather
+
+        requirements_checker = [
+        character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+        character_resources["cloth"] >= item_requirements["cloth"],
+        character_resources["refined_wood"] >= item_requirements["refined_wood"],
+        character_resources["leather"] >= item_requirements["leather"]
         ]
 
         # Check that all conditions in above list are true.
-        if all(item_requirements):
+        if all(requirements_checker):
             self.msg(f"You forge a {self.item}")
             # Get required resources and decrement from player totals.
-            self.caller.db.iron_ingots -= blacksmith_item.db.iron_ingots
-            self.caller.db.cloth -= blacksmith_item.db.cloth
-            self.caller.db.refined_wood -= blacksmith_item.db.refined_wood
-            self.caller.db.leather -= blacksmith_item.db.leather
+            self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+            self.caller.db.cloth -= item_requirements["cloth"]
+            self.caller.db.refined_wood -= item_requirements["refined_wood"]
+            self.caller.db.leather -= item_requirements["leather"]
 
             # Give to blacksmith
             blacksmith_item.move_to(self.caller, quiet=True)
