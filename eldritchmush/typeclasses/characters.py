@@ -52,6 +52,13 @@ class Character(DefaultCharacter):
         self.db.left_leg = 1
         self.db.torso = 1
 
+        # Crafting attributes
+        self.db.blacksmith = 0
+        self.db.artificer = 0
+        self.db.bowyer = 0
+        self.db.gunsmith = 0
+        self.db.alchemist = 0
+
         # Entries for healing
         self.db.stabilize = 0
         self.db.medicine = 0
