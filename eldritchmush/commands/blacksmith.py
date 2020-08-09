@@ -37,10 +37,13 @@ class CmdForge(Command):
 
 
         # Spawn item and move to callers inventory
-        blacksmith_item = spawn({f"key": "{self.item}",
-                                  "location": self.caller.location})[0]
+        try:
+            blacksmith_item = spawn({f"key": "{self.item}",
+                                      "location": self.caller.location}
 
-        self.msg(f"{blacksmith_item}")
+            self.msg(f"{blacksmith_item}")
+        except Exception:
+            self.msg("Please enter a valid item name.")
 
         # if blacksmith_item:
         #     # Check for items in callers inventory.
