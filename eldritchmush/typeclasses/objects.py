@@ -280,7 +280,7 @@ class Forge(DefaultObject):
         "Called when object is first created"
         # Maintain state of object
         self.locks.add("get:false()")
-        self.db.desc = "\n|yThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor.|n\n|rOOG - Usage: forge <item>|n"
+        self.db.desc = "\n|540This is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor.|n\n|400OOG - Usage: \nforge <item>\nrepair <item>|n"
 
         # Add command set for interacting with box
         self.cmdset.add_default(ForgeCmdSet, permanent=True)

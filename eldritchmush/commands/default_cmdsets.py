@@ -18,7 +18,7 @@ from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import command
-from commands import combat
+from commands import combat, blacksmith
 from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm, stagger, stun, medicine
 from commands import npc
 from commands import dice
@@ -33,6 +33,23 @@ class RoomCmdSet(CmdSet):
 
         self.add(command.CmdPerception())
         self.add(command.CmdTracking())
+
+"""
+Crafting Command Sets
+"""
+class BlacksmithCmdSet(CmdSet):
+    """
+    Commands for making and repairing blacksmith items
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(blacksmith.CmdForge())
+
+"""
+Strange Circus Command Sets - Virtual Event 1
+"""
 
 
 class BoxCmdSet(CmdSet):
@@ -55,6 +72,10 @@ class AltarCmdSet(CmdSet):
         super().at_cmdset_creation()
 
         self.add(command.CmdTouchAltar())
+
+"""
+End circus command sets
+"""
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
