@@ -42,11 +42,19 @@ class CmdForge(Command):
 
 
         # Check for items in callers inventory.
+        character_resources = {
+        "iron_ingots": self.caller.db.iron_ingots,
+        "cloth": self.self.caller.db.cloth,
+        "refined_wood": self.caller.db.refined_wood,
+        "leather": self.caller.db.leather
+        }
+
+
         item_requirements = [
-        self.caller.db.iron_ingots >= blacksmith_item.db.iron_ingots,
-        self.caller.db.cloth >= blacksmith_item.db.cloth,
-        self.caller.db.refined_wood >= blacksmith_item.db.refined_wood,
-        self.caller.db.leather >= blacksmith_item.db.leather
+        character_resources["iron_ingots"] >= blacksmith_item.db.iron_ingots,
+        character_resources["cloth"] >= blacksmith_item.db.cloth,
+        character_resources["refined_wood"] >= blacksmith_item.db.refined_wood,
+        character_resources["leather"] >= blacksmith_item.db.leather
         ]
 
         # Check that all conditions in above list are true.
