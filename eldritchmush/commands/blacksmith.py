@@ -2,7 +2,8 @@
 import random
 
 # Local imports
-from evennia import Command, CmdSet, spawn, default_cmds
+from evennia import Command, CmdSet, default_cmds
+from evennia.prototypes.spawner import spawn
 from commands import command
 from world import prototypes
 from evennia.utils import evmenu
@@ -36,7 +37,7 @@ class CmdForge(Command):
 
         # Spawn item and move to callers inventory
         # try:
-        blacksmith_item = evennia.prototypes.spawner.spawn({"key": f"{self.item}"}, quiet=True)
+        blacksmith_item = spawn({"key": f"{self.item}"}, quiet=True)
 
         self.msg(f"{blacksmith_item}")
 
