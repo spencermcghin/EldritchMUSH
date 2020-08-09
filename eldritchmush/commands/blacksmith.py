@@ -36,7 +36,7 @@ class CmdForge(Command):
 
         # Spawn item and move to callers inventory
         try:
-            blacksmith_item = evennia.prototypes.spawner.spawn({"key": f"{self.item}""}, quiet=True)
+            blacksmith_item = evennia.prototypes.spawner.spawn({"key": f"{self.item}"}, quiet=True)
 
             self.msg(f"{blacksmith_item}")
         except Exception:
