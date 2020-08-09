@@ -27,13 +27,16 @@ class CmdStrike(Command):
     def func(self):
 
         # Check for correct command
+        # Target handling
         if not self.args:
             self.msg("|540Usage: strike <target>|n")
             return
 
+        if self.args == self.caller:
+            self.msg("|400You can't do that.|n")
+
         # Init combat helper class for logic
         h = Helper(self.caller)
-
         # Check for and error handle designated target
         target = self.caller.search(self.target)
 
