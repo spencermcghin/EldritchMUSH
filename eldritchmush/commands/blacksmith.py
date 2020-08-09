@@ -39,7 +39,7 @@ class CmdForge(Command):
         # Spawn item and move to callers inventory
         try:
             blacksmith_item = spawn({f"key": "{self.item}",
-                                      "location": self.caller.location})
+                                      "location": self.caller})
 
             self.msg(f"{blacksmith_item}")
         except Exception:
