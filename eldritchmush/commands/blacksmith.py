@@ -20,30 +20,30 @@ class CmdForge(Command):
 
     def parse(self):
         "Very trivial parser"
-        self.item = self.args
-
+        self.item = self.args.strip()
 
     def func(self):
         use_err_msg = "|540Usage: forge <item>|n"
 
         # Do all checks
-        if not self.item:
-            self.msg(use_err_msg)
-            return
-
         if not self.caller.db.blacksmith:
             self.msg("|400You are not trained in how to properly utilze a forge. Please find a blacksmith.|n")
             return
 
+        if not self.item:
+            self.msg(use_err_msg)
+            return
 
         # Spawn item and move to callers inventory
         try:
-            blacksmith_item = spawn({f"key": "{self.item}",
-                                      "location": self.caller})
+            blacksmith_item = evennia.prototypes.spawner.spawn({"key": f"{self.item}""}, quiet=True)
 
             self.msg(f"{blacksmith_item}")
         except Exception:
             self.msg("Please enter a valid item name.")
+
+        else:
+            self.msg("Foo")
 
         # if blacksmith_item:
         #     # Check for items in callers inventory.
@@ -84,5 +84,3 @@ class CmdForge(Command):
         #     else:
         #         self.msg(f"You don't have the required resources for a {self.item}")
         #         self.delete(blacksmith_item)
-        else:
-            self.msg("Foo")
