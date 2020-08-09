@@ -11,7 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject
-from commands.default_cmdsets import BoxCmdSet
+from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet
 import random
 
 
@@ -265,6 +265,7 @@ class ObjSkullTicket(DefaultObject):
     def at_object_creation(self):
         self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull."
         return
+
 
 """
 Crafting Objects
