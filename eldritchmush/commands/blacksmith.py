@@ -37,7 +37,7 @@ class CmdForge(Command):
 
         # Spawn item and move to callers inventory
         # try:
-        blacksmith_item = spawn({"key": f"{self.item}"}, quiet=True)
+        blacksmith_item = spawn({"key": f"{self.item}"})
 
         self.msg(f"{blacksmith_item}")
 
