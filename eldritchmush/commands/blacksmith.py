@@ -17,7 +17,7 @@ class CmdForge(Command):
 
         key = "forge"
         help_category = "mush"
-
+        
     def parse(self):
         self.item = self.args.strip()
 
