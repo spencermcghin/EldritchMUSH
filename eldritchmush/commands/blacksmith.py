@@ -44,7 +44,7 @@ class CmdForge(Command):
         # Check for items in callers inventory.
         character_resources = {
         "iron_ingots": self.caller.db.iron_ingots,
-        "cloth": self.self.caller.db.cloth,
+        "cloth": self.caller.db.cloth,
         "refined_wood": self.caller.db.refined_wood,
         "leather": self.caller.db.leather
         }
