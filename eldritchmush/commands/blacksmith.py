@@ -2,9 +2,7 @@
 import random
 
 # Local imports
-from evennia import Command
-from evennia import CmdSet
-from evennia import default_cmds
+from evennia import Command, CmdSet, spawn, default_cmds
 from commands import command
 from world import prototypes
 from evennia.utils import evmenu
