@@ -40,31 +40,30 @@ class CmdForge(Command):
         blacksmith_item = spawn({f"key": "{self.item}",
                                   "location": self.caller.location})[0]
 
-
-        # Check for items in callers inventory.
-        character_resources = {
-        "iron_ingots": self.caller.db.iron_ingots,
-        "cloth": self.caller.db.cloth,
-        "refined_wood": self.caller.db.refined_wood,
-        "leather": self.caller.db.leather
-        }
-
-        # Get item requirements
-        item_requirements = {
-        "iron_ingots": blacksmith_item.db.iron_ingots,
-        "cloth": blacksmith_item.db.cloth,
-        "refined_wood": blacksmith_item.db.refined_wood,
-        "leather": blacksmith_item.db.leather
-        }
-
-
-        requirements_checker = [
-        character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
-        character_resources["cloth"] >= item_requirements["cloth"],
-        character_resources["refined_wood"] >= item_requirements["refined_wood"],
-        character_resources["leather"] >= item_requirements["leather"]
-        ]
         if blacksmith_item:
+            # Check for items in callers inventory.
+            character_resources = {
+            "iron_ingots": self.caller.db.iron_ingots,
+            "cloth": self.caller.db.cloth,
+            "refined_wood": self.caller.db.refined_wood,
+            "leather": self.caller.db.leather
+            }
+
+            # Get item requirements
+            item_requirements = {
+            "iron_ingots": blacksmith_item.db.iron_ingots,
+            "cloth": blacksmith_item.db.cloth,
+            "refined_wood": blacksmith_item.db.refined_wood,
+            "leather": blacksmith_item.db.leather
+            }
+
+            requirements_checker = [
+            character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+            character_resources["cloth"] >= item_requirements["cloth"],
+            character_resources["refined_wood"] >= item_requirements["refined_wood"],
+            character_resources["leather"] >= item_requirements["leather"]
+            ]
+
             # Check that all conditions in above list are true.
             if all(requirements_checker):
                 self.msg(f"You forge a {self.item}")
@@ -81,4 +80,4 @@ class CmdForge(Command):
                 self.msg(f"You don't have the required resources for a {self.item}")
                 self.delete(blacksmith_item)
         else:
-            pass
+            self.msg("Foo")
