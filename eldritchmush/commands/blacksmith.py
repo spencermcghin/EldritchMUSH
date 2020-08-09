@@ -17,9 +17,11 @@ class CmdForge(Command):
 
         key = "forge"
         help_category = "mush"
-        
+
     def parse(self):
-        self.item = self.args.strip()
+        "Very trivial parser"
+        self.target = self.args.strip()
+
 
     def func(self):
         """
@@ -31,9 +33,8 @@ class CmdForge(Command):
         Prompt user they can't make the item if not of their corresponding type. - done
         Check to see if the resources and schematic are in the inventory of the caller - done
         If so, remove resources from caller's inventory - done
-        Spawn item and place in caller's inventory
-        Put resources in forge object and then delete them.
-        If not, prompt caller that they need additional resources.
+        Spawn item and place in caller's inventory - done
+        If not, prompt caller that they need additional resources. - done
         """
         use_err_msg = "|540Usage: forge <item>|n"
 
