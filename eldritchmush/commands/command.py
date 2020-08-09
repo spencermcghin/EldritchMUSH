@@ -11,6 +11,7 @@ from django.conf import settings
 # Local imports
 from evennia import Command as BaseCommand
 from evennia import default_cmds, utils, search_object, spawn
+from evennia.prototypes.spawner import spawn
 from evennia.utils import evtable
 from commands.combat import Helper
 from commands.fortunestrings import FORTUNE_STRINGS
