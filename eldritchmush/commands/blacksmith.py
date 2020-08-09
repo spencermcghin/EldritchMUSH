@@ -64,19 +64,21 @@ class CmdForge(Command):
         character_resources["refined_wood"] >= item_requirements["refined_wood"],
         character_resources["leather"] >= item_requirements["leather"]
         ]
+        if blacksmith_item:
+            # Check that all conditions in above list are true.
+            if all(requirements_checker):
+                self.msg(f"You forge a {self.item}")
+                # Get required resources and decrement from player totals.
+                self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+                self.caller.db.cloth -= item_requirements["cloth"]
+                self.caller.db.refined_wood -= item_requirements["refined_wood"]
+                self.caller.db.leather -= item_requirements["leather"]
 
-        # Check that all conditions in above list are true.
-        if all(requirements_checker):
-            self.msg(f"You forge a {self.item}")
-            # Get required resources and decrement from player totals.
-            self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-            self.caller.db.cloth -= item_requirements["cloth"]
-            self.caller.db.refined_wood -= item_requirements["refined_wood"]
-            self.caller.db.leather -= item_requirements["leather"]
+                # Give to blacksmith
+                blacksmith_item.move_to(self.caller, quiet=True)
 
-            # Give to blacksmith
-            blacksmith_item.move_to(self.caller, quiet=True)
-
+            else:
+                self.msg(f"You don't have the required resources for a {self.item}")
+                self.delete(blacksmith_item)
         else:
-            self.msg(f"You don't have the required resources for a {self.item}")
-            self.delete(blacksmith_item)
+            pass
