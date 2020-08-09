@@ -47,6 +47,7 @@ class BlacksmithCmdSet(CmdSet):
         super().at_cmdset_creation()
 
         self.add(blacksmith.CmdForge())
+        # self.add(blacksmith.CmdRepair())
 
 """
 Strange Circus Command Sets - Virtual Event 1
