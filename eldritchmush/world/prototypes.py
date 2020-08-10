@@ -77,23 +77,12 @@ Begin blacksmith and weapon protoypes
 
 """
 
-WEAPON = {
-"typeclass": "typeclasses.objects.BlacksmithObject",
-"damage": 0,
-"material_value": 0,
-"broken": False,
-"twohanded": False,
-"trait_one": None,
-"trait_two": None,
-"trait_three": None
-}
-
 """
 Level 0 Blacksmith Items
 """
 
 IRON_SMALL_WEAPON = {
-"prototype_parent": "WEAPON",
+"typeclass": "typeclasses.objects.WeaponObject",
 "key": "Iron Small Weapon",
 "aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
 "required_resources": 2,
@@ -106,7 +95,7 @@ IRON_SMALL_WEAPON = {
 }
 
 IRON_MEDIUM_WEAPON = {
-"prototype_parent": "WEAPON",
+"typeclass": "typeclasses.objects.WeaponObject",
 "key": "Iron Medium Weapon",
 "aliases": ["iron medium weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
 "required_resources": 4,
@@ -120,7 +109,7 @@ IRON_MEDIUM_WEAPON = {
 }
 
 IRON_LARGE_WEAPON = {
-"prototype_parent": "WEAPON",
+"typeclass": "typeclasses.objects.WeaponObject",
 "key": "Iron Large Weapon",
 "aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
 "required_resources": 4,
