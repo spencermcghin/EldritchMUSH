@@ -289,7 +289,7 @@ class Forge(DefaultObject):
         self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
 
     def return_appearance(self):
-        text = super().return_appearance(self, looker)
+        text = super().return_appearance()
         if self.caller.blacksmith:
             text += "\nf{self.db.blacksmith_text}"
         return text
