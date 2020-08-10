@@ -135,7 +135,7 @@ IRON_LARGE_WEAPON = {
 }
 
 IRON_SHIELD = {
-"prototype_parent": "BLACKSMITH",
+"typeclass": "typeclasses.objects.BlacksmithObject",
 "key": "Iron Shield",
 "aliases": ["iron shield, basic shield"],
 "required_resources": 3,
@@ -148,7 +148,7 @@ IRON_SHIELD = {
 }
 
 LEATHER_ARMOR = {
-"prototype_parent": "BLACKSMITH",
+"typeclass": "typeclasses.objects.BlacksmithObject",
 "required_resources": 2,
 "cloth": 1,
 "leather": 1,
