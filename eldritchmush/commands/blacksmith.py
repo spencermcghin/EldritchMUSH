@@ -63,8 +63,8 @@ class CmdForge(Command):
             requirements_checker = [
             character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
             character_resources["refined_wood"] >= item_requirements["refined_wood"],
-            character_resources["leather"] >= item_requirements["leather"]
-            character_resources["cloth"] >= item_requirements["cloth"],
+            character_resources["leather"] >= item_requirements["leather"],
+            character_resources["cloth"] >= item_requirements["cloth"]
             ]
 
             # Check that all conditions in above list are true.
