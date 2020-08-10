@@ -301,3 +301,13 @@ class BlacksmithObject(DefaultObject):
         self.db.value_copper: 0
         self.db.value_silver: 0
         self.db.value_gold: 0
+
+class WeaponObject(BlacksmithObject):
+    def at_object_creation(self):
+        self.db.damage = 0
+        self.db.material_value = 0
+        self.db.broken = False
+        self.db.twohanded = False
+        self.db.trait_one: []
+        self.db.trait_two: []
+        self.db.trait_three: []
