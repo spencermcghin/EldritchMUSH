@@ -39,12 +39,9 @@ class CmdForge(Command):
             prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
             self.msg("Item not found, or more than one match. Please try again.")
-
         else:
-        # Spawn item and move to callers inventory
-        # try:
-            # blacksmith_item = spawn({"key": f"{found_prototype}"}, location=self.caller)
-            self.msg(f"{prototype[0]}")
+            # Spawn item and move to callers inventory
+            blacksmith_item = spawn({"key": f"{prototype}"}, location=self.caller)
 
 
         #     self.msg(f"{blacksmith_item}")
