@@ -40,7 +40,7 @@ class CmdForge(Command):
         except KeyError:
             self.msg("Item not found, or more than one match. Please try again.")
         else:
-            blacksmith_item = spawn(prototype[0])
+            blacksmith_item = spawn(prototype[0], location=self.caller)
 
 # {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
 # 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
