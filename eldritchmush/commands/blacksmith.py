@@ -40,8 +40,44 @@ class CmdForge(Command):
         except KeyError:
             self.msg("Item not found, or more than one match. Please try again.")
         else:
-            blacksmith_item = spawn(prototype[0])
-            blacksmith_item[0].move_to(#937, quiet=True)
+            # Check for items in callers inventory.
+            character_resources = {
+            "iron_ingots": self.caller.db.iron_ingots,
+            "cloth": self.caller.db.cloth,
+            "refined_wood": self.caller.db.refined_wood,
+            "leather": self.caller.db.leather
+            }
+
+            prototype_data = prototype[0]
+            # Get item requirements
+            item_data = prototype_data['attrs']
+            item_requirements = {
+            "iron_ingots": item_data[1][1],
+            "refined_wood": item_data[2][1],
+            "leather": item_data[3][1],
+            "cloth": item_data[4][1]
+            }
+
+            self.msg(f"item_reqs: {item_requirements}\non character: {character_resources}")
+
+            # requirements_checker = [
+            # character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+            # character_resources["cloth"] >= item_requirements["cloth"],
+            # character_resources["refined_wood"] >= item_requirements["refined_wood"],
+            # character_resources["leather"] >= item_requirements["leather"]
+            # ]
+            #
+            # # Check that all conditions in above list are true.
+            # if all(requirements_checker):
+            #     self.msg(f"You forge a {self.item}")
+            #     # Get required resources and decrement from player totals.
+            #     self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+            #     self.caller.db.cloth -= item_requirements["cloth"]
+            #     self.caller.db.refined_wood -= item_requirements["refined_wood"]
+            #     self.caller.db.leather -= item_requirements["leather"]
+            #
+            #     blacksmith_item = spawn(prototype[0])
+            #     blacksmith_item[0].move_to(self.caller, quiet=True)
 
 # {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
 # 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
@@ -49,50 +85,3 @@ class CmdForge(Command):
 # None, ''), ('leather', 1, None, ''), ('damage', 1, None, ''), ('value_copper', 90, None, ''),
 # ('value_silver', 9, None, ''), ('value_gold', 0.9, None, '')], 'prototype_tags': ['module'],
 # 'prototype_locks': 'spawn:all();edit:all()', 'prototype_desc': ''}
-
-        #     self.msg(f"{blacksmith_item}")
-        # except Exception:
-        #     self.msg("Please enter a valid item name.")
-        #
-        # else:
-        #     self.msg("Foo")
-
-        # if blacksmith_item:
-        #     # Check for items in callers inventory.
-        #     character_resources = {
-        #     "iron_ingots": self.caller.db.iron_ingots,
-        #     "cloth": self.caller.db.cloth,
-        #     "refined_wood": self.caller.db.refined_wood,
-        #     "leather": self.caller.db.leather
-        #     }
-        #
-        #     # Get item requirements
-        #     item_requirements = {
-        #     "iron_ingots": blacksmith_item.db.iron_ingots,
-        #     "cloth": blacksmith_item.db.cloth,
-        #     "refined_wood": blacksmith_item.db.refined_wood,
-        #     "leather": blacksmith_item.db.leather
-        #     }
-        #
-        #     requirements_checker = [
-        #     character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
-        #     character_resources["cloth"] >= item_requirements["cloth"],
-        #     character_resources["refined_wood"] >= item_requirements["refined_wood"],
-        #     character_resources["leather"] >= item_requirements["leather"]
-        #     ]
-        #
-        #     # Check that all conditions in above list are true.
-        #     if all(requirements_checker):
-        #         self.msg(f"You forge a {self.item}")
-        #         # Get required resources and decrement from player totals.
-        #         self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-        #         self.caller.db.cloth -= item_requirements["cloth"]
-        #         self.caller.db.refined_wood -= item_requirements["refined_wood"]
-        #         self.caller.db.leather -= item_requirements["leather"]
-        #
-        #         # Give to blacksmith
-        #         blacksmith_item.move_to(self.caller, quiet=True)
-        #
-        #     else:
-        #         self.msg(f"You don't have the required resources for a {self.item}")
-        #         self.delete(blacksmith_item)
