@@ -283,10 +283,17 @@ class Forge(DefaultObject):
         "Called when object is first created"
         # Maintain state of object
         self.locks.add("get:false()")
-        self.db.desc = "\n|540This is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor.|n\nUsage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon."
-
+        self.db.desc = "\n|540This is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor.|n"
+        self.db.blacksmith_text = "Usage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon."
         # Add command set for interacting with box
         self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
+
+    def return_appearance(self):
+        text = super().return_appearance(self, looker)
+        if self.caller.blacksmith:
+            text += "\nf{self.db.blacksmith_text}"
+        return text
+
 
 
 class BlacksmithObject(DefaultObject):
