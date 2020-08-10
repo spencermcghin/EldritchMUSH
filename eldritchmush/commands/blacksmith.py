@@ -40,8 +40,20 @@ class CmdForge(Command):
         except KeyError:
             self.msg("Item not found, or more than one match. Please try again.")
         else:
-            blacksmith_item = spawn(prototype)
+            blacksmith_item = spawn(prototype[0])
 
+# {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
+# 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
+# 'attrs': [('required_resources', 4, None, ''), ('iron_ingots', 2, None, ''), ('refined_wood', 1,
+# None, ''), ('leather', 1, None, ''), ('damage', 1, None, ''), ('value_copper', 90, None, ''),
+# ('value_silver', 9, None, ''), ('value_gold', 0.9, None, '')], 'prototype_tags': ['module'],
+# 'prototype_locks': 'spawn:all();edit:all()', 'prototype_desc': ''}forge iron_medium_weapon
+# {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
+# 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
+# 'attrs': [('required_resources', 4, None, ''), ('iron_ingots', 2, None, ''), ('refined_wood', 1,
+# None, ''), ('leather', 1, None, ''), ('damage', 1, None, ''), ('value_copper', 90, None, ''),
+# ('value_silver', 9, None, ''), ('value_gold', 0.9, None, '')], 'prototype_tags': ['module'],
+# 'prototype_locks': 'spawn:all();edit:all()', 'prototype_desc': ''}
 
         #     self.msg(f"{blacksmith_item}")
         # except Exception:
