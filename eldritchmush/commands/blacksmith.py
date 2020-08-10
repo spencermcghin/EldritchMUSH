@@ -58,7 +58,7 @@ class CmdForge(Command):
             "cloth": item_data[4][1]
             }
 
-            self.msg(f"item_reqs: {item_data}")
+            self.msg(f"item_reqs: {prototype_data}")
 
             # requirements_checker = [
             # character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
