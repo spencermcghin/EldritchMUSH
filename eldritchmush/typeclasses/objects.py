@@ -10,7 +10,7 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
-from evennia import DefaultObject
+from evennia import DefaultObject, utils
 from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet
 import random
 
@@ -293,7 +293,6 @@ class Forge(DefaultObject):
         if looker.db.blacksmith:
             string += f"\n\n{self.db.blacksmith_text}"
         return string
-
 
 class BlacksmithObject(DefaultObject):
 
