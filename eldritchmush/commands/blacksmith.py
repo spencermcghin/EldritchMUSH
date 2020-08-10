@@ -48,7 +48,9 @@ class CmdForge(Command):
             "leather": self.caller.db.leather
             }
 
+            # Get search response
             prototype_data = prototype[0]
+
             # Get item requirements
             item_data = prototype_data['attrs']
             item_requirements = {
@@ -58,26 +60,27 @@ class CmdForge(Command):
             "cloth": item_data[4][1]
             }
 
-            self.msg(f"item_reqs: {item_requirements}")
+            requirements_checker = [
+            character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+            character_resources["refined_wood"] >= item_requirements["refined_wood"],
+            character_resources["leather"] >= item_requirements["leather"]
+            character_resources["cloth"] >= item_requirements["cloth"],
+            ]
 
-            # requirements_checker = [
-            # character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
-            # character_resources["cloth"] >= item_requirements["cloth"],
-            # character_resources["refined_wood"] >= item_requirements["refined_wood"],
-            # character_resources["leather"] >= item_requirements["leather"]
-            # ]
-            #
-            # # Check that all conditions in above list are true.
-            # if all(requirements_checker):
-            #     self.msg(f"You forge a {self.item}")
-            #     # Get required resources and decrement from player totals.
-            #     self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-            #     self.caller.db.cloth -= item_requirements["cloth"]
-            #     self.caller.db.refined_wood -= item_requirements["refined_wood"]
-            #     self.caller.db.leather -= item_requirements["leather"]
-            #
-            #     blacksmith_item = spawn(prototype[0])
-            #     blacksmith_item[0].move_to(self.caller, quiet=True)
+            # Check that all conditions in above list are true.
+            if all(requirements_checker):
+                self.msg(f"You forge a {self.item}")
+                # Get required resources and decrement from player totals.
+                self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+                self.caller.db.refined_wood -= item_requirements["refined_wood"]
+                self.caller.db.leather -= item_requirements["leather"]
+                self.caller.db.cloth -= item_requirements["cloth"]
+
+                blacksmith_item = spawn(prototype[0])
+                blacksmith_item[0].move_to(self.caller, quiet=True)
+
+            else:
+                self.msg(f"|400You don't have the required resources.|n")
 
 # {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
 # 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
