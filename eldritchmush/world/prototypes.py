@@ -102,6 +102,7 @@ IRON_MEDIUM_WEAPON = {
 "iron_ingots": 2,
 "refined_wood": 1,
 "leather": 1,
+"cloth": 0,
 "damage": 1,
 "value_copper": 90,
 "value_silver": 9,
@@ -116,6 +117,7 @@ IRON_LARGE_WEAPON = {
 "iron_ingots": 2,
 "refined_wood": 1,
 "leather": 1,
+"cloth": 0,
 "damage": 2,
 "twohanded": True,
 "value_copper": 90,
@@ -131,6 +133,7 @@ IRON_SHIELD = {
 "iron_ingots": 1,
 "refined_wood": 1,
 "leather": 1,
+"cloth": 0,
 "value_copper": 80,
 "value_silver": 8,
 "value_gold": .8
@@ -139,8 +142,10 @@ IRON_SHIELD = {
 LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
 "required_resources": 2,
-"cloth": 1,
+"iron_ingots": 1,
+"refined_wood": 1,
 "leather": 1,
+"cloth": 0,
  "value_copper": 70,
  "value_silver": 7,
  "value_gold": .7
