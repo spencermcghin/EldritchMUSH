@@ -68,8 +68,9 @@ class CmdForge(Command):
             ]
 
             # Check that all conditions in above list are true.
+            isSuperuser = True if self.caller.is_superuser() else False
 
-            if all(requirements_checker) or self.caller.is_superuser():
+            if all(requirements_checker) or isSuperuser:
                 self.msg(f"You forge a {self.item}")
                 # Get required resources and decrement from player totals.
                 self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
