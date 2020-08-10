@@ -5,7 +5,6 @@ import random
 from evennia import Command, CmdSet, default_cmds
 from evennia.prototypes import prototypes
 from commands import command
-from world import prototypes
 from evennia.utils import evmenu
 
 
