@@ -76,21 +76,9 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 Begin blacksmith and weapon protoypes
 
 """
-BLACKSMITH = {
-"key": "blacksmith",
-"level": 0,
-"required_resources": 0,
-"iron_ingots": 0,
-"cloth": 0,
-"refined_wood": 0,
-"leather": 0,
-"value_copper": 0,
-"value_silver": 0,
-"value_gold": 0
-}
 
 WEAPON = {
-"prototype_parent": "BLACKSMITH",
+"typeclass": "typeclasses.objects.BlacksmithObject",
 "damage": 0,
 "material_value": 0,
 "broken": False,

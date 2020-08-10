@@ -273,7 +273,7 @@ Crafting Objects
 
 class Forge(DefaultObject):
     """
-    Available command:
+    Available commands:
 
     forge <item>
     repair <item>
@@ -287,3 +287,17 @@ class Forge(DefaultObject):
 
         # Add command set for interacting with box
         self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
+
+
+class BlacksmithObject(DefaultObject):
+
+    def at_object_creation(self):
+        self.db.level: 0,
+        self.db.required_resources: 0,
+        self.db.iron_ingots: 0,
+        self.db.cloth: 0,
+        self.db.refined_wood: 0,
+        self.db.leather: 0,
+        self.db.value_copper: 0,
+        self.db.value_silver: 0,
+        self.db.value_gold: 0
