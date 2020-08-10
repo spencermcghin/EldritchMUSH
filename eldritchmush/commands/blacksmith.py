@@ -36,7 +36,7 @@ class CmdForge(Command):
             return
 
         # Search for designated prototypes
-        found_prototype = True if prototypes.search_prototype(self.item, require_single=True)
+        found_prototype = True if prototypes.search_prototype(self.item, require_single=True) else False
 
         # Spawn item and move to callers inventory
         # try:
