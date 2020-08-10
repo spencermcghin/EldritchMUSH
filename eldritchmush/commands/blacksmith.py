@@ -68,7 +68,7 @@ class CmdForge(Command):
             ]
 
             # Check that all conditions in above list are true.
-            isSuperuser = True if self.caller.is_superuser() else False
+            isSuperuser = self.caller.is_superuser()
 
             if all(requirements_checker) or isSuperuser:
                 self.msg(f"You forge a {self.item}")
