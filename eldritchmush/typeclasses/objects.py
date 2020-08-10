@@ -291,7 +291,7 @@ class Forge(DefaultObject):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
         if looker.db.blacksmith:
-            string += "\nf{self.db.blacksmith_text}"
+            string += f"\n\n{self.db.blacksmith_text}"
         return string
 
 
