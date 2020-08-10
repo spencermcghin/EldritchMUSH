@@ -2,7 +2,7 @@
 import random
 
 # Local imports
-from evennia import Command, CmdSet, default_cmds, spawn
+from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
 from commands import command
 from evennia.utils import evmenu
@@ -40,6 +40,9 @@ class CmdForge(Command):
         except KeyError:
             self.msg("Item not found, or more than one match. Please try again.")
         else:
+            # Get search response
+            prototype_data = prototype[0]
+
             # Check for items in callers inventory.
             character_resources = {
             "iron_ingots": self.caller.db.iron_ingots,
@@ -47,9 +50,6 @@ class CmdForge(Command):
             "refined_wood": self.caller.db.refined_wood,
             "leather": self.caller.db.leather
             }
-
-            # Get search response
-            prototype_data = prototype[0]
 
             # Get item requirements
             item_data = prototype_data['attrs']
@@ -68,6 +68,7 @@ class CmdForge(Command):
             ]
 
             # Check that all conditions in above list are true.
+
             if all(requirements_checker) or self.caller.is_superuser():
                 self.msg(f"You forge a {self.item}")
                 # Get required resources and decrement from player totals.
