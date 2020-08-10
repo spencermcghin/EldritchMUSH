@@ -81,10 +81,3 @@ class CmdForge(Command):
 
             else:
                 self.msg(f"|400You don't have the required resources.|n")
-
-# {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
-# 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
-# 'attrs': [('required_resources', 4, None, ''), ('iron_ingots', 2, None, ''), ('refined_wood', 1,
-# None, ''), ('leather', 1, None, ''), ('damage', 1, None, ''), ('value_copper', 90, None, ''),
-# ('value_silver', 9, None, ''), ('value_gold', 0.9, None, '')], 'prototype_tags': ['module'],
-# 'prototype_locks': 'spawn:all();edit:all()', 'prototype_desc': ''}
