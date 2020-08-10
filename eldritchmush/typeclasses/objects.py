@@ -290,10 +290,9 @@ class Forge(DefaultObject):
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
-        if self.caller.db.blacksmith:
-            text += "\nf{self.db.blacksmith_text}"
-        return text
-
+        if looker.db.blacksmith:
+            string += "\nf{self.db.blacksmith_text}"
+        return string
 
 
 class BlacksmithObject(DefaultObject):
