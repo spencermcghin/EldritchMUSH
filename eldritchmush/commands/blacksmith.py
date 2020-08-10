@@ -3,7 +3,7 @@ import random
 
 # Local imports
 from evennia import Command, CmdSet, default_cmds
-from evennia.prototypes.spawner import spawn
+from evennia.prototypes import prototypes
 from commands import command
 from world import prototypes
 from evennia.utils import evmenu
@@ -35,11 +35,18 @@ class CmdForge(Command):
             self.msg(use_err_msg)
             return
 
+        # Search for designated prototypes
+        found_prototype = True if prototypes.search_prototype(self.item, require_single=True)
+
         # Spawn item and move to callers inventory
         # try:
-        blacksmith_item = spawn({"key": f"{self.item}"})
+        if found_prototype:
+            # blacksmith_item = spawn({"key": f"{found_prototype}"}, location=self.caller)
 
-        self.msg(f"{blacksmith_item}")
+            self.msg(f"{self.item}")
+        else:
+            self.msg("Item not found. Please try again.")
+
 
         #     self.msg(f"{blacksmith_item}")
         # except Exception:
