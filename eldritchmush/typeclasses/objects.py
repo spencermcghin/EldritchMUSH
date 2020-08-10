@@ -288,9 +288,9 @@ class Forge(DefaultObject):
         # Add command set for interacting with box
         self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
 
-    def return_appearance(self):
-        text = super().return_appearance(self.caller)
-        if self.caller.blacksmith:
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if self.caller.db.blacksmith:
             text += "\nf{self.db.blacksmith_text}"
         return text
 
