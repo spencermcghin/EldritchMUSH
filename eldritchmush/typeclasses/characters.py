@@ -90,10 +90,17 @@ class Character(DefaultCharacter):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.skip_turn = False
-
-        # Entries for combat
         self.db.battlefieldcommander = 0
         self.db.rally = 0
+
+        # Entries for economy
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
 
 
     def return_appearance(self, looker):
