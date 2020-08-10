@@ -41,7 +41,7 @@ class CmdForge(Command):
             self.msg("Item not found, or more than one match. Please try again.")
         else:
             # Spawn item and move to callers inventory
-            item_key = prototype["key"]
+            item_key = prototype[0]["key"]
             blacksmith_item = spawn({"key": f"{item_key}"})
 
 
