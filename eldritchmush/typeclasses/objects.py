@@ -304,8 +304,6 @@ class BlacksmithObject(DefaultObject):
 
 class WeaponObject(BlacksmithObject):
     def at_object_creation(self):
-
-        super().at_object_creation()
         self.db.damage = 0
         self.db.material_value = 0
         self.db.broken = False
