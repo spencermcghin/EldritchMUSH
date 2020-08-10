@@ -41,7 +41,7 @@ class CmdForge(Command):
             self.msg("Item not found, or more than one match. Please try again.")
         else:
             blacksmith_item = spawn(prototype[0])
-            blacksmith_item[0].move_to(self.caller, quiet=True)
+            blacksmith_item[0].move_to(#937, quiet=True)
 
 # {'prototype_parent': 'WEAPON', 'key': 'Iron Medium Weapon', 'aliases': ['iron medium weapon',
 # 'longsword', 'medium sword', 'mace', 'axe', 'hammer'], 'prototype_key': 'iron_medium_weapon',
