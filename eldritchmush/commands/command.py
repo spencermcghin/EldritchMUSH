@@ -243,7 +243,9 @@ class CmdGive(Command):
 
         # If the item is in the list of aliases, find its corresponding key.
         if self.item.lower() in flat_resource_array:
-            self.msg(self.item.lower())
+            item_db = [k for k, v in resource_dict if self.item.lower() in v[:]]
+            self.msg(item_db)
+
 
 
 
