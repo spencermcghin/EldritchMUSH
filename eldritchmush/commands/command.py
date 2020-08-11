@@ -217,6 +217,10 @@ class CmdGive(Command):
         raw = self.args
         args = raw.strip()
 
+        qty = args.split("/")
+
+        item =
+
         # split out switches
         switches = []
         if args and len(args) > 1 and args[0] == "/":
@@ -246,6 +250,7 @@ class CmdGive(Command):
         self.lhslist = lhslist
         self.rhs = rhs
         self.rhslist = rhslist
+        self.qty = qty
 
     def func(self):
 
@@ -263,12 +268,11 @@ class CmdGive(Command):
 
         # if self.lhs.lower() in flat_resource_array:
         #     resource = self.lhs
-        qty = self.switches
         # rhs = self.rhs
         # if rhs:
         #     self.msg(rhs)
         # self.msg(lhs)
-        self.msg(self.args)
+        self.msg(self.qty)
 
 
 class CmdEquip(Command):
