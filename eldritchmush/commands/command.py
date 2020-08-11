@@ -224,7 +224,7 @@ class CmdGive(Command):
 
         # Declare class attributes
         self.item = item
-        self.qty = qty
+        self.qty = int(qty)
         self.target = target.strip()
 
     def func(self):
