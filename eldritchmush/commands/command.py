@@ -242,7 +242,10 @@ class CmdGive(Command):
     def func(self):
         self.msg(self.args_list)
         self.msg(self.item)
-        self.msg(self.qty)
+        if self.qty:
+            self.msg(self.qty)
+        else:
+            self.msg("foo")
         # Get target and target handling
         # if not self.args or not self.target:
         #     caller.msg("|540Usage: give <inventory object> = <target>|n")
