@@ -355,23 +355,20 @@ class Container(DefaultObject):
         if gold:
             looker.msg(f"Gold: {gold}\n")
 
-        elif silver:
+        if silver:
             looker.msg(f"Silver: {silver}\n")
 
-        elif copper:
+        if copper:
             looker.msg(f"Copper: {copper}\n")
 
-        elif iron_ingots:
+        if iron_ingots:
             looker.msg(f"Iron: {iron_ingots}\n")
 
-        elif refined_wood:
+        if refined_wood:
             looker.msg(f"Wood: {refined_wood}")
 
-        elif leather:
+        if leather:
             looker.msg(f"Leather: {leather}")
 
-        elif cloth:
+        if cloth:
             looker.msg(f"Cloth: {cloth}")
-
-        else:
-            return
