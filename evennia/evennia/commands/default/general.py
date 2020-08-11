@@ -514,15 +514,14 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
         resource_array = [v for k, v in resource_dict.items()]
         flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
 
-        # if self.lhs.lower() in resource_array:
-        #     resource = self.lhs
-        self.msg(flat_resource_array)
+        if self.lhs.lower() in flat_resource_array:
+            resource = self.lhs
 
-        # if self.switches:
-        #     if is_instance(self.switches[0], int):
-        #         qty = self.switches
-        #
-        #         self.msg(qty + " " + resource)
+        if self.switches:
+            if is_instance(self.switches[0], int):
+                qty = self.switches
+
+                self.msg(qty + " " + resource)
 
         # to_give = caller.search(
         #     self.lhs,
