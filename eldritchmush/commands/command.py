@@ -7,6 +7,7 @@ Commands describe the input the account can do to the game.
 # Global imports
 import random
 from django.conf import settings
+import re
 
 # Local imports
 from evennia import Command as BaseCommand
@@ -209,46 +210,22 @@ class CmdGive(Command):
     """
 
     key = "give"
-    rhs_split = ("=", " to ")  # Prefer = delimiter, but allow " to " usage.
+    rhs_split = ("=| to ")  # Prefer = delimiter, but allow " to " usage.
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
     def parse(self):
         raw = self.args
         args = raw.strip()
+        # Arguments
 
-        qty = args.split("/")
+        args_list = args.split("/")
+        item = args_list[0]
+        qty, target = re.split(rhs_split, args_list[1])
 
-        # split out switches
-        switches = []
-        if args and len(args) > 1 and args[0] == "/":
-            # we have a switch, or a set of switches. These end with a space.
-            switches = args[1:].split(None, 1)
-            if len(switches) > 1:
-                switches, args = switches
-                switches = switches.split('/')
-            else:
-                args = ""
-                switches = switches[0].split('/')
-        arglist = [arg.strip() for arg in args.split()]
-
-        # check for arg1, arg2, ... = argA, argB, ... constructs
-        lhs, rhs = args, None
-        lhslist, rhslist = [arg.strip() for arg in args.split(',')], []
-        if args and '=' in args:
-            lhs, rhs = [arg.strip() for arg in args.split('=', 1)]
-            lhslist = [arg.strip() for arg in lhs.split(',')]
-            rhslist = [arg.strip() for arg in rhs.split(',')]
-
-        # save to object properties:
-        self.switches = switches
-        self.args = args.strip()
-        self.arglist = arglist
-        self.lhs = lhs
-        self.lhslist = lhslist
-        self.rhs = rhs
-        self.rhslist = rhslist
+        self.item = item
         self.qty = qty
+        self.target = target
 
     def func(self):
 
@@ -271,6 +248,8 @@ class CmdGive(Command):
         #     self.msg(rhs)
         # self.msg(lhs)
         self.msg(self.qty)
+        self.msg(self.item)
+        self.msg(self.target)
 
 
 class CmdEquip(Command):
