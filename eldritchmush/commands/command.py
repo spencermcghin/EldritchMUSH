@@ -232,12 +232,15 @@ class CmdGive(Command):
         try:
             isInt = int(self.args_list[0])
         except ValueError:
-            self.item = self.args_list[0]
+            item = self.args_list[0]
+            qty = None
         else:
-            self.qty = self.args_list[0]
-            self.item = self.args_list[1]
+            qty = self.args_list[0]
+            item = self.args_list[1]
 
         self.target = self.args_list[-1]
+        self.item = item
+        self.qty = qty
 
     def func(self):
         self.msg(self.args_list)
