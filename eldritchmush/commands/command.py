@@ -227,8 +227,13 @@ class CmdGive(Command):
 
         # Parse arguments
         self.args_list = args.split(" ")
-        # item = args_list[0]
-        # qty, target = re.split("=| to ", args_list[1])
+
+        # Check for qty
+        if isinstance(self.args_list[0], int):
+            # self.qty = args_list[0]
+            # self.item = args_list[1]
+            # self.target = re.split("=| to ", args_list[1])
+            self.msg(self.args_list[0])
 
         # Declare class attributes
         # self.item = item
