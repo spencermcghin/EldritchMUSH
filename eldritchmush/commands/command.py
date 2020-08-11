@@ -244,7 +244,17 @@ class CmdGive(Command):
         # If the item is in the list of aliases, find its corresponding key.
         if self.item.lower() in flat_resource_array:
             item_db = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
-            self.msg(item_db)
+        else:
+            self.msg("Please enter a resource or currency type.\n|540Example: give iron/5 = Tom")
+            return
+        
+        # Check to see if item qty exists as attribute value on caller.
+        hasQty = True if "self.caller.db" += item_db >= self.qty else False
+
+        if self.caller hasQty:
+            self.msg("Caller has qty")
+        else:
+            self.msg("No qty.")
 
 
 
