@@ -253,8 +253,8 @@ class CmdGive(Command):
         if caller_item_qty >= self.qty:
             attribute = self.caller.get(item_db[0])
             # Decrement from attribute object
-            attribute -= self.qty
-        
+            attribute.value -= self.qty
+
 
 
 class CmdEquip(Command):
