@@ -5,7 +5,7 @@ import re
 from django.conf import settings
 from evennia.utils import utils, evtable
 from evennia.typeclasses.attributes import NickTemplateInvalid
-from evennia import MuxCommand
+from evennia.commands.default.muxcommand import MuxCommand
 
 COMMAND_DEFAULT_CLASS = utils.class_from_module(settings.COMMAND_DEFAULT_CLASS)
 
