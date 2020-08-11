@@ -296,7 +296,7 @@ class CmdGive(Command):
             # Default give code
             to_give = self.caller.search(
                 self.item,
-                location=caller,
+                location=self.caller,
                 nofound_string="You aren't carrying %s." % self.item,
                 multimatch_string="You carry more than one %s:" % self.item,
             )
