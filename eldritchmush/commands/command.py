@@ -235,7 +235,7 @@ class CmdGive(Command):
             self.item = self.args_list[0]
         else:
             self.qty = self.args_list[0]
-            self.item = args_list[1]
+            self.item = self.args_list[1]
 
         self.target = self.args_list[-1]
 
