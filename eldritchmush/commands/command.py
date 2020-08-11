@@ -230,7 +230,9 @@ class CmdGive(Command):
         # if self.lhs.lower() in flat_resource_array:
         #     resource = self.lhs
         qty = self.args
-        # lhs = self.lhs
+        rhs = self.rhs
+        if rhs:
+            self.msg(rhs)
         # self.msg(lhs)
         if qty:
             self.msg(qty)
