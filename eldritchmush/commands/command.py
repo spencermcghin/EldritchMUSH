@@ -214,7 +214,7 @@ class CmdGive(Command):
 
     def parse(self):
 
-        self.swithces = switches
+        qty = self.switches
 
 
     def func(self):
@@ -236,8 +236,8 @@ class CmdGive(Command):
 
         lhs = self.lhs
         self.msg(lhs)
-        if self.switches:
-            self.msg(self.switches)
+        if qty:
+            self.msg(qty)
         else:
             self.msg("no switches found")
 
