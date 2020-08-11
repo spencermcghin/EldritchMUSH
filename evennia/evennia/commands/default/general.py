@@ -518,10 +518,10 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
             resource = self.lhs
 
         if self.switches:
-            if is_instance(self.switches[0], int):
-                qty = self.switches
+            # if is_instance(self.switches[0], int):
+            qty = self.switches[0]
 
-                self.msg(qty + " " + resource)
+            self.msg(qty + " " + resource)
 
         # to_give = caller.search(
         #     self.lhs,
