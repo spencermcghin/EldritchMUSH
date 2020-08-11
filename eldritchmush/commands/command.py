@@ -196,6 +196,22 @@ class Command(BaseCommand):
 #                 self.character = None
 
 class CmdGive(Command):
+    """
+    give away something to someone
+
+    Usage:
+      give <inventory obj> <to||=> <target>
+
+    Gives an items from your inventory to another character,
+    placing it in their inventory.
+    """
+
+    key = "give"
+    rhs_split = ("=", " to ")  # Prefer = delimiter, but allow " to " usage.
+    locks = "cmd:all()"
+    arg_regex = r"\s|$"
+
+
     def parse(self):
 
         self.swithces = switches
