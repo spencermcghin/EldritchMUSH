@@ -220,11 +220,11 @@ class CmdGive(Command):
 
         args_list = args.split("/")
         item = args_list[0]
-        qty, target = re.split("=| to ", args_list[1].strip())
+        qty, target = re.split("=| to ", args_list[1])
 
         self.item = item
         self.qty = qty
-        self.target = target
+        self.target = target.strip()
 
     def func(self):
 
