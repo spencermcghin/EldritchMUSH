@@ -228,20 +228,21 @@ class CmdGive(Command):
         # Parse arguments
         self.args_list = args.split(" ")
 
-        # Check for qty
-        if isinstance(self.args_list[0], int):
-            # self.qty = args_list[0]
-            # self.item = args_list[1]
-            # self.target = re.split("=| to ", args_list[1])
-            self.msg(self.args_list[0])
+        # Check for qty at first element in args list
+        try:
+            isInt = int(self.args_list[0])
+        except ValueError:
+            self.item = self.args_list[0]
+        else:
+            self.qty = self.args_list[0]
+            self.item = args_list[1]
 
-        # Declare class attributes
-        # self.item = item
-        # self.qty = int(qty)
-        # self.target = target.strip()
+        self.target = self.args_list[-1]
 
     def func(self):
         self.msg(self.args_list)
+        self.msg(self.item)
+        self.msg(self.qty)
         # Get target and target handling
         # if not self.args or not self.target:
         #     caller.msg("|540Usage: give <inventory object> = <target>|n")
