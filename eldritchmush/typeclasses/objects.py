@@ -353,22 +353,22 @@ class Container(DefaultObject):
         looker.msg(f"{string}\n")
 
         if gold:
-            looker.msg(f"Gold: {gold}\n")
+            looker.msg(f"|540Gold|n: {gold}\n")
 
         if silver:
-            looker.msg(f"Silver: {silver}\n")
+            looker.msg(f"|=tSilver|n: {silver}\n")
 
         if copper:
-            looker.msg(f"Copper: {copper}\n")
+            looker.msg(f"|310Copper|n: {copper}\n")
 
         if iron_ingots:
-            looker.msg(f"Iron: {iron_ingots}\n")
+            looker.msg(f"|=kIron|n: {iron_ingots}\n")
 
         if refined_wood:
-            looker.msg(f"Wood: {refined_wood}")
+            looker.msg(f"|210Wood|n: {refined_wood}")
 
         if leather:
-            looker.msg(f"Leather: {leather}")
+            looker.msg(f"|322Leather|n: {leather}")
 
         if cloth:
-            looker.msg(f"Cloth: {cloth}")
+            looker.msg(f"|020Cloth|n: {cloth}")
