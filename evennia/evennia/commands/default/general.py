@@ -507,19 +507,22 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
                           "leather": ["leather"],
                           "cloth": ["cloth"],
                           "gold": ["gold", "gold dragons"],
-                          "silver", "silver dragons",
-                          "copper", "copper dragons"]}
+                          "silver": ["silver", "silver dragons"],
+                          "copper": ["copper", "copper dragons"]}
 
         # Begin logic to check if item given is a resource or currency
+        resource_array = [v for k, v in resource_dict]
+        # flat_resource_array = [item for sublist in l for item in sublist]
 
-        if self.lhs.lower() in resource_dict.values():
+        if self.lhs.lower() in resource_array:
             resource = self.lhs
+            self.msg(resource_array)
 
-        if self.switches:
-            if is_instance(self.switches[0], int):
-                qty = self.switches
-
-                self.msg(qty + " " + resource)
+        # if self.switches:
+        #     if is_instance(self.switches[0], int):
+        #         qty = self.switches
+        #
+        #         self.msg(qty + " " + resource)
 
         # to_give = caller.search(
         #     self.lhs,
