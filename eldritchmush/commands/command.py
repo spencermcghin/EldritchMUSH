@@ -237,7 +237,7 @@ class CmdGive(Command):
         target = self.caller.search(self.target)
 
         if target == self.caller:
-            caller.msg("You keep %s to yourself." % self.item)
+            self.caller.msg(f"You keep {self.item} to yourself.")
             return
 
         resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
@@ -275,6 +275,33 @@ class CmdGive(Command):
         else:
             self.msg(f"|400You don't have enough {self.item}.|n")
 
+        # Default give code
+        # to_give = caller.search(
+        #     self.lhs,
+        #     location=caller,
+        #     nofound_string="You aren't carrying %s." % self.lhs,
+        #     multimatch_string="You carry more than one %s:" % self.lhs,
+        # )
+        # target = caller.search(self.rhs)
+        # if not (to_give and target):
+        #     return
+        # if target == caller:
+        #     caller.msg("You keep %s to yourself." % to_give.key)
+        #     return
+        # if not to_give.location == caller:
+        #     caller.msg("You are not holding %s." % to_give.key)
+        #     return
+        #
+        # # calling at_before_give hook method
+        # if not to_give.at_before_give(caller, target):
+        #     return
+        #
+        # # give object
+        # caller.msg("You give %s to %s." % (to_give.key, target.key))
+        # to_give.move_to(target, quiet=True)
+        # target.msg("%s gives you %s." % (caller.key, to_give.key))
+        # # Call the object script's at_give() method.
+        # to_give.at_give(caller, target)
 
 
 
