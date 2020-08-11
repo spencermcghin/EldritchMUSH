@@ -236,7 +236,7 @@ class CmdGive(Command):
 
         target = self.caller.search(self.target)
 
-        if target == caller:
+        if target == self.caller:
             caller.msg("You keep %s to yourself." % self.item)
             return
 
