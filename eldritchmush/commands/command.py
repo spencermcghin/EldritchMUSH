@@ -229,13 +229,13 @@ class CmdGive(Command):
 
         # if self.lhs.lower() in flat_resource_array:
         #     resource = self.lhs
-        qty = self.switches
+        qty = self.args
         lhs = self.lhs
         self.msg(lhs)
         if qty:
             self.msg(qty)
         else:
-            self.msg("no switches found")
+            self.msg("no data found")
 
 
 class CmdEquip(Command):
