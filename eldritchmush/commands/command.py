@@ -231,9 +231,9 @@ class CmdGive(Command):
         # qty, target = re.split("=| to ", args_list[1])
 
         # Declare class attributes
-        self.item = item
-        self.qty = int(qty)
-        self.target = target.strip()
+        # self.item = item
+        # self.qty = int(qty)
+        # self.target = target.strip()
 
     def func(self):
         self.msg(args_list)
