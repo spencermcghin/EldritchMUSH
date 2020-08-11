@@ -195,6 +195,36 @@ class Command(BaseCommand):
 #             else:
 #                 self.character = None
 
+class CmdGive(Command):
+    def parse(self):
+
+        self.swithces = switches
+
+
+    def func(self):
+
+        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+                          "refined_wood": ["refined", "wood", "refined wood"],
+                          "leather": ["leather"],
+                          "cloth": ["cloth"],
+                          "gold": ["gold", "gold dragons"],
+                          "silver": ["silver", "silver dragons"],
+                          "copper": ["copper", "copper dragons"]}
+
+        # Begin logic to check if item given is a resource or currency
+        resource_array = [v for k, v in resource_dict.items()]
+        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+
+        # if self.lhs.lower() in flat_resource_array:
+        #     resource = self.lhs
+
+        lhs = self.lhs
+        self.msg(lhs)
+        if self.switches:
+            self.msg(self.switches)
+        else:
+            self.msg("no switches found")
+
 
 class CmdEquip(Command):
     """Equip a weapon or shield

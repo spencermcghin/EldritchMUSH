@@ -479,7 +479,7 @@ class CmdDrop(COMMAND_DEFAULT_CLASS):
         obj.at_drop(caller)
 
 
-class CmdGive(COMMAND_DEFAULT_CLASS):
+class CmdGive(MuxCommand):
     """
     give away something to someone
 
@@ -502,7 +502,6 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
         if not self.args or not self.rhs:
             caller.msg("Usage: give <inventory object>(/qty in case of currency or resources) = <target>")
             return
-
 
         to_give = caller.search(
             self.lhs,
