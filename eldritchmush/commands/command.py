@@ -197,7 +197,7 @@ class Command(BaseCommand):
 #                 self.character = None
 
 
-class CmdGive(MuxCommand):
+class CmdGive(Command):
     """
     give away something to someone
 
@@ -214,8 +214,38 @@ class CmdGive(MuxCommand):
     arg_regex = r"\s|$"
 
     def parse(self):
+        raw = self.args
+        args = raw.strip()
 
-        switches = self.switches
+        # split out switches
+        switches = []
+        if args and len(args) > 1 and args[0] == "/":
+            # we have a switch, or a set of switches. These end with a space.
+            switches = args[1:].split(None, 1)
+            if len(switches) > 1:
+                switches, args = switches
+                switches = switches.split('/')
+            else:
+                args = ""
+                switches = switches[0].split('/')
+        arglist = [arg.strip() for arg in args.split()]
+
+        # check for arg1, arg2, ... = argA, argB, ... constructs
+        lhs, rhs = args, None
+        lhslist, rhslist = [arg.strip() for arg in args.split(',')], []
+        if args and '=' in args:
+            lhs, rhs = [arg.strip() for arg in args.split('=', 1)]
+            lhslist = [arg.strip() for arg in lhs.split(',')]
+            rhslist = [arg.strip() for arg in rhs.split(',')]
+
+        # save to object properties:
+        self.switches = switches
+        self.args = args.strip()
+        self.arglist = arglist
+        self.lhs = lhs
+        self.lhslist = lhslist
+        self.rhs = rhs
+        self.rhslist = rhslist
 
     def func(self):
 
@@ -233,7 +263,7 @@ class CmdGive(MuxCommand):
 
         # if self.lhs.lower() in flat_resource_array:
         #     resource = self.lhs
-        qty = switches
+        qty = self.switches
         # rhs = self.rhs
         # if rhs:
         #     self.msg(rhs)
