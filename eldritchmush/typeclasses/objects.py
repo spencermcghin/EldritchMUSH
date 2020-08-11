@@ -316,3 +316,11 @@ class WeaponObject(BlacksmithObject):
         self.db.trait_one: []
         self.db.trait_two: []
         self.db.trait_three: []
+
+"""
+Storage Objects
+This is the base class type for an object that contains resources as attributes, i.e. gold, refined wood, etc...
+"""
+
+class Container(DefaultObject):
+    pass
