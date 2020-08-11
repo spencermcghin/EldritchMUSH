@@ -217,15 +217,15 @@ class CmdGive(Command):
         raw = self.args
         args = raw.strip()
 
-        # Parse arguments
-        args_list = args.split("/")
-        item = args_list[0]
-        qty, target = re.split("=| to ", args_list[1])
-
-        # Declare class attributes
-        self.item = item
-        self.qty = int(qty)
-        self.target = target.strip()
+        # # Parse arguments
+        # args_list = args.split("/")
+        # item = args_list[0]
+        # qty, target = re.split("=| to ", args_list[1])
+        #
+        # # Declare class attributes
+        # self.item = item
+        # self.qty = int(qty)
+        # self.target = target.strip()
 
     def func(self):
         # Get target and target handling
