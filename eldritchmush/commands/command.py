@@ -213,6 +213,7 @@ class CmdGive(BaseCommand):
     arg_regex = r"\s|$"
 
     def parse(self):
+        super.parse()
         switches = self.switches
 
     def func(self):
