@@ -243,89 +243,81 @@ class CmdGive(Command):
         self.qty = qty
 
     def func(self):
-        self.msg(self.args_list)
-        self.msg(self.item)
-        if self.qty:
-            self.msg(self.qty)
-        else:
-            self.msg("foo")
-        # Get target and target handling
-        # if not self.args or not self.target:
-        #     caller.msg("|540Usage: give <inventory object> = <target>|n")
-        #     return
-        #
-        # target = self.caller.search(self.target)
-        #
-        # if target == self.caller:
-        #     self.caller.msg(f"You keep {self.item} to yourself.")
-        #     return
-        #
-        # """
-        # Check to see if given item is a resource before defaulting to caller inventory.
-        # """
-        #
-        # resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
-        #                   "refined_wood": ["refined", "wood", "refined wood"],
-        #                   "leather": ["leather"],
-        #                   "cloth": ["cloth"],
-        #                   "gold": ["gold", "gold dragons"],
-        #                   "silver": ["silver", "silver dragons"],
-        #                   "copper": ["copper", "copper dragons"]}
-        #
-        #
-        # # Begin logic to check if item given is a resource or currency
-        # resource_array = [v for k, v in resource_dict.items()]
-        # flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
-        #
-        # # If the item is in the list of aliases, find its corresponding key.
-        # if self.item.lower() in flat_resource_array:
-        #     item_db = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
-        # else:
-        #     self.msg("|540Please enter a resource or currency type.\nExample: give iron/5 = Tom or give iron/5 to Tom|n")
-        #     return
-        #
-        # # Check to see if item qty exists as attribute value on caller.
-        # caller_item_qty = self.caller.attributes.get(item_db[0])
-        # if caller_item_qty >= self.qty:
-        #     attribute = self.caller.attributes.get(item_db[0], return_obj=True)
-        #     attribute.value -= self.qty
-        #
-        #     # Update target's corresponding attribute by self.qty
-        #     target_attribute = target.attributes.get(item_db[0], return_obj=True)
-        #     target_attribute.value += self.qty
-        #
-        #     self.msg(f"You give {self.qty} {self.item} to {self.target}")
-        #     self.msg(f"You have {self.caller.attributes.get(item_db[0])} {self.item} left.")
-        # else:
-        #     self.msg(f"|400You don't have enough {self.item}.|n")
 
-        # Default give code
-        # to_give = caller.search(
-        #     self.lhs,
-        #     location=caller,
-        #     nofound_string="You aren't carrying %s." % self.lhs,
-        #     multimatch_string="You carry more than one %s:" % self.lhs,
-        # )
-        # target = caller.search(self.rhs)
-        # if not (to_give and target):
-        #     return
-        # if target == caller:
-        #     caller.msg("You keep %s to yourself." % to_give.key)
-        #     return
-        # if not to_give.location == caller:
-        #     caller.msg("You are not holding %s." % to_give.key)
-        #     return
-        #
-        # # calling at_before_give hook method
-        # if not to_give.at_before_give(caller, target):
-        #     return
-        #
-        # # give object
-        # caller.msg("You give %s to %s." % (to_give.key, target.key))
-        # to_give.move_to(target, quiet=True)
-        # target.msg("%s gives you %s." % (caller.key, to_give.key))
-        # # Call the object script's at_give() method.
-        # to_give.at_give(caller, target)
+        # Get target and target handling
+        if not self.args or not self.target:
+            caller.msg("|540Usage: give <inventory object> = <target>|n")
+            return
+
+        target = self.caller.search(self.target)
+
+        if target == self.caller:
+            self.caller.msg(f"You keep {self.item} to yourself.")
+            return
+
+        """
+        Check to see if given item is a resource before defaulting to caller inventory.
+        """
+
+        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+                          "refined_wood": ["refined", "wood", "refined wood"],
+                          "leather": ["leather"],
+                          "cloth": ["cloth"],
+                          "gold": ["gold", "gold dragons"],
+                          "silver": ["silver", "silver dragons"],
+                          "copper": ["copper", "copper dragons"]}
+
+
+        # Begin logic to check if item given is a resource or currency
+        resource_array = [v for k, v in resource_dict.items()]
+        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+
+        # If the item is in the list of aliases, find its corresponding key.
+        if self.item.lower() in flat_resource_array:
+            item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
+
+            # Check to see if item qty exists as attribute value on caller.
+            caller_item_qty = self.caller.attributes.get(item_db_key[0])
+            if caller_item_qty >= self.qty:
+                attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
+                attribute.value -= self.qty
+
+                # Update target's corresponding attribute by self.qty
+                target_attribute = target.attributes.get(item_db_key[0], return_obj=True)
+                target_attribute.value += self.qty
+
+                self.msg(f"You give {self.qty} {self.item} to {self.target}")
+                self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
+            else:
+                self.msg(f"|400You don't have enough {self.item}.|n")
+
+        else:
+
+            # Default give code
+            to_give = self.caller.search(
+                self.item,
+                location=caller,
+                nofound_string="You aren't carrying %s." % self.item,
+                multimatch_string="You carry more than one %s:" % self.item,
+            )
+
+            if not (to_give and target):
+                return
+
+            if not to_give.location == self.caller:
+                caller.msg("You are not holding %s." % to_give.key)
+                return
+
+            # calling at_before_give hook method
+            if not to_give.at_before_give(self.caller, target):
+                return
+
+            # give object
+            self.caller.msg("You give %s to %s." % (to_give.key, target.key))
+            to_give.move_to(target, quiet=True)
+            target.msg("%s gives you %s." % (caller.key, to_give.key))
+            # Call the object script's at_give() method.
+            to_give.at_give(self.caller, target)
 
 
 
