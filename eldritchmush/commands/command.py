@@ -227,8 +227,8 @@ class CmdGive(Command):
 
         # Parse arguments
         args_list = args.split("")
-        item = args_list[0]
-        qty, target = re.split("=| to ", args_list[1])
+        # item = args_list[0]
+        # qty, target = re.split("=| to ", args_list[1])
 
         # Declare class attributes
         self.item = item
@@ -236,7 +236,7 @@ class CmdGive(Command):
         self.target = target.strip()
 
     def func(self):
-        pass
+        self.msg(args_list)
         # Get target and target handling
         # if not self.args or not self.target:
         #     caller.msg("|540Usage: give <inventory object> = <target>|n")
