@@ -514,9 +514,9 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
         resource_array = [v for k, v in resource_dict]
         # flat_resource_array = [item for sublist in l for item in sublist]
 
-        if self.lhs.lower() in resource_array:
-            resource = self.lhs
-            self.msg(resource_array)
+        # if self.lhs.lower() in resource_array:
+        #     resource = self.lhs
+        self.msg(resource_array)
 
         # if self.switches:
         #     if is_instance(self.switches[0], int):
