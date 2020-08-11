@@ -250,10 +250,11 @@ class CmdGive(Command):
 
         # Check to see if item qty exists as attribute value on caller.
         caller_item_qty = self.caller.attributes.get(item_db[0])
-        self.msg(caller_item_qty)
-
-
-
+        if caller_item_qty >= self.qty:
+            attribute = self.caller.get(item_db[0])
+            # Decrement from attribute object
+            attribute -= self.qty
+        
 
 
 class CmdEquip(Command):
