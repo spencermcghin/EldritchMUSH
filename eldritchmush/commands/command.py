@@ -229,51 +229,55 @@ class CmdGive(Command):
 
     def func(self):
         # Get target and target handling
-
-        if not self.args or not self.target:
-            caller.msg("|540Usage: give <inventory object> = <target>|n")
-            return
-
-        target = self.caller.search(self.target)
-
-        if target == self.caller:
-            self.caller.msg(f"You keep {self.item} to yourself.")
-            return
-
-        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
-                          "refined_wood": ["refined", "wood", "refined wood"],
-                          "leather": ["leather"],
-                          "cloth": ["cloth"],
-                          "gold": ["gold", "gold dragons"],
-                          "silver": ["silver", "silver dragons"],
-                          "copper": ["copper", "copper dragons"]}
-
-
-        # Begin logic to check if item given is a resource or currency
-        resource_array = [v for k, v in resource_dict.items()]
-        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
-
-        # If the item is in the list of aliases, find its corresponding key.
-        if self.item.lower() in flat_resource_array:
-            item_db = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
-        else:
-            self.msg("|540Please enter a resource or currency type.\nExample: give iron/5 = Tom or give iron/5 to Tom|n")
-            return
-
-        # Check to see if item qty exists as attribute value on caller.
-        caller_item_qty = self.caller.attributes.get(item_db[0])
-        if caller_item_qty >= self.qty:
-            attribute = self.caller.attributes.get(item_db[0], return_obj=True)
-            attribute.value -= self.qty
-
-            # Update target's corresponding attribute by self.qty
-            target_attribute = target.attributes.get(item_db[0], return_obj=True)
-            target_attribute.value += self.qty
-
-            self.msg(f"You give {self.qty} {self.item} to {self.target}")
-            self.msg(f"You have {self.caller.attributes.get(item_db[0])} {self.item} left.")
-        else:
-            self.msg(f"|400You don't have enough {self.item}.|n")
+        self.msg(args)
+        # if not self.args or not self.target:
+        #     caller.msg("|540Usage: give <inventory object> = <target>|n")
+        #     return
+        #
+        # target = self.caller.search(self.target)
+        #
+        # if target == self.caller:
+        #     self.caller.msg(f"You keep {self.item} to yourself.")
+        #     return
+        #
+        # """
+        # Check to see if given item is a resource before defaulting to caller inventory.
+        # """
+        #
+        # resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+        #                   "refined_wood": ["refined", "wood", "refined wood"],
+        #                   "leather": ["leather"],
+        #                   "cloth": ["cloth"],
+        #                   "gold": ["gold", "gold dragons"],
+        #                   "silver": ["silver", "silver dragons"],
+        #                   "copper": ["copper", "copper dragons"]}
+        #
+        #
+        # # Begin logic to check if item given is a resource or currency
+        # resource_array = [v for k, v in resource_dict.items()]
+        # flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+        #
+        # # If the item is in the list of aliases, find its corresponding key.
+        # if self.item.lower() in flat_resource_array:
+        #     item_db = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
+        # else:
+        #     self.msg("|540Please enter a resource or currency type.\nExample: give iron/5 = Tom or give iron/5 to Tom|n")
+        #     return
+        #
+        # # Check to see if item qty exists as attribute value on caller.
+        # caller_item_qty = self.caller.attributes.get(item_db[0])
+        # if caller_item_qty >= self.qty:
+        #     attribute = self.caller.attributes.get(item_db[0], return_obj=True)
+        #     attribute.value -= self.qty
+        #
+        #     # Update target's corresponding attribute by self.qty
+        #     target_attribute = target.attributes.get(item_db[0], return_obj=True)
+        #     target_attribute.value += self.qty
+        #
+        #     self.msg(f"You give {self.qty} {self.item} to {self.target}")
+        #     self.msg(f"You have {self.caller.attributes.get(item_db[0])} {self.item} left.")
+        # else:
+        #     self.msg(f"|400You don't have enough {self.item}.|n")
 
         # Default give code
         # to_give = caller.search(
