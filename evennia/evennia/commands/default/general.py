@@ -514,12 +514,15 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
         resource_array = [v for k, v in resource_dict.items()]
         flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
 
-        if self.lhs.lower() in flat_resource_array:
-            resource = self.lhs
-            self.msg(resource)
+        # if self.lhs.lower() in flat_resource_array:
+        #     resource = self.lhs
 
-        # if self.switches:
-        #     self.msg(self.switches + " " + resource)
+        lhs = self.lhs
+        self.msg(lhs)
+        if self.switches:
+            self.msg(self.switches)
+        else:
+            self.msg("no switches found")
 
         # to_give = caller.search(
         #     self.lhs,
