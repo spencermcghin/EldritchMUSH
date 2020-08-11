@@ -252,10 +252,11 @@ class CmdGive(Command):
         # Check to see if item qty exists as attribute value on caller.
         hasQty = True if db_att[0] >= self.qty else False
 
-        if hasQty:
-            self.msg("Caller has qty")
-        else:
-            self.msg("No qty.")
+        # if hasQty:
+        #     self.msg("Caller has qty")
+        # else:
+        #     self.msg("No qty.")
+        self.msg(f"{db_att[0]}")
 
 
 
