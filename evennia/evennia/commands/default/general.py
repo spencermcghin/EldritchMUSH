@@ -516,7 +516,7 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
 
         # if self.lhs.lower() in resource_array:
         #     resource = self.lhs
-        self.msg(resource_array)
+        self.msg(flat_resource_array)
 
         # if self.switches:
         #     if is_instance(self.switches[0], int):
