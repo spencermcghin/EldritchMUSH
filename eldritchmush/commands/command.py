@@ -249,8 +249,8 @@ class CmdGive(Command):
             return
 
         # Check to see if item qty exists as attribute value on caller.
-        if not self.caller.attr_ge(item_db[0], self.qty):
-            self.msg(f"You don't have {self.qty} {item_db[0]}")
+        caller_item_qty = self.caller.attributes.get(item_db[0])
+        self.msg(caller_item_qty)
 
 
 
