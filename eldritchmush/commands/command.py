@@ -203,7 +203,7 @@ class CmdGive(Command):
     give away something to someone
 
     Usage:
-      give <inventory obj> <to||=> <target>
+      give (optional:<qty>) <inventory obj> <to||=> <target>
 
     Gives an items from your inventory to another character,
     placing it in their inventory.
@@ -214,18 +214,26 @@ class CmdGive(Command):
     arg_regex = r"\s|$"
 
     def parse(self):
+
+        """
+        1. Split args by space.
+        2. If args[1] is an int, we have qty. If not, presume that item is from inventory and give single item.
+        3. This means that args[2] should be an inventory or a resource item.
+        4. Check to see if args[2] is in resource_dict else use Give to_give method.
+        5.
+        """
         raw = self.args
         args = raw.strip()
 
-        # # Parse arguments
-        # args_list = args.split("/")
-        # item = args_list[0]
-        # qty, target = re.split("=| to ", args_list[1])
-        #
-        # # Declare class attributes
-        # self.item = item
-        # self.qty = int(qty)
-        # self.target = target.strip()
+        # Parse arguments
+        args_list = args.split("")
+        item = args_list[0]
+        qty, target = re.split("=| to ", args_list[1])
+
+        # Declare class attributes
+        self.item = item
+        self.qty = int(qty)
+        self.target = target.strip()
 
     def func(self):
         # Get target and target handling
