@@ -219,8 +219,6 @@ class CmdGive(Command):
 
         qty = args.split("/")
 
-        item =
-
         # split out switches
         switches = []
         if args and len(args) > 1 and args[0] == "/":
