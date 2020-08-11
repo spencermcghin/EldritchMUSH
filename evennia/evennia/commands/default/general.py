@@ -500,7 +500,7 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
 
         caller = self.caller
         if not self.args or not self.rhs:
-            caller.msg("Usage: give <inventory object>(/qty in case of currency or resources) = <target>")
+            caller.msg("Usage: give <inventory object> = <target>")
             return
 
         to_give = caller.search(
