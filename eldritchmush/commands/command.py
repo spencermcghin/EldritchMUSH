@@ -212,6 +212,8 @@ class CmdGive(BaseCommand):
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
+    def parse(self):
+        switches = self.switches
 
     def func(self):
 
@@ -229,10 +231,10 @@ class CmdGive(BaseCommand):
 
         # if self.lhs.lower() in flat_resource_array:
         #     resource = self.lhs
-        qty = self.args
-        rhs = self.rhs
-        if rhs:
-            self.msg(rhs)
+        qty = switches
+        # rhs = self.rhs
+        # if rhs:
+        #     self.msg(rhs)
         # self.msg(lhs)
         if qty:
             self.msg(qty)
