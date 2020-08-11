@@ -501,32 +501,47 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
         if not self.args or not self.rhs:
             caller.msg("Usage: give <inventory object> = <target>")
             return
-        to_give = caller.search(
-            self.lhs,
-            location=caller,
-            nofound_string="You aren't carrying %s." % self.lhs,
-            multimatch_string="You carry more than one %s:" % self.lhs,
-        )
-        target = caller.search(self.rhs)
-        if not (to_give and target):
-            return
-        if target == caller:
-            caller.msg("You keep %s to yourself." % to_give.key)
-            return
-        if not to_give.location == caller:
-            caller.msg("You are not holding %s." % to_give.key)
-            return
 
-        # calling at_before_give hook method
-        if not to_give.at_before_give(caller, target):
-            return
+        resource_array = ["iron", "ingots", "iron ingots",
+                          "refined", "wood", "refined wood",
+                          "leather",
+                          "cloth",
+                          "gold", "gold dragons",
+                          "silver", "silver dragons",
+                          "copper", "copper dragons"
+                          ]
 
-        # give object
-        caller.msg("You give %s to %s." % (to_give.key, target.key))
-        to_give.move_to(target, quiet=True)
-        target.msg("%s gives you %s." % (caller.key, to_give.key))
-        # Call the object script's at_give() method.
-        to_give.at_give(caller, target)
+        # Begin logic to check if item given is a resource or currency
+        if self.lhs.lower() in resource_array:
+            resource = self.lhs
+            self.msg(resource)
+
+        # to_give = caller.search(
+        #     self.lhs,
+        #     location=caller,
+        #     nofound_string="You aren't carrying %s." % self.lhs,
+        #     multimatch_string="You carry more than one %s:" % self.lhs,
+        # )
+        # target = caller.search(self.rhs)
+        # if not (to_give and target):
+        #     return
+        # if target == caller:
+        #     caller.msg("You keep %s to yourself." % to_give.key)
+        #     return
+        # if not to_give.location == caller:
+        #     caller.msg("You are not holding %s." % to_give.key)
+        #     return
+        #
+        # # calling at_before_give hook method
+        # if not to_give.at_before_give(caller, target):
+        #     return
+        #
+        # # give object
+        # caller.msg("You give %s to %s." % (to_give.key, target.key))
+        # to_give.move_to(target, quiet=True)
+        # target.msg("%s gives you %s." % (caller.key, to_give.key))
+        # # Call the object script's at_give() method.
+        # to_give.at_give(caller, target)
 
 
 class CmdSetDesc(COMMAND_DEFAULT_CLASS):
