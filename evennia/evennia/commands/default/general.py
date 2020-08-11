@@ -499,22 +499,27 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
 
         caller = self.caller
         if not self.args or not self.rhs:
-            caller.msg("Usage: give <inventory object> = <target>")
+            caller.msg("Usage: give <inventory object>(/qty in case of currency or resources) = <target>")
             return
 
-        resource_array = ["iron", "ingots", "iron ingots",
-                          "refined", "wood", "refined wood",
-                          "leather",
-                          "cloth",
-                          "gold", "gold dragons",
+        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+                          "refined_wood": ["refined", "wood", "refined wood"],
+                          "leather": ["leather"],
+                          "cloth": ["cloth"],
+                          "gold": ["gold", "gold dragons"],
                           "silver", "silver dragons",
-                          "copper", "copper dragons"
-                          ]
+                          "copper", "copper dragons"]}
 
         # Begin logic to check if item given is a resource or currency
-        if self.lhs.lower() in resource_array:
+
+        if self.lhs.lower() in resource_dict.values():
             resource = self.lhs
-            self.msg(resource)
+
+        if self.switches:
+            if is_instance(self.switches[0], int):
+                qty = self.switches
+
+                self.msg(qty + " " + resource)
 
         # to_give = caller.search(
         #     self.lhs,
