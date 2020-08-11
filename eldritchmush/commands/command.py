@@ -10,6 +10,7 @@ from django.conf import settings
 
 # Local imports
 from evennia import Command as BaseCommand
+import evennia.commands.default.muxcommand.MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
 from commands.combat import Helper
@@ -196,7 +197,7 @@ class Command(BaseCommand):
 #                 self.character = None
 
 
-class CmdGive(BaseCommand):
+class CmdGive(MuxCommand):
     """
     give away something to someone
 
@@ -213,7 +214,7 @@ class CmdGive(BaseCommand):
     arg_regex = r"\s|$"
 
     def parse(self):
-        super.parse()
+
         switches = self.switches
 
     def func(self):
