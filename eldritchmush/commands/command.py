@@ -195,6 +195,7 @@ class MuxCommand(Command):
             else:
                 self.character = None
 
+
 class CmdGive(MuxCommand):
     """
     give away something to someone
@@ -210,11 +211,6 @@ class CmdGive(MuxCommand):
     rhs_split = ("=", " to ")  # Prefer = delimiter, but allow " to " usage.
     locks = "cmd:all()"
     arg_regex = r"\s|$"
-
-
-    def parse(self):
-
-        qty = self.switches
 
 
     def func(self):
@@ -233,7 +229,7 @@ class CmdGive(MuxCommand):
 
         # if self.lhs.lower() in flat_resource_array:
         #     resource = self.lhs
-
+        qty = self.switches
         lhs = self.lhs
         self.msg(lhs)
         if qty:
