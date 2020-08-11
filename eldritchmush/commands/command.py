@@ -252,6 +252,7 @@ class CmdGive(Command):
         caller_item_qty = self.caller.attributes.get(item_db[0])
         if caller_item_qty >= self.qty:
             caller_item_qty -= self.qty
+            self.msg(f"You now have {self.caller.attributes.get(item_db[0])} {self.item} left.")
         else:
             self.msg(f"|400You don't have enough {self.item}.|n")
 
