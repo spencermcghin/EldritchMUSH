@@ -479,7 +479,7 @@ class CmdDrop(COMMAND_DEFAULT_CLASS):
         obj.at_drop(caller)
 
 
-class CmdGive(COMMAND_DEFAULT_CLASS):
+class CmdGive(Command):
     """
     give away something to someone
 
