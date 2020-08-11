@@ -5,7 +5,7 @@ import re
 from django.conf import settings
 from evennia.utils import utils, evtable
 from evennia.typeclasses.attributes import NickTemplateInvalid
-from evennia import Command
+from evennia import MuxCommand
 
 COMMAND_DEFAULT_CLASS = utils.class_from_module(settings.COMMAND_DEFAULT_CLASS)
 
@@ -479,7 +479,7 @@ class CmdDrop(COMMAND_DEFAULT_CLASS):
         obj.at_drop(caller)
 
 
-class CmdGive(COMMAND_DEFAULT_CLASS):
+class CmdGive(MuxCommand):
     """
     give away something to someone
 
