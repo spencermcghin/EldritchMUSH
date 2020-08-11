@@ -495,9 +495,6 @@ class CmdGive(Command):
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
-    def parse(self):
-        switches = self.switches
-
     def func(self):
         """Implement give"""
 
@@ -523,8 +520,8 @@ class CmdGive(Command):
 
         lhs = self.lhs
         self.msg(lhs)
-        if switches:
-            self.msg(switches)
+        if self.switches:
+            self.msg(self.switches)
         else:
             self.msg("no switches found")
 
