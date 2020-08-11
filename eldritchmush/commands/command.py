@@ -10,7 +10,7 @@ from django.conf import settings
 
 # Local imports
 from evennia import Command as BaseCommand
-import evennia.commands.default.muxcommand.MuxCommand
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
 from commands.combat import Helper
