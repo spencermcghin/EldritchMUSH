@@ -268,10 +268,7 @@ class CmdGive(Command):
         # if rhs:
         #     self.msg(rhs)
         # self.msg(lhs)
-        if qty:
-            self.msg(qty)
-        else:
-            self.msg("no data found")
+        self.msg(qty)
 
 
 class CmdEquip(Command):
