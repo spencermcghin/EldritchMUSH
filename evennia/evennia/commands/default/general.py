@@ -512,7 +512,7 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
 
         # Begin logic to check if item given is a resource or currency
         resource_array = [v for k, v in resource_dict.items()]
-        # flat_resource_array = [item for sublist in l for item in sublist]
+        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
 
         # if self.lhs.lower() in resource_array:
         #     resource = self.lhs
