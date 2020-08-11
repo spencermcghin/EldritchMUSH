@@ -216,12 +216,13 @@ class CmdGive(Command):
     def parse(self):
         raw = self.args
         args = raw.strip()
-        # Arguments
 
+        # Parse arguments
         args_list = args.split("/")
         item = args_list[0]
         qty, target = re.split("=| to ", args_list[1])
 
+        # Declare class attributes
         self.item = item
         self.qty = qty
         self.target = target.strip()
@@ -240,15 +241,10 @@ class CmdGive(Command):
         resource_array = [v for k, v in resource_dict.items()]
         flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
 
-        # if self.lhs.lower() in flat_resource_array:
-        #     resource = self.lhs
-        # rhs = self.rhs
-        # if rhs:
-        #     self.msg(rhs)
-        # self.msg(lhs)
-        self.msg(self.qty)
-        self.msg(self.item)
-        self.msg(self.target)
+        # If the item is in the list of aliases, find its corresponding key.
+        if self.item.lower() in flat_resource_array:
+            self.msg(self.item.lower())
+
 
 
 class CmdEquip(Command):
