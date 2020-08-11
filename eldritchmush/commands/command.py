@@ -210,7 +210,6 @@ class CmdGive(Command):
     """
 
     key = "give"
-    rhs_split = ("=| to ")  # Prefer = delimiter, but allow " to " usage.
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
@@ -221,7 +220,7 @@ class CmdGive(Command):
 
         args_list = args.split("/")
         item = args_list[0]
-        qty, target = re.split(rhs_split, args_list[1])
+        qty, target = re.split("=| to ", args_list[1])
 
         self.item = item
         self.qty = qty
