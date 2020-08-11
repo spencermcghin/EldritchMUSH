@@ -229,8 +229,10 @@ class CmdGive(Command):
 
     def func(self):
         # Get target and target handling
+        raw = self.args
+
         args = raw.strip()
-        
+
         self.msg(args)
         # if not self.args or not self.target:
         #     caller.msg("|540Usage: give <inventory object> = <target>|n")
