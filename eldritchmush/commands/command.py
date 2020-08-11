@@ -240,7 +240,7 @@ class CmdGive(Command):
 
         self.target = self.args_list[-1]
         self.item = item
-        self.qty = qty
+        self.qty = int(qty)
 
     def func(self):
 
