@@ -519,7 +519,7 @@ class CmdGive(MuxCommand):
 
         lhs = self.lhs
         self.msg(lhs)
-        if qty:
+        if self.switches:
             self.msg(self.switches)
         else:
             self.msg("no switches found")
