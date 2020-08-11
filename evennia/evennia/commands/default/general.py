@@ -516,9 +516,10 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
 
         if self.lhs.lower() in flat_resource_array:
             resource = self.lhs
+            self.msg(resource)
 
-        if self.switches:
-            self.msg(self.switches + " " + resource)
+        # if self.switches:
+        #     self.msg(self.switches + " " + resource)
 
         # to_give = caller.search(
         #     self.lhs,
