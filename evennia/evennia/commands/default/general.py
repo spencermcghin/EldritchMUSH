@@ -479,7 +479,7 @@ class CmdDrop(COMMAND_DEFAULT_CLASS):
         obj.at_drop(caller)
 
 
-class CmdGive(MuxCommand):
+class CmdGive(COMMAND_DEFAULT_CLASS):
     """
     give away something to someone
 
