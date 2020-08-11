@@ -196,7 +196,7 @@ class Command(BaseCommand):
 #                 self.character = None
 
 
-class CmdGive(Command):
+class CmdGive(BaseCommand):
     """
     give away something to someone
 
