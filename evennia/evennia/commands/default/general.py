@@ -479,7 +479,7 @@ class CmdDrop(COMMAND_DEFAULT_CLASS):
         obj.at_drop(caller)
 
 
-class CmdGive(Command):
+class CmdGive(COMMAND_DEFAULT_CLASS):
     """
     give away something to someone
 
@@ -494,6 +494,10 @@ class CmdGive(Command):
     rhs_split = ("=", " to ")  # Prefer = delimiter, but allow " to " usage.
     locks = "cmd:all()"
     arg_regex = r"\s|$"
+
+    def parse(self):
+        args = self.args
+        qty = self.switches
 
     def func(self):
         """Implement give"""
@@ -520,8 +524,8 @@ class CmdGive(Command):
 
         lhs = self.lhs
         self.msg(lhs)
-        if self.switches:
-            self.msg(self.switches)
+        if qty:
+            self.msg(qty)
         else:
             self.msg("no switches found")
 
