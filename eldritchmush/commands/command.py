@@ -235,12 +235,12 @@ class CmdGive(Command):
             item = self.args_list[0]
             qty = None
         else:
-            qty = self.args_list[0]
+            qty = int(self.args_list[0])
             item = self.args_list[1]
 
         self.target = self.args_list[-1]
         self.item = item
-        self.qty = int(qty)
+        self.qty = qty
 
     def func(self):
 
