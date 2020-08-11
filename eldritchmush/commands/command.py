@@ -228,6 +228,17 @@ class CmdGive(Command):
         self.target = target.strip()
 
     def func(self):
+        # Get target and target handling
+
+        if not self.args or not self.target:
+            caller.msg("Usage: give <inventory object> = <target>")
+            return
+
+        target = self.caller.search(self.target)
+
+        if target == caller:
+            caller.msg("You keep %s to yourself." % self.item)
+            return
 
         resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
                           "refined_wood": ["refined", "wood", "refined wood"],
@@ -236,6 +247,7 @@ class CmdGive(Command):
                           "gold": ["gold", "gold dragons"],
                           "silver": ["silver", "silver dragons"],
                           "copper": ["copper", "copper dragons"]}
+
 
         # Begin logic to check if item given is a resource or currency
         resource_array = [v for k, v in resource_dict.items()]
@@ -253,9 +265,17 @@ class CmdGive(Command):
         if caller_item_qty >= self.qty:
             attribute = self.caller.attributes.get(item_db[0], return_obj=True)
             attribute.value -= self.qty
+
+            # Update target's corresponding attribute by self.qty
+            target_attribute = target.attributes.get(item_db[0], return_obj=True)
+            target_attribute.value += self.qty
+
+            self.msg(f"You give {self.qty} {self.item} to {self.target}")
             self.msg(f"You have {self.caller.attributes.get(item_db[0])} {self.item} left.")
         else:
             self.msg(f"|400You don't have enough {self.item}.|n")
+
+
 
 
 class CmdEquip(Command):
