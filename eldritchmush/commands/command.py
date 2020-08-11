@@ -231,7 +231,7 @@ class CmdGive(Command):
         # Get target and target handling
 
         if not self.args or not self.target:
-            caller.msg("Usage: give <inventory object> = <target>")
+            caller.msg("|540Usage: give <inventory object> = <target>|n")
             return
 
         target = self.caller.search(self.target)
