@@ -251,10 +251,9 @@ class CmdGive(Command):
         # Check to see if item qty exists as attribute value on caller.
         caller_item_qty = self.caller.attributes.get(item_db[0])
         if caller_item_qty >= self.qty:
-            attribute = self.caller.attributes.get(item_db[0])
-            # Decrement from attribute object
-            attribute.value -= self.qty
-
+            caller_item_qty -= self.qty
+        else:
+            self.msg(f"|400You don't have enough {self.item}.|n")
 
 
 class CmdEquip(Command):
