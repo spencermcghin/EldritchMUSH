@@ -350,28 +350,28 @@ class Container(DefaultObject):
         cloth = self.db.cloth
 
         # Show desc and other objects inside
-        self.looker.msg(f"{string}\n")
+        looker.msg(f"{string}\n")
 
         if gold:
-            self.looker.msg(f"Gold: {gold}\n")
+            looker.msg(f"Gold: {gold}\n")
 
         elif silver:
-            self.looker.msg(f"Silver: {silver}\n")
+            looker.msg(f"Silver: {silver}\n")
 
         elif copper:
-            self.looker.msg(f"Copper: {copper}\n")
+            looker.msg(f"Copper: {copper}\n")
 
         elif iron_ingots:
-            self.looker.msg(f"Iron: {iron_ingots}\n")
+            looker.msg(f"Iron: {iron_ingots}\n")
 
         elif refined_wood:
-            self.looker.msg(f"Wood: {refined_wood}")
+            looker.msg(f"Wood: {refined_wood}")
 
         elif leather:
-            self.looker.msg(f"Leather: {leather}")
+            looker.msg(f"Leather: {leather}")
 
         elif cloth:
-            self.looker.msg(f"Cloth: {cloth}")
+            looker.msg(f"Cloth: {cloth}")
 
         else:
             return
