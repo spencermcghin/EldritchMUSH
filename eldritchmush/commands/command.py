@@ -244,7 +244,7 @@ class CmdGive(Command):
         # If the item is in the list of aliases, find its corresponding key.
         if self.item.lower() in flat_resource_array:
             item_db = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
-            db_att = [f"self.caller.db.{item_db}"]
+            db_att = [f"self.caller.db.{item_db[0]}"]
         else:
             self.msg("Please enter a resource or currency type.\n|540Example: give iron/5 = Tom")
             return
