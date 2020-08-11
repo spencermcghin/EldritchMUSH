@@ -268,7 +268,7 @@ class CmdGive(Command):
         # if rhs:
         #     self.msg(rhs)
         # self.msg(lhs)
-        self.msg(qty)
+        self.msg(self.rhs)
 
 
 class CmdEquip(Command):
