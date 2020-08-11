@@ -236,6 +236,7 @@ class CmdGive(Command):
         self.target = target.strip()
 
     def func(self):
+        pass
         # Get target and target handling
         # if not self.args or not self.target:
         #     caller.msg("|540Usage: give <inventory object> = <target>|n")
