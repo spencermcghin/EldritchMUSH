@@ -323,4 +323,55 @@ This is the base class type for an object that contains resources as attributes,
 """
 
 class Container(DefaultObject):
-    pass
+    """
+    Contains entries for resources and currency to support the economic system.
+    """
+    def at_object_creation(self):
+        self.db.is_locked = False
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+
+    def return_appearance(self, looker):
+        # Get desc and default text for object.
+        string = super().return_appearance(looker)
+
+        # Get values for db entries.
+        gold = self.db.gold
+        silver = self.db.silver
+        copper = self.db.copper
+        iron_ingots = self.db.iron_ingots
+        refined_wood = self.db.refined_wood
+        leather = self.db.leather
+        cloth = self.db.cloth
+
+        # Show desc and other objects inside
+        self.looker.msg(f"{string}\n")
+
+        if gold:
+            self.looker.msg(f"Gold: {gold}\n")
+
+        elif silver:
+            self.looker.msg(f"Silver: {silver}\n")
+
+        elif copper:
+            self.looker.msg(f"Copper: {copper}\n")
+
+        elif iron_ingots:
+            self.looker.msg(f"Iron: {iron_ingots}\n")
+
+        elif refined_wood:
+            self.looker.msg(f"Wood: {refined_wood}")
+
+        elif leather:
+            self.looker.msg(f"Leather: {leather}")
+
+        elif cloth:
+            self.looker.msg(f"Cloth: {cloth}")
+
+        else:
+            return
