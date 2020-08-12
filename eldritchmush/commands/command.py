@@ -215,13 +215,6 @@ class CmdGive(Command):
 
     def parse(self):
 
-        """
-        1. Split args by space.
-        2. If args[1] is an int, we have qty. If not, presume that item is from inventory and give single item.
-        3. This means that args[2] should be an inventory or a resource item.
-        4. Check to see if args[2] is in resource_dict else use Give to_give method.
-        5.
-        """
         raw = self.args
         args = raw.strip()
 
@@ -246,7 +239,7 @@ class CmdGive(Command):
 
         # Get target and target handling
         if not self.args or not self.target:
-            caller.msg("|540Usage: give <inventory object> = <target>|n")
+            self.caller.msg("|540Usage: give <qty> <inventory object> to <target>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: give 5 gold to Tom.")
             return
 
         target = self.caller.search(self.target)
