@@ -108,6 +108,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetShield())
         self.add(command.SetTwoHanded())
         self.add(command.SetBow())
+        self.add(command.CmdGive())
         self.add(command.SetMelee())
         self.add(command.SetWeaponValue())
         self.add(command.CmdSmile())
