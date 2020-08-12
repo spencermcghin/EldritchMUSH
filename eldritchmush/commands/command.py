@@ -283,7 +283,7 @@ class CmdGive(Command):
                     target_attribute = target.attributes.get(item_db_key[0], return_obj=True)
                 # If not, throw an error.
                 except AttributeError:
-                    self.msg("|400You need to specify an appropriate target.|n")
+                    self.msg("|540You need to specify an appropriate target.|n")
                 else:
                     target_attribute.value += self.qty
                     self.msg(f"You give {self.qty} {self.item} to {self.target}")
