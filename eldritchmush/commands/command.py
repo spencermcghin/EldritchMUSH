@@ -297,7 +297,7 @@ class CmdGive(Command):
             to_give = self.caller.search(
                 self.item,
                 location=self.caller,
-                nofound_string=f"|400You aren't carrying a {self.item}. If you want to give resources or currency please specify a quantity before the item.|n" ,
+                nofound_string=f"|540You aren't carrying a {self.item}. If you want to give resources or currency please specify a quantity before the item. Ex: give 1 gold to Tom.|n" ,
                 multimatch_string=f"|540You carry more than one {self.item}|n:" ,
             )
 
