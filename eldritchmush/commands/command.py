@@ -275,8 +275,6 @@ class CmdGive(Command):
             caller_item_qty = self.caller.attributes.get(item_db_key[0])
             if caller_item_qty >= self.qty:
                 attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
-                attribute.value -= self.qty
-
                 # Update target's corresponding attribute by self.qty.
                 # Check to make sure target has attribute.
                 try:
@@ -285,6 +283,7 @@ class CmdGive(Command):
                 except AttributeError:
                     self.msg("|540You need to specify an appropriate target.|n")
                 else:
+                    attribute.value -= self.qty
                     target_attribute.value += self.qty
                     self.msg(f"You give {self.qty} {self.item} to {self.target}")
                     self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
