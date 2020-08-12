@@ -270,17 +270,23 @@ class CmdGive(Command):
             item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
 
             # Check to see if item qty exists as attribute value on caller.
+            # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
             caller_item_qty = self.caller.attributes.get(item_db_key[0])
             if caller_item_qty >= self.qty:
                 attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
                 attribute.value -= self.qty
 
-                # Update target's corresponding attribute by self.qty
-                target_attribute = target.attributes.get(item_db_key[0], return_obj=True)
-                target_attribute.value += self.qty
-
-                self.msg(f"You give {self.qty} {self.item} to {self.target}")
-                self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
+                # Update target's corresponding attribute by self.qty.
+                # Check to make sure target has attribute.
+                try:
+                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True)
+                # If not, throw an error.
+                except AttributeError:
+                    self.msg("|400You need to specify an appropriate target.|n")
+                else:
+                    target_attribute.value += self.qty
+                    self.msg(f"You give {self.qty} {self.item} to {self.target}")
+                    self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
             else:
                 self.msg(f"|400You don't have enough {self.item}.|n")
 
