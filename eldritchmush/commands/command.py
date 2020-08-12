@@ -266,11 +266,12 @@ class CmdGive(Command):
         flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
 
         # If the item is in the list of aliases, find its corresponding key.
-        if self.item.lower() in flat_resource_array:
+        if self.item.lower() in flat_resource_array and self.qty is not None:
             item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
 
             # Check to see if item qty exists as attribute value on caller.
             # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
+
             caller_item_qty = self.caller.attributes.get(item_db_key[0])
             if caller_item_qty >= self.qty:
                 attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
