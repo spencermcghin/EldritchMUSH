@@ -280,7 +280,7 @@ class CmdGive(Command):
                 # Update target's corresponding attribute by self.qty.
                 # Check to make sure target has attribute.
                 try:
-                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True)
+                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
                 # If not, throw an error.
                 except AttributeError:
                     self.msg("|540You need to specify an appropriate target.|n")
