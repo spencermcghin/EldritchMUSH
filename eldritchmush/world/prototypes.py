@@ -84,10 +84,12 @@ Level 0 Blacksmith Items
 IRON_SMALL_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "key": "Iron Small Weapon",
-"aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
+"aliases": ["iron small weapon"],
 "required_resources": 2,
 "iron_ingots": 1,
 "refined_wood": 1,
+"leather": 0,
+"cloth": 0,
 "damage": 1,
 "value_copper": 70,
 "value_silver": 7,
@@ -97,7 +99,7 @@ IRON_SMALL_WEAPON = {
 IRON_MEDIUM_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "key": "Iron Medium Weapon",
-"aliases": ["iron medium weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
+"aliases": ["iron medium weapon"],
 "required_resources": 4,
 "iron_ingots": 2,
 "refined_wood": 1,
@@ -112,7 +114,7 @@ IRON_MEDIUM_WEAPON = {
 IRON_LARGE_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "key": "Iron Large Weapon",
-"aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
+"aliases": ["iron large weapon"],
 "required_resources": 4,
 "iron_ingots": 2,
 "refined_wood": 1,
@@ -128,7 +130,7 @@ IRON_LARGE_WEAPON = {
 IRON_SHIELD = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
 "key": "Iron Shield",
-"aliases": ["iron shield, basic shield"],
+"aliases": ["iron shield"],
 "required_resources": 3,
 "iron_ingots": 1,
 "refined_wood": 1,
@@ -140,6 +142,118 @@ IRON_SHIELD = {
 }
 
 LEATHER_ARMOR = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
+}
+
+IRON_CHAIN_SHIRT = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 0,
+"cloth": 0,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
+}
+
+IRON_COAT_OF_PLATES = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 5,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 100,
+ "value_silver": 10,
+ "value_gold": 1
+}
+
+IRON_PLATEMAIL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 7,
+"iron_ingots": 4,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 120,
+ "value_silver": 12,
+ "value_gold": 1.2
+}
+
+"""
+Level 1 Blacksmith Items
+"""
+
+HARDENED_IRON_SMALL_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Hardened Iron Small Weapon",
+"aliases": ["hardened iron small weapon"],
+"required_resources": 5,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+"damage": 1,
+"value_copper": 130,
+"value_silver": 13,
+"value_gold": 1.3
+}
+
+HARDENED_IRON_MEDIUM_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Hardened Iron Medium Weapon",
+"aliases": ["hardened iron medium weapon"],
+"required_resources": 9,
+"iron_ingots": 5,
+"refined_wood": 2,
+"leather": 2,
+"cloth": 0,
+"damage": 1,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7
+}
+
+HARDENED_IRON_LARGE_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Hardened Iron Large Weapon",
+"aliases": ["hardened iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"damage": 2,
+"twohanded": True,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+HARDENED_IRON_SHIELD = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Iron Shield",
+"aliases": ["iron shield, basic shield"],
+"required_resources": 3,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8
+}
+
+HARDENED_LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
 "required_resources": 2,
 "iron_ingots": 1,
@@ -149,4 +263,238 @@ LEATHER_ARMOR = {
  "value_copper": 70,
  "value_silver": 7,
  "value_gold": .7
+}
+
+HARDENED_IRON_CHAIN_SHIRT = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 0,
+"cloth": 0,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
+}
+
+HARDENED_IRON_COAT_OF_PLATES = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 5,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 100,
+ "value_silver": 10,
+ "value_gold": 1
+}
+
+HARDENED_IRON_PLATEMAIL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 7,
+"iron_ingots": 4,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 120,
+ "value_silver": 12,
+ "value_gold": 1.2
+}
+
+"""
+Level 2 Blacksmith Items
+"""
+
+STEEL_SMALL_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Small Weapon",
+"aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"damage": 1,
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": .7
+}
+
+STEEL_MEDIUM_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Medium Weapon",
+"aliases": ["iron medium weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"damage": 1,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+STEEL_LARGE_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Large Weapon",
+"aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"damage": 2,
+"twohanded": True,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+STEEL_SHIELD = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Shield",
+"aliases": ["iron shield, basic shield"],
+"required_resources": 3,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8
+}
+
+STEEL_CHAIN_SHIRT = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
+}
+
+
+STEEL_COAT_OF_PLATES = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 5,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 100,
+ "value_silver": 10,
+ "value_gold": 1
+}
+
+STEEL_PLATEMAIL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 7,
+"iron_ingots": 4,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 120,
+ "value_silver": 12,
+ "value_gold": 1.2
+}
+
+"""
+Level 3 Blacksmith Items
+"""
+
+MASTERWORK_STEEL_SMALL_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Small Weapon",
+"aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"damage": 1,
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": .7
+}
+
+MASTERWORK_STEEL_MEDIUM_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Medium Weapon",
+"aliases": ["iron medium weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"damage": 1,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+MASTERWORK_STEEL_LARGE_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Large Weapon",
+"aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
+"required_resources": 4,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"damage": 2,
+"twohanded": True,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": .9
+}
+
+MASTERWORK_STEEL_SHIELD = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Shield",
+"aliases": ["iron shield, basic shield"],
+"required_resources": 3,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8
+}
+
+MASTERWORK_STEEL_CHAIN_SHIRT = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+ "value_copper": 70,
+ "value_silver": 7,
+ "value_gold": .7
+}
+
+
+MASTERWORK_STEEL_COAT_OF_PLATES = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 5,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 100,
+ "value_silver": 10,
+ "value_gold": 1
+}
+
+MASTERWORK_STEEL_PLATEMAIL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"required_resources": 7,
+"iron_ingots": 4,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+ "value_copper": 120,
+ "value_silver": 12,
+ "value_gold": 1.2
 }
