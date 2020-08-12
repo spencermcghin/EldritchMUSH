@@ -7,9 +7,11 @@ Commands describe the input the account can do to the game.
 # Global imports
 import random
 from django.conf import settings
+import re
 
 # Local imports
 from evennia import Command as BaseCommand
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
 from commands.combat import Helper
@@ -194,6 +196,128 @@ class Command(BaseCommand):
 #                 self.character = self.caller.get_puppet(self.session)
 #             else:
 #                 self.character = None
+
+
+class CmdGive(Command):
+    """
+    give away something to someone
+
+    Usage:
+      give (optional:<qty>) <inventory obj> <to||=> <target>
+
+    Gives an items from your inventory to another character,
+    placing it in their inventory.
+    """
+
+    key = "give"
+    locks = "cmd:all()"
+    arg_regex = r"\s|$"
+
+    def parse(self):
+
+        raw = self.args
+        args = raw.strip()
+
+        # Parse arguments
+        self.args_list = args.split(" ")
+
+        # Check for qty at first element in args list
+        try:
+            isInt = int(self.args_list[0])
+        except ValueError:
+            item = self.args_list[0]
+            qty = None
+        else:
+            qty = int(self.args_list[0])
+            item = self.args_list[1]
+
+        self.target = self.args_list[-1]
+        self.item = item
+        self.qty = qty
+
+    def func(self):
+
+        # Get target and target handling
+        if not self.args or not self.target:
+            self.caller.msg("|540Usage: give <qty> <inventory object> to <target>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: give 5 gold to Tom.")
+            return
+
+        target = self.caller.search(self.target)
+
+        if target == self.caller:
+            self.caller.msg(f"You keep {self.item} to yourself.")
+            return
+
+        """
+        Check to see if given item is a resource before defaulting to caller inventory.
+        """
+
+        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+                          "refined_wood": ["refined", "wood", "refined wood"],
+                          "leather": ["leather"],
+                          "cloth": ["cloth"],
+                          "gold": ["gold", "gold dragons"],
+                          "silver": ["silver", "silver dragons"],
+                          "copper": ["copper", "copper dragons"]}
+
+
+        # Begin logic to check if item given is a resource or currency
+        resource_array = [v for k, v in resource_dict.items()]
+        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+
+        # If the item is in the list of aliases, find its corresponding key.
+        if self.item.lower() in flat_resource_array and self.qty is not None:
+            item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
+
+            # Check to see if item qty exists as attribute value on caller.
+            # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
+
+            caller_item_qty = self.caller.attributes.get(item_db_key[0])
+            if caller_item_qty >= self.qty:
+                attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
+                # Update target's corresponding attribute by self.qty.
+                # Check to make sure target has attribute.
+                try:
+                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
+                # If not, throw an error.
+                except AttributeError:
+                    self.msg("|540You need to specify an appropriate target.|n")
+                else:
+                    attribute.value -= self.qty
+                    target_attribute.value += self.qty
+                    self.msg(f"You give {self.qty} {self.item} to {self.target}")
+                    self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
+            else:
+                self.msg(f"|400You don't have enough {self.item}.|n")
+
+        else:
+
+            # Default give code
+            to_give = self.caller.search(
+                self.item,
+                location=self.caller,
+                nofound_string=f"|540You aren't carrying a {self.item}. If you want to give resources or currency please specify a quantity before the item. Ex: give 1 gold to Tom.|n" ,
+                multimatch_string=f"|540You carry more than one {self.item}|n:" ,
+            )
+
+            if not (to_give and target):
+                return
+
+            if not to_give.location == self.caller:
+                caller.msg("You are not holding %s." % to_give.key)
+                return
+
+            # calling at_before_give hook method
+            if not to_give.at_before_give(self.caller, target):
+                return
+
+            # give object
+            self.caller.msg("You give %s to %s." % (to_give.key, target.key))
+            to_give.move_to(target, quiet=True)
+            target.msg("%s gives you %s." % (self.caller.key, to_give.key))
+            # Call the object script's at_give() method.
+            to_give.at_give(self.caller, target)
+
 
 
 class CmdEquip(Command):
