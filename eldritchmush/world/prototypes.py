@@ -437,101 +437,110 @@ Level 3 Blacksmith Items
 
 MASTERWORK_STEEL_SMALL_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Iron Small Weapon",
-"aliases": ["iron small weapon", "small dagger", "dagger", "shortsword", "small club", "small hammer"],
-"required_resources": 2,
-"iron_ingots": 1,
-"refined_wood": 1,
+"key": "Masterwork Steel Small Weapon",
+"aliases": ["masterwork steel small weapon"],
+"required_resources": 14,
+"iron_ingots": 8,
+"refined_wood": 2,
+"leather": 4,
+"cloth": 0,
 "damage": 1,
-"value_copper": 70,
-"value_silver": 7,
-"value_gold": .7
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"material_value": 3
 }
 
 MASTERWORK_STEEL_MEDIUM_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Iron Medium Weapon",
-"aliases": ["iron medium weapon", "longsword", "medium sword", "mace", "axe", "hammer"],
-"required_resources": 4,
-"iron_ingots": 2,
-"refined_wood": 1,
-"leather": 1,
+"key": "Masterwork Steel Medium Weapon",
+"aliases": ["masterwork steel medium weapon"],
+"required_resources": 21,
+"iron_ingots": 11,
+"refined_wood": 5,
+"leather": 5,
 "cloth": 0,
 "damage": 1,
-"value_copper": 90,
-"value_silver": 9,
-"value_gold": .9
+"value_copper": 390,
+"value_silver": 39,
+"value_gold": 3.9,
+"material_value": 3
 }
 
 MASTERWORK_STEEL_LARGE_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Iron Large Weapon",
-"aliases": ["iron large weapon", "staff", "polearm", "spear", "great axe", "great hammer", "two handed sword", "bastard sword"],
-"required_resources": 4,
-"iron_ingots": 2,
-"refined_wood": 1,
-"leather": 1,
+"key": "Masterwork Steel Large Weapon",
+"aliases": ["masterwork steel large weapon"],
+"required_resources": 24,
+"iron_ingots": 12,
+"refined_wood": 6,
+"leather": 6,
 "cloth": 0,
 "damage": 2,
 "twohanded": True,
-"value_copper": 90,
-"value_silver": 9,
-"value_gold": .9
+"value_copper": 420,
+"value_silver": 42,
+"value_gold": 4.2,
+"material_value": 3
 }
 
 MASTERWORK_STEEL_SHIELD = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Iron Shield",
-"aliases": ["iron shield, basic shield"],
-"required_resources": 3,
-"iron_ingots": 1,
-"refined_wood": 1,
-"leather": 1,
+"key": "Masterwork Steel Shield",
+"aliases": ["masterwork steel shield"],
+"required_resources": 17,
+"iron_ingots": 9,
+"refined_wood": 4,
+"leather": 4,
 "cloth": 0,
-"value_copper": 80,
-"value_silver": 8,
-"value_gold": .8
+"value_copper": 350,
+"value_silver": 35,
+"value_gold": 3.8,
+"material_value": 4
 }
 
 MASTERWORK_STEEL_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Hardened Iron Shield",
-"aliases": ["hardened iron shield"],
-"required_resources": 2,
-"iron_ingots": 1,
-"refined_wood": 1,
-"leather": 1,
-"cloth": 0,
- "value_copper": 70,
- "value_silver": 7,
- "value_gold": .7
+"key": "Masterwork Steel Chain Shirt",
+"aliases": ["masterwork steel chain shirt"],
+"required_resources": 17,
+"iron_ingots": 10,
+"refined_wood": 0,
+"leather": 4,
+"cloth": 3,
+"value_copper": 350,
+"value_silver": 35,
+"value_gold": 3.5,
+"material_value": 8
 }
 
 
 MASTERWORK_STEEL_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Hardened Iron Shield",
-"aliases": ["hardened iron shield"],
-"required_resources": 5,
-"iron_ingots": 2,
-"refined_wood": 1,
-"leather": 2,
-"cloth": 0,
- "value_copper": 100,
- "value_silver": 10,
- "value_gold": 1
+"key": "Masterwork Steel Coat of Plates",
+"aliases": ["masterwork steel coat of plates"],
+"required_resources": 24,
+"iron_ingots": 10,
+"refined_wood": 2,
+"leather": 8,
+"cloth": 4,
+"value_copper": 420,
+"value_silver": 42,
+"value_gold": 4.2,
+"material_value": 10
 }
 
 MASTERWORK_STEEL_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Hardened Iron Shield",
-"aliases": ["hardened iron shield"],
-"required_resources": 7,
-"iron_ingots": 4,
-"refined_wood": 1,
-"leather": 2,
-"cloth": 0,
- "value_copper": 120,
- "value_silver": 12,
- "value_gold": 1.2
+"key": "Masterwork Steel Platemail",
+"aliases": ["masterwork steel platemail"],
+"required_resources": 28,
+"iron_ingots": 16,
+"refined_wood": 2,
+"leather": 6,
+"cloth": 4,
+"value_copper": 460,
+"value_silver": 46,
+"value_gold": 4.6,
+"material_value": 12
 }
