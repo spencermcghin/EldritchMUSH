@@ -43,8 +43,8 @@ class CmdSunder(Command):
 
             combat_stats = h.getMeleeCombatStats(self.caller)
             target_stats = h.getMeleeCombatStats(target)
-            right_hand_item = combat_stats.get("right_slot", '')
-            left_hand_item = combat_stats.get("left_slot" '')
+            right_hand_item = combat_stats.get("right_slot", None)
+            left_hand_item = combat_stats.get("left_slot", None)
             sundersRemaining = self.caller.db.sunder
 
             if right_hand_item and right_hand_item == left_hand_item:
