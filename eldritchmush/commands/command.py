@@ -350,7 +350,7 @@ class CmdEquip(Command):
                                   multimatch_string=f"|540You carry more than one {self.item}|n:",
                                   )
 
-        if item:
+        if item and item not in self.right_slot:
             if not item.db.broken:
                 # Check if item is twohanded
                 if item.db.twohanded:
@@ -380,7 +380,7 @@ class CmdEquip(Command):
             else:
                 self.caller.msg(f"{item} is broken and may not be equipped.")
         else:
-            return
+            self.msg("|400You can't equip the same weapon twice.|n")
 
 
 class CmdUnequip(Command):
