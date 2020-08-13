@@ -57,17 +57,17 @@ class Room(DefaultRoom):
         string = super().return_appearance(looker)
 
         # Set value of perception/tracking key for returning values.
-        room_perception_search_key = looker.location
+        search_key = self
         looker_perception = looker.db.perception
         looker_tracking = looker.db.tracking
 
         # Message headers for look_results
-        perception_message = f"|530Perception|n - After careful inspection of the {room_perception_search_key}, you discover the following:\n"
-        tracking_message = f"|210Tracking|n - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:\n"
+        perception_message = f"|530Perception|n - After careful inspection of the {search_key}, you discover the following:\n"
+        tracking_message = f"|210Tracking|n - After combing the {search_key} for tracks and other signs, you discover the following:\n"
 
         # Returns list of messages if anything
-        room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
-        room_tracking_results = self.return_tracking(room_perception_search_key, looker_tracking)
+        room_perception_results = self.return_perception(search_key, looker_perception)
+        room_tracking_results = self.return_tracking(search_key, looker_tracking)
 
         # List for final print
         final_payload = [string]
