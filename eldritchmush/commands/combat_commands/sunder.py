@@ -45,7 +45,7 @@ class CmdSunder(Command):
             target_stats = h.getMeleeCombatStats(target)
             sundersRemaining = self.caller.db.sunder
 
-            if combat_stats.get("two_handed", False):
+            if self.caller.db.right_slot and self.caller.db.left_slot:
                 if sundersRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
@@ -129,7 +129,7 @@ class CmdSunder(Command):
                 else:
                     self.caller.msg("|300You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
             else:
-                self.msg("|430Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.|n")
+                self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
                 return
         else:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")
