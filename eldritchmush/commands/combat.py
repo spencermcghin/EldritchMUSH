@@ -261,11 +261,6 @@ class Helper():
     def getMeleeCombatStats(self, combatant):
         # Get hasMelee for character to check that they've armed themselves.
         melee = combatant.db.melee
-
-        # Search for twohanded.
-        item = combatant.search(combatant.db.right_slot[0], location=combatant)
-        is_twohanded = True if item.db.twohanded == True else False
-
         bow = combatant.db.bow
 
         # Vars for melee attack_result logic
@@ -281,6 +276,9 @@ class Helper():
         left_slot = combatant.db.left_slot
         right_slot = combatant.db.right_slot
 
+        # Search for twohanded.
+        item = combatant.search(right_slot, location=combatant)
+        is_twohanded = True if item.db.twohanded == True else False
 
         melee_stats = {"melee": melee,
                        "bow": bow,
