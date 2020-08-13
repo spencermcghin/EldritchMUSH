@@ -106,6 +106,7 @@ class CmdSunder(Command):
                                             self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity|n (|020{attack_result}|n) |025at {target.key} and hits|n (|300{target_av}|n), |025dealing|n |430{damage}|n |025damage!|n")
                                             target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                         else:
+                                            self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity|n (|020{attack_result}|n) |025at {target.key}'s {shot_location} and hits|n (|300{target_av}|n), |025dealing|n |430{damage}|n |025damage!|n")
                                             # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
                                             if shot_location == "torso" and target.db.body > 0:
                                                 target.db.body = 0
