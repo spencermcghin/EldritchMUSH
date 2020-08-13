@@ -138,7 +138,7 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.perception_details:
-            if perceptionkey.dbref in self.db.perception_details:
+            if perceptionkey in self.db.perception_details:
                 self.db.perception_details[perceptionkey].append((level, description))
             else:
                 self.db.perception_details.update({perceptionkey: [(level, description)]})
