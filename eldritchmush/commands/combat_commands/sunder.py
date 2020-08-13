@@ -67,7 +67,7 @@ class CmdSunder(Command):
 
                                         # Check target left and right slots for items. Decrement material value from right and then left.
                                         # If no more items, subtract damage as normal.
-                                        if target_stats.get("right_slot", ''):
+                                        if target_stats.get("right_slot", None):
                                             # Get item and material value for right slot.
                                             right_item = self.caller.search(target.db.right_slot[0], location=target)
                                             right_mv = right_item.db.material_value
@@ -83,9 +83,9 @@ class CmdSunder(Command):
                                                 right_mv -= 1
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|300{target.db.av})|025.|n")
 
-                                        elif target_stats.get("left_slot", ''):
+                                        elif target_stats.get("left_slot", None):
                                             # Get item and material value for right slot.
-                                            left_item = self.caller.search(target.db.left_slot[0])
+                                            left_item = self.caller.search(target.db.left_slot[0], location=target)
                                             left_mv = left_item.db.material_value
                                             # Decrement one from material value
                                             if left_mv - 1 < 0:
