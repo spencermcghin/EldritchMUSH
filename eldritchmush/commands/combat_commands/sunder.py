@@ -98,7 +98,7 @@ class CmdSunder(Command):
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|300{target.db.av}|n)|025.|n")
 
                                         # Do damage resolution block
-                                        if target_av:
+                                        elif target_av:
                                             # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                                             new_av = h.damageSubtractor(damage, target, self.caller)
                                             # Update target av to new av score per damageSubtractor
