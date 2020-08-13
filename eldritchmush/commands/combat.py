@@ -276,14 +276,9 @@ class Helper():
         left_slot = combatant.db.left_slot
         right_slot = combatant.db.right_slot
 
-        # Search for twohanded.
-        item = combatant.search(right_slot[0])
-        is_twohanded = True if item.db.twohanded == True else False
-
         melee_stats = {"melee": melee,
                        "bow": bow,
                        "bow_penalty": 2,
-                       "two_handed": is_twohanded,
                        "master_of_arms": master_of_arms,
                        "weapon_level": weapon_level,
                        "wylding_hand": wylding_hand,
