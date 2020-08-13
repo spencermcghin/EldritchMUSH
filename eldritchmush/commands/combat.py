@@ -277,6 +277,7 @@ class Helper():
         left_slot = combatant.db.left_slot
         right_slot = combatant.db.right_slot
 
+
         melee_stats = {"melee": melee,
                        "bow": bow,
                        "bow_penalty": 2,

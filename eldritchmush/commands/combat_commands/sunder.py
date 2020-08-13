@@ -72,8 +72,8 @@ class CmdSunder(Command):
                                             # Check to make sure it won't go below 0.
                                             if right_mv - 1 < 0:
                                                 right_mv = 0
-                                                right_item.db.broken = 1
-                                                # Remove weapon
+                                                right_item.db.broken = True
+                                                # Remove item from slot. Player won't be able to requip it.
                                                 target.db.right_slot.remove(right_item)
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
                                             else:
@@ -87,7 +87,7 @@ class CmdSunder(Command):
                                             # Decrement one from material value
                                             if left_mv - 1 < 0:
                                                 left_mv = 0
-                                                left_item.db.broken = 1
+                                                left_item.db.broken = True
                                                 target.db.left_slot.remove(left_item)
                                                 self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
                                             else:
@@ -126,9 +126,9 @@ class CmdSunder(Command):
                         self.msg("|400You are too injured to act.|n")
 
                 else:
-                    self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.")
+                    self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
             else:
-                self.msg("|540Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.")
+                self.msg("|540Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.|n")
                 return
         else:
             self.msg("|540You need to wait until it is your turn before you are able to act.|n")

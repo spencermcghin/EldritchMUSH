@@ -56,8 +56,8 @@ class CmdStrike(Command):
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)
 
-            # Get die result based on master of arms level
-            if combat_stats.get("right_slot", []) or combat_stats.get("left_slot"):
+            # Check to see if player holding a weapon in either hand. Won't let you equip broken weapons.
+            if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
 
                 # Check if damage bonus comes from fayne or master_of_arms
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
