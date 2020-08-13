@@ -44,14 +44,15 @@ class CmdDisarm(Command):
             combat_stats = h.getMeleeCombatStats(self.caller)
             disarmsRemaining = self.caller.db.disarm
 
-            if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
+            # Check to see if player holding a weapon in either hand. Sunder removes weapon from player slot. Won't let you equip broken weapons.
+            if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
                 if disarmsRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                     # Get damage result and damage for weapon type
                     attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("disarm_penalty", 0)
-                    damage = 2 if combat_stats.get("two_handed", 0) == True else 1
+                    damage = 2 if combat_stats.get("two_handed", False) else 1
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
 
@@ -97,7 +98,7 @@ class CmdDisarm(Command):
                 else:
                     self.caller.msg("|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.")
             else:
-                self.msg("|540Before you attack you must equip a weapon using the command setmelee 1 or setbow 1.")
+                self.msg("|540Before you attack you must equip a weapon using the command setmelee 1 or setbow 1.|n")
                 return
         else:
             self.msg("You need to wait until it is your turn before you are able to act.")
