@@ -42,7 +42,7 @@ class CmdCleave(Command):
             combat_stats = h.getMeleeCombatStats(self.caller)
             cleavesRemaining = self.caller.db.cleave
 
-            if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
+            if combat_stats.get("two_handed", False):
                 if cleavesRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
