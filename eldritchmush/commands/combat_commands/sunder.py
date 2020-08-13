@@ -67,7 +67,7 @@ class CmdSunder(Command):
                                         # If no more items, subtract damage as normal.
                                         if target_stats.get("right_slot", ''):
                                             # Get item and material value for right slot.
-                                            right_item = self.caller.search(target.db.right_slot[0])
+                                            right_item = self.caller.search(target.db.right_slot[0], location=target)
                                             right_mv = right_item.db.material_value
                                                 # Decrement one from material value.
                                             # Check to make sure it won't go below 0.
