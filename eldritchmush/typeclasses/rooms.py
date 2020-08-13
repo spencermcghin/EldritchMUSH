@@ -98,7 +98,7 @@ class Room(DefaultRoom):
         look_results = []
 
         if self.db.perception_details:
-            perception_details = self.db.perception_details.get(perceptionkey.name.lower(), None)
+            perception_details = self.db.perception_details.get(perceptionkey, None)
             for details in perception_details:
                 if details[0] <= perceptionlevel:
                     look_results.append(details[1])
@@ -118,7 +118,7 @@ class Room(DefaultRoom):
         look_results = []
 
         if self.db.tracking_details:
-            tracking_details = self.db.tracking_details.get(trackingkey.name.lower(), None)
+            tracking_details = self.db.tracking_details.get(trackingkey, None)
             for details in tracking_details:
                 if details[0] <= trackinglevel:
                     look_results.append(details[1])
@@ -139,11 +139,11 @@ class Room(DefaultRoom):
         """
         if self.db.perception_details:
             if perceptionkey.lower() in self.db.perception_details:
-                self.db.perception_details[perceptionkey.lower()].append((level, description))
+                self.db.perception_details[perceptionkey].append((level, description))
             else:
-                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
+                self.db.perception_details.update({perceptionkey: [(level, description)]})
         else:
-            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+            self.db.perception_details = {perceptionkey: [(level, description)]}
 
     def set_tracking(self, trackingkey, level, description):
         """
