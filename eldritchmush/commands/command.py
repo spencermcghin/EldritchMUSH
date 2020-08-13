@@ -323,7 +323,7 @@ class CmdGive(Command):
 class CmdEquip(Command):
     """Equip a weapon or shield
 
-    Usage: equip <weapon or shield>
+    Usage: equip <weapon, shield, or armor>
 
     Searches the callers inventory and puts the item in the right_slot if 1H, and then the left_slot
     if the character equips something else.
@@ -344,7 +344,11 @@ class CmdEquip(Command):
             self.caller.msg("|540Usage: equip <item>|n")
             return
 
-        item = self.caller.search(self.item)
+        item = self.caller.search(self.item,
+                                  location=self.caller,
+                                  nofound_string=f"|540You aren't carrying a {self.item}.|n",
+                                  multimatch_string=f"|540You carry more than one {self.item}|n:",
+                                  )
 
         if item:
             if not item.db.broken:
@@ -376,7 +380,7 @@ class CmdEquip(Command):
             else:
                 self.caller.msg(f"{item} is broken and may not be equipped.")
         else:
-            self.caller.msg(f"Please be more specific.")
+            return
 
 
 class CmdUnequip(Command):
