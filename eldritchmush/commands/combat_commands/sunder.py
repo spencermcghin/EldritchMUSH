@@ -42,6 +42,7 @@ class CmdSunder(Command):
         if self.caller.db.combat_turn:
 
             combat_stats = h.getMeleeCombatStats(self.caller)
+            target_stats = h.getMeleeCombatStats(target)
             sundersRemaining = self.caller.db.sunder
 
             if combat_stats.get("two_handed", False) or combat_stats.get("bow", 0):
