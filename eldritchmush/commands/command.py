@@ -1339,7 +1339,7 @@ class CmdTracking(default_cmds.MuxCommand):
                 self.obj = looking_at_obj[0]
                 # self.caller.msg(f"You are looking at {self.obj}")
                 # Set the perception object in the database
-                self.obj.set_tracking(self.obj.name, level, self.rhs)
+                self.obj.set_tracking(self.obj, level, self.rhs)
                 # Message to admin for confirmation.
                 self.caller.msg(f"|540Tracking set on {self.obj.name}\nLevel: {level}\nDescription: {self.rhs}|n")
             else:
