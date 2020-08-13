@@ -26,7 +26,7 @@ class Helper():
             target = self.caller.search(target)
 
         except:
-            self.caller.msg(f"|400No such target, {target}, or target not legal.|n")
+            self.caller.msg(f"|300No such target, {target}, or target not legal.|n")
             return
 
         else:
@@ -166,8 +166,8 @@ class Helper():
                 damage = 0
                 target.db.weakness = 1
 
-            target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
-            target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+            target.msg("|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
+            target.location.msg_contents(f"|025{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
 
 
         if target_death_points and damage:
@@ -179,8 +179,8 @@ class Helper():
                 target.db.death_points = death_damage
                 damage = 0
 
-            target.msg("|400You are unconscious and can no longer move of your own volition.|n")
-            target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+            target.msg("|300You are unconscious and can no longer move of your own volition.|n")
+            target.location.msg_contents(f"|025{target.key} does not seem to be moving.|n")
 
         else:
             pass
@@ -262,9 +262,9 @@ class Helper():
         # Get hasMelee for character to check that they've armed themselves.
         melee = combatant.db.melee
 
-        if combatant.db.right_slot:
-            item = combatant.search(combatant.db.right_slot[0], location=combatant)
-            is_twohanded = True if item.db.twohanded == True else False
+        # Search for twohanded.
+        item = combatant.search(combatant.db.right_slot[0], location=combatant)
+        is_twohanded = True if item.db.twohanded == True else False
 
         bow = combatant.db.bow
 
@@ -346,7 +346,7 @@ class CmdResist(Command):
 
         # Check for equip proper weapon type or weakness
         if weakness:
-            self.caller.msg("|400You are too weak to use this attack.|n")
+            self.caller.msg("|300You are too weak to use this attack.|n")
         elif resistsRemaining > 0:
         # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
@@ -362,11 +362,11 @@ class CmdResist(Command):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
-            self.caller.location.msg_contents(f"|015{self.caller.key} resists the attack, taking no damage!.|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} resists the attack, taking no damage!.|n")
             self.caller.db.body += 1
-            self.caller.msg(f"|540Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
+            self.caller.msg(f"|430Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
         else:
-            self.caller.msg("|400You have 0 resists remaining or do not have the skill.")
+            self.caller.msg("|300You have 0 resists remaining or do not have the skill.")
 
 
 
@@ -390,16 +390,16 @@ class CmdBattlefieldCommander(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("|540Usage: bolster <target>|n")
+            self.caller.msg("|430Usage: bolster <target>|n")
             return
 
         bolsterRemaining = self.caller.db.battlefieldcommander
 
         if bolsterRemaining > 0:
-            self.caller.location.msg_contents(f"|015Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room may now add 1 Tough to their av, using the command settough #|n |400(Should be one more than your current value).|n")
+            self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |300{self.speech}|n.\n|430Everyone in the room may now add 1 Tough to their av, using the command settough #|n |300(Should be one more than your current value).|n")
             self.caller.db.battlefieldcommander -= 1
         else:
-            self.caller.msg("|400You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
+            self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
 
 class CmdRally(Command):
@@ -417,13 +417,13 @@ class CmdRally(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("|540Usage: rally <speech>|n")
+            self.caller.msg("|430Usage: rally <speech>|n")
             return
 
         rallyRemaining = self.caller.db.rally
 
         if rallyRemaining > 0:
-            self.caller.location.msg_contents(f"|015{self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room now feels unafraid. Cancel the fear effect.|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} shouts so all can hear,|n |300{self.speech}|n.\n|430Everyone in the room now feels unafraid. Cancel the fear effect.|n")
             self.caller.db.rally -= 1
         else:
-            self.caller.msg("|400You have no uses of your rally ability remaining or do not have the skill.|n")
+            self.caller.msg("|300You have no uses of your rally ability remaining or do not have the skill.|n")
