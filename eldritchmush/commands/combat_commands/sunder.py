@@ -24,7 +24,7 @@ class CmdSunder(Command):
     def func(self):
 
         if not self.target:
-            self.caller.msg("|540Usage: sunder <target>|n")
+            self.caller.msg("|430Usage: sunder <target>|n")
             return
 
         # Init combat helper class for logic
@@ -44,7 +44,7 @@ class CmdSunder(Command):
             combat_stats = h.getMeleeCombatStats(self.caller)
             sundersRemaining = self.caller.db.sunder
 
-            if combat_stats.get("two_handed", 0) or combat_stats.get("bow", 0):
+            if combat_stats.get("two_handed", False) or combat_stats.get("bow", 0):
                 if sundersRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
@@ -75,10 +75,10 @@ class CmdSunder(Command):
                                                 right_item.db.broken = True
                                                 # Remove item from slot. Player won't be able to requip it.
                                                 target.db.right_slot.remove(right_item)
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|300{target.db.av}|n)|025, breaking it.|n")
                                             else:
                                                 right_mv -= 1
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av}|n).")
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|300{target.db.av})|025.|n")
 
                                         elif target_stats.get("left_slot", ''):
                                             # Get item and material value for right slot.
@@ -89,10 +89,10 @@ class CmdSunder(Command):
                                                 left_mv = 0
                                                 left_item.db.broken = True
                                                 target.db.left_slot.remove(left_item)
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|015, breaking it.|n")
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|300{target.db.av}|n)|025, breaking it.|n")
                                             else:
                                                 right_mv -= 1
-                                                self.caller.location.msg_contents(f"|015{self.caller.key} strikes|n (|020{attack_result}|n) |015with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n).")
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|300{target.db.av}|n)|025.|n")
 
                                         # Do damage resolution block
                                         if target_av:
@@ -100,36 +100,36 @@ class CmdSunder(Command):
                                             new_av = h.damageSubtractor(damage, target, self.caller)
                                             # Update target av to new av score per damageSubtractor
                                             target.db.av = new_av
-                                            target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
+                                            target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                         else:
                                             # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
                                             if shot_location == "torso" and target.db.body > 0:
                                                 target.db.body = 0
-                                                self.caller.location.msg_contents(f"|015{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                                self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                                             else:
                                                 h.deathSubtractor(damage, target, self.caller)
 
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.sunder -= 1
                                     else:
-                                        self.caller.location.msg_contents(f"|015{self.caller.key} strikes a devestating blow at {target.key}, but misses.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes a devestating blow at {target.key}, but misses.|n")
                                     # Clean up
                                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                     loop.combatTurnOff(self.caller)
                                     loop.cleanup()
                             else:
-                                self.caller.msg("|540You are too weak to use this attack.|n")
+                                self.caller.msg("|430You are too weak to use this attack.|n")
                         else:
                             self.msg(f"{target.key} is dead. You only further mutiliate their body.")
                             self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
                     else:
-                        self.msg("|400You are too injured to act.|n")
+                        self.msg("|300You are too injured to act.|n")
 
                 else:
-                    self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
+                    self.caller.msg("|300You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
             else:
-                self.msg("|540Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.|n")
+                self.msg("|430Before you attack you must equip a weapon using the command settwohanded 1 or setbow 1.|n")
                 return
         else:
-            self.msg("|540You need to wait until it is your turn before you are able to act.|n")
+            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
