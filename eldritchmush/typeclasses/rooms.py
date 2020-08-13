@@ -157,12 +157,12 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.tracking_details:
-            if trackingkey.lower() in self.db.tracking_details:
-                self.db.tracking_details[trackingkey.lower()].append((level, description))
+            if trackingkey in self.db.tracking_details:
+                self.db.tracking_details[trackingkey].append((level, description))
             else:
-                self.db.tracking_details.update({trackingkey.lower(): [(level, description)]})
+                self.db.tracking_details.update({trackingkey: [(level, description)]})
         else:
-            self.db.tracking_details = {trackingkey.lower(): [(level, description)]}
+            self.db.tracking_details = {trackingkey: [(level, description)]}
 
 class ChargenRoom(Room):
     """
