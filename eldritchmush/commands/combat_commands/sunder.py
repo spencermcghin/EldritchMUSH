@@ -103,6 +103,7 @@ class CmdSunder(Command):
                                             new_av = h.damageSubtractor(damage, target, self.caller)
                                             # Update target av to new av score per damageSubtractor
                                             target.db.av = new_av
+                                            self.caller.location.msg_contents(f"|025{self.caller.key} strikes with great ferocity|n (|020{attack_result}|n) |025at {target.key} and hits|n (|300{target_av}|n), |025dealing|n |430{damage}|n |025damage!|n")
                                             target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                         else:
                                             # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
