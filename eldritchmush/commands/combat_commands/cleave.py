@@ -40,9 +40,11 @@ class CmdCleave(Command):
         if self.caller.db.combat_turn:
 
             combat_stats = h.getMeleeCombatStats(self.caller)
+            right_hand_item = combat_stats.get("right_slot", None)
+            left_hand_item = combat_stats.get("left_slot", None)
             cleavesRemaining = self.caller.db.cleave
 
-            if combat_stats.get("two_handed", False):
+            if right_hand_item and right_hand_item == left_hand_item:
                 if cleavesRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
