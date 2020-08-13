@@ -60,7 +60,7 @@ class CmdStagger(Command):
                           if staggersRemaining > 0:
                             if not combat_stats.get("weakness", 0):
                                     if attack_result >= target.db.av:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and puts {target.key} off of their footing (|300{target.db.av}|n)|025, dealing {damage} damage.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and puts {target.key} off of their footing|n (|300{target.db.av}|n)|025, dealing {damage} damage.|n")
                                         # Do damage resolution block
                                         if target_av:
                                             # subtract damage from corresponding target stage (shield_value, armor, tough, body)
