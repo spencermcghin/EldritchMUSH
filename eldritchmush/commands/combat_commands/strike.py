@@ -57,7 +57,7 @@ class CmdStrike(Command):
             combat_stats = h.getMeleeCombatStats(self.caller)
 
             # Get die result based on master of arms level
-            if combat_stats.get("melee", 0):
+            if combat_stats.get("right_slot", []) or combat_stats.get("left_slot"):
 
                 # Check if damage bonus comes from fayne or master_of_arms
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
@@ -102,7 +102,7 @@ class CmdStrike(Command):
                 loop.combatTurnOff(self.caller)
                 loop.cleanup()
             else:
-                 self.msg("|540Before you strike you must equip a melee weapon using the command setmelee 1.")
+                 self.msg("|540Before you strike you must equip a melee weapon using the command equip <weapon name>.|n")
         else:
             self.msg("You need to wait until it is your turn before you are able to act.")
             return
