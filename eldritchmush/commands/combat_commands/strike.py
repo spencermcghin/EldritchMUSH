@@ -56,7 +56,7 @@ class CmdStrike(Command):
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)
 
-            # Check to see if player holding a weapon in either hand. Won't let you equip broken weapons.
+            # Check to see if player holding a weapon in either hand. Sunder removes weapon from player slot. Won't let you equip broken weapons.
             if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
 
                 # Check if damage bonus comes from fayne or master_of_arms
