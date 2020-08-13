@@ -43,9 +43,11 @@ class CmdSunder(Command):
 
             combat_stats = h.getMeleeCombatStats(self.caller)
             target_stats = h.getMeleeCombatStats(target)
+            right_hand_item = combat_stats.get("right_slot", '')
+            left_hand_item = combat_stats.get("left_slot" '')
             sundersRemaining = self.caller.db.sunder
 
-            if self.caller.db.right_slot == self.caller.db.left_slot:
+            if right_hand_item and right_hand_item == left_hand_item:
                 if sundersRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
