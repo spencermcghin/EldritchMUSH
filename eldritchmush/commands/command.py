@@ -2280,7 +2280,7 @@ class CmdFollow(Command):
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
             if (caller.db.leader == ""):
-                caller.msg("|540Usage: follow <target>|n\n|400It appears you may have been following someone, but the target was lost. Try executing the follow command on your target again.|n")
+                caller.msg("|540Usage: follow <target>|n\n|400It appears you may have already been following someone, but the original target was lost. Try executing the follow command on your new target again.|n")
                 caller.db.isFollowing = False
             # Otherwise, let them know they are already following someone.
             else:
@@ -2299,7 +2299,7 @@ class CmdFollow(Command):
 
             # If the target wasn't found within the room they are in...
             if not target:
-                    caller.msg("|540Usage: follow <target>|n\n|400Your target wasn't found. Please try again.|n")
+                    caller.msg("|540Usage: follow <target>|n\n|400Your target wasn't found within your vicinity. You must be in the same area as your target.|n")
             else:
                 try:
                     # Attempt to find the caller's key in the target's followers array.
@@ -2332,6 +2332,7 @@ class CmdUnfollow(Command):
     """
 
     key = "unfollow"
+    aliases = ["stop following"]
     help_category = "mush"
 
     def func(self):
@@ -2351,7 +2352,7 @@ class CmdUnfollow(Command):
         
         # If they didn't specify a target...
         else if not self.target:
-            caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
+            caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
         else if caller.db.isFollowing == False:
@@ -2361,19 +2362,27 @@ class CmdUnfollow(Command):
             # If their leader attribute is not blank, there must have been an issue. Set their leader attribute to blank and make
             # sure they were removed from the target's followers array.
             if (caller.db.leader !== ""):
-                caller.db.isFollowing = False
 
-                if (target):
-                    try:
+                # If their leader value is equal to the target that they selected
+                if (caller.db.leader == target.key):
+                    # Try removing them from the target's followers array.
+                    try:      
                         target.db.followers.remove(caller.key)
+                        if (target.db.followers.len() == 0):
+                            target.db.isLeader = False
                         caller.msg("|540You are no longer following " + target.key + "|n")
                         target.msg("|540"+ caller.key + " is no longer following you.|n")
                     except ValueError:
                         caller.msg("|540You are no longer following " + target.key + "|n")
+                    caller.db.leader = ""
+                
+                # Else, the user should be told that they were not following the selected target
+                else:
+                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowreset <target> with the original target you specified.|n")
                 
             # Otherwise, let them know they were not following anyone to begin with.
             else:
-                caller.msg("|540Usage: follow <target>|n\n|400You weren't following anyone.|n")
+                caller.msg("|540Usage: unfollow <target>|n\n|400You weren't following anyone.|n")
         
         # If all is well...
         else:
