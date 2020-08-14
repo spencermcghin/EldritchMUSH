@@ -1,6 +1,7 @@
 
 # Local imports
 from typeclasses.characters import Character
+from evennia import create_object
 # from commands.combat import Helper
 
 # Imports
@@ -33,6 +34,8 @@ class MeleeSoldier(Npc):
         longsword = create_object(typeclass.IRON_MEDIUM_WEAPON,
                                   key="Longsword",
                                   location=self)
+
+        self.execute_cmd("equip longsword")
 
     def at_char_entered(self, character):
         # Choose a random command and run it
