@@ -1,7 +1,6 @@
 
 # Local imports
 from typeclasses.characters import Character
-from
 from evennia import create_object
 # from commands.combat import Helper
 
