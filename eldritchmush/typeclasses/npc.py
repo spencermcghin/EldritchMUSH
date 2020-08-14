@@ -1,6 +1,7 @@
 
 # Local imports
 from typeclasses.characters import Character
+from
 from evennia import create_object
 # from commands.combat import Helper
 
@@ -31,7 +32,7 @@ class MeleeSoldier(Npc):
 
     def at_object_creation(self):
         # Arm with item:
-        longsword = create_object(typeclass.IRON_MEDIUM_WEAPON,
+        longsword = create_object(typeclasses.IRON_MEDIUM_WEAPON,
                                   key="Longsword",
                                   location=self)
 
