@@ -4,12 +4,16 @@ Room
 Rooms are simple containers that has no location of their own.
 
 """
-
+# Local imports
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
+from evennia import utils
 from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet
 from commands import command
+from typeclasses.characters import Character
+from typeclasses.npc import Npc
 
+# Imports
 import random
 
 
@@ -24,31 +28,46 @@ class Room(DefaultRoom):
     properties and methods available on all Objects.
     """
 
+    def at_object_receive(self, obj, source_location):
+        if utils.inherits_from(obj, Npc): # An NPC has entered
+            pass
+        else:
+            if utils.inherits_from(obj, Character):
+                # A PC has entered, NPC is caught above.
+                # Cause the character to look around
+                obj.execute_cmd("look")
+                for item in self.contents:
+                    if utils.inherits_from(item, Npc):
+                        # An NPC is in the room
+                        item.at_char_entered(obj)
+
+
     def at_object_creation(self):
         """
         Called when room is first created
         """
 
         self.cmdset.add_default(RoomCmdSet)
-        # Holds character - command k, v pair for combat loop. Stores character,
+        # Holds character in for combat loop. Stores character,
         # and command entered.
         self.db.combat_loop = []
+
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
 
         # Set value of perception/tracking key for returning values.
-        room_perception_search_key = looker.location
+        search_key = self
         looker_perception = looker.db.perception
         looker_tracking = looker.db.tracking
 
         # Message headers for look_results
-        perception_message = f"|530Perception|n - After careful inspection of the {room_perception_search_key}, you discover the following:\n"
-        tracking_message = f"|210Tracking|n - After combing the {room_perception_search_key} for tracks and other signs, you discover the following:\n"
+        perception_message = f"|530Perception|n - After careful inspection of the {search_key}, you discover the following:\n"
+        tracking_message = f"|210Tracking|n - After combing the {search_key} for tracks and other signs, you discover the following:\n"
 
         # Returns list of messages if anything
-        room_perception_results = self.return_perception(room_perception_search_key, looker_perception)
-        room_tracking_results = self.return_tracking(room_perception_search_key, looker_tracking)
+        room_perception_results = self.return_perception(search_key, looker_perception)
+        room_tracking_results = self.return_tracking(search_key, looker_tracking)
 
         # List for final print
         final_payload = [string]
@@ -79,7 +98,7 @@ class Room(DefaultRoom):
         look_results = []
 
         if self.db.perception_details:
-            perception_details = self.db.perception_details.get(perceptionkey.name.lower(), None)
+            perception_details = self.db.perception_details.get(perceptionkey, None)
             for details in perception_details:
                 if details[0] <= perceptionlevel:
                     look_results.append(details[1])
@@ -99,7 +118,7 @@ class Room(DefaultRoom):
         look_results = []
 
         if self.db.tracking_details:
-            tracking_details = self.db.tracking_details.get(trackingkey.name.lower(), None)
+            tracking_details = self.db.tracking_details.get(trackingkey, None)
             for details in tracking_details:
                 if details[0] <= trackinglevel:
                     look_results.append(details[1])
@@ -119,12 +138,12 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.perception_details:
-            if perceptionkey.lower() in self.db.perception_details:
-                self.db.perception_details[perceptionkey.lower()].append((level, description))
+            if perceptionkey in self.db.perception_details:
+                self.db.perception_details[perceptionkey].append((level, description))
             else:
-                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
+                self.db.perception_details.update({perceptionkey: [(level, description)]})
         else:
-            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+            self.db.perception_details = {perceptionkey: [(level, description)]}
 
     def set_tracking(self, trackingkey, level, description):
         """
@@ -138,12 +157,12 @@ class Room(DefaultRoom):
                 at the given perceptionkey.
         """
         if self.db.tracking_details:
-            if trackingkey.lower() in self.db.tracking_details:
-                self.db.tracking_details[trackingkey.lower()].append((level, description))
+            if trackingkey in self.db.tracking_details:
+                self.db.tracking_details[trackingkey].append((level, description))
             else:
-                self.db.tracking_details.update({trackingkey.lower(): [(level, description)]})
+                self.db.tracking_details.update({trackingkey: [(level, description)]})
         else:
-            self.db.tracking_details = {trackingkey.lower(): [(level, description)]}
+            self.db.tracking_details = {trackingkey: [(level, description)]}
 
 class ChargenRoom(Room):
     """

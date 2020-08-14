@@ -35,4 +35,7 @@ class Exit(DefaultExit):
                                         defined, in which case that will simply be echoed.
     """
 
-    pass
+    def at_object_creation(self):
+        self.locks.add("traverse:attr(in_combat, 0)")
+
+        return

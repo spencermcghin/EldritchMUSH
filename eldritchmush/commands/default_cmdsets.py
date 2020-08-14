@@ -18,8 +18,8 @@ from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import command
-from commands import combat
-from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder
+from commands import combat, blacksmith
+from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm, stagger, stun, medicine
 from commands import npc
 from commands import dice
 
@@ -33,6 +33,25 @@ class RoomCmdSet(CmdSet):
 
         self.add(command.CmdPerception())
         self.add(command.CmdTracking())
+
+
+"""
+Crafting Command Sets
+"""
+class BlacksmithCmdSet(CmdSet):
+    """
+    Commands for making and repairing blacksmith items
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(blacksmith.CmdForge())
+        # self.add(blacksmith.CmdRepair())
+
+"""
+Strange Circus Command Sets - Virtual Event 1
+"""
 
 
 class BoxCmdSet(CmdSet):
@@ -56,6 +75,10 @@ class AltarCmdSet(CmdSet):
 
         self.add(command.CmdTouchAltar())
 
+"""
+End circus command sets
+"""
+
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -78,13 +101,14 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(shoot.CmdShoot())
         self.add(cleave.CmdCleave())
         self.add(combat.CmdResist())
-        self.add(combat.CmdDisarm())
-        self.add(combat.CmdStun())
+        self.add(disarm.CmdDisarm())
+        self.add(stun.CmdStun())
         self.add(disengage.CmdDisengage())
-        self.add(combat.CmdStagger())
+        self.add(stagger.CmdStagger())
         self.add(command.SetShield())
         self.add(command.SetTwoHanded())
         self.add(command.SetBow())
+        self.add(command.CmdGive())
         self.add(command.SetMelee())
         self.add(command.SetWeaponValue())
         self.add(command.CmdSmile())
@@ -92,7 +116,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetTough())
         self.add(command.SetBody())
         self.add(stabilize.CmdStabilize())
-        self.add(command.CmdMedicine())
+        self.add(medicine.CmdMedicine())
         self.add(command.SetWeakness())
         self.add(combat.CmdBattlefieldCommander())
         self.add(battlefield_medicine.CmdBattlefieldMedicine())

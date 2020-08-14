@@ -21,21 +21,16 @@ class Helper():
 
     def targetHandler(self, target):
         # Check for designated target
-        target = self.caller.search(target)
 
-        if not target:
-            self.caller.msg("|540Target not found.|n")
+        try:
+            target = self.caller.search(target)
+
+        except:
+            self.caller.msg(f"|300No such target, {target}, or target not legal.|n")
             return
 
-        if target == self.caller:
-            self.caller.msg(f"|400{self.caller}, you had better not try that.|n")
-            return
-
-        if target.db.body is None:
-            self.caller.msg("|400You had better not try that.|n")
-            return
-
-        return target
+        else:
+            return target
 
 
     def canFight(self, caller):
@@ -160,20 +155,19 @@ class Helper():
                 target.db.body = body_damage
                 damage = 0
 
-            target.location.msg_contents(f"{caller.key} greviously wounds {target.key}.")
-
-
         if target_bleed_points and damage:
             bleed_damage = target_bleed_points - damage
             if bleed_damage < 0:
                 damage = abs(bleed_damage)
                 target.db.bleed_points = 0
+                target.db.weakness = 1
             else:
                 target.db.bleed_points = bleed_damage
                 damage = 0
+                target.db.weakness = 1
 
-            target.msg("|540You are bleeding profusely from many wounds and can no longer use any active martial skills.\nYou may only use the limbs that have not been injured.|n")
-            target.location.msg_contents(f"|015{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+            target.msg("|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
+            target.location.msg_contents(f"|025{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
 
 
         if target_death_points and damage:
@@ -185,8 +179,8 @@ class Helper():
                 target.db.death_points = death_damage
                 damage = 0
 
-            target.msg("|400You are unconscious and can no longer move of your own volition.|n")
-            target.location.msg_contents(f"|015{target.key} does not seem to be moving.|n")
+            target.msg("|300You are unconscious and can no longer move of your own volition.|n")
+            target.location.msg_contents(f"|025{target.key} does not seem to be moving.|n")
 
         else:
             pass
@@ -267,7 +261,6 @@ class Helper():
     def getMeleeCombatStats(self, combatant):
         # Get hasMelee for character to check that they've armed themselves.
         melee = combatant.db.melee
-        two_handed = combatant.db.twohanded
         bow = combatant.db.bow
 
         # Vars for melee attack_result logic
@@ -286,14 +279,17 @@ class Helper():
         melee_stats = {"melee": melee,
                        "bow": bow,
                        "bow_penalty": 2,
-                       "two_handed": two_handed,
                        "master_of_arms": master_of_arms,
                        "weapon_level": weapon_level,
                        "wylding_hand": wylding_hand,
                        "weakness": weakness,
                        "dmg_penalty": dmg_penalty,
                        "left_slot": left_slot,
-                       "right_slot": right_slot}
+                       "right_slot": right_slot,
+                       "disarm_penalty": 2,
+                       "stagger_penalty": 2,
+                       "stagger_damage": 2,
+                       "stun_penalty": 1}
 
         return melee_stats
 
@@ -306,7 +302,6 @@ class Helper():
             die_result = self.masterOfArms(master_of_arms)
 
         return die_result
-
 
 
 """
@@ -323,7 +318,7 @@ class CmdResist(Command):
 
     resist
 
-    This will issue a resist command that adds one to your body, and decrements one from a character's available resists.
+    This will issue a resist command that adds one to your body or tough, and decrements one from a character's available resists.
     """
 
     key = "resist"
@@ -344,7 +339,7 @@ class CmdResist(Command):
 
         # Check for equip proper weapon type or weakness
         if weakness:
-            self.caller.msg("|400You are too weak to use this attack.|n")
+            self.caller.msg("|300You are too weak to use this attack.|n")
         elif resistsRemaining > 0:
         # Return die roll based on level in master of arms or wylding hand.
             if wylding_hand:
@@ -360,283 +355,11 @@ class CmdResist(Command):
             dmg_penalty = h.bodyChecker(self.caller.db.body)
             attack_result = (die_result + weapon_level) - dmg_penalty - weakness
 
-            self.caller.location.msg_contents(f"|015{self.caller.key} resists the attack, taking no damage!.|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} resists the attack, taking no damage!.|n")
             self.caller.db.body += 1
-            self.caller.msg(f"|540Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
+            self.caller.msg(f"|430Resist adds one body back to your total.\nYour new total body value is {self.caller.db.body}|n")
         else:
-            self.caller.msg("|400You have 0 resists remaining or do not have the skill.")
-
-
-class CmdDisarm(Command):
-    """
-    Issues a disarm command.
-
-    Usage:
-
-    disarm <target>
-
-    This will issue a disarm command that reduces the next amount of damage taken by master of arms level.
-    """
-
-    key = "disarm"
-    help_category = "mush"
-
-    def parse(self):
-        "Very trivial parser"
-        self.target = self.args.strip()
-
-    def func(self):
-            h = Helper()
-
-            "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-            disarmsRemaining = self.caller.db.disarm
-            master_of_arms = self.caller.db.master_of_arms
-            hasBow = self.caller.db.bow
-            hasMelee = self.caller.db.melee
-            weapon_level = h.weaponValue(self.caller.db.weapon_level)
-            hasTwoHanded = self.caller.db.twohanded
-
-            wylding_hand = self.caller.db.wyldinghand
-
-            if not self.args:
-                self.caller.msg("|540Usage: disarm <target>|n")
-                return
-
-            target = self.caller.search(self.target)
-
-            if not target:
-                self.caller.msg("|400There is nothing here that matches that description.|n")
-                return
-
-            if target == self.caller:
-                self.caller.msg(f"|400Don't disarm yourself {self.caller}!|n")
-                return
-
-            if target.db.body is None:
-                self.caller.msg("|400You had better not try that.")
-                return
-
-            if target.db.bow:
-                self.caller.msg("|400This attack may not be used on archers.|n")
-
-            # Check for weakness on character
-            weakness = h.weaknessChecker(self.caller.db.weakness)
-
-            # Check for equip proper weapon type or weakness
-            if weakness:
-                self.caller.msg("|400You are too weak to use this attack.|n")
-            elif hasBow:
-                self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee or not hasTwoHanded:
-                self.caller.msg("|540Before you can attack, you must first equip a melee weapon using the command setmelee 1 or settwohanded 1.")
-            else:
-                if disarmsRemaining > 0:
-                # Return die roll based on level in master of arms or wylding hand.
-                    if wylding_hand:
-                        die_result = h.wyldingHand(wylding_hand)
-                    else:
-                        die_result = h.masterOfArms(master_of_arms)
-
-                    # Decrement amount of disarms from amount in database
-                    self.caller.db.disarm -= 1
-
-                    # Get final attack result and damage
-                    weakness = h.weaknessChecker(self.caller.db.weakness)
-                    dmg_penalty = h.bodyChecker(self.caller.db.body)
-                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
-
-                    # Return attack result message
-                    if attack_result >= target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} skillfully disarms {target.key}.|n")
-                        target.msg("|540You have been disarmed. Equip your weapon by using the commands, setmelee 1, settwohanded 1, or setbow 1.|n\n")
-                        if target.db.melee:
-                            target.db.melee = 0
-                        elif target.db.twohanded:
-                            target.db.twohanded = 0
-                        self.caller.msg(f"|540You disarm {target.key}|n")
-                    elif attack_result < target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to disarm {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
-                else:
-                    self.caller.msg("|400You have 0 disarms remaining or do not have the skill.")
-
-
-class CmdStun(Command):
-    """
-    Issues a stun command.
-
-    Usage:
-
-    stun <target>
-
-    This will issue a stun command that denotes a target of an attack will lose their next turn if they are hit.
-    """
-
-    key = "stun"
-    help_category = "mush"
-
-    def parse(self):
-        "Very trivial parser"
-        self.target = self.args.strip()
-
-
-    def func(self):
-            h = Helper()
-
-            "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-            stunsRemaining = self.caller.db.stun
-            master_of_arms = self.caller.db.master_of_arms
-            hasBow = self.caller.db.bow
-            hasMelee = self.caller.db.melee
-            weapon_level = h.weaponValue(self.caller.db.weapon_level)
-            hasTwoHanded = self.caller.db.twohanded
-
-            wylding_hand = self.caller.db.wyldinghand
-
-            if not self.args:
-                self.caller.msg("|540Usage: stun <target>|n")
-                return
-
-            target = self.caller.search(self.target)
-
-            if not target:
-                self.caller.msg("|400There is nothing here that matches that description.|n")
-                return
-
-            if target == self.caller:
-                self.caller.msg(f"|400Don't stun yourself {self.caller}!|n")
-                return
-
-            if target.db.body is None:
-                self.caller.msg("|400You had better not try that.")
-                return
-
-            # Check for weakness on character
-            weakness = h.weaknessChecker(self.caller.db.weakness)
-
-            # Check for equip proper weapon type or weakness
-            if weakness:
-                self.caller.msg("|400You are too weak to use this attack.|n")
-            elif hasBow:
-                self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-            elif not hasMelee or not hasTwoHanded:
-                self.caller.msg("|540Before you can attack, you must first equip a melee weapon using the command setmelee 1 or settwohanded 1.")
-            else:
-                if stunsRemaining > 0:
-                # Return die roll based on level in master of arms or wylding hand.
-                    if wylding_hand:
-                        die_result = h.wyldingHand(wylding_hand)
-                    else:
-                        die_result = h.masterOfArms(master_of_arms)
-
-                    # Decrement amount of disarms from amount in database
-                    self.caller.db.stun -= 1
-
-                    # Get final attack result and damage
-                    weakness = h.weaknessChecker(self.caller.db.weakness)
-                    dmg_penalty = h.bodyChecker(self.caller.db.body)
-                    attack_result = (die_result + weapon_level) - dmg_penalty - weakness
-
-                    # Return attack result message
-
-                    if attack_result > target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015stuns {target.key}|n (|400{target.db.av}|n) |015such that they're unable to attack for a moment.|n\n|540{target.key} may noy attack next round.|n")
-                    elif attack_result < target.db.av:
-                        self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stun {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
-                else:
-                    self.caller.msg("|400You have 0 stuns remaining or do not have the skill.|n")
-
-
-class CmdStagger(Command):
-    """
-    Issues a stagger command.
-
-    Usage:
-
-    stagger <target>
-
-    This will calculate an attack score based on your weapon and master of arms level.
-    """
-
-    key = "stagger"
-    help_category = "mush"
-
-    def parse(self):
-        "Very trivial parser"
-        self.target = self.args.strip()
-
-        if not self.target:
-            self.caller.msg("|540Usage: stagger <target>|n")
-            return
-
-    def func(self):
-        h = Helper()
-
-        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-        master_of_arms = self.caller.db.master_of_arms
-        hasBow = self.caller.db.bow
-        hasMelee = self.caller.db.melee
-        staggersRemaining = self.caller.db.stagger
-        weapon_level = h.weaponValue(self.caller.db.weapon_level)
-        hasTwoHanded = self.caller.db.twohanded
-        stagger_penalty = 2
-
-        wylding_hand = self.caller.db.wyldinghand
-
-        target = self.caller.search(self.target)
-
-        if not target:
-            self.caller.msg("|400There is nothing here that matches that description.|n")
-            return
-
-        if target == self.caller:
-            self.caller.msg(f"|400Don't stagger yourself {self.caller}, silly!|n")
-            return
-
-        if target.db.body is None:
-            self.caller.msg("|400You had better not try that.")
-            return
-
-        # Check for equip proper weapon type
-        # Check for weakness on character
-        weakness = h.weaknessChecker(self.caller.db.weakness)
-
-        # Check for equip proper weapon type or weakness
-        if weakness:
-            self.caller.msg("|400You are too weak to use this attack.|n")
-        elif hasBow:
-            self.caller.msg("|540Before you can attack, you must first unequip your bow using the command setbow 0.")
-        elif not hasMelee or not hasTwoHanded:
-            self.caller.msg("|540Before you can attack, you must first equip a weapon using the command setmelee 1 or settwohanded 1.")
-        else:
-            if staggersRemaining > 0:
-            # Return die roll based on level in master of arms or wylding hand.
-                if wylding_hand:
-                    die_result = h.wyldingHand(wylding_hand)
-                else:
-                    die_result = h.masterOfArms(master_of_arms)
-
-                # Decrement amount of cleaves from amount in database
-                self.caller.db.stagger -= 1
-
-                # Get final attack result and damage
-                weakness = h.weaknessChecker(self.caller.db.weakness)
-                dmg_penalty = h.bodyChecker(self.caller.db.body)
-                attack_result = (die_result + weapon_level) - dmg_penalty - weakness - stagger_penalty
-
-                # Return attack result message
-                if attack_result > target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key}|n (|020{attack_result}|n) |015staggers {target.key}|n (|400{target.db.av}|n) |015, putting them off their guard.|n")
-                    # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                    new_av = h.damageSubtractor(2, target)
-                    # Update target av to new av score per damageSubtractor
-                    target.db.av = new_av
-                    target.msg(f"|540Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-
-                elif attack_result < target.db.av:
-                    self.caller.location.msg_contents(f"|015{self.caller.key} attempts|n (|400{attack_result}|n)|015 to stagger {target.key}|n (|020{target.db.av}|n)|015, but fumbles their attack.|n")
-            else:
-                self.caller.msg("|400You have 0 staggers remaining or do not have the skill.|n")
-
+            self.caller.msg("|300You have 0 resists remaining or do not have the skill.")
 
 
 
@@ -660,16 +383,16 @@ class CmdBattlefieldCommander(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("|540Usage: bolster <target>|n")
+            self.caller.msg("|430Usage: bolster <target>|n")
             return
 
         bolsterRemaining = self.caller.db.battlefieldcommander
 
         if bolsterRemaining > 0:
-            self.caller.location.msg_contents(f"|015Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room may now add 1 Tough to their av, using the command settough #|n |400(Should be one more than your current value).|n")
+            self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |300{self.speech}|n.\n|430Everyone in the room may now add 1 Tough to their av, using the command settough #|n |300(Should be one more than your current value).|n")
             self.caller.db.battlefieldcommander -= 1
         else:
-            self.caller.msg("|400You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
+            self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
 
 class CmdRally(Command):
@@ -687,13 +410,13 @@ class CmdRally(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("|540Usage: rally <speech>|n")
+            self.caller.msg("|430Usage: rally <speech>|n")
             return
 
         rallyRemaining = self.caller.db.rally
 
         if rallyRemaining > 0:
-            self.caller.location.msg_contents(f"|015{self.caller.key} shouts so all can hear,|n |400{self.speech}|n.\n|540Everyone in the room now feels unafraid. Cancel the fear effect.|n")
+            self.caller.location.msg_contents(f"|025{self.caller.key} shouts so all can hear,|n |300{self.speech}|n.\n|430Everyone in the room now feels unafraid. Cancel the fear effect.|n")
             self.caller.db.rally -= 1
         else:
-            self.caller.msg("|400You have no uses of your rally ability remaining or do not have the skill.|n")
+            self.caller.msg("|300You have no uses of your rally ability remaining or do not have the skill.|n")

@@ -5,6 +5,7 @@ import re
 from django.conf import settings
 from evennia.utils import utils, evtable
 from evennia.typeclasses.attributes import NickTemplateInvalid
+from evennia.commands.default.muxcommand import MuxCommand
 
 COMMAND_DEFAULT_CLASS = utils.class_from_module(settings.COMMAND_DEFAULT_CLASS)
 
@@ -501,6 +502,7 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
         if not self.args or not self.rhs:
             caller.msg("Usage: give <inventory object> = <target>")
             return
+
         to_give = caller.search(
             self.lhs,
             location=caller,
