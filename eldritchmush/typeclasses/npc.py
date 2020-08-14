@@ -30,21 +30,16 @@ class MeleeSoldier(Npc):
     Generic solider NPC
     """
 
-    def at_object_creation(self):
-        # Arm with item:
-        prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
-        self.location.msg_contents(f"search {prototype}")
-        longsword_data = prototype[0]
-        self.location.msg_contents(f"longsword data = {longsword_data}")
-        blacksmith_item = spawn(longsword_data)
-        blacksmith_item[0].move_to(self, quiet=True)
-        self.execute_cmd('equip longsword')
-
-
-        self.execute_cmd("equip longsword")
 
     def at_char_entered(self, character):
         # Choose a random command and run it
+        # Do stuff to equip your character
+        prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
+        longsword_data = prototype[0]
+        weapon_item = spawn(longsword_data)
+        weapon_item[0].move_to(self, quiet=True)
+        self.execute_cmd('equip longsword')
+        # Choose a random command and run it        
         command = self.command_picker(character)
         self.execute_cmd(command)
 
