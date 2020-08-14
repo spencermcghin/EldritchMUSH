@@ -32,7 +32,7 @@ class MeleeSoldier(Npc):
 
     def at_object_creation(self):
         # Arm with item:
-        prototype = prototypes.search_prototype(iron_medium_weapon, require_single=True)
+        prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
         longsword_data = prototype[0]
         blacksmith_item = spawn(longsword_data[0])
         blacksmith_item[0].move_to(self, quiet=True)
