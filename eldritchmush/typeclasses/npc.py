@@ -28,6 +28,12 @@ class MeleeSoldier(Npc):
     Generic solider NPC
     """
 
+    def at_object_creation(self):
+        # Arm with item:
+        longsword = create_object(typeclass.IRON_MEDIUM_WEAPON,
+                                  key="Longsword",
+                                  location=self)
+
     def at_char_entered(self, character):
         # Choose a random command and run it
         command = self.command_picker(character)
@@ -63,11 +69,7 @@ class MeleeSoldier(Npc):
         chosen_command = random.choice(flat_ams_commands)
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
-        # Arm with item:
-        longsword = create_object(typeclass.IRON_MEDIUM_WEAPON,
-                                  key="Longsword",
-                                  location=self)
-                             
+
         if not self.db.right_slot or self.db.left_slot:
             self.execute_cmd('equip longsword')
             pass
