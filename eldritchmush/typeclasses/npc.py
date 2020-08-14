@@ -1,7 +1,8 @@
 
 # Local imports
 from typeclasses.characters import Character
-from evennia import create_object
+from evennia.prototypes import prototypes
+from evennia import create_object, spawn
 # from commands.combat import Helper
 
 # Imports
@@ -31,9 +32,11 @@ class MeleeSoldier(Npc):
 
     def at_object_creation(self):
         # Arm with item:
-        longsword = create_object(typeclasses.IRON_MEDIUM_WEAPON,
-                                  key="Longsword",
-                                  location=self)
+        prototype = prototypes.search_prototype(iron_medium_weapon, require_single=True)
+        longsword_data = prototype[0]
+        blacksmith_item = spawn(longsword_data[0])
+        blacksmith_item[0].move_to(self, quiet=True)
+
 
         self.execute_cmd("equip longsword")
 
