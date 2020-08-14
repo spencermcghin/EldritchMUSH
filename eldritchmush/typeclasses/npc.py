@@ -41,7 +41,7 @@ class MeleeSoldier(Npc):
         weapon_item = spawn(longsword_data)
         self.location.msg_contents(f"weapon_item {weapon_item}")
         weapon_item[0].move_to(self, quiet=True)
-        self.execute_cmd('equip longsword')
+        self.execute_cmd('equip iron medium weapon')
         # Choose a random command and run it
         # command = self.command_picker(character)
         # self.execute_cmd(command)
