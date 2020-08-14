@@ -10,8 +10,8 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
-from evennia import DefaultObject
-from commands.default_cmdsets import BoxCmdSet
+from evennia import DefaultObject, utils
+from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet
 import random
 
 
@@ -266,21 +266,109 @@ class ObjSkullTicket(DefaultObject):
         self.db.desc = "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a grinning skull."
         return
 
+
 """
 Crafting Objects
 """
 
 class Forge(DefaultObject):
     """
-    Available command:
+    Available commands:
 
     forge <item>
+    repair <item>
     """
+
     def at_object_creation(self):
         "Called when object is first created"
         # Maintain state of object
         self.locks.add("get:false()")
-        self.db.desc = "\n|yThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor.|n\n|rOOG - Usage: forge <item>|n"
-
+        self.db.desc = "This is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor."
+        self.db.blacksmith_text = "Usage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon."
         # Add command set for interacting with box
-        self.cmdset.add_default(ForgeCmdSet, permanent=True)
+        self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if looker.db.blacksmith:
+            string += f"\n\n{self.db.blacksmith_text}"
+        return string
+
+class BlacksmithObject(DefaultObject):
+
+    def at_object_creation(self):
+        self.db.level: 0
+        self.db.required_resources: 0
+        self.db.iron_ingots: 0
+        self.db.cloth: 0
+        self.db.refined_wood: 0
+        self.db.leather: 0
+        self.db.value_copper: 0
+        self.db.value_silver: 0
+        self.db.value_gold: 0
+
+class WeaponObject(BlacksmithObject):
+    def at_object_creation(self):
+        self.db.damage = 0
+        self.db.material_value = 0
+        self.db.broken = False
+        self.db.twohanded = False
+        self.db.trait_one: []
+        self.db.trait_two: []
+        self.db.trait_three: []
+
+"""
+Storage Objects
+This is the base class type for an object that contains resources as attributes, i.e. gold, refined wood, etc...
+"""
+
+class Container(DefaultObject):
+    """
+    Contains entries for resources and currency to support the economic system.
+    """
+    def at_object_creation(self):
+        self.db.is_locked = False
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+
+    def return_appearance(self, looker):
+        # Get desc and default text for object.
+        string = super().return_appearance(looker)
+
+        # Get values for db entries.
+        gold = self.db.gold
+        silver = self.db.silver
+        copper = self.db.copper
+        iron_ingots = self.db.iron_ingots
+        refined_wood = self.db.refined_wood
+        leather = self.db.leather
+        cloth = self.db.cloth
+
+        # Show desc and other objects inside
+        looker.msg(f"{string}\n")
+
+        if gold:
+            looker.msg(f"|540Gold|n: {gold}\n")
+
+        if silver:
+            looker.msg(f"|=tSilver|n: {silver}\n")
+
+        if copper:
+            looker.msg(f"|310Copper|n: {copper}\n")
+
+        if iron_ingots:
+            looker.msg(f"|=kIron|n: {iron_ingots}\n")
+
+        if refined_wood:
+            looker.msg(f"|210Wood|n: {refined_wood}\n")
+
+        if leather:
+            looker.msg(f"|322Leather|n: {leather}\n")
+
+        if cloth:
+            looker.msg(f"|020Cloth|n: {cloth}")

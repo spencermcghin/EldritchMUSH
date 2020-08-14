@@ -52,6 +52,13 @@ class Character(DefaultCharacter):
         self.db.left_leg = 1
         self.db.torso = 1
 
+        # Crafting attributes
+        self.db.blacksmith = 0
+        self.db.artificer = 0
+        self.db.bowyer = 0
+        self.db.gunsmith = 0
+        self.db.alchemist = 0
+
         # Entries for healing
         self.db.stabilize = 0
         self.db.medicine = 0
@@ -78,20 +85,27 @@ class Character(DefaultCharacter):
         self.db.shield = 0
         self.db.bow = 0
         self.db.activemartialskill = 1
-        self.db.combat_turn = 0
+        self.db.combat_turn = 1
         self.db.in_combat = 0
         self.db.left_slot = []
         self.db.right_slot = []
-
-        # Entries for combat
+        self.db.skip_turn = False
         self.db.battlefieldcommander = 0
         self.db.rally = 0
-
         # Entries for following
         self.db.isLeading = false
         self.db.leader = ""
         self.db.isFollowing = false
         self.db.followers = []
+        # Entries for economy
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
+
 
     def return_appearance(self, looker):
         """
@@ -99,14 +113,28 @@ class Character(DefaultCharacter):
         looker sees when looking at this object.
         """
         text = super().return_appearance(looker)
-        isBleeding = True if (-3 <= self.db.body <= 0) else False
-        isDying = True if (-6 <= self.db.body <= -4) else False
-        # target = text.split("\n")
+        isBleeding = True if self.bleed_points else False
+        isDying = True if not self.bleed_points else False
+
+        # Check to see if player is fighting.
+        if self in self.location.db.combat_loop:
+            combat_string = f"{self.key} is currently in the midst of combat."
+
+        # Return
         if isBleeding:
-            return text + f"\n|400{self.key} is bleeding profusely from mutliple wounds. They may need a healer.|n"
+            return text + f"\n|400{self.key} is bleeding profusely from mutliple, serious wounds.|n"
 
         elif isDying:
-            return text + f"\n|400{self.key} is now unconscious. They will soon surely be dead.|n"
+            return text + f"\n|400{self.key} has succumbed to their injuries and is now unconscious.|n"
 
         else:
-            return text
+            return text + f"\n{combat_loop}"
+
+    # Changed for AI room response
+    def at_after_move(self, source_location):
+        """
+        Default is to look around after a move
+        Note:  This has been moved to room.at_object_receive
+        """
+        #self.execute_cmd('look')
+        pass

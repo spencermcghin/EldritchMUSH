@@ -7,9 +7,11 @@ Commands describe the input the account can do to the game.
 # Global imports
 import random
 from django.conf import settings
+import re
 
 # Local imports
 from evennia import Command as BaseCommand
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
 from commands.combat import Helper
@@ -196,10 +198,132 @@ class Command(BaseCommand):
 #                 self.character = None
 
 
+class CmdGive(Command):
+    """
+    give away something to someone
+
+    Usage:
+      give (optional:<qty>) <inventory obj> <to||=> <target>
+
+    Gives an items from your inventory to another character,
+    placing it in their inventory.
+    """
+
+    key = "give"
+    locks = "cmd:all()"
+    arg_regex = r"\s|$"
+
+    def parse(self):
+
+        raw = self.args
+        args = raw.strip()
+
+        # Parse arguments
+        self.args_list = args.split(" ")
+
+        # Check for qty at first element in args list
+        try:
+            isInt = int(self.args_list[0])
+        except ValueError:
+            item = self.args_list[0]
+            qty = None
+        else:
+            qty = int(self.args_list[0])
+            item = self.args_list[1]
+
+        self.target = self.args_list[-1]
+        self.item = item
+        self.qty = qty
+
+    def func(self):
+
+        # Get target and target handling
+        if not self.args or not self.target:
+            self.caller.msg("|540Usage: give <qty> <inventory object> to <target>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: give 5 gold to Tom.")
+            return
+
+        target = self.caller.search(self.target)
+
+        if target == self.caller:
+            self.caller.msg(f"You keep {self.item} to yourself.")
+            return
+
+        """
+        Check to see if given item is a resource before defaulting to caller inventory.
+        """
+
+        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+                          "refined_wood": ["refined", "wood", "refined wood"],
+                          "leather": ["leather"],
+                          "cloth": ["cloth"],
+                          "gold": ["gold", "gold dragons"],
+                          "silver": ["silver", "silver dragons"],
+                          "copper": ["copper", "copper dragons"]}
+
+
+        # Begin logic to check if item given is a resource or currency
+        resource_array = [v for k, v in resource_dict.items()]
+        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+
+        # If the item is in the list of aliases, find its corresponding key.
+        if self.item.lower() in flat_resource_array and self.qty is not None:
+            item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
+
+            # Check to see if item qty exists as attribute value on caller.
+            # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
+
+            caller_item_qty = self.caller.attributes.get(item_db_key[0])
+            if caller_item_qty >= self.qty:
+                attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
+                # Update target's corresponding attribute by self.qty.
+                # Check to make sure target has attribute.
+                try:
+                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
+                # If not, throw an error.
+                except AttributeError:
+                    self.msg("|540You need to specify an appropriate target.|n")
+                else:
+                    attribute.value -= self.qty
+                    target_attribute.value += self.qty
+                    self.msg(f"You give {self.qty} {self.item} to {self.target}")
+                    self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
+            else:
+                self.msg(f"|400You don't have enough {self.item}.|n")
+
+        else:
+
+            # Default give code
+            to_give = self.caller.search(
+                self.item,
+                location=self.caller,
+                nofound_string=f"|540You aren't carrying a {self.item}. If you want to give resources or currency please specify a quantity before the item. Ex: give 1 gold to Tom.|n" ,
+                multimatch_string=f"|540You carry more than one {self.item}|n:" ,
+            )
+
+            if not (to_give and target):
+                return
+
+            if not to_give.location == self.caller:
+                caller.msg("You are not holding %s." % to_give.key)
+                return
+
+            # calling at_before_give hook method
+            if not to_give.at_before_give(self.caller, target):
+                return
+
+            # give object
+            self.caller.msg("You give %s to %s." % (to_give.key, target.key))
+            to_give.move_to(target, quiet=True)
+            target.msg("%s gives you %s." % (self.caller.key, to_give.key))
+            # Call the object script's at_give() method.
+            to_give.at_give(self.caller, target)
+
+
+
 class CmdEquip(Command):
     """Equip a weapon or shield
 
-    Usage: equip <weapon or shield>
+    Usage: equip <weapon, shield, or armor>
 
     Searches the callers inventory and puts the item in the right_slot if 1H, and then the left_slot
     if the character equips something else.
@@ -220,27 +344,44 @@ class CmdEquip(Command):
             self.caller.msg("|540Usage: equip <item>|n")
             return
 
-        item = self.caller.search(self.item)
+        item = self.caller.search(self.item,
+                                  location=self.caller,
+                                  nofound_string=f"|540You aren't carrying a {self.item}.|n",
+                                  multimatch_string=f"|540You carry more than one {self.item}|n:",
+                                  )
 
-        if item:
-            # Check if item is twohanded
-            if item.db.twohanded:
-                self.right_slot.append(item)
-                self.left_slot.append(item)
-            # Check to see if right hand is empty.
-            elif not self.right_slot:
-                self.right_slot.append(item)
-            elif not self.left_slot:
-                self.left_slot.append(item)
+        if item and item not in self.right_slot:
+            if not item.db.broken:
+                # Check if item is twohanded
+                if item.db.twohanded:
+                    if not self.right_slot and not self.left_slot:
+                        self.right_slot.append(item)
+                        self.left_slot.append(item)
+                        # Send some messages
+                        self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+                        self.caller.msg(f"You have equipped your {item.key}")
+                    else:
+                        self.caller.msg(f"You can't equip the {item} unless you first unequip something.")
+                        return
+                # Check to see if right hand is empty.
+                elif not self.right_slot:
+                    self.right_slot.append(item)
+                    # Send some messages
+                    self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+                    self.caller.msg(f"You have equipped your {item.key}")
+                elif not self.left_slot:
+                    self.left_slot.append(item)
+                    # Send some messages
+                    self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
+                    self.caller.msg(f"You have equipped your {item.key}")
+                else:
+                    self.caller.msg("You are carrying items in both hands.")
+                    return
             else:
-                self.caller.msg("You are carrying items in both hands.")
-                return
-
-            # Send some messages
-            self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
-            self.caller.msg(f"You have equipped your {item.key}")
+                self.caller.msg(f"{item} is broken and may not be equipped.")
         else:
-            self.caller.msg(f"Please be more specific.")
+            self.msg("|400You can't equip the same weapon twice.|n")
+
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
@@ -1128,7 +1269,7 @@ class CmdPerception(default_cmds.MuxCommand):
                 self.obj = looking_at_obj[0]
                 # self.caller.msg(f"You are looking at {self.obj}")
                 # Set the perception object in the database
-                self.obj.set_perception(self.obj.name, level, self.rhs)
+                self.obj.set_perception(self.obj, level, self.rhs)
                 # Message to admin for confirmation.
                 self.caller.msg(f"|540Perception set on {self.obj.name}\nLevel: {level}\nDescription: {self.rhs}|n")
             else:
@@ -1198,7 +1339,7 @@ class CmdTracking(default_cmds.MuxCommand):
                 self.obj = looking_at_obj[0]
                 # self.caller.msg(f"You are looking at {self.obj}")
                 # Set the perception object in the database
-                self.obj.set_tracking(self.obj.name, level, self.rhs)
+                self.obj.set_tracking(self.obj, level, self.rhs)
                 # Message to admin for confirmation.
                 self.caller.msg(f"|540Tracking set on {self.obj.name}\nLevel: {level}\nDescription: {self.rhs}|n")
             else:
@@ -2314,29 +2455,3 @@ class CmdTouchAltar(Command):
             message = random.choice(self.ALTAR_STRINGS)
             self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
             self.caller.msg(message)
-
-"""
-Crafting Commands
-"""
-
-# class CmdForge(Command):
-#
-#         key = "forge"
-#         help_category = "mush"
-#
-#     def parse(self):
-#         self.item = self.args.strip()
-#
-#     def func(self):
-#         h = Helper(self.caller)
-#
-#         err_mnsg = "|540Usage: forge <item>|n"
-#
-#         # Logic
-#         # Caller executes command - forge iron medium weapon
-#         # Get resource and schematic requirements for item
-#         # Check to see if the resources and schematic are in the inventory of the caller
-#         # If so, remove those resources from caller's inventory, spawn item and place in caller's inventory
-#         # Put resources in forge object and then delete.
-#         # If not, prompt caller that they need additional resources.
-#         pass
