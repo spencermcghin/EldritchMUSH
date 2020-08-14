@@ -35,13 +35,16 @@ class MeleeSoldier(Npc):
         # Choose a random command and run it
         # Do stuff to equip your character
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
+        self.location.msg_contents(f"prototype {prototype}")
         longsword_data = prototype[0]
+        self.location.msg_contents(f"longsword_data {longsword_data}")
         weapon_item = spawn(longsword_data)
+        self.location.msg_contents(f"weapon_item {weapon_item}")
         weapon_item[0].move_to(self, quiet=True)
         self.execute_cmd('equip longsword')
-        # Choose a random command and run it        
-        command = self.command_picker(character)
-        self.execute_cmd(command)
+        # Choose a random command and run it
+        # command = self.command_picker(character)
+        # self.execute_cmd(command)
 
 
     def command_picker(self, target):
