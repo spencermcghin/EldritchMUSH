@@ -354,7 +354,8 @@ class CmdEquip(Command):
         # Check if the item is of armor type
 
         if item.db.is_armor:
-
+            self.caller.db.body_slot.append(item)
+            self.msg(f"{item.key} equipped")
 
 
 
