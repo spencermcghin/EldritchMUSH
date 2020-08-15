@@ -174,12 +174,12 @@ class Object(DefaultObject):
                 at the given perceptionkey.
         """
         if self.db.perception_details:
-            if perceptionkey.lower() in self.db.perception_details:
-                self.db.perception_details[perceptionkey.lower()].append((level, description))
+            if perceptionkey in self.db.perception_details:
+                self.db.perception_details[perceptionkey].append((level, description))
             else:
-                self.db.perception_details.update({perceptionkey.lower(): [(level, description)]})
+                self.db.perception_details.update({perceptionkey: [(level, description)]})
         else:
-            self.db.perception_details = {perceptionkey.lower(): [(level, description)]}
+            self.db.perception_details = {perceptionkey: [(level, description)]}
 
     def return_perception(self, perceptionkey, perceptionlevel):
         """
@@ -193,7 +193,7 @@ class Object(DefaultObject):
         look_results = []
 
         if self.db.perception_details:
-            perception_details = self.db.perception_details.get(perceptionkey.lower(), None)
+            perception_details = self.db.perception_details.get(perceptionkey, None)
             for details in perception_details:
                 if details[0] <= perceptionlevel:
                     look_results.append(details[1])
@@ -204,7 +204,7 @@ class Object(DefaultObject):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
 
-        object = self.key
+        object = self
         # Set value of perception/tracking key for returning values.
         looker_perception = looker.db.perception
         # Returns list of messages if anything
