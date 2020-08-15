@@ -93,7 +93,8 @@ IRON_SMALL_WEAPON = {
 "damage": 1,
 "value_copper": 70,
 "value_silver": 7,
-"value_gold": .7
+"value_gold": .7,
+"level": 0
 }
 
 IRON_MEDIUM_WEAPON = {
@@ -108,7 +109,8 @@ IRON_MEDIUM_WEAPON = {
 "damage": 1,
 "value_copper": 90,
 "value_silver": 9,
-"value_gold": .9
+"value_gold": .9,
+"level": 0
 }
 
 IRON_LARGE_WEAPON = {
@@ -124,7 +126,8 @@ IRON_LARGE_WEAPON = {
 "twohanded": True,
 "value_copper": 90,
 "value_silver": 9,
-"value_gold": .9
+"value_gold": .9,
+"level": 0
 }
 
 IRON_SHIELD = {
@@ -139,7 +142,8 @@ IRON_SHIELD = {
 "cloth": 0,
 "value_copper": 80,
 "value_silver": 8,
-"value_gold": .8
+"value_gold": .8,
+"level": 0
 }
 
 LEATHER_ARMOR = {
@@ -153,7 +157,8 @@ LEATHER_ARMOR = {
  "value_copper": 70,
  "value_silver": 7,
  "value_gold": .7,
- "material_value": 1
+ "material_value": 1,
+ "level": 0
 }
 
 IRON_CHAIN_SHIRT = {
@@ -167,7 +172,8 @@ IRON_CHAIN_SHIRT = {
  "value_copper": 70,
  "value_silver": 7,
  "value_gold": .7,
- "material_value": 1
+ "material_value": 1,
+ "level": 0
 }
 
 IRON_COAT_OF_PLATES = {
@@ -181,7 +187,8 @@ IRON_COAT_OF_PLATES = {
  "value_copper": 100,
  "value_silver": 10,
  "value_gold": 1,
- "material_value": 3
+ "material_value": 3,
+ "level": 0
 }
 
 IRON_PLATEMAIL = {
@@ -195,7 +202,8 @@ IRON_PLATEMAIL = {
  "value_copper": 120,
  "value_silver": 12,
  "value_gold": 1.2,
- "material_value": 5
+ "material_value": 5,
+ "level": 0
 }
 
 """
@@ -215,7 +223,8 @@ HARDENED_IRON_SMALL_WEAPON = {
 "value_copper": 130,
 "value_silver": 13,
 "value_gold": 1.3,
-"material_value": 1
+"material_value": 1,
+"level": 1
 }
 
 HARDENED_IRON_MEDIUM_WEAPON = {
@@ -231,7 +240,8 @@ HARDENED_IRON_MEDIUM_WEAPON = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"material_value": 1
+"material_value": 1,
+"level": 1
 }
 
 HARDENED_IRON_LARGE_WEAPON = {
@@ -248,7 +258,8 @@ HARDENED_IRON_LARGE_WEAPON = {
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
-"material_value": 1
+"material_value": 1,
+"level": 1
 }
 
 HARDENED_IRON_SHIELD = {
@@ -264,7 +275,8 @@ HARDENED_IRON_SHIELD = {
 "value_copper": 140,
 "value_silver": 14,
 "value_gold": 1.4,
-"material_value": 1
+"material_value": 1,
+"level": 1
 }
 
 HARDENED_LEATHER_ARMOR = {
@@ -280,7 +292,8 @@ HARDENED_LEATHER_ARMOR = {
 "value_copper": 140,
 "value_silver": 14,
 "value_gold": 1.4,
-"material_value": 2
+"material_value": 2,
+"level": 1
 }
 
 HARDENED_IRON_CHAIN_SHIRT = {
@@ -296,7 +309,8 @@ HARDENED_IRON_CHAIN_SHIRT = {
 "value_copper": 150,
 "value_silver": 15,
 "value_gold": 1.5,
-"material_value": 2
+"material_value": 2,
+"level": 1
 }
 
 HARDENED_IRON_COAT_OF_PLATES = {
@@ -312,7 +326,8 @@ HARDENED_IRON_COAT_OF_PLATES = {
 "value_copper": 200,
 "value_silver": 20,
 "value_gold": 2,
-"material_value": 4
+"material_value": 4,
+"level": 1
 }
 
 HARDENED_IRON_PLATEMAIL = {
@@ -328,7 +343,8 @@ HARDENED_IRON_PLATEMAIL = {
 "value_copper": 220,
 "value_silver": 22,
 "value_gold": 2.2,
-"material_value": 6
+"material_value": 6,
+"level": 1
 }
 
 """
@@ -348,7 +364,8 @@ STEEL_SMALL_WEAPON = {
 "value_copper": 180,
 "value_silver": 18,
 "value_gold": 1.8,
-"material_value": 2
+"material_value": 2,
+"level": 2
 }
 
 STEEL_MEDIUM_WEAPON = {
@@ -364,7 +381,8 @@ STEEL_MEDIUM_WEAPON = {
 "value_copper": 230,
 "value_silver": 23,
 "value_gold": 2.3,
-"material_value": 2
+"material_value": 2,
+"level": 2
 }
 
 STEEL_LARGE_WEAPON = {
@@ -381,7 +399,8 @@ STEEL_LARGE_WEAPON = {
 "value_copper": 250,
 "value_silver": 25,
 "value_gold": 2.5,
-"material_value": 2
+"material_value": 2,
+"level": 2
 }
 
 STEEL_SHIELD = {
@@ -397,7 +416,8 @@ STEEL_SHIELD = {
 "value_copper": 230,
 "value_silver": 23,
 "value_gold": 2.3,
-"material_value": 2
+"material_value": 2,
+"level": 2
 }
 
 STEEL_CHAIN_SHIRT = {
@@ -413,7 +433,8 @@ STEEL_CHAIN_SHIRT = {
 "value_copper": 200,
 "value_silver": 20,
 "value_gold": 2,
-"material_value": 4
+"material_value": 4,
+"level": 2
 }
 
 
@@ -446,7 +467,8 @@ STEEL_PLATEMAIL = {
 "value_copper": 290,
 "value_silver": 29,
 "value_gold": 2.9,
-"material_value": 8
+"material_value": 8,
+"level": 2
 }
 
 """
@@ -466,7 +488,8 @@ MASTERWORK_STEEL_SMALL_WEAPON = {
 "value_copper": 320,
 "value_silver": 32,
 "value_gold": 3.2,
-"material_value": 3
+"material_value": 3,
+"level": 3
 }
 
 MASTERWORK_STEEL_MEDIUM_WEAPON = {
@@ -482,7 +505,8 @@ MASTERWORK_STEEL_MEDIUM_WEAPON = {
 "value_copper": 390,
 "value_silver": 39,
 "value_gold": 3.9,
-"material_value": 3
+"material_value": 3,
+"level": 3
 }
 
 MASTERWORK_STEEL_LARGE_WEAPON = {
@@ -499,7 +523,8 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 "value_copper": 420,
 "value_silver": 42,
 "value_gold": 4.2,
-"material_value": 3
+"material_value": 3,
+"level": 3
 }
 
 MASTERWORK_STEEL_SHIELD = {
@@ -515,7 +540,8 @@ MASTERWORK_STEEL_SHIELD = {
 "value_copper": 350,
 "value_silver": 35,
 "value_gold": 3.8,
-"material_value": 4
+"material_value": 4,
+"level": 3
 }
 
 MASTERWORK_STEEL_CHAIN_SHIRT = {
@@ -531,7 +557,8 @@ MASTERWORK_STEEL_CHAIN_SHIRT = {
 "value_copper": 350,
 "value_silver": 35,
 "value_gold": 3.5,
-"material_value": 8
+"material_value": 8,
+"level": 3
 }
 
 
@@ -548,7 +575,8 @@ MASTERWORK_STEEL_COAT_OF_PLATES = {
 "value_copper": 420,
 "value_silver": 42,
 "value_gold": 4.2,
-"material_value": 10
+"material_value": 10,
+"level": 3
 }
 
 MASTERWORK_STEEL_PLATEMAIL = {
@@ -564,5 +592,6 @@ MASTERWORK_STEEL_PLATEMAIL = {
 "value_copper": 460,
 "value_silver": 46,
 "value_gold": 4.6,
-"material_value": 12
+"material_value": 12,
+"level": 3
 }
