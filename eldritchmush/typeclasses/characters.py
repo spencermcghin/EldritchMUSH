@@ -93,7 +93,11 @@ class Character(DefaultCharacter):
         self.db.skip_turn = False
         self.db.battlefieldcommander = 0
         self.db.rally = 0
-
+        # Entries for following
+        self.db.isLeading = False
+        self.db.leader = ""
+        self.db.isFollowing = False
+        self.db.followers = []
         # Entries for economy
         self.db.iron_ingots = 0
         self.db.refined_wood = 0
@@ -135,3 +139,31 @@ class Character(DefaultCharacter):
         """
         #self.execute_cmd('look')
         pass
+
+    def at_post_unpuppet(self, account):
+        
+        # Notify all followers that they are no longer following this character.
+        if (self.db.isLeading == True):
+            for char in self.db.followers:
+                charFollower = self.search(char, global_search=True)
+                if (charFollower):
+                    charFollower.db.leader = ""
+                    charFollower.db.isFollowing = False
+                    charFollower.msg("|540You are no longer following " + self.key + ".|n")
+        
+        # Remove this character from the followers array of their Leader, if they were following one.
+        if (self.db.leader !== ""):
+            charLeader = self.search(self.db.leader, global_search=True)
+            # Remove the character from the Leader's followers array
+            if (charLeader):
+                try:      
+                    charLeader.db.followers.remove(self.key)
+                    if (charLeader.db.followers.len() == 0):
+                        charLeader.db.isLeader = False
+                    charLeader.msg("|540"+ self.key + " is no longer following you.|n")
+        
+        # Clean up all db values.
+        self.db.leader = ""
+        self.db.isLeading = False
+        self.db.isFollowing = False
+        self.db.followers = []
