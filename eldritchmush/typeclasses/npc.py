@@ -2,7 +2,7 @@
 # Local imports
 from typeclasses.characters import Character
 from evennia.prototypes import prototypes
-from evennia import create_object, spawn
+from evennia import create_object, spawn, utils
 # from commands.combat import Helper
 
 # Imports
