@@ -31,11 +31,16 @@ class CmdDisarm(Command):
         # Init combat helper functions
         h = Helper(self.caller)
 
-        # Get target if there is one
+        # Check for and error handle designated target
         target = self.caller.search(self.target)
 
-        loop = CombatLoop(self.caller, target)
-        loop.resolveCommand()
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
+        if target:
+            loop = CombatLoop(self.caller, target)
+            loop.resolveCommand()
+        else:
+            return
 
 
         # Run logic for cleave command
