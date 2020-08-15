@@ -238,6 +238,26 @@ class CombatLoop:
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
+
+                elif targets and not (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
+                    nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
+
+                    # Iterate through combat_loop until finding a character w/out the skip_turn flag set.
+                    while nextCharacter.db.skip_turn or self.isDying(nextCharacter):
+                        # Turn off the skip_turn flag and then try to go to the next character in the loop
+                        nextCharacter.db.skip_turn = False
+                        nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
+                        try:
+                            # Try going to the next character based on the character that had skip_turn active
+                            nextTurn = self.combat_loop.index(nextCharacter) + 1
+                            nextCharacter = self.caller.search(self.combat_loop[nextTurn])
+
+                        except IndexError:
+                            nextCharacter = self.caller.search(self.combat_loop[0])
+
+                    self.combatTurnOn(nextCharacter)
+                    nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
+
                 else:
                     # If no non-NPC targets, remove all items from loop and end combat
                     nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
