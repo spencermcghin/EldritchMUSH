@@ -2409,7 +2409,7 @@ class CmdFollow(Command):
                 caller.db.isFollowing = False
             # Otherwise, let them know they are already following someone.
             else:
-                caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader.key + ".|n")
+                caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader.key + ". Unfollow them first, then follow a new leader.|n")
 
         # If all is well...
         else:
@@ -2424,30 +2424,39 @@ class CmdFollow(Command):
 
             # If the target wasn't found within the room they are in...
             if not target:
-                    caller.msg("|540Usage: follow <target>|n\n|400Your target wasn't found within your vicinity. You must be in the same area as your target.|n")
+                caller.msg("|540Usage: follow <target>|n\n|400Your target wasn't found within your vicinity. You must be in the same area as your target.|n")
             else:
+                # First try to find the target within the follower's followers array (is the leader already following you?)
                 try:
-                    # Attempt to find the caller's key in the target's followers array.
-                    followerIndex = target.db.followers.index(caller)
+                    leaderIndex = caller.db.followers.index(target)
 
-                    # If they were found in the target's follower array, then they were already following them.
-                    # Set the caller's leader attribute to the target key, and the isFollowing attribute to True.
-                    if followerIndex:
-                        caller.msg("|540Usage: follow <target>|n\n|400You are already following " + target.key + ".|n")
+                    # If the leader is already following the character, then they cannot follow them; the leader must unfollow them first.
+                    if leaderIndex:
+                        caller.msg("|540Usage: follow <target>|n\n|400" + target.key + " is following you, which means that you cannot follow them. Ask them to unfollow you first, then try again.|n")
+                    
+                # If the leader is not following them, then try adding them to the leader's followers array.
+                except ValueError:
+                    try
+                        # Attempt to find the caller's key in the target's followers array.
+                        followerIndex = target.db.followers.index(caller)
+
+                        # If they were found in the target's follower array, then they were already following them.
+                        # Set the caller's leader attribute to the target key, and the isFollowing attribute to True.
+                        if followerIndex:
+                            caller.msg("|540Usage: follow <target>|n\n|400You are already following " + target.key + ".|n")
+                            caller.db.leader = target
+                            caller.db.isFollowing = True
+
+                    # If the caller's key was not in the target's followers array, then add them to the array, set the
+                    # target's isLeading to true if it was not already, and let the target and caller know that it was
+                    # a success.
+                    except ValueError:
+                        target.db.followers.append(caller)
+                        target.db.isLeading = True
                         caller.db.leader = target
                         caller.db.isFollowing = True
-                        return
-
-                # If the caller's key was not in the target's followers array, then add them to the array, set the
-                # target's isLeading to true if it was not already, and let the target and caller know that it was
-                # a success.
-                except ValueError:
-                    target.db.followers.append(caller)
-                    target.db.isLeading = True
-                    caller.db.leader = target
-                    caller.db.isFollowing = True
-                    caller.msg("|540You are now following " + target.key + "|n")
-                    target.msg("|540"+ caller.key + " is now following you.|n")
+                        caller.msg("|540You are now following " + target.key + "|n")
+                        target.msg("|540"+ caller.key + " is now following you.|n")
 
 
 class CmdUnfollow(Command):
@@ -2635,8 +2644,8 @@ class CmdFollowStatus(Command):
                 ],
                 border = "cells")
 
-            status_table.reformat_column(0, width=30, align="l")
-            status_table.reformat_column(1, width=15, align="c")
+            status_table.reformat_column(0, width=25, align="l")
+            status_table.reformat_column(1, width=30, align="c")
 
             followerList = list(self.caller.db.followers)
             followerRows = []
