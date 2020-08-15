@@ -2496,7 +2496,7 @@ class CmdUnfollow(Command):
                     try:
                         target.db.followers.remove(caller)
                         tempList = list(target.db.followers)
-                        if (tempList.len() == 0):
+                        if (len(tempList) == 0):
                             target.db.isLeading = False
                         caller.msg("|540You are no longer following " + target.key + "|n")
                         target.msg("|540"+ caller.key + " is no longer following you.|n")
@@ -2533,7 +2533,7 @@ class CmdUnfollow(Command):
                     # Attempt to remove the follower from the leader's followers array.
                     target.db.followers.remove(caller)
                     tempList = list(target.db.followers)
-                    if (tempList.len() == 0):
+                    if (len(tempList) == 0):
                         target.db.isLeading = False
                     caller.msg("|540You are no longer following " + target.key + "|n")
                     target.msg("|540"+ caller.key + " is no longer following you.|n")
