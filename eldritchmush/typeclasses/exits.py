@@ -36,6 +36,6 @@ class Exit(DefaultExit):
     """
 
     def at_object_creation(self):
-        # self.locks.add("traverse:attr(in_combat, 0)")
+        self.locks.add("traverse:attr(in_combat, 0)")
 
         return
