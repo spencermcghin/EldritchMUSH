@@ -137,7 +137,7 @@ class Character(DefaultCharacter):
 
         if (self.db.isLeading):
             for char in self.db.followers:
-                if not char.db.in_combat:
+                if not char.db.in_combat and char.db.body > 0:
                     char.move_to(self.location)
                 else:
                     char.db.isFollowing = False
