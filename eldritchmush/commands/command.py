@@ -347,11 +347,7 @@ class CmdEquip(Command):
             self.caller.msg("|430Usage: equip <item>|n")
             return
 
-        item = self.caller.search(self.item,
-                                  location=self.caller,
-                                  nofound_string=f"|540You aren't carrying a {self.item}.|n",
-                                  multimatch_string=f"|540You carry more than one {self.item}|n:",
-                                  )
+        item = self.caller.search(self.item,location=self.caller)
 
         # Check if the item is of armor type
 
