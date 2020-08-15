@@ -161,6 +161,8 @@ class Character(DefaultCharacter):
                     if (charLeader.db.followers.len() == 0):
                         charLeader.db.isLeader = False
                     charLeader.msg("|540"+ self.key + " is no longer following you.|n")
+                except ValueError:
+                    self.msg("|540You are no longer following " + target.key + "|n")
         
         # Clean up all db values.
         self.db.leader = ""
