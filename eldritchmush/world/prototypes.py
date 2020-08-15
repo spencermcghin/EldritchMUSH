@@ -149,6 +149,7 @@ IRON_SHIELD = {
 LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "is_armor": True,
+"key": "Leather Armor",
 "required_resources": 2,
 "iron_ingots": 1,
 "refined_wood": 1,
@@ -164,6 +165,8 @@ LEATHER_ARMOR = {
 IRON_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "is_armor": True,
+"key": "Iron Chain Shirt",
+"aliases": ["iron chain shirt"],
 "required_resources": 2,
 "iron_ingots": 1,
 "refined_wood": 1,
@@ -178,6 +181,8 @@ IRON_CHAIN_SHIRT = {
 
 IRON_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Coat of Plates",
+"aliases": ["iron coat of plates"],
 "is_armor": True,
 "required_resources": 5,
 "iron_ingots": 2,
@@ -193,6 +198,8 @@ IRON_COAT_OF_PLATES = {
 
 IRON_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Platemail",
+"aliases": ["iron platemail"],
 "is_armor": True,
 "required_resources": 7,
 "iron_ingots": 4,
