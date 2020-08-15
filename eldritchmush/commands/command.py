@@ -382,9 +382,11 @@ class CmdEquip(Command):
                     if not self.right_slot and not self.left_slot:
                         self.right_slot.append(item)
                         self.left_slot.append(item)
+
                         # Add weapon bonus
                         weapon_bonus = h.weaponValue(item.db.level)
                         self.caller.db.weapon_level = weapon_bonus
+
                         # Send some messages
                         self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                         self.caller.msg(f"You have equipped your {item.key}")
@@ -409,6 +411,11 @@ class CmdEquip(Command):
                         # Return armor value to console.
                         self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
+                    else:
+                        # Add weapon bonus
+                        weapon_bonus = h.weaponValue(item.db.level)
+                        self.caller.db.weapon_level = weapon_bonus
+
                     # Send some messages
                     self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                     self.caller.msg(f"You have equipped your {item.key}")
@@ -428,6 +435,11 @@ class CmdEquip(Command):
                         self.caller.db.av = currentArmorValue
                         # Return armor value to console.
                         self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
+                    else:
+                        # Add weapon bonus
+                        weapon_bonus = h.weaponValue(item.db.level)
+                        self.caller.db.weapon_level = weapon_bonus
 
                     # Send some messages
                     self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
@@ -472,6 +484,7 @@ class CmdUnequip(Command):
             if item.db.twohanded and (item in self.right_slot):
                 self.right_slot.remove(item)
                 self.left_slot.remove(item)
+                self.caller.db.weapon_level = 0
             # Check to see if right hand is empty.
             elif item in self.caller.db.body_slot:
                 self.caller.db.body_slot.remove(item)
@@ -490,6 +503,7 @@ class CmdUnequip(Command):
 
             elif item in self.right_slot:
                 self.right_slot.remove(item)
+
                 if item.db.is_shield:
                     self.caller.db.shield_value = 0
 
@@ -503,9 +517,13 @@ class CmdUnequip(Command):
                     self.caller.db.av = currentArmorValue
                     # Return armor value to console.
                     self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
+                else:
+                    self.caller.db.weapon_level = 0
 
             elif item in self.left_slot:
                 self.left_slot.remove(item)
+
                 if item.db.is_shield:
                     self.caller.db.shield_value = 0
 
@@ -519,6 +537,9 @@ class CmdUnequip(Command):
                     self.caller.db.av = currentArmorValue
                     # Return armor value to console.
                     self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
+                else:
+                    self.caller.db.weapon_level = 0
 
             else:
                 self.caller.msg(f"You aren't carrying a {item}.")
