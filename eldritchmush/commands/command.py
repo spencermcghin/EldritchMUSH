@@ -2332,12 +2332,12 @@ class CmdFollow(Command):
 
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
-            if (caller.db.leader == ""):
+            if (caller.db.leader == []):
                 caller.msg("|540Usage: follow <target>|n\n|400It appears you may have already been following someone, but the original target was lost. Try executing the follow command on your new target again.|n")
                 caller.db.isFollowing = False
             # Otherwise, let them know they are already following someone.
             else:
-                caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader + ".|n")
+                caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader.key + ".|n")
 
         # If all is well...
         else:
@@ -2356,13 +2356,13 @@ class CmdFollow(Command):
             else:
                 try:
                     # Attempt to find the caller's key in the target's followers array.
-                    followerIndex = target.db.followers.index(caller.key)
+                    followerIndex = target.db.followers.index(caller)
 
                     # If they were found in the target's follower array, then they were already following them.
                     # Set the caller's leader attribute to the target key, and the isFollowing attribute to True.
                     if followerIndex:
                         caller.msg("|540Usage: follow <target>|n\n|400You are already following " + target.key + ".|n")
-                        caller.db.leader = target.key
+                        caller.db.leader = target
                         caller.db.isFollowing = True
                         return
 
@@ -2372,7 +2372,7 @@ class CmdFollow(Command):
                 except ValueError:
                     if not target.db.isLeader:
                         target.db.isLeader = True
-                    target.db.followers.append(caller.key)
+                    target.db.followers.append(caller)
                     caller.msg("|540You are now following " + target.key + "|n")
                     target.msg("|540"+ caller.key + " is now following you.|n")
 
@@ -2414,25 +2414,24 @@ class CmdUnfollow(Command):
 
             # If their leader attribute is not blank, there must have been an issue. Set their leader attribute to blank and make
             # sure they were removed from the target's followers array.
-            if (caller.db.leader != ""):
-
+            if (caller.db.leader != []):
 
                 # If their leader value is equal to the target that they selected
-                if (caller.db.leader == target.key):
+                if (caller.db.leader == target):
                     # Try removing them from the target's followers array.
                     try:
-                        target.db.followers.remove(caller.key)
+                        target.db.followers.remove(caller)
                         if (target.db.followers.len() == 0):
                             target.db.isLeader = False
                         caller.msg("|540You are no longer following " + target.key + "|n")
                         target.msg("|540"+ caller.key + " is no longer following you.|n")
                     except ValueError:
                         caller.msg("|540You are no longer following " + target.key + "|n")
-                    caller.db.leader = ""
+                    caller.db.leader = []
 
                 # Else, the user should be told that they were not following the selected target
                 else:
-                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
 
             # Otherwise, let them know they were not following anyone to begin with.
             else:
@@ -2452,12 +2451,12 @@ class CmdUnfollow(Command):
             # If the target wasn't found in the game...
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
-            elif (caller.db.leader != target.key):
-                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+            elif (caller.db.leader != target):
+                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
             else:
                 try:
                     # Attempt to remove the follower from the leader's followers array.
-                    target.db.followers.remove(caller.key)
+                    target.db.followers.remove(caller)
                     if (target.db.followers.len() == 0):
                         target.db.isLeader = False
                     caller.msg("|540You are no longer following " + target.key + "|n")
@@ -2470,7 +2469,7 @@ class CmdUnfollow(Command):
                     caller.msg("|540You are no longer following " + target.key + "|n")
 
                 # Reset the caller's leader and isFollowing values.
-                caller.db.leader = ""
+                caller.db.leader = []
                 caller.db.isFollowing = False
 
 """
