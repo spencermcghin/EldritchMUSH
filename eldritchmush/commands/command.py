@@ -353,7 +353,7 @@ class CmdEquip(Command):
 
         # Check if the item is of armor type
 
-        if item.db.is_armor and not in self.caller.db.body_slot:
+        if item.db.is_armor and item not in self.caller.db.body_slot:
             self.caller.db.body_slot.append(item)
             self.caller.db.armor = item.db.material_value
 
