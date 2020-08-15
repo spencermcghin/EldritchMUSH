@@ -154,10 +154,10 @@ class Character(DefaultCharacter):
                     tempList = list(leader.db.followers)
                     if (len(tempList) == 0):
                         leader.db.isLeading = False
-                    self.msg("|540You are no longer following " + target.key + "|n")
-                    leader.msg("|540"+ caller.key + " is no longer following you.|n")
+                    self.msg("|540You are no longer following " + leader.key + "|n")
+                    leader.msg("|540"+ self.key + " is no longer following you.|n")
                 except ValueError:
-                    leader.msg("|540You are no longer following " + target.key + "|n")
+                    self.msg("|540You are no longer following " + leader.key + "|n")
 
                 self.db.isFollowing = False
                 self.db.leader = []
