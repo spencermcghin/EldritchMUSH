@@ -238,21 +238,21 @@ class CombatLoop:
 
                 if has_right_item:
                     right_item = nextCharacter.search(nextCharacter.db.right_slot[0], location=nextCharacter)
-                    right_item_not_broken = True if not right_item.db.broken else False
+                    right_item_broken = True if right_item.db.broken else False
                 else:
-                    pass
+                    right_item_broken = False
 
                 # Check for items not broken
                 has_left_item = True if len(nextCharacter.db.left_slot) == 1 else False
 
                 if has_left_item:
                     left_item = nextCharacter.search(nextCharacter.db.left_slot[0], location=nextCharacter)
-                    left_item_not_broken = True if not left_item.db.broken else False
+                    left_item_broken = True if left_item.db.broken else False
                 else:
-                    pass
+                    left_item_broken = False
 
                 # Pick a random target from the loops possible targets
-                if targets and (right_item_not_broken or left_item_not_broken):
+                if targets and not (right_item_broken and left_item_broken):
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
