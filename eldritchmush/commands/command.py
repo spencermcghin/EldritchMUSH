@@ -2294,11 +2294,11 @@ class CmdFollow(Command):
             caller.msg("|540Usage: follow <target>|n\n|400You can't follow yourself. Please select a different target.|n")
         
         # If they didn't specify a target...
-        else if not self.target:
+        elif not self.target:
             caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
 
         # If their isFollowing attribute is already set to true...
-        else if caller.db.isFollowing == True:
+        elif caller.db.isFollowing == True:
             
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
@@ -2374,11 +2374,11 @@ class CmdUnfollow(Command):
             caller.msg("|540Usage: unfollow <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
         
         # If they didn't specify a target...
-        else if not self.target:
+        elif not self.target:
             caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
-        else if caller.db.isFollowing == False:
+        elif caller.db.isFollowing == False:
             
             target = caller.search(self.target, global_search=True)
 
@@ -2422,7 +2422,7 @@ class CmdUnfollow(Command):
             # If the target wasn't found in the game...
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
-            else if (caller.db.leader !== target.key):
+            elif (caller.db.leader !== target.key):
                 caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
             else:
                 try:
