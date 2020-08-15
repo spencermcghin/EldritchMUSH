@@ -77,7 +77,7 @@ class CmdStagger(Command):
                                                 h.deathSubtractor(damage, target, self.caller)
 
                                         # Decrement amount of cleaves from amount in database
-                                        self.caller.db.sunder -= 1
+                                        self.caller.db.stagger -= 1
                                     else:
                                         self.caller.location.msg_contents(f"|025{self.caller.key} strikes with a powerful blow at {target.key}, but misses.|n")
                                     # Clean up

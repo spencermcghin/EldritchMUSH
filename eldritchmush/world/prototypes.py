@@ -150,7 +150,8 @@ LEATHER_ARMOR = {
 "cloth": 0,
  "value_copper": 70,
  "value_silver": 7,
- "value_gold": .7
+ "value_gold": .7,
+ "material_value": 1
 }
 
 IRON_CHAIN_SHIRT = {
@@ -162,7 +163,8 @@ IRON_CHAIN_SHIRT = {
 "cloth": 0,
  "value_copper": 70,
  "value_silver": 7,
- "value_gold": .7
+ "value_gold": .7,
+ "material_value": 1
 }
 
 IRON_COAT_OF_PLATES = {
@@ -174,7 +176,8 @@ IRON_COAT_OF_PLATES = {
 "cloth": 0,
  "value_copper": 100,
  "value_silver": 10,
- "value_gold": 1
+ "value_gold": 1,
+ "material_value": 3
 }
 
 IRON_PLATEMAIL = {
@@ -186,7 +189,8 @@ IRON_PLATEMAIL = {
 "cloth": 0,
  "value_copper": 120,
  "value_silver": 12,
- "value_gold": 1.2
+ "value_gold": 1.2,
+ "material_value": 5
 }
 
 """
