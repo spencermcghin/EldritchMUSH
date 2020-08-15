@@ -240,7 +240,8 @@ class Object(DefaultObject):
             if (charLeader):
                 try:
                     charLeader.db.followers.remove(self.key)
-                    if (charLeader.db.followers.len() == 0):
+                    tempList = list(charLeader.db.followers)
+                    if (len(tempList) == 0):
                         charLeader.db.isLeader = False
                     charLeader.msg("|540"+ self.key + " is no longer following you.|n")
                 except ValueError:
