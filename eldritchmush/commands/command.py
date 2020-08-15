@@ -389,6 +389,7 @@ class CmdEquip(Command):
                 # Check to see if right hand is empty.
                 elif not self.right_slot:
                     self.right_slot.append(item)
+
                     if item.db.is_shield:
                         self.caller.db.shield_value = item.db.material_value
 
@@ -408,6 +409,7 @@ class CmdEquip(Command):
                     self.caller.msg(f"You have equipped your {item.key}")
                 elif not self.left_slot:
                     self.left_slot.append(item)
+
                     if item.db.is_shield:
                         self.caller.db.shield_value = item.db.material_value
 
