@@ -389,6 +389,21 @@ class CmdEquip(Command):
                 # Check to see if right hand is empty.
                 elif not self.right_slot:
                     self.right_slot.append(item)
+                    if item.db.is_shield:
+                        self.caller.db.shield_value = item.db.material_value
+                        # Get vals for armor value calc
+                        armor_value = self.caller.db.armor
+                        tough = self.caller.db.tough
+                        shield_value = self.caller.db.shield_value
+                        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+
+                        # Add them up and set the curent armor value in the database
+                        currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                        self.caller.db.av = currentArmorValue
+
+                        # Return armor value to console.
+                        self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
                     # Send some messages
                     self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                     self.caller.msg(f"You have equipped your {item.key}")
