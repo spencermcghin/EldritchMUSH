@@ -2654,7 +2654,6 @@ class CmdFollowStatus(Command):
                 border = "cells")
 
             follower_table.reformat_column(0, width=30, align="l")
-            follower_table.reformat_column(1, width=15, align="c")
 
             self.caller.msg(status_table)
             self.caller.msg(follower_table)
