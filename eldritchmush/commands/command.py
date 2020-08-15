@@ -391,16 +391,15 @@ class CmdEquip(Command):
                     self.right_slot.append(item)
                     if item.db.is_shield:
                         self.caller.db.shield_value = item.db.material_value
+
                         # Get vals for armor value calc
                         armor_value = self.caller.db.armor
                         tough = self.caller.db.tough
                         shield_value = self.caller.db.shield_value
                         armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-
                         # Add them up and set the curent armor value in the database
                         currentArmorValue = armor_value + tough + shield_value + armor_specialist
                         self.caller.db.av = currentArmorValue
-
                         # Return armor value to console.
                         self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
@@ -409,6 +408,20 @@ class CmdEquip(Command):
                     self.caller.msg(f"You have equipped your {item.key}")
                 elif not self.left_slot:
                     self.left_slot.append(item)
+                    if item.db.is_shield:
+                        self.caller.db.shield_value = item.db.material_value
+
+                        # Get vals for armor value calc
+                        armor_value = self.caller.db.armor
+                        tough = self.caller.db.tough
+                        shield_value = self.caller.db.shield_value
+                        armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+                        # Add them up and set the curent armor value in the database
+                        currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                        self.caller.db.av = currentArmorValue
+                        # Return armor value to console.
+                        self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
                     # Send some messages
                     self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                     self.caller.msg(f"You have equipped your {item.key}")
@@ -2288,7 +2301,7 @@ class CmdDiagnose(Command):
 class CmdFollow(Command):
     """
     Follows the targeted character.
-    This needs to copy the commands of another character, but only if those commands are 
+    This needs to copy the commands of another character, but only if those commands are
     movement related.x
     """
 
@@ -2307,14 +2320,14 @@ class CmdFollow(Command):
         # If the character attempts to call follow on themselves...
         if self.target == "self" or self.target == "me":
             caller.msg("|540Usage: follow <target>|n\n|400You can't follow yourself. Please select a different target.|n")
-        
+
         # If they didn't specify a target...
         else if not self.target:
             caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
 
         # If their isFollowing attribute is already set to true...
         else if caller.db.isFollowing == True:
-            
+
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
             if (caller.db.leader == ""):
@@ -2323,7 +2336,7 @@ class CmdFollow(Command):
             # Otherwise, let them know they are already following someone.
             else:
                 caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader + ".|n")
-        
+
         # If all is well...
         else:
             """
@@ -2342,7 +2355,7 @@ class CmdFollow(Command):
                 try:
                     # Attempt to find the caller's key in the target's followers array.
                     followerIndex = target.db.followers.index(caller.key)
-                    
+
                     # If they were found in the target's follower array, then they were already following them.
                     # Set the caller's leader attribute to the target key, and the isFollowing attribute to True.
                     if followerIndex:
@@ -2350,8 +2363,8 @@ class CmdFollow(Command):
                         caller.db.leader = target.key
                         caller.db.isFollowing = True
                         return
-                
-                # If the caller's key was not in the target's followers array, then add them to the array, set the 
+
+                # If the caller's key was not in the target's followers array, then add them to the array, set the
                 # target's isLeader to true if it was not already, and let the target and caller know that it was
                 # a success.
                 except ValueError:
@@ -2365,7 +2378,7 @@ class CmdFollow(Command):
 class CmdUnfollow(Command):
     """
     Unfollows the targeted character.
-    
+
     Use , global_search=True to find the target everywhere, not just in the room
     """
 
@@ -2387,25 +2400,25 @@ class CmdUnfollow(Command):
         # If the character attempts to call unfollow on themselves...
         if self.target == "self" or self.target == "me":
             caller.msg("|540Usage: unfollow <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
-        
+
         # If they didn't specify a target...
         else if not self.target:
             caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
         else if caller.db.isFollowing == False:
-            
+
             target = caller.search(self.target, global_search=True)
 
             # If their leader attribute is not blank, there must have been an issue. Set their leader attribute to blank and make
             # sure they were removed from the target's followers array.
             if (caller.db.leader !== ""):
 
-                
+
                 # If their leader value is equal to the target that they selected
                 if (caller.db.leader == target.key):
                     # Try removing them from the target's followers array.
-                    try:      
+                    try:
                         target.db.followers.remove(caller.key)
                         if (target.db.followers.len() == 0):
                             target.db.isLeader = False
@@ -2414,15 +2427,15 @@ class CmdUnfollow(Command):
                     except ValueError:
                         caller.msg("|540You are no longer following " + target.key + "|n")
                     caller.db.leader = ""
-                
+
                 # Else, the user should be told that they were not following the selected target
                 else:
                     caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
-                
+
             # Otherwise, let them know they were not following anyone to begin with.
             else:
                 caller.msg("|540Usage: unfollow <target>|n\n|400You weren't following anyone. If you think this is an error, you can try unfollowhard <target> to ensure you are removed as a follower from another character.|n")
-        
+
         # If all is well...
         else:
             """
@@ -2441,19 +2454,19 @@ class CmdUnfollow(Command):
                 caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
             else:
                 try:
-                    # Attempt to remove the follower from the leader's followers array.    
+                    # Attempt to remove the follower from the leader's followers array.
                     target.db.followers.remove(caller.key)
                     if (target.db.followers.len() == 0):
                         target.db.isLeader = False
                     caller.msg("|540You are no longer following " + target.key + "|n")
                     target.msg("|540"+ caller.key + " is no longer following you.|n")
-                
-                # If the caller's key was not in the target's followers array, then add them to the array, set the 
+
+                # If the caller's key was not in the target's followers array, then add them to the array, set the
                 # target's isLeader to true if it was not already, and let the target and caller know that it was
                 # a success.
                 except ValueError:
                     caller.msg("|540You are no longer following " + target.key + "|n")
-                
+
                 # Reset the caller's leader and isFollowing values.
                 caller.db.leader = ""
                 caller.db.isFollowing = False
