@@ -21,10 +21,17 @@ class CmdStabilize(Command):
         # Init combat helper functions
         h = Helper(self.caller)
 
-        target = h.targetHandler(self.target)
-
-        # Get target if there is one
+        # Check for and error handle designated target
         target = self.caller.search(self.target)
+
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
+        if target:
+            loop = CombatLoop(self.caller, target)
+            loop.resolveCommand()
+        else:
+            return
+
         caller = self.caller
 
         # Get caller level of stabilize and emote how many points the caller will heal target that round.
