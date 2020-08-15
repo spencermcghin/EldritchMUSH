@@ -143,6 +143,9 @@ class Character(DefaultCharacter):
                     char.db.isFollowing = False
                     char.db.leader = []
                     self.db.followers.remove(char)
+                    tempList = list(self.db.followers)
+                    if (len(tempList) == 0):
+                        self.db.isLeading = False
                     self.msg("|540"+ char.key + " is no longer following you.|n")
                     char.msg("|540You are no longer following " + self.key + "|n")
 
