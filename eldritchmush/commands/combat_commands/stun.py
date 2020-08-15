@@ -47,7 +47,7 @@ class CmdStun(Command):
             combat_stats = h.getMeleeCombatStats(self.caller)
             stunsRemaining = self.caller.db.stun
 
-            if combat_stats.get("melee", 0) or combat_stats.get("bow", 0):
+            if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
                 if stunsRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
