@@ -2370,9 +2370,8 @@ class CmdFollow(Command):
                 # target's isLeader to true if it was not already, and let the target and caller know that it was
                 # a success.
                 except ValueError:
-                    if not target.db.isLeader:
-                        target.db.isLeader = True
                     target.db.followers.append(caller)
+                    target.db.isLeader = True
                     caller.db.leader = target
                     caller.db.isFollowing = True
                     caller.msg("|540You are now following " + target.key + "|n")
@@ -2458,7 +2457,7 @@ class CmdUnfollow(Command):
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
             elif (caller.db.leader != target):
-                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
             else:
                 try:
                     # Attempt to remove the follower from the leader's followers array.
