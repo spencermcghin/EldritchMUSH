@@ -2465,7 +2465,7 @@ class CmdUnfollow(Command):
             if (caller.db.leader != []):
 
                 # If their leader value is equal to the target that they selected
-                if (caller.db.leader == target):
+                if (caller.db.leader[0] == target):
                     # Try removing them from the target's followers array.
                     try:
                         target.db.followers.remove(caller)
