@@ -117,9 +117,6 @@ class Character(DefaultCharacter):
         isBleeding = True if not self.db.body else False
         isDying = True if not self.db.bleed_points else False
 
-        # Check to see if player is fighting.
-        combat_string = f"{self.key} is currently in the midst of combat." if self in self.location.db.combat_loop
-
         # Return
         if isBleeding:
             return text + f"\n|400{self.key} is bleeding profusely from mutliple, serious wounds.|n"
@@ -128,7 +125,7 @@ class Character(DefaultCharacter):
             return text + f"\n|400{self.key} has succumbed to their injuries and is now unconscious.|n"
 
         else:
-            return text + f"\n{combat_string}"
+            return text
 
     # Changed for AI room response
     def at_after_move(self, source_location):
