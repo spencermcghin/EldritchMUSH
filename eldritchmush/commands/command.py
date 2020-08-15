@@ -2521,7 +2521,7 @@ class CmdUnfollow(Command):
 
             # If the target wasn't found in the game...
             if not target:
-                caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
+                caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again. For this command, you may need to be explicit. For example, if you are trying to unfollow 'Balthazar Bordello', you may need to type out his full name and not just 'Balthazar'.|n")
             elif (caller.db.leader != target):
                 caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
             else:
