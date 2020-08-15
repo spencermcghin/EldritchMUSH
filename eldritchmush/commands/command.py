@@ -341,6 +341,8 @@ class CmdEquip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
+        h = Helper()
+
         if not self.item:
             self.caller.msg("|430Usage: equip <item>|n")
             return
@@ -380,6 +382,8 @@ class CmdEquip(Command):
                     if not self.right_slot and not self.left_slot:
                         self.right_slot.append(item)
                         self.left_slot.append(item)
+                        # Add weapon bonus
+                        weapon_bonus = h.weaponValue(item.db.)
                         # Send some messages
                         self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                         self.caller.msg(f"You have equipped your {item.key}")
