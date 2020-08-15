@@ -2391,13 +2391,13 @@ class CmdFollow(Command):
 
         # If they didn't specify a target...
         elif not self.target:
-            caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
+            caller.msg("|540Usage: follow <target>|n\n|400Please specify a target for the follow command.|n")
 
         elif caller.db.in_combat:
-            caller.msg("|540Usage: follow <target>|n\n|400.You are currently in combat and cannot follow another character.|n")
+            caller.msg("|540Usage: follow <target>|n\n|400You are currently in combat and cannot follow another character.|n")
 
         elif caller.db.body <= 0:
-            caller.msg("|540Usage: follow <target>|n\n|400.You are currently too weak to move beyond your immediate surroundings, and thus cannot follow another character out of here. You must seek medical attention.|n")
+            caller.msg("|540Usage: follow <target>|n\n|400You are currently too weak to move beyond your immediate surroundings, and thus cannot follow another character out of here. You must seek medical attention.|n")
 
         # If their isFollowing attribute is already set to true...
         elif caller.db.isFollowing == True:
@@ -2480,7 +2480,7 @@ class CmdUnfollow(Command):
 
         # If they didn't specify a target...
         elif not self.target:
-            caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
+            caller.msg("|540Usage: unfollow <target>|n\n|400Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
         elif caller.db.isFollowing == False:
@@ -2507,7 +2507,7 @@ class CmdUnfollow(Command):
 
                 # Else, the user should be told that they were not following the selected target
                 else:
-                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
+                    caller.msg("|540Usage: unfollow <target>|n\n|400It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
 
             # Otherwise, let them know they were not following anyone to begin with.
             else:
@@ -2528,7 +2528,7 @@ class CmdUnfollow(Command):
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again. For this command, you may need to be explicit. For example, if you are trying to unfollow 'Balthazar Bordello', you may need to type out his full name and not just 'Balthazar'.|n")
             elif (caller.db.leader != target):
-                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
+                caller.msg("|540Usage: unfollow <target>|n\n|400It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
             else:
                 try:
                     # Attempt to remove the follower from the leader's followers array.
@@ -2580,7 +2580,7 @@ class CmdUnfollowForce(Command):
 
         # If they didn't specify a target...
         elif not self.target:
-            caller.msg("|540Usage: unfollowforce <target>|n\n|400.Please specify a target for the unfollow command.|n")
+            caller.msg("|540Usage: unfollowforce <target>|n\n|400Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
         else:
