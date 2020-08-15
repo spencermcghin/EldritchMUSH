@@ -139,34 +139,27 @@ class Character(DefaultCharacter):
             for char in self.db.followers:
                 char.move_to(self.location)
 
-        pass
-
-    def at_post_unpuppet(self, account):
-
-        # Notify all followers that they are no longer following this character.
-        if (self.db.isLeading == True):
-            for char in self.db.followers:
-                charFollower = self.search(char, global_search=True)
-                if (charFollower):
-                    charFollower.db.leader = []
-                    charFollower.db.isFollowing = False
-                    charFollower.msg("|540You are no longer following " + self.key + ".|n")
-
-        # Remove this character from the followers array of their Leader, if they were following one.
-        if (self.db.leader != []):
-            charLeader = self.search(self.db.leader, global_search=True)
-            # Remove the character from the Leader's followers array
-            if (charLeader):
+        # If a follower performed a move away from the leader, they will be removed from the followers array and will
+        # no longer be following the leader.
+        if (self.db.isFollowing):
+            
+            leaderInRoom = self.search(self.db.leader)
+            
+            if not leaderInRoom:
+                # Try removing them from the target's followers array.
+                leader = self.search(self.db.leader, global_search=True)
+                
                 try:
-                    charLeader.db.followers.remove(self.key)
-                    if (charLeader.db.followers.len() == 0):
-                        charLeader.db.isLeader = False
-                    charLeader.msg("|540"+ self.key + " is no longer following you.|n")
+                    leader.db.followers.remove(self)
+                    tempList = list(leader.db.followers)
+                    if (len(tempList) == 0):
+                        leader.db.isLeading = False
+                    self.msg("|540You are no longer following " + target.key + "|n")
+                    leader.msg("|540"+ caller.key + " is no longer following you.|n")
                 except ValueError:
-                    self.msg("|540You are no longer following " + charLeader.key + "|n")
+                    leader.msg("|540You are no longer following " + target.key + "|n")
 
-        # Clean up all db values.
-        self.db.leader = []
-        self.db.isLeading = False
-        self.db.isFollowing = False
-        self.db.followers = []
+                self.db.isFollowing = False
+                self.db.leader = []
+
+        pass
