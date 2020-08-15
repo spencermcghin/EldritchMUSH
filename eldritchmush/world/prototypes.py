@@ -316,8 +316,8 @@ HARDENED_IRON_COAT_OF_PLATES = {
 HARDENED_IRON_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "is_armor": True,
-"key": "Hardened Iron Shield",
-"aliases": ["hardened iron shield"],
+"key": "Hardened Iron Plate",
+"aliases": ["hardened iron plate"],
 "required_resources": 14,
 "iron_ingots": 8,
 "refined_wood": 2,
