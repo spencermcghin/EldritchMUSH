@@ -11,6 +11,7 @@ import re
 
 # Local imports
 from evennia import Command as BaseCommand
+from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
@@ -349,6 +350,16 @@ class CmdEquip(Command):
                                   nofound_string=f"|540You aren't carrying a {self.item}.|n",
                                   multimatch_string=f"|540You carry more than one {self.item}|n:",
                                   )
+
+        # Check if the item is of an a
+        prototype = prototypes.search_prototype(item, require_single=True)
+
+        try:
+            prototype = prototypes.search_prototype(self.item, require_single=True)
+        except KeyError:
+            self.msg("Item not found, or more than one match. Please try again.")
+
+
 
         if item and item not in self.right_slot:
             if not item.db.broken:
