@@ -2373,6 +2373,8 @@ class CmdFollow(Command):
                     if not target.db.isLeader:
                         target.db.isLeader = True
                     target.db.followers.append(caller)
+                    caller.db.leader = target
+                    caller.db.isFollowing = True
                     caller.msg("|540You are now following " + target.key + "|n")
                     target.msg("|540"+ caller.key + " is now following you.|n")
 
