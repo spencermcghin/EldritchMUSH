@@ -129,7 +129,7 @@ class Character(DefaultCharacter):
             return text + f"\n|400{self.key} has succumbed to their injuries and is now unconscious.|n"
 
         else:
-            return text + f"\n{combat_loop}"
+            return text + f"\n{combat_string}"
 
     # Changed for AI room response
     def at_after_move(self, source_location):
