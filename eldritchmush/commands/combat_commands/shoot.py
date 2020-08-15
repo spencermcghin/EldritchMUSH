@@ -54,7 +54,7 @@ class CmdShoot(Command):
                 die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                 # Get damage result
-                attack_result = (die_result + combat_stats.get("weapon_level", 0)) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("bow_penalty", 0)
+                attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("bow_penalty", 0)
                 target_av = target.db.av
                 shot_location = h.shotFinder(target.db.targetArray)
                 bow_damage = 1
