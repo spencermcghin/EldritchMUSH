@@ -2448,8 +2448,6 @@ class CmdFollow(Command):
 class CmdUnfollow(Command):
     """
     Unfollows the targeted character.
-
-    Use , global_search=True to find the target everywhere, not just in the room
     """
 
     key = "unfollow"
@@ -2504,11 +2502,11 @@ class CmdUnfollow(Command):
 
                 # Else, the user should be told that they were not following the selected target
                 else:
-                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
 
             # Otherwise, let them know they were not following anyone to begin with.
             else:
-                caller.msg("|540Usage: unfollow <target>|n\n|400You weren't following anyone. If you think this is an error, you can try unfollowhard <target> to ensure you are removed as a follower from another character.|n")
+                caller.msg("|540Usage: unfollow <target>|n\n|400You weren't following anyone. If you think this is an error, you can try unfollowforce <target> to ensure you are removed as a follower from another character.|n")
 
         # If all is well...
         else:
@@ -2525,7 +2523,7 @@ class CmdUnfollow(Command):
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
             elif (caller.db.leader != target):
-                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
             else:
                 try:
                     # Attempt to remove the follower from the leader's followers array.
@@ -2545,6 +2543,55 @@ class CmdUnfollow(Command):
                 # Reset the caller's leader and isFollowing values.
                 caller.db.leader = []
                 caller.db.isFollowing = False
+
+class CmdUnfollowForce(Command):
+    """
+    Unfollows the targeted character, even if that character was not designated as the caller's leader.
+    Essentially serves as an error handler if the character is mistakenly part of a leader's followers array.
+    """
+
+    key = "unfollowforce"
+    aliases = ["unfollow hard", "unfollowreset", "unfollow reset"]
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+
+        """
+        Remove the follower from the Leader's follower array
+        If there are no more followers in the leader's array, set the Leader to false
+        Remove the leader's name from the follower
+        Set the Follower to false
+        """
+        # target = self.caller.search(self.target)
+        caller = self.caller
+
+        # If the character attempts to call unfollowforce on themselves...
+        if self.target == "self" or self.target == "me":
+            caller.msg("|540Usage: unfollowforce <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
+
+        # If they didn't specify a target...
+        elif not self.target:
+            caller.msg("|540Usage: unfollowforce <target>|n\n|400.Please specify a target for the unfollow command.|n")
+
+        # If their isFollowing attribute is already set to false...
+        else:
+
+            target = caller.search(self.target, global_search=True)
+
+            # Try removing them from the target's followers array.
+            try:
+                target.db.followers.remove(caller)
+                tempList = list(target.db.followers)
+                if (len(tempList) == 0):
+                    target.db.isLeading = False
+                caller.msg("|540You are no longer following " + target.key + "|n")
+                target.msg("|540"+ caller.key + " is no longer following you.|n")
+            except ValueError:
+                caller.msg("|540You are no longer following " + target.key + "|n")
 
 """
 Random Encounter Commands
