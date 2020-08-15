@@ -2410,11 +2410,11 @@ class CmdFollow(Command):
                         return
 
                 # If the caller's key was not in the target's followers array, then add them to the array, set the
-                # target's isLeader to true if it was not already, and let the target and caller know that it was
+                # target's isLeading to true if it was not already, and let the target and caller know that it was
                 # a success.
                 except ValueError:
                     target.db.followers.append(caller)
-                    target.db.isLeader = True
+                    target.db.isLeading = True
                     caller.db.leader = target
                     caller.db.isFollowing = True
                     caller.msg("|540You are now following " + target.key + "|n")
@@ -2470,7 +2470,7 @@ class CmdUnfollow(Command):
                     try:
                         target.db.followers.remove(caller)
                         if (target.db.followers.len() == 0):
-                            target.db.isLeader = False
+                            target.db.isLeading = False
                         caller.msg("|540You are no longer following " + target.key + "|n")
                         target.msg("|540"+ caller.key + " is no longer following you.|n")
                     except ValueError:
@@ -2506,12 +2506,12 @@ class CmdUnfollow(Command):
                     # Attempt to remove the follower from the leader's followers array.
                     target.db.followers.remove(caller)
                     if (target.db.followers.len() == 0):
-                        target.db.isLeader = False
+                        target.db.isLeading = False
                     caller.msg("|540You are no longer following " + target.key + "|n")
                     target.msg("|540"+ caller.key + " is no longer following you.|n")
 
                 # If the caller's key was not in the target's followers array, then add them to the array, set the
-                # target's isLeader to true if it was not already, and let the target and caller know that it was
+                # target's isLeading to true if it was not already, and let the target and caller know that it was
                 # a success.
                 except ValueError:
                     caller.msg("|540You are no longer following " + target.key + "|n")
