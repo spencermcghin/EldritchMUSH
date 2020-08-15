@@ -2,7 +2,7 @@
 # Local imports
 from typeclasses.characters import Character
 from evennia.prototypes import prototypes
-from evennia import create_object, spawn
+from evennia import create_object, spawn, utils
 # from commands.combat import Helper
 
 # Imports
@@ -30,17 +30,28 @@ class MeleeSoldier(Npc):
     Generic solider NPC
     """
 
-
-    def at_char_entered(self, character):
-        # Do stuff to equip your character
+    def make_weapon(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
         longsword_data = prototype[0]
         weapon_item = spawn(longsword_data)
         weapon_item[0].move_to(self, quiet=True)
         self.execute_cmd('equip iron medium weapon')
+
+
+    def at_char_entered(self, character):
+        # Do stuff to equip your character
         # Choose a random command and run it
-        command = self.command_picker(character)
-        self.execute_cmd(command)
+        if self.db.is_aggressive:
+            inventory = self.contents
+            weapons = [item for item in inventory if item.db.damage]
+            if len(weapons) == 0:
+                self.make_weapon()
+            else:
+                pass
+            command = self.command_picker(character)
+            self.execute_cmd(command)
+        else:
+            return
 
 
     def command_picker(self, target):
@@ -74,7 +85,7 @@ class MeleeSoldier(Npc):
         # Make sure npc is equipped:
 
         if not self.db.right_slot or self.db.left_slot:
-            self.execute_cmd('equip longsword')
+            self.execute_cmd('equip iron medium weapon')
             pass
 
         # Random command is strike. Run it, else check to make sure npc can run an active martial skill w/o exception.
@@ -93,6 +104,7 @@ class MeleeSoldier(Npc):
                 action_string = chosen_command + ' ' + target.key
 
         return action_string
+
 
 
 class Revenant(Npc):
@@ -135,8 +147,8 @@ class Revenant(Npc):
         chosen_command = random.choice(flat_ams_commands)
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
-        if not self.db.melee:
-            self.execute_cmd('equip ')
+        if not self.db.right_slot or left_slot:
+            self.execute_cmd('equip iron medium weapon')
             pass
 
         # Random command is strike. Run it, else check to make sure npc can run an active martial skill w/o exception.

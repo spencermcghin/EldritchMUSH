@@ -233,13 +233,8 @@ class CombatLoop:
                 # Hook into the npcs command generator.
                 targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
 
-                # Check for items not broken
-                npc_right_slot = nextCharacter.search(nextCharacter.db.right_slot[0], location=nextCharacter) if nextCharacter.db.right_slot is not None
-
-                npc_left_slot = nextCharacter.search(nextCharacter.db.left_slot[0], location=nextCharacter) if nextCharacter.db.left_slot is not None
-
                 # Pick a random target from the loops possible targets
-                if targets and (not npc_right_slot.db.broken or not npc_left_slot.db.broken):
+                if targets and (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
