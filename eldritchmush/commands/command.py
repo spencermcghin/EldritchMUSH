@@ -2354,7 +2354,7 @@ class CmdDiagnose(Command):
                 target_bleed_points = target.db.bleed_points
                 target_death_points = target.db.death_points
 
-                if body >= 3:
+                if target_body >= 3:
                     message += "|230" + target.key + " is in tiptop shape and doesn't need any healing.|n"
                 elif 0 < target_body < 3:
                     message += "|540" + target.key + " is a little roughed up and bruised, but not bleeding. They could use some tending before heading into a fight.|n"
