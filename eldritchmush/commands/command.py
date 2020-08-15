@@ -342,7 +342,7 @@ class CmdEquip(Command):
 
     def func(self):
         if not self.item:
-            self.caller.msg("|540Usage: equip <item>|n")
+            self.caller.msg("|430Usage: equip <item>|n")
             return
 
         item = self.caller.search(self.item,
@@ -355,7 +355,21 @@ class CmdEquip(Command):
 
         if item.db.is_armor:
             self.caller.db.body_slot.append(item)
-            self.msg(f"{item.key} equipped")
+            self.db.armor = item.db.material_value
+
+            self.msg(f"You don {item.key}.")
+
+            # Get vals for armor value calc
+            tough = self.caller.db.tough
+            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+
+            # Add them up and set the curent armor value in the database
+            currentArmorValue = armor_value + tough + shield_value + armor_specialist
+            self.caller.db.av = currentArmorValue
+
+            # Return armor value to console.
+            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
 
