@@ -460,10 +460,10 @@ class CmdUnequip(Command):
             self.caller.msg("|540Usage: unequip <item>|n")
             return
 
-        item = self.caller.search(self.item)
+        item = self.caller.search(self.item, location=self.caller)
 
         if item:
-            # Check if item is twohanded
+            # Check if item is twohanded and is held.
             if item.db.twohanded and item in self.right_slot:
                 self.right_slot.remove(item)
                 self.left_slot.remove(item)
