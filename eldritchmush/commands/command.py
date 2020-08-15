@@ -2598,7 +2598,7 @@ class CmdUnfollowForce(Command):
             except ValueError:
                 caller.msg("|540You are no longer following " + target.key + "|n")
 
-class FollowStatus(Command):
+class CmdFollowStatus(Command):
     """
     Prints out the character's follow related information.
     """
