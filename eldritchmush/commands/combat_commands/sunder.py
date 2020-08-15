@@ -81,8 +81,8 @@ class CmdSunder(Command):
                                             if right_mv - 1 < 0:
                                                 right_mv = 0
                                                 right_item.db.broken = True
-                                                if utils.inherits_from(target, Npc):
-                                                    target.db.skip_turn = 1
+                                                # if utils.inherits_from(target, Npc):
+                                                #     target.db.skip_turn = 1
                                                 # Remove item from slot. Player won't be able to requip it.
                                                 target.db.right_slot.remove(right_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|300{target.db.av}|n)|025, breaking it.|n")
@@ -98,6 +98,8 @@ class CmdSunder(Command):
                                             if left_mv - 1 < 0:
                                                 left_mv = 0
                                                 left_item.db.broken = True
+                                                # if utils.inherits_from(target, Npc):
+                                                #     target.db.skip_turn = 1
                                                 target.db.left_slot.remove(left_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|300{target.db.av}|n)|025, breaking it.|n")
                                             else:
