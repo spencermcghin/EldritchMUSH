@@ -2383,7 +2383,6 @@ class CmdFollow(Command):
         self.target = self.args.strip()
 
     def func(self):
-        # target = self.caller.search(self.target)
         caller = self.caller
 
         # If the character attempts to call follow on themselves...
@@ -2393,6 +2392,12 @@ class CmdFollow(Command):
         # If they didn't specify a target...
         elif not self.target:
             caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
+
+        elif self.db.in_combat:
+            caller.msg("|540Usage: follow <target>|n\n|400.You are currently in combat and cannot follow another character.|n")
+
+        elif self.db.body <= 0:
+            caller.msg("|540Usage: follow <target>|n\n|400.You are currently too weak to move beyond your immediate surroundings, and thus cannot follow another character out of here. You must seek medical attention.|n")
 
         # If their isFollowing attribute is already set to true...
         elif caller.db.isFollowing == True:
