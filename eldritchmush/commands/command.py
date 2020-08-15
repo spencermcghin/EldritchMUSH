@@ -468,10 +468,53 @@ class CmdUnequip(Command):
                 self.right_slot.remove(item)
                 self.left_slot.remove(item)
             # Check to see if right hand is empty.
+            elif item in self.caller.db.body_slot:
+                self.caller.db.body_slot.remove(item)
+                # Item is armor, decrement from av
+                self.caller.db.armor = 0
+                # Get vals for armor value calc
+                armor_value = self.caller.db.armor
+                tough = self.caller.db.tough
+                shield_value = self.caller.db.shield_value
+                armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+                # Add them up and set the curent armor value in the database
+                currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                self.caller.db.av = currentArmorValue
+                # Return armor value to console.
+                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
             elif item in self.right_slot:
                 self.right_slot.remove(item)
+                if item.db.is_shield:
+                    self.caller.db.shield_value = 0
+
+                    # Get vals for armor value calc
+                    armor_value = self.caller.db.armor
+                    tough = self.caller.db.tough
+                    shield_value = self.caller.db.shield_value
+                    armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+                    # Add them up and set the curent armor value in the database
+                    currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                    self.caller.db.av = currentArmorValue
+                    # Return armor value to console.
+                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
             elif item in self.left_slot:
                 self.left_slot.remove(item)
+                if item.db.is_shield:
+                    self.caller.db.shield_value = 0
+
+                    # Get vals for armor value calc
+                    armor_value = self.caller.db.armor
+                    tough = self.caller.db.tough
+                    shield_value = self.caller.db.shield_value
+                    armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+                    # Add them up and set the curent armor value in the database
+                    currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                    self.caller.db.av = currentArmorValue
+                    # Return armor value to console.
+                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+
             else:
                 self.caller.msg(f"You aren't carrying a {item}.")
                 return
