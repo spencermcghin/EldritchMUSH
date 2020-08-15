@@ -33,8 +33,11 @@ class CmdCleave(Command):
         # Get target if there is one
         target = self.caller.search(self.target)
 
-        loop = CombatLoop(self.caller, target)
-        loop.resolveCommand()
+        if target:
+            loop = CombatLoop(self.caller, target)
+            loop.resolveCommand()
+        else:
+            return
 
         # Run logic for cleave command
         if self.caller.db.combat_turn:
