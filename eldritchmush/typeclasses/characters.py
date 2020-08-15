@@ -137,7 +137,14 @@ class Character(DefaultCharacter):
 
         if (self.db.isLeading):
             for char in self.db.followers:
-                char.move_to(self.location)
+                if not char.db.in_combat:
+                    char.move_to(self.location)
+                else:
+                    char.db.isFollowing = False
+                    char.db.leader = []
+                    self.db.followers.remove(char)
+                    self.msg("|540"+ char.key + " is no longer following you.|n")
+                    char.msg("|540You are no longer following " + self.key + "|n")
 
         # If a follower performed a move away from the leader, they will be removed from the followers array and will
         # no longer be following the leader.
