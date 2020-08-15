@@ -341,7 +341,7 @@ class CmdEquip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
-        h = Helper()
+        h = Helper(self.caller)
 
         if not self.item:
             self.caller.msg("|430Usage: equip <item>|n")
