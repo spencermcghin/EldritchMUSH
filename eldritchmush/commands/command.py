@@ -2285,6 +2285,179 @@ class CmdDiagnose(Command):
 
                 caller.msg(message)
 
+class CmdFollow(Command):
+    """
+    Follows the targeted character.
+    This needs to copy the commands of another character, but only if those commands are 
+    movement related.x
+    """
+
+    key = "follow"
+    aliases = ["chase"]
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+        # target = self.caller.search(self.target)
+        caller = self.caller
+
+        # If the character attempts to call follow on themselves...
+        if self.target == "self" or self.target == "me":
+            caller.msg("|540Usage: follow <target>|n\n|400You can't follow yourself. Please select a different target.|n")
+        
+        # If they didn't specify a target...
+        else if not self.target:
+            caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
+
+        # If their isFollowing attribute is already set to true...
+        else if caller.db.isFollowing == True:
+            
+            # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
+            # them to start over.
+            if (caller.db.leader == ""):
+                caller.msg("|540Usage: follow <target>|n\n|400It appears you may have already been following someone, but the original target was lost. Try executing the follow command on your new target again.|n")
+                caller.db.isFollowing = False
+            # Otherwise, let them know they are already following someone.
+            else:
+                caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader + ".|n")
+        
+        # If all is well...
+        else:
+            """
+            Add the name of the Leader to the follower
+            Add the name of the follower to the Leader's follower array
+            Set the Leader to true if not already
+            Set the Follower to true
+            """
+
+            target = caller.search(self.target)
+
+            # If the target wasn't found within the room they are in...
+            if not target:
+                    caller.msg("|540Usage: follow <target>|n\n|400Your target wasn't found within your vicinity. You must be in the same area as your target.|n")
+            else:
+                try:
+                    # Attempt to find the caller's key in the target's followers array.
+                    followerIndex = target.db.followers.index(caller.key)
+                    
+                    # If they were found in the target's follower array, then they were already following them.
+                    # Set the caller's leader attribute to the target key, and the isFollowing attribute to True.
+                    if followerIndex:
+                        caller.msg("|540Usage: follow <target>|n\n|400You are already following " + target.key + ".|n")
+                        caller.db.leader = target.key
+                        caller.db.isFollowing = True
+                        return
+                
+                # If the caller's key was not in the target's followers array, then add them to the array, set the 
+                # target's isLeader to true if it was not already, and let the target and caller know that it was
+                # a success.
+                except ValueError:
+                    if not target.db.isLeader:
+                        target.db.isLeader = True
+                    target.db.followers.append(caller.key)
+                    caller.msg("|540You are now following " + target.key + "|n")
+                    target.msg("|540"+ caller.key + " is now following you.|n")
+
+
+class CmdUnfollow(Command):
+    """
+    Unfollows the targeted character.
+    
+    Use , global_search=True to find the target everywhere, not just in the room
+    """
+
+    key = "unfollow"
+    aliases = ["stop following", "stopfollowing", "stop chasing", "stopchasing"]
+    help_category = "mush"
+
+    def func(self):
+
+        """
+        Remove the follower from the Leader's follower array
+        If there are no more followers in the leader's array, set the Leader to false
+        Remove the leader's name from the follower
+        Set the Follower to false
+        """
+        # target = self.caller.search(self.target)
+        caller = self.caller
+
+        # If the character attempts to call unfollow on themselves...
+        if self.target == "self" or self.target == "me":
+            caller.msg("|540Usage: unfollow <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
+        
+        # If they didn't specify a target...
+        else if not self.target:
+            caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
+
+        # If their isFollowing attribute is already set to false...
+        else if caller.db.isFollowing == False:
+            
+            target = caller.search(self.target, global_search=True)
+
+            # If their leader attribute is not blank, there must have been an issue. Set their leader attribute to blank and make
+            # sure they were removed from the target's followers array.
+            if (caller.db.leader !== ""):
+
+                
+                # If their leader value is equal to the target that they selected
+                if (caller.db.leader == target.key):
+                    # Try removing them from the target's followers array.
+                    try:      
+                        target.db.followers.remove(caller.key)
+                        if (target.db.followers.len() == 0):
+                            target.db.isLeader = False
+                        caller.msg("|540You are no longer following " + target.key + "|n")
+                        target.msg("|540"+ caller.key + " is no longer following you.|n")
+                    except ValueError:
+                        caller.msg("|540You are no longer following " + target.key + "|n")
+                    caller.db.leader = ""
+                
+                # Else, the user should be told that they were not following the selected target
+                else:
+                    caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+                
+            # Otherwise, let them know they were not following anyone to begin with.
+            else:
+                caller.msg("|540Usage: unfollow <target>|n\n|400You weren't following anyone. If you think this is an error, you can try unfollowhard <target> to ensure you are removed as a follower from another character.|n")
+        
+        # If all is well...
+        else:
+            """
+            Remove the name of the Leader to from the follower
+            Remove the name of the follower from the Leader's follower array
+            Set the Leader to false if the follower was the last character in their follower array
+            Set the Follower to false
+            """
+
+            target = caller.search(self.target, global_search=True)
+
+            # If the target wasn't found in the game...
+            if not target:
+                caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
+            else if (caller.db.leader !== target.key):
+                caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
+            else:
+                try:
+                    # Attempt to remove the follower from the leader's followers array.    
+                    target.db.followers.remove(caller.key)
+                    if (target.db.followers.len() == 0):
+                        target.db.isLeader = False
+                    caller.msg("|540You are no longer following " + target.key + "|n")
+                    target.msg("|540"+ caller.key + " is no longer following you.|n")
+                
+                # If the caller's key was not in the target's followers array, then add them to the array, set the 
+                # target's isLeader to true if it was not already, and let the target and caller know that it was
+                # a success.
+                except ValueError:
+                    caller.msg("|540You are no longer following " + target.key + "|n")
+                
+                # Reset the caller's leader and isFollowing values.
+                caller.db.leader = ""
+                caller.db.isFollowing = False
+
 """
 Random Encounter Commands
 """

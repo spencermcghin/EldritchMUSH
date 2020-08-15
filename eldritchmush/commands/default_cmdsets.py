@@ -130,7 +130,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdUnequip())
         self.add(sunder.CmdSunder())
         self.add(dice.CmdDice())
-
+        self.add(command.CmdFollow())
+        self.add(command.CmdUnfollow())
 
 #### Special command sets
 
