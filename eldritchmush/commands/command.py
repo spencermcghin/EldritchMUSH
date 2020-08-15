@@ -2564,7 +2564,7 @@ class CmdUnfollowForce(Command):
     """
 
     key = "unfollowforce"
-    aliases = ["unfollow hard", "unfollowreset", "unfollow reset"]
+    aliases = ["unfollow force", "unfollow hard", "unfollowhard", "unfollowreset", "unfollow reset"]
     help_category = "mush"
 
     def parse(self):
