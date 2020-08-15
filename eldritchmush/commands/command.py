@@ -2598,6 +2598,63 @@ class CmdUnfollowForce(Command):
             except ValueError:
                 caller.msg("|540You are no longer following " + target.key + "|n")
 
+class CmdFollowStatus(Command):
+    """
+    Prints out the character's follow related information.
+    """
+
+    key = "followstatus"
+    aliases = ["followstat", "follow status", "folstat", "follow stat", "fol stat"]
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
+    def func(self):
+        # target = self.caller.search(self.target)
+
+        if self.target == "self" or self.target == "me" or not self.target:
+            status_table = evtable.EvTable("|540Status|n", "|540Value|n",
+                table = [
+                    [
+                        "Currently Following",
+                        "Your Leader",
+                        "Currently Leading",
+                    ],
+                    [
+                        self.caller.db.isFollowing,
+                        list(self.caller.db.leader).key,
+                        self.caller.db.isLeading
+                    ]
+                ],
+                border = "cells")
+
+            status_table.reformat_column(0, width=30, align="l")
+            status_table.reformat_column(1, width=15, align="c")
+
+            followerList = list(self.caller.db.followers)
+            followerRows = []
+            if (len(followerList) == 0):
+                followerRows.append("None")
+            else:
+                for char in self.caller.db.followers:
+                    followerRows.append(char.key)
+
+            follower_table = evtable.EvTable("|540Followers|n",
+                table = [
+                    followerRows
+                ],
+                border = "cells")
+
+            follower_table.reformat_column(0, width=30, align="l")
+            follower_table.reformat_column(1, width=15, align="c")
+
+            self.caller.msg(status_table)
+            self.caller.msg(follower_table)
+        else:
+            self.caller.msg("|540Usage: followstatus|n\n|400You can only see your own follow status.|n")
+
 """
 Random Encounter Commands
 """
