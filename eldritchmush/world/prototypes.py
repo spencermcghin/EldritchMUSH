@@ -143,6 +143,7 @@ IRON_SHIELD = {
 
 LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "required_resources": 2,
 "iron_ingots": 1,
 "refined_wood": 1,
@@ -150,11 +151,13 @@ LEATHER_ARMOR = {
 "cloth": 0,
  "value_copper": 70,
  "value_silver": 7,
- "value_gold": .7
+ "value_gold": .7,
+ "material_value": 1
 }
 
 IRON_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "required_resources": 2,
 "iron_ingots": 1,
 "refined_wood": 1,
@@ -162,11 +165,13 @@ IRON_CHAIN_SHIRT = {
 "cloth": 0,
  "value_copper": 70,
  "value_silver": 7,
- "value_gold": .7
+ "value_gold": .7,
+ "material_value": 1
 }
 
 IRON_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "required_resources": 5,
 "iron_ingots": 2,
 "refined_wood": 1,
@@ -174,11 +179,13 @@ IRON_COAT_OF_PLATES = {
 "cloth": 0,
  "value_copper": 100,
  "value_silver": 10,
- "value_gold": 1
+ "value_gold": 1,
+ "material_value": 3
 }
 
 IRON_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "required_resources": 7,
 "iron_ingots": 4,
 "refined_wood": 1,
@@ -186,7 +193,8 @@ IRON_PLATEMAIL = {
 "cloth": 0,
  "value_copper": 120,
  "value_silver": 12,
- "value_gold": 1.2
+ "value_gold": 1.2,
+ "material_value": 5
 }
 
 """
@@ -259,6 +267,7 @@ HARDENED_IRON_SHIELD = {
 
 HARDENED_LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
+"is_armor": True,
 "key": "Hardened Leather Armor",
 "aliases": ["hardened leather armor"],
 "required_resources": 6,
@@ -274,6 +283,7 @@ HARDENED_LEATHER_ARMOR = {
 
 HARDENED_IRON_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Hardened Iron Shield",
 "aliases": ["hardened iron shield"],
 "required_resources": 7,
@@ -289,6 +299,7 @@ HARDENED_IRON_CHAIN_SHIRT = {
 
 HARDENED_IRON_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Hardened Iron Coat of Plates",
 "aliases": ["hardened iron coat of plates"],
 "required_resources": 12,
@@ -304,8 +315,9 @@ HARDENED_IRON_COAT_OF_PLATES = {
 
 HARDENED_IRON_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Hardened Iron Shield",
-"aliases": ["hardened iron shield"],
+"is_armor": True,
+"key": "Hardened Iron Plate",
+"aliases": ["hardened iron plate"],
 "required_resources": 14,
 "iron_ingots": 8,
 "refined_wood": 2,
@@ -387,6 +399,7 @@ STEEL_SHIELD = {
 
 STEEL_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Steel Chain Shirt",
 "aliases": ["steel chain shirt"],
 "required_resources": 8,
@@ -403,6 +416,7 @@ STEEL_CHAIN_SHIRT = {
 
 STEEL_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Steel Coat of Plates",
 "aliases": ["steel coat of plates"],
 "required_resources": 14,
@@ -418,6 +432,7 @@ STEEL_COAT_OF_PLATES = {
 
 STEEL_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Steel Platemail",
 "aliases": ["steel platemail"],
 "required_resources": 17,
@@ -501,6 +516,7 @@ MASTERWORK_STEEL_SHIELD = {
 
 MASTERWORK_STEEL_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Masterwork Steel Chain Shirt",
 "aliases": ["masterwork steel chain shirt"],
 "required_resources": 17,
@@ -517,6 +533,7 @@ MASTERWORK_STEEL_CHAIN_SHIRT = {
 
 MASTERWORK_STEEL_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Masterwork Steel Coat of Plates",
 "aliases": ["masterwork steel coat of plates"],
 "required_resources": 24,
@@ -532,6 +549,7 @@ MASTERWORK_STEEL_COAT_OF_PLATES = {
 
 MASTERWORK_STEEL_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_armor": True,
 "key": "Masterwork Steel Platemail",
 "aliases": ["masterwork steel platemail"],
 "required_resources": 28,
