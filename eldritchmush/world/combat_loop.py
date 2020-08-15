@@ -206,9 +206,17 @@ class CombatLoop:
     def cleanup(self):
         # Check for number of elements in the combat loop
         if self.getLoopLength() > 1:
+
             # If no character at next index (current character is last),
             # go back to beginning of combat_loop and prompt character for input.
             nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
+
+            # Check if remaining elements are all NPCs. If so, clear the loop and set their off flag.
+            loop_contents = [char for char in nextCharacter.location.db.combat_loop if utils.inherits_from(char, Npc)]
+            if len(loop_contents) == len(nextCharacter.location.db.combat_loop):
+                nextCharacter.location.db.combat_loop.clear()
+                nextCharacter.location.msg_contents("Combat is now over.")
+                return
 
             # Iterate through combat_loop until finding a character w/out the skip_turn flag set.
             while nextCharacter.db.skip_turn or self.isDying(nextCharacter):
