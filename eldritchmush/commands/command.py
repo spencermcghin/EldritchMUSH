@@ -2322,12 +2322,17 @@ class CmdFollow(Command):
             caller.msg("|540Usage: follow <target>|n\n|400You can't follow yourself. Please select a different target.|n")
 
         # If they didn't specify a target...
-        else if not self.target:
+        elif not self.target:
             caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
 
         # If their isFollowing attribute is already set to true...
+<<<<<<< HEAD
         else if caller.db.isFollowing == True:
 
+=======
+        elif caller.db.isFollowing == True:
+            
+>>>>>>> 9bb40027716e3bc8fc18b8e52f098e594b1ede65
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
             if (caller.db.leader == ""):
@@ -2402,17 +2407,22 @@ class CmdUnfollow(Command):
             caller.msg("|540Usage: unfollow <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
 
         # If they didn't specify a target...
-        else if not self.target:
+        elif not self.target:
             caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
+<<<<<<< HEAD
         else if caller.db.isFollowing == False:
 
+=======
+        elif caller.db.isFollowing == False:
+            
+>>>>>>> 9bb40027716e3bc8fc18b8e52f098e594b1ede65
             target = caller.search(self.target, global_search=True)
 
             # If their leader attribute is not blank, there must have been an issue. Set their leader attribute to blank and make
             # sure they were removed from the target's followers array.
-            if (caller.db.leader !== ""):
+            if (caller.db.leader != ""):
 
 
                 # If their leader value is equal to the target that they selected
@@ -2450,7 +2460,7 @@ class CmdUnfollow(Command):
             # If the target wasn't found in the game...
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
-            else if (caller.db.leader !== target.key):
+            elif (caller.db.leader != target.key):
                 caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
             else:
                 try:
