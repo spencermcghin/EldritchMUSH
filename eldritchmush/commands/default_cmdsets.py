@@ -133,6 +133,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdFollow())
         self.add(command.CmdUnfollow())
         self.add(command.CmdUnfollowForce())
+        self.add(command.CmdFollowStatus())
 
 #### Special command sets
 
