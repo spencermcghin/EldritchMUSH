@@ -233,26 +233,26 @@ class CombatLoop:
                 # Hook into the npcs command generator.
                 targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
 
-                # Check for items not broken
-                has_right_item = True if len(nextCharacter.db.right_slot) == 1 else False
-
-                if has_right_item:
-                    right_item = nextCharacter.search(nextCharacter.db.right_slot[0], location=nextCharacter)
-                    right_item_broken = True if right_item.db.broken else False
-                else:
-                    right_item_broken = False
-
-                # Check for items not broken
-                has_left_item = True if len(nextCharacter.db.left_slot) == 1 else False
-
-                if has_left_item:
-                    left_item = nextCharacter.search(nextCharacter.db.left_slot[0], location=nextCharacter)
-                    left_item_broken = True if left_item.db.broken else False
-                else:
-                    left_item_broken = False
+                # # Check for items not broken
+                # has_right_item = True if len(nextCharacter.db.right_slot) == 1 else False
+                #
+                # if has_right_item:
+                #     right_item = nextCharacter.search(nextCharacter.db.right_slot[0], location=nextCharacter)
+                #     right_item_broken = True if right_item.db.broken else False
+                # else:
+                #     right_item_broken = False
+                #
+                # # Check for items not broken
+                # has_left_item = True if len(nextCharacter.db.left_slot) == 1 else False
+                #
+                # if has_left_item:
+                #     left_item = nextCharacter.search(nextCharacter.db.left_slot[0], location=nextCharacter)
+                #     left_item_broken = True if left_item.db.broken else False
+                # else:
+                #     left_item_broken = False
 
                 # Pick a random target from the loops possible targets
-                if targets and not (right_item_broken and left_item_broken):
+                if targets and (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
