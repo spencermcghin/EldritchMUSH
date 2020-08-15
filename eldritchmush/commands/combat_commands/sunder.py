@@ -2,6 +2,8 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
+from evennia import utils
+from typeclasses.npc import Npc
 
 class CmdSunder(Command):
     """
@@ -79,6 +81,8 @@ class CmdSunder(Command):
                                             if right_mv - 1 < 0:
                                                 right_mv = 0
                                                 right_item.db.broken = True
+                                                if utils.inherits_from(target, Npc):
+                                                    target.db.skip_turn = 1
                                                 # Remove item from slot. Player won't be able to requip it.
                                                 target.db.right_slot.remove(right_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|300{target.db.av}|n)|025, breaking it.|n")

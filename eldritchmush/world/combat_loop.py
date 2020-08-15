@@ -238,21 +238,19 @@ class CombatLoop:
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
-                elif targets and not (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
-                    pass
                 else:
-                    # If no non-NPC targets, remove all items from loop and end combat
-                    nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
-                    # Reset combat_loop related stats for all remaining characters:
-                    for char in nextCharacter.location.db.combat_loop:
-                        char.db.combat_turn = 1
-                        char.db.in_combat = 0
-                    # TODO: Reset npc stats
-                    ###### here ######
-                    # Empty combat_loop and msg
-                    nextCharacter.location.db.combat_loop.clear()
-                    nextCharacter.location.msg_contents(f"Combat is now over for the {nextCharacter.location}")
-
+                    # # If no non-NPC targets, remove all items from loop and end combat
+                    # nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
+                    # # Reset combat_loop related stats for all remaining characters:
+                    # for char in nextCharacter.location.db.combat_loop:
+                    #     char.db.combat_turn = 1
+                    #     char.db.in_combat = 0
+                    # # TODO: Reset npc stats
+                    # ###### here ######
+                    # # Empty combat_loop and msg
+                    # nextCharacter.location.db.combat_loop.clear()
+                    # nextCharacter.location.msg_contents(f"Combat is now over for the {nextCharacter.location}")
+                    pass
         else:
             try:
                 remaining_character = self.combat_loop[0]
