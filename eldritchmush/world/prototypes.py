@@ -129,6 +129,7 @@ IRON_LARGE_WEAPON = {
 
 IRON_SHIELD = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
+"is_shield": True,
 "key": "Iron Shield",
 "aliases": ["iron shield"],
 "required_resources": 3,
@@ -252,6 +253,7 @@ HARDENED_IRON_LARGE_WEAPON = {
 
 HARDENED_IRON_SHIELD = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
+"is_shield": True,
 "key": "Hardened Iron Shield",
 "aliases": ["hardened iron shield"],
 "required_resources": 6,
@@ -384,6 +386,7 @@ STEEL_LARGE_WEAPON = {
 
 STEEL_SHIELD = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_shield": True,
 "key": "Steel Shield",
 "aliases": ["steel shield"],
 "required_resources": 11,
@@ -501,6 +504,7 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 
 MASTERWORK_STEEL_SHIELD = {
 "typeclass": "typeclasses.objects.WeaponObject",
+"is_shield": True,
 "key": "Masterwork Steel Shield",
 "aliases": ["masterwork steel shield"],
 "required_resources": 17,
