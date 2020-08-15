@@ -238,8 +238,6 @@ class CombatLoop:
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
-                elif targets and not (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
-                    nextCharacter.location.msg_contents(f"exception caught. need to move to next.")
                 else:
                     # If no non-NPC targets, remove all items from loop and end combat
                     nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
