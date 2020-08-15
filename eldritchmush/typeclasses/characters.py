@@ -89,6 +89,7 @@ class Character(DefaultCharacter):
         self.db.in_combat = 0
         self.db.left_slot = []
         self.db.right_slot = []
+        self.db.body_slot = []
         self.db.skip_turn = False
         self.db.battlefieldcommander = 0
         self.db.rally = 0

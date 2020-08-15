@@ -351,15 +351,10 @@ class CmdEquip(Command):
                                   multimatch_string=f"|540You carry more than one {self.item}|n:",
                                   )
 
-        # Check if the item is of an a
+        # Check if the item is of armor type
 
-        try:
-            maybe_armor = prototypes.search_prototype(item, require_single=True)
-        except KeyError:
-            self.msg("Item not found, or more than one match. Please try again.")
-        else:
-            maybe_armor_value = maybe_armor[0]
-            self.msg(maybe_armor_value)
+        if item.db.is_armor:
+
 
 
 
