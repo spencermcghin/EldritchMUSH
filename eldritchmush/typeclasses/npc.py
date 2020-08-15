@@ -3,7 +3,6 @@
 from typeclasses.characters import Character
 from evennia.prototypes import prototypes
 from evennia import create_object, spawn, utils
-from typeclasses import WeaponObject
 # from commands.combat import Helper
 
 # Imports
@@ -44,7 +43,7 @@ class MeleeSoldier(Npc):
         # Choose a random command and run it
         if self.db.is_aggressive:
             inventory = self.contents
-            weapons = [item for item in inventory if utils.inherits_from(item, WeaponObject)]
+            weapons = [item for item in inventory if item.db.damage]
             if len(weapons) == 0:
                 self.make_weapon()
             else:
