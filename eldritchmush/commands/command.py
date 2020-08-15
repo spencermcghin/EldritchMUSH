@@ -355,11 +355,12 @@ class CmdEquip(Command):
 
         if item.db.is_armor:
             self.caller.db.body_slot.append(item)
-            self.db.armor = item.db.material_value
+            self.caller.db.armor = item.db.material_value
 
             self.msg(f"You don {item.key}.")
 
             # Get vals for armor value calc
+            armor_value = self.caller.db.armor
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
