@@ -41,13 +41,16 @@ class MeleeSoldier(Npc):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        inventory = self.contents
-        weapons = [item for item in inventory if utils.inherits_from(item, WeaponObject)]
-        if len(weapons) == 0:
-            self.make_weapon()
+        if self.db.is_aggressive:
+            inventory = self.contents
+            weapons = [item for item in inventory if utils.inherits_from(item, WeaponObject)]
+            if len(weapons) == 0:
+                self.make_weapon()
+            else:
+                command = self.command_picker(character)
+                self.execute_cmd(command)
         else:
-            command = self.command_picker(character)
-            self.execute_cmd(command)
+            return
 
 
     def command_picker(self, target):
