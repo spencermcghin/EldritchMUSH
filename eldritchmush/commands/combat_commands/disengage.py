@@ -41,7 +41,7 @@ class CmdDisengage(Command):
                 # Run cleanup to move to next target
                 self.combat_loop.remove(self.caller)
 
-                loop_contents = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
+                loop_contents = [char for char in self.caller.location.db.combat_loop if utils.inherits_from(char, Npc)]
 
                 self.caller.location.msg_contents(loop_contents)
                 if len(loop_contents) == len(self.caller.location.db.combat_loop):
