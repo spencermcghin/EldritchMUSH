@@ -353,7 +353,7 @@ class CmdEquip(Command):
 
         # Check if the item is of armor type
 
-        if item.db.is_armor:
+        if item.db.is_armor and not in self.caller.db.body_slot:
             self.caller.db.body_slot.append(item)
             self.caller.db.armor = item.db.material_value
 
@@ -464,7 +464,7 @@ class CmdUnequip(Command):
 
         if item:
             # Check if item is twohanded
-            if item.db.twohanded:
+            if item.db.twohanded and in self.right_slot:
                 self.right_slot.remove(item)
                 self.left_slot.remove(item)
             # Check to see if right hand is empty.
