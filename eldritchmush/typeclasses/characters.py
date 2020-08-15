@@ -152,7 +152,7 @@ class Character(DefaultCharacter):
                     charFollower.msg("|540You are no longer following " + self.key + ".|n")
         
         # Remove this character from the followers array of their Leader, if they were following one.
-        if (self.db.leader !== ""):
+        if (self.db.leader != ""):
             charLeader = self.search(self.db.leader, global_search=True)
             # Remove the character from the Leader's followers array
             if (charLeader):
