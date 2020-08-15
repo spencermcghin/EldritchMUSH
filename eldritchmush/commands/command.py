@@ -2624,7 +2624,7 @@ class CmdFollowStatus(Command):
                     ],
                     [
                         self.caller.db.isFollowing,
-                        list(self.caller.db.leader).key,
+                        list(self.caller.db.leader)[0].key,
                         self.caller.db.isLeading
                     ]
                 ],
