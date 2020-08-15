@@ -37,9 +37,7 @@ class CmdDisengage(Command):
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
-                self.caller.location.msg_contents(f"{self.caller.key} removed.")
                 self.combat_loop.remove(self.caller)
-                self.caller.location.msg_contents(f"{self.combat_loop}")
                 loop.cleanup()
 
             else:

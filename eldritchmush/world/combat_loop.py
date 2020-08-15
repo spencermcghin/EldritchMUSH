@@ -213,6 +213,7 @@ class CombatLoop:
 
             # Check if remaining elements are all NPCs. If so, clear the loop and set their off flag.
             loop_contents = [char for char in nextCharacter.location.db.combat_loop if utils.inherits_from(char, Npc)]
+            nextCharacter.location.msg_contents(loop_contents)
             if len(loop_contents) == len(nextCharacter.location.db.combat_loop):
                 nextCharacter.location.db.combat_loop.clear()
                 nextCharacter.location.msg_contents("Combat is now over.")
