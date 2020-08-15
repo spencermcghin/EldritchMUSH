@@ -253,7 +253,7 @@ class Object(DefaultObject):
         self.db.isFollowing = False
         self.db.followers = []
 
-        return
+        pass
 
 
 """
