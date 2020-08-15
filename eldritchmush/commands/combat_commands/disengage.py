@@ -46,7 +46,7 @@ class CmdDisengage(Command):
                 self.caller.location.msg_contents(loop_contents)
                 if len(loop_contents) == len(self.caller.location.db.combat_loop):
                     self.combat_loop.clear()
-                    self.location.msg_contents("Combat is now over.")
+                    self.caller.location.msg_contents("Combat is now over.")
                     return
                 else:
                     loop.cleanup()
