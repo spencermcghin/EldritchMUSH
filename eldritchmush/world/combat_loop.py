@@ -250,7 +250,7 @@ class CombatLoop:
                     # # Empty combat_loop and msg
                     # nextCharacter.location.db.combat_loop.clear()
                     # nextCharacter.location.msg_contents(f"Combat is now over for the {nextCharacter.location}")
-                    pass
+                    nextCharacter.execute_cmd('disengage')
         else:
             try:
                 remaining_character = self.combat_loop[0]
