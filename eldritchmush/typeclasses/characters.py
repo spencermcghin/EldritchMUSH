@@ -114,8 +114,8 @@ class Character(DefaultCharacter):
         looker sees when looking at this object.
         """
         text = super().return_appearance(looker)
-        isBleeding = True if self.bleed_points else False
-        isDying = True if not self.bleed_points else False
+        isBleeding = True if not self.db.body else False
+        isDying = True if not self.db.bleed_points else False
 
         # Check to see if player is fighting.
         if self in self.location.db.combat_loop:
@@ -141,7 +141,7 @@ class Character(DefaultCharacter):
         pass
 
     def at_post_unpuppet(self, account):
-        
+
         # Notify all followers that they are no longer following this character.
         if (self.db.isLeading == True):
             for char in self.db.followers:
@@ -150,20 +150,20 @@ class Character(DefaultCharacter):
                     charFollower.db.leader = []
                     charFollower.db.isFollowing = False
                     charFollower.msg("|540You are no longer following " + self.key + ".|n")
-        
+
         # Remove this character from the followers array of their Leader, if they were following one.
         if (self.db.leader != []):
             charLeader = self.search(self.db.leader, global_search=True)
             # Remove the character from the Leader's followers array
             if (charLeader):
-                try:      
+                try:
                     charLeader.db.followers.remove(self.key)
                     if (charLeader.db.followers.len() == 0):
                         charLeader.db.isLeader = False
                     charLeader.msg("|540"+ self.key + " is no longer following you.|n")
                 except ValueError:
                     self.msg("|540You are no longer following " + charLeader.key + "|n")
-        
+
         # Clean up all db values.
         self.db.leader = []
         self.db.isLeading = False
