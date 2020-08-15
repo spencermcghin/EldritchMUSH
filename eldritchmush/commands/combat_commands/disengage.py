@@ -40,12 +40,17 @@ class CmdDisengage(Command):
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
                 self.combat_loop.remove(self.caller)
+                # Reset stats
                 self.caller.db.in_combat = 0
                 self.caller.db.combat_turn = 1
-                loop_contents = [char for char in self.caller.location.db.combat_loop if utils.inherits_from(char, Npc)]
 
-                self.caller.location.msg_contents(loop_contents)
+                # Check for only npcs remaining.
+                loop_contents = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
                 if len(loop_contents) == len(self.caller.location.db.combat_loop):
+                    # Reset combat stats
+                    for char in self.combat_loop:
+                        char.db.combat_turn = 1
+                        char.db.in_combat = 0
                     self.combat_loop.clear()
                     self.caller.location.msg_contents("Combat is now over.")
                     return
