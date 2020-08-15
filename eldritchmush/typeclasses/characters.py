@@ -118,8 +118,7 @@ class Character(DefaultCharacter):
         isDying = True if not self.db.bleed_points else False
 
         # Check to see if player is fighting.
-        if self in self.location.db.combat_loop:
-            combat_string = f"{self.key} is currently in the midst of combat."
+        combat_string = f"{self.key} is currently in the midst of combat." if self in self.location.db.combat_loop
 
         # Return
         if isBleeding:
