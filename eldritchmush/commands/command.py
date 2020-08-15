@@ -2326,13 +2326,8 @@ class CmdFollow(Command):
             caller.msg("|540Usage: follow <target>|n\n|400.Please specify a target for the follow command.|n")
 
         # If their isFollowing attribute is already set to true...
-<<<<<<< HEAD
-        else if caller.db.isFollowing == True:
-
-=======
         elif caller.db.isFollowing == True:
-            
->>>>>>> 9bb40027716e3bc8fc18b8e52f098e594b1ede65
+
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
             if (caller.db.leader == ""):
@@ -2411,13 +2406,8 @@ class CmdUnfollow(Command):
             caller.msg("|540Usage: unfollow <target>|n\n|400.Please specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
-<<<<<<< HEAD
-        else if caller.db.isFollowing == False:
-
-=======
         elif caller.db.isFollowing == False:
-            
->>>>>>> 9bb40027716e3bc8fc18b8e52f098e594b1ede65
+
             target = caller.search(self.target, global_search=True)
 
             # If their leader attribute is not blank, there must have been an issue. Set their leader attribute to blank and make
