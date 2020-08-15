@@ -383,7 +383,8 @@ class CmdEquip(Command):
                         self.right_slot.append(item)
                         self.left_slot.append(item)
                         # Add weapon bonus
-                        weapon_bonus = h.weaponValue(item.db.)
+                        weapon_bonus = h.weaponValue(item.db.level)
+                        self.caller.db.weapon_level = weapon_bonus
                         # Send some messages
                         self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                         self.caller.msg(f"You have equipped your {item.key}")
