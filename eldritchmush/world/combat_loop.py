@@ -239,7 +239,7 @@ class CombatLoop:
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
                 elif targets and not (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
-                    self.cleanup()
+                    pass
                 else:
                     # If no non-NPC targets, remove all items from loop and end combat
                     nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
