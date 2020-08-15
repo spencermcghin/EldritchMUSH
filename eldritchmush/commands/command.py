@@ -2409,7 +2409,7 @@ class CmdFollow(Command):
                 caller.db.isFollowing = False
             # Otherwise, let them know they are already following someone.
             else:
-                caller.msg("|540Usage: follow <target>|n\n|400You're already following" + caller.db.leader.key + ". Unfollow them first, then follow a new leader.|n")
+                caller.msg("|540Usage: follow <target>|n\n|400You're already following " + caller.db.leader.key + ". Unfollow them first, then follow a new leader.|n")
 
         # If all is well...
         else:
@@ -2431,12 +2431,11 @@ class CmdFollow(Command):
                     leaderIndex = caller.db.followers.index(target)
 
                     # If the leader is already following the character, then they cannot follow them; the leader must unfollow them first.
-                    if leaderIndex:
-                        caller.msg("|540Usage: follow <target>|n\n|400" + target.key + " is following you, which means that you cannot follow them. Ask them to unfollow you first, then try again.|n")
+                    caller.msg("|540Usage: follow <target>|n\n|400" + target.key + " is following you, which means that you cannot follow them. Ask them to unfollow you first, then try again.|n")
                     
                 # If the leader is not following them, then try adding them to the leader's followers array.
                 except ValueError:
-                    try
+                    try:
                         # Attempt to find the caller's key in the target's followers array.
                         followerIndex = target.db.followers.index(caller)
 
