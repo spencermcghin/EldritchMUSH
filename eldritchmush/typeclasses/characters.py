@@ -90,6 +90,7 @@ class Character(DefaultCharacter):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
+        self.db.is_aggressive = False
         self.db.skip_turn = False
         self.db.battlefieldcommander = 0
         self.db.rally = 0
@@ -152,13 +153,13 @@ class Character(DefaultCharacter):
         # If a follower performed a move away from the leader, they will be removed from the followers array and will
         # no longer be following the leader.
         if (self.db.isFollowing):
-            
+
             leaderInRoom = self.search(self.db.leader)
-            
+
             if not leaderInRoom:
                 # Try removing them from the target's followers array.
                 leader = self.search(self.db.leader, global_search=True)
-                
+
                 try:
                     leader.db.followers.remove(self)
                     tempList = list(leader.db.followers)
