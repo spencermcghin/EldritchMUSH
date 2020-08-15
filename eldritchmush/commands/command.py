@@ -2614,7 +2614,7 @@ class CmdFollowStatus(Command):
     def func(self):
         # target = self.caller.search(self.target)
 
-        if (leaderList == []):
+        if (self.caller.db.leader == []):
             leader = "None"
         else:
             leader = self.caller.db.leader.key
