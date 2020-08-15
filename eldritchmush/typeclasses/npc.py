@@ -47,8 +47,9 @@ class MeleeSoldier(Npc):
             if len(weapons) == 0:
                 self.make_weapon()
             else:
-                command = self.command_picker(character)
-                self.execute_cmd(command)
+                pass
+            command = self.command_picker(character)
+            self.execute_cmd(command)
         else:
             return
 
