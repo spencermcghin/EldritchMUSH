@@ -204,7 +204,7 @@ class Object(DefaultObject):
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
 
-        object = self.key
+        object = self
         # Set value of perception/tracking key for returning values.
         looker_perception = looker.db.perception
         # Returns list of messages if anything
