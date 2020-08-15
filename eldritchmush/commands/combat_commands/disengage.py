@@ -2,6 +2,7 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
+from evennia import utils
 
 class CmdDisengage(Command):
     """
@@ -38,7 +39,16 @@ class CmdDisengage(Command):
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
                 self.combat_loop.remove(self.caller)
-                loop.cleanup()
+
+                loop_contents = [char for char in nextCharacter.location.db.combat_loop if utils.inherits_from(char, Npc)]
+
+                self.caller.location.msg_contents(loop_contents)
+                if len(loop_contents) == len(self.caller.location.db.combat_loop):
+                    nextCharacter.location.db.combat_loop.clear()
+                    nextCharacter.location.msg_contents("Combat is now over.")
+                    return
+                else:
+                    loop.cleanup()
 
             else:
                 self.msg(f"You are not part of the combat loop for {self.caller.location}.")
