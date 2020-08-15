@@ -2465,7 +2465,7 @@ class CmdUnfollow(Command):
             if (caller.db.leader != []):
 
                 # If their leader value is equal to the target that they selected
-                if (caller.db.leader[0] == target):
+                if (caller.db.leader == target):
                     # Try removing them from the target's followers array.
                     try:
                         target.db.followers.remove(caller)
@@ -2499,7 +2499,7 @@ class CmdUnfollow(Command):
             # If the target wasn't found in the game...
             if not target:
                 caller.msg("|540Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again.|n")
-            elif (caller.db.leader[0] != target):
+            elif (caller.db.leader != target):
                 caller.msg("|540Usage: unfollow <target>|n\n|400.It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowhard <target> with the original target you specified.|n")
             else:
                 try:
