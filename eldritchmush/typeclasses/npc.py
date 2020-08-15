@@ -3,7 +3,7 @@
 from typeclasses.characters import Character
 from evennia.prototypes import prototypes
 from evennia import create_object, spawn, utils
-from objects import WeaponObject
+from typeclasses.objects import WeaponObject
 # from commands.combat import Helper
 
 # Imports
