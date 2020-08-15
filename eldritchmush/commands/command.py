@@ -2436,7 +2436,7 @@ class CmdFollow(Command):
                     
                 # If the leader is not following them, then try adding them to the leader's followers array.
                 except ValueError:
-                    try
+                    try:
                         # Attempt to find the caller's key in the target's followers array.
                         followerIndex = target.db.followers.index(caller)
 
