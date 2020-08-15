@@ -464,7 +464,7 @@ class CmdUnequip(Command):
 
         if item:
             # Check if item is twohanded
-            if item.db.twohanded and in self.right_slot:
+            if item.db.twohanded and not in self.right_slot:
                 self.right_slot.remove(item)
                 self.left_slot.remove(item)
             # Check to see if right hand is empty.
