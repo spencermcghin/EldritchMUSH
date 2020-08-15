@@ -2614,6 +2614,12 @@ class CmdFollowStatus(Command):
     def func(self):
         # target = self.caller.search(self.target)
 
+        leaderList = list(self.caller.db.leader)
+        if (len(leaderList) == 0):
+            leader = "None"
+        else:
+            leader = self.caller.db.leader.key
+
         if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|540Status|n", "|540Value|n",
                 table = [
@@ -2624,7 +2630,7 @@ class CmdFollowStatus(Command):
                     ],
                     [
                         self.caller.db.isFollowing,
-                        list(self.caller.db.leader)[0].key,
+                        leader,
                         self.caller.db.isLeading
                     ]
                 ],
