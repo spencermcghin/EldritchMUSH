@@ -234,12 +234,23 @@ class CombatLoop:
                 targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
 
                 # Check for items not broken
-                npc_right_slot = nextCharacter.search(nextCharacter.db.right_slot[0], location=nextCharacter) if nextCharacter.db.right_slot is not None
+                has_right_item = True if len(nextCharacter.db.right_slot) == 1 else False
 
-                npc_left_slot = nextCharacter.search(nextCharacter.db.left_slot[0], location=nextCharacter) if nextCharacter.db.left_slot is not None
+                if has_right_item:
+                    right_item = nextCharacter.search(nextCharacter.db.right_slot[0], location=nextCharacter)
+                else:
+                    pass
+
+                # Check for items not broken
+                has_left_item = True if len(nextCharacter.db.left_slot) == 1 else False
+
+                if has_left_item:
+                    left_item = nextCharacter.search(nextCharacter.db.left_slot[0], location=nextCharacter)
+                else:
+                    pass
 
                 # Pick a random target from the loops possible targets
-                if targets and (not npc_right_slot.db.broken or not npc_left_slot.db.broken):
+                if targets and (not right_item.db.broken or not left_item.db.broken):
                     random_target = random.choice(targets)
                     # If character target, attack a random one.
                     nextCharacter.at_char_entered(random_target)
