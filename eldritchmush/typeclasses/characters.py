@@ -134,6 +134,11 @@ class Character(DefaultCharacter):
         Note:  This has been moved to room.at_object_receive
         """
         #self.execute_cmd('look')
+
+        if (self.db.isLeading):
+            for char in self.db.followers:
+                char.move_to(self.location)
+
         pass
 
     def at_post_unpuppet(self, account):
