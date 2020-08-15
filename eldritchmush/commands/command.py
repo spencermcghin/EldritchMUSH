@@ -2388,6 +2388,10 @@ class CmdUnfollow(Command):
     aliases = ["stop following", "stopfollowing", "stop chasing", "stopchasing"]
     help_category = "mush"
 
+    def parse(self):
+        "Very trivial parser"
+        self.target = self.args.strip()
+
     def func(self):
 
         """
