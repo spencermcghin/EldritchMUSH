@@ -350,6 +350,7 @@ class WeaponObject(BlacksmithObject):
         self.db.trait_one = []
         self.db.trait_two = []
         self.db.trait_three = []
+        self.db.patched = False
 
 """
 Storage Objects
