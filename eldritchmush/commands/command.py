@@ -2424,10 +2424,10 @@ class CmdPatch(Command):
             try:
                 prototype = prototypes.search_prototype(prototyped_string, require_single=True)
             except KeyError:
-                self.msg("This item cannot be patched.")
+                self.msg("This item cannot be patched or you have entered an incorrect spelling.")
             else:
                 # Get prototype attributes
-                item_attrs = prototype[0]["attrs"]
+                item_attrs = prototype[0]
                 self.msg(f"{item_attrs}")
                 # Check if the item has been patched already.
         #         item_patched = item_attrs
