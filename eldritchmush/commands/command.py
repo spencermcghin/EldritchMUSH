@@ -2424,7 +2424,7 @@ class CmdPatch(Command):
                 # Get search response
                 item_attrs = prototype[0]["attrs"]
                 item_material_value = item_attrs[9][1]
-                self.msg(item_attrs)
+                self.msg(item_material_value)
 
 
 class CmdFollow(Command):
