@@ -2392,7 +2392,7 @@ class CmdPatch(Command):
 
     def parse(self):
         "Very trivial parser"
-        self.item = self.args.strip()
+        self.item = self.args
 
     def func(self):
         use_err_msg = "|540Usage: patch <item>|n"
@@ -2410,7 +2410,7 @@ class CmdPatch(Command):
 
         # Search for designated prototypes
         try:
-            prototype = prototypes.search_prototype(self.item)
+            prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
             self.msg("This item cannot be patched.")
         else:
