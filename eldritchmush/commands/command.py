@@ -2399,7 +2399,7 @@ class CmdPatch(Command):
 
         prototyped_string = self.item
 
-        if prototyped_string.contains(" "):
+        if prototyped_string.find(" "):
             prototyped_string = self.item.replace(' ', '_')
             self.msg(self.item)
 
