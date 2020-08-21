@@ -2414,7 +2414,7 @@ class CmdPatch(Command):
                                       nofound_string=f"|300{self.item} not found.|n",
                                       multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
-        patch_kit = self.caller.search("patch kit",
+        patch_kit = self.caller.search("1-patch kit",
                                        location=self.caller,
                                        nofound_string="You are not carrying any patch kits.",
                                        multimatch_string="|430Your search has more than one result. Please be more specific.|n")
