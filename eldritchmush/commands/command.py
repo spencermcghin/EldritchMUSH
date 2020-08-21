@@ -2402,9 +2402,9 @@ class CmdPatch(Command):
             self.msg(use_err_msg)
             return
 
-        # Format item for searching in prototypes
+        # Format item for searching in prototypes.
+        # Adds underscores to make prototype search happy.
         prototyped_string = self.item
-
         if prototyped_string.find(" "):
             prototyped_string = self.item.replace(' ', '_')
 
@@ -2414,14 +2414,17 @@ class CmdPatch(Command):
                                       nofound_string=f"|300{self.item} not found.|n",
                                       multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
-        # Search for designated prototypes
-        try:
-            prototype = prototypes.search_prototype(prototyped_string, require_single=True)
-        except KeyError:
-            self.msg("This item cannot be patched.")
-        else:
-            # Get search response
-            self.msg(f"Hooray. {prototype} is in the caller's inventory and is a prototype.")
+        if inv_item:
+            # Search for designated prototypes
+            try:
+                prototype = prototypes.search_prototype(prototyped_string, require_single=True)
+            except KeyError:
+                self.msg("This item cannot be patched.")
+            else:
+                # Get search response
+                item_attrs = prototype[0]["attrs"]
+                item_material_value = item_attrs[9][1]
+                self.msg(item_attrs)
 
 
 class CmdFollow(Command):
