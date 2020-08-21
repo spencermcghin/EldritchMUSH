@@ -2401,7 +2401,7 @@ class CmdPatch(Command):
 
         if prototyped_string.find(" "):
             prototyped_string = self.item.replace(' ', '_')
-            self.msg(self.item)
+            self.msg(prototyped_string)
 
         # # Do all checks
         # if not self.item:
