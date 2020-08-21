@@ -2410,7 +2410,7 @@ class CmdPatch(Command):
 
         # Search for designated prototypes
         try:
-            prototype = prototypes.search_prototype(inv_item.key, require_single=True)
+            prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
             self.msg("This item cannot be patched.")
         else:
