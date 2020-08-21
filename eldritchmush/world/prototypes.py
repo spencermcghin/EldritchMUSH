@@ -74,7 +74,7 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 
 """
 Begin blacksmith and weapon protoypes
-
+Ensure material_value of weapon or armor is always 9th element in attrs.
 """
 
 """

@@ -2414,18 +2414,31 @@ class CmdPatch(Command):
                                       nofound_string=f"|300{self.item} not found.|n",
                                       multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
-        if inv_item:
-            # Search for designated prototypes
-            try:
-                prototype = prototypes.search_prototype(prototyped_string, require_single=True)
-            except KeyError:
-                self.msg("This item cannot be patched.")
-            else:
-                # Get search response
-                item_attrs = prototype[0]["attrs"]
-                item_material_value = item_attrs[9][1]
-                self.msg(item_material_value)
+        patch_kit = self.caller.search("patch kit",
+                                       location=self.caller,
+                                       nofound_string="You are not carrying any patch kits.",
+                                       multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
+        self.msg(f"{patch_kit}")
+        # if inv_item and patch_kit:
+        #     # Search for designated prototypes
+        #     try:
+        #         prototype = prototypes.search_prototype(prototyped_string, require_single=True)
+        #     except KeyError:
+        #         self.msg("This item cannot be patched.")
+        #     else:
+        #         # Get prototype attributes
+        #         item_attrs = prototype[0]["attrs"]
+        #         # Material value should always be 9th element in attrs array.
+        #         item_material_value = item_attrs[9][1]
+        #
+        #         # Check to see if target item has a lower material value, meaning it's taken damage.
+        #         mv_diff = item_material_value - inv_item.db.material_value
+        #         if mv_diff > 0:
+        #             # Item has been damaged. Set back to original material_value
+        #             inv_item.db.material_value = item_material_value
+        #         else:
+        #             self.msg(f"{inv_item} is not in need of repair.")
 
 class CmdFollow(Command):
     """
