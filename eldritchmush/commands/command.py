@@ -2428,20 +2428,22 @@ class CmdPatch(Command):
             else:
                 # Get prototype attributes
                 item_attrs = prototype[0]["attrs"]
-                # Material value should always be 9th element in attrs array.
-                item_material_value = item_attrs[9][1]
-
-                # Check to see if target item has a lower material value, meaning it's taken damage.
-                mv_diff = item_material_value - inv_item.db.material_value
-                if mv_diff > 0:
-                    # Item has been damaged. Set back to original material_value
-                    inv_item.db.material_value = item_material_value
-                    inv_item.db.patched = True
-                    self.msg(f"You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.")
-                else:
-                    self.msg(f"Your {inv_item} is not in need of repair.")
-        else:
-            return
+                self.msg(f"{item_attrs}")
+                # Check if the item has been patched already.
+        #         item_patched = item_attrs
+        #         # Material value should always be 9th element in attrs array.
+        #         item_material_value = item_attrs[9][1]
+        #         # Check to see if target item has a lower material value, meaning it's taken damage.
+        #         mv_diff = item_material_value - inv_item.db.material_value
+        #         if mv_diff > 0:
+        #             # Item has been damaged. Set back to original material_value
+        #             inv_item.db.material_value = item_material_value
+        #             inv_item.db.patched = True
+        #             self.msg(f"You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.")
+        #         else:
+        #             self.msg(f"Your {inv_item} is not in need of repair.")
+        # else:
+        #     return
 
 class CmdFollow(Command):
     """
