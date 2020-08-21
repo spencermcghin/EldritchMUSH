@@ -339,6 +339,7 @@ class BlacksmithObject(DefaultObject):
         self.db.value_copper: 0
         self.db.value_silver: 0
         self.db.value_gold: 0
+        self.db.patched = False
 
 class WeaponObject(BlacksmithObject):
     def at_object_creation(self):
