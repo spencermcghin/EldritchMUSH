@@ -2415,8 +2415,7 @@ class CmdPatch(Command):
             self.msg("This item cannot be patched.")
         else:
             # Get search response
-            prototype_data = prototype[0]
-            self.msg(f"Hooray. {self.item} is in the caller's inventory and is a prototype.")
+            self.msg(f"Hooray. {prototype} is in the caller's inventory and is a prototype.")
 
 
 class CmdFollow(Command):
