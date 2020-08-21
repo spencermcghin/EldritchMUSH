@@ -2392,30 +2392,32 @@ class CmdPatch(Command):
 
     def parse(self):
         "Very trivial parser"
-        self.item = self.args
+        self.item = self.args.strip()
 
     def func(self):
         use_err_msg = "|540Usage: patch <item>|n"
 
-        # Do all checks
-        if not self.item:
-            self.msg(use_err_msg)
-            return
+        self.msg(self.item)
 
-        # Search for item in char inventory
-        inv_item = self.caller.search(self.item,
-                                      location=self.caller,
-                                      nofound_string=f"|300{self.item} not found.|n",
-                                      multimatch_string="|430Your search has more than one result. Please be more specific.|n")
-
-        # Search for designated prototypes
-        try:
-            prototype = prototypes.search_prototype(self.item, require_single=True)
-        except KeyError:
-            self.msg("This item cannot be patched.")
-        else:
-            # Get search response
-            self.msg(f"Hooray. {prototype} is in the caller's inventory and is a prototype.")
+        # # Do all checks
+        # if not self.item:
+        #     self.msg(use_err_msg)
+        #     return
+        #
+        # # Search for item in char inventory
+        # inv_item = self.caller.search(self.item,
+        #                               location=self.caller,
+        #                               nofound_string=f"|300{self.item} not found.|n",
+        #                               multimatch_string="|430Your search has more than one result. Please be more specific.|n")
+        #
+        # # Search for designated prototypes
+        # try:
+        #     prototype = prototypes.search_prototype(self.item, require_single=True)
+        # except KeyError:
+        #     self.msg("This item cannot be patched.")
+        # else:
+        #     # Get search response
+        #     self.msg(f"Hooray. {prototype} is in the caller's inventory and is a prototype.")
 
 
 class CmdFollow(Command):
