@@ -2410,13 +2410,13 @@ class CmdPatch(Command):
 
         # Search for designated prototypes
         try:
-            prototype = prototypes.search_prototype(self.item, require_single=True)
+            prototype = prototypes.search_prototype(self.item)
         except KeyError:
             self.msg("This item cannot be patched.")
         else:
             # Get search response
             prototype_data = prototype[0]
-            self.msg(f"Hooray. {inv_item} is in the caller's inventory and is a prototype.")
+            self.msg(f"Hooray. {self.item} is in the caller's inventory and is a prototype.")
 
 
 class CmdFollow(Command):
