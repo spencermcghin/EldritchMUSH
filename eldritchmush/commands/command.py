@@ -2367,6 +2367,58 @@ class CmdDiagnose(Command):
 
                 caller.msg(message)
 
+
+"""
+General gameplay commands
+"""
+class CmdPatch(Command):
+    """
+    Looks in a character's inventory for the object they want to patch.
+
+    Usage: patch <item name>
+
+    Arg handle
+    Search for item to be repaired in char inventory.
+    If not there, char doesn't have it.
+    If there, search in prototypes for max material value.
+    If not there, item is not a prototype.
+    If in prototypes, check to see if it's under its max material_value.
+    If so, set to max value and then delete the patch kit.
+    If not, the item doesn't need to be repaired. Prompt and do nothing.
+    """
+
+    key = "patch"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+
+    def func(self):
+        use_err_msg = "|540Usage: patch <item>|n"
+
+        # Do all checks
+        if not self.item:
+            self.msg(use_err_msg)
+            return
+
+        # Search for item in char inventory
+        inv_item = self.caller.search(self.item,
+                                      location=self.caller.contents,
+                                      nofound_string=f"|300{self.item} not found.|n",
+                                      multimatch_string="|430Your search has more than one result. Please be more specific.|n")
+
+        # Search for designated prototypes
+        try:
+            prototype = prototypes.search_prototype(inv_item, require_single=True)
+        except KeyError:
+            self.msg("This item cannot be patched.")
+        else:
+            # Get search response
+            prototype_data = prototype[0]
+            self.msg(f"Hooray. {inv_item} is in the caller's inventory and is a prototype.")
+
+
 class CmdFollow(Command):
     """
     Follows the targeted character.
@@ -2432,7 +2484,7 @@ class CmdFollow(Command):
 
                     # If the leader is already following the character, then they cannot follow them; the leader must unfollow them first.
                     caller.msg("|540Usage: follow <target>|n\n|400" + target.key + " is following you, which means that you cannot follow them. Ask them to unfollow you first, then try again.|n")
-                    
+
                 # If the leader is not following them, then try adding them to the leader's followers array.
                 except ValueError:
                     try:

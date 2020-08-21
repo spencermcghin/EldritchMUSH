@@ -217,6 +217,22 @@ IRON_PLATEMAIL = {
 Level 1 Blacksmith Items
 """
 
+# Used with the patch command
+PATCH_KIT = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Patch Kit",
+"aliases": ["patch kit"],
+"required_resources": 2,
+"iron_ingots": 1,
+"refined_wood": 0,
+"leather": 0,
+"cloth": 1,
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": .7,
+"level": 1
+}
+
 HARDENED_IRON_SMALL_WEAPON = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "key": "Hardened Iron Small Weapon",
