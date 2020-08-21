@@ -2436,8 +2436,10 @@ class CmdPatch(Command):
                 if mv_diff > 0:
                     # Item has been damaged. Set back to original material_value
                     inv_item.db.material_value = item_material_value
+                    inv_item.db.patched = True
+                    self.msg(f"You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.")
                 else:
-                    self.msg(f"{inv_item} is not in need of repair.")
+                    self.msg(f"Your {inv_item} is not in need of repair.")
         else:
             return
 
