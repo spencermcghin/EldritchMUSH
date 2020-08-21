@@ -2408,16 +2408,15 @@ class CmdPatch(Command):
                                       nofound_string=f"|300{self.item} not found.|n",
                                       multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
-        self.msg(f"{inv_item}")
-        # # Search for designated prototypes
-        # try:
-        #     prototype = prototypes.search_prototype(inv_item.key, require_single=True)
-        # except KeyError:
-        #     self.msg("This item cannot be patched.")
-        # else:
-        #     # Get search response
-        #     prototype_data = prototype[0]
-        #     self.msg(f"Hooray. {inv_item} is in the caller's inventory and is a prototype.")
+        # Search for designated prototypes
+        try:
+            prototype = prototypes.search_prototype(inv_item, require_single=True)
+        except KeyError:
+            self.msg("This item cannot be patched.")
+        else:
+            # Get search response
+            prototype_data = prototype[0]
+            self.msg(f"Hooray. {inv_item} is in the caller's inventory and is a prototype.")
 
 
 class CmdFollow(Command):
