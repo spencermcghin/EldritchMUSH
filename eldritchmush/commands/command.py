@@ -2397,7 +2397,11 @@ class CmdPatch(Command):
     def func(self):
         use_err_msg = "|540Usage: patch <item>|n"
 
-        self.msg(self.item)
+        prototyped_string = self.item
+
+        if self.item.contains(" "):
+            prototyped_string = self.item.replace(' ', '_')
+            self.msg(self.item)
 
         # # Do all checks
         # if not self.item:
