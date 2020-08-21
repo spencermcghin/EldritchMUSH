@@ -330,15 +330,15 @@ class Forge(DefaultObject):
 class BlacksmithObject(DefaultObject):
 
     def at_object_creation(self):
-        self.db.level: 0
-        self.db.required_resources: 0
-        self.db.iron_ingots: 0
-        self.db.cloth: 0
-        self.db.refined_wood: 0
-        self.db.leather: 0
-        self.db.value_copper: 0
-        self.db.value_silver: 0
-        self.db.value_gold: 0
+        self.db.level = 0
+        self.db.required_resources = 0
+        self.db.iron_ingots = 0
+        self.db.cloth =  0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.value_copper = 0
+        self.db.value_silver = 0
+        self.db.value_gold = 0
         self.db.patched = False
 
 class WeaponObject(BlacksmithObject):
