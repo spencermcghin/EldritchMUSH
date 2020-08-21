@@ -347,9 +347,9 @@ class WeaponObject(BlacksmithObject):
         self.db.material_value = 0
         self.db.broken = False
         self.db.twohanded = False
-        self.db.trait_one: []
-        self.db.trait_two: []
-        self.db.trait_three: []
+        self.db.trait_one = []
+        self.db.trait_two = []
+        self.db.trait_three = []
 
 """
 Storage Objects
