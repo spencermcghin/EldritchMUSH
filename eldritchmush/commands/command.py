@@ -329,7 +329,7 @@ class CmdGet(Command):
 
             obj.move_to(self.caller, quiet=True)
             self.caller.msg("You pick up %s." % obj.name)
-            self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, obj.name), exclude=caller)
+            self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, obj.name), exclude=self.caller)
             # calling at_get hook method
             obj.at_get(self.caller)
 
