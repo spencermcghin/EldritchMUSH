@@ -304,7 +304,7 @@ class CmdGet(Command):
                     elif (target_attribute.value - self.qty) < 0:
                         self.msg("You can't get that amount.")
                     else:
-                        self.msg(f"You get {self.qty} {self.item}")
+                        self.msg(f"You get {self.qty} {self.item} from the {target}")
                         target_attribute.value -= self.qty
                         caller_item_qty.value += self.qty
         else:
