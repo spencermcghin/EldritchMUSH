@@ -202,7 +202,7 @@ class CmdGet(Command):
     pick up something
 
     Usage:
-      get <obj>
+      get (optional:<qty>) <obj> <from||=> <target>
 
     Picks up an object from your location and puts it in
     your inventory.
@@ -252,9 +252,17 @@ class CmdGet(Command):
         """
         Check to see if given item is a resource before defaulting to caller inventory.
         """
-        if not self.target:
-            caller.msg("Get what?")
+
+        if not self.args or not self.target:
+            self.caller.msg("|540Usage: get <qty> <object> from <target>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.")
             return
+
+        target = self.caller.search(self.target)
+
+        if target == self.caller:
+            self.caller.msg(f"You keep {self.item} to yourself.")
+            return
+
 
         resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
                           "refined_wood": ["refined", "wood", "refined wood"],
@@ -275,9 +283,9 @@ class CmdGet(Command):
 
             # Check to see if item qty exists as attribute value on caller.
             # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
-
             caller_item_qty = self.caller.attributes.get(item_db_key[0])
-            if caller_item_qty >= self.qty:
+
+            if caller_item_qty >= 0:
                 attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
                 # Update target's corresponding attribute by self.qty.
                 # Check to make sure target has attribute.
@@ -287,32 +295,44 @@ class CmdGet(Command):
                 except AttributeError:
                     self.msg("|540You need to specify an appropriate target.|n")
                 else:
-                    attribute.value -= self.qty
-                    target_attribute.value += self.qty
+                    if not target.access(caller, "get"):
+                        if target.db.get_err_msg:
+                            caller.msg(target.db.get_err_msg)
+                        else:
+                            caller.msg("You can't get that.")
+                        return
+
+                    elif (target_attribute.value - self.qty) < 0:
+                        self.msg("You can't get that amount.")
+                    else:
+                        self.msg(f"You get {self.qty} {self.item}")
+                        target_attribute.value -= self.qty
+                        caller_item_qty += self.qty
         else:
+
             obj = caller.search(self.item, location=caller.location)
+
             if not obj:
                 return
             if caller == obj:
                 caller.msg("You can't get yourself.")
                 return
+            if not obj.access(caller, "get"):
+                if obj.db.get_err_msg:
+                    caller.msg(obj.db.get_err_msg)
+                else:
+                    caller.msg("You can't get that.")
+                return
 
-                if not obj.access(caller, "get"):
-                    if obj.db.get_err_msg:
-                        caller.msg(obj.db.get_err_msg)
-                    else:
-                        caller.msg("You can't get that.")
-                    return
+            # calling at_before_get hook method
+            if not obj.at_before_get(caller):
+                return
 
-                # calling at_before_get hook method
-                if not obj.at_before_get(caller):
-                    return
-
-                obj.move_to(caller, quiet=True)
-                caller.msg("You pick up %s." % obj.name)
-                caller.location.msg_contents("%s picks up %s." % (caller.name, obj.name), exclude=caller)
-                # calling at_get hook method
-                obj.at_get(caller)
+            obj.move_to(caller, quiet=True)
+            caller.msg("You pick up %s." % obj.name)
+            caller.location.msg_contents("%s picks up %s." % (caller.name, obj.name), exclude=caller)
+            # calling at_get hook method
+            obj.at_get(caller)
 
 
 
