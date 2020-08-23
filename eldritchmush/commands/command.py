@@ -234,7 +234,6 @@ class CmdGet(Command):
         self.target = self.args_list[-1]
         self.item = item
         self.qty = qty
-        caller = self.caller
 
     def func(self):
         """implements the command."""
@@ -295,11 +294,11 @@ class CmdGet(Command):
                 except AttributeError:
                     self.msg("|540You need to specify an appropriate target.|n")
                 else:
-                    if not target.access(caller, "get"):
+                    if not target.access(self.caller, "get"):
                         if target.db.get_err_msg:
-                            caller.msg(target.db.get_err_msg)
+                            self.msg(target.db.get_err_msg)
                         else:
-                            caller.msg("You can't get that.")
+                            self.msg("You can't get that.")
                         return
 
                     elif (target_attribute.value - self.qty) < 0:
@@ -314,25 +313,25 @@ class CmdGet(Command):
 
             if not obj:
                 return
-            if caller == obj:
-                caller.msg("You can't get yourself.")
+            if self.caller == obj:
+                self.msg("You can't get yourself.")
                 return
             if not obj.access(caller, "get"):
                 if obj.db.get_err_msg:
-                    caller.msg(obj.db.get_err_msg)
+                    self.msg(obj.db.get_err_msg)
                 else:
-                    caller.msg("You can't get that.")
+                    self.msg("You can't get that.")
                 return
 
             # calling at_before_get hook method
             if not obj.at_before_get(caller):
                 return
 
-            obj.move_to(caller, quiet=True)
-            caller.msg("You pick up %s." % obj.name)
-            caller.location.msg_contents("%s picks up %s." % (caller.name, obj.name), exclude=caller)
+            obj.move_to(self.caller, quiet=True)
+            self.caller.msg("You pick up %s." % obj.name)
+            self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, obj.name), exclude=caller)
             # calling at_get hook method
-            obj.at_get(caller)
+            obj.at_get(self.caller)
 
 
 
