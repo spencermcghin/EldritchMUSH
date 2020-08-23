@@ -309,14 +309,14 @@ class CmdGet(Command):
                         caller_item_qty += self.qty
         else:
 
-            obj = caller.search(self.item, location=caller.location)
+            obj = caller.search(self.item, location=self.caller.location)
 
             if not obj:
                 return
             if self.caller == obj:
                 self.msg("You can't get yourself.")
                 return
-            if not obj.access(caller, "get"):
+            if not obj.access(self.caller, "get"):
                 if obj.db.get_err_msg:
                     self.msg(obj.db.get_err_msg)
                 else:
@@ -324,7 +324,7 @@ class CmdGet(Command):
                 return
 
             # calling at_before_get hook method
-            if not obj.at_before_get(caller):
+            if not obj.at_before_get(self.caller):
                 return
 
             obj.move_to(self.caller, quiet=True)
