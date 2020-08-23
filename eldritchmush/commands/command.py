@@ -309,7 +309,7 @@ class CmdGet(Command):
                         caller_item_qty += self.qty
         else:
 
-            obj = caller.search(self.item, location=self.caller.location)
+            obj = self.caller.search(self.item, location=self.caller.location)
 
             if not obj:
                 return
