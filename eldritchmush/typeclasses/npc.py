@@ -19,10 +19,7 @@ class Npc(Character):
          A simple is_aggressive check.
          Can be expanded upon later.
         """
-        if self.db.is_aggressive:
-            self.execute_cmd("say Graaah, die %s!" % character)
-        else:
-            self.execute_cmd("say Greetings, %s!" % character)
+        pass
 
 
 class MeleeSoldier(Npc):
