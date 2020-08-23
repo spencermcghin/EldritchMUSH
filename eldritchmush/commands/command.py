@@ -253,7 +253,7 @@ class CmdGet(Command):
         """
 
         if not self.args or not self.target:
-            self.caller.msg("|540Usage: get <qty> <object> from <target>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.")
+            self.caller.msg("|540Usage: get <qty> <object> from <target> or get <object>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.")
             return
 
         target = self.caller.search(self.target)
@@ -294,7 +294,7 @@ class CmdGet(Command):
                 except AttributeError:
                     self.msg("|540You need to specify an appropriate target.|n")
                 else:
-                    if not target.access(self.caller, "get"):
+                    if not target.access(self.caller, "get") or target.has_account:
                         if target.db.get_err_msg:
                             self.msg(target.db.get_err_msg)
                         else:
