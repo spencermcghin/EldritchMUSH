@@ -239,16 +239,6 @@ class CmdGet(Command):
         """implements the command."""
 
         """
-        Check if item is a resource or currency.
-            If so, look for a container object.
-            If no object, say you can't get that.
-            If so, See if the requested item is in it.
-            If not, catch execption.
-            If so, update the corresponding caller attribute.
-        If not resource or currency, proceed as usual.
-        """
-
-        """
         Check to see if given item is a resource before defaulting to caller inventory.
         """
 
