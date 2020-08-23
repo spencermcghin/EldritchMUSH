@@ -306,7 +306,7 @@ class CmdGet(Command):
                     else:
                         self.msg(f"You get {self.qty} {self.item}")
                         target_attribute.value -= self.qty
-                        caller_item_qty += self.qty
+                        caller_item_qty.value += self.qty
         else:
 
             obj = self.caller.search(self.item, location=self.caller.location)
