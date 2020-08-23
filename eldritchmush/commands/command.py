@@ -197,6 +197,123 @@ class Command(BaseCommand):
 #                 self.character = self.caller.get_puppet(self.session)
 #             else:
 #                 self.character = None
+class CmdGet(Command):
+    """
+    pick up something
+
+    Usage:
+      get <obj>
+
+    Picks up an object from your location and puts it in
+    your inventory.
+    """
+
+    key = "get"
+    aliases = "grab"
+    locks = "cmd:all()"
+    arg_regex = r"\s|$"
+
+    def parse(self):
+
+        raw = self.args
+        args = raw.strip()
+
+        # Parse arguments
+        self.args_list = args.split(" ")
+
+        # Check for qty at first element in args list
+        try:
+            isInt = int(self.args_list[0])
+        except ValueError:
+            item = self.args_list[0]
+            qty = None
+        else:
+            qty = int(self.args_list[0])
+            item = self.args_list[1]
+
+        self.target = self.args_list[-1]
+        self.item = item
+        self.qty = qty
+        caller = self.caller
+
+    def func(self):
+        """implements the command."""
+
+        """
+        Check if item is a resource or currency.
+            If so, look for a container object.
+            If no object, say you can't get that.
+            If so, See if the requested item is in it.
+            If not, catch execption.
+            If so, update the corresponding caller attribute.
+        If not resource or currency, proceed as usual.
+        """
+
+        """
+        Check to see if given item is a resource before defaulting to caller inventory.
+        """
+        if not self.target:
+            caller.msg("Get what?")
+            return
+
+        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+                          "refined_wood": ["refined", "wood", "refined wood"],
+                          "leather": ["leather"],
+                          "cloth": ["cloth"],
+                          "gold": ["gold", "gold dragons"],
+                          "silver": ["silver", "silver dragons"],
+                          "copper": ["copper", "copper dragons"]}
+
+
+        # Begin logic to check if item given is a resource or currency
+        resource_array = [v for k, v in resource_dict.items()]
+        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+
+        # If the item is in the list of aliases, find its corresponding key.
+        if self.item.lower() in flat_resource_array and self.qty is not None:
+            item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
+
+            # Check to see if item qty exists as attribute value on caller.
+            # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
+
+            caller_item_qty = self.caller.attributes.get(item_db_key[0])
+            if caller_item_qty >= self.qty:
+                attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
+                # Update target's corresponding attribute by self.qty.
+                # Check to make sure target has attribute.
+                try:
+                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
+                # If not, throw an error.
+                except AttributeError:
+                    self.msg("|540You need to specify an appropriate target.|n")
+                else:
+                    attribute.value -= self.qty
+                    target_attribute.value += self.qty
+        else:
+            obj = caller.search(self.item, location=caller.location)
+            if not obj:
+                return
+            if caller == obj:
+                caller.msg("You can't get yourself.")
+                return
+
+                if not obj.access(caller, "get"):
+                    if obj.db.get_err_msg:
+                        caller.msg(obj.db.get_err_msg)
+                    else:
+                        caller.msg("You can't get that.")
+                    return
+
+                # calling at_before_get hook method
+                if not obj.at_before_get(caller):
+                    return
+
+                obj.move_to(caller, quiet=True)
+                caller.msg("You pick up %s." % obj.name)
+                caller.location.msg_contents("%s picks up %s." % (caller.name, obj.name), exclude=caller)
+                # calling at_get hook method
+                obj.at_get(caller)
+
 
 
 class CmdGive(Command):

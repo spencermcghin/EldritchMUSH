@@ -618,3 +618,11 @@ MASTERWORK_STEEL_PLATEMAIL = {
 "material_value": 12,
 "level": 3
 }
+
+"""
+Begin artificer protoypes
+"""
+
+"""
+Level 0 Artificer Items
+"""
