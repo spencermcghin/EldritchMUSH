@@ -284,7 +284,7 @@ class CmdGet(Command):
             # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
             caller_item_qty = self.caller.attributes.get(item_db_key[0], return_obj=True)
 
-            if caller_item_qty >= 0:
+            if caller_item_qty.value >= 0:
                 attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
                 # Update target's corresponding attribute by self.qty.
                 # Check to make sure target has attribute.
