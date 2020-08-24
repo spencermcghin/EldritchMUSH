@@ -212,7 +212,7 @@ class CombatLoop:
             nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
 
             # Iterate through combat_loop until finding a character w/out the skip_turn flag set.
-            while nextCharacter.db.skip_turn or self.isDying(nextCharacter):
+            while nextCharacter.db.skip_turn:
                 # Turn off the skip_turn flag and then try to go to the next character in the loop
                 nextCharacter.db.skip_turn = False
                 nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
@@ -239,6 +239,7 @@ class CombatLoop:
                 total_bots = len(bots)
                 total_dying_bots = len(dying_bots)
 
+                # If bots are all dying, reset combat stats and empty loop.
                 if total_bots == total_dying_bots:
                     for char in nextCharacter.location.db.combat_loop:
                         char.db.combat_turn = 1
@@ -246,17 +247,24 @@ class CombatLoop:
 
                     # Clear the loop for combat
                     nextCharacter.location.db.combat_loop.clear()
-                    nextCharacter.location.msg_contents(f"There are no more Combat is now over for the {nextCharacter.location}")
+                    nextCharacter.location.msg_contents(f"|025All NPC combatants are now unmoving. Combat is now over for the {nextCharacter.location}.|n")
 
-                # Pick a random target from the loops possible targets
                 else:
                     # Hook into the npcs command generator.
                     targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
-                
-                    if targets and (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
-                        random_target = random.choice(targets)
-                        # If character target, attack a random one.
-                        nextCharacter.at_char_entered(random_target)
+
+                    if targets:
+                        if not self.iSDying(nextCharacter):
+                            if (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
+                                random_target = random.choice(targets)
+                                # If character target, attack a random one.
+                                nextCharacter.at_char_entered(random_target)
+                            else:
+                                nextCharacter.location.msg_contents(f"|023{nextCharacter.key} has nothing to attack with.|n")
+                                nextCharacter.execute_cmd("disengage")
+                        else:
+                            nextCharacter.location.msg_contents(f"|300{nextCharacter.key} is too injured to act.|n")
+                            nextCharacter.execute_cmd("pass")
         else:
             try:
                 remaining_character = self.combat_loop[0]
