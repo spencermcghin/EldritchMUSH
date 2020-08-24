@@ -258,7 +258,7 @@ class CombatLoop:
 
                     # If there are targets, make sure NPC has something to fight with and is not dying.
                     if targets:
-                        if not self.iSDying(nextCharacter):
+                        if not self.isDying(nextCharacter):
                             if (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
                                 random_target = random.choice(targets)
                                 # If character target, attack a random one.
