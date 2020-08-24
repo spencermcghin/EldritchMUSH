@@ -121,6 +121,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.SetWeakness())
         self.add(combat.CmdBattlefieldCommander())
         self.add(battlefield_medicine.CmdBattlefieldMedicine())
+        self.add(command.SetIndomitable())
         self.add(combat.CmdRally())
         self.add(command.SetShieldValue())
         self.add(command.CharSheet())
