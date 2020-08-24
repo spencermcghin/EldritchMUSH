@@ -92,13 +92,18 @@ class Character(DefaultCharacter):
         self.db.body_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+
+        # Entries for knights
         self.db.battlefieldcommander = 0
         self.db.rally = 0
+        self.db.indomitable = 0
+
         # Entries for following
         self.db.isLeading = False
         self.db.leader = []
         self.db.isFollowing = False
         self.db.followers = []
+
         # Entries for economy
         self.db.iron_ingots = 0
         self.db.refined_wood = 0
