@@ -472,10 +472,15 @@ class CmdEquip(Command):
                 self.caller.db.body_slot.append(item)
                 self.caller.db.armor = item.db.material_value
 
+                # Add extra points from indomitable if armor still has material_value
+                if item.db.material_value > 0 and self.caller.db.indomitable:
+                    self.caller.db.armor += self.caller.db.indomitable
+
                 self.msg(f"You don {item.key}.")
 
                 # Get vals for armor value calc
                 armor_value = self.caller.db.armor
+                indomitable = self.caller.db.indomitable
                 tough = self.caller.db.tough
                 shield_value = self.caller.db.shield_value
                 armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
