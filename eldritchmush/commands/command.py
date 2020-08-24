@@ -246,7 +246,7 @@ class CmdGet(Command):
             self.caller.msg("|540Usage: get <qty> <object> from <target> or get <object>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.")
             return
 
-        target = self.caller.search(self.target)
+        target = self.caller.search(self.target, location=self.caller.location)
 
         if target == self.caller:
             self.caller.msg(f"You keep {self.item} to yourself.")
@@ -299,29 +299,22 @@ class CmdGet(Command):
                         caller_item_qty.value += self.qty
         else:
 
-            obj = self.caller.search(self.item, location=self.caller.location)
-
-            if not obj:
-                return
-            if self.caller == obj:
-                self.msg("You can't get yourself.")
-                return
-            if not obj.access(self.caller, "get"):
-                if obj.db.get_err_msg:
-                    self.msg(obj.db.get_err_msg)
+            if not target.access(self.caller, "get"):
+                if target.db.get_err_msg:
+                    self.msg(target.db.get_err_msg)
                 else:
                     self.msg("You can't get that.")
                 return
 
             # calling at_before_get hook method
-            if not obj.at_before_get(self.caller):
+            if not target.at_before_get(self.caller):
                 return
 
-            obj.move_to(self.caller, quiet=True)
-            self.caller.msg("You pick up %s." % obj.name)
-            self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, obj.name), exclude=self.caller)
+            target.move_to(self.caller, quiet=True)
+            self.caller.msg("You pick up %s." % target.name)
+            self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
             # calling at_get hook method
-            obj.at_get(self.caller)
+            target.at_get(self.caller)
 
 
 
