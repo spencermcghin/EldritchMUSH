@@ -2309,9 +2309,9 @@ class CharSheet(Command):
                     [
                         self.caller.db.body,
                         self.caller.db.weapon_level,
-                        self.caller.db.right_slot,
-                        self.caller.db.left_slot,
-                        self.caller.db.body_slot,
+                        self.caller.db.right_slot[0],
+                        self.caller.db.left_slot[0],
+                        self.caller.db.body_slot[0],
                         self.caller.db.av
                     ]
                 ],
@@ -2431,7 +2431,7 @@ class CharStatus(Command):
                         "Body",
                         "Weapon Bonus",
                         "Right Slot",
-                        "Two-handed Equipped",
+                        "Left Slot",
                         "Armor Value"
                     ],
                     [
@@ -2440,8 +2440,8 @@ class CharStatus(Command):
                         self.caller.db.tough,
                         self.caller.db.body,
                         self.caller.db.weapon_level,
-                        self.caller.db.right_slot,
-                        self.caller.db.left_slot,
+                        self.caller.db.right_slot[0],
+                        self.caller.db.left_slot[0],
                         self.caller.db.av
                     ]
                 ],
