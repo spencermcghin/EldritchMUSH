@@ -5,15 +5,15 @@ from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
 
-class CmdPass(Command):
+class CmdSkip(Command):
     """
     Pass on your turn while in combat.
 
     Usage:
-      pass
+      skip
 
     """
-    key = "pass"
+    key = "skip"
     help_category = "combat"
 
     def parse(self):
