@@ -512,7 +512,7 @@ class CmdEquip(Command):
                             self.caller.msg(f"You can't equip the {item} unless you first unequip something.")
                             return
                     # Check to see if right hand is empty.
-                    elif not self.right_slot:
+                    elif not self.right_slot and not item.db.is_armor:
                         self.right_slot.append(item)
 
                         if item.db.is_shield:
@@ -538,7 +538,7 @@ class CmdEquip(Command):
                         # Send some messages
                         self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
                         self.caller.msg(f"You have equipped your {item.key}")
-                    elif not self.left_slot:
+                    elif not self.left_slot and not item.db.is_armor:
                         self.left_slot.append(item)
 
                         if item.db.is_shield:
@@ -2429,9 +2429,6 @@ class CharStatus(Command):
                         "Armor Specialist",
                         "Tough",
                         "Body",
-                        "Weapon Bonus",
-                        "Right Slot",
-                        "Left Slot",
                         "Armor Value"
                     ],
                     [
@@ -2439,9 +2436,6 @@ class CharStatus(Command):
                         self.caller.db.armor_specialist,
                         self.caller.db.tough,
                         self.caller.db.body,
-                        self.caller.db.weapon_level,
-                        self.caller.db.right_slot[0],
-                        self.caller.db.left_slot[0],
                         self.caller.db.av
                     ]
                 ],
