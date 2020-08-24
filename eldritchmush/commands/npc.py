@@ -79,6 +79,7 @@ class CmdEditNPC(Command):
         "do the editing"
 
         allowed_propnames = ("master_of_arms",
+                             "indomitable",
                              "armor_specialist",
                              "armor",
                              "tough",
@@ -86,18 +87,13 @@ class CmdEditNPC(Command):
                              "stabilize",
                              "medicine",
                              "battlefieldmedicine",
-                             "melee",
-                             "shield_value",
                              "resist",
                              "disarm",
                              "cleave",
                              "sunder",
                              "stun",
                              "stagger",
-                             "weapon_level",
-                             "twohanded",
                              "wyldinghand",
-                             "shield",
                              "bow",
                              "activemartialskill",
                              "weakness",
@@ -110,7 +106,7 @@ class CmdEditNPC(Command):
         if not npc:
             return
         if not npc.access(self.caller, "edit"):
-            self.caller.msg("|400You cannot change this NPC.|n")
+            self.caller.msg("|300You cannot change this NPC.|n")
             return
         if not self.propname:
             # this means we just list the values
@@ -131,19 +127,21 @@ class CmdEditNPC(Command):
                          (npc.key, self.propname, self.propval))
 
             # if stat is part of total armor value update it
-            if self.propname in ("armor", "tough", "armor_specialist", "shield_value"):
+
+            if self.propname in ("tough", "armor_specialist", "indomitable"):
                 # Get armor value objects
                 armor = npc.db.armor
                 tough = npc.db.tough
-                shield_value = npc.db.shield_value if npc.db.shield == True else 0
+                indomitable = npc.db.indomitable
                 armor_specialist = npc.db.armor_specialist
+                shield_value = npc.db.shield_value
 
                 # Add them up and set the curent armor value in the database
-                currentArmorValue = armor + tough + shield_value + armor_specialist
+                currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
                 npc.db.av = currentArmorValue
 
                 # Return armor value to console.
-                self.caller.msg(f"|y{npc.key}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                self.caller.msg(f"|430{npc.key}'s current total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
         else:
             # propname set, but not propval - show current value
@@ -178,13 +176,13 @@ class CmdNPC(Command):
         "Run the command"
         caller = self.caller
         if not self.cmdname:
-            caller.msg("Usage: npc <name> = <command>")
+            caller.msg("|430Usage: npc <name> = <command>|n")
             return
         npc = caller.search(self.name)
         if not npc:
             return
         if not npc.access(caller, "edit"):
-            caller.msg("You may not order this NPC to do anything.")
+            caller.msg("|300You may not order this NPC to do anything.|n")
             return
         # send the command order
         npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)
