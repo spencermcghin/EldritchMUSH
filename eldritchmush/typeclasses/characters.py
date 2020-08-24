@@ -120,8 +120,8 @@ class Character(DefaultCharacter):
         looker sees when looking at this object.
         """
         text = super().return_appearance(looker)
-        isBleeding = True if not self.db.body else False
-        isDying = True if not self.db.bleed_points else False
+        isBleeding = True if not self.db.body and self.db.bleed_points else False
+        isDying = True if not self.db.bleed_points and not self.db.body else False
 
         # Return
         if isBleeding:
