@@ -26,7 +26,7 @@ class CmdSkip(Command):
 
             # Check to see if caller is in combat loop:
             if self.caller in self.combat_loop:
-                self.caller.location.msg_contents(f"{self.caller.key} passes their turn.")
+                self.caller.location.msg_contents(f"|025{self.caller.key} passes on their turn.|n")
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
                 loop.cleanup()

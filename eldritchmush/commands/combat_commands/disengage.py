@@ -35,7 +35,7 @@ class CmdDisengage(Command):
 
             # Check to see if caller is in combat loop:
             if self.caller in self.combat_loop:
-                self.caller.location.msg_contents(f"{self.caller.key} breaks away from combat.")
+                self.caller.location.msg_contents(f"|025{self.caller.key} breaks away from combat.|n")
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
@@ -52,13 +52,13 @@ class CmdDisengage(Command):
                         char.db.combat_turn = 1
                         char.db.in_combat = 0
                     self.combat_loop.clear()
-                    self.caller.location.msg_contents("Combat is now over.")
+                    self.caller.location.msg_contents("|025Combat is now over.|n")
                     return
                 else:
                     loop.cleanup()
 
             else:
-                self.msg(f"You are not part of the combat loop for {self.caller.location}.")
+                self.msg(f"|300You are not part of the combat loop for {self.caller.location}.|n")
 
         else:
-            self.caller.msg("You need to wait until it is your turn before you are able to act.")
+            self.caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
