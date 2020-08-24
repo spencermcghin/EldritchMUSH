@@ -520,6 +520,7 @@ class CmdEquip(Command):
 
                             # Get vals for armor value calc
                             armor_value = self.caller.db.armor
+                            indomitable = self.caller.db.indomitable
                             tough = self.caller.db.tough
                             shield_value = self.caller.db.shield_value
                             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
@@ -527,7 +528,7 @@ class CmdEquip(Command):
                             currentArmorValue = armor_value + tough + shield_value + armor_specialist
                             self.caller.db.av = currentArmorValue
                             # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
                         else:
                             # Add weapon bonus
@@ -545,6 +546,7 @@ class CmdEquip(Command):
 
                             # Get vals for armor value calc
                             armor_value = self.caller.db.armor
+                            indomitable = self.caller.db.indomitable
                             tough = self.caller.db.tough
                             shield_value = self.caller.db.shield_value
                             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
@@ -552,7 +554,7 @@ class CmdEquip(Command):
                             currentArmorValue = armor_value + tough + shield_value + armor_specialist
                             self.caller.db.av = currentArmorValue
                             # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
                         else:
                             # Add weapon bonus
