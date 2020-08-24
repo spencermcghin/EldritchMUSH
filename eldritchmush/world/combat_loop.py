@@ -230,27 +230,33 @@ class CombatLoop:
             ###### NPC Turn Resolver ######
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc):
-                # Hook into the npcs command generator.
-                targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
+
+                # Get number of bots
+                bots = [bot for bot in nextCharacter.location.db.combat_loop if utils.inherits_from(bot, Npc)]
+                # Get number of dead/dying bots
+                dying_bots = [bot for bot in bots if self.isDying(bot)]
+                # Compare lengths to figure out whether or not to shut down combat.
+                total_bots = len(bots)
+                total_dying_bots = len(dying_bots)
+
+                if total_bots == total_dying_bots:
+                    for char in nextCharacter.location.db.combat_loop:
+                        char.db.combat_turn = 1
+                        char.db.in_combat = 0
+
+                    # Clear the loop for combat
+                    nextCharacter.location.db.combat_loop.clear()
+                    nextCharacter.location.msg_contents(f"There are no more Combat is now over for the {nextCharacter.location}")
 
                 # Pick a random target from the loops possible targets
-                if targets and (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
-                    random_target = random.choice(targets)
-                    # If character target, attack a random one.
-                    nextCharacter.at_char_entered(random_target)
                 else:
-                    # # If no non-NPC targets, remove all items from loop and end combat
-                    # nextCharacter.location.msg_contents(f"{nextCharacter} breaks away from combat.")
-                    # # Reset combat_loop related stats for all remaining characters:
-                    # for char in nextCharacter.location.db.combat_loop:
-                    #     char.db.combat_turn = 1
-                    #     char.db.in_combat = 0
-                    # # TODO: Reset npc stats
-                    # ###### here ######
-                    # # Empty combat_loop and msg
-                    # nextCharacter.location.db.combat_loop.clear()
-                    # nextCharacter.location.msg_contents(f"Combat is now over for the {nextCharacter.location}")
-                    nextCharacter.execute_cmd('disengage')
+                    # Hook into the npcs command generator.
+                    targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
+                
+                    if targets and (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
+                        random_target = random.choice(targets)
+                        # If character target, attack a random one.
+                        nextCharacter.at_char_entered(random_target)
         else:
             try:
                 remaining_character = self.combat_loop[0]
