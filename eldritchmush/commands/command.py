@@ -2209,6 +2209,37 @@ class SetRally(Command):
             self.caller.db.rally = rally
             self.caller.msg(f"Your rally was set to {rally}")
 
+class SetIndomitable(Command):
+    """Set the indomitable level of a knight character
+
+    Usage: setindomitable <0,1,2,3>
+
+    This sets the indomitable level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setindomitable"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|540Usage: setindombitable <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            indomitable = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= indomitable <= 3):
+            self.caller.msg(errmsg)
+        else:
+            # at this point the argument is tested as valid. Let's set it.
+            self.caller.db.indomitable = indomitable
+            self.caller.msg(f"Your indomitable level was set to {indomitable}")
+
+
 
 """
 Effects status commands
