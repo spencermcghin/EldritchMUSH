@@ -2300,18 +2300,18 @@ class CharSheet(Command):
                 table = [
                     [
                         "Body",
-                        "Weapon Value",
-                        "Melee Weapon Equipped",
-                        "Two-handed Equipped",
-                        "Bow Equipped",
+                        "Weapon Bonus",
+                        "Right Slot",
+                        "Left Slot",
+                        "Body",
                         "Armor Value"
                     ],
                     [
                         self.caller.db.body,
                         self.caller.db.weapon_level,
-                        self.caller.db.melee,
-                        self.caller.db.twohanded,
-                        self.caller.db.bow,
+                        self.caller.db.right_slot,
+                        self.caller.db.left_slot,
+                        self.caller.db.body_slot,
                         self.caller.db.av
                     ]
                 ],
@@ -2339,14 +2339,12 @@ class CharSheet(Command):
             pass_marshall_table = evtable.EvTable("|540Passive Marshall Skills|n", "|540Level|n",
                 table = [
                     [
-                        "Shield",
                         "Tough",
                         "Armor",
                         "Master of Arms",
                         "Armor Specialist"
                     ],
                     [
-                        self.caller.db.shield,
                         self.caller.db.tough,
                         self.caller.db.armor,
                         self.caller.db.master_of_arms,
