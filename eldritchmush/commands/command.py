@@ -215,17 +215,14 @@ class CmdGet(Command):
 
     def parse(self):
 
-        raw = self.args
-        args = raw.strip()
-
-        # Parse arguments
-        self.args_list = args.split(" ")
+        args = self.args.strip()
 
         # Check for qty at first element in args list
         try:
+            self.args_list = args.split(" ")
             isInt = int(self.args_list[0])
         except ValueError:
-            item = self.args_list[0]
+            item = self.args
             qty = None
         else:
             qty = int(self.args_list[0])
