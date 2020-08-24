@@ -486,11 +486,11 @@ class CmdEquip(Command):
                 armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
                 # Add them up and set the curent armor value in the database
-                currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                currentArmorValue = armor_value + tough + shield_value + armor_specialist + indomitable
                 self.caller.db.av = currentArmorValue
 
                 # Return armor value to console.
-                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
             # For weapons/shields
             elif item and item not in self.right_slot:
