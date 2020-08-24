@@ -252,7 +252,7 @@ class CmdGet(Command):
             self.caller.msg(f"You keep {self.item} to yourself.")
             return
 
-        self.msg(f"target {self.target}, item {self.item}, qty {self.qty}")
+        self.msg(f"args_list: {args_list}, target: {self.target}, item: {self.item}, qty: {self.qty}")
 
 
         # resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
