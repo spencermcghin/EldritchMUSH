@@ -252,72 +252,74 @@ class CmdGet(Command):
             self.caller.msg(f"You keep {self.item} to yourself.")
             return
 
-
-        resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
-                          "refined_wood": ["refined", "wood", "refined wood"],
-                          "leather": ["leather"],
-                          "cloth": ["cloth"],
-                          "gold": ["gold", "gold dragons"],
-                          "silver": ["silver", "silver dragons"],
-                          "copper": ["copper", "copper dragons"]}
+        self.msg(f"target {self.target}, item {self.item}, qty {self.qty}")
 
 
-        # Begin logic to check if item given is a resource or currency
-        resource_array = [v for k, v in resource_dict.items()]
-        flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
-
-        # If the item is in the list of aliases, find its corresponding key.
-        if self.item.lower() in flat_resource_array and self.qty is not None:
-            item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
-
-            # Check to see if item qty exists as attribute value on caller.
-            # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
-            caller_item_qty = self.caller.attributes.get(item_db_key[0], return_obj=True)
-
-            if caller_item_qty.value >= 0:
-                attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
-                # Update target's corresponding attribute by self.qty.
-                # Check to make sure target has attribute.
-                try:
-                    target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
-                # If not, throw an error.
-                except AttributeError:
-                    self.msg("|540You need to specify an appropriate target.|n")
-                else:
-                    if not target.access(self.caller, "get") or target.has_account:
-                        if target.db.get_err_msg:
-                            self.msg(target.db.get_err_msg)
-                        else:
-                            self.msg("You can't get that.")
-                        return
-
-                    elif (target_attribute.value - self.qty) < 0:
-                        self.msg("You can't get that amount.")
-                    else:
-                        self.msg(f"You get {self.qty} {self.item} from the {target}")
-                        target_attribute.value -= self.qty
-                        caller_item_qty.value += self.qty
-        else:
-
-            if target:
-                if not target.access(self.caller, "get"):
-                    if target.db.get_err_msg:
-                        self.msg(target.db.get_err_msg)
-                    else:
-                        self.msg("You can't get that.")
-                    return
-
-                # calling at_before_get hook method
-                if not target.at_before_get(self.caller):
-                    return
-
-                target.move_to(self.caller, quiet=True)
-                self.caller.msg("You pick up %s." % target.name)
-                self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
-                # calling at_get hook method
-                target.at_get(self.caller)
-            else:
-                return
+        # resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
+        #                   "refined_wood": ["refined", "wood", "refined wood"],
+        #                   "leather": ["leather"],
+        #                   "cloth": ["cloth"],
+        #                   "gold": ["gold", "gold dragons"],
+        #                   "silver": ["silver", "silver dragons"],
+        #                   "copper": ["copper", "copper dragons"]}
+        #
+        #
+        # # Begin logic to check if item given is a resource or currency
+        # resource_array = [v for k, v in resource_dict.items()]
+        # flat_resource_array = [alias for alias_list in resource_array for alias in alias_list]
+        #
+        # # If the item is in the list of aliases, find its corresponding key.
+        # if self.item.lower() in flat_resource_array and self.qty is not None:
+        #     item_db_key = [k for k, v in resource_dict.items() if self.item.lower() in v[:]]
+        #
+        #     # Check to see if item qty exists as attribute value on caller.
+        #     # Get qty by calling get method. Only thing calling this can be players, so will always have attribute.
+        #     caller_item_qty = self.caller.attributes.get(item_db_key[0], return_obj=True)
+        #
+        #     if caller_item_qty.value >= 0:
+        #         attribute = self.caller.attributes.get(item_db_key[0], return_obj=True)
+        #         # Update target's corresponding attribute by self.qty.
+        #         # Check to make sure target has attribute.
+        #         try:
+        #             target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
+        #         # If not, throw an error.
+        #         except AttributeError:
+        #             self.msg("|540You need to specify an appropriate target.|n")
+        #         else:
+        #             if not target.access(self.caller, "get") or target.has_account:
+        #                 if target.db.get_err_msg:
+        #                     self.msg(target.db.get_err_msg)
+        #                 else:
+        #                     self.msg("You can't get that.")
+        #                 return
+        #
+        #             elif (target_attribute.value - self.qty) < 0:
+        #                 self.msg("You can't get that amount.")
+        #             else:
+        #                 self.msg(f"You get {self.qty} {self.item} from the {target}")
+        #                 target_attribute.value -= self.qty
+        #                 caller_item_qty.value += self.qty
+        # else:
+        #
+        #     if target:
+        #         if not target.access(self.caller, "get"):
+        #             if target.db.get_err_msg:
+        #                 self.msg(target.db.get_err_msg)
+        #             else:
+        #                 self.msg("You can't get that.")
+        #             return
+        #
+        #         # calling at_before_get hook method
+        #         if not target.at_before_get(self.caller):
+        #             return
+        #
+        #         target.move_to(self.caller, quiet=True)
+        #         self.caller.msg("You pick up %s." % target.name)
+        #         self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
+        #         # calling at_get hook method
+        #         target.at_get(self.caller)
+        #     else:
+        #         return
 
 
 class CmdGive(Command):
