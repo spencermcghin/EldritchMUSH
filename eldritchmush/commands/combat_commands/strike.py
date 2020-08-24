@@ -93,8 +93,8 @@ class CmdStrike(Command):
                         else:
                             self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n |300{attack_result}|n|025, missing {target.key} |n|020{target_av}|n")
                     else:
-                        self.msg(f"{target.key} is dead. You only further mutiliate their body.")
-                        self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
+                        self.msg(f"|300{target.key} is dead. You only further mutiliate their body.|n")
+                        self.caller.location.msg_contents(f"|430{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
                     self.msg("|300You are too injured to act.|n")
                 # Clean up
@@ -104,5 +104,5 @@ class CmdStrike(Command):
             else:
                  self.msg("|430Before you strike you must equip a melee weapon using the command equip <weapon name>.|n")
         else:
-            self.msg("You need to wait until it is your turn before you are able to act.")
+            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
