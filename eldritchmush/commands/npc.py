@@ -25,7 +25,7 @@ class CmdCreateNPC(Command):
             return
         if not caller.location:
             # May not create npc when OOC
-            caller.msg("You must be in a location to build an npc.")
+            caller.msg("|430You must be in a location to build an npc.|n")
             return
 
         # make name always start with capital letter
