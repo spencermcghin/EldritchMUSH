@@ -264,7 +264,7 @@ class CombatLoop:
                                 # If character target, attack a random one.
                                 nextCharacter.at_char_entered(random_target)
                             else:
-                                nextCharacter.location.msg_contents(f"|023{nextCharacter.key} has nothing to attack with.|n")
+                                nextCharacter.location.msg_contents(f"|025{nextCharacter.key} has nothing to attack with.|n")
                                 nextCharacter.execute_cmd("disengage")
                         else:
                             nextCharacter.location.msg_contents(f"|300{nextCharacter.key} is too injured to act.|n")
