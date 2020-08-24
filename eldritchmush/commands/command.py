@@ -299,23 +299,25 @@ class CmdGet(Command):
                         caller_item_qty.value += self.qty
         else:
 
-            if not target.access(self.caller, "get"):
-                if target.db.get_err_msg:
-                    self.msg(target.db.get_err_msg)
-                else:
-                    self.msg("You can't get that.")
+            if target:
+                if not target.access(self.caller, "get"):
+                    if target.db.get_err_msg:
+                        self.msg(target.db.get_err_msg)
+                    else:
+                        self.msg("You can't get that.")
+                    return
+
+                # calling at_before_get hook method
+                if not target.at_before_get(self.caller):
+                    return
+
+                target.move_to(self.caller, quiet=True)
+                self.caller.msg("You pick up %s." % target.name)
+                self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
+                # calling at_get hook method
+                target.at_get(self.caller)
+            else:
                 return
-
-            # calling at_before_get hook method
-            if not target.at_before_get(self.caller):
-                return
-
-            target.move_to(self.caller, quiet=True)
-            self.caller.msg("You pick up %s." % target.name)
-            self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
-            # calling at_get hook method
-            target.at_get(self.caller)
-
 
 
 class CmdGive(Command):
