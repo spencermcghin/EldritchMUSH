@@ -42,7 +42,7 @@ class MeleeSoldier(Npc):
         # Move item to caller's inventory
         weapon_item[0].move_to(self, quiet=True)
         armor_item[0].move_to(self, quiet=True)
-        shield_item[0].move_to(self, quiet=True)
+        shield_item[0].move_to(self, quiet=True)M
         # Equip items
         self.execute_cmd('equip iron medium weapon')
         self.execute_cmd('equip hardened iron coat of plates')
@@ -55,10 +55,10 @@ class MeleeSoldier(Npc):
         if self.db.is_aggressive and self.db.bleed_points:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
+
             if len(weapons) == 0:
                 self.make_equipment()
-            else:
-                pass
+
             command = self.command_picker(character)
             self.execute_cmd(command)
         else:
