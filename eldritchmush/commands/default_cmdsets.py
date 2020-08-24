@@ -123,7 +123,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(battlefield_medicine.CmdBattlefieldMedicine())
         self.add(command.SetIndomitable())
         self.add(combat.CmdRally())
-        self.add(command.SetShieldValue())
+        # self.add(command.SetShieldValue())
         self.add(command.CharSheet())
         self.add(command.CharStatus())
         self.add(command.CmdChirurgery())
