@@ -673,59 +673,59 @@ class CmdUnequip(Command):
             self.caller.msg(f"Please be more specific.")
 
 
-class SetArmorValue(Command):
-    """Set the armor level of a character
-
-    Usage: setarmorvalue <value>
-
-    This sets the armor of the current character. This command is available to all characters.
-    """
-
-    key = "setarmorvalue"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|540Usage: setarmorvalue <value>|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            armor_value = int(self.args)
-            # Error handling to keep from going below 0.
-            if armor_value < 0:
-                self.caller.msg("|400You may not set a value lower than 0.|n")
-                return
-
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-
-        else:
-            # Track hits by getting current armor value and looking at difference to return message.
-            current_armor = self.caller.db.armor
-            # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.armor = armor_value
-            # Messages to emote that caller is taking damage
-            if current_armor > armor_value:
-                # Get amount of damage taken
-                damage = current_armor - armor_value
-                self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their armor.|n")
-
-            if armor_value == 0:
-                self.caller.msg("|400Your armor is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
-
-            # Get vals for armor value calc
-            tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-
-            # Add them up and set the curent armor value in the database
-            currentArmorValue = armor_value + tough + shield_value + armor_specialist
-            self.caller.db.av = currentArmorValue
-
-            # Return armor value to console.
-            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
+# class SetArmorValue(Command):
+#     """Set the armor level of a character
+#
+#     Usage: setarmorvalue <value>
+#
+#     This sets the armor of the current character. This command is available to all characters.
+#     """
+#
+#     key = "setarmorvalue"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: setarmorvalue <value>|n"
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             armor_value = int(self.args)
+#             # Error handling to keep from going below 0.
+#             if armor_value < 0:
+#                 self.caller.msg("|400You may not set a value lower than 0.|n")
+#                 return
+#
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#
+#         else:
+#             # Track hits by getting current armor value and looking at difference to return message.
+#             current_armor = self.caller.db.armor
+#             # at this point the argument is tested as valid. Let's set it.
+#             self.caller.db.armor = armor_value
+#             # Messages to emote that caller is taking damage
+#             if current_armor > armor_value:
+#                 # Get amount of damage taken
+#                 damage = current_armor - armor_value
+#                 self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their armor.|n")
+#
+#             if armor_value == 0:
+#                 self.caller.msg("|400Your armor is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+#
+#             # Get vals for armor value calc
+#             tough = self.caller.db.tough
+#             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+#             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+#
+#             # Add them up and set the curent armor value in the database
+#             currentArmorValue = armor_value + tough + shield_value + armor_specialist
+#             self.caller.db.av = currentArmorValue
+#
+#             # Return armor value to console.
+#             self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
 
 
 class SetTracking(Command):
@@ -865,52 +865,52 @@ class SetTough(Command):
             self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 
-class SetShieldValue(Command):
-    """Set the shield value of a shield item.
-
-    Usage: setshieldvalue <value>
-
-    Available to all characters. Adds to total Armor Value db object.
-    """
-    key = "setshieldvalue"
-    help_category = "mush"
-
-    def func(self):
-        """Performs the command"""
-        errmsg = "|540Usage: setshieldvalue <value>|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            shield_value = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-
-        # Error handling to keep from going below 0.
-        if shield_value < 0:
-            self.caller.msg("|540Usage: setshieldvalue <value>|n\n|400You may not set a value lower than 0.|n")
-        elif shield_value == 0:
-            self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
-            zero_av = self.caller.db.armor + self.caller.db.tough + self.caller.db.shield_value + self.caller.db.armor_specialist
-            self.caller.msg(f"|540Your current Armor Value is {zero_av}:\nArmor: {self.caller.db.armor}\nTough: {self.caller.db.tough}\nShield: {self.caller.db.shield_value}\nArmor Specialist: {self.caller.db.armor_specialist}|n")
-        else:
-            # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.shield_value = shield_value
-            self.caller.msg("|540Your Shield Value was set to %i.|n" % shield_value)
-
-            # Get armor value objects
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            armor_specialist = self.caller.db.armor_specialist
-            armor = self.caller.db.armor
-            tough = self.caller.db.tough
-
-            # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist
-            self.caller.db.av = currentArmorValue
-
-            # Return armor value to console.
-            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+# class SetShieldValue(Command):
+#     """Set the shield value of a shield item.
+#
+#     Usage: setshieldvalue <value>
+#
+#     Available to all characters. Adds to total Armor Value db object.
+#     """
+#     key = "setshieldvalue"
+#     help_category = "mush"
+#
+#     def func(self):
+#         """Performs the command"""
+#         errmsg = "|540Usage: setshieldvalue <value>|n"
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             shield_value = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#
+#         # Error handling to keep from going below 0.
+#         if shield_value < 0:
+#             self.caller.msg("|540Usage: setshieldvalue <value>|n\n|400You may not set a value lower than 0.|n")
+#         elif shield_value == 0:
+#             self.caller.msg("|400Your shield is now badly damaged and needs to be repaired.\nPlease see a blacksmith.|n")
+#             zero_av = self.caller.db.armor + self.caller.db.tough + self.caller.db.shield_value + self.caller.db.armor_specialist
+#             self.caller.msg(f"|540Your current Armor Value is {zero_av}:\nArmor: {self.caller.db.armor}\nTough: {self.caller.db.tough}\nShield: {self.caller.db.shield_value}\nArmor Specialist: {self.caller.db.armor_specialist}|n")
+#         else:
+#             # at this point the argument is tested as valid. Let's set it.
+#             self.caller.db.shield_value = shield_value
+#             self.caller.msg("|540Your Shield Value was set to %i.|n" % shield_value)
+#
+#             # Get armor value objects
+#             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+#             armor_specialist = self.caller.db.armor_specialist
+#             armor = self.caller.db.armor
+#             tough = self.caller.db.tough
+#
+#             # Add them up and set the curent armor value in the database
+#             currentArmorValue = armor + tough + shield_value + armor_specialist
+#             self.caller.db.av = currentArmorValue
+#
+#             # Return armor value to console.
+#             self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
 class SetBody(Command):
     """Set the body of a character
@@ -1054,32 +1054,32 @@ class SetResilience(Command):
         self.caller.msg("Your Resilience level was set to %i." % resilience)
 
 
-class SetWeaponValue(Command):
-    """Set the weapon level of a character
-
-    Usage: setweaponvalue <0 - 4>
-
-    This sets the weapon level of the current character. This can only be
-    used during character generation.
-    """
-
-    key = "setweaponvalue"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|540Usage: setweaponvalue <0 - 4>|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            weapon_value = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-        # at this point the argument is tested as valid. Let's set it.
-        self.caller.db.weapon_level = weapon_value
-        self.caller.msg("Your Weapon Value was set to %i." % weapon_value)
+# class SetWeaponValue(Command):
+#     """Set the weapon level of a character
+#
+#     Usage: setweaponvalue <0 - 4>
+#
+#     This sets the weapon level of the current character. This can only be
+#     used during character generation.
+#     """
+#
+#     key = "setweaponvalue"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: setweaponvalue <0 - 4>|n"
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             weapon_value = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#         # at this point the argument is tested as valid. Let's set it.
+#         self.caller.db.weapon_level = weapon_value
+#         self.caller.msg("Your Weapon Value was set to %i." % weapon_value)
 
 
 class SetBow(Command):
@@ -1124,51 +1124,51 @@ class SetBow(Command):
                     self.caller.location.msg_contents(f"|230{self.caller.key} unequips their bow.|n")
 
 
-class SetMelee(Command):
-    """Set the melee property of a character
-
-    Usage: setmelee <0/1>
-
-    This sets the melee of the current character. This can be used at any time during the game.
-    """
-
-    key = "setmelee"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|540Usage: setmelee <0/1>|n\n|400You must supply a value of 0 or 1.|n"
-        hasBow = self.caller.db.bow
-        hasWeapon = self.caller.db.weapon_level
-
-        # Check for valid arguments
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            melee = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-        if melee not in (0,1):
-            self.caller.msg(errmsg)
-        else:
-            # Bow/melee error handling
-            if hasBow:
-                self.caller.msg("|540Before using a melee weapon, you must first unequip your bow using the command setbow 0.|n")
-            else:
-                self.caller.db.melee = melee
-
-                # Quippy message when setting a weapon as 0 or 1.
-                if melee and hasWeapon:
-                    self.caller.msg("|030You are now ready to fight.|n")
-                    self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their weapon.|n")
-                elif melee and not hasWeapon:
-                    self.caller.location.msg_contents(f"|230{self.caller.key} assumes a defensive posture.")
-                elif not melee and hasWeapon:
-                    self.caller.location.msg_contents(f"|230{self.caller.key} sheathes their weapon.|n")
-                else:
-                    self.caller.location.msg_contents(f"|230{self.caller.key} relaxes their defensive posture.|n")
+# class SetMelee(Command):
+#     """Set the melee property of a character
+#
+#     Usage: setmelee <0/1>
+#
+#     This sets the melee of the current character. This can be used at any time during the game.
+#     """
+#
+#     key = "setmelee"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: setmelee <0/1>|n\n|400You must supply a value of 0 or 1.|n"
+#         hasBow = self.caller.db.bow
+#         hasWeapon = self.caller.db.weapon_level
+#
+#         # Check for valid arguments
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             melee = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#         if melee not in (0,1):
+#             self.caller.msg(errmsg)
+#         else:
+#             # Bow/melee error handling
+#             if hasBow:
+#                 self.caller.msg("|540Before using a melee weapon, you must first unequip your bow using the command setbow 0.|n")
+#             else:
+#                 self.caller.db.melee = melee
+#
+#                 # Quippy message when setting a weapon as 0 or 1.
+#                 if melee and hasWeapon:
+#                     self.caller.msg("|030You are now ready to fight.|n")
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their weapon.|n")
+#                 elif melee and not hasWeapon:
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} assumes a defensive posture.")
+#                 elif not melee and hasWeapon:
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} sheathes their weapon.|n")
+#                 else:
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} relaxes their defensive posture.|n")
 
 
 class SetResist(Command):
@@ -1361,90 +1361,90 @@ class SetStagger(Command):
 Combat settings
 """
 
-class SetShield(Command):
-    """Set the shield property of a character
+# class SetShield(Command):
+#     """Set the shield property of a character
+#
+#     Usage: setshield <0/1>
+#
+#     This sets the shield of the current character. This can only be
+#     used during character generation.
+#     """
+#
+#     key = "setshield"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: setshield <0/1>|n\n|400You must supply a value of 0 or 1.|n"
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             shield = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#
+#         if shield not in (0,1):
+#             self.caller.msg(errmsg)
+#         else:
+#             self.caller.db.shield = shield
+#
+#             # Quippy message when setting a shield as 0 or 1.
+#             if shield:
+#                 self.caller.msg("|030You now have a shield.|n")
+#                 self.caller.location.msg_contents(f"|230{self.caller.key} equips their shield.|n")
+#             else:
+#                 self.caller.msg("|400You have unequipped or lost your shield.|n")
+#                 self.caller.location.msg_contents(f"|230{self.caller.key} unequips their shield.|n")
+#
+#             # Get armor value objects
+#             armor = self.caller.db.armor
+#             tough = self.caller.db.tough
+#             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+#             armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
+#
+#             # Add them up and set the curent armor value in the database
+#             currentArmorValue = armor + tough + shield_value + armor_specialist
+#             self.caller.db.av = currentArmorValue
+#
+#             # Return armor value to console.
+#             self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
 
-    Usage: setshield <0/1>
 
-    This sets the shield of the current character. This can only be
-    used during character generation.
-    """
-
-    key = "setshield"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|540Usage: setshield <0/1>|n\n|400You must supply a value of 0 or 1.|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            shield = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-
-        if shield not in (0,1):
-            self.caller.msg(errmsg)
-        else:
-            self.caller.db.shield = shield
-
-            # Quippy message when setting a shield as 0 or 1.
-            if shield:
-                self.caller.msg("|030You now have a shield.|n")
-                self.caller.location.msg_contents(f"|230{self.caller.key} equips their shield.|n")
-            else:
-                self.caller.msg("|400You have unequipped or lost your shield.|n")
-                self.caller.location.msg_contents(f"|230{self.caller.key} unequips their shield.|n")
-
-            # Get armor value objects
-            armor = self.caller.db.armor
-            tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            armor_specialist = 1 if self.caller.db.armor_specialist is 1 else 0
-
-            # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist
-            self.caller.db.av = currentArmorValue
-
-            # Return armor value to console.
-            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
-
-
-class SetTwoHanded(Command):
-    """Set the two handed weapon status of a character
-
-    Usage: settwohander <0,1>
-
-    This sets the two handed weapon status of the current character.
-    """
-
-    key = "settwohanded"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|540Usage: settwohanded <0/1>|n\n|400You must supply a value of either 0 or 1.|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            twohanded = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-
-        if twohanded not in (0,1):
-            self.caller.msg(errmsg)
-        else:
-            # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.twohanded = twohanded
-
-            if twohanded:
-                self.caller.msg("|030Your have equipped a two-handed melee weapon.|n")
-            else:
-                self.caller.msg("|400You have unequipped a two-handed melee weapon.|n")
+# class SetTwoHanded(Command):
+#     """Set the two handed weapon status of a character
+#
+#     Usage: settwohander <0,1>
+#
+#     This sets the two handed weapon status of the current character.
+#     """
+#
+#     key = "settwohanded"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: settwohanded <0/1>|n\n|400You must supply a value of either 0 or 1.|n"
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             twohanded = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#
+#         if twohanded not in (0,1):
+#             self.caller.msg(errmsg)
+#         else:
+#             # at this point the argument is tested as valid. Let's set it.
+#             self.caller.db.twohanded = twohanded
+#
+#             if twohanded:
+#                 self.caller.msg("|030Your have equipped a two-handed melee weapon.|n")
+#             else:
+#                 self.caller.msg("|400You have unequipped a two-handed melee weapon.|n")
 
 
 """
