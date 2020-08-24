@@ -215,7 +215,7 @@ class CombatLoop:
             while nextCharacter.db.skip_turn:
                 # Turn off the skip_turn flag and then try to go to the next character in the loop
                 nextCharacter.db.skip_turn = False
-                nextCharacter.location.msg_contents(f"{nextCharacter.key} is unable to act this round.")
+                nextCharacter.location.msg_contents(f"|430{nextCharacter.key} is unable to act this round.|n")
                 try:
                     # Try going to the next character based on the character that had skip_turn active
                     nextTurn = self.combat_loop.index(nextCharacter) + 1
@@ -247,12 +247,14 @@ class CombatLoop:
 
                     # Clear the loop for combat
                     nextCharacter.location.db.combat_loop.clear()
-                    nextCharacter.location.msg_contents(f"|025All NPC combatants are now unmoving. Combat is now over for the {nextCharacter.location}.|n")
+                    nextCharacter.location.msg_contents(f"|025All NPC combatants are now unable to act. Combat is now over for the {nextCharacter.location}.|n")
 
                 else:
                     # Hook into the npcs command generator.
+                    # Figure out which player targets NPCs can attack.
                     targets = [target for target in nextCharacter.location.db.combat_loop if target.has_account and target.db.bleed_points]
 
+                    # If there are targets, make sure NPC has something to fight with and is not dying.
                     if targets:
                         if not self.iSDying(nextCharacter):
                             if (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
@@ -265,6 +267,10 @@ class CombatLoop:
                         else:
                             nextCharacter.location.msg_contents(f"|300{nextCharacter.key} is too injured to act.|n")
                             nextCharacter.execute_cmd("pass")
+                    else:
+                        nextCharacter.location.msg_contents(f"|430There are no possible targets.|n")
+                        nextCharacter.execute_cmd("disengage")
+
         else:
             try:
                 remaining_character = self.combat_loop[0]
