@@ -1941,7 +1941,7 @@ class CmdMedicine(Command):
 
 
 class CmdChirurgery(Command):
-    """Performs the chiurgeon skill.
+    """Performs the chirurgeon skill.
     Restores a character to 3 body points, and removes the weakness state.
     """
 
@@ -2307,7 +2307,7 @@ class CharSheet(Command):
                         "Weapon Bonus",
                         "Right Slot",
                         "Left Slot",
-                        "Body",
+                        "Body Armor",
                         "Armor Value"
                     ],
                     [
@@ -2377,6 +2377,7 @@ class CharSheet(Command):
                     [
                         "Stabilize",
                         "Battlefield Medicine",
+                        "Chirurgeon",
                         "Rally",
                         "Battlefield Commander",
                         "Wylding Hand"
@@ -2384,6 +2385,7 @@ class CharSheet(Command):
                     [
                         self.caller.db.stabilize,
                         self.caller.db.battlefieldmedicine,
+                        self.caller.db.chirurgeon,
                         self.caller.db.rally,
                         self.caller.db.battlefieldcommander,
                         self.caller.db.wyldinghand
@@ -2505,7 +2507,7 @@ class CmdDiagnose(Command):
                     message += "|230" + target.key + " is in tiptop shape and doesn't need any healing.|n"
                 elif 0 < target_body < 3:
                     message += "|540" + target.key + " is a little roughed up and bruised, but not bleeding. They could use some tending before heading into a fight.|n"
-                elif body <= 0 and target_bleed_points:
+                elif target_body <= 0 and target_bleed_points:
                     message += "|400" + target.key + " is bleeding to death. They cannot move from their immediate position or use active marshal skills.|n"
                 elif target_death_points:
                     message += "|400" + target.key + " is dying. They need to be stabilized as soon as possible.|n"
