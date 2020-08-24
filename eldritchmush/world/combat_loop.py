@@ -227,6 +227,8 @@ class CombatLoop:
             self.combatTurnOn(nextCharacter)
             nextCharacter.location.msg_contents(f"It is now {nextCharacter.key}'s turn.")
 
+
+
             ###### NPC Turn Resolver ######
             # Check to see if the character is an npc. If so run it's random command generator
             if utils.inherits_from(nextCharacter, Npc):
@@ -242,7 +244,7 @@ class CombatLoop:
                 # If bots are all dying, reset combat stats and empty loop.
                 if total_bots == total_dying_bots:
                     for char in nextCharacter.location.db.combat_loop:
-                        char.db.combat_turn = 1
+                        self.combatTurnOn(char)
                         char.db.in_combat = 0
 
                     # Clear the loop for combat
