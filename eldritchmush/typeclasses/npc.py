@@ -27,22 +27,36 @@ class MeleeSoldier(Npc):
     Generic solider NPC
     """
 
-    def make_weapon(self):
+    def make_equipment(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
+        armor_prototype = prototypes.search_prototype("hardened_iron_coat_of_plates", require_single=True)
+        shield_prototype = prototypes.search_prototype("iron_shield", require_single=True)
+        # Get prototype data
         longsword_data = prototype[0]
+        armor_data = armor_prototype[0]
+        shield_data = shield_prototype[0]
+        # Spawn item using data
         weapon_item = spawn(longsword_data)
+        armor_item = spawn(armor_data)
+        shield_item = spawn(shield_data)
+        # Move item to caller's inventory
         weapon_item[0].move_to(self, quiet=True)
+        armor_item[0].move_to(self, quiet=True)
+        shield_item[0].move_to(self, quiet=True)
+        # Equip items
         self.execute_cmd('equip iron medium weapon')
+        self.execute_cmd('equip hardened iron coat of plates')
+        self.execute_cmd('equip iron shield')
 
 
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive:
+        if self.db.is_aggressive and self.db.bleed_points:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
             if len(weapons) == 0:
-                self.make_weapon()
+                self.make_equipment()
             else:
                 pass
             command = self.command_picker(character)
