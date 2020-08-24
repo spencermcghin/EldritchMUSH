@@ -2425,27 +2425,23 @@ class CharStatus(Command):
             status_table = evtable.EvTable("|540Status|n", "|540Value|n",
                 table = [
                     [
-                        "Shield",
                         "Armor",
                         "Armor Specialist",
                         "Tough",
                         "Body",
-                        "Weapon Value",
-                        "Melee Weapon Equipped",
+                        "Weapon Bonus",
+                        "Right Slot",
                         "Two-handed Equipped",
-                        "Bow Equipped",
                         "Armor Value"
                     ],
                     [
-                        self.caller.db.shield,
                         self.caller.db.armor,
                         self.caller.db.armor_specialist,
                         self.caller.db.tough,
                         self.caller.db.body,
                         self.caller.db.weapon_level,
-                        self.caller.db.melee,
-                        self.caller.db.twohanded,
-                        self.caller.db.bow,
+                        self.caller.db.right_slot,
+                        self.caller.db.left_slot,
                         self.caller.db.av
                     ]
                 ],
