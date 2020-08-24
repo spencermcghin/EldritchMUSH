@@ -268,7 +268,7 @@ class CombatLoop:
                                 nextCharacter.execute_cmd("disengage")
                         else:
                             nextCharacter.location.msg_contents(f"|300{nextCharacter.key} is too injured to act.|n")
-                            nextCharacter.execute_cmd("pass")
+                            nextCharacter.execute_cmd("skip")
                     else:
                         nextCharacter.location.msg_contents(f"|430There are no possible targets.|n")
                         nextCharacter.execute_cmd("disengage")
