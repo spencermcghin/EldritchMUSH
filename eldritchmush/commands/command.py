@@ -2295,6 +2295,10 @@ class CharSheet(Command):
 
         # target = self.caller.search(self.target)
 
+        right_slot = self.caller.db.right_slot[0] if self.caller.db.right_slot else "Empty"
+        left_slot = self.caller.db.left_slot[0] if self.caller.db.left_slot else "Empty"
+        body_slot = self.caller.db.body_slot[0] if self.caller.db.body_slot else "Empty"
+
         if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|540Status|n", "|540Value|n",
                 table = [
@@ -2309,9 +2313,9 @@ class CharSheet(Command):
                     [
                         self.caller.db.body,
                         self.caller.db.weapon_level,
-                        self.caller.db.right_slot[0],
-                        self.caller.db.left_slot[0],
-                        self.caller.db.body_slot[0],
+                        right_slot,
+                        left_slot,
+                        body_slot,
                         self.caller.db.av
                     ]
                 ],
