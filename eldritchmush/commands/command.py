@@ -477,7 +477,7 @@ class CmdEquip(Command):
                     self.caller.db.armor += self.caller.db.indomitable
 
                 self.msg(f"You don {item.key}.")
-                self.caller.location.msg_contents(f"{self.caller.key} equips their armor."")
+                self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key} armor.")
 
                 # Get vals for armor value calc
                 armor_value = self.caller.db.armor
