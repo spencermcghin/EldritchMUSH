@@ -79,6 +79,7 @@ class CmdEditNPC(Command):
         "do the editing"
 
         allowed_propnames = ("master_of_arms",
+                             "resilience",
                              "indomitable",
                              "armor_specialist",
                              "armor",
