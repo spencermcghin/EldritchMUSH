@@ -26,13 +26,6 @@ class GreenMeleeSoldierOneHanded(Character):
     """
     Generic solider NPC
     """
-    def at_object_creation(self):
-        self.db.master_of_arms = 1
-        self.db.tough = 1
-        self.db.resilience = 1
-        self.db.stagger = 1
-        self.db.stun = 1
-        self.db.disarm = 1
 
     def make_equipment(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
