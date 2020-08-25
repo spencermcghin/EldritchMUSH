@@ -22,14 +22,21 @@ class Npc(Character):
         pass
 
 
-class MeleeSoldier(Npc):
+class GreenMeleeSoldierOneHanded(Npc):
     """
     Generic solider NPC
     """
+    def at_object_creation(self):
+        self.db.master_of_arms = 1
+        self.db.tough = 1
+        self.db.resilience = 1
+        self.db.stagger = 1
+        self.db.stun = 1
+        self.db.disarm = 1
 
     def make_equipment(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
-        armor_prototype = prototypes.search_prototype("hardened_iron_coat_of_plates", require_single=True)
+        armor_prototype = prototypes.search_prototype("iron_coat_of_plates", require_single=True)
         shield_prototype = prototypes.search_prototype("iron_shield", require_single=True)
         # Get prototype data
         longsword_data = prototype[0]
@@ -118,7 +125,7 @@ class MeleeSoldier(Npc):
 
 
 
-class Revenant(Npc):
+class GreenRevenant(Npc):
     """
     Level 1 Undead
     """
