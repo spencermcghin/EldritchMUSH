@@ -233,7 +233,6 @@ class Helper():
                 target.db.armor = 0
             else:
                 target.db.armor = armor_damage
-                test = target_shield_value + target.db.armor + target_tough + target_armor_specialist
                 damage = 0
 
         if target_tough and damage:
