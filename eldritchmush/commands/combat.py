@@ -273,8 +273,10 @@ class Helper():
         dmg_penalty = self.bodyChecker(combatant.db.body)
 
         # Slot checks for sunder command
-        left_slot = combatant.db.left_slot
-        right_slot = combatant.db.right_slot
+        left_slot = combatant.db.left_slot[0] if combatant.db.left_slot else None
+        right_slot = combatant.db.right_slot[0] if combatant.db.right_slot else None
+
+        two_handed = True if left_slot == right_slot and not None else False
 
         melee_stats = {"melee": melee,
                        "bow": bow,
@@ -284,6 +286,7 @@ class Helper():
                        "wylding_hand": wylding_hand,
                        "weakness": weakness,
                        "dmg_penalty": dmg_penalty,
+                       "two_handed": two_handed,
                        "left_slot": left_slot,
                        "right_slot": right_slot,
                        "disarm_penalty": 2,
