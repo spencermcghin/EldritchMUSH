@@ -42,7 +42,7 @@ class MeleeSoldier(Npc):
         # Move item to caller's inventory
         weapon_item[0].move_to(self, quiet=True)
         armor_item[0].move_to(self, quiet=True)
-        shield_item[0].move_to(self, quiet=True)M
+        shield_item[0].move_to(self, quiet=True)
         # Equip items
         self.execute_cmd('equip iron medium weapon')
         self.execute_cmd('equip hardened iron coat of plates')
