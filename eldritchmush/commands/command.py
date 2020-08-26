@@ -255,7 +255,8 @@ class CmdGet(Command):
                           "cloth": ["cloth"],
                           "gold": ["gold", "gold dragons"],
                           "silver": ["silver", "silver dragons"],
-                          "copper": ["copper", "copper dragons"]}
+                          "copper": ["copper", "copper dragons"],
+                          "arrows": ["arrows"]}
 
 
         # Begin logic to check if item given is a resource or currency

@@ -112,6 +112,7 @@ class Character(DefaultCharacter):
         self.db.gold = 0
         self.db.silver = 0
         self.db.copper = 0
+        self.db.arrows = 0
 
 
     def return_appearance(self, looker):
