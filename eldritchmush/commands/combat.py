@@ -276,9 +276,11 @@ class Helper():
 
         two_handed = True if left_slot == right_slot and not None else False
         bow = True if left_slot == right_slot and left_slot.db.is_bow else False
+        arrows = combatant.db.arrows
 
         melee_stats = {"melee": melee,
                        "bow": bow,
+                       "arrows": arrows,
                        "bow_penalty": 2,
                        "master_of_arms": master_of_arms,
                        "weapon_level": weapon_level,
