@@ -279,17 +279,17 @@ class CmdGet(Command):
                     target_attribute = target.attributes.get(item_db_key[0], return_obj=True, raise_exception=True)
                 # If not, throw an error.
                 except AttributeError:
-                    self.msg("|540You need to specify an appropriate target.|n")
+                    self.msg("|430You need to specify an appropriate target.|n")
                 else:
                     if not target.access(self.caller, "get") or target.has_account:
                         if target.db.get_err_msg:
                             self.msg(target.db.get_err_msg)
                         else:
-                            self.msg("You can't get that.")
+                            self.msg("|300You can't get that.|n")
                         return
 
                     elif (target_attribute.value - self.qty) < 0:
-                        self.msg("You can't get that amount.")
+                        self.msg("|300You can't get that amount.|n")
                     else:
                         self.msg(f"You get {self.qty} {self.item} from the {target}")
                         target_attribute.value -= self.qty
@@ -301,7 +301,7 @@ class CmdGet(Command):
                     if target.db.get_err_msg:
                         self.msg(target.db.get_err_msg)
                     else:
-                        self.msg("You can't get that.")
+                        self.msg("|300You can't get that.|n")
                     return
 
                 # calling at_before_get hook method
