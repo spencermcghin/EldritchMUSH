@@ -624,5 +624,58 @@ Begin artificer protoypes
 """
 
 """
-Level 0 Artificer Items
+Bowyer Items
 """
+
+ARROWS = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Arrows",
+"aliases": ["arrows"],
+"quantity": 10,
+"required_resources": 9,
+"iron_ingots": 2,
+"refined_wood": 6,
+"leather": 1,
+"cloth": 0,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8,
+"level": 0
+}
+
+
+BOW = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"is_bow": True,
+"twohanded": True,
+"key": "Bow",
+"aliases": ["bow"],
+"required_resources": 9,
+"iron_ingots": 2,
+"refined_wood": 6,
+"leather": 1,
+"cloth": 0,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"material_value": 2,
+"level": 1
+}
+
+MASTERWORK_BOW = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"is_bow": True,
+"twohanded": True,
+"key": "Masterwork Bow",
+"aliases": ["masterwork bow"],
+"required_resources": 18,
+"iron_ingots": 2,
+"refined_wood": 12,
+"leather": 4,
+"cloth": 0,
+"value_copper": 350,
+"value_silver": 35,
+"value_gold": 3.5,
+"material_value": 3,
+"level": 3
+}
