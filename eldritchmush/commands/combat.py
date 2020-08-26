@@ -293,6 +293,7 @@ class Helper():
                        "disarm_penalty": 2,
                        "stagger_penalty": 2,
                        "stagger_damage": 2,
+                       "bow_damage": 2,
                        "stun_penalty": 1}
 
         return melee_stats
