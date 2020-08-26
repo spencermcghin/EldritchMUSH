@@ -60,7 +60,7 @@ class CmdShoot(Command):
                     attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("bow_penalty", 0)
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
-                    bow_damage = 2
+                    bow_damage = combat_stats.get("bow_damage", 0)
 
                     # Compare caller attack_result to target av.
                     # If attack_result > target av -> hit, else miss
