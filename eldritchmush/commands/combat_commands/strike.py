@@ -52,7 +52,6 @@ class CmdStrike(Command):
         if self.caller.db.combat_turn:
 
             # Run rest of command logic after passing checks.
-
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)
 
@@ -94,7 +93,7 @@ class CmdStrike(Command):
                             self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n |300{attack_result}|n|025, missing {target.key} |n|020{target_av}|n")
                     else:
                         self.msg(f"|300{target.key} is dead. You only further mutiliate their body.|n")
-                        self.caller.location.msg_contents(f"|430{self.caller.key} further mutilates the corpse of {target.key}.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
                     self.msg("|300You are too injured to act.|n")
                 # Clean up
