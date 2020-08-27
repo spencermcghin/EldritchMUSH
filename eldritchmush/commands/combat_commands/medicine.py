@@ -84,8 +84,8 @@ class CmdMedicine(Command):
                 return
 
                 # Clean up in combat loop
-                loop.combatTurnOff(caller)
-                loop.cleanup()
+            loop.combatTurnOff(caller)
+            loop.cleanup()
         else:
             caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
