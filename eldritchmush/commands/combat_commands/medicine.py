@@ -59,22 +59,22 @@ class CmdMedicine(Command):
                     """
                     new_bp_value = target_total_bleed_points + target_resilience + medicine
                     if (target.db.bleed_points == target_total_bleed_points) and not target_body:
-                        target_body += 1
+                        target.db.body += 1
                         caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
 
                     elif (target.db.bleed_points < target_total_bleed_points):
                         caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
                         if new_bp_value > target_total_bleed_points:
                             # Set to max bleed_points
-                            target_bleed_points = target_total_bleed_points
+                            target.db.bleed_points = target_total_bleed_points
                             # Add extra to body
                             excess_bp = new_bp_value - target_total_bleed_points
                             if excess_bp + target_body > 1:
-                                target_body = 1
+                                target.db.body = 1
                             else:
-                                target_body += excess_bp
+                                target.db.body += excess_bp
                         else:
-                            target_bleed_points += medicine
+                            target.db.bleed_points += medicine
                     else:
                         caller.msg(f"|300{target.key}'s injuries are beyond your skill as a healer.|n")
                         return
