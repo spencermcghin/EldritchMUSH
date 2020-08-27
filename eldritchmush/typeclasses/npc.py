@@ -22,7 +22,7 @@ class Npc(Character):
         pass
 
 
-class GreenMeleeSoldierOneHanded(Character):
+class GreenMeleeSoldierOneHanded(Npc):
     """
     Generic solider NPC
     """
