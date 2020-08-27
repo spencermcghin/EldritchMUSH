@@ -69,38 +69,41 @@ class CmdStabilize(Command):
                     new_bp_value = target_total_bleed_points + target_resilience + medicine
 
                 elif (target.db.bleed_points == target_total_bleed_points) and not target_body:
-                        target_body += 1
+                        target.db.body += 1
                         caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
 
                 elif (target.db.bleed_points < target_total_bleed_points):
                     caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
                     if new_bp_value > target_total_bleed_points:
                         # Set to max bleed_points
-                        target_bleed_points = target_total_bleed_points
+                        target.db.bleed_points = target_total_bleed_points
                         # Add extra to body
                         excess_bp = new_bp_value - target_total_bleed_points
                         if excess_bp + target_body > 1:
-                            target_body = 1
+                            target.db.body = 1
                         else:
-                            target_body += excess_bp
+                            target.db.body += excess_bp
                     else:
-                        target_bleed_points += medicine
+                        target.db.bleed_points += medicine
 
                 elif target_death_points == 3 and not target_bleed_points:
                     caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides aid to {target.key}.|n")
-                    target_bleed_points += stabilize
+                    target.db.bleed_points += stabilize
 
-                elif (target_death_points < 3):
+                elif (1 < target_death_points < 3):
                     caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides aid to {target.key}.|n")
                     new_dp_value = target_death_points + stabilize
                     if new_dp_value > 3:
                         # Set to max death_points
-                        target_death_points = 3
+                        target.db.death_points = 3
                         # Add extra to bleed_points
                         excess_dp = new_dp_value - 3
-                        target_bleed_points += excess_dp
+                        target.db.bleed_points += excess_dp
                     else:
-                        target_death_points += stabilize
+                        target.db.death_points += stabilize
+
+                else:
+                    self.msg(f"{target.key} |023is too fargone to administer further healing.|n")
 
             else:
                 caller.msg("|300You are too injured to act.|n")
