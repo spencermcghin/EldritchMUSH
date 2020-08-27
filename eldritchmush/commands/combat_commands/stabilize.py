@@ -43,127 +43,72 @@ class CmdStabilize(Command):
         stabilize = self.caller.db.stabilize
         medicine = self.caller.db.medicine
         target_resilience = target.db.resilience
+        target_total_bleed_points = target_resilience + 3
 
-        # Go through combat loop logic
-        loop = CombatLoop(caller, target)
-        loop.resolveCommand()
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
+        if target:
+            loop = CombatLoop(caller, target)
+            loop.resolveCommand()
+        else:
+            return
 
         if caller.db.combat_turn:
-            if h.canFight(caller):
-                if target_body and medicine:
-                    # Return message to area and caller
-                    if target == self.caller:
-                        self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
-
-                        # Check to see if caller would go over 1 body with application of skill.
-                        if (self.caller.db.body + medicine) > 1:
-                            # If so set body to 1
-                            self.caller.db.body = 1
-                            self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
-
-                        else:
-                            # If not over 1, add points to total
-                            self.caller.db.body += medicine
-                            self.caller.msg(f"|540Your new body value is:|n {self.caller.db.body}|n")
-
-                        # Clean up in combat loop
-                        loop.combatTurnOff(caller)
-                        loop.cleanup()
-
-                    # If target is someone else, do checks and apply healing.
-                    elif target != self.caller and medicine:
-                        target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
-                        if (target.db.body + medicine) > 1:
-                            # If so set body to 1
-                            target.db.body = 1
-                            target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-                        else:
-                            # If not over 1, add points to total
-                            target.db.body += medicine
-                            target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-
-                        # Clean up in combat loop
-                        loop.combatTurnOff(caller)
-                        loop.cleanup()
-
-                elif target_bleed_points and medicine:
-                        # Return message to area and caller
-                        if target == self.caller:
-                            self.caller.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend their wounds.|n")
-
-                            total_bleed_points = target_resilience + 3
-                            new_bp_value = target_bleed_points + target_resilience + medicine
-                            # Check to see if caller would go over 1 body with application of skill.
-                            if new_bp_value > total_bleed_points:
-                                # Set to max bleed_points
-                                self.caller.db.bleed_points = total_bleed_points
-                                # Add extra to body
-                                excess_bp = new_bp_value - total_bleed_points
-                                target_body += excess_bp
-                                self.caller.msg(f"|540You are slowly starting to heal, and your wounds are on the mend.")
-
-                            else:
-                                # If not over 1, add points to total
-                                target_bleed_points += medicine
-                                self.caller.msg(f"|540You are slowly starting to heal, though it will take more time.")
-
-                            # Clean up in combat loop
-                            loop.combatTurnOff(caller)
-                            loop.cleanup()
-
-
-                        # If target is someone else, do checks and apply healing.
-                        elif target != self.caller and medicine:
-                            target.location.msg_contents(f"|230{self.caller} pulls bandages and ointments from their bag, and starts to mend {target.key}'s wounds.|n")
-                            if (target.db.body + medicine) > 1:
-                                # If so set body to 1
-                                target.db.body = 1
-                                target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-                            else:
-                                # If not over 1, add points to total
-                                target.db.body += medicine
-                                target.msg(f"|540Your new body value is:|n {target.db.body}|n")
-
-                            # Clean up in combat loop
-                            loop.combatTurnOff(caller)
-                            loop.cleanup()
-
-
-                # Apply stabilize to other target
-                elif target_death_points and stabilize:
-
-                        # You can't stabilize yourself...
-                        if target == self.caller:
-                            self.caller.msg(f"|400{self.caller} You are too fargone to attempt this action.|n")
-                        elif target != self.caller:
-                            target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, healing {target.key}.|n")
-
-                            new_dp_total = target_death_points + stabilize
-                            if new_dp_total > 3:
-                                target_death_points = 3
-                                # Add any excess to bleed_points
-                                excess_dp = new_dp_total - 3
-                                target_bleed_points += excess_dp
-                            else:
-                                target_death_points += stabilize
-
-                            # Check to see if weakness set. If not, set it.
-                            if not target.db.weakness:
-                                target.db.weakness = 1
-
-                            # Clean up in combat loop
-                            loop.combatTurnOff(caller)
-                            loop.cleanup()
-
+            if h.canFight(caller) and stabilize:
                 # Check to see if the target is already healed to max.
-                elif target_body >= 1:
-                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                if target_body >= 1:
+                    self.caller.msg(f"|025{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                    return
 
-                else:
-                    self.caller.msg("|400You had better not try that.|n")
+                    """
+                    Get max bleed points.
+                    1. If target has max bleed points and 0 body, heal up to 1 body.
+                    2. elif: target has under max bleed points, add caller medicine level in bleed points and excess to body, up to 1.
+                    3. else target is out of bleed points, prompt that you can't heal target.
+                    """
+                    new_bp_value = target_total_bleed_points + target_resilience + medicine
+
+                elif (target.db.bleed_points == target_total_bleed_points) and not target_body:
+                        target_body += 1
+                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
+
+                elif (target.db.bleed_points < target_total_bleed_points):
+                    caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
+                    if new_bp_value > target_total_bleed_points:
+                        # Set to max bleed_points
+                        target_bleed_points = target_total_bleed_points
+                        # Add extra to body
+                        excess_bp = new_bp_value - target_total_bleed_points
+                        if excess_bp + target_body > 1:
+                            target_body = 1
+                        else:
+                            target_body += excess_bp
+                    else:
+                        target_bleed_points += medicine
+
+                elif target_death_points == 3 and not target_bleed_points:
+                    caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides aid to {target.key}.|n")
+                    target_bleed_points += stabilize
+
+                elif (target_death_points < 3):
+                    caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides aid to {target.key}.|n")
+                    new_dp_value = target_death_points + stabilize
+                    if new_dp_value > 3:
+                        # Set to max death_points
+                        target_death_points = 3
+                        # Add extra to bleed_points
+                        excess_dp = new_dp_value - 3
+                        target_bleed_points += excess_dp
+                    else:
+                        target_death_points += stabilize
+
             else:
-                caller.msg("You are too injured to act.")
+                caller.msg("|300You are too injured to act.|n")
                 return
+
+            # Clean up in combat loop
+            loop.combatTurnOff(caller)
+            loop.cleanup()
         else:
-            caller.msg("You need to wait until it is your turn before you are able to act.")
+            caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
