@@ -45,13 +45,8 @@ class CmdMedicine(Command):
 
         if caller.db.combat_turn:
             if h.canFight(caller) and medicine:
-                # Return message to area and caller
-                if not target_bleed_points:
-                    self.caller.msg(f"|300{target.key}'s injuries are beyond your skill as a healer.|n")
-                    return
-
                 # Check to see if the target is already healed to max.
-                elif target_body >= 1:
+                if target_body >= 1:
                     self.caller.msg(f"|025{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
                     return
 
@@ -68,6 +63,7 @@ class CmdMedicine(Command):
                         caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
 
                     elif (target.db.bleed_points < target_total_bleed_points):
+                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
                         if new_bp_value > target_total_bleed_points:
                             # Set to max bleed_points
                             target_bleed_points = target_total_bleed_points
@@ -79,7 +75,6 @@ class CmdMedicine(Command):
                                 target_body += excess_bp
                         else:
                             target_bleed_points += medicine
-                            caller.msg(f"|430You are slowly starting to heal, and your wounds are on the mend.")
                     else:
                         caller.msg(f"|300{target.key}'s injuries are beyond your skill as a healer.|n")
                         return
