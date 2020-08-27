@@ -90,8 +90,8 @@ class CmdShoot(Command):
                     else:
                         self.msg("|300You are too injured to act.|n")
 
-                else:
-                    self.msg("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n")
+            else:
+                self.msg("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n")
 
         else:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")
