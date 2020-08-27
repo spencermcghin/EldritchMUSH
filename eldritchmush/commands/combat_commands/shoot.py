@@ -52,7 +52,6 @@ class CmdShoot(Command):
             combat_stats = h.getMeleeCombatStats(self.caller)
 
             if combat_stats.get("bow", False):
-                if combat_stats.get("arrows", 0):
                     # Check if damage bonus comes from fayne or master_of_arms
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
@@ -92,10 +91,7 @@ class CmdShoot(Command):
                         self.msg("|300You are too injured to act.|n")
 
                 else:
-                    self.msg("|430You need to wait until it is your turn before you are able to act.|n")
-
-            else:
-                self.msg("|300You are out arrows.|n")
+                    self.msg("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n")
 
         else:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")
