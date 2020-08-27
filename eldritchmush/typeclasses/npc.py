@@ -52,7 +52,7 @@ class GreenMeleeSoldierOneHanded(Character):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
 
