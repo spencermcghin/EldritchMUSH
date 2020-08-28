@@ -187,3 +187,15 @@ class CmdNPC(Command):
             return
         # send the command order
         npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)
+
+
+class CmdReloadNPC(Command):
+        """
+        Resets all current instances of a target typeclass
+
+        Usage:
+            npc <name> = <command>
+
+        This causes the npc to perform a command as itself. It will do so
+        with its own permissions and accesses.
+        """
