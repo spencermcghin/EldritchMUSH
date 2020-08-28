@@ -21,6 +21,12 @@ class Npc(Character):
         """
         pass
 
+    def on_switch(self):
+        self.db.is_aggressive = True
+
+    def off_switch(self):
+        self.db.is_aggressive = False
+
 
 class GreenMeleeSoldierOneHanded(Npc):
     """
