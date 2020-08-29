@@ -222,7 +222,7 @@ class CombatLoop:
                     nextCharacter = self.caller.search(self.combat_loop[0])
 
             self.combatTurnOn(nextCharacter)
-            nextCharacter.location.msg_contents(f"|025It is now |n{nextCharacter.key}'s |025turn.|n")
+            nextCharacter.location.msg_contents(f"ס₪₪₪₪§|(Ξ≥≤≥≤≥≤ΞΞΞΞΞΞΞΞΞΞ> |025It is now |n{nextCharacter.key}'s |025turn.|n")
 
 
 
