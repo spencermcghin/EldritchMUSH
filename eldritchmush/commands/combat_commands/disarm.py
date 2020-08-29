@@ -64,6 +64,8 @@ class CmdDisarm(Command):
                     if h.canFight(self.caller):
                         if h.isAlive(target):
                             if not combat_stats.get("weakness", 0):
+                                right_item = self.caller.search(target.db.right_slot[0], location=target)
+                                if right_item.db.two_handed:
                                     if attack_result >= target.db.av:
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.disarm -= 1
@@ -93,6 +95,9 @@ class CmdDisarm(Command):
                                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                     loop.combatTurnOff(self.caller)
                                     loop.cleanup()
+
+                                else:
+                                    self.msg(f"|430You cannot disarm a two-handed weapon. Please try another attack.|n")
                             else:
                                 self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
