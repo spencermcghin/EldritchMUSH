@@ -58,12 +58,12 @@ class CmdMedicine(Command):
                     3. else target is out of bleed points, prompt that you can't heal target.
                     """
                     new_bp_value = target_total_bleed_points + target_resilience + medicine
-                    if (target.db.bleed_points == target_total_bleed_points) and not target_body:
+                    if (target.db.bleed_points == target_total_bleed_points) and target_body == 0:
                         target.db.body += 1
-                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
+                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides {medicine} points of aid to {target.key}.|n")
 
                     elif (target.db.bleed_points < target_total_bleed_points):
-                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
+                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides {medicine} points of aid to {target.key}.|n")
                         if new_bp_value > target_total_bleed_points:
                             # Set to max bleed_points
                             target.db.bleed_points = target_total_bleed_points
@@ -76,11 +76,11 @@ class CmdMedicine(Command):
                         else:
                             target.db.bleed_points += medicine
                     else:
-                        caller.msg(f"|300{target.key}'s injuries are beyond your skill as a healer.|n")
+                        caller.msg(f"|400{target.key}'s injuries are beyond your skill as a healer.|n")
                         return
 
             else:
-                caller.msg("|300You are too injured to act.|n")
+                caller.msg("|400You are too injured to act.|n")
                 return
 
                 # Clean up in combat loop
