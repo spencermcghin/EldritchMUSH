@@ -112,7 +112,7 @@ class GreenMeleeSoldierOneHanded(Npc):
         shield_item[0].move_to(self, quiet=True)
         # Equip items
         self.execute_cmd('equip iron medium weapon')
-        self.execute_cmd('equip hardened iron coat of plates')
+        self.execute_cmd('equip iron coat of plates')
         self.execute_cmd('equip iron shield')
 
 
