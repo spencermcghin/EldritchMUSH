@@ -99,7 +99,7 @@ class GreenMeleeSoldierOneHanded(Npc):
 
     def remove_equipment(self):
         inventory = self.contents
-        [inventory.remove(item) for item in inventory]
+        [obj.delete() for obj in inventory]
 
 
     def make_equipment(self):
