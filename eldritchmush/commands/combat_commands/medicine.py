@@ -37,17 +37,17 @@ class CmdMedicine(Command):
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
-        if target:
-            loop = CombatLoop(caller, target)
-            loop.resolveCommand()
-        else:
-            return
+        # if target:
+        #     loop = CombatLoop(caller, target)
+        #     loop.resolveCommand()
+        # else:
+        #     return
 
         if caller.db.combat_turn:
             if h.canFight(caller) and medicine:
                 # Check to see if the target is already healed to max.
                 if target_body >= 1:
-                    self.caller.msg(f"|025{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+                    self.caller.msg(f"|025You can help {target.key} no more.|n")
                     return
 
                 else:
@@ -83,9 +83,9 @@ class CmdMedicine(Command):
                 caller.msg("|400You are too injured to act.|n")
                 return
 
-                # Clean up in combat loop
-            loop.combatTurnOff(caller)
-            loop.cleanup()
+            #     # Clean up in combat loop
+            # loop.combatTurnOff(caller)
+            # loop.cleanup()
         else:
             caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
