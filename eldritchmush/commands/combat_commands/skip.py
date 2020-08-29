@@ -32,7 +32,7 @@ class CmdSkip(Command):
                 loop.cleanup()
 
             else:
-                self.msg(f"|300You are not part of the combat loop for {self.caller.location}.|n")
+                self.msg(f"|400You are not part of the combat loop for {self.caller.location}.|n")
 
         else:
             self.caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
