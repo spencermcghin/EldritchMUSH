@@ -263,7 +263,7 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
         armor_item[0].move_to(self, quiet=True)
         # Equip items
         self.execute_cmd('equip iron large weapon')
-        self.execute_cmd('equip hardened iron coat of plates')
+        self.execute_cmd('equip iron coat of plates')
 
 
     def at_char_entered(self, character):
@@ -412,7 +412,7 @@ class GreenMeleeSoldierBow(GreenMeleeSoldierOneHanded):
         armor_item[0].move_to(self, quiet=True)
         # Equip items
         self.execute_cmd('equip bow')
-        self.execute_cmd('equip hardened iron coat of plates')
+        self.execute_cmd('equip iron coat of plates')
 
 
     def at_char_entered(self, character):
