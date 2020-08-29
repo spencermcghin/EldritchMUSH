@@ -1861,73 +1861,73 @@ class CmdSwing(Command):
                 self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, well before reaching the top.|n|/")
 
 
-class CmdChirurgery(Command):
-    """Performs the chirurgeon skill.
-    Restores a character to 3 body points, and removes the weakness state.
-    """
-
-    key = "heal"
-    help_category = "mush"
-
-    def parse(self):
-        "Very trivial parser"
-        self.target = self.args.strip()
-
-    def func(self):
-        "This actually does things"
-        # Check for correct command
-        if not self.args:
-            self.caller.msg("|540Usage: heal <target>|n")
-            return
-
-        target = self.caller.search(self.target)
-
-        if not target:
-            self.caller.msg("|540There is nothing here by that description.|n")
-            return
-
-        # Get target body and BM to validate target and caller has skill.
-        target_body = target.db.body
-        chirurgeon = self.caller.db.chirurgeon
-        weakness = target.db.weakness
-
-        # Condition = body cant be below -6 or above 3
-
-        if chirurgeon and target_body is not None:
-            # Return message to area and caller
-            if target == self.caller:
-
-                if (target.db.body + 1) > 3 and not weakness:
-                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-
-                elif (target.db.body + 1) > 3 and weakness:
-                    self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
-                    self.caller.db.weakness = 0
-                    self.caller.msg(f"|540The weakness condition has been removed.")
-
-                else:
-                    self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
-                    self.caller.db.weakness = 0
-                    self.caller.db.body = 3
-                    self.caller.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {self.caller.db.body}|n")
-
-
-            elif target != self.caller:
-
-                if (target.db.body + 1) > 3 and not weakness:
-                    self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-
-                elif target.db.body < -6:
-                    target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.|n")
-
-                else:
-                    target.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
-                    target.db.body = 3
-                    target.db.weakness = 0
-                    target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
-
-        else:
-            self.caller.msg("|400You had better not try that.|n")
+# class CmdChirurgery(Command):
+#     """Performs the chirurgeon skill.
+#     Restores a character to 3 body points, and removes the weakness state.
+#     """
+#
+#     key = "heal"
+#     help_category = "mush"
+#
+#     def parse(self):
+#         "Very trivial parser"
+#         self.target = self.args.strip()
+#
+#     def func(self):
+#         "This actually does things"
+#         # Check for correct command
+#         if not self.args:
+#             self.caller.msg("|540Usage: heal <target>|n")
+#             return
+#
+#         target = self.caller.search(self.target)
+#
+#         if not target:
+#             self.caller.msg("|540There is nothing here by that description.|n")
+#             return
+#
+#         # Get target body and BM to validate target and caller has skill.
+#         target_body = target.db.body
+#         chirurgeon = self.caller.db.chirurgeon
+#         weakness = target.db.weakness
+#
+#         # Condition = body cant be below -6 or above 3
+#
+#         if chirurgeon and target_body is not None:
+#             # Return message to area and caller
+#             if target == self.caller:
+#
+#                 if (target.db.body + 1) > 3 and not weakness:
+#                     self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+#
+#                 elif (target.db.body + 1) > 3 and weakness:
+#                     self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+#                     self.caller.db.weakness = 0
+#                     self.caller.msg(f"|540The weakness condition has been removed.")
+#
+#                 else:
+#                     self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+#                     self.caller.db.weakness = 0
+#                     self.caller.db.body = 3
+#                     self.caller.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {self.caller.db.body}|n")
+#
+#
+#             elif target != self.caller:
+#
+#                 if (target.db.body + 1) > 3 and not weakness:
+#                     self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
+#
+#                 elif target.db.body < -6:
+#                     target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.|n")
+#
+#                 else:
+#                     target.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
+#                     target.db.body = 3
+#                     target.db.weakness = 0
+#                     target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
+#
+#         else:
+#             self.caller.msg("|400You had better not try that.|n")
 
 
 class SetStabilize(Command):
