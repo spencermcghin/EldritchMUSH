@@ -63,7 +63,7 @@ class CmdStagger(Command):
                           if staggersRemaining > 0:
                             if not combat_stats.get("weakness", 0):
                                     if attack_result >= target.db.av:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and puts {target.key} off of their footing|n (|300{target.db.av}|n)|025, dealing {damage} damage.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {target.key} out of their footing|n (|400{target.db.av}|n)|025, and dealing {damage} damage.|n")
                                         # Do damage resolution block
                                         if target_av:
                                             # subtract damage from corresponding target stage (shield_value, armor, tough, body)
@@ -82,23 +82,23 @@ class CmdStagger(Command):
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.stagger -= 1
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes with a powerful blow at {target.key}, but misses.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow, attempting to stagger {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
                                     # Clean up
                                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                     loop.combatTurnOff(self.caller)
                                     loop.cleanup()
                             else:
-                                self.caller.msg("|300You are too weak to use this attack.|n")
+                                self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
-                            self.msg(f"{target.key} is dead. You only further mutiliate their body.")
-                            self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
+                            self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
+                            self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                     else:
-                        self.msg("You are too injured to act.")
+                        self.msg("|400You are too injured to act.|n")
                 else:
-                    self.caller.msg("|300You have 0 staggers remaining or do not have the skill.\nPlease choose another action.")
+                    self.caller.msg("|400You have 0 staggers remaining or do not have the skill.\nPlease choose another action.")
             else:
                 self.msg("|430Before you attack you must equip a weapon using the command setmelee 1 or setbow 1.")
                 return
         else:
-            self.msg("You need to wait until it is your turn before you are able to act.")
+            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return

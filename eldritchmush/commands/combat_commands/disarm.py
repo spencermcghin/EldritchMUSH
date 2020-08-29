@@ -78,7 +78,7 @@ class CmdDisarm(Command):
                                             target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                         else:
                                             # No target armor so subtract from their body total and hit a limb.
-                                            self.caller.location.msg_contents(f"|025{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|025, striking them in the {shot_location} and dealing|n |430{damage}|n |025damage|n.")
+                                            self.caller.location.msg_contents(f"|025{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{damage}|n) |025damage|n.")
                                             if shot_location == "torso" and target.db.body > 0:
                                                 target.db.body = 0
                                                 self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
@@ -103,7 +103,7 @@ class CmdDisarm(Command):
                 else:
                     self.caller.msg("|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.")
             else:
-                self.msg("|430Before you attack you must equip a weapon using the command setmelee 1 or setbow 1.|n")
+                self.msg("|430Before you attack you must equip a weapon using the command equip <weapon>|n")
                 return
         else:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")

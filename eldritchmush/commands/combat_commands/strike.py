@@ -33,7 +33,7 @@ class CmdStrike(Command):
             return
 
         if self.args == self.caller:
-            self.msg("|300You can't do that.|n")
+            self.msg("|400You can't do that.|n")
 
         # Init combat helper class for logic
         h = Helper(self.caller)
@@ -74,7 +74,7 @@ class CmdStrike(Command):
                         if attack_result >= target_av:
                             # if target has any more armor points left go through the damage subtractor
                             if target_av:
-                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|020{attack_result}|n) |025at {target.key} and hits|n (|300{target_av}|n), |025dealing|n |430{damage}|n |025damage!|n")
+                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|020{attack_result}|n) |025at {target.key} and hits|n (|400{target_av}|n), |025dealing|n (|430{damage}|n) |025damage!|n")
                                 # subtract damage from corresponding target stage (shield_value, armor, tough, body)
                                 new_av = h.damageSubtractor(damage, target, self.caller)
                                 # Update target av to new av score per damageSubtractor
@@ -82,7 +82,7 @@ class CmdStrike(Command):
                                 target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                             else:
                                 # No target armor so subtract from their body total and hit a limb.
-                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|020{attack_result}|n) |025at {target.key} and hits |n(|300{target_av}|n)|025, injuring their {shot_location} and dealing|n |430{damage}|n |025damage!|n.")
+                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes deftly|n (|020{attack_result}|n) |025at {target.key} and hits |n(|400{target_av}|n)|025, injuring their {shot_location} and dealing|n |430{damage}|n |025damage!|n.")
                                 # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
                                 if shot_location == "torso" and target.db.body > 0:
                                     target.db.body = 0
@@ -90,12 +90,12 @@ class CmdStrike(Command):
                                 else:
                                     h.deathSubtractor(damage, target, self.caller)
                         else:
-                            self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n |300{attack_result}|n|025, missing {target.key} |n|020{target_av}|n")
+                            self.caller.location.msg_contents(f"|025{self.caller.key} swings wildly|n (|400{attack_result}|n)|025, missing {target.key}|n (|020{target_av}|n)")
                     else:
-                        self.msg(f"|300{target.key} is dead. You only further mutiliate their body.|n")
+                        self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
                         self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
-                    self.msg("|300You are too injured to act.|n")
+                    self.msg("|400You are too injured to act.|n")
                 # Clean up
                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                 loop.combatTurnOff(self.caller)
