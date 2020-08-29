@@ -101,7 +101,6 @@ class GreenMeleeSoldierOneHanded(Npc):
         inventory = self.contents
         [obj.delete() for obj in inventory]
 
-
     def make_equipment(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
         armor_prototype = prototypes.search_prototype("iron_coat_of_plates", require_single=True)
@@ -259,6 +258,13 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
         self.db.copper = 0
         self.db.arrows = 0
 
+        # Clear inventory
+        self.remove_equipment()
+
+    def remove_equipment(self):
+        inventory = self.contents
+        [obj.delete() for obj in inventory]
+
     def make_equipment(self):
         prototype = prototypes.search_prototype("iron_large_weapon", require_single=True)
         armor_prototype = prototypes.search_prototype("iron_coat_of_plates", require_single=True)
@@ -408,6 +414,13 @@ class GreenMeleeSoldierBow(GreenMeleeSoldierOneHanded):
         self.db.silver = 0
         self.db.copper = 0
         self.db.arrows = 0
+
+        # Clear inventory
+        self.remove_equipment()
+
+    def remove_equipment(self):
+        inventory = self.contents
+        [obj.delete() for obj in inventory]
 
     def make_equipment(self):
         prototype = prototypes.search_prototype("bow", require_single=True)
@@ -561,6 +574,12 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.db.copper = 0
         self.db.arrows = 0
 
+        # Clear inventory
+        self.remove_equipment()
+
+    def remove_equipment(self):
+        inventory = self.contents
+        [obj.delete() for obj in inventory]
 
     def make_equipment(self):
         prototype = prototypes.search_prototype("hardened_iron_medium_weapon", require_single=True)
