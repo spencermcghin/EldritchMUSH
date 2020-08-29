@@ -79,7 +79,7 @@ class CmdCleave(Command):
                             else:
                                 self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
-                            self.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                            self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
                             self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                     else:
                         self.msg("|400You are too injured to act.|n")

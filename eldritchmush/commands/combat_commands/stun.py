@@ -71,7 +71,7 @@ class CmdStun(Command):
                                         self.caller.location.msg_contents(f"|025{self.caller.key} lines up behind {target.key} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|300{target.db.av}|n)|025.|n")
 
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} lines up behind (|020{attack_result}|n) |025 {target.key}, but misses their opportunity to stun them.|n (|300{target.db.av}|n)|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} (|020{attack_result}|n) |025lines up behind {target.key}|n (|300{target.db.av}|n)|025, but misses their opportunity to stun them.|n")
                                     # Clean up
                                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                     loop.combatTurnOff(self.caller)
