@@ -94,6 +94,7 @@ IRON_SMALL_WEAPON = {
 "value_copper": 70,
 "value_silver": 7,
 "value_gold": .7,
+"material_value": 1,
 "level": 0
 }
 
@@ -110,6 +111,7 @@ IRON_MEDIUM_WEAPON = {
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
+"material_value": 1,
 "level": 0
 }
 
@@ -127,6 +129,7 @@ IRON_LARGE_WEAPON = {
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
+"material_value": 1,
 "level": 0
 }
 
@@ -143,6 +146,7 @@ IRON_SHIELD = {
 "value_copper": 80,
 "value_silver": 8,
 "value_gold": .8,
+"material_value": 1,
 "level": 0
 }
 
