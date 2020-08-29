@@ -94,9 +94,7 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.copper = 0
         self.db.arrows = 0
 
-        # Delete inventory
-        inventory = self.contents
-        [inventory.remove(i) for i in inventory]
+        print(f"{self.contents}")
 
 
     def make_equipment(self):
