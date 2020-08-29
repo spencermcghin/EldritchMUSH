@@ -94,6 +94,9 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.copper = 0
         self.db.arrows = 0
 
+        # Delete inventory
+        self.contents.clear()
+
 
     def make_equipment(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
@@ -502,7 +505,7 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.db.av = 0
         self.db.resilience = 1
         self.db.indomitable = 0
-        
+
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
