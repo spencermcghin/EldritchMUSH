@@ -15,7 +15,7 @@ class CmdStabilize(Command):
         "This actually does things"
         # Check for correct command
         if not self.args:
-            self.caller.msg("|540Usage: stabilize <target>|n")
+            self.caller.msg("|430Usage: stabilize <target>|n")
             return
 
         # Init combat helper functions
