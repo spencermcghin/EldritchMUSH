@@ -48,70 +48,77 @@ class CmdStabilize(Command):
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if target:
-            loop = CombatLoop(caller, target)
-            loop.resolveCommand()
+            if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
+                loop = CombatLoop(caller, target)
+                loop.resolveCommand()
+            else:
+                pass
         else:
-            return
+            self.msg("|430Please designate an appropriate target.|n")
 
         if caller.db.combat_turn:
-            if h.canFight(caller) and stabilize:
-                # Check to see if the target is already healed to max.
-                if target_body >= 1:
-                    self.caller.msg(f"|025{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-                    return
+            if h.canFight(caller):
+                if stabilize:
+                    # Check to see if the target is already healed to max.
+                    if target_body >= 1:
+                        self.caller.msg(f"|025You can help {target.key} no more.|n")
+                        return
 
-                    """
-                    Get max bleed points.
-                    1. If target has max bleed points and 0 body, heal up to 1 body.
-                    2. elif: target has under max bleed points, add caller medicine level in bleed points and excess to body, up to 1.
-                    3. else target is out of bleed points, prompt that you can't heal target.
-                    """
-                    new_bp_value = target_total_bleed_points + target_resilience + medicine
+                        """
+                        Get max bleed points.
+                        1. If target has max bleed points and 0 body, heal up to 1 body.
+                        2. elif: target has under max bleed points, add caller medicine level in bleed points and excess to body, up to 1.
+                        3. else target is out of bleed points, prompt that you can't heal target.
+                        """
+                        new_bp_value = target_total_bleed_points + target_resilience + medicine
 
-                elif (target.db.bleed_points == target_total_bleed_points) and not target_body:
-                        target.db.body += 1
-                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
+                    elif (target.db.bleed_points == target_total_bleed_points) and target_body == 0:
+                            target.db.body += 1
+                            caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|4301|n) |025 points of aid to {target.key}.|n")
 
-                elif (target.db.bleed_points < target_total_bleed_points):
-                    caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides aid to {target.key}.|n")
-                    if new_bp_value > target_total_bleed_points:
-                        # Set to max bleed_points
-                        target.db.bleed_points = target_total_bleed_points
-                        # Add extra to body
-                        excess_bp = new_bp_value - target_total_bleed_points
-                        if excess_bp + target_body > 1:
-                            target.db.body = 1
+                    elif (target.db.bleed_points < target_total_bleed_points):
+                        caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|430{medicine}|n) |025 aid to {target.key} (up to 1 body).|n")
+                        if new_bp_value > target_total_bleed_points:
+                            # Set to max bleed_points
+                            target.db.bleed_points = target_total_bleed_points
+                            # Add extra to body
+                            excess_bp = new_bp_value - target_total_bleed_points
+                            if excess_bp + target_body > 1:
+                                target.db.body = 1
+                            else:
+                                target.db.body += excess_bp
                         else:
-                            target.db.body += excess_bp
+                            target.db.bleed_points += medicine
+
+                    elif target_death_points == 3 and target_bleed_points == 0:
+                        caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides|n (|430{stabilize}|n) |025points of aid to {target.key}.|n")
+                        target.db.bleed_points += stabilize
+
+                    elif (1 < target_death_points < 3):
+                        caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides|n (|430{stabilize}|n) |025 points of aid to {target.key}.|n")
+                        new_dp_value = target_death_points + stabilize
+                        if new_dp_value > 3:
+                            # Set to max death_points
+                            target.db.death_points = 3
+                            # Add extra to bleed_points
+                            excess_dp = new_dp_value - 3
+                            target.db.bleed_points += excess_dp
+                        else:
+                            target.db.death_points += stabilize
+
                     else:
-                        target.db.bleed_points += medicine
-
-                elif target_death_points == 3 and not target_bleed_points:
-                    caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides aid to {target.key}.|n")
-                    target.db.bleed_points += stabilize
-
-                elif (1 < target_death_points < 3):
-                    caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides aid to {target.key}.|n")
-                    new_dp_value = target_death_points + stabilize
-                    if new_dp_value > 3:
-                        # Set to max death_points
-                        target.db.death_points = 3
-                        # Add extra to bleed_points
-                        excess_dp = new_dp_value - 3
-                        target.db.bleed_points += excess_dp
-                    else:
-                        target.db.death_points += stabilize
-
+                        self.msg(f"{target.key} |023is too fargone to administer further healing.|n")
                 else:
-                    self.msg(f"{target.key} |023is too fargone to administer further healing.|n")
-
+                    self.msg("|400You are not skilled enough.|n")
             else:
-                caller.msg("|300You are too injured to act.|n")
+                caller.msg("|400You are too injured to act.|n")
                 return
 
-            # Clean up in combat loop
-            loop.combatTurnOff(caller)
-            loop.cleanup()
+            if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
+                loop.combatTurnOff(caller)
+                loop.cleanup()
+            else:
+                return
         else:
             caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
