@@ -44,6 +44,8 @@ class CmdStabilize(Command):
         medicine = self.caller.db.medicine
         target_resilience = target.db.resilience
         target_total_bleed_points = target_resilience + 3
+        new_bp_value = target_total_bleed_points + target_resilience + medicine
+
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
@@ -70,8 +72,6 @@ class CmdStabilize(Command):
                         2. elif: target has under max bleed points, add caller medicine level in bleed points and excess to body, up to 1.
                         3. else target is out of bleed points, prompt that you can't heal target.
                         """
-                        new_bp_value = target_total_bleed_points + target_resilience + medicine
-
                     elif (target.db.bleed_points == target_total_bleed_points) and target_body == 0:
                             target.db.body += 1
                             caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|4301|n) |025 points of aid to {target.key}.|n")
