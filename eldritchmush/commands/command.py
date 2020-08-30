@@ -478,7 +478,7 @@ class CmdEquip(Command):
                     self.caller.db.armor += self.caller.db.indomitable
 
                 self.msg(f"You don {item.key}.")
-                self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key} armor.")
+                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
 
                 # Get vals for armor value calc
                 armor_value = self.caller.db.armor
@@ -531,7 +531,6 @@ class CmdEquip(Command):
                             self.caller.db.av = currentArmorValue
 
                             # Return armor value to console.
-                            self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
                             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
                         else:
@@ -545,7 +544,6 @@ class CmdEquip(Command):
 
                         if item.db.is_shield:
                             self.caller.db.shield_value = item.db.material_value
-                            self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                             # Get vals for armor value calc
                             armor_value = self.caller.db.armor
