@@ -26,12 +26,6 @@ class CmdStabilize(Command):
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
-        if target:
-            loop = CombatLoop(self.caller, target)
-            loop.resolveCommand()
-        else:
-            return
-
         caller = self.caller
 
         # Get caller level of stabilize and emote how many points the caller will heal target that round.
