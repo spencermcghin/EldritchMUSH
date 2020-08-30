@@ -83,7 +83,7 @@ class CmdSunder(Command):
                                                 right_item.db.broken = True
                                                 # If two handed, remove from both slots
                                                 if right_item.db.twohanded:
-                                                    target.db.right_slot.remove(left_item)
+                                                    target.db.left_slot.clear()
                                                 # Remove right slot
                                                 target.db.right_slot.remove(right_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
