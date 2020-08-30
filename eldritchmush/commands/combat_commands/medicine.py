@@ -37,11 +37,14 @@ class CmdMedicine(Command):
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
-        # if target:
-        #     loop = CombatLoop(caller, target)
-        #     loop.resolveCommand()
-        # else:
-        #     return
+        if target:
+            if caller or target in caller.location.db.combat_loop:
+                loop = CombatLoop(caller, target)
+                loop.resolveCommand()
+            else:
+                pass
+        else:
+            self.msg("|430Please designate an appropriate target.|n")
 
         if caller.db.combat_turn:
             if h.canFight(caller) and medicine:
@@ -86,9 +89,12 @@ class CmdMedicine(Command):
                 caller.msg("|400You are too injured to act.|n")
                 return
 
-            #     # Clean up in combat loop
-            # loop.combatTurnOff(caller)
-            # loop.cleanup()
+            # Clean up in combat loop
+            if caller or target in caller.location.db.combat_loop:
+                loop.combatTurnOff(caller)
+                loop.cleanup()
+            else:
+                return
         else:
             caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
