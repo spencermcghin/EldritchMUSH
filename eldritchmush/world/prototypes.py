@@ -550,8 +550,8 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 "value_copper": 420,
 "value_silver": 42,
 "value_gold": 4.2,
-"material_value": 3,
-"level": 3
+"level": 3,
+"material_value": 3
 }
 
 MASTERWORK_STEEL_SHIELD = {
