@@ -82,7 +82,7 @@ class CmdSunder(Command):
                                                 right_mv = 0
                                                 right_item.db.broken = True
                                                 # If two handed, remove from both slots
-                                                if right_item.db.two_handed:
+                                                if right_item.db.twohanded:
                                                     target.db.right_slot.remove(left_item)
                                                 # Remove right slot
                                                 target.db.right_slot.remove(right_item)
