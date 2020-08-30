@@ -66,7 +66,7 @@ class CmdMedicine(Command):
                             target.db.body += 1
                             caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|4301|n) |025points of aid to {target.key}.|n")
 
-                        elif (target.db.bleed_points < target_total_bleed_points):
+                        elif (target.db.bleed_points < target_total_bleed_points) and target.db.bleed_points > 0:
                             if new_bp_value > target_total_bleed_points:
                                 # Set to max bleed_points
                                 target.db.bleed_points = target_total_bleed_points
