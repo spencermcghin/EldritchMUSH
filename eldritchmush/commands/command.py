@@ -516,6 +516,7 @@ class CmdEquip(Command):
                     # Check to see if right hand is empty.
                     elif not self.right_slot and not item.db.is_armor:
                         self.right_slot.append(item)
+                        self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                         if item.db.is_shield:
                             self.caller.db.shield_value = item.db.material_value
@@ -540,6 +541,7 @@ class CmdEquip(Command):
 
                     elif not self.left_slot and not item.db.is_armor:
                         self.left_slot.append(item)
+                        self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                         if item.db.is_shield:
                             self.caller.db.shield_value = item.db.material_value
