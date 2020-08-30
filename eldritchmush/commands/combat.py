@@ -271,8 +271,8 @@ class Helper():
         dmg_penalty = self.bodyChecker(combatant.db.body)
 
         # Slot checks for sunder command
-        left_slot = combatant.db.left_slot[0] if combatant.db.left_slot else None
-        right_slot = combatant.db.right_slot[0] if combatant.db.right_slot else None
+        left_slot = combatant.db.left_slot[0] if combatant.db.left_slot else []
+        right_slot = combatant.db.right_slot[0] if combatant.db.right_slot else []
 
         is_bow = True if right_slot and right_slot.db.is_bow else False
 
