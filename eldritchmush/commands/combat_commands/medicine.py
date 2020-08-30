@@ -38,7 +38,7 @@ class CmdMedicine(Command):
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if target:
-            if caller or target in caller.location.db.combat_loop:
+            if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
                 loop = CombatLoop(caller, target)
                 loop.resolveCommand()
             else:
@@ -92,7 +92,7 @@ class CmdMedicine(Command):
                 return
 
             # Clean up in combat loop
-            if caller or target in caller.location.db.combat_loop:
+            if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
                 loop.combatTurnOff(caller)
                 loop.cleanup()
             else:
