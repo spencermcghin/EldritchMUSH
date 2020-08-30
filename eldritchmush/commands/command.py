@@ -519,6 +519,30 @@ class CmdEquip(Command):
 
                         if item.db.is_shield:
                             self.caller.db.shield_value = item.db.material_value
+                            # Get vals for armor value calc
+                            armor_value = self.caller.db.armor
+                            indomitable = self.caller.db.indomitable
+                            tough = self.caller.db.tough
+                            shield_value = self.caller.db.shield_value
+                            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+                            # Add them up and set the curent armor value in the database
+                            currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                            self.caller.db.av = currentArmorValue
+
+                            # Return armor value to console.
+                            self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+
+                        else:
+                            # Add weapon bonus
+                            weapon_bonus = h.weaponValue(item.db.level)
+                            self.caller.db.weapon_level = weapon_bonus
+
+                    elif not self.left_slot and not item.db.is_armor:
+                        self.left_slot.append(item)
+
+                        if item.db.is_shield:
+                            self.caller.db.shield_value = item.db.material_value
                             self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                             # Get vals for armor value calc
@@ -538,41 +562,11 @@ class CmdEquip(Command):
                             weapon_bonus = h.weaponValue(item.db.level)
                             self.caller.db.weapon_level = weapon_bonus
 
-                        # Send some messages
-                        self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
-                        self.caller.msg(f"You have equipped your {item.key}")
-                    elif not self.left_slot and not item.db.is_armor:
-                        self.left_slot.append(item)
-
-                        if item.db.is_shield:
-                            self.caller.db.shield_value = item.db.material_value
-                            self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
-
-                            # Get vals for armor value calc
-                            armor_value = self.caller.db.armor
-                            indomitable = self.caller.db.indomitable
-                            tough = self.caller.db.tough
-                            shield_value = self.caller.db.shield_value
-                            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                            # Add them up and set the curent armor value in the database
-                            currentArmorValue = armor_value + tough + shield_value + armor_specialist
-                            self.caller.db.av = currentArmorValue
-                            # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
-
-                        else:
-                            # Add weapon bonus
-                            weapon_bonus = h.weaponValue(item.db.level)
-                            self.caller.db.weapon_level = weapon_bonus
-
-                        # Send some messages
-                        self.caller.location.msg_contents(f"{self.caller.key} equips their {item.key}.")
-                        self.caller.msg(f"You have equipped your {item.key}")
                     else:
-                        self.caller.msg("You are carrying items in both hands.")
+                        self.caller.msg("|430You are carrying items in both hands.|n")
                         return
                 else:
-                    self.caller.msg(f"{item} is broken and may not be equipped.")
+                    self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
             else:
                 self.msg("|400You can't equip the same weapon twice.|n")
         else:
