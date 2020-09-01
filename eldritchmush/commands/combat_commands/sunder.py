@@ -127,7 +127,7 @@ class CmdSunder(Command):
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.sunder -= 1
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes a devestating blow at {target.key}, but misses.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes a devastating blow at {target.key}, but misses.|n")
                                     # Clean up
                                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                     loop.combatTurnOff(self.caller)
