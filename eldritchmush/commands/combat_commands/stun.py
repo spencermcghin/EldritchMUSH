@@ -68,23 +68,23 @@ class CmdStun(Command):
                                         target.db.skip_turn = True
                                         # Resolve damage
                                         # Stun status message to target
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} lines up behind {target.key} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|300{target.db.av}|n)|025.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} lines up behind {target.key} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|400{target.db.av}|n)|025.|n")
 
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} (|020{attack_result}|n) |025lines up behind {target.key}|n (|300{target.db.av}|n)|025, but misses their opportunity to stun them.|n")
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} (|020{attack_result}|n) |025lines up behind {target.key}|n (|400{target.db.av}|n)|025, but misses their opportunity to stun them.|n")
                                     # Clean up
                                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                     loop.combatTurnOff(self.caller)
                                     loop.cleanup()
                             else:
-                                self.caller.msg("|300You are too weak to use this attack.|n")
+                                self.caller.msg("|400You are too weak to use this attack.|n")
                         else:
-                            self.msg(f"|300{target.key} is dead. You only further mutiliate their body.|n")
+                            self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
                             self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                     else:
-                        self.msg("|300You are too injured to act.|n")
+                        self.msg("|400You are too injured to act.|n")
                 else:
-                    self.caller.msg("|300You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n")
+                    self.caller.msg("|400You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n")
             else:
                 self.msg("|430Before you attack you must equip a weapon using the command equip <weapon>.|n")
                 return
