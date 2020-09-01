@@ -88,7 +88,7 @@ class CmdStabilize(Command):
                         caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides|n (|430{stabilize}|n) |025points of aid to {target.key}.|n")
                         target.db.bleed_points += stabilize
 
-                    elif (1 < target_death_points < 3):
+                    elif (1 <= target_death_points <= 3):
                         caller.location.msg_contents(f"|025{caller.key} performs advanced healing techniques and provides|n (|430{stabilize}|n) |025 points of aid to {target.key}.|n")
                         new_dp_value = target_death_points + stabilize
                         if new_dp_value > 3:
@@ -101,7 +101,7 @@ class CmdStabilize(Command):
                             target.db.death_points += stabilize
 
                     else:
-                        self.msg(f"{target.key} |023is too fargone to administer further healing.|n")
+                        self.msg(f"{target.key} |025is too fargone to administer further healing.|n")
                 else:
                     self.msg("|400You are not skilled enough.|n")
             else:
