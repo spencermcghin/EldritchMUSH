@@ -70,7 +70,7 @@ class CmdStabilize(Command):
                             target.db.body += 1
                             caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|4301|n) |025 points of aid to {target.key}.|n")
 
-                    elif (target.db.bleed_points < target_total_bleed_points):
+                    elif (target.db.bleed_points < target_total_bleed_points) and target.db.death_points >= 3:
                         caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|430{medicine}|n) |025 aid to {target.key} (up to 1 body).|n")
                         if new_bp_value > target_total_bleed_points:
                             # Set to max bleed_points
