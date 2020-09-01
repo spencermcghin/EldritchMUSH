@@ -86,7 +86,7 @@ class CmdCleave(Command):
                 else:
                     self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action.")
             else:
-                self.msg("|430Before you attack you must equip a weapon using the command equip <weapon>.|n")
+                self.msg("|430Before you attack you must equip a two handed weapon using the command equip <weapon>.|n")
                 return
         else:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")
