@@ -19,7 +19,7 @@ from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import command
 from commands import combat, blacksmith
-from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm, stagger, stun, medicine, skip, chirurgery
+from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm, stagger, stun, medicine, skip, chirurgery, resist
 from commands import npc
 from commands import dice
 
@@ -98,10 +98,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(strike.CmdStrike())
+        self.add(resist.CmdResist())
         self.add(skip.CmdSkip())
         self.add(shoot.CmdShoot())
         self.add(cleave.CmdCleave())
-        self.add(combat.CmdResist())
         self.add(disarm.CmdDisarm())
         self.add(stun.CmdStun())
         self.add(disengage.CmdDisengage())
