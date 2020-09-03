@@ -43,12 +43,12 @@ class CmdChirurgery(Command):
             self.msg("|430Please designate an appropriate target.|n")
             return
 
-        # # Check for cooldown
-        # now = time.time()
-        # if hasattr(self, "last_chirurgery") and now - self.last_chirurgery < (15 * 60):
-        #     message = "|430You cannot use this ability yet.|n"
-        #     self.caller.msg(message)
-        #     return
+        # Check for cooldown
+        now = time.time()
+        if hasattr(self, "last_chirurgery") and now - self.last_chirurgery < (15 * 60):
+            message = "|430You cannot use this ability yet.|n"
+            self.caller.msg(message)
+            return
 
         if h.canFight(caller):
             if chirurgeon:
@@ -63,8 +63,8 @@ class CmdChirurgery(Command):
                 target.db.tough = target.db.total_tough
                 target.db.weakness = 0
 
-                # # Set command time execution
-                # self.last_chirurgery = now
+                # Set command time execution
+                self.last_chirurgery = now
 
                 self.msg(f"After some time and many delicate procedures, you skillfully heal {target.key}")
                 target.msg(f"You have been restored to your full measure of health thanks to {caller.key}'s skillful application of the healing arts.")
