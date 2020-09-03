@@ -18,7 +18,7 @@ class CmdChirurgery(Command):
         "This actually does things"
         # Check for correct command
         if not self.args:
-            self.caller.msg("|430Usage: restore <target>\nThis command has a 20 |n")
+            self.caller.msg("|430Usage: restore <target>\nThis command has a 15 minute cooldown.|n")
             return
 
         # Init combat helper functions
