@@ -847,6 +847,7 @@ class SetTough(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.tough = tough
+            self.caller.db.total_tough = tough
             self.caller.msg("|540Your Tough was set to %i.|n" % tough)
 
             # Get armor value objects
@@ -854,9 +855,10 @@ class SetTough(Command):
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+            indomitable = self.caller.db.indomitable
 
             # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist
+            currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
             self.caller.db.av = currentArmorValue
 
             # Return armor value to console.
@@ -984,13 +986,14 @@ class SetArmorSpecialist(Command):
             armor = self.caller.db.armor
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
+            indomitable = self.callerd.db.indomitable
 
             # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist
+            currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
             self.caller.db.av = currentArmorValue
 
             # Return armor value to console.
-            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            self.caller.msg(f"|540Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
 class SetWyldingHand(Command):
     """Set the wylding hand level of a character
@@ -1078,95 +1081,6 @@ class SetResilience(Command):
 #         # at this point the argument is tested as valid. Let's set it.
 #         self.caller.db.weapon_level = weapon_value
 #         self.caller.msg("Your Weapon Value was set to %i." % weapon_value)
-
-
-class SetBow(Command):
-    """Set the bow property of a character
-
-    Usage: setbow <0/1>
-
-    This sets the bow of the current character. This can be used at any time during the game.
-    """
-
-    key = "setbow"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|540Usage: setbow <0/1>|n\n|400You must supply a value of either 0 or 1.|n"
-        hasMelee = self.caller.db.melee
-
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            bow = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-        if bow not in (0,1):
-            self.caller.msg(errmsg)
-        else:
-            # Bow/melee error handling
-            if hasMelee:
-                self.caller.msg("|540Before using a bow, you must first unequip your melee weapon using the command setmelee 0.|n")
-            else:
-                self.caller.db.bow = bow
-
-                # Quippy message when setting a shield as 0 or 1.
-                if bow:
-                    self.caller.msg("|030You have equipped your bow.|n")
-                    self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their bow.|n")
-                else:
-                    self.caller.msg("|400You have unequipped your bow.|n")
-                    self.caller.location.msg_contents(f"|230{self.caller.key} unequips their bow.|n")
-
-
-# class SetMelee(Command):
-#     """Set the melee property of a character
-#
-#     Usage: setmelee <0/1>
-#
-#     This sets the melee of the current character. This can be used at any time during the game.
-#     """
-#
-#     key = "setmelee"
-#     help_category = "mush"
-#
-#     def func(self):
-#         "This performs the actual command"
-#         errmsg = "|540Usage: setmelee <0/1>|n\n|400You must supply a value of 0 or 1.|n"
-#         hasBow = self.caller.db.bow
-#         hasWeapon = self.caller.db.weapon_level
-#
-#         # Check for valid arguments
-#         if not self.args:
-#             self.caller.msg(errmsg)
-#             return
-#         try:
-#             melee = int(self.args)
-#         except ValueError:
-#             self.caller.msg(errmsg)
-#             return
-#         if melee not in (0,1):
-#             self.caller.msg(errmsg)
-#         else:
-#             # Bow/melee error handling
-#             if hasBow:
-#                 self.caller.msg("|540Before using a melee weapon, you must first unequip your bow using the command setbow 0.|n")
-#             else:
-#                 self.caller.db.melee = melee
-#
-#                 # Quippy message when setting a weapon as 0 or 1.
-#                 if melee and hasWeapon:
-#                     self.caller.msg("|030You are now ready to fight.|n")
-#                     self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their weapon.|n")
-#                 elif melee and not hasWeapon:
-#                     self.caller.location.msg_contents(f"|230{self.caller.key} assumes a defensive posture.")
-#                 elif not melee and hasWeapon:
-#                     self.caller.location.msg_contents(f"|230{self.caller.key} sheathes their weapon.|n")
-#                 else:
-#                     self.caller.location.msg_contents(f"|230{self.caller.key} relaxes their defensive posture.|n")
 
 
 class SetResist(Command):
@@ -1358,6 +1272,94 @@ class SetStagger(Command):
 """
 Combat settings
 """
+# class SetBow(Command):
+#     """Set the bow property of a character
+#
+#     Usage: setbow <0/1>
+#
+#     This sets the bow of the current character. This can be used at any time during the game.
+#     """
+#
+#     key = "setbow"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: setbow <0/1>|n\n|400You must supply a value of either 0 or 1.|n"
+#         hasMelee = self.caller.db.melee
+#
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             bow = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#         if bow not in (0,1):
+#             self.caller.msg(errmsg)
+#         else:
+#             # Bow/melee error handling
+#             if hasMelee:
+#                 self.caller.msg("|540Before using a bow, you must first unequip your melee weapon using the command setmelee 0.|n")
+#             else:
+#                 self.caller.db.bow = bow
+#
+#                 # Quippy message when setting a shield as 0 or 1.
+#                 if bow:
+#                     self.caller.msg("|030You have equipped your bow.|n")
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their bow.|n")
+#                 else:
+#                     self.caller.msg("|400You have unequipped your bow.|n")
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} unequips their bow.|n")
+
+
+# class SetMelee(Command):
+#     """Set the melee property of a character
+#
+#     Usage: setmelee <0/1>
+#
+#     This sets the melee of the current character. This can be used at any time during the game.
+#     """
+#
+#     key = "setmelee"
+#     help_category = "mush"
+#
+#     def func(self):
+#         "This performs the actual command"
+#         errmsg = "|540Usage: setmelee <0/1>|n\n|400You must supply a value of 0 or 1.|n"
+#         hasBow = self.caller.db.bow
+#         hasWeapon = self.caller.db.weapon_level
+#
+#         # Check for valid arguments
+#         if not self.args:
+#             self.caller.msg(errmsg)
+#             return
+#         try:
+#             melee = int(self.args)
+#         except ValueError:
+#             self.caller.msg(errmsg)
+#             return
+#         if melee not in (0,1):
+#             self.caller.msg(errmsg)
+#         else:
+#             # Bow/melee error handling
+#             if hasBow:
+#                 self.caller.msg("|540Before using a melee weapon, you must first unequip your bow using the command setbow 0.|n")
+#             else:
+#                 self.caller.db.melee = melee
+#
+#                 # Quippy message when setting a weapon as 0 or 1.
+#                 if melee and hasWeapon:
+#                     self.caller.msg("|030You are now ready to fight.|n")
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} has equipped their weapon.|n")
+#                 elif melee and not hasWeapon:
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} assumes a defensive posture.")
+#                 elif not melee and hasWeapon:
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} sheathes their weapon.|n")
+#                 else:
+#                     self.caller.location.msg_contents(f"|230{self.caller.key} relaxes their defensive posture.|n")
+
 
 # class SetShield(Command):
 #     """Set the shield property of a character
@@ -1853,75 +1855,6 @@ class CmdSwing(Command):
 
             else:
                 self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, well before reaching the top.|n|/")
-
-
-# class CmdChirurgery(Command):
-#     """Performs the chirurgeon skill.
-#     Restores a character to 3 body points, and removes the weakness state.
-#     """
-#
-#     key = "heal"
-#     help_category = "mush"
-#
-#     def parse(self):
-#         "Very trivial parser"
-#         self.target = self.args.strip()
-#
-#     def func(self):
-#         "This actually does things"
-#         # Check for correct command
-#         if not self.args:
-#             self.caller.msg("|540Usage: heal <target>|n")
-#             return
-#
-#         target = self.caller.search(self.target)
-#
-#         if not target:
-#             self.caller.msg("|540There is nothing here by that description.|n")
-#             return
-#
-#         # Get target body and BM to validate target and caller has skill.
-#         target_body = target.db.body
-#         chirurgeon = self.caller.db.chirurgeon
-#         weakness = target.db.weakness
-#
-#         # Condition = body cant be below -6 or above 3
-#
-#         if chirurgeon and target_body is not None:
-#             # Return message to area and caller
-#             if target == self.caller:
-#
-#                 if (target.db.body + 1) > 3 and not weakness:
-#                     self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-#
-#                 elif (target.db.body + 1) > 3 and weakness:
-#                     self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
-#                     self.caller.db.weakness = 0
-#                     self.caller.msg(f"|540The weakness condition has been removed.")
-#
-#                 else:
-#                     self.caller.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
-#                     self.caller.db.weakness = 0
-#                     self.caller.db.body = 3
-#                     self.caller.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {self.caller.db.body}|n")
-#
-#
-#             elif target != self.caller:
-#
-#                 if (target.db.body + 1) > 3 and not weakness:
-#                     self.caller.msg(f"|230{target.key} doesn't require the application of your chiurgical skills. They seem to be healthy enough.|n")
-#
-#                 elif target.db.body < -6:
-#                     target.location.msg_contents(f"|230{self.caller.key} comes to {target.key}'s rescue, though they are too fargone.|n")
-#
-#                 else:
-#                     target.location.msg_contents(f"|230{self.caller.name} examines {target.key}'s body, taking studious notes of their injuries. {self.caller.name} dons gloves, a leather mask, and a ruddy leather apron, before picking up their first instrument and beginning the delicate procedure.|n")
-#                     target.db.body = 3
-#                     target.db.weakness = 0
-#                     target.msg(f"|540The weakness condition has been removed.\nYour new body value is:|n {target.db.body}|n")
-#
-#         else:
-#             self.caller.msg("|400You had better not try that.|n")
 
 
 class SetStabilize(Command):

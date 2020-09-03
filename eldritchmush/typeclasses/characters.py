@@ -40,6 +40,7 @@ class Character(DefaultCharacter):
         self.db.armor = 0
         self.db.armor_specialist = 0
         self.db.tough = 0
+        self.db.total_tough = 0
         self.db.body = 3
         self.db.av = 0
         self.db.resilience = 0
