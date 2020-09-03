@@ -78,6 +78,7 @@ class Helper():
 
         return die_result
 
+
     def wyldingHand(self, level):
         """
         Returns die result based on wylding hand level
@@ -309,91 +310,6 @@ class Helper():
             die_result = self.masterOfArms(master_of_arms)
 
         return die_result
-
-
-"""
-Active Martial Skills
-"""
-
-
-
-class CmdResist(Command):
-    """
-    Issues a resist command.
-
-    Usage:
-
-    resist
-
-    This will issue a resist command that adds one to your body or tough, and decrements one from a character's available resists.
-    """
-
-    key = "resist"
-    help_category = "mush"
-
-    def func(self):
-        h = Helper()
-
-        "Get level of master of arms for base die roll. Levels of gear give a flat bonus of +1/+2/+3."
-        resistsRemaining = self.caller.db.resist
-        master_of_arms = self.caller.db.master_of_arms
-        wylding_hand = self.caller.db.wyldinghand
-        weapon_level = h.weaponValue(self.caller.db.weapon_level)
-        caller = self.caller
-
-        # Check for weakness on character
-        weakness = h.weaknessChecker(self.caller.db.weakness)
-
-        if caller.db.combat_turn:
-            if h.canFight(caller):
-                if resistsRemaining:
-                    # Check to see if the target is already healed to max.
-                    if caller.db.body == 3:
-                        self.caller.msg(f"|430You are at the maximum number of body points.|n")
-                        return
-
-                    else:
-
-                        new_bp_value = target_total_bleed_points + target_resilience + medicine
-                        if (target.db.bleed_points == target_total_bleed_points) and target_body == 0:
-                            target.db.body += 1
-                            caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|4301|n) |025points of aid to {target.key}.|n")
-
-                        elif (target.db.bleed_points < target_total_bleed_points) and target.db.bleed_points > 0:
-                            if new_bp_value > target_total_bleed_points:
-                                # Set to max bleed_points
-                                target.db.bleed_points = target_total_bleed_points
-                                # Add extra to body
-                                excess_bp = new_bp_value - target_total_bleed_points
-                                if excess_bp + target_body > 1:
-                                    # current body = 0
-                                    # bleed points = 2
-                                    # heal for 3
-                                    target.db.body = 1
-                                    caller.location.msg_contents(f"|025{caller.key} performs some minor healing techniques and provides|n (|430{medicine}|n) |025points of aid to {target.key} (up to 1 body).|n")
-                                else:
-                                    target.db.body += excess_bp
-                            else:
-                                target.db.bleed_points += medicine
-                        else:
-                            caller.msg(f"|400{target.key}'s injuries are beyond your skill as a healer.|n")
-                            return
-                else:
-                    self.msg("|400You have 0 resists remaining or do not have the skill.\nPlease choose another action.|n")
-            else:
-                caller.msg("|400You are too injured to act.|n")
-                return
-
-            # Clean up in combat loop
-            if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
-                loop.combatTurnOff(caller)
-                loop.cleanup()
-            else:
-                return
-        else:
-            caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
-            return
-
 
 
 """
