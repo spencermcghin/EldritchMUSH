@@ -65,7 +65,7 @@ class CmdDisarm(Command):
                         if h.isAlive(target):
                             if not combat_stats.get("weakness", 0):
                                 right_item = self.caller.search(target.db.right_slot[0], location=target)
-                                if not right_item.db.two_handed:
+                                if not right_item.db.twohanded:
                                     if attack_result >= target.db.av:
                                         # Decrement amount of cleaves from amount in database
                                         self.caller.db.disarm -= 1
