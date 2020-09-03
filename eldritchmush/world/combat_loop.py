@@ -196,7 +196,12 @@ class CombatLoop:
             self.combatTurnOff(self.target)
             self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target)} in the round order.")
 
+        # Solve for when no target as in resist command.
+        elif self.inLoop() is True and self.target is None:
+            pass
+
         else:
+            # Solve for when no target as in resist command.
             pass
 
 
