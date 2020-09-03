@@ -108,7 +108,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(stagger.CmdStagger())
         # self.add(command.SetShield())
         # self.add(command.SetTwoHanded())
-        self.add(command.SetBow())
+        # self.add(command.SetBow())
         self.add(command.CmdGive())
         self.add(command.CmdGet())
         # self.add(command.SetMelee())
