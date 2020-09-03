@@ -42,7 +42,6 @@ class CmdDisarm(Command):
         else:
             return
 
-
         # Run logic for cleave command
         if self.caller.db.combat_turn:
 
@@ -68,7 +67,7 @@ class CmdDisarm(Command):
 
                                 # Check for NPC calling the command and pick a new command if so.
                                 if utils.inherits_from(self.caller, Npc) and right_item.db.twohanded:
-                                    self.caller.command_picker()
+                                    self.caller.command_picker(target=target)
                                     return
 
                                 if not right_item.db.twohanded:
