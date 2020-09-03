@@ -2,7 +2,7 @@
 from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
-
+from typeclasses.npc import Npc
 
 
 class CmdDisarm(Command):
