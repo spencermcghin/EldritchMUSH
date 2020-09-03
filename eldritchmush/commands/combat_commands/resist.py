@@ -37,7 +37,7 @@ class CmdResist(Command):
                         return
 
                     # Check which stat point to add back.
-                    if (caller.db.tough < caller.db.total_tough) and caller.db.body == 3:
+                    if (caller.db.tough < caller.db.total_tough) and caller.db.body >= 3:
                         caller.db.tough +=1
                         result = "1 tough"
                     else:
