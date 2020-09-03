@@ -1,5 +1,5 @@
 # Local imports
-from evennia import Command
+from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
 
@@ -65,6 +65,12 @@ class CmdDisarm(Command):
                         if h.isAlive(target):
                             if not combat_stats.get("weakness", 0):
                                 right_item = self.caller.search(target.db.right_slot[0], location=target)
+
+                                # Check for NPC calling the command and pick a new command if so.
+                                if utils.inherits_from(self.caller, Npc) and right_item.db.twohanded:
+                                    self.caller.command_picker()
+                                    return
+
                                 if not right_item.db.twohanded:
                                     if attack_result >= target.db.av:
                                         # Decrement amount of cleaves from amount in database
