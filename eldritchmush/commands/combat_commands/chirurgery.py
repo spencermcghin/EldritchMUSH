@@ -29,12 +29,12 @@ class CmdChirurgery(Command):
         caller = self.caller
 
         chirurgeon = caller.db.chirurgeon
-        target_in_combat = True if target.db.in_combat else False
-
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if target:
-            if (caller in caller.location.db.combat_loop) or target_in_combat:
+            target_in_combat = True if target.db.in_combat else False
+            caller_in_combat = True if caller.db.in_combat else False
+            if caller_in_combat or target_in_combat:
                 self.msg("|430You can't perform this action while you or the target are in combat.|n")
                 return
             else:
