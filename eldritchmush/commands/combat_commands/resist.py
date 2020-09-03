@@ -36,20 +36,17 @@ class CmdResist(Command):
                         self.caller.msg(f"|430You are at maximum tough and body points.|n")
                         return
 
+                    # Check which stat point to add back.
                     if (caller.db.tough < caller.db.total_tough) and caller.db.body == 3:
                         caller.db.tough +=1
                         result = "1 tough"
-
-                    elif caller.db.body < 3:
+                    else:
                         caller.db.body += 1
                         result = "1 body"
 
-                    else:
+                    # canFight will catch the rest.
 
-
-                    caller.location.msg_contents(f"{caller.key} resists the brunt of the attack.")
-                    caller.msg(f"You recover {result}.")
-
+                    caller.location.msg_contents(f"{caller.key} resists the brunt of the attack and recovers {result}.")
                     # End turn and clean up
                     loop.combatTurnOff(caller)
                     loop.cleanup()
