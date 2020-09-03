@@ -45,8 +45,8 @@ class CmdResist(Command):
                         result = "1 body"
 
                     # canFight will catch the rest.
-
-                    caller.location.msg_contents(f"{caller.key} resists the brunt of the attack and recovers {result}.")
+                    caller.db.resist -= 1
+                    caller.location.msg_contents(f"|025{caller.key} resists the brunt of the attack and recovers {result}.|n")
                     # End turn and clean up
                     loop.combatTurnOff(caller)
                     loop.cleanup()
