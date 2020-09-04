@@ -63,14 +63,14 @@ class CmdDisarm(Command):
                     if h.canFight(self.caller):
                         if h.isAlive(target):
                             if not combat_stats.get("weakness", 0):
-                                right_item = self.caller.search(target.db.right_slot[0], location=target)
-
                                 # Check for NPC calling the command and pick a new command if so.
                                 if utils.inherits_from(self.caller, Npc):
                                     # self.caller.command_picker(target=target)
                                     # return
-                                    self.location.msg_contents("NPC checker catching.")
+                                    self.location.msg_contents("NPC trying to use disarm.")
                                     return
+
+                                right_item = self.caller.search(target.db.right_slot[0], location=target)
 
                                 if not right_item.db.twohanded:
                                     if attack_result >= target.db.av:
