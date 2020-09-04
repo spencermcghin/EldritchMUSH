@@ -43,6 +43,8 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.av = 0
         self.db.resilience = 1
         self.db.indomitable = 0
+        self.db.perception = 0
+        self.db.tracking = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -206,7 +208,8 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
         self.db.av = 0
         self.db.resilience = 1
         self.db.indomitable = 0
-
+        self.db.perception = 0
+        self.db.tracking = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -364,6 +367,8 @@ class GreenMeleeSoldierBow(GreenMeleeSoldierOneHanded):
         self.db.av = 0
         self.db.resilience = 1
         self.db.indomitable = 0
+        self.db.perception = 0
+        self.db.tracking = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -522,7 +527,8 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.db.av = 0
         self.db.resilience = 1
         self.db.indomitable = 0
-
+        self.db.perception = 0
+        self.db.tracking = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
