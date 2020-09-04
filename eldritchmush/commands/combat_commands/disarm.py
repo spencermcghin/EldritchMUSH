@@ -66,7 +66,7 @@ class CmdDisarm(Command):
                                 right_item = self.caller.search(target.db.right_slot[0], location=target)
 
                                 # Check for NPC calling the command and pick a new command if so.
-                                if utils.inherits_from(self.caller, Npc):
+                                if utils.inherits_from(self.caller, Npc) and right_item.db.twohanded:
                                     self.caller.location.msg_contents("NPC caught exception.")
                                     self.caller.command_picker(target)
                                     return
