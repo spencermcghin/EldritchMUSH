@@ -204,7 +204,12 @@ class CombatLoop:
             # Solve for when no target as in resist command.
             pass
 
-
+	def verboseEndTurn(self, combatant, statusMessage):
+		combatant.location.msg_contents(statusMessage)
+		self.combatTurnOff(combatant)
+		self.cleanup()
+		
+	
     def cleanup(self):
         # Check for number of elements in the combat loop
         if self.getLoopLength() > 1:
