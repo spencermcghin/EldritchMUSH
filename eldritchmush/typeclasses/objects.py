@@ -327,6 +327,29 @@ class Forge(DefaultObject):
             string += f"\n\n{self.db.blacksmith_text}"
         return string
 
+class BowyerWorkshop(DefaultObject):
+    """
+    Available commands:
+
+    craft <item>
+    repair <item>
+    """
+
+    def at_object_creation(self):
+        "Called when object is first created"
+        # Maintain state of object
+        self.locks.add("get:false()")
+        self.db.desc = "This is a large workshop used by bowyers in their trade. Here wood is hewn, shaped, and laminated to become a masterfully crafted instrument of death. So too, are thin shafts wittled, their ends bound in a waxed string that to them binds the delicate feathers of a bird."
+        self.db.bowyer_text = "Usage: \nfcraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_bow."
+        # Add command set for interacting with box
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if looker.db.bowyer:
+            string += f"\n\n{self.db.bowyer_text}"
+        return string
+
 class BlacksmithObject(DefaultObject):
 
     def at_object_creation(self):
