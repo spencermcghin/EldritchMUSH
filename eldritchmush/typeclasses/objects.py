@@ -316,8 +316,8 @@ class Forge(DefaultObject):
         "Called when object is first created"
         # Maintain state of object
         self.locks.add("get:false()")
-        self.db.desc = "This is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor."
-        self.db.blacksmith_text = "Usage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon."
+        self.db.desc = "\nThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor."
+        self.db.blacksmith_text = "|430Usage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon.|n"
         # Add command set for interacting with box
         self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
 
@@ -339,8 +339,8 @@ class BowyerWorkshop(DefaultObject):
         "Called when object is first created"
         # Maintain state of object
         self.locks.add("get:false()")
-        self.db.desc = "This is a large workshop used by bowyers in their trade. Here wood is hewn, shaped, and laminated to become a masterfully crafted instrument of death. So too, are thin shafts wittled, their ends bound in a waxed string that to them binds the delicate feathers of a bird."
-        self.db.bowyer_text = "Usage: \nfcraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_bow."
+        self.db.desc = "\nThis is a large workshop used by bowyers in their trade. Here wood is hewn, shaped, and laminated to become a masterfully crafted instrument of death. So too, are thin shafts wittled, their ends bound in a waxed string that to them binds the delicate feathers of a bird."
+        self.db.bowyer_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_bow.|n"
         # Add command set for interacting with box
         self.cmdset.add_default(CrafterCmdSet, permanent=True)
 
