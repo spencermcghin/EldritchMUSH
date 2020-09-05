@@ -7,8 +7,6 @@ from evennia.prototypes import prototypes
 from commands import command
 from evennia.utils import evmenu
 
-
-
 """
 Crafting Commands
 """
