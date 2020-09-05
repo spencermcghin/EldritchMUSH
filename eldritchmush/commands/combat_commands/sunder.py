@@ -89,7 +89,14 @@ class CmdSunder(Command):
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
                                                 right_mv -= 1
-                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av})|025.|n")
+                                                if right_item.db.material_value == 0:
+                                                # If two handed, remove from both slots
+                                                    if right_item.db.twohanded:
+                                                        target.db.left_slot.clear()
+                                                        # Remove right slot
+                                                    right_item.db.broken = True
+                                                    target.db.right_slot.remove(right_item)
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av})|025.|n")
 
                                         elif target_stats.get("left_slot", None):
                                             # Get item and material value for right slot.
@@ -104,8 +111,15 @@ class CmdSunder(Command):
                                                 target.db.left_slot.remove(left_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
-                                                right_mv -= 1
-                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
+                                                left_mv -= 1
+                                                if left_item.db.material_value == 0:
+                                                # If two handed, remove from both slots
+                                                    if left_item.db.twohanded:
+                                                        target.db.left_slot.clear()
+                                                        # Remove right slot
+                                                    left_item.db.broken = True
+                                                    target.db.left_slot.remove(left_item)
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
 
                                         # Do damage resolution block
                                         elif target_av:
