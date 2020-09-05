@@ -91,6 +91,10 @@ class Character(DefaultCharacter):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
+        self.db.hand_slot = []
+        self.db.foot_slot = []
+        self.db.clothing_slot = []
+        self.db.cloak_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
 
