@@ -78,7 +78,7 @@ class CmdSunder(Command):
                                             right_mv = right_item.db.material_value
                                                 # Decrement one from material value.
                                             # Check to make sure it won't go below 0.
-                                            if right_mv - 1 < 0:
+                                            if (right_mv - 1) < 0:
                                                 right_item.db.material_value = 0
                                                 right_item.db.broken = True
                                                 # If two handed, remove from both slots
@@ -88,7 +88,7 @@ class CmdSunder(Command):
                                                 target.db.right_slot.remove(right_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
-                                                right_mv -= 1
+                                                right_item.db.material_value -= 1
                                                 if right_item.db.material_value == 0:
                                                 # If two handed, remove from both slots
                                                     if right_item.db.twohanded:
@@ -96,14 +96,14 @@ class CmdSunder(Command):
                                                         # Remove right slot
                                                     right_item.db.broken = True
                                                     target.db.right_slot.remove(right_item)
-                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av})|025.|n")
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av})|025.|n")
 
                                         elif target_stats.get("left_slot", None):
                                             # Get item and material value for right slot.
                                             left_item = self.caller.search(target.db.left_slot[0], location=target)
                                             left_mv = left_item.db.material_value
                                             # Decrement one from material value
-                                            if left_mv - 1 < 0:
+                                            if (left_mv - 1) < 0:
                                                 left_item.db.material_value = 0
                                                 left_item.db.broken = True
                                                 # if utils.inherits_from(target, Npc):
@@ -119,7 +119,7 @@ class CmdSunder(Command):
                                                         # Remove right slot
                                                     left_item.db.broken = True
                                                     target.db.left_slot.remove(left_item)
-                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
 
                                         # Do damage resolution block
                                         elif target_av:
