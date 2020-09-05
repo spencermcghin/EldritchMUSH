@@ -986,7 +986,7 @@ class SetArmorSpecialist(Command):
             armor = self.caller.db.armor
             tough = self.caller.db.tough
             shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
-            indomitable = self.callerd.db.indomitable
+            indomitable = self.caller.db.indomitable
 
             # Add them up and set the curent armor value in the database
             currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
