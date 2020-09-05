@@ -17,11 +17,8 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import command
-from commands import combat, blacksmith
+from commands import combat, blacksmith, crafting, command, npc, dice
 from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm, stagger, stun, medicine, skip, chirurgery, resist
-from commands import npc
-from commands import dice
 
 
 class RoomCmdSet(CmdSet):
@@ -48,6 +45,17 @@ class BlacksmithCmdSet(CmdSet):
 
         self.add(blacksmith.CmdForge())
         # self.add(blacksmith.CmdRepair())
+
+
+class CrafterCmdSet(CmdSet):
+    """
+    Commands for making and repairing bowyer and artificer items
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(crafting.CmdCraft())
 
 """
 Strange Circus Command Sets - Virtual Event 1
