@@ -10,7 +10,8 @@ from django.conf import settings
 import re
 
 # Local imports
-from commands.combat import Helper
+from commands import combat
+from combat import Helper
 from evennia import Command as BaseCommand
 from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
