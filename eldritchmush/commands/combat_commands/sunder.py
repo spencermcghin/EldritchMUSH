@@ -79,7 +79,7 @@ class CmdSunder(Command):
                                                 # Decrement one from material value.
                                             # Check to make sure it won't go below 0.
                                             if right_mv - 1 < 0:
-                                                right_mv = 0
+                                                right_item.db.material_value = 0
                                                 right_item.db.broken = True
                                                 # If two handed, remove from both slots
                                                 if right_item.db.twohanded:
@@ -104,14 +104,14 @@ class CmdSunder(Command):
                                             left_mv = left_item.db.material_value
                                             # Decrement one from material value
                                             if left_mv - 1 < 0:
-                                                left_mv = 0
+                                                left_item.db.material_value = 0
                                                 left_item.db.broken = True
                                                 # if utils.inherits_from(target, Npc):
-                                                #     target.db.skip_turn = 1
+                                                # target.db.skip_turn = 1
                                                 target.db.left_slot.remove(left_item)
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
-                                                left_mv -= 1
+                                                left_item.db.material_value -= 1
                                                 if left_item.db.material_value == 0:
                                                 # If two handed, remove from both slots
                                                     if left_item.db.twohanded:
