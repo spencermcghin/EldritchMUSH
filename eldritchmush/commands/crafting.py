@@ -21,10 +21,10 @@ class CmdCraft(Command):
         self.item = self.args.strip()
 
     def func(self):
-        use_err_msg = "|540Usage: craft <item>|n"
+        use_err_msg = "|430Usage: craft <item>|n"
 
         # Do all checks
-        if not self.caller.db.bowyer or not self.caller.db.artificer:
+        if not self.caller.db.bowyer:
             self.msg("|400You are not trained in how to properly operate these tools. Please find a crafter.|n")
             return
 
@@ -36,7 +36,7 @@ class CmdCraft(Command):
         try:
             prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
-            self.msg("Item not found, or more than one match. Please try again.")
+            self.msg("|430Item not found, or more than one match. Please try again.|n")
         else:
             # Get search response
             prototype_data = prototype[0]
