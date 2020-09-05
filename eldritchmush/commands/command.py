@@ -11,7 +11,6 @@ import re
 
 # Local imports
 from commands import combat
-from combat import Helper
 from evennia import Command as BaseCommand
 from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
@@ -460,7 +459,7 @@ class CmdEquip(Command):
         self.left_slot = self.caller.db.left_slot
 
     def func(self):
-        h = Helper(self.caller)
+        h = combat.Helper(self.caller)
 
         if not self.item:
             self.caller.msg("|430Usage: equip <item>|n")
