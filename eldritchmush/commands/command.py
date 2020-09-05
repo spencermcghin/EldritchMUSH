@@ -10,12 +10,12 @@ from django.conf import settings
 import re
 
 # Local imports
+from commands.combat import Helper
 from evennia import Command as BaseCommand
 from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
-from commands.combat import Helper
 from commands.fortunestrings import FORTUNE_STRINGS
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
