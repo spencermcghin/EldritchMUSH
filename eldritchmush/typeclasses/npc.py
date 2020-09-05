@@ -352,7 +352,7 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
 
         return action_string
 
-class GreenMeleeSoldierBow(GreenMeleeSoldierOneHanded):
+class GreenSoldierBow(GreenMeleeSoldierOneHanded):
     """
     Generic solider NPC
     """
