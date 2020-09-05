@@ -96,7 +96,9 @@ class CmdSunder(Command):
                                                         # Remove right slot
                                                     right_item.db.broken = True
                                                     target.db.right_slot.remove(right_item)
-                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av})|025.|n")
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
+                                                else:
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025.|n")
 
                                         elif target_stats.get("left_slot", None):
                                             # Get item and material value for right slot.
@@ -109,6 +111,7 @@ class CmdSunder(Command):
                                                 # if utils.inherits_from(target, Npc):
                                                 # target.db.skip_turn = 1
                                                 target.db.left_slot.remove(left_item)
+
                                                 self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
                                                 left_item.db.material_value -= 1
@@ -119,7 +122,9 @@ class CmdSunder(Command):
                                                         # Remove right slot
                                                     left_item.db.broken = True
                                                     target.db.left_slot.remove(left_item)
-                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
+                                                else:
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
 
                                         # Do damage resolution block
                                         elif target_av:
