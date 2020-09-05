@@ -71,7 +71,6 @@ class CmdDisarm(Command):
                                     self.caller.execute_cmd(f"strike {target.key}")
                                     return
 
-
                                 if not right_item.db.twohanded:
                                     if attack_result >= target.db.av:
                                         # Decrement amount of cleaves from amount in database
