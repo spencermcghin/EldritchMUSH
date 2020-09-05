@@ -374,6 +374,19 @@ class WeaponObject(BlacksmithObject):
         self.db.trait_three = []
         self.db.patched = False
 
+class ArtificerObject(DefaultObject):
+    def at_object_creation(self):
+        self.db.uses = 0
+        self.db.level = 0
+        self.db.required_resources = 0
+        self.db.iron_ingots = 0
+        self.db.cloth =  0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.value_copper = 0
+        self.db.value_silver = 0
+        self.db.value_gold = 0
+
 """
 Storage Objects
 This is the base class type for an object that contains resources as attributes, i.e. gold, refined wood, etc...
