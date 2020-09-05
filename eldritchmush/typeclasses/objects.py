@@ -11,7 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject, utils
-from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet
+from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet, CrafterCmdSet
 import random
 
 
