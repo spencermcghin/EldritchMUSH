@@ -626,6 +626,133 @@ MASTERWORK_STEEL_PLATEMAIL = {
 """
 Begin artificer protoypes
 """
+ARTIFICER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Arifticer Kit",
+"aliases": ["artificer kit"],
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 0,
+"cloth": 4,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
+BLACKSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Blacksmith Kit",
+"aliases": ["blacksmith kit"],
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 4,
+"cloth": 0,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
+AURON_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Auron Kit",
+"aliases": ["auron kit"],
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 2,
+"leather": 2,
+"cloth": 4,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
+BOWYER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Bowyer Kit",
+"aliases": ["bowyer kit"],
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 0,
+"refined_wood": 4,
+"leather": 4,
+"cloth": 4,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
+GUNSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Gunsmith Kit",
+"aliases": ["gunsmith kit"],
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 4,
+"cloth": 0,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
+CHIRURGEON_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Chirurgeon Kit",
+"aliases": ["chirurgeon kit"],
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 0,
+"cloth": 4,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
+DUELIST_GLOVES = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Duelist Gloves",
+"aliases": ["duelist gloves"],
+"required_resources": 12,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 6,
+"cloth": 6,
+"value_copper": 200,
+"value_silver": 20,
+"value_gold": 2,
+"level": 1,
+"resist": 1
+}
+
+STALWART_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Stalwart Boots",
+"aliases": ["stalwart boots"],
+"required_resources": 12,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 6,
+"cloth": 3,
+"value_copper": 200,
+"value_silver": 20,
+"value_gold": 2,
+"level": 1,
+"resist": 1
+}
 
 """
 Bowyer Items
