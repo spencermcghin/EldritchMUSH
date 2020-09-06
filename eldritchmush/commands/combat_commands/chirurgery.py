@@ -10,12 +10,13 @@ class CmdChirurgery(Command):
     key = "restore"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
-        "This actually does things"
         # Check for correct command
         if not self.args:
             self.caller.msg("|430Usage: restore <target>\nThis command has a 15 minute cooldown.|n")

@@ -20,7 +20,7 @@ class CmdResist(Command):
     def func(self):
         h = Helper(self.caller)
 
-        resistsRemaining = self.caller.db.resist
+        resists_remaining = self.caller.db.resist
         caller = self.caller
         weakness = h.weaknessChecker(caller.db.weakness)
 
@@ -30,7 +30,7 @@ class CmdResist(Command):
 
         if caller.db.combat_turn:
             if h.canFight(caller):
-                if resistsRemaining:
+                if resists_remaining:
                     # Check to see if the target is already healed to max.
                     if caller.db.tough == caller.db.total_tough:
                         self.caller.msg(f"|430You are at maximum tough and body points.|n")

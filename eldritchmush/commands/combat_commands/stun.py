@@ -19,8 +19,10 @@ class CmdStun(Command):
     key = "stun"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
@@ -45,10 +47,10 @@ class CmdStun(Command):
         if self.caller.db.combat_turn:
 
             combat_stats = h.getMeleeCombatStats(self.caller)
-            stunsRemaining = self.caller.db.stun
+            stuns_remaining = self.caller.db.stun
 
             if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
-                if stunsRemaining > 0:
+                if stuns_remaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
