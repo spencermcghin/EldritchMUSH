@@ -17,8 +17,10 @@ class CmdStagger(Command):
     key = "stagger"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):

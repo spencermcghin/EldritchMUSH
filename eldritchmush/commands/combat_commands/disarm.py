@@ -20,7 +20,7 @@ class CmdDisarm(Command):
     help_category = "mush"
 
     def __init__(self):
-        self.target = ''
+        self.target = None
 
     def parse(self):
         # Very trivial parser

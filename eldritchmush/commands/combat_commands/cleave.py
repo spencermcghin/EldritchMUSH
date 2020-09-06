@@ -19,7 +19,7 @@ class CmdCleave(Command):
     help_category = "mush"
 
     def __init__(self):
-        self.target = ''
+        self.target = None
 
     def parse(self):
         # Very trivial parser
@@ -48,8 +48,6 @@ class CmdCleave(Command):
         if combatant.db.combat_turn:
 
             combat_stats = h.getMeleeCombatStats(combatant)
-            right_hand_item = combat_stats.get("right_slot", None)
-            left_hand_item = combat_stats.get("left_slot", None)
             cleaves_remaining = combatant.db.cleave
 
             if combat_stats.get("two_handed", False):

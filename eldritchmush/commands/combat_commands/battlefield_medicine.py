@@ -7,8 +7,10 @@ class CmdBattlefieldMedicine(Command):
     key = "medic"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
@@ -27,7 +29,7 @@ class CmdBattlefieldMedicine(Command):
 
         # Get target body and BM to validate target and caller has skill.
         target_body = target.db.body
-        battlefieldmedicine = caller.db.battlefieldmedicine
+        battlefield_medicine = caller.db.battlefieldmedicine
 
         # Go through combat loop logic
         loop = CombatLoop(caller, target)
@@ -35,7 +37,7 @@ class CmdBattlefieldMedicine(Command):
 
         if caller.db.combat_turn:
             if h.canFight(caller):
-                if battlefieldmedicine and target_body is not None:
+                if battlefield_medicine and target_body is not None:
                     # Use parsed args in combat loop. Handles turn order in combat.
                     # Resolve medic command
                     if 1 <= target.db.body <= 3:

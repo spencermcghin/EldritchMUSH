@@ -19,6 +19,9 @@ class CmdSunder(Command):
     key = "sunder"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
         "Very trivial parser"
         self.target = self.args.strip()
@@ -73,36 +76,36 @@ class CmdSunder(Command):
                                         # Check target left and right slots for items. Decrement material value from right and then left.
                                         # If no more items, subtract damage as normal.
                                         if target_stats.get("right_slot", None):
-											# Get item and material value for right slot.
-											item_key = self.caller.search(target.db.right_slot[0], location=target)
-											slot = target.db.right_slot
+                                            # Get item and material value for right slot.
+                                            item_key = self.caller.search(target.db.right_slot[0], location=target)
+                                            slot = target.db.right_slot
                                         elif target_stats.get("left_slot", None):
-											# Get item and material value for right slot.
-											item_key = self.caller.search(target.db.left_slot[0], location=target)
-											slot = target.db.left_slot
-											
-										if item_key:
+                                            # Get item and material value for right slot.
+                                            item_key = self.caller.search(target.db.left_slot[0], location=target)
+                                            slot = target.db.left_slot
+
+                                        if item_key:
                                             item_mv = item_key.db.material_value
-                                            
-											# Decrement one from material value.
+
+                                            # Decrement one from material value.
                                             # Check to make sure it won't go below 0.'
-											item_mv -= 1
+                                            item_mv -= 1
                                             if item_mv <= 0:
                                                 item_mv = 0
                                                 item_key.db.broken = True
-												# Remove slot
+                                                # Remove slot
                                                 slot.remove(item_key)
-												displayString = "with great ferocity and sunders"
-												
+                                                display_string = "with great ferocity and sunders"
+
                                                 # If two handed, remove from both slots
                                                 if item_key.db.twohanded:
                                                     target.db.left_slot.clear()
-													target.db.right_slot.clear()
-                                                
+                                                    target.db.right_slot.clear()
+
                                             else:
-												displayString = "with great ferocity and damages"
-                                            
-											self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025{displayString} {target.key}'s {item_key.key}|n (|400{target.db.av})|025.|n")
+                                                display_string = "with great ferocity and damages"
+
+                                            self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025{display_string} {target.key}'s {item_key.key}|n (|400{target.db.av})|025.|n")
 
                                         # Do damage resolution block
                                         elif target_av:
