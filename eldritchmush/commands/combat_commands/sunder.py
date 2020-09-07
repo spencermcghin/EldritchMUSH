@@ -8,19 +8,13 @@ from typeclasses.npc import Npc
 class CmdSunder(Command):
     """
     Issues a sunder command.
-
     Usage:
-
     sunder <target>
-
     This will calculate an attack score based on your weapon and master of arms level.
     """
 
     key = "sunder"
     help_category = "mush"
-
-    def __init__(self):
-        self.target = None
 
     def parse(self):
         "Very trivial parser"
@@ -77,35 +71,57 @@ class CmdSunder(Command):
                                         # If no more items, subtract damage as normal.
                                         if target_stats.get("right_slot", None):
                                             # Get item and material value for right slot.
-                                            item_key = self.caller.search(target.db.right_slot[0], location=target)
-                                            slot = target.db.right_slot
+                                            right_item = self.caller.search(target.db.right_slot[0], location=target)
+                                            right_mv = right_item.db.material_value
+                                                # Decrement one from material value.
+                                            # Check to make sure it won't go below 0.
+                                            if (right_mv - 1) < 0:
+                                                right_item.db.material_value = 0
+                                                right_item.db.broken = True
+                                                # If two handed, remove from both slots
+                                                if right_item.db.twohanded:
+                                                    target.db.left_slot.clear()
+                                                # Remove right slot
+                                                target.db.right_slot.remove(right_item)
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
+                                            else:
+                                                right_item.db.material_value -= 1
+                                                if right_item.db.material_value == 0:
+                                                # If two handed, remove from both slots
+                                                    if right_item.db.twohanded:
+                                                        target.db.left_slot.clear()
+                                                        # Remove right slot
+                                                    right_item.db.broken = True
+                                                    target.db.right_slot.remove(right_item)
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
+                                                else:
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025.|n")
+
                                         elif target_stats.get("left_slot", None):
                                             # Get item and material value for right slot.
-                                            item_key = self.caller.search(target.db.left_slot[0], location=target)
-                                            slot = target.db.left_slot
+                                            left_item = self.caller.search(target.db.left_slot[0], location=target)
+                                            left_mv = left_item.db.material_value
+                                            # Decrement one from material value
+                                            if (left_mv - 1) < 0:
+                                                left_item.db.material_value = 0
+                                                left_item.db.broken = True
+                                                # if utils.inherits_from(target, Npc):
+                                                # target.db.skip_turn = 1
+                                                target.db.left_slot.remove(left_item)
 
-                                        if item_key:
-                                            item_mv = item_key.db.material_value
-
-                                            # Decrement one from material value.
-                                            # Check to make sure it won't go below 0.'
-                                            item_mv -= 1
-                                            if item_mv <= 0:
-                                                item_mv = 0
-                                                item_key.db.broken = True
-                                                # Remove slot
-                                                slot.remove(item_key)
-                                                display_string = "with great ferocity and sunders"
-
-                                                # If two handed, remove from both slots
-                                                if item_key.db.twohanded:
-                                                    target.db.left_slot.clear()
-                                                    target.db.right_slot.clear()
-
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
-                                                display_string = "with great ferocity and damages"
-
-                                            self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025{display_string} {target.key}'s {item_key.key}|n (|400{target.db.av})|025.|n")
+                                                left_item.db.material_value -= 1
+                                                if left_item.db.material_value == 0:
+                                                # If two handed, remove from both slots
+                                                    if left_item.db.twohanded:
+                                                        target.db.left_slot.clear()
+                                                        # Remove right slot
+                                                    left_item.db.broken = True
+                                                    target.db.left_slot.remove(left_item)
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
+                                                else:
+                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
 
                                         # Do damage resolution block
                                         elif target_av:
