@@ -16,8 +16,10 @@ class CmdSunder(Command):
     key = "sunder"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
@@ -47,15 +49,15 @@ class CmdSunder(Command):
             target_stats = h.getMeleeCombatStats(target)
             right_hand_item = combat_stats.get("right_slot", None)
             left_hand_item = combat_stats.get("left_slot", None)
-            sundersRemaining = self.caller.db.sunder
+            sunders_remaining = self.caller.db.sunder
 
             if right_hand_item and right_hand_item == left_hand_item:
-                if sundersRemaining > 0:
+                if sunders_remaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                     # Get damage result and damage for weapon type
-                    attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
+                    attack_result = (die_result + self.caller.db.weapon_level) - h.dmgPenalty - h.weaknessPenalty()
                     damage = 2 if combat_stats.get("two_handed", False) else 1
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
@@ -63,66 +65,40 @@ class CmdSunder(Command):
                     # Do all the checks
                     if h.canFight(self.caller):
                         if h.isAlive(target):
-                          if sundersRemaining > 0:
-                            if not combat_stats.get("weakness", 0):
+                          if sunders_remaining > 0:
+                            if not h.weaknessPenalty():
                                     if attack_result >= target.db.av:
 
                                         # Check target left and right slots for items. Decrement material value from right and then left.
                                         # If no more items, subtract damage as normal.
-                                        if target_stats.get("right_slot", None):
-                                            # Get item and material value for right slot.
-                                            right_item = self.caller.search(target.db.right_slot[0], location=target)
-                                            right_mv = right_item.db.material_value
-                                                # Decrement one from material value.
+                                        if target_stats.get("right_slot", None) or target_stats.get("left_slot", None):
+                                            if target_stats.get("right_slot", None):
+                                                # Get item and material value for right slot.
+                                                item = self.caller.search(target.db.right_slot[0], location=target)
+                                                slot = target.db.right_slot
+                                                other_slot = target.db.left_slot
+                                            else:
+                                                # Get item and material value for right slot.
+                                                item = self.caller.search(target.db.left_slot[0], location=target)
+                                                slot = target.db.left_slot
+                                                other_slot = target.db.right_slot
+
+                                            item_mv = item.db.material_value
+                                            # Decrement one from material value.
                                             # Check to make sure it won't go below 0.
-                                            if (right_mv - 1) < 0:
-                                                right_item.db.material_value = 0
-                                                right_item.db.broken = True
+                                            if (item_mv - 1) <= 0:
+                                                item.db.material_value = 0
+                                                item.db.broken = True
                                                 # If two handed, remove from both slots
-                                                if right_item.db.twohanded:
-                                                    target.db.left_slot.clear()
-                                                # Remove right slot
-                                                target.db.right_slot.remove(right_item)
-                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
+                                                if item.db.twohanded:
+                                                    #Going to try just clearing both slots and hope this doesnt break something
+                                                    other_slot.clear()
+
+                                                slot.remove(item)
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
                                             else:
-                                                right_item.db.material_value -= 1
-                                                if right_item.db.material_value == 0:
-                                                # If two handed, remove from both slots
-                                                    if right_item.db.twohanded:
-                                                        target.db.left_slot.clear()
-                                                        # Remove right slot
-                                                    right_item.db.broken = True
-                                                    target.db.right_slot.remove(right_item)
-                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
-                                                else:
-                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {right_item.key}|n (|400{target.db.av}|n)|025.|n")
-
-                                        elif target_stats.get("left_slot", None):
-                                            # Get item and material value for right slot.
-                                            left_item = self.caller.search(target.db.left_slot[0], location=target)
-                                            left_mv = left_item.db.material_value
-                                            # Decrement one from material value
-                                            if (left_mv - 1) < 0:
-                                                left_item.db.material_value = 0
-                                                left_item.db.broken = True
-                                                # if utils.inherits_from(target, Npc):
-                                                # target.db.skip_turn = 1
-                                                target.db.left_slot.remove(left_item)
-
-                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
-                                            else:
-                                                left_item.db.material_value -= 1
-                                                if left_item.db.material_value == 0:
-                                                # If two handed, remove from both slots
-                                                    if left_item.db.twohanded:
-                                                        target.db.left_slot.clear()
-                                                        # Remove right slot
-                                                    left_item.db.broken = True
-                                                    target.db.left_slot.remove(left_item)
-                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and sunders {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025, breaking it.|n")
-                                                else:
-                                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {left_item.key}|n (|400{target.db.av}|n)|025.|n")
-
+                                                item.db.material_value -= 1
+                                                self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and damages {target.key}'s {item.key}|n (|400{target.db.av}|n)|025.|n")
                                         # Do damage resolution block
                                         elif target_av:
                                             # subtract damage from corresponding target stage (shield_value, armor, tough, body)
@@ -151,7 +127,7 @@ class CmdSunder(Command):
                             else:
                                 self.caller.msg("|430You are too weak to use this attack.|n")
                         else:
-                            self.msg(f"{target.key} is dead. You only further mutiliate their body.")
+                            self.msg(f"{target.key} is dead. You only further mutilate their body.")
                             self.caller.location.msg_contents(f"{self.caller.key} further mutilates the corpse of {target.key}.")
                     else:
                         self.msg("|400You are too injured to act.|n")
