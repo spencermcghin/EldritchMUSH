@@ -68,7 +68,7 @@ class CmdCleave(Command):
 
                     if h.isAlive(target):
                         if not combat_stats.get("weakness", 0):
-                                if attack_result >= target.db.av:
+                                if attack_result >= target_av:
                                     combatant.location.msg_contents(f"|025{combatant.key} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|025, dealing|n (|430{damage}|n) |025damage|n.")
                                     # Decrement amount of cleaves from amount in database
                                     cleaves_remaining -= 1

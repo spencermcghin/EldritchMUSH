@@ -49,12 +49,12 @@ class CmdBattlefieldMedicine(Command):
             if battlefield_medicine and target_body is not None:
                 # Use parsed args in combat loop. Handles turn order in combat.
                 # Resolve medic command
-                if target.db.body == 3:
+                if target_body == 3:
                     self.msg(f"{target.key} does not require the application of your healing skills.")
                 elif 1 <= target.db.body < 3:
                     # If not over 1, add points to total
                     target.location.msg_contents(f"|025{caller.key} comes to {target.key}'s rescue, healing {target.key} for|n (|4301|n) |025body point.|n")
-                    target.db.body += 1
+                    target_body += 1
                     target.msg(f"|540Your new body value is:|n {target.db.body}|n")
                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                     if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
@@ -62,7 +62,7 @@ class CmdBattlefieldMedicine(Command):
                         loop.cleanup()
                     else:
                         return
-                elif target.db.body <= 0:
+                elif target_body <= 0:
                     caller.location.msg_contents(f"|025{caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more sophisticated healing techniques.|n")
                     return
             else:
