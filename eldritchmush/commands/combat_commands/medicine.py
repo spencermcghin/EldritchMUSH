@@ -1,7 +1,7 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combat import Combatant
+from commands.combatant import Combatant
 
 
 class CmdMedicine(Command):

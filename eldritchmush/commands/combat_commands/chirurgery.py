@@ -1,7 +1,7 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combat import Helper
+from commands.combatant import Combatant
 
 # imports
 import time
@@ -22,12 +22,15 @@ class CmdChirurgery(Command):
             self.caller.msg("|430Usage: restore <target>\nThis command has a 15 minute cooldown.|n")
             return
 
-        # Init combat helper functions
-        h = Helper(self.caller)
+        combatant = Combatant(self.caller)
+
+        if combatant.cantFight():
+            combatant.message("|400You are too injured to act.|n")
+            return
 
         # Get target if there is one
         target = self.caller.search(self.target)
-        caller = self.caller
+        victim = Combatant(target)
 
         chirurgeon = caller.db.chirurgeon
         # Pass all checks now execute command.

@@ -68,7 +68,6 @@ class Combatant:
         return self.bleedPoints() > 0
 
     def setBody(self, value):
-    def setBody(self, value):
         self.caller.db.body = value
 
     #TODO: Do we have a max body we should account for here?
