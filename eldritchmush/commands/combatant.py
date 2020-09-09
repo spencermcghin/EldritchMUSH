@@ -32,6 +32,9 @@ class Combatant:
     def medicine(self):
         return self.caller.db.medicine
 
+    def battlefieldMedicine(self):
+        return self.caller.db.battlefieldmedicine
+
     def body(self):
         return self.caller.db.body
 
@@ -58,9 +61,13 @@ class Combatant:
     def hasMoreBodyThan(self, value):
         return self.body() > value
 
+    def hasBody(self, value):
+        return self.body() == value
+
     def hasBleedPoints(self):
         return self.bleedPoints() > 0
 
+    def setBody(self, value):
     def setBody(self, value):
         self.caller.db.body = value
 
