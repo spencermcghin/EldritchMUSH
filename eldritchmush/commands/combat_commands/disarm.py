@@ -31,6 +31,11 @@ class CmdDisarm(Command):
         # Init combat helper functions
         h = Helper(self.caller)
 
+        # Check to make sure caller is healthy enough to use command.
+        if not h.canFight(self.caller):
+            self.msg("|400You are too injured to act.|n")
+            return
+
         # Check for and error handle designated target
         target = self.caller.search(self.target)
 
@@ -60,57 +65,54 @@ class CmdDisarm(Command):
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
 
-                    if h.canFight(self.caller):
-                        if h.isAlive(target):
-                            if not combat_stats.get("weakness", 0):
-                                right_item = self.caller.search(target.db.right_slot[0], location=target)
+                    if h.isAlive(target):
+                        if not combat_stats.get("weakness", 0):
+                            right_item = self.caller.search(target.db.right_slot[0], location=target)
 
-                                # Check for NPC calling the command and pick a new command if so.
-                                if utils.inherits_from(self.caller, Npc) and right_item.db.twohanded:
-                                    self.caller.location.msg_contents("NPC caught exception.")
-                                    self.caller.execute_cmd(f"strike {target.key}")
-                                    return
+                            # Check for NPC calling the command and pick a new command if so.
+                            if utils.inherits_from(self.caller, Npc) and right_item.db.twohanded:
+                                self.caller.location.msg_contents("NPC caught exception.")
+                                self.caller.execute_cmd(f"strike {target.key}")
+                                return
 
-                                if not right_item.db.twohanded:
-                                    if attack_result >= target.db.av:
-                                        # Decrement amount of cleaves from amount in database
-                                        self.caller.db.disarm -= 1
-                                        # Set disarmed flag on target
-                                        target.db.skip_turn = True
-                                        # Resolve damage
-                                        if target_av:
-                                            self.caller.location.msg_contents(f"|025{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|025, dealing|n (|430{damage}|n) |025damage|n.")
-                                            new_av = h.damageSubtractor(damage, target, self.caller)
-                                            # Update target av to new av score per damageSubtractor
-                                            target.db.av = new_av
-                                            target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-                                        else:
-                                            # No target armor so subtract from their body total and hit a limb.
-                                            self.caller.location.msg_contents(f"|025{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{damage}|n) |025damage|n.")
-                                            if shot_location == "torso" and target.db.body > 0:
-                                                target.db.body = 0
-                                                self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
-                                            else:
-                                                h.deathSubtractor(damage, target, self.caller)
-                                        # Disarm status message to target
-                                        target.msg("|430You have been disarmed. Your next turn will be skipped.|n")
-
+                            if not right_item.db.twohanded:
+                                if attack_result >= target.db.av:
+                                    # Decrement amount of cleaves from amount in database
+                                    self.caller.db.disarm -= 1
+                                    # Set disarmed flag on target
+                                    target.db.skip_turn = True
+                                    # Resolve damage
+                                    if target_av:
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|025, dealing|n (|430{damage}|n) |025damage|n.")
+                                        new_av = h.damageSubtractor(damage, target, self.caller)
+                                        # Update target av to new av score per damageSubtractor
+                                        target.db.av = new_av
+                                        target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {target.key}, but misses|n (|400{target.db.av}|n)|025.|n")
-                                    # Clean up
-                                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                                    loop.combatTurnOff(self.caller)
-                                    loop.cleanup()
+                                        # No target armor so subtract from their body total and hit a limb.
+                                        self.caller.location.msg_contents(f"|025{self.caller.key} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {target.key}|n (|400{target.db.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{damage}|n) |025damage|n.")
+                                        if shot_location == "torso" and target.db.body > 0:
+                                            target.db.body = 0
+                                            self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                        else:
+                                            h.deathSubtractor(damage, target, self.caller)
+                                    # Disarm status message to target
+                                    target.msg("|430You have been disarmed. Your next turn will be skipped.|n")
 
                                 else:
-                                    self.msg(f"|430You cannot disarm a two-handed weapon. Please try another attack.|n")
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {target.key}, but misses|n (|400{target.db.av}|n)|025.|n")
+                                # Clean up
+                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                loop.combatTurnOff(self.caller)
+                                loop.cleanup()
+
                             else:
-                                self.caller.msg("|400You are too weak to use this attack.|n")
+                                self.msg(f"|430You cannot disarm a two-handed weapon. Please try another attack.|n")
                         else:
-                            self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
-                            self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
+                            self.caller.msg("|400You are too weak to use this attack.|n")
                     else:
-                        self.msg("|400You are too injured to act.|n")
+                        self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
                     self.caller.msg("|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.")
             else:

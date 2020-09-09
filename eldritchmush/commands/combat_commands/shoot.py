@@ -34,6 +34,11 @@ class CmdShoot(Command):
 
         # Init combat helper class for logic
         h = Helper(self.caller)
+
+        if not h.canFight(self.caller):
+            caller.msg("|400You are too injured to act.|n")
+            return
+
         # Check for and error handle designated target
         target = self.caller.search(self.target)
 
@@ -63,32 +68,28 @@ class CmdShoot(Command):
 
                     # Compare caller attack_result to target av.
                     # If attack_result > target av -> hit, else miss
-                    if h.canFight(self.caller):
-                        if h.isAlive(target):
-                            if attack_result >= target.db.av:
-                                self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
-                                if shot_location == "torso" and target.db.body > 0:
-                                    target.db.body = 0
-                                    self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death.|n")
-                                else:
-                                    h.deathSubtractor(bow_damage, target, self.caller)
-                                # # Remove an arrow from their current count.
-                                # self.caller.db.arrows -= 1
-                                # self.msg(f"|430You now have {self.db.arrows} arrows.|n")
+                    if h.isAlive(target):
+                        if attack_result >= target.db.av:
+                            self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
+                            if shot_location == "torso" and target.db.body > 0:
+                                target.db.body = 0
+                                self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death.|n")
                             else:
-                                # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                                self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 at {target.key}|n (|400{target.db.av}|n)|025, but it misses.|n")
-                            # Clean up
-                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                            loop.combatTurnOff(self.caller)
-                            loop.cleanup()
-
+                                h.deathSubtractor(bow_damage, target, self.caller)
+                            # # Remove an arrow from their current count.
+                            # self.caller.db.arrows -= 1
+                            # self.msg(f"|430You now have {self.db.arrows} arrows.|n")
                         else:
-                            self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
-                            self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}|n")
+                            # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
+                            self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 at {target.key}|n (|400{target.db.av}|n)|025, but it misses.|n")
+                        # Clean up
+                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                        loop.combatTurnOff(self.caller)
+                        loop.cleanup()
 
                     else:
-                        self.msg("|400You are too injured to act.|n")
+                        self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}|n")
 
             else:
                 self.msg("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n")

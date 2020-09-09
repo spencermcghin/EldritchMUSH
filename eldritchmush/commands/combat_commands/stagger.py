@@ -29,6 +29,10 @@ class CmdStagger(Command):
         # Instantiate helper function class
         h = Helper(self.caller)
 
+        if not h.canFight(caller):
+            caller.msg("|400You are too injured to act.|n")
+            return
+
         # Check for and error handle designated target
         target = self.caller.search(self.target)
 
@@ -58,42 +62,39 @@ class CmdStagger(Command):
                     shot_location = h.shotFinder(target.db.targetArray)
 
                     # Do all the checks
-                    if h.canFight(self.caller):
-                        if h.isAlive(target):
-                          if staggersRemaining > 0:
-                            if not combat_stats.get("weakness", 0):
-                                    if attack_result >= target.db.av:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {target.key} out of their footing|n (|400{target.db.av}|n)|025, and dealing {damage} damage.|n")
-                                        # Do damage resolution block
-                                        if target_av:
-                                            # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                                            new_av = h.damageSubtractor(damage, target, self.caller)
-                                            # Update target av to new av score per damageSubtractor
-                                            target.db.av = new_av
-                                            target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-                                        else:
-                                            # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
-                                            if shot_location == "torso" and target.db.body > 0:
-                                                target.db.body = 0
-                                                self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is bleeding to death. They will soon be unconscious.|n")
-                                            else:
-                                                h.deathSubtractor(damage, target, self.caller)
-
-                                        # Decrement amount of cleaves from amount in database
-                                        self.caller.db.stagger -= 1
+                    if h.isAlive(target):
+                      if staggersRemaining > 0:
+                        if not combat_stats.get("weakness", 0):
+                                if attack_result >= target.db.av:
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {target.key} out of their footing|n (|400{target.db.av}|n)|025, and dealing {damage} damage.|n")
+                                    # Do damage resolution block
+                                    if target_av:
+                                        # subtract damage from corresponding target stage (shield_value, armor, tough, body)
+                                        new_av = h.damageSubtractor(damage, target, self.caller)
+                                        # Update target av to new av score per damageSubtractor
+                                        target.db.av = new_av
+                                        target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow, attempting to stagger {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
-                                    # Clean up
-                                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                                    loop.combatTurnOff(self.caller)
-                                    loop.cleanup()
-                            else:
-                                self.caller.msg("|400You are too weak to use this attack.|n")
+                                        # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
+                                        if shot_location == "torso" and target.db.body > 0:
+                                            target.db.body = 0
+                                            self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is bleeding to death. They will soon be unconscious.|n")
+                                        else:
+                                            h.deathSubtractor(damage, target, self.caller)
+
+                                    # Decrement amount of cleaves from amount in database
+                                    self.caller.db.stagger -= 1
+                                else:
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow, attempting to stagger {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
+                                # Clean up
+                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                loop.combatTurnOff(self.caller)
+                                loop.cleanup()
                         else:
-                            self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
-                            self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
+                            self.caller.msg("|400You are too weak to use this attack.|n")
                     else:
-                        self.msg("|400You are too injured to act.|n")
+                        self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
                     self.caller.msg("|400You have 0 staggers remaining or do not have the skill.\nPlease choose another action.")
             else:
