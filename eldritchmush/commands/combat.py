@@ -257,12 +257,12 @@ class Helper():
 
         return armor_value
 
-	def dmgPenalty(self):
-		return self.bodyChecker(self.caller.db.body)
-	
-	def weaknessPenalty(self):
-		return self.weaknessChecker(self.caller.db.weakness)
-	
+    def dmgPenalty(self):
+        return self.bodyChecker(self.caller.db.body)
+
+    def weaknessPenalty(self):
+        return self.weaknessChecker(self.caller.db.weakness)
+
     def getMeleeCombatStats(self, combatant):
         # Get hasMelee for character to check that they've armed themselves.
         melee = combatant.db.melee
