@@ -44,7 +44,6 @@ class CmdStun(Command):
         else:
             return
 
-
         # Run logic for cleave command
         if self.caller.db.combat_turn:
 
