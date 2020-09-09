@@ -469,7 +469,27 @@ class CmdEquip(Command):
 
         # Check if the item is of armor type
         if item:
-            if item.db.is_armor and item not in self.caller.db.body_slot:
+            if item.db.hand_slot and item not in self.caller.db.hand_slot:
+                self.caller.db.hand_slot.append(item)
+
+                # Add extra points from indomitable if armor still has material_value
+                if item.db.resist > 0 and self.caller.db.resist:
+                    self.caller.db.resist += item.db.resist
+
+                self.msg(f"You don {item.key}.")
+                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+
+            elif item.db.foot_slot and item not in self.caller.db.foot_slot:
+                self.caller.db.foot_slot.append(item)
+
+                # Add extra points from indomitable if armor still has material_value
+                if item.db.resist > 0 and self.caller.db.resist:
+                    self.caller.db.resist += item.db.resist
+
+                self.msg(f"You don {item.key}.")
+                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+
+            elif item.db.is_armor and item not in self.caller.db.body_slot:
                 self.caller.db.body_slot.append(item)
                 self.caller.db.armor = item.db.material_value
 
