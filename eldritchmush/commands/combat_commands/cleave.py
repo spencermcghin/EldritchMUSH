@@ -30,6 +30,11 @@ class CmdCleave(Command):
         # Init combat helper functions
         h = Helper(self.caller)
 
+        # Check to make sure caller is healthy enough to use command.
+        if not h.canFight(self.caller):
+            self.msg("|400You are too injured to act.|n")
+            return
+
         # Get target if there is one
         target = self.caller.search(self.target)
 
@@ -58,31 +63,28 @@ class CmdCleave(Command):
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
 
-                    if h.canFight(self.caller):
-                        if h.isAlive(target):
-                            if not combat_stats.get("weakness", 0):
-                                    if attack_result >= target.db.av:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|025, dealing|n (|430{damage}|n) |025damage|n.")
-                                        # Decrement amount of cleaves from amount in database
-                                        self.caller.db.cleave -= 1
-                                        if shot_location == "torso" and target.db.body > 0:
-                                            target.db.body = 0
-                                            self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
-                                        else:
-                                            h.deathSubtractor(damage, target, self.caller)
+                    if h.isAlive(target):
+                        if not combat_stats.get("weakness", 0):
+                                if attack_result >= target.db.av:
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|025, dealing|n (|430{damage}|n) |025damage|n.")
+                                    # Decrement amount of cleaves from amount in database
+                                    self.caller.db.cleave -= 1
+                                    if shot_location == "torso" and target.db.body > 0:
+                                        target.db.body = 0
+                                        self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
                                     else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} swings ferociously|n (|030{attack_result}|n) |025at {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
-                                    # Clean up
-                                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                                    loop.combatTurnOff(self.caller)
-                                    loop.cleanup()
-                            else:
-                                self.caller.msg("|400You are too weak to use this attack.|n")
+                                        h.deathSubtractor(damage, target, self.caller)
+                                else:
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} swings ferociously|n (|030{attack_result}|n) |025at {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
+                                # Clean up
+                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                loop.combatTurnOff(self.caller)
+                                loop.cleanup()
                         else:
-                            self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
-                            self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
+                            self.caller.msg("|400You are too weak to use this attack.|n")
                     else:
-                        self.msg("|400You are too injured to act.|n")
+                        self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
                     self.caller.msg("|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action.")
             else:
