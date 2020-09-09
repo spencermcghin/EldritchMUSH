@@ -33,6 +33,10 @@ class CmdStun(Command):
         # Init combat helper functions
         h = Helper(self.caller)
 
+        if not h.canFight(self.caller):
+            caller.msg("|400You are too injured to act.|n")
+            return
+
         # Get target if there is one
         target = self.caller.search(self.target)
 
@@ -41,7 +45,6 @@ class CmdStun(Command):
             loop.resolveCommand()
         else:
             return
-
 
         # Run logic for cleave command
         if self.caller.db.combat_turn:
@@ -60,31 +63,28 @@ class CmdStun(Command):
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
 
-                    if h.canFight(self.caller):
-                        if h.isAlive(target):
-                            if not combat_stats.get("weakness", 0):
-                                    if attack_result >= target.db.av:
-                                        # Decrement amount of cleaves from amount in database
-                                        self.caller.db.stun -= 1
-                                        # Set disarmed flag on target
-                                        target.db.skip_turn = True
-                                        # Resolve damage
-                                        # Stun status message to target
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} lines up behind {target.key} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|400{target.db.av}|n)|025.|n")
+                    if h.isAlive(target):
+                        if not combat_stats.get("weakness", 0):
+                                if attack_result >= target.db.av:
+                                    # Decrement amount of cleaves from amount in database
+                                    self.caller.db.stun -= 1
+                                    # Set disarmed flag on target
+                                    target.db.skip_turn = True
+                                    # Resolve damage
+                                    # Stun status message to target
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} lines up behind {target.key} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|400{target.db.av}|n)|025.|n")
 
-                                    else:
-                                        self.caller.location.msg_contents(f"|025{self.caller.key} (|020{attack_result}|n) |025lines up behind {target.key}|n (|400{target.db.av}|n)|025, but misses their opportunity to stun them.|n")
-                                    # Clean up
-                                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                                    loop.combatTurnOff(self.caller)
-                                    loop.cleanup()
-                            else:
-                                self.caller.msg("|400You are too weak to use this attack.|n")
+                                else:
+                                    self.caller.location.msg_contents(f"|025{self.caller.key} (|020{attack_result}|n) |025lines up behind {target.key}|n (|400{target.db.av}|n)|025, but misses their opportunity to stun them.|n")
+                                # Clean up
+                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                loop.combatTurnOff(self.caller)
+                                loop.cleanup()
                         else:
-                            self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
-                            self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
+                            self.caller.msg("|400You are too weak to use this attack.|n")
                     else:
-                        self.msg("|400You are too injured to act.|n")
+                        self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
+                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
                 else:
                     self.caller.msg("|400You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n")
             else:

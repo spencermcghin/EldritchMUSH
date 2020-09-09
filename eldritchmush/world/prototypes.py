@@ -623,9 +623,11 @@ MASTERWORK_STEEL_PLATEMAIL = {
 "level": 3
 }
 
+
 """
 Begin artificer protoypes
 """
+
 ARTIFICER_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Arifticer Kit",
@@ -732,7 +734,7 @@ DUELIST_GLOVES = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Duelist Gloves",
 "aliases": ["duelist gloves"],
-"type": "hand",
+"hand_slot": True,
 "required_resources": 12,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -749,7 +751,7 @@ STALWART_BOOTS = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Stalwart Boots",
 "aliases": ["stalwart boots"],
-"type": "foot",
+"foot_slot": True,
 "required_resources": 12,
 "iron_ingots": 3,
 "refined_wood": 0,
