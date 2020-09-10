@@ -51,6 +51,7 @@ class CmdStabilize(Command):
                 loop.resolveCommand()
         else:
             self.msg("|430Please designate an appropriate target.|n")
+            return
 
         #TODO: Spence Review - This originally used medicine AND stabilize but I changed it to just use stabilize.  Is that wrong?
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):

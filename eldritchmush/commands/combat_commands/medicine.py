@@ -44,6 +44,7 @@ class CmdMedicine(Command):
                 pass
         else:
             self.msg("|430Please designate an appropriate target.|n")
+            return
 
         if combatant.hasTurn():
             if combatant.medicine():
