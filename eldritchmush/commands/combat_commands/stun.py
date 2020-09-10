@@ -34,7 +34,7 @@ class CmdStun(Command):
         h = Helper(self.caller)
 
         if not h.canFight(self.caller):
-            caller.msg("|400You are too injured to act.|n")
+            self.caller.msg("|400You are too injured to act.|n")
             return
 
         # Get target if there is one

@@ -14,13 +14,13 @@ class CmdBattlefieldMedicine(Command):
         self.target = self.args.strip()
 
     def func(self):
+        combatant = Combatant(self.caller)
+
         "This actually does things"
         # Check for correct command
         if not self.args:
             self.caller.msg("|430Usage: medic <target>|n")
             return
-
-        combatant = Combatant(self.caller)
 
         if combatant.cantFight():
             combatant.message("|400You are too injured to act.|n")
@@ -48,10 +48,10 @@ class CmdBattlefieldMedicine(Command):
                 # Use parsed args in combat loop. Handles turn order in combat.
                 # Resolve medic command
                 if victim.hasBody(3):
-                    combatant.message(f"{victim.name()} does not require the application of your healing skills.")
+                    combatant.message(f"{victim.name} does not require the application of your healing skills.")
                 elif victim.hasBody(1) or victim.hasBody(2):
                     # If not over 1, add points to total
-                    victim.broadcast(f"|025{combatant.name()} comes to {victim.name()}'s rescue, healing {victim.name()} for|n (|4301|n) |025body point.|n")
+                    victim.broadcast(f"|025{combatant.name} comes to {victim.name}'s rescue, healing {victim.name} for|n (|4301|n) |025body point.|n")
                     victim.addBody(1)
 
                     victim.message(f"|540Your new body value is:|n {victim.body()}|n")
@@ -63,7 +63,7 @@ class CmdBattlefieldMedicine(Command):
                     else:
                         return
                 elif victim.body() <= 0:
-                    combatant.broadcast(f"|025{combatant.name()} comes to {victim.name()}'s rescue, though they are too far gone.\n{victim.name()} may require the aid of more sophisticated healing techniques.|n")
+                    combatant.broadcast(f"|025{combatant.name} comes to {victim.name}'s rescue, though they are too far gone.\n{victim.name} may require the aid of more sophisticated healing techniques.|n")
                     return
             else:
                 combatant.message("|400You had better not try that.|n")
