@@ -42,6 +42,7 @@ class CmdBattlefieldMedicine(Command):
                 pass
         else:
             self.msg("|430Please designate an appropriate target.|n")
+            return
 
         if combatant.hasTurn():
             if combatant.battlefieldMedicine() and victim.body() is not None:
