@@ -474,7 +474,7 @@ class CmdEquip(Command):
                 self.caller.db.hand_slot.append(item)
 
                 # Add extra points from indomitable if armor still has material_value
-                if item.db.resist > 0 and self.caller.db.resist:
+                if item.db.resist > 0:
                     self.caller.db.resist += item.db.resist
 
                 self.msg(f"You don {item.key}.")
@@ -485,7 +485,7 @@ class CmdEquip(Command):
                 self.caller.db.foot_slot.append(item)
 
                 # Add extra points from indomitable if armor still has material_value
-                if item.db.resist > 0 and self.caller.db.resist:
+                if item.db.resist > 0:
                     self.caller.db.resist += item.db.resist
 
                 self.msg(f"You don {item.key}.")
