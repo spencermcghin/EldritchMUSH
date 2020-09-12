@@ -770,6 +770,23 @@ STALWART_BOOTS = {
 "resist": 1
 }
 
+LIGHT_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Light Boots",
+"aliases": ["light boots"],
+"foot_slot": True,
+"required_resources": 12,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 6,
+"cloth": 6,
+"value_copper": 200,
+"value_silver": 20,
+"value_gold": 2,
+"level": 1,
+"resist": 1
+}
+
 FINE_CLOTHING = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Fine Clothing",
