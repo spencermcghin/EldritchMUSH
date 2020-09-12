@@ -469,6 +469,7 @@ class CmdEquip(Command):
 
         # Check if the item is of armor type
         if item:
+            # Equip gloves and add resists
             if item.db.hand_slot and item not in self.caller.db.hand_slot:
                 self.caller.db.hand_slot.append(item)
 
@@ -479,6 +480,7 @@ class CmdEquip(Command):
                 self.msg(f"You don {item.key}.")
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
+            # Equip boots and add resists
             elif item.db.foot_slot and item not in self.caller.db.foot_slot:
                 self.caller.db.foot_slot.append(item)
 
@@ -489,6 +491,13 @@ class CmdEquip(Command):
                 self.msg(f"You don {item.key}.")
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
+            # Equip kit. Corresponding skill should reference the number of uses left.
+            elif item.db.kit_slot and item not in self.caller.db.kit_slot:
+                self.caller.db.kit_slot.append(item)
+
+                self.msg(f"You equip a {item.key} with {item.uses} uses left.")
+
+            # Equip armor
             elif item.db.is_armor and item not in self.caller.db.body_slot:
                 self.caller.db.body_slot.append(item)
                 self.caller.db.armor = item.db.material_value
