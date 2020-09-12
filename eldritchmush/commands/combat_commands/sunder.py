@@ -8,11 +8,8 @@ from typeclasses.npc import Npc
 class CmdSunder(Command):
     """
     Issues a sunder command.
-
     Usage:
-
     sunder <target>
-
     This will calculate an attack score based on your weapon and master of arms level.
     """
 

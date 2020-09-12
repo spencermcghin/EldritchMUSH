@@ -18,14 +18,14 @@ class Drag(Command):
 
     key = "drag"
     help_category = "combat"
+    def __init__(self):
+        self.target = None
 
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
 
     def func(self):
-
         # Init combat helper class for logic
         h = Helper(self.caller)
 
