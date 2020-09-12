@@ -632,7 +632,8 @@ ARTIFICER_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Arifticer Kit",
 "aliases": ["artificer kit"],
-"type": "kit",
+"type": "artificer",
+"kit_slot": True,
 "uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
@@ -649,7 +650,8 @@ BLACKSMITH_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Blacksmith Kit",
 "aliases": ["blacksmith kit"],
-"type": "kit",
+"type": "blacksmith",
+"kit_slot": True,
 "uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
@@ -666,7 +668,8 @@ AURON_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Auron Kit",
 "aliases": ["auron kit"],
-"type": "kit",
+"type": "auron",
+"kit_slot": True,
 "uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
@@ -683,7 +686,8 @@ BOWYER_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Bowyer Kit",
 "aliases": ["bowyer kit"],
-"type": "kit",
+"type": "bowyer",
+"kit_slot": True,
 "uses": 10,
 "required_resources": 12,
 "iron_ingots": 0,
@@ -700,7 +704,8 @@ GUNSMITH_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Gunsmith Kit",
 "aliases": ["gunsmith kit"],
-"type": "kit",
+"type": "gunsmith",
+"kit_slot": True,
 "uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
@@ -717,7 +722,8 @@ CHIRURGEON_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Chirurgeon Kit",
 "aliases": ["chirurgeon kit"],
-"type": "kit",
+"type": "chirurgeon",
+"kit_slot": True,
 "uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
@@ -764,6 +770,40 @@ STALWART_BOOTS = {
 "resist": 1
 }
 
+LIGHT_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Light Boots",
+"aliases": ["light boots"],
+"foot_slot": True,
+"required_resources": 12,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 6,
+"cloth": 6,
+"value_copper": 200,
+"value_silver": 20,
+"value_gold": 2,
+"level": 1,
+"resist": 1
+}
+
+FINE_CLOTHING = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Fine Clothing",
+"aliases": ["fine clothing"],
+"clothing_slot": True,
+"required_resources": 10,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 0,
+"cloth": 7,
+"value_copper": 180,
+"value_silver": 18,
+"value_gold": 1.8,
+"level": 1,
+"influential": 1
+}
+
 """
 Bowyer Items
 """
@@ -772,6 +812,7 @@ ARROWS = {
 "typeclass": "typeclasses.objects.WeaponObject",
 "key": "Arrows",
 "aliases": ["arrows"],
+"arrow_slot": True,
 "quantity": 10,
 "required_resources": 3,
 "iron_ingots": 1,

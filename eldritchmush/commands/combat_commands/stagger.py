@@ -31,8 +31,8 @@ class CmdStagger(Command):
         # Instantiate helper function class
         h = Helper(self.caller)
 
-        if not h.canFight(caller):
-            caller.msg("|400You are too injured to act.|n")
+        if not h.canFight(self.caller):
+            self.caller.msg("|400You are too injured to act.|n")
             return
 
         # Check for and error handle designated target
