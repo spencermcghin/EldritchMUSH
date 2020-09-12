@@ -510,7 +510,7 @@ class CmdEquip(Command):
             elif item.db.cloak_slot and item not in self.caller.db.cloak_slot:
                 self.caller.db.cloak_slot.append(item)
 
-                if item.db.espionage > 0 and self.caller.db.espionage:
+                if item.db.espionage > 0:
                     self.caller.db.espionage += item.db.espionage
 
                 self.msg(f"You put on the {item.key}. What does it look like?")
