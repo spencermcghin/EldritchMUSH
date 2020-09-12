@@ -52,14 +52,11 @@ class Combatant:
     def hasMoreBodyThan(self, value):
         return self.body() > value
 
-    def hasBody(self, value = None, message = None):
+    def hasBody(self, value = None):
         if value:
-            if message & self.body() == value:
-                self.message(message)
-                return True
             return self.body() == value
-        return self.body() > 0
 
+        return self.body() > 0
 
     def setBody(self, value):
         self.caller.db.body = value

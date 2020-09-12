@@ -40,56 +40,71 @@ class CmdMedicine(Command):
             if (combatant.caller in combatant.caller.location.db.combat_loop) or (target in combatant.caller.location.db.combat_loop):
                 loop = CombatLoop(combatant.caller, target)
                 loop.resolveCommand()
-            else:
-                pass
         else:
             self.msg("|430Please designate an appropriate target.|n")
             return
 
         if combatant.hasTurn():
-            if combatant.medicine():
-                # Check to see if the target is already healed to max.
+            # Anything from this level on, consumes the users turn.  Learn to Diagnose!
+            if not victim.hasBody(3):
                 if victim.hasMoreBodyThan(0):
-                    combatant.message(f"|025You can help {victim.name} no more.|n")
-                    return
-
-                else:
-                    """
-                    Get max bleed points.
-                    1. If target has max bleed points and 0 body, heal up to 1 body.
-                    2. elif: target has under max bleed points, add caller medicine level in bleed points and excess to body, up to 1.
-                    3. else target is out of bleed points, prompt that you can't heal target.
-                    """
-                    new_bp_value = victim.totalBleedPoints() + victim.resilience() + combatant.medicine()
-
-                    if victim.atMaxBleedPoints() and victim.body() == 0:
+                    if combatant.battlefieldMedicine():
+                        # Victim is at 1 or 2 body, apply Battlefield_Medicine
                         victim.addBody(1)
-                        combatant.broadcast(f"|025{combatant.name} performs some minor healing techniques and provides|n (|4301|n) |025points of aid to {victim.name}.|n")
-                    elif victim.hasBleedPoints() and (victim.bleedPoints() < victim.totalBleedPoints()):
-                        if new_bp_value > victim.totalBleedPoints():
-                            # Set to max bleed_points
-                            victim.setBleedPoints(victim.totalBleedPoints())
+                        victim.broadcast(
+                            f"|025{combatant.name} comes to {victim.name}'s rescue, healing {victim.name} for|n (|4301|n) |025body point.|n")
+                        victim.message(f"|540Your new body value is:|n {victim.body()}|n")
+                    else:
+                        #todo: Since their turn is ending, should we broadcast something?
+                        victim.broadcast(
+                            f"|025{combatant.name} tries to aid {victim.name} but they are not skilled enough to benefit them further.|n")
+                        combatant.message(f"|025You can help {victim.name} no more.|n");
+                elif victim.atMaxBleedPoints() and victim.body() == 0:
+                    # Check which skills get applied at 0 bleed and body
+                    if combatant.battlefieldMedicine() or combatant.stabilize() or combatant.medicine():
+                        victim.broadcast(f"|025{combatant.name} performs some minor healing techniques and provides|n (|4301|n) |025points of aid to {victim.name}.|n")
+                        victim.addBody(1)
+                    else:
+                        victim.broadcast(
+                            f"|025{combatant.name} tries to aid {victim.name} but with no training they are unable to help.|n")
+                elif victim.isAtMaxDeathPoints() and not victim.atMaxBleedPoints():
+                    if combatant.stabilize() or combatant.medicine():
+                        amount_to_heal = combatant.medicine()
+                        if combatant.stabilize() > combatant.medicine():
+                            amount_to_heal = combatant.stabilize()
 
-                            #This section feels like it could/should be refactored and might be missing an output?
-                            # Add extra to body
-                            excess_bp = new_bp_value - victim.totalBleedPoints()
-                            if excess_bp + victim.body() > 1:
-                                # current body = 0
-                                # bleed points = 2
-                                # heal for 3
-                                victim.setBody(1)
-                                combatant.broadcast(f"|025{combatant.name} performs some minor healing techniques and provides|n (|430{combatant.medicine()}|n) |025points of aid to {victim.name} (up to 1 body).|n")
-                            else:
-                                combatant.debugMessage(f"|400Unimplemented Message 1|n")
-                                victim.addBody(excess_bp)
+                        if amount_to_heal > victim.missingBleedPoints():
+                            victim.setBody(1)
+                            victim.resetBleedPoints()
+                            combatant.broadcast(
+                                f"|025{combatant.name} performs some minor healing techniques and provides|n (|430{amount_to_heal}|n) |025points of aid to {victim.name}.  {victim.name} returns to the fight, but weakened|n")
                         else:
-                            combatant.debugMessage(f"|400Unimplemented Message 2|n")
                             victim.addBleedPoints(combatant.medicine())
+                            combatant.broadcast(
+                                f"|025{combatant.name} performs some minor healing techniques and provides|n (|430{amount_to_heal}|n) |025points of aid to {victim.name}.|n")
+                    else:
+                        combatant.message(f"|400You are not skilled enough.|n")
+                        victim.broadcast(
+                            f"|025{combatant.name} tries to stop {victim.name} from bleeding, but is unable to|n")
+                elif victim.hasDeathPoints(1) or victim.hasDeathPoints(2):
+                    if combatant.stabilize():
+                        combatant.broadcast(f"|025{combatant.name} performs advanced healing techniques and provides|n (|430{combatant.stabilize()}|n) |025 points of aid to {victim.name}.|n")
+                        if combatant.stabilize() > victim.missingDeathPoints():
+                            remaining_healing = combatant.stabilize() - victim.missingDeathPoints()
+                            victim.setDeathPoints(3)
+                            victim.addBleedPoints(remaining_healing)
+                            combatant.message(f"|400You are able to stop {victim.name} from dying, but they are still bleeding out!.|n")
+                        else:
+                            victim.addDeathPoints(combatant.stabilize())
                     else:
                         combatant.message(f"|400{victim.name}'s injuries are beyond your skill as a healer.|n")
-                        return
+                        victim.broadcast(
+                            f"|025{combatant.name} tries to stop {victim.name} from dying, but is unable to|n")
+                else:
+                    combatant.message(f"{victim.name} |025is too fargone to administer further healing.|n")
             else:
-                combatant.message("|400You are not skilled enough.|n")
+                combatant.message(f"{victim.name} does not require the application of your healing skills.|n")
+                combatant.broadcast( f"|025{combatant.name} tries to aid {victim.name} but they are uninjured!|n")
 
             # Clean up in combat loop
             if (combatant.caller in combatant.caller.location.db.combat_loop) or (target in combatant.caller.location.db.combat_loop):
