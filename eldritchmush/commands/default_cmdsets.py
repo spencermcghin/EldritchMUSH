@@ -23,7 +23,8 @@ from commands.combat_commands import strike, disengage, shoot, cleave, battlefie
 
 class RoomCmdSet(CmdSet):
 
-    """General room command set"""
+    """General room command set. Be sure to build other location based command
+    sets with this as the parent class."""
 
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
