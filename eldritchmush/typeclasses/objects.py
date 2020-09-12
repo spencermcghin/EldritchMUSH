@@ -387,6 +387,13 @@ class ArtificerObject(DefaultObject):
         self.db.value_silver = 0
         self.db.value_gold = 0
 
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+
+        looker.msg(f"{string}")
+        looker.msg(f"This {self.key} has {self.db.uses} uses left|n\n\n")
+
+
 """
 Storage Objects
 This is the base class type for an object that contains resources as attributes, i.e. gold, refined wood, etc...
