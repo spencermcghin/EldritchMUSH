@@ -653,26 +653,26 @@ class CmdUnequip(Command):
                 self.left_slot.remove(item)
                 self.caller.db.weapon_level = 0
 
-            elif item in self.caller.cloak_slot:
+            elif item in self.caller.db.cloak_slot:
                 # Unequip cloak and remove associated espionage points.
                 self.caller.db.cloak_slot.remove(item)
                 self.caller.db.espionage -= item.db.espionage
 
-            elif item in self.caller.clothing_slot:
+            elif item in self.caller.db.clothing_slot:
                 # Unequip clothing and remove associated influential points.
                 self.caller.db.clothing_slot.remove(item)
                 self.caller.db.influential -= item.db.influential
 
-            elif item in self.caller.kit_slot:
+            elif item in self.caller.db.kit_slot:
                 # Unequip kit.
                 self.caller.db.kit_slot.remove(item)
 
-            elif item in self.caller.hand_slot:
+            elif item in self.caller.db.hand_slot:
                 # Unequip gloves and remove associated resists.
                 self.caller.db.hand_slot.remove(item)
                 self.caller.db.resist -= item.db.resist
 
-            elif item in self.caller.foot_slot:
+            elif item in self.caller.db.foot_slot:
                 # Unequip boots and remove associated resists.
                 self.caller.db.foot_slot.remove(item)
                 self.caller.db.resist -= item.db.resist
