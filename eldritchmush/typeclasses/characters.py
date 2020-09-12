@@ -101,6 +101,7 @@ class Character(DefaultCharacter):
         self.db.foot_slot = []
         self.db.clothing_slot = []
         self.db.cloak_slot = []
+        self.db.kit_slot = []
 
         # Entries for knights
         self.db.battlefieldcommander = 0
