@@ -44,6 +44,8 @@ class Character(DefaultCharacter):
         self.db.body = 3
         self.db.av = 0
         self.db.resilience = 0
+        self.db.influential = 0
+        self.db.espionage = 0
 
         # Entries for hit location system
         self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
@@ -66,7 +68,7 @@ class Character(DefaultCharacter):
         self.db.battlefieldmedicine = 0
         self.db.chirurgeon = 0
 
-        # Entries for status effects
+        # Entries for status
         self.db.weakness = 0
         self.db.bleed_points = 3
         self.db.death_points = 3
@@ -88,6 +90,10 @@ class Character(DefaultCharacter):
         self.db.activemartialskill = 1
         self.db.combat_turn = 1
         self.db.in_combat = 0
+        self.db.is_aggressive = False
+        self.db.skip_turn = False
+
+        # Char slots for equipping items
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
@@ -95,8 +101,6 @@ class Character(DefaultCharacter):
         self.db.foot_slot = []
         self.db.clothing_slot = []
         self.db.cloak_slot = []
-        self.db.is_aggressive = False
-        self.db.skip_turn = False
 
         # Entries for knights
         self.db.battlefieldcommander = 0

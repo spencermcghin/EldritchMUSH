@@ -770,6 +770,23 @@ STALWART_BOOTS = {
 "resist": 1
 }
 
+FINE_CLOTHING = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Fine Clothing",
+"aliases": ["fine clothing"],
+"clothing_slot": True,
+"required_resources": 10,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 0,
+"cloth": 7,
+"value_copper": 180,
+"value_silver": 18,
+"value_gold": 1.8,
+"level": 1,
+"influential": 1
+}
+
 """
 Bowyer Items
 """
