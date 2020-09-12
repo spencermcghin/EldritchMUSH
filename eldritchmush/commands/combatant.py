@@ -262,3 +262,15 @@ class Combatant:
 
     def getTough(self):
         return self.db.tough
+
+    def hasChirurgeonsKit(self):
+        kit_type, uses = self.helper.getKitTypeAndUsesItem()
+        has_kit = False
+        if (kit_type == 'chirurgeon') and (uses > 0) :
+            has_kit = True
+
+        return has_kit
+
+    def useChirurgeonsKit(self):
+        self.helper.useKit()
+
