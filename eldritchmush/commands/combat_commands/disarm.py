@@ -19,8 +19,11 @@ class CmdDisarm(Command):
     key = "disarm"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
+        # Very trivial parser
         self.target = self.args.strip()
 
     def func(self):
@@ -51,11 +54,11 @@ class CmdDisarm(Command):
         if self.caller.db.combat_turn:
 
             combat_stats = h.getMeleeCombatStats(self.caller)
-            disarmsRemaining = self.caller.db.disarm
+            disarms_remaining = self.caller.db.disarm
 
             # Check to see if player holding a weapon in either hand. Sunder removes weapon from player slot. Won't let you equip broken weapons.
             if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
-                if disarmsRemaining > 0:
+                if disarms_remaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 

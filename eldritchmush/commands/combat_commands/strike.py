@@ -19,8 +19,10 @@ class CmdStrike(Command):
     aliases = ["hit", "slash", "bash", "punch"]
     help_category = "combat"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
 
