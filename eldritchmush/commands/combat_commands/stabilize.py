@@ -32,14 +32,6 @@ class CmdStabilize(Command):
         # Get caller level of stabilize and emote how many points the caller will heal target that round.
         # May not increase targets body past 1
         # Only works on targets with body <= 0
-        #target_body = victim.body
-        #target_bleed_points = victim.bleed_points
-        #target_death_points = victim.death_points
-        #stabilize = caller.db.stabilize
-        #medicine = caller.db.medicine
-        #target_resilience = victim.resilience
-        #target_total_bleed_points = target_resilience + 3
-        #new_bp_value = target_total_bleed_points + target_resilience + medicine
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.

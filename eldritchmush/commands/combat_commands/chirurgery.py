@@ -1,6 +1,5 @@
 # Local imports
 from evennia import Command
-from world.combat_loop import CombatLoop
 from commands.combatant import Combatant
 
 # imports
