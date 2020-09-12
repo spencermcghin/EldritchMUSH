@@ -31,7 +31,7 @@ class CmdStagger(Command):
         # Instantiate helper function class
         h = Helper(self.caller)
 
-        if not h.canFight(caller):
+        if not h.canFight(self.caller):
             self.caller.msg("|400You are too injured to act.|n")
             return
 
