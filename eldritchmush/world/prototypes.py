@@ -804,6 +804,23 @@ FINE_CLOTHING = {
 "influential": 1
 }
 
+HIGHWAYMAN_CLOAK = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Highwayman Cloak",
+"aliases": ["highwayman cloak"],
+"cloak_slot": True,
+"required_resources": 10,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 3,
+"cloth": 7,
+"value_copper": 180,
+"value_silver": 18,
+"value_gold": 1.8,
+"level": 1,
+"espionage": 1
+}
+
 """
 Bowyer Items
 """
