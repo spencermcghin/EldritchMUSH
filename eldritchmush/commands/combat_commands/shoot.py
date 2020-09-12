@@ -39,7 +39,7 @@ class CmdShoot(Command):
         h = Helper(self.caller)
 
         if not h.canFight(self.caller):
-            caller.msg("|400You are too injured to act.|n")
+            self.caller.msg("|400You are too injured to act.|n")
             return
 
         # Check for and error handle designated target
