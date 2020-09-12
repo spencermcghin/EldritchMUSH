@@ -73,7 +73,7 @@ class BoxCmdSet(CmdSet):
         self.add(command.CmdPushButton())
 
 
-class AltarCmdSet(CmdSet):
+class AltarCmdSet(RoomCmdSet):
     """
     Command set for box object in carnival
     """
