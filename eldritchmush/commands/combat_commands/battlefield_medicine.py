@@ -1,71 +1,74 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combat import Helper
+from commands.combatant import Combatant
 
 class CmdBattlefieldMedicine(Command):
     key = "medic"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
+
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
+        combatant = Combatant(self.caller)
+
         "This actually does things"
         # Check for correct command
         if not self.args:
             self.caller.msg("|430Usage: medic <target>|n")
             return
 
-        # Init combat helper functions
-        h = Helper(self.caller)
-
-        if not h.canFight(self.caller):
-            caller.msg("|400You are too injured to act.|n")
+        if combatant.cantFight():
+            combatant.message("|400You are too injured to act.|n")
             return
 
         # Get target if there is one
         target = self.caller.search(self.target)
-        caller = self.caller
+        victim = Combatant(target)
 
-        # Get target body and BM to validate target and caller has skill.
-        target_body = target.db.body
-        battlefield_medicine = caller.db.battlefieldmedicine
-
-        # Go through combat loop logic
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
+        #TODO: This code is repeated.  FIND ME A REFACTOR!
         if target:
-            if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
-                loop = CombatLoop(caller, target)
+            if (combatant.caller in combatant.caller.location.db.combat_loop) or (
+                    target in combatant.caller.location.db.combat_loop):
+                loop = CombatLoop(combatant.caller, target)
                 loop.resolveCommand()
             else:
                 pass
         else:
             self.msg("|430Please designate an appropriate target.|n")
+            return
 
-        if caller.db.combat_turn:
-            if battlefield_medicine and target_body is not None:
+        if combatant.hasTurn():
+            if combatant.battlefieldMedicine() and victim.body() is not None:
                 # Use parsed args in combat loop. Handles turn order in combat.
                 # Resolve medic command
-                if target.db.body == 3:
-                    self.msg(f"{target.key} does not require the application of your healing skills.")
-                elif 1 <= target.db.body < 3:
+                if victim.hasBody(3):
+                    combatant.message(f"{victim.name} does not require the application of your healing skills.")
+                elif victim.hasBody(1) or victim.hasBody(2):
                     # If not over 1, add points to total
-                    target.location.msg_contents(f"|025{caller.key} comes to {target.key}'s rescue, healing {target.key} for|n (|4301|n) |025body point.|n")
-                    target.db.body += 1
-                    target.msg(f"|540Your new body value is:|n {target.db.body}|n")
+                    victim.broadcast(f"|025{combatant.name} comes to {victim.name}'s rescue, healing {victim.name} for|n (|4301|n) |025body point.|n")
+                    victim.addBody(1)
+
+                    victim.message(f"|540Your new body value is:|n {victim.body()}|n")
                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                    if (caller in caller.location.db.combat_loop) or (target in caller.location.db.combat_loop):
-                        loop.combatTurnOff(caller)
+                    if (combatant.caller in combatant.caller.location.db.combat_loop) or (
+                            target in combatant.caller.location.db.combat_loop):
+                        loop.combatTurnOff(combatant.caller)
                         loop.cleanup()
                     else:
                         return
-                elif target.db.body <= 0:
-                    caller.location.msg_contents(f"|025{caller.key} comes to {target.key}'s rescue, though they are too fargone.\n{target.key} may require the aid of more sophisticated healing techniques.|n")
+                elif victim.body() <= 0:
+                    combatant.broadcast(f"|025{combatant.name} comes to {victim.name}'s rescue, though they are too far gone.\n{victim.name} may require the aid of more sophisticated healing techniques.|n")
                     return
             else:
-                caller.msg("|400You had better not try that.|n")
+                combatant.message("|400You had better not try that.|n")
                 return
         else:
-            caller.msg("|430You need to wait until it is your turn before you are able to act.|n")
+            combatant.message("|430You need to wait until it is your turn before you are able to act.|n")
             return

@@ -6,11 +6,8 @@ from commands.combat import Helper
 class CmdResist(Command):
     """
     Issues a resist command.
-
     Usage:
-
     resist
-
     This will issue a resist command that adds one to your body or tough, and decrements one from a character's available resists.
     """
 

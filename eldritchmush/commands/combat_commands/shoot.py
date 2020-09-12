@@ -17,14 +17,17 @@ class CmdShoot(Command):
     key = "shoot"
     help_category = "mush"
 
+    def __init__(self):
+        self.target = None
 
     def parse(self):
-        "Very trivial parser"
         self.target = self.args.strip()
 
     def func(self):
         # Check for correct command
         # Target handling
+
+
         if not self.args:
             self.msg("|430Usage: shoot <target>|n")
             return
