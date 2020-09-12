@@ -195,11 +195,7 @@ class Helper():
         target_shield_value = target.db.shield_value  # Applied conditionally
         target_armor = target.db.armor
         target_tough = target.db.tough
-        target_body = target.db.body
         target_armor_specialist = target.db.armor_specialist
-        target_armor_value = target.db.av
-        target_bleed_points = target.db.bleed_points
-        target_death_points = target.db.death_points
 
         # Apply damage in order
         if target_shield_value:

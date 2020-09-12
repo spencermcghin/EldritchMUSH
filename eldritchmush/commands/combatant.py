@@ -1,5 +1,4 @@
 from commands.combat import Helper
-from typeclasses.characters import Character
 
 class Combatant:
     """
@@ -11,7 +10,8 @@ class Combatant:
         self.caller = caller
         self.helper = Helper(caller)
         self.name = self.caller.key
-        self.combatStats = self.helper.getMeleeCombatStats(self.caller);
+        self.combatStats = self.helper.getMeleeCombatStats(self.caller)
+        self.target = None
 
     def canFight(self):
         return self.helper.canFight(self.caller)
@@ -52,8 +52,11 @@ class Combatant:
     def hasMoreBodyThan(self, value):
         return self.body() > value
 
-    def hasBody(self, value = None):
+    def hasBody(self, value = None, message = None):
         if value:
+            if message & self.body() == value:
+                self.message(message)
+                return True
             return self.body() == value
         return self.body() > 0
 
@@ -222,3 +225,43 @@ class Combatant:
 
     def stun(self):
         self.caller.db.skip_turn = True
+
+    def takeFatalDamage(self,combatant):
+        damage = self.body();
+        self.takeDamage(combatant, damage)
+
+    def takeDamage(self, combatant, amount):
+        return self.helper.damageSubtractor(amount, self.caller, combatant)
+
+    def takeDeath(self, combatant, amount):
+        return self.helper.deathSubtractor(amount, self.caller, combatant)
+
+    def hasDamageVulnerability(self):
+        return
+
+    def getVictim(self, target):
+        # Get target if there is one
+        self.target = self.caller.search(target)
+        return Combatant(self.target)
+
+    def getDamage(self):
+        if self.combatStats.get("two_handed", False):
+            return 1
+        else:
+            return 2
+
+    def setAv(self, amount):
+        #TODO: Should we set Max/Min?
+        self.caller.db.av = amount
+
+    def getShield(self):
+        return self.db.shield
+
+    def getArmorSpecialist(self):
+        return self.db.armor_specialist
+
+    def getArmor(self):
+        return self.db.armor
+
+    def getTough(self):
+        return self.db.tough
