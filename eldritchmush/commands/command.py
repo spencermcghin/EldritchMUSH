@@ -610,7 +610,7 @@ class CmdEquip(Command):
                             self.caller.db.weapon_level = weapon_bonus
 
                     else:
-                        self.caller.msg("|430You are carrying items in both hands.|n")
+                        self.caller.msg("|430You are already carrying an item in that slot.|n")
                         return
                 else:
                     self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
