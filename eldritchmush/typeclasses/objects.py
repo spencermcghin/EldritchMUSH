@@ -373,6 +373,29 @@ class ArtificerWorkshop(DefaultObject):
             string += f"\n\n{self.db.artificer_text}"
         return string
 
+class GunsmithWorkshop(DefaultObject):
+    """
+    Available commands:
+
+    craft <item>
+    repair <item>
+    """
+
+    def at_object_creation(self):
+        "Called when object is first created"
+        # Maintain state of object
+        self.locks.add("get:false()")
+        self.db.desc = "\nThis is a large workshop used by gunsmiths in their trade. Metal and wood are expertly crafted and shaped into the core components of black-powder pistols. Many barrels of water surround the small structure given its penchant for setting alight."
+        self.db.gunsmith_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_pistol.|n"
+        # Add command set for interacting with box
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if looker.db.gunsmith:
+            string += f"\n\n{self.db.gunsmith_text}"
+        return string
+
 class BlacksmithObject(DefaultObject):
 
     def at_object_creation(self):
