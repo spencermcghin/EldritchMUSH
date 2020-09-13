@@ -159,6 +159,9 @@ class Combatant:
     def disarmsRemaining(self):
         return self.caller.db.disarm
 
+    def staggersRemaining(self):
+        return self.caller.db.stagger
+
     def hasStunsRemaining(self,message=None):
         if message and self.stunsRemaining() <= 0:
             self.message(message)
@@ -170,6 +173,12 @@ class Combatant:
             self.message(message)
 
         return self.disarmsRemaining()
+
+    def hasStaggersRemaining(self, message=None):
+        if message and self.staggersRemaining() <= 0:
+            self.message(message)
+
+        return self.staggersRemaining()
 
     def getRightHand(self):
         return self.combatStats.get("right_slot", '')
@@ -201,14 +210,13 @@ class Combatant:
         else:
             return True
 
-    def rollAttack(self):
+    def rollAttack(self, maneuver_difficulty = 0):
         die_result = self.helper.fayneChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("wylding_hand", 0))
 
         # Get damage result and damage for weapon type
         attack_result = (die_result + self.caller.db.weapon_level) - self.combatStats.get("dmg_penalty",
                                                                                       0) - self.combatStats.get("weakness",
-                                                                                                            0) - self.combatStats.get(
-            "stun_penalty", 0)
+                                                                                                            0) - maneuver_difficulty
         return attack_result
 
     def hasTwoHandedWeapon(self, message = None):
@@ -219,8 +227,6 @@ class Combatant:
 
     def isTwoHanded(self):
         return self.combatStats.get("two_handed", 0)
-
-
 
     def av(self):
         return self.caller.db.av
@@ -247,6 +253,9 @@ class Combatant:
     def setDisarms(self, value):
         self.caller.db.disarm = value
 
+    def setStaggers(self, value):
+        self.caller.db.stagger = value
+
     def decreaseStuns(self, value):
         new_stun_value = self.stunsRemaining() - value
         if new_stun_value < 0 or value < 0:
@@ -261,12 +270,22 @@ class Combatant:
 
         self.setDisarms(new_disarm_value)
 
+    def decreaseStaggers(self, value):
+        new_stagger_value = self.staggersRemaining() - value
+        if new_stagger_value < 0 or value < 0:
+            new_stagger_value = 0
+
+        self.setStaggers(new_stagger_value)
+
     def stun(self):
         self.caller.db.skip_turn = True
 
     def disarm(self):
         self.broadcast(f"|430Warning: Disarm not fully implemented")
         self.caller.db.skip_turn = True
+
+    def stagger(self):
+        self.broadcast(f"|430Warning: Stagger not fully implemented")
 
     def hasDamageVulnerability(self):
         return
@@ -329,6 +348,9 @@ class Combatant:
 
     def takeBleedDamage(self, amount):
         return self.alternateDamage(amount, "bleed_points")
+
+    def getStaggerDamage(self):
+        return self.combatStats.get("stagger_damage", '')
 
     def takeDeathDamage(self, amount, combatant):
         if self.caller.db.creature_color:

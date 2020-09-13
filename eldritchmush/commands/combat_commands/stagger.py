@@ -1,7 +1,7 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combat import Helper
+from commands.combatant import Combatant
 
 class CmdStagger(Command):
     """
@@ -24,84 +24,53 @@ class CmdStagger(Command):
         self.target = self.args.strip()
 
     def func(self):
+        combatant = Combatant(self.caller)
+
         if not self.target:
             self.caller.msg("|430Usage: stagger <target>|n")
             return
 
-        # Instantiate helper function class
-        h = Helper(self.caller)
-
-        if not h.canFight(self.caller):
-            self.caller.msg("|400You are too injured to act.|n")
+        if combatant.cantFight():
+            combatant.message("|400You are too injured to act.|n")
             return
 
-        # Check for and error handle designated target
+        # Get target if there is one
         target = self.caller.search(self.target)
 
-        # Pass all checks now execute command.
-        # Use parsed args in combat loop. Handles turn order in combat.
-        if target:
-            loop = CombatLoop(self.caller, target)
-            loop.resolveCommand()
-        else:
+        if not target:
+            combatant.message("|430Please designate an appropriate target.|n")
             return
 
-        # Run logic for cleave command
-        if self.caller.db.combat_turn:
+        victim = Combatant(target)
+        loop = CombatLoop(combatant.caller, target)
+        loop.resolveCommand()
 
-            combat_stats = h.getMeleeCombatStats(self.caller)
-            staggersRemaining = self.caller.db.stagger
+        if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
+            if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
+                    if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
+                        if combatant.hasStaggersRemaining(
+                            f"|400You have 0 staggers remaining or do not have the skill.\nPlease choose another action.|n"):
+                            if victim.isAlive():
+                                maneuver_difficulty = 2
+                                attack_result = combatant.rollAttack(maneuver_difficulty)
+                                if attack_result >= victim.av():
 
-            if combat_stats.get("right_slot", '') or combat_stats.get("left_slot", ''):
-                if staggersRemaining > 0:
+                                    victim.stagger()
+                                    combatant.decreaseStaggers(1)
 
-                    die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
+                                    shot_location = combatant.determineHitLocation(victim)
+                                    victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
 
-                    # Get damage result and damage for weapon type
-                    attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("stagger_penalty", 0)
-                    damage = combat_stats.get("stagger_damage", 0)
-                    target_av = target.db.av
-                    shot_location = h.shotFinder(target.db.targetArray)
+                                    victim.message(
+                                        f"|430Your new total Armor Value is {victim.av()}:\nShield: {victim.getShield()}\nArmor Specialist: {victim.getArmorSpecialist()}\nArmor: {victim.getArmor()}\nTough: {victim.getTough()}|n")
+                                    victim.message(f"|430You have been staggered. This currently has no effect|n")
 
-                    # Do all the checks
-                    if h.isAlive(target):
-                      if staggersRemaining > 0:
-                        if not combat_stats.get("weakness", 0):
-                                if attack_result >= target.db.av:
-                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {target.key} out of their footing|n (|400{target.db.av}|n)|025, and dealing {damage} damage.|n")
-                                    # Do damage resolution block
-                                    if target_av:
-                                        # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                                        new_av = h.damageSubtractor(damage, target, self.caller)
-                                        # Update target av to new av score per damageSubtractor
-                                        target.db.av = new_av
-                                        target.msg(f"|430Your new total Armor Value is {new_av}:\nShield: {target.db.shield}\nArmor Specialist: {target.db.armor_specialist}\nArmor: {target.db.armor}\nTough: {target.db.tough}|n")
-                                    else:
-                                        # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
-                                        if shot_location == "torso" and target.db.body > 0:
-                                            target.db.body = 0
-                                            self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is bleeding to death. They will soon be unconscious.|n")
-                                        else:
-                                            h.deathSubtractor(damage, target, self.caller)
+                                    combatant.broadcast(
+                                        self.caller.location.msg_contents(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {victim.name} out of their footing|n (|400{victim.av()}|n)|025, and dealing {combatant.getStaggerDamage()} damage.|n"))
+                            else:
+                                combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
+                                combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
 
-                                    # Decrement amount of cleaves from amount in database
-                                    self.caller.db.stagger -= 1
-                                else:
-                                    self.caller.location.msg_contents(f"|025{self.caller.key} strikes|n (|020{attack_result}|n) |025with a powerful blow, attempting to stagger {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
-                                # Clean up
-                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                                loop.combatTurnOff(self.caller)
-                                loop.cleanup()
-                        else:
-                            self.caller.msg("|400You are too weak to use this attack.|n")
-                    else:
-                        self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
-                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}.|n")
-                else:
-                    self.caller.msg("|400You have 0 staggers remaining or do not have the skill.\nPlease choose another action.")
-            else:
-                self.msg("|430Before you attack you must equip a weapon using the command setmelee 1 or setbow 1.")
-                return
-        else:
-            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
-            return
+                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                            loop.combatTurnOff(self.caller)
+                            loop.cleanup()
