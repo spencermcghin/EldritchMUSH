@@ -416,7 +416,7 @@ class ArtificerObject(DefaultObject):
             looker.msg(f"This {self.key} has {self.db.uses} remaining.")
 
         if self.db.resist:
-            looker.msg(f"{self.key} grant the wearer an additional {self.db.resist} resist.")
+            looker.msg(f"{self.key} grant the wearer an additional {self.db.resist} resist(s).")
 
         if self.db.influential:
             looker.msg(f"{self.key} grant the user an additional {self.db.influential} point(s) of influential.")
