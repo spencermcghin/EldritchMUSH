@@ -628,6 +628,28 @@ MASTERWORK_STEEL_PLATEMAIL = {
 Begin artificer protoypes
 """
 
+"""
+Level 0 Artificer Items
+"""
+
+APOTHECARY_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Apothecary Kit",
+"aliases": ["apothecary kit"],
+"type": "apothecary",
+"kit_slot": True,
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 0,
+"cloth": 4,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"level": 0
+}
+
 ARTIFICER_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Arifticer Kit",
@@ -736,6 +758,10 @@ CHIRURGEON_KIT = {
 "level": 0
 }
 
+"""
+Level 1 Artificer Items
+"""
+
 DUELIST_GLOVES = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Duelist Gloves",
@@ -819,6 +845,274 @@ HIGHWAYMAN_CLOAK = {
 "value_gold": 1.8,
 "level": 1,
 "espionage": 1
+}
+
+"""
+Level 2 Artificer Items
+"""
+
+SHADOW_MANTLE = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Shadow Mantle",
+"aliases": ["shadow mantle"],
+"cloak_slot": True,
+"required_resources": 13,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 3,
+"cloth": 10,
+"value_copper": 250,
+"value_silver": 25,
+"value_gold": 2.5,
+"level": 2,
+"espionage": 4
+}
+
+COURTIER_CLOTHING = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Courtier Clothing",
+"aliases": ["courtier clothing"],
+"clothing_slot": True,
+"required_resources": 13,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 3,
+"cloth": 10,
+"value_copper": 250,
+"value_silver": 25,
+"value_gold": 2.5,
+"level": 2,
+"influential": 2
+}
+
+FINE_DUELIST_GLOVES = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Fine Duelist Gloves",
+"aliases": ["fine duelist gloves"],
+"hand_slot": True,
+"required_resources": 16,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 8,
+"cloth": 8,
+"value_copper": 280,
+"value_silver": 28,
+"value_gold": 2.8,
+"level": 2,
+"resist": 2
+}
+
+SWORDDANCER_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Sworddancer Boots",
+"aliases": ["sworddancer boots"],
+"foot_slot": True,
+"required_resources": 16,
+"iron_ingots": 4,
+"refined_wood": 0,
+"leather": 8,
+"cloth": 4,
+"value_copper": 280,
+"value_silver": 28,
+"value_gold": 2.8,
+"level": 2,
+"resist": 2
+}
+
+HUNTER_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Hunter Boots",
+"aliases": ["hunter boots"],
+"foot_slot": True,
+"required_resources": 16,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 8,
+"cloth": 8,
+"value_copper": 280,
+"value_silver": 28,
+"value_gold": 2.8,
+"level": 2,
+"resist": 2
+}
+
+"""
+Level 3 Artificer Items
+"""
+
+MASTERWORK_APOTHECARY_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Apothecary Kit",
+"aliases": ["masterwork apothecary kit"],
+"type": "apothecary",
+"kit_slot": True,
+"uses": 10,
+"required_resources": 15,
+"iron_ingots": 0,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 5,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"level": 3
+}
+
+MASTERWORK_ARTIFICER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Arifticer Kit",
+"aliases": ["masterwork artificer kit"],
+"type": "artificer",
+"kit_slot": True,
+"uses": 10,
+"required_resources": 15,
+"iron_ingots": 0,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 5,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"level": 3
+}
+
+MASTERWORK_BLACKSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Blacksmith Kit",
+"aliases": ["masterwork blacksmith kit"],
+"type": "blacksmith",
+"kit_slot": True,
+"uses": 10,
+"required_resources": 12,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 4,
+"cloth": 0,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"level": 3
+}
+
+MASTERWORK_BOWYER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Bowyer Kit",
+"aliases": ["masterwork bowyer kit"],
+"type": "bowyer",
+"kit_slot": True,
+"uses": 10,
+"required_resources": 15,
+"iron_ingots": 5,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 0,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"level": 3
+}
+
+MASTERWORK_GUNSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Gunsmith Kit",
+"aliases": ["masterwork gunsmith kit"],
+"type": "gunsmith",
+"kit_slot": True,
+"uses": 10,
+"required_resources": 23,
+"iron_ingots": 8,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 5,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
+"level": 3
+}
+
+DARK_SILK_CLOAK = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Dark Silk Cloak",
+"aliases": ["Dark Silk Cloak"],
+"cloak_slot": True,
+"required_resources": 18,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 9,
+"cloth": 9,
+"value_copper": 350,
+"value_silver": 35,
+"value_gold": 3.5,
+"level": 3,
+"espionage": 6
+}
+
+NOBLE_FINERY = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Noble Finery",
+"aliases": ["noble finery"],
+"clothing_slot": True,
+"required_resources": 18,
+"iron_ingots": 2,
+"refined_wood": 0,
+"leather": 7,
+"cloth": 9,
+"value_copper": 350,
+"value_silver": 35,
+"value_gold": 3.5,
+"level": 3,
+"influential": 3
+}
+
+MASTER_DUELIST_GLOVES = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Master Duelist Gloves",
+"aliases": ["master duelist gloves"],
+"hand_slot": True,
+"required_resources": 23,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 10,
+"cloth": 10,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
+"level": 3,
+"resist": 3
+}
+
+KNIGHT_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Knight Boots",
+"aliases": ["knight boots"],
+"foot_slot": True,
+"required_resources": 23,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 10,
+"cloth": 10,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
+"level": 3,
+"resist": 3
+}
+
+THIEF_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Thief Boots",
+"aliases": ["thie boots"],
+"foot_slot": True,
+"required_resources": 23,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 10,
+"cloth": 13,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
+"level": 3,
+"resist": 3
 }
 
 """
