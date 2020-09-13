@@ -41,7 +41,15 @@ class CmdCraft(Command):
             # Get search response
             prototype_data = prototype[0]
 
-            self.msg(prototype_data)
+            # Get item attributes and who makes it.
+            item_data = prototype_data['attrs']
+            craft_source = item_data[0][1]
+
+            # Check for correct kit in caller kit slot.
+            kit = self.caller.db.kit_slot[0] if self.caller.db.kit_slot else None
+            kit_type = kit.db.type if kit else None
+
+            self.msg(kit_type)
 
             # # Check for items in callers inventory.
             # character_resources = {
@@ -52,12 +60,11 @@ class CmdCraft(Command):
             # }
             #
             # # Get item requirements
-            # item_data = prototype_data['attrs']
             # item_requirements = {
-            # "iron_ingots": item_data[1][1],
-            # "refined_wood": item_data[2][1],
-            # "leather": item_data[3][1],
-            # "cloth": item_data[4][1]
+            # "iron_ingots": item_data[2][1],
+            # "refined_wood": item_data[3][1],
+            # "leather": item_data[4][1],
+            # "cloth": item_data[5][1]
             # }
             #
             # requirements_checker = [
@@ -76,13 +83,7 @@ class CmdCraft(Command):
             #     self.caller.db.refined_wood -= item_requirements["refined_wood"]
             #     self.caller.db.leather -= item_requirements["leather"]
             #     self.caller.db.cloth -= item_requirements["cloth"]
-            #
-            #     # Add code here to decrement from kit use
-            #     item_object = item[0]
-            #     item_type = item_object.db.craft_source
-            #
-            #     if item_type == "artificer":
-            #
+            #            #
             #     item = spawn(prototype[0])
             #     item[0].move_to(self.caller, quiet=True)
 
