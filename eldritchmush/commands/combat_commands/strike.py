@@ -59,27 +59,14 @@ class CmdStrike(Command):
                     attack_result = combatant.rollAttack()
 
                     if attack_result >= victim.av():
-                        # if target has any more armor points left go through the damage subtractor
-                        if victim.av():
-                            combatant.broadcast(f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av()}|n), |025dealing|n (|430{combatant.getDamage()}|n) |025damage!|n")
+                        combatant.broadcast(f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av()}|n), |025dealing|n (|430{combatant.getDamage()}|n) |025damage!|n")
+                        #combatant.message(
+                        #   f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits |n(|400{victim.av()}|n)|025, injuring their {shot_location} and dealing|n |430{combatant.getDamage()}|n |025damage!|n.")
+                        # Get damage result and damage for weapon type
+                        shot_location = combatant.determineHitLocation(victim)
+                        victim.takeDamage(combatant, combatant.getDamage(), shot_location)
 
-                            # subtract damage from corresponding target stage (shield_value, armor, tough, body)
-                            new_av = victim.takeDamage(combatant, combatant.getDamage())
-
-                            victim.setAv(new_av)
-                            victim.message(f"|430Your new total Armor Value is {victim.av()}:\nShield: {victim.getShield()}\nArmor Specialist: {victim.getArmorSpecialist()}\nArmor: {victim.getArmor()}\nTough: {victim.getTough()}|n")
-                        else:
-                            # Get damage result and damage for weapon type
-                            shot_location = combatant.determineHitLocation(victim)
-
-                            # No target armor so subtract from their body total and hit a limb.
-                            combatant.message(f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits |n(|400{victim.av()}|n)|025, injuring their {shot_location} and dealing|n |430{combatant.getDamage()}|n |025damage!|n.")
-                            # First torso shot always takes body to 0. Does not pass excess damage to bleed points.
-                            if shot_location == "torso" and victim.body() > 0:
-                                victim.takeFatalDamage(combatant)
-                                self.caller.location.msg_contents(f"|025{victim.name()} has been fatally wounded and is bleeding profusely.|n")
-                            else:
-                                victim.takeDeath(combatant, combatant.getDamage())
+                        victim.message(f"|430Your new total Armor Value is {victim.av()}:\nShield: {victim.getShield()}\nArmor Specialist: {victim.getArmorSpecialist()}\nArmor: {victim.getArmor()}\nTough: {victim.getTough()}|n")
                     else:
                         combatant.broadcast(f"|025{combatant.name} swings wildly|n (|400{attack_result}|n)|025, missing {victim.name}|n (|020{victim.av()}|n)")
                 else:

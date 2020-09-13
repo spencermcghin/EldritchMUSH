@@ -48,13 +48,14 @@ class CmdStun(Command):
         loop = CombatLoop(combatant.caller, target)
         loop.resolveCommand()
 
-        #TODO: Should we add a check here to see if the victim is already stunned? What happens then?
+        #TODO: Currently Disarm does Damage and Stun doesnt.  Is that intended?
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
                 if combatant.hasStunsRemaining(f"|400You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n"):
                     if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
                         if victim.isAlive():
-                            attack_result = combatant.rollAttack()
+                            maneuver_difficulty = 1
+                            attack_result = combatant.rollAttack(maneuver_difficulty)
                             if attack_result >= victim.av():
                                 victim.stun()
                                 combatant.decreaseStuns(1)

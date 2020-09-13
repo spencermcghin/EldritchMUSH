@@ -1,6 +1,5 @@
 # Local imports
 from evennia import Command
-from world.combat_loop import CombatLoop
 from commands.combatant import Combatant
 
 # imports
@@ -43,6 +42,10 @@ class CmdChirurgery(Command):
             combatant.message("|430Please designate an appropriate target.|n")
             return
 
+        if not combatant.hasChirurgeonsKit():
+            combatant.message(f"|400You are out of materials in your Chirurgeon's kit|n")
+            return
+
         # Check for cooldown
         now = time.time()
 
@@ -64,9 +67,9 @@ class CmdChirurgery(Command):
 
             # Set command time execution
             combatant.setChirurgeryTimer(now)
+            combatant.useChirurgeonsKit()
 
             combatant.message(f"After some time and many delicate procedures, you skillfully heal {victim.name}")
             victim.message(f"You have been restored to your full measure of health thanks to {target.name}'s skillful application of the healing arts.")
         else:
             self.msg("|400You are not skilled enough.|n")
-

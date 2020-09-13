@@ -18,7 +18,7 @@ from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import combat, blacksmith, crafting, command, npc, dice
-from commands.combat_commands import strike, disengage, shoot, cleave, battlefield_medicine, stabilize, sunder, disarm, stagger, stun, medicine, skip, chirurgery, resist
+from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery, resist
 
 
 class RoomCmdSet(CmdSet):
@@ -115,24 +115,15 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(stun.CmdStun())
         self.add(disengage.CmdDisengage())
         self.add(stagger.CmdStagger())
-        # self.add(command.SetShield())
-        # self.add(command.SetTwoHanded())
-        # self.add(command.SetBow())
         self.add(command.CmdGive())
         self.add(command.CmdGet())
-        # self.add(command.SetMelee())
-        # self.add(command.SetWeaponValue())
         self.add(command.CmdSmile())
-        # self.add(command.SetArmorValue())
         self.add(command.SetTough())
         self.add(command.SetBody())
-        self.add(stabilize.CmdStabilize())
         self.add(command.SetWeakness())
         self.add(combat.CmdBattlefieldCommander())
-        self.add(battlefield_medicine.CmdBattlefieldMedicine())
         self.add(command.SetIndomitable())
         self.add(combat.CmdRally())
-        # self.add(command.SetShieldValue())
         self.add(command.CharSheet())
         self.add(command.CharStatus())
         self.add(chirurgery.CmdChirurgery())
