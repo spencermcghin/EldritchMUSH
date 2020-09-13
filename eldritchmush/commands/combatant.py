@@ -156,11 +156,20 @@ class Combatant:
     def stunsRemaining(self):
         return self.caller.db.stun
 
+    def disarmsRemaining(self):
+        return self.caller.db.disarm
+
     def hasStunsRemaining(self,message=None):
         if message and self.stunsRemaining() <= 0:
             self.message(message)
 
         return self.stunsRemaining()
+
+    def hasDisarmsRemaining(self, message=None):
+        if message and self.disarmsRemaining() <= 0:
+            self.message(message)
+
+        return self.disarmsRemaining()
 
     def getRightHand(self):
         return self.combatStats.get("right_slot", '')
@@ -202,8 +211,16 @@ class Combatant:
             "stun_penalty", 0)
         return attack_result
 
+    def hasTwoHandedWeapon(self, message = None):
+        if message and self.isTwoHanded():
+            self.message(message)
+
+        return self.isTwoHanded()
+
     def isTwoHanded(self):
         return self.combatStats.get("two_handed", 0)
+
+
 
     def av(self):
         return self.caller.db.av
@@ -227,6 +244,9 @@ class Combatant:
     def setStuns(self, value):
         self.caller.db.stun = value
 
+    def setDisarms(self, value):
+        self.caller.db.disarm = value
+
     def decreaseStuns(self, value):
         new_stun_value = self.stunsRemaining() - value
         if new_stun_value < 0 or value < 0:
@@ -234,7 +254,18 @@ class Combatant:
 
         self.setStuns(new_stun_value)
 
+    def decreaseDisarms(self,value):
+        new_disarm_value = self.disarmsRemaining() - value
+        if new_disarm_value < 0 or value < 0:
+            new_disarm_value = 0
+
+        self.setDisarms(new_disarm_value)
+
     def stun(self):
+        self.caller.db.skip_turn = True
+
+    def disarm(self):
+        self.broadcast(f"|430Warning: Disarm not fully implemented")
         self.caller.db.skip_turn = True
 
     def hasDamageVulnerability(self):
