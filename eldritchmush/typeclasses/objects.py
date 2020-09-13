@@ -442,3 +442,17 @@ class Container(DefaultObject):
 
         if cloth:
             looker.msg(f"|020Cloth|n: {cloth}")
+
+class Quiver(DefaultObject):
+    """
+    Database entries and methods for quiver object
+    """
+    def at_object_creation(self):
+        self.db.arrows = 10
+
+    def return_appearance(self, looker):
+        # Get desc and default text for object.
+        string = super().return_appearance(looker)
+
+        # Show desc and other objects inside
+        looker.msg(f"{string}\nThis quiver contains {self.db.arrows} arrows.")
