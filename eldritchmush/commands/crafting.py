@@ -48,44 +48,55 @@ class CmdCraft(Command):
             # Check for correct kit in caller kit slot.
             kit = self.caller.db.kit_slot[0] if self.caller.db.kit_slot else None
             kit_type = kit.db.type if kit else None
+            kit_uses = kit.db.uses if kit else None
 
-            self.msg(kit_type)
+            if kit_uses <=0 and (craft_source == kit_type):
+                self.msg(f"|400Your {kit.db.key} is out of uses.|n")
+                return
 
-            # # Check for items in callers inventory.
-            # character_resources = {
-            # "iron_ingots": self.caller.db.iron_ingots,
-            # "cloth": self.caller.db.cloth,
-            # "refined_wood": self.caller.db.refined_wood,
-            # "leather": self.caller.db.leather
-            # }
-            #
-            # # Get item requirements
-            # item_requirements = {
-            # "iron_ingots": item_data[2][1],
-            # "refined_wood": item_data[3][1],
-            # "leather": item_data[4][1],
-            # "cloth": item_data[5][1]
-            # }
-            #
-            # requirements_checker = [
-            # character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
-            # character_resources["refined_wood"] >= item_requirements["refined_wood"],
-            # character_resources["leather"] >= item_requirements["leather"],
-            # character_resources["cloth"] >= item_requirements["cloth"]
-            # ]
-            #
-            # # Check that all conditions in above list are true.
-            #
-            # if all(requirements_checker) or self.caller.is_superuser:
-            #     self.msg(f"You craft a {self.item}")
-            #     # Get required resources and decrement from player totals.
-            #     self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-            #     self.caller.db.refined_wood -= item_requirements["refined_wood"]
-            #     self.caller.db.leather -= item_requirements["leather"]
-            #     self.caller.db.cloth -= item_requirements["cloth"]
-            #            #
-            #     item = spawn(prototype[0])
-            #     item[0].move_to(self.caller, quiet=True)
+            # Passed checks. Make item.
+            # Check for items in callers inventory.
+            if craft_source == kit_type:
+                character_resources = {
+                "iron_ingots": self.caller.db.iron_ingots,
+                "cloth": self.caller.db.cloth,
+                "refined_wood": self.caller.db.refined_wood,
+                "leather": self.caller.db.leather
+                }
 
-            # else:
-            #     self.msg(f"|400You don't have the required resources.|n")
+                # Get item requirements
+                item_requirements = {
+                "iron_ingots": item_data[2][1],
+                "refined_wood": item_data[3][1],
+                "leather": item_data[4][1],
+                "cloth": item_data[5][1]
+                }
+
+                requirements_checker = [
+                character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+                character_resources["refined_wood"] >= item_requirements["refined_wood"],
+                character_resources["leather"] >= item_requirements["leather"],
+                character_resources["cloth"] >= item_requirements["cloth"]
+                ]
+
+                # Check that all conditions in above list are true.
+
+                if all(requirements_checker) or self.caller.is_superuser:
+                    self.msg(f"You craft a {self.item}")
+                    # Get required resources and decrement from player totals.
+                    self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+                    self.caller.db.refined_wood -= item_requirements["refined_wood"]
+                    self.caller.db.leather -= item_requirements["leather"]
+                    self.caller.db.cloth -= item_requirements["cloth"]
+                           #
+                    item = spawn(prototype[0])
+                    item[0].move_to(self.caller, quiet=True)
+
+                    # Decrement the kit of one use.
+                    kit.db.uses -= 1
+
+                else:
+                    self.msg(f"|400You don't have the required resources.|n")
+            else:
+                self.msg(f"|430Please equip the correct kit before attempting to craft your item.|n")
+                return
