@@ -387,20 +387,24 @@ class Combatant:
         self.caller.db.av = self.caller.db.shield_value + self.caller.db.armor + self.caller.db.tough + self.caller.db.armor_specialist
 
 
-
-    def takeDamage(self, combatant, amount, shot_location):
-        if self.av():
-            #Take Damage to Armor
-            amount = self.takeShieldDamage(amount)
+    def takeAvDamage(self,amount):
+        # Take Damage to Armor
+        amount = self.takeShieldDamage(amount)
+        if amount > 0:
+            amount = self.takeArmorSpecialistDamage(amount)
             if amount > 0:
-                amount = self.takeArmorSpecialistDamage(amount)
+                amount = self.takeArmorDamage(amount)
                 if amount > 0:
-                    amount = self.takeArmorDamage(amount)
-                    if amount > 0:
-                        amount = self.takeToughDamage(amount)
+                    amount = self.takeToughDamage(amount)
 
-            #In case we took any damage, refresh our AV
-            self.updateAv()
+        # In case we took any damage, refresh our AV
+        self.updateAv()
+
+        return amount
+
+    def takeDamage(self, combatant, amount, shot_location, skip_av = False):
+        if self.av() and (not skip_av):
+            amount = self.takeAvDamage(amount)
 
         if amount > 0:
             #We have damage that made it through armor!
@@ -425,4 +429,3 @@ class Combatant:
                 self.takeDeathDamage(amount, combatant)
                 self.message("|300You are unconscious and can no longer move of your own volition.|n")
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")
-
