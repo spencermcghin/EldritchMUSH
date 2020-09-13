@@ -485,7 +485,7 @@ class CmdEquip(Command):
                 self.caller.db.foot_slot.append(item)
 
                 # Add extra points from indomitable if armor still has material_value
-                if item.db.resist > 0:
+                if item.db.resist:
                     self.caller.db.resist += item.db.resist
 
                 self.msg(f"You don {item.key}.")
@@ -501,19 +501,19 @@ class CmdEquip(Command):
             elif item.db.clothing_slot and item not in self.caller.db.clothing_slot:
                 self.caller.db.clothing_slot.append(item)
 
-                if item.db.influential > 0 and self.caller.db.influential:
+                if item.db.influential:
                     self.caller.db.influential += item.db.influential
 
-                self.msg(f"You put on the {item.key}. What does it look like?")
+                self.msg(f"You put on the {item.key}.")
 
             # Equip clothing. Add to character's influential skill.
             elif item.db.cloak_slot and item not in self.caller.db.cloak_slot:
                 self.caller.db.cloak_slot.append(item)
 
-                if item.db.espionage > 0 and self.caller.db.espionage:
+                if item.db.espionage:
                     self.caller.db.espionage += item.db.espionage
 
-                self.msg(f"You put on the {item.key}. What does it look like?")
+                self.msg(f"You put on the {item.key}.")
 
             # Equip armor
             elif item.db.is_armor and item not in self.caller.db.body_slot:
