@@ -24,7 +24,7 @@ class CmdCraft(Command):
         use_err_msg = "|430Usage: craft <item>|n"
 
         # Do all checks
-        if not self.caller.db.bowyer or not self.caller.db.artificer or not self.caller.db.gunsmith or not self.caller.db.alchemist:
+        if not self.caller.db.bowyer or not self.caller.db.artificer or not self.caller.db.gunsmith or not self.caller.db.alchemist or not self.caller.is_superuser:
             self.msg("|400You are not trained in how to properly operate these tools. Please find a crafter.|n")
             return
 
