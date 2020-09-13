@@ -419,10 +419,10 @@ class ArtificerObject(DefaultObject):
             looker.msg(f"{self.key} grant the wearer an additional {self.db.resist} resist(s).")
 
         if self.db.influential:
-            looker.msg(f"{self.key} grant the user an additional {self.db.influential} point(s) of influential.")
+            looker.msg(f"{self.key} grant the wearer an additional {self.db.influential} point(s) of influential.")
 
         if self.db.espionage:
-            looker.msg(f"{self.key} grants the user an additional {self.db.espionage} point(s) of espionage.")
+            looker.msg(f"{self.key} grants the wearer an additional {self.db.espionage} point(s) of espionage.")
 
 
         looker.msg(f"Level: {level}")
