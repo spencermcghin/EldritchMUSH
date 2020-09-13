@@ -375,11 +375,21 @@ class WeaponObject(BlacksmithObject):
         self.db.patched = False
 
     def return_appearance(self, looker):
+        string = super().return_appearance(looker)
         # Show desc and other objects inside
         looker.msg(f"{string}\n")
 
+        level = self.db.level
+
         if self.db.arrow_slot:
             looker.msg(f"This quiver contains {self.db.quantity} arrows.")
+
+        looker.msg(f"Level: {level}")
+
+        looker.msg(f"Value - Silver Dragons: {self.db.value_silver}")
+
+        if self.db.material_value:
+            looker.msg(f"Durability (sunders received before broken): {self.db.material_value}")
 
 
 class ArtificerObject(DefaultObject):
@@ -394,6 +404,30 @@ class ArtificerObject(DefaultObject):
         self.db.value_copper = 0
         self.db.value_silver = 0
         self.db.value_gold = 0
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        # Show desc and other objects inside
+        looker.msg(f"{string}\n")
+
+        level = self.db.level
+
+        if self.db.uses:
+            looker.msg(f"This {self.key} has {self.db.uses} remaining.")
+
+        if self.db.resist:
+            looker.msg(f"{self.key} grant the wearer an additional {self.db.resist} resist.")
+
+        if self.db.influential:
+            looker.msg(f"{self.key} grant the user an additional {self.db.influential} point(s) of influential.")
+
+        if self.db.espionage:
+            looker.msg(f"{self.key} grants the user an additional {self.db.espionage} point(s) of espionage.")
+
+
+        looker.msg(f"Level: {level}")
+
+        looker.msg(f"Value - Silver Dragons: {self.db.value_silver}")
 
 """
 Storage Objects

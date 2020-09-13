@@ -94,7 +94,7 @@ IRON_SMALL_WEAPON = {
 "value_copper": 70,
 "value_silver": 7,
 "value_gold": .7,
-"material_value": 0,
+"material_value": 1,
 "level": 0
 }
 
