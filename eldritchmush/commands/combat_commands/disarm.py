@@ -61,7 +61,6 @@ class CmdDisarm(Command):
                                     # Check for NPC calling the command and pick a new command if so.
                                     # TODO: Spence - Why shouldn't NPCs use Disarm?
                                     if utils.inherits_from(self.caller, Npc) and combatant.isTwoHanded():
-                                        combatant.broadcast("NPC caught exception.")
                                         self.caller.execute_cmd(f"strike {target.key}")
                                         return
 
