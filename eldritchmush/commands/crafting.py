@@ -41,51 +41,50 @@ class CmdCraft(Command):
             # Get search response
             prototype_data = prototype[0]
 
-            # Check for items in callers inventory.
-            character_resources = {
-            "iron_ingots": self.caller.db.iron_ingots,
-            "cloth": self.caller.db.cloth,
-            "refined_wood": self.caller.db.refined_wood,
-            "leather": self.caller.db.leather
-            }
+            self.msg(prototype_data)
 
-            # Get item requirements
-            item_data = prototype_data['attrs']
-            item_requirements = {
-            "iron_ingots": item_data[1][1],
-            "refined_wood": item_data[2][1],
-            "leather": item_data[3][1],
-            "cloth": item_data[4][1]
-            }
+            # # Check for items in callers inventory.
+            # character_resources = {
+            # "iron_ingots": self.caller.db.iron_ingots,
+            # "cloth": self.caller.db.cloth,
+            # "refined_wood": self.caller.db.refined_wood,
+            # "leather": self.caller.db.leather
+            # }
+            #
+            # # Get item requirements
+            # item_data = prototype_data['attrs']
+            # item_requirements = {
+            # "iron_ingots": item_data[1][1],
+            # "refined_wood": item_data[2][1],
+            # "leather": item_data[3][1],
+            # "cloth": item_data[4][1]
+            # }
+            #
+            # requirements_checker = [
+            # character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+            # character_resources["refined_wood"] >= item_requirements["refined_wood"],
+            # character_resources["leather"] >= item_requirements["leather"],
+            # character_resources["cloth"] >= item_requirements["cloth"]
+            # ]
+            #
+            # # Check that all conditions in above list are true.
+            #
+            # if all(requirements_checker) or self.caller.is_superuser:
+            #     self.msg(f"You craft a {self.item}")
+            #     # Get required resources and decrement from player totals.
+            #     self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+            #     self.caller.db.refined_wood -= item_requirements["refined_wood"]
+            #     self.caller.db.leather -= item_requirements["leather"]
+            #     self.caller.db.cloth -= item_requirements["cloth"]
+            #
+            #     # Add code here to decrement from kit use
+            #     item_object = item[0]
+            #     item_type = item_object.db.craft_source
+            #
+            #     if item_type == "artificer":
+            #
+            #     item = spawn(prototype[0])
+            #     item[0].move_to(self.caller, quiet=True)
 
-            requirements_checker = [
-            character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
-            character_resources["refined_wood"] >= item_requirements["refined_wood"],
-            character_resources["leather"] >= item_requirements["leather"],
-            character_resources["cloth"] >= item_requirements["cloth"]
-            ]
-
-            # Check that all conditions in above list are true.
-
-            if all(requirements_checker) or self.caller.is_superuser:
-                self.msg(f"You craft a {self.item}")
-                # Get required resources and decrement from player totals.
-                self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-                self.caller.db.refined_wood -= item_requirements["refined_wood"]
-                self.caller.db.leather -= item_requirements["leather"]
-                self.caller.db.cloth -= item_requirements["cloth"]
-
-                # Add code here to decrement from kit use
-
-
-                item = spawn(prototype[0])
-                item[0].move_to(self.caller, quiet=True)
-
-                item_object = item[0]
-                item_type = item_object.db.type
-
-                if item_type == "artificer":
-
-
-            else:
-                self.msg(f"|400You don't have the required resources.|n")
+            # else:
+            #     self.msg(f"|400You don't have the required resources.|n")
