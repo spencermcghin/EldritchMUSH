@@ -407,6 +407,7 @@ class ArtificerObject(DefaultObject):
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
+
         # Show desc and other objects inside
         looker.msg(f"{string}\n")
 

@@ -259,6 +259,20 @@ class Helper():
     def weaknessPenalty(self):
         return self.weaknessChecker(self.caller.db.weakness)
 
+    def getKitTypeAndUsesItem(self):
+        kit = self.caller.db.kit_slot[0] if self.caller.db.kit_slot else []
+
+        if kit:
+            return kit.db.type, kit.db.uses
+        else:
+            return "",None
+
+    def useKit(self):
+        kit = self.caller.db.kit_slot[0] if self.caller.db.kit_slot else []
+
+        if kit:
+            kit.db.uses -= 1
+
     def getMeleeCombatStats(self, combatant):
         # Get hasMelee for character to check that they've armed themselves.
         melee = combatant.db.melee
