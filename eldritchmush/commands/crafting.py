@@ -24,7 +24,7 @@ class CmdCraft(Command):
         use_err_msg = "|430Usage: craft <item>|n"
 
         # Do all checks
-        if not self.caller.db.bowyer:
+        if not self.caller.db.bowyer or not self.caller.db.artificer or not self.caller.db.gunsmith or not self.caller.db.alchemist:
             self.msg("|400You are not trained in how to properly operate these tools. Please find a crafter.|n")
             return
 
@@ -75,8 +75,17 @@ class CmdCraft(Command):
                 self.caller.db.leather -= item_requirements["leather"]
                 self.caller.db.cloth -= item_requirements["cloth"]
 
-                blacksmith_item = spawn(prototype[0])
-                blacksmith_item[0].move_to(self.caller, quiet=True)
+                # Add code here to decrement from kit use
+
+
+                item = spawn(prototype[0])
+                item[0].move_to(self.caller, quiet=True)
+
+                item_object = item[0]
+                item_type = item_object.db.type
+
+                if item_type == "artificer":
+
 
             else:
                 self.msg(f"|400You don't have the required resources.|n")
