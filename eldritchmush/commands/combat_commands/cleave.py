@@ -2,7 +2,7 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combat import Helper
+from commands.combatant import Combatant
 
 class CmdCleave(Command):
     """
@@ -26,73 +26,54 @@ class CmdCleave(Command):
         self.target = self.args.strip()
 
     def func(self):
+        combatant = Combatant(self.caller)
+
         if not self.args:
             self.msg("|430Usage: cleave <target>|n")
             return
 
-        combatant = self.caller
-
-        # Init combat helper functions
-        h = Helper(combatant)
-
-        # Check to make sure caller is healthy enough to use command.
-        if not h.canFight(self.caller):
-            self.msg("|400You are too injured to act.|n")
+        if combatant.cantFight():
+            combatant.message("|400You are too injured to act.|n")
             return
 
         # Get target if there is one
-        target = combatant.search(self.target)
+        target = self.caller.search(self.target)
 
-        if target:
-            loop = CombatLoop(combatant, target)
-            loop.resolveCommand()
-        else:
+        if not target:
+            combatant.message("|430Please designate an appropriate target.|n")
             return
 
-        # Run logic for cleave command
-        if combatant.db.combat_turn:
+        victim = Combatant(target)
+        loop = CombatLoop(combatant.caller, target)
+        loop.resolveCommand()
 
-            combat_stats = h.getMeleeCombatStats(combatant)
-            cleaves_remaining = combatant.db.cleave
+        if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
+            if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
+                if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
+                        if combatant.hasCleavesRemaining(
+                                f"|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action."):
+                            if not combatant.hasTwoHandedWeapon(
+                                    f"|430Before you attack you must equip a two handed weapon using the command equip <weapon>.|n"):
+                                if victim.isAlive():
+                                    #TODO: Spence sanity check - Cleave has no difficulty?
+                                    maneuver_difficulty = 0
+                                    attack_result = combatant.rollAttack(maneuver_difficulty)
+                                    if attack_result >= victim.av():
+                                        combatant.decreaseCleaves(1)
 
-            if combat_stats.get("two_handed", False):
-                if cleaves_remaining > 0:
+                                        shot_location = combatant.determineHitLocation(victim)
 
-                    die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
+                                        skip_av_damage = True
+                                        victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
 
-                    # Get damage result and damage for weapon type
-                    attack_result = (die_result + combatant.db.weapon_level) - h.dmgPenalty() - h.weaknessPenalty()
-                    damage = 2 if combat_stats.get("two_handed", False) else 1
-                    target_av = target.db.av
-                    shot_location = h.shotFinder(target.db.targetArray)
-
-                    if h.isAlive(target):
-                        if not combat_stats.get("weakness", 0):
-                                if attack_result >= target_av:
-                                    combatant.location.msg_contents(f"|025{combatant.key} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {target.key}'s {shot_location}|n (|400{target.db.av}|n)|025, dealing|n (|430{damage}|n) |025damage|n.")
-                                    # Decrement amount of cleaves from amount in database
-                                    cleaves_remaining -= 1
-                                    if shot_location == "torso" and target.db.body > 0:
-                                        target.db.body = 0
-                                        combatant.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death. They will soon be unconscious.|n")
+                                        combatant.location.msg_contents(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av()}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
                                     else:
-                                        h.deathSubtractor(damage, target, combatant)
+                                        combatant.location.msg_contents(f"|025{combatant.name} swings ferociously|n (|030{attack_result}|n) |025at {victim.name}|n (|400{victim.av()}|n)|025, but misses.|n")
                                 else:
-                                    combatant.location.msg_contents(f"|025{combatant.key} swings ferociously|n (|030{attack_result}|n) |025at {target.key}|n (|400{target.db.av}|n)|025, but misses.|n")
+                                    self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
+                                    combatant.location.msg_contents(f"|025{combatant.key} further mutilates the corpse of {target.key}.|n")
+
                                 # Clean up
                                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                 loop.combatTurnOff(self.caller)
                                 loop.cleanup()
-                        else:
-                            combatant.msg("|400You are too weak to use this attack.|n")
-                    else:
-                        self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
-                        combatant.location.msg_contents(f"|025{combatant.key} further mutilates the corpse of {target.key}.|n")
-                else:
-                    self.msg("|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action.")
-            else:
-                self.msg("|430Before you attack you must equip a two handed weapon using the command equip <weapon>.|n")
-                return
-        else:
-            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
-            return

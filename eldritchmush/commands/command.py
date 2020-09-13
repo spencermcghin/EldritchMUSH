@@ -495,7 +495,7 @@ class CmdEquip(Command):
             elif item.db.kit_slot and item not in self.caller.db.kit_slot:
                 self.caller.db.kit_slot.append(item)
 
-                self.msg(f"You equip a {item.key} with {item.uses} uses left.")
+                self.msg(f"You equip a {item.key} with {item.db.uses} uses left.")
 
             # Equip clothing. Add to character's influential skill.
             elif item.db.clothing_slot and item not in self.caller.db.clothing_slot:
