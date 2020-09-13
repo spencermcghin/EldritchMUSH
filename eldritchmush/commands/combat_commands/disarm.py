@@ -1,7 +1,6 @@
 # Local imports
 from evennia import Command, utils
 from world.combat_loop import CombatLoop
-from commands.combat import Helper
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
 
@@ -51,12 +50,13 @@ class CmdDisarm(Command):
         #TODO: Right now the loop on Disarm and Sunder look almost identical.  I feel like you probably want something different?
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
-                if combatant.hasDisarmsRemaining(f"|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.|n"):
-                    if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
+                if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
+                    if combatant.hasDisarmsRemaining(f"|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.|n"):
                         if not victim.hasTwoHandedWeapon(
                                 f"|430You cannot disarm a two-handed weapon. Please try another attack.|n"):
                             if victim.isAlive():
-                                attack_result = combatant.rollAttack()
+                                maneuver_difficulty = 2
+                                attack_result = combatant.rollAttack(maneuver_difficulty)
                                 if attack_result >= victim.av():
                                     # Check for NPC calling the command and pick a new command if so.
                                     # TODO: Spence - Why shouldn't NPCs use Disarm?
@@ -79,7 +79,7 @@ class CmdDisarm(Command):
                                 else:
                                     combatant.broadcast(f"|025{combatant.name} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {victim.name}, but misses|n (|400{victim.av()}|n)|025.|n")
                             else:
-                                combatant.message(f"|430{victim.name} is dead. You only further mutiliate their body.|n")
+                                combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
                                 combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
                         # Clean up
                         # Set self.caller's combat_turn to 0. Can no longer use combat commands.

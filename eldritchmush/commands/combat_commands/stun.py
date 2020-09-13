@@ -54,7 +54,8 @@ class CmdStun(Command):
                 if combatant.hasStunsRemaining(f"|400You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n"):
                     if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
                         if victim.isAlive():
-                            attack_result = combatant.rollAttack()
+                            maneuver_difficulty = 1
+                            attack_result = combatant.rollAttack(maneuver_difficulty)
                             if attack_result >= victim.av():
                                 victim.stun()
                                 combatant.decreaseStuns(1)
