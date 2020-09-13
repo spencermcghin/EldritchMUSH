@@ -1,4 +1,5 @@
 from commands.combat import Helper
+from pprint import pprint
 
 class Combatant:
     """
@@ -111,7 +112,7 @@ class Combatant:
         else:
             self.setDeathPoints(3)
 
-    def setDeathPoints(self, value):
+    def setDeathPoints(self, value, combatant=None):
         self.caller.db.death_points = value
 
     def hasDeathPoints(self, value = None):
@@ -145,6 +146,9 @@ class Combatant:
     def resetTough(self):
         self.caller.db.tough = self.caller.db.total_tough
 
+    def addWeakness(self):
+        self.caller.db.weakness = 1
+
     def removeWeakness(self):
         self.caller.db.weakness = 0
 
@@ -163,6 +167,16 @@ class Combatant:
 
     def getLeftHand(self):
         return self.combatStats.get("left_slot", '')
+
+    def getWeapon(self):
+        right_hand = self.getRightHand()
+        left_hand = self.getLeftHand()
+        if right_hand.db.damage >= 0:
+            return right_hand
+        elif left_hand.db.damage >= 0:
+            return left_hand
+        else:
+            return None
 
     def isArmed(self,message=None):
         if message and not self.getRightHand() and not self.getLeftHand():
@@ -223,16 +237,6 @@ class Combatant:
     def stun(self):
         self.caller.db.skip_turn = True
 
-    def takeFatalDamage(self,combatant):
-        damage = self.body();
-        self.takeDamage(combatant, damage)
-
-    def takeDamage(self, combatant, amount):
-        return self.helper.damageSubtractor(amount, self.caller, combatant)
-
-    def takeDeath(self, combatant, amount):
-        return self.helper.deathSubtractor(amount, self.caller, combatant)
-
     def hasDamageVulnerability(self):
         return
 
@@ -252,16 +256,16 @@ class Combatant:
         self.caller.db.av = amount
 
     def getShield(self):
-        return self.db.shield
+        return self.caller.db.shield
 
     def getArmorSpecialist(self):
-        return self.db.armor_specialist
+        return self.caller.db.armor_specialist
 
     def getArmor(self):
-        return self.db.armor
+        return self.caller.db.armor
 
     def getTough(self):
-        return self.db.tough
+        return self.caller.db.tough
 
     def hasChirurgeonsKit(self):
         kit_type, uses = self.helper.getKitTypeAndUsesItem()
@@ -273,4 +277,99 @@ class Combatant:
 
     def useChirurgeonsKit(self):
         self.helper.useKit()
+
+    def takeShieldDamage(self, amount):
+        return self.alternateDamage(amount, 'shield_value')
+
+    def takeArmorSpecialistDamage(self, amount):
+        return self.alternateDamage(amount, "armor_specialist")
+
+    def takeArmorDamage(self, amount):
+        return self.alternateDamage(amount, "tough")
+
+    def takeToughDamage(self, amount):
+        return self.alternateDamage(amount, "armor")
+
+    def alternateArmorSpecialistDamage(self, amount):
+        return self.alternateDamage(amount, "armor_specialist")
+
+    def takeBodyDamage(self, amount):
+        return self.alternateDamage(amount, "body")
+
+    def takeBleedDamage(self, amount):
+        return self.alternateDamage(amount, "bleed_points")
+
+    def takeDeathDamage(self, amount, combatant):
+        if self.caller.db.creature_color:
+            weapon = combatant.getWeapon()
+            if weapon and (weapon.db.color == self.caller.db.creature_color):
+                return self.alternateDamage(amount, "death_points")
+            else:
+                return 0
+        else:
+            return self.alternateDamage(amount, "death_points")
+
+    def alternateDamage(self, amount, type):
+        remaining_damage = amount
+
+        if self.caller.attributes.get(type):
+            if self.caller.attributes.get(type):
+                # How much damage is left after the shield
+                remaining_damage = amount - self.caller.attributes.get(type)
+                if remaining_damage < 0:
+                    remaining_damage = 0
+
+                # Damage the shield
+                if amount >= self.caller.attributes.get(type):
+                    new_value = 0
+                else:
+                    new_value = self.caller.attributes.get(type) - amount
+
+                obj_to_set = self.caller.attributes.get(type, return_obj=True)
+                obj_to_set.value = new_value
+
+        return remaining_damage
+
+    def updateAv(self):
+        self.caller.db.av = self.caller.db.shield_value + self.caller.db.armor + self.caller.db.tough + self.caller.db.armor_specialist
+
+
+
+    def takeDamage(self, combatant, amount, shot_location):
+        if self.av():
+            #Take Damage to Armor
+            amount = self.takeShieldDamage(amount)
+            if amount > 0:
+                amount = self.takeArmorSpecialistDamage(amount)
+                if amount > 0:
+                    amount = self.takeArmorDamage(amount)
+                    if amount > 0:
+                        amount = self.takeToughDamage(amount)
+
+            #In case we took any damage, refresh our AV
+            self.updateAv()
+
+        if amount > 0:
+            #We have damage that made it through armor!
+            #TODO: Check with spence that this is right, if we hit the torso, and the hit goes through all the armor, should they go down?
+            #TODO: Or does this only happen if they're totally unarmored when they take damage
+            if shot_location == "torso" and amount < self.body():
+                amount = self.body()
+
+            if self.body() > 0:
+                amount = self.takeBodyDamage(amount)
+
+            if amount > 0 and self.bleedPoints() > 0:
+                self.addWeakness()
+                amount = self.takeBleedDamage(amount)
+                self.message(
+                    "|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
+                self.broadcast(
+                    f"|025{self.name} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+
+            if amount > 0 and self.deathPoints() > 0:
+                self.addWeakness()
+                self.takeDeathDamage(amount, combatant)
+                self.message("|300You are unconscious and can no longer move of your own volition.|n")
+                self.broadcast(f"|025{self.name} does not seem to be moving.|n")
 
