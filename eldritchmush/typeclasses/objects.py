@@ -350,6 +350,52 @@ class BowyerWorkshop(DefaultObject):
             string += f"\n\n{self.db.bowyer_text}"
         return string
 
+class ArtificerWorkshop(DefaultObject):
+    """
+    Available commands:
+
+    craft <item>
+    repair <item>
+    """
+
+    def at_object_creation(self):
+        "Called when object is first created"
+        # Maintain state of object
+        self.locks.add("get:false()")
+        self.db.desc = "\nThis is a large workshop used by artificers in their trade. Here raw materials are wrought into core components for all manner of masterfully crafted items. Clothing, tools, and other various and sundry items pour out from behind these walls, and onto the stone and earth streets, or into the wagons of world-traveling traders."
+        self.db.artificer_text = "|430Usage: \ncraft <item>\nEnter the item name with underscores as in, fine_clothing.|n"
+        # Add command set for interacting with box
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if looker.db.artificer:
+            string += f"\n\n{self.db.artificer_text}"
+        return string
+
+class GunsmithWorkshop(DefaultObject):
+    """
+    Available commands:
+
+    craft <item>
+    repair <item>
+    """
+
+    def at_object_creation(self):
+        "Called when object is first created"
+        # Maintain state of object
+        self.locks.add("get:false()")
+        self.db.desc = "\nThis is a large workshop used by gunsmiths in their trade. Metal and wood are expertly crafted and shaped into the core components of black-powder pistols. Many barrels of water surround the small structure given its penchant for setting alight."
+        self.db.gunsmith_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_pistol.|n"
+        # Add command set for interacting with box
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if looker.db.gunsmith:
+            string += f"\n\n{self.db.gunsmith_text}"
+        return string
+
 class BlacksmithObject(DefaultObject):
 
     def at_object_creation(self):
