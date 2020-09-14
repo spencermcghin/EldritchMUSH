@@ -470,7 +470,7 @@ class CmdEquip(Command):
         # Check if the item is of armor type
         if item:
             # Equip gloves and add resists
-            if item.db.hand_slot and item not in self.caller.db.hand_slot:
+            if item.db.hand_slot and not self.caller.db.hand_slot:
                 self.caller.db.hand_slot.append(item)
 
                 # Add extra points from indomitable if armor still has material_value
@@ -481,7 +481,7 @@ class CmdEquip(Command):
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
             # Equip boots and add resists
-            elif item.db.foot_slot and item not in self.caller.db.foot_slot:
+            elif item.db.foot_slot and not self.caller.db.foot_slot:
                 self.caller.db.foot_slot.append(item)
 
                 # Add extra points from indomitable if armor still has material_value
@@ -492,13 +492,19 @@ class CmdEquip(Command):
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
             # Equip kit. Corresponding skill should reference the number of uses left.
-            elif item.db.kit_slot and item not in self.caller.db.kit_slot:
+            elif item.db.kit_slot and not self.caller.db.kit_slot:
                 self.caller.db.kit_slot.append(item)
 
                 self.msg(f"You equip a {item.key} with {item.db.uses} uses left.")
 
+            # Equip kit. Corresponding skill should reference the number of uses left.
+            elif item.db.arrow_slot and not self.caller.db.arrow_slot:
+                self.caller.db.arrow_slot.append(item)
+
+                self.msg(f"You equip a quiver with {item.db.quantity} arrows left.")
+
             # Equip clothing. Add to character's influential skill.
-            elif item.db.clothing_slot and item not in self.caller.db.clothing_slot:
+            elif item.db.clothing_slot and not self.caller.db.clothing_slot:
                 self.caller.db.clothing_slot.append(item)
 
                 if item.db.influential:
@@ -507,7 +513,7 @@ class CmdEquip(Command):
                 self.msg(f"You put on the {item.key}.")
 
             # Equip clothing. Add to character's influential skill.
-            elif item.db.cloak_slot and item not in self.caller.db.cloak_slot:
+            elif item.db.cloak_slot and not self.caller.db.cloak_slot:
                 self.caller.db.cloak_slot.append(item)
 
                 if item.db.espionage:
@@ -516,7 +522,7 @@ class CmdEquip(Command):
                 self.msg(f"You put on the {item.key}.")
 
             # Equip armor
-            elif item.db.is_armor and item not in self.caller.db.body_slot:
+            elif item.db.is_armor and not self.caller.db.body_slot:
                 self.caller.db.body_slot.append(item)
                 self.caller.db.armor = item.db.material_value
 
@@ -561,7 +567,7 @@ class CmdEquip(Command):
                             self.caller.msg(f"|430You can't equip the {item} unless you first unequip something.|n")
                             return
                     # Check to see if right hand is empty.
-                    elif not self.right_slot and not item.db.is_armor:
+                    elif not self.right_slot and (item.db.is_shield or item.db.damage):
                         self.right_slot.append(item)
                         self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
@@ -585,7 +591,7 @@ class CmdEquip(Command):
                             weapon_bonus = h.weaponValue(item.db.level)
                             self.caller.db.weapon_level = weapon_bonus
 
-                    elif not self.left_slot and not item.db.is_armor:
+                    elif not self.left_slot and (item.db.is_shield or item.db.damage):
                         self.left_slot.append(item)
                         self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
@@ -610,7 +616,7 @@ class CmdEquip(Command):
                             self.caller.db.weapon_level = weapon_bonus
 
                     else:
-                        self.caller.msg("|430You are carrying items in both hands.|n")
+                        self.caller.msg("|430You are already carrying an item in that slot.|n")
                         return
                 else:
                     self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
@@ -657,6 +663,10 @@ class CmdUnequip(Command):
                 # Unequip cloak and remove associated espionage points.
                 self.caller.db.cloak_slot.remove(item)
                 self.caller.db.espionage -= item.db.espionage
+
+            elif item in self.caller.db.arrow_slot:
+                # Unequip cloak and remove associated espionage points.
+                self.caller.db.arrow_slot.remove(item)
 
             elif item in self.caller.db.clothing_slot:
                 # Unequip clothing and remove associated influential points.
