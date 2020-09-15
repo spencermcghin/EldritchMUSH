@@ -59,6 +59,21 @@ class CmdShoot(Command):
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)
 
+            arrows_equipped = True if self.caller.db.arrow_slot else False
+
+            # Do arrows equipped and qty check.
+            if arrows_equipped:
+                arrows = self.caller.db.arrow_slot[0]
+                arrow_qty = arrows.db.quantity
+                if arrow_qty > 0:
+                    pass
+                else:
+                    self.msg("|400You are all out of arrows.|n")
+
+            else:
+                self.msg("|430Please equip arrows to use your bow.|n")
+                return
+
             if combat_stats.get("bow", False):
                     # Check if damage bonus comes from fayne or master_of_arms
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
