@@ -8,7 +8,7 @@ Rooms are simple containers that has no location of their own.
 from evennia import TICKER_HANDLER
 from evennia import CmdSet, default_cmds, DefaultRoom
 from evennia import utils
-from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet
+from commands.default_cmdsets import ChargenCmdset, RoomCmdSet, ArtessaCmdSet, NotchCmdSet, AltarCmdSet, HammerCmdSet, BlacksmithCmdSet, CrafterCmdSet
 from commands import command
 from typeclasses.characters import Character
 from typeclasses.npc import Npc
@@ -204,6 +204,20 @@ class AltarRoom(Room):
     def at_object_creation(self):
         "this is called only at first creation"
         self.cmdset.add(AltarCmdSet, permanent=True)
+
+class BlacksmithRoom(Room):
+    """
+    This is the class for rooms that use the craft command set.
+    """
+    def at_object_creation(self):
+        self.cmdset.add(BlacksmithCmdSet, permanent=True)
+
+class CrafterRoom(Room):
+    """
+    This is the class for rooms that use the craft command set.
+    """
+    def at_object_creation(self):
+        self.cmdset.add(CrafterCmdSet, permanent=True)
 
 # Weather room
 
