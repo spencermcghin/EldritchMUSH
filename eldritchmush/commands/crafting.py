@@ -45,7 +45,7 @@ class CmdCraft(Command):
             kit_type = kit.db.type if kit else None
             kit_uses = kit.db.uses if kit else None
 
-            if kit_uses <=0 and (craft_source == kit_type):
+            if kit_uses <= 0 and (craft_source == kit_type):
                 self.msg(f"|400Your {kit} is out of uses.|n")
                 return
 

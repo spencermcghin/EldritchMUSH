@@ -42,6 +42,21 @@ class CmdShoot(Command):
             self.caller.msg("|400You are too injured to act.|n")
             return
 
+        # Do arrows equipped and qty check.
+        arrows_equipped = True if self.caller.db.arrow_slot else False
+        if arrows_equipped:
+            arrows = self.caller.db.arrow_slot[0]
+            arrow_qty = arrows.db.quantity
+            if arrow_qty > 0:
+                pass
+            else:
+                self.msg("|400You are all out of arrows.|n")
+                return
+
+        else:
+            self.msg("|430Please equip arrows to use your bow.|n")
+            return
+
         # Check for and error handle designated target
         target = self.caller.search(self.target)
 
@@ -58,21 +73,6 @@ class CmdShoot(Command):
 
             # Return db stats needed to calc melee results
             combat_stats = h.getMeleeCombatStats(self.caller)
-
-            arrows_equipped = True if self.caller.db.arrow_slot else False
-
-            # Do arrows equipped and qty check.
-            if arrows_equipped:
-                arrows = self.caller.db.arrow_slot[0]
-                arrow_qty = arrows.db.quantity
-                if arrow_qty > 0:
-                    pass
-                else:
-                    self.msg("|400You are all out of arrows.|n")
-
-            else:
-                self.msg("|430Please equip arrows to use your bow.|n")
-                return
 
             if combat_stats.get("bow", False):
                     # Check if damage bonus comes from fayne or master_of_arms
@@ -94,9 +94,8 @@ class CmdShoot(Command):
                                 self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death.|n")
                             else:
                                 h.deathSubtractor(bow_damage, target, self.caller)
-                            # # Remove an arrow from their current count.
-                            # self.caller.db.arrows -= 1
-                            # self.msg(f"|430You now have {self.db.arrows} arrows.|n")
+                            # Subtract from     
+                            arrows.db.quantity -= 1
                         else:
                             # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
                             self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 at {target.key}|n (|400{target.db.av}|n)|025, but it misses.|n")
