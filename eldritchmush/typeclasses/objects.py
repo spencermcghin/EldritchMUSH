@@ -317,6 +317,7 @@ class Forge(DefaultObject):
         # Maintain state of object
         self.locks.add("get:false()")
         self.db.blacksmith_text = "|430Usage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon.|n"
+        self.db.desc = "\nThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor."
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)

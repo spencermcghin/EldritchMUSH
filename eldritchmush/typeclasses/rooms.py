@@ -211,7 +211,7 @@ class BlacksmithRoom(Room):
     """
     def at_object_creation(self):
         self.cmdset.add(BlacksmithCmdSet, permanent=True)
-        self.db.desc = "\nThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor."
+        self.db.desc = "\nEntering the blacksmith's workshop, you are beset upon by an immense heat that eminates from a white hot forge situated up against the back wall. A large bellows pipes huge amounts of air into the brick and stone construction, its insides oscillating between shades of deep orange and blue-white."
 
 class CrafterRoom(Room):
     """
