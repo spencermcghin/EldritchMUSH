@@ -207,18 +207,18 @@ class AltarRoom(Room):
 
 class BlacksmithRoom(Room):
     """
-    This is the class for rooms that use the craft command set.
+    This is the class for rooms that use the blacksmith command set.
     """
     def at_object_creation(self):
         self.cmdset.add(BlacksmithCmdSet, permanent=True)
-        self.db.desc = "\nEntering the blacksmith's workshop, you are beset upon by an immense heat that eminates from a white hot forge situated up against the back wall. A large bellows pipes huge amounts of air into the brick and stone construction, its insides oscillating between shades of deep orange and blue-white."
 
-class CrafterRoom(Room):
+class ArtificerRoom(Room):
     """
     This is the class for rooms that use the craft command set.
     """
     def at_object_creation(self):
         self.cmdset.add(CrafterCmdSet, permanent=True)
+
 
 # Weather room
 

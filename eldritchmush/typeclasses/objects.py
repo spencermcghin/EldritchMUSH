@@ -325,7 +325,7 @@ class Forge(DefaultObject):
             string += f"\n\n{self.db.blacksmith_text}"
         return string
 
-class BowyerWorkshop(DefaultObject):
+class BowyerWorkbench(DefaultObject):
     """
     Available commands:
 
@@ -348,7 +348,7 @@ class BowyerWorkshop(DefaultObject):
             string += f"\n\n{self.db.bowyer_text}"
         return string
 
-class ArtificerWorkshop(DefaultObject):
+class ArtificerWorkbench(DefaultObject):
     """
     Available commands:
 
@@ -371,7 +371,7 @@ class ArtificerWorkshop(DefaultObject):
             string += f"\n\n{self.db.artificer_text}"
         return string
 
-class GunsmithWorkshop(DefaultObject):
+class GunsmithWorkbench(DefaultObject):
     """
     Available commands:
 
