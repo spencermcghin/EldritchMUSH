@@ -99,22 +99,21 @@ class CmdMedicine(Command):
                                 victim.setDeathPoints(3)
                                 victim.addBleedPoints(remaining_healing)
                                 combatant.useChirurgeonsKit()
-                                
-                                combatant.message(f"|400You are able to stop {victim.name} from dying, but they are still bleeding out!.|n")
+
+                                combatant.message(f"|400You are able to stop {victim.name} from dying, but they are still bleeding out!|n")
                             else:
                                 victim.addDeathPoints(combatant.stabilize())
                                 combatant.useChirurgeonsKit()
                         else:
                             combatant.message(f"|400{victim.name}'s injuries are beyond your skill as a healer.|n")
-                            victim.broadcast(
-                                f"|025{combatant.name} tries to stop {victim.name} from dying, but is unable to|n")
+                            victim.broadcast(f"|025{combatant.name} tries to stop {victim.name} from dying, but is unable to.|n")
                     else:
                         combatant.message(f"{victim.name} |025is too fargone to administer further healing.|n")
                 else:
                     combatant.message(f"{victim.name} does not require the application of your healing skills.|n")
                     combatant.broadcast( f"|025{combatant.name} tries to aid {victim.name} but they are uninjured!|n")
             else:
-                combatant.message(f"You are out of materials in your Chirurgeon's kit|n")
+                combatant.message(f"|400You are out of materials in your Chirurgeon's kit.|n")
                 combatant.broadcast(f"|025{combatant.name} tries to aid {victim.name} but does not have the supplies to do so.|n")
 
             # Clean up in combat loop
