@@ -46,7 +46,7 @@ class BlacksmithCmdSet(CmdSet):
 
         self.add(blacksmith.CmdForge())
         # self.add(blacksmith.CmdRepair())
-
+        self.add(crafting.CmdCraft())
 
 class CrafterCmdSet(CmdSet):
     """
