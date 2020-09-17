@@ -1197,8 +1197,6 @@ ARROWS = {
 
 BOW = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_bow": True,
-"twohanded": True,
 "key": "Bow",
 "aliases": ["bow"],
 "craft_source": "bowyer",
@@ -1211,13 +1209,13 @@ BOW = {
 "value_silver": 17,
 "value_gold": 1.7,
 "material_value": 2,
-"level": 1
+"level": 1,
+"is_bow": True,
+"twohanded": True
 }
 
 MASTERWORK_BOW = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_bow": True,
-"twohanded": True,
 "key": "Masterwork Bow",
 "aliases": ["masterwork bow"],
 "craft_source": "bowyer",
@@ -1230,5 +1228,7 @@ MASTERWORK_BOW = {
 "value_silver": 35,
 "value_gold": 3.5,
 "material_value": 3,
-"level": 3
+"level": 3,
+"is_bow": True,
+"twohanded": True
 }
