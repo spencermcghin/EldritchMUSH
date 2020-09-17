@@ -361,8 +361,6 @@ class ArtificerWorkbench(DefaultObject):
         self.locks.add("get:false()")
         self.db.desc = "\nThis is a large workshop used by artificers in their trade. Here raw materials are wrought into core components for all manner of masterfully crafted items. Clothing, tools, and other various and sundry items pour out from behind these walls, and onto the stone and earth streets, or into the wagons of world-traveling traders."
         self.db.artificer_text = "|430Usage: \ncraft <item>\nEnter the item name with underscores as in, fine_clothing.|n"
-        self.cmdset.delete(CrafterCmdSet)
-
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)

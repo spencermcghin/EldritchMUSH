@@ -217,7 +217,7 @@ class ArtificerRoom(Room):
     This is the class for rooms that use the craft command set.
     """
     def at_object_creation(self):
-        self.cmdset.add(CrafterCmdSet, permanent=True)
+        self.cmdset.delete(CrafterCmdSet)
 
 
 # Weather room
