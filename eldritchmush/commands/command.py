@@ -806,6 +806,123 @@ class CmdUnequip(Command):
 #             # Return armor value to console.
 #             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}")
 
+class SetBlacksmith(Command):
+    """Set the blacksmith level of a character
+
+    Usage: setblacksmith <0-3>
+
+    This can only be used during character generation.
+    """
+
+    key = "setblacksmith"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setblacksmith <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            blacksmith = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= blacksmith <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.blacksmith = blacksmith
+        self.caller.msg("|430Your Blacksmith level was set to %i.|n" % blacksmith)
+
+
+class SetArtificer(Command):
+    """Set the artificer level of a character
+
+    Usage: setartificer <0-3>
+
+    This can only be used during character generation.
+    """
+
+    key = "setartificer"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setartificer <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            artificer = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= artificer <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.artificer = artificer
+        self.caller.msg("|430Your Artificer level was set to %i.|n" % artificer)
+
+class SetBowyer(Command):
+    """Set the bowyer level of a character
+
+    Usage: setbowyer <0-3>
+
+    This can only be used during character generation.
+    """
+
+    key = "setbowyer"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setbowyer <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            bowyer = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= bowyer <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.bowyer = bowyer
+        self.caller.msg("|430Your Bowyer level was set to %i.|n" % bowyer)
+
+class SetGunsmith(Command):
+    """Set the gunsmith level of a character
+
+    Usage: setgunsmith <0-3>
+
+    This can only be used during character generation.
+    """
+
+    key = "setgunsmith"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setgunsmith <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            bowyer = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= bowyer <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.gunsmith = gunsmith
+        self.caller.msg("|430Your Gunsmith level was set to %i.|n" % gunsmith)
+
 
 class SetTracking(Command):
     """Set the tracking of a character
@@ -1350,9 +1467,6 @@ class SetStagger(Command):
             self.caller.msg("Your stagger level was set to %i." % stagger)
 
 
-"""
-Combat settings
-"""
 # class SetBow(Command):
 #     """Set the bow property of a character
 #
@@ -1970,6 +2084,10 @@ class SetStabilize(Command):
             self.caller.msg(f"Your stabilize level was set to {stabilize}")
 
 
+"""
+Set Skill Related Attributes
+
+"""
 class SetMedicine(Command):
     """Set the medicine level of a character
 
