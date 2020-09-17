@@ -39,7 +39,7 @@ class CmdCraft(Command):
         if not self.item:
             self.msg(use_err_msg)
             return
-                        
+
         # Search for designated prototypes
         try:
             prototype = prototypes.search_prototype(self.item, require_single=True)
@@ -57,6 +57,10 @@ class CmdCraft(Command):
             kit = self.caller.db.kit_slot[0] if self.caller.db.kit_slot else None
             kit_type = kit.db.type if kit else None
             kit_uses = kit.db.uses if kit else None
+
+            if not kit:
+                self.msg(f"|430Please equip the kit needed to craft a {self.item}.")
+                return
 
             if kit_uses <= 0 and (craft_source == kit_type):
                 self.msg(f"|400Your {kit} is out of uses.|n")
