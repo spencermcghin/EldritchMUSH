@@ -912,16 +912,44 @@ class SetGunsmith(Command):
             self.caller.msg(errmsg)
             return
         try:
-            bowyer = int(self.args)
+            gunsmith = int(self.args)
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= bowyer <= 3):
+        if not (0 <= gunsmith <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.gunsmith = gunsmith
         self.caller.msg("|430Your Gunsmith level was set to %i.|n" % gunsmith)
+
+class SetAlchemist(Command):
+    """Set the alchemist level of a character
+
+    Usage: setalchemist <0-3>
+
+    This can only be used during character generation.
+    """
+
+    key = "setalchemist"
+    help_category = "mush"
+
+    def func(self):
+        errmsg = "|430Usage: setalchemist <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            alchemist = int(self.args)
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        if not (0 <= alchemist <= 3):
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.alchemist = alchemist
+        self.caller.msg("|430Your Alchemist level was set to %i.|n" % alchemist)
 
 
 class SetTracking(Command):
