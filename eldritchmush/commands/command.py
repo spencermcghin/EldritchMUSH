@@ -828,7 +828,7 @@ class SetBlacksmith(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= blacksmith <= 3):
+        if not (0 <= blacksmith <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -858,7 +858,7 @@ class SetArtificer(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= artificer <= 3):
+        if not (0 <= artificer <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -887,7 +887,7 @@ class SetBowyer(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= bowyer <= 3):
+        if not (0 <= bowyer <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -916,7 +916,7 @@ class SetGunsmith(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= gunsmith <= 3):
+        if not (0 <= gunsmith <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
@@ -944,7 +944,7 @@ class SetAlchemist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= alchemist <= 3):
+        if not (0 <= alchemist <= 5):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
