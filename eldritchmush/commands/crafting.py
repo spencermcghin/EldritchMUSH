@@ -66,6 +66,7 @@ class CmdCraft(Command):
                 self.msg(f"|400Your {kit} is out of uses.|n")
                 return
 
+            self.msg(item_data)
             self.msg(craft_source)
             self.msg(kit_type)
 
