@@ -341,6 +341,7 @@ class BowyerWorkbench(DefaultObject):
         self.db.desc = "\nThis is a large workshop used by bowyers in their trade. Here wood is hewn, shaped, and laminated to become a masterfully crafted instrument of death. So too, are thin shafts wittled, their ends bound in a waxed string that to them binds the delicate feathers of a bird."
         self.db.bowyer_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_bow.|n"
         # Add command set for interacting with box
+        self.cmdset.delete('commands.default_cmdsets.CrafterCmdSet')
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
@@ -385,7 +386,7 @@ class GunsmithWorkbench(DefaultObject):
         self.db.desc = "\nThis is a large workshop used by gunsmiths in their trade. Metal and wood are expertly crafted and shaped into the core components of black-powder pistols. Many barrels of water surround the small structure given its penchant for setting alight."
         self.db.gunsmith_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_pistol.|n"
         # Add command set for interacting with box
-        
+
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
         if looker.db.gunsmith:
