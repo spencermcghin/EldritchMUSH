@@ -325,6 +325,7 @@ class Forge(DefaultObject):
             string += f"\n\n{self.db.blacksmith_text}"
         return string
 
+
 class BowyerWorkbench(DefaultObject):
     """
     Available commands:

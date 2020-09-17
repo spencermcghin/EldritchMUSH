@@ -21,12 +21,25 @@ class CmdCraft(Command):
         self.item = self.args.strip()
 
     def func(self):
+
+        if self.caller.db.blacksmith:
+            pass
+        elif self.caller.db.bowyer:
+            pass
+        elif self.caller.db.artificer:
+            pass
+        elif self.caller.db.gunsmith:
+            pass
+        else:
+            self.msg(f"|400You don't have the proper skills to create a {self.item}.|n")
+            return
+
         use_err_msg = "|430Usage: craft <item>|n"
 
         if not self.item:
             self.msg(use_err_msg)
             return
-
+                        
         # Search for designated prototypes
         try:
             prototype = prototypes.search_prototype(self.item, require_single=True)
