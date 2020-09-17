@@ -210,7 +210,7 @@ class BlacksmithRoom(Room):
     This is the class for rooms that use the blacksmith command set.
     """
     def at_object_creation(self):
-        self.cmdset.add(BlacksmithCmdSet, permanent=True)
+        self.cmdset.delete(BlacksmithCmdSet, permanent=True)
 
 class ArtificerRoom(Room):
     """
