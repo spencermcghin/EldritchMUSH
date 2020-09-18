@@ -21,6 +21,19 @@ class CmdCraft(Command):
         self.item = self.args.strip()
 
     def func(self):
+
+        if self.caller.db.blacksmith:
+            pass
+        elif self.caller.db.bowyer:
+            pass
+        elif self.caller.db.artificer:
+            pass
+        elif self.caller.db.gunsmith:
+            pass
+        else:
+            self.msg(f"|400You don't have the proper skills to create a {self.item}.|n")
+            return
+
         use_err_msg = "|430Usage: craft <item>|n"
 
         if not self.item:
@@ -45,7 +58,11 @@ class CmdCraft(Command):
             kit_type = kit.db.type if kit else None
             kit_uses = kit.db.uses if kit else None
 
-            if kit_uses <=0 and (craft_source == kit_type):
+            if not kit:
+                self.msg(f"|430Please equip the kit needed to craft a {self.item}.")
+                return
+
+            if kit_uses <= 0 and (craft_source == kit_type):
                 self.msg(f"|400Your {kit} is out of uses.|n")
                 return
 
