@@ -1232,3 +1232,64 @@ MASTERWORK_BOW = {
 "is_bow": True,
 "twohanded": True
 }
+
+"""
+Gunsmith Items
+"""
+
+BULLETS = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Bullets",
+"aliases": ["bullets"],
+"craft_source": "gunsmith",
+"bullet_slot": True,
+"quantity": 3,
+"required_resources": 9,
+"iron_ingots": 6,
+"refined_wood": 3,
+"leather": 0,
+"cloth": 0,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": .8,
+"level": 1
+}
+
+
+PISTOL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Bow",
+"aliases": ["bow"],
+"craft_source": "bowyer",
+"required_resources": 9,
+"iron_ingots": 2,
+"refined_wood": 6,
+"leather": 1,
+"cloth": 0,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
+"material_value": 2,
+"level": 1,
+"is_bow": True,
+"twohanded": True
+}
+
+MASTERWORK_PISTOL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Masterwork Bow",
+"aliases": ["masterwork bow"],
+"craft_source": "bowyer",
+"required_resources": 18,
+"iron_ingots": 2,
+"refined_wood": 12,
+"leather": 4,
+"cloth": 0,
+"value_copper": 350,
+"value_silver": 35,
+"value_gold": 3.5,
+"material_value": 3,
+"level": 3,
+"is_bow": True,
+"twohanded": True
+}
