@@ -2,7 +2,6 @@
 import random
 
 from commands.combat import Helper
-from commands.inventory_helper import Inventory
 
 
 class Combatant:
@@ -17,12 +16,6 @@ class Combatant:
         self.name = self.caller.key
         self.combatStats = self.helper.getMeleeCombatStats(self.caller)
         self.target = None
-        self.inventory = Inventory(self, caller)
-
-
-    @property
-    def inventory(self):
-        return self.inventory()
 
     @property
     def isStaggered(self):
@@ -205,7 +198,15 @@ class Combatant:
     def getLeftHand(self):
         return self.combatStats.get("left_slot", '')
 
-
+    def getWeapon(self):
+        right_hand = self.getRightHand()
+        left_hand = self.getLeftHand()
+        if right_hand.db.damage >= 0:
+            return right_hand
+        elif left_hand.db.damage >= 0:
+            return left_hand
+        else:
+            return None
 
     def getShield(self):
         right_hand = self.getRightHand()
@@ -218,7 +219,7 @@ class Combatant:
             return None
 
     def isArmed(self,message=None):
-        if message and not self.inventory.getWeapon():
+        if message and not self.getWeapon():
             self.message(message)
             return False
         else:
@@ -239,6 +240,8 @@ class Combatant:
             if message:
                 self.broadcast(message)
             return False
+
+
 
     def rollAttack(self, maneuver_difficulty = 0):
         die_result = self.helper.fayneChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("wylding_hand", 0))
