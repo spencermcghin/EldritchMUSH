@@ -32,7 +32,7 @@ class CmdDisarm(Command):
             self.caller.msg("|430Usage: disarm <target>|n")
             return
 
-        if combatant.cantFight():
+        if combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
 
@@ -54,10 +54,10 @@ class CmdDisarm(Command):
                     if combatant.hasDisarmsRemaining(f"|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.|n"):
                         if not victim.hasTwoHandedWeapon(
                                 f"|430You cannot disarm a two-handed weapon. Please try another attack.|n"):
-                            if victim.isAlive():
+                            if victim.isAlive:
                                 maneuver_difficulty = 2
                                 attack_result = combatant.rollAttack(maneuver_difficulty)
-                                if attack_result >= victim.av():
+                                if attack_result >= victim.av:
                                     # Check for NPC calling the command and pick a new command if so.
                                     # TODO: Spence - Why shouldn't NPCs use Disarm?
                                     if utils.inherits_from(self.caller, Npc) and combatant.isTwoHanded():
@@ -70,13 +70,13 @@ class CmdDisarm(Command):
                                     shot_location = combatant.determineHitLocation(victim)
                                     victim.takeDamage(combatant, combatant.getDamage(), shot_location)
 
-                                    victim.message(f"|430Your new total Armor Value is {victim.av()}:\nShield: {victim.getShield()}\nArmor Specialist: {victim.getArmorSpecialist()}\nArmor: {victim.getArmor()}\nTough: {victim.getTough()}|n")
+                                    victim.reportAV()
                                     victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
 
-                                    combatant.broadcast(f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {victim.name}|n (|400{victim.av()}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                    combatant.broadcast(f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {victim.name}|n (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
 
                                 else:
-                                    combatant.broadcast(f"|025{combatant.name} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {victim.name}, but misses|n (|400{victim.av()}|n)|025.|n")
+                                    combatant.broadcast(f"|025{combatant.name} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {victim.name}, but misses|n (|400{victim.av}|n)|025.|n")
                             else:
                                 combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
                                 combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")

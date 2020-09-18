@@ -36,7 +36,7 @@ class CmdStrike(Command):
         elif self.args == self.caller:
             self.msg("|400You can't do that.|n")
             return
-        elif combatant.cantFight():
+        elif combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
 
@@ -54,21 +54,23 @@ class CmdStrike(Command):
 
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.isArmed(f"|430Before you strike you must equip a melee weapon using the command equip <weapon name>.|n"):
-                if victim.isAlive():
+                if victim.isAlive:
                     # Check if damage bonus comes from fayne or master_of_arms
                     attack_result = combatant.rollAttack()
+                    shot_location = combatant.determineHitLocation(victim)
 
-                    if attack_result >= victim.av():
-                        combatant.broadcast(f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av()}|n), |025dealing|n (|430{combatant.getDamage()}|n) |025damage!|n")
-                        #combatant.message(
-                        #   f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits |n(|400{victim.av()}|n)|025, injuring their {shot_location} and dealing|n |430{combatant.getDamage()}|n |025damage!|n.")
-                        # Get damage result and damage for weapon type
-                        shot_location = combatant.determineHitLocation(victim)
-                        victim.takeDamage(combatant, combatant.getDamage(), shot_location)
-
-                        victim.message(f"|430Your new total Armor Value is {victim.av()}:\nShield: {victim.getShield()}\nArmor Specialist: {victim.getArmorSpecialist()}\nArmor: {victim.getArmor()}\nTough: {victim.getTough()}|n")
+                    if attack_result >= victim.av:
+                        if not victim.blocksWithShield(shot_location):
+                            # Get damage result and damage for weapon type
+                            victim.takeDamage(combatant, combatant.getDamage(), shot_location)
+                            victim.reportAV()
+                            combatant.broadcast(
+                                f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av}|n), |025dealing|n (|430{combatant.getDamage()}|n) |025damage!|n")
+                        else:
+                            combatant.broadcast(
+                                f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av}|n), but {victim.name} blocks with their shield |n")
                     else:
-                        combatant.broadcast(f"|025{combatant.name} swings wildly|n (|400{attack_result}|n)|025, missing {victim.name}|n (|020{victim.av()}|n)")
+                        combatant.broadcast(f"|025{combatant.name} swings wildly|n (|400{attack_result}|n)|025, missing {victim.name}|n (|020{victim.av}|n)")
                 else:
                     combatant.message(f"|400{victim.name} is dead. You only further mutiliate their body.|n")
                     combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
