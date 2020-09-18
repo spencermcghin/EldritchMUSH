@@ -427,5 +427,5 @@ class Combatant:
             if amount > 0 and self.deathPoints() > 0:
                 self.addWeakness()
                 self.takeDeathDamage(amount, combatant)
-                self.message("|300You are unconscious and can no longer move of your own volition.|n")
+                self.message("|400You are unconscious and can no longer move of your own volition.|n")
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")
