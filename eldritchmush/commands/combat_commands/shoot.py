@@ -2,6 +2,7 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combat import Helper
+from commands.combatant import Combatant
 
 class CmdShoot(Command):
     """
@@ -24,6 +25,7 @@ class CmdShoot(Command):
         self.target = self.args.strip()
 
     def func(self):
+        combatant = Combatant(self.caller)
         # Check for correct command
         # Target handling
 
@@ -31,72 +33,52 @@ class CmdShoot(Command):
         if not self.args:
             self.msg("|430Usage: shoot <target>|n")
             return
-
-        if self.args == self.caller:
+        elif self.args == self.caller:
             self.msg("|400You can't do that.|n")
-
-        # Init combat helper class for logic
-        h = Helper(self.caller)
-
-        if not h.canFight(self.caller):
-            self.caller.msg("|400You are too injured to act.|n")
+            return
+        elif combatant.cantFight:
+            combatant.message("|400You are too injured to act.|n")
             return
 
-        # Check for and error handle designated target
-        target = self.caller.search(self.target)
+        victim = combatant.getVictim(self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
-        if target:
-            loop = CombatLoop(self.caller, target)
-            loop.resolveCommand()
-        else:
+        if not victim:
+            combatant.message("|430Please designate an appropriate target.|n")
             return
 
-        # Run logic for strike command
-        if self.caller.db.combat_turn:
+        loop = CombatLoop(combatant.caller, combatant.target)
+        loop.resolveCommand()
 
-            # Return db stats needed to calc melee results
-            combat_stats = h.getMeleeCombatStats(self.caller)
+        if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
+            if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
+                if victim.isAlive:
+                    bow_penalty = 2
+                    bow_damage = 2
 
-            if combat_stats.get("bow", False):
-                    # Check if damage bonus comes from fayne or master_of_arms
-                    die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
+                    attack_result = combatant.rollAttack(bow_penalty)
+                    shot_location = combatant.determineHitLocation(victim)
 
-                    # Get damage result
-                    attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0) - combat_stats.get("bow_penalty", 0)
-                    target_av = target.db.av
-                    shot_location = h.shotFinder(target.db.targetArray)
-                    bow_damage = combat_stats.get("bow_damage", 0)
+                    if attack_result >= victim.av:
+                        if not victim.blocksWithShield(shot_location):
+                            # Get damage result and damage for weapon type
+                            victim.takeDamage(combatant, combatant.getDamage(), shot_location)
+                            victim.reportAV()
 
-                    # Compare caller attack_result to target av.
-                    # If attack_result > target av -> hit, else miss
-                    if h.isAlive:
-                        if attack_result >= target.db.av:
-                            self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
-                            if shot_location == "torso" and target.db.body > 0: 
-                                target.db.body = 0
-                                self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death.|n")
-                            else:
-                                h.deathSubtractor(bow_damage, target, self.caller)
-                            # # Remove an arrow from their current count.
-                            # self.caller.db.arrows -= 1
-                            # self.msg(f"|430You now have {self.db.arrows} arrows.|n")
+                            combatant.broadcast(f"|025{combatant.name} lets loose an arrow|n (|020{attack_result}|n)|025 straight for {victim.name}'s {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
                         else:
-                            # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
-                            self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 at {target.key}|n (|400{target.db.av}|n)|025, but it misses.|n")
-                        # Clean up
-                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                        loop.combatTurnOff(self.caller)
-                        loop.cleanup()
-
+                            combatant.broadcast(
+                                f"|025{combatant.name} lets loose an arrow|n (|020{attack_result}|n)|025 straight for {victim.name}'s {shot_location} and hits|n (|400{victim.av}|n), but {victim.name} is able to raise their shield to block!|n")
                     else:
-                        self.msg(f"|400{target.key} is dead. You only further mutiliate their body.|n")
-                        self.caller.location.msg_contents(f"|025{self.caller.key} further mutilates the corpse of {target.key}|n")
+                        # No target armor so subtract from their body total and hit a limb. Add logic from handler above. Leave in body handler in combat handler.
+                        self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 at {victim.name}|n (|400{victim.av}|n)|025, but it misses.|n")
 
-            else:
-                self.msg("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n")
+                else:
+                    combatant.message(f"|400{victim.name} is dead. You only further mutiliate their body.|n")
+                    combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
 
-        else:
-            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
-            return
+                # Clean up
+                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                loop.combatTurnOff(self.caller)
+                loop.cleanup()
