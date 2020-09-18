@@ -1,5 +1,5 @@
 # local imports
-from evennia import Character
+from typeclasses.characters import Character
 
 def reset_runner():
     # Get all characters
