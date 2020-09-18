@@ -70,7 +70,7 @@ class CmdDisarm(Command):
                                     shot_location = combatant.determineHitLocation(victim)
                                     victim.takeDamage(combatant, combatant.getDamage(), shot_location)
 
-                                    victim.reportAV()
+                                    victim.reportAv()
                                     victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
 
                                     combatant.broadcast(f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {victim.name}|n (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")

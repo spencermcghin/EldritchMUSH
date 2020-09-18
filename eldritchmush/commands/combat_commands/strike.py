@@ -63,7 +63,7 @@ class CmdStrike(Command):
                         if not victim.blocksWithShield(shot_location):
                             # Get damage result and damage for weapon type
                             victim.takeDamage(combatant, combatant.getDamage(), shot_location)
-                            victim.reportAV()
+                            victim.reportAv()
                             combatant.broadcast(
                                 f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av}|n), |025dealing|n (|430{combatant.getDamage()}|n) |025damage!|n")
                         else:

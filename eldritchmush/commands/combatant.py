@@ -20,7 +20,6 @@ class Combatant:
         self.inventory = Inventory(self, caller)
 
 
-    @property
     def inventory(self):
         return self.inventory()
 
@@ -215,7 +214,7 @@ class Combatant:
         elif left_hand.db.is_shield and left_hand.db.broken == False:
             return left_hand, "left arm"
         else:
-            return None
+            return None, None
 
     def isArmed(self,message=None):
         if message and not self.inventory.getWeapon():
@@ -339,7 +338,9 @@ class Combatant:
         self.caller.db.av = amount
 
     def blocksWithShield(self, shot_location):
+
         has_shield, location = self.getShield()
+        
         if has_shield and shot_location == location:
             return True
         elif has_shield and shot_location == 'torso':
