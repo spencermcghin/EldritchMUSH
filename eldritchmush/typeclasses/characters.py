@@ -153,6 +153,15 @@ class Character(DefaultCharacter):
         else:
             return text
 
+    def reset_stats(self):
+        self.db.resist = self.db.total_resist
+        self.db.disarm = self.db.total_disarm
+        self.db.cleave = self.db.total_cleave
+        self.db.sunder = self.db.total_sunder
+        self.db.stun = self.db.total_stun
+        self.db.stagger = self.db.total_stagger
+        self.db.tough = self.db.total_tough
+
     # Changed for AI room response
     def at_after_move(self, source_location):
         """
