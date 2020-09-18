@@ -46,7 +46,7 @@ class BlacksmithCmdSet(CmdSet):
 
         self.add(blacksmith.CmdForge())
         # self.add(blacksmith.CmdRepair())
-
+        self.add(crafting.CmdCraft())
 
 class CrafterCmdSet(CmdSet):
     """
@@ -242,6 +242,10 @@ class ChargenCmdset(CmdSet):
 
         self.add(command.SetTracking())
         self.add(command.SetPerception())
+        self.add(command.SetBlacksmith())
+        self.add(command.SetArtificer())
+        self.add(command.SetGunsmith())
+        self.add(command.SetBowyer())
         self.add(command.SetMasterOfArms())
         self.add(command.SetArmorSpecialist())
         self.add(command.SetResist())

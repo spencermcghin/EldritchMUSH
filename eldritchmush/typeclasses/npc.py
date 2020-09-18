@@ -402,6 +402,7 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
+        self.db.arrow_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
 
@@ -431,18 +432,23 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
     def make_equipment(self):
         prototype = prototypes.search_prototype("bow", require_single=True)
         armor_prototype = prototypes.search_prototype("iron_coat_of_plates", require_single=True)
+        arrow_prototype = prototypes.search_prototype("arrows", require_single=True)
         # Get prototype data
         bow_data = prototype[0]
         armor_data = armor_prototype[0]
+        arrow_data = arrow_prototype[0]
         # Spawn item using data
         weapon_item = spawn(bow_data)
         armor_item = spawn(armor_data)
+        arrow_item = spawn(arrow_data)
         # Move item to caller's inventory
         weapon_item[0].move_to(self, quiet=True)
         armor_item[0].move_to(self, quiet=True)
+        arrow_item[0].move_to(self, quiet=True)
         # Equip items
         self.execute_cmd('equip bow')
         self.execute_cmd('equip iron coat of plates')
+        self.execute_cmd('equip arrows')
 
 
     def at_char_entered(self, character):
