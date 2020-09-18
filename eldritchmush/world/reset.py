@@ -1,4 +1,4 @@
-from typeclasses.characters import Character
+from eldritchmush.typeclasses.characters import Character
 
 def reset_runner():
     # Get all characters
