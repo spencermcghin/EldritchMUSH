@@ -497,11 +497,17 @@ class CmdEquip(Command):
 
                 self.msg(f"You equip a {item.key} with {item.db.uses} uses left.")
 
-            # Equip kit. Corresponding skill should reference the number of uses left.
+            # Equip arrows. Corresponding skill should reference the number of uses left.
             elif item.db.arrow_slot and not self.caller.db.arrow_slot:
                 self.caller.db.arrow_slot.append(item)
 
                 self.msg(f"You equip a quiver with {item.db.quantity} arrows left.")
+
+            # Equip arrows. Corresponding skill should reference the number of uses left.
+            elif item.db.bullet_slot and not self.caller.db.bullet_slot:
+                self.caller.db.bullet_slot.append(item)
+
+                self.msg(f"You equip a bundle of {item.db.quantity} bullets.")
 
             # Equip clothing. Add to character's influential skill.
             elif item.db.clothing_slot and not self.caller.db.clothing_slot:
@@ -665,8 +671,12 @@ class CmdUnequip(Command):
                 self.caller.db.espionage -= item.db.espionage
 
             elif item in self.caller.db.arrow_slot:
-                # Unequip cloak and remove associated espionage points.
+                # Unequip arrows.
                 self.caller.db.arrow_slot.remove(item)
+
+            elif item in self.caller.db.bullet_slot:
+                # Unequip bullets.
+                self.caller.db.bullet_slot.remove(item)
 
             elif item in self.caller.db.clothing_slot:
                 # Unequip clothing and remove associated influential points.
