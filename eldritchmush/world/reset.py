@@ -1,8 +1,9 @@
-from eldritchmush.typeclasses.characters import Character
+from typeclasses.characters import Character
 
 def reset_runner():
     # Get all characters
-    characters = [character for character in Character.objects.all()]
+    c = Character()
+    characters = [character for character in c.objects.all()]
     print(characters)
     # for character in characters:
     #     character.reset_stats()
