@@ -1249,47 +1249,45 @@ BULLETS = {
 "refined_wood": 3,
 "leather": 0,
 "cloth": 0,
-"value_copper": 80,
-"value_silver": 8,
-"value_gold": .8,
+"value_copper": 170,
+"value_silver": 17,
+"value_gold": 1.7,
 "level": 1
 }
 
 
 PISTOL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Bow",
-"aliases": ["bow"],
-"craft_source": "bowyer",
-"required_resources": 9,
-"iron_ingots": 2,
-"refined_wood": 6,
-"leather": 1,
+"key": "Pistol",
+"aliases": ["pistol"],
+"craft_source": "gunsmith",
+"required_resources": 18,
+"iron_ingots": 10,
+"refined_wood": 8,
+"leather": 0,
 "cloth": 0,
-"value_copper": 170,
-"value_silver": 17,
-"value_gold": 1.7,
+"value_copper": 300,
+"value_silver": 30,
+"value_gold": 3,
 "material_value": 2,
-"level": 1,
-"is_bow": True,
-"twohanded": True
+"level": 2,
+"is_pistol": True
 }
 
 MASTERWORK_PISTOL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"key": "Masterwork Bow",
-"aliases": ["masterwork bow"],
-"craft_source": "bowyer",
-"required_resources": 18,
-"iron_ingots": 2,
-"refined_wood": 12,
-"leather": 4,
+"key": "Masterwork Pistol",
+"aliases": ["masterwork pistol"],
+"craft_source": "gunsmith",
+"required_resources": 23,
+"iron_ingots": 10,
+"refined_wood": 10,
+"leather": 3,
 "cloth": 0,
-"value_copper": 350,
-"value_silver": 35,
-"value_gold": 3.5,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
 "material_value": 3,
 "level": 3,
-"is_bow": True,
-"twohanded": True
+"is_pistol": True
 }
