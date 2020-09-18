@@ -42,6 +42,7 @@ class Character(DefaultCharacter):
         self.db.tough = 0
         self.db.total_tough = 0
         self.db.body = 3
+        self.db.total_body = 3
         self.db.av = 0
         self.db.resilience = 0
         self.db.influential = 0
@@ -76,11 +77,17 @@ class Character(DefaultCharacter):
         # Entries for combat
         self.db.melee = 0
         self.db.resist = 0
+        self.db.total_resist = 0
         self.db.disarm = 0
+        self.db.total_disarm = 0
         self.db.cleave = 0
+        self.db.total_cleave = 0
         self.db.sunder = 0
+        self.db.total_sunder = 0
         self.db.stun = 0
+        self.db.total_stun = 0
         self.db.stagger = 0
+        self.db.total_stagger = 0
         self.db.weapon_level = 0
         self.db.shield_value = 0
         self.db.twohanded = 0
@@ -137,10 +144,10 @@ class Character(DefaultCharacter):
 
         # Return
         if isBleeding:
-            return text + f"\n|400{self.key} is bleeding profusely from mutliple, serious wounds.|n"
+            return text + f"\n{self.key} |025is bleeding profusely from mutliple, serious wounds.|n"
 
         elif isDying:
-            return text + f"\n|400{self.key} has succumbed to their injuries and is now unconscious.|n"
+            return text + f"\n{self.key} |025has succumbed to their injuries and is now unconscious.|n"
 
         else:
             return text
