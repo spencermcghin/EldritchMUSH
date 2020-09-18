@@ -71,10 +71,10 @@ class CmdShoot(Command):
 
                     # Compare caller attack_result to target av.
                     # If attack_result > target av -> hit, else miss
-                    if h.isAlive(target):
+                    if h.isAlive:
                         if attack_result >= target.db.av:
                             self.caller.location.msg_contents(f"|025{self.caller.key} lets loose an arrow|n (|020{attack_result}|n)|025 straight for {target.key}'s {shot_location} and hits|n (|400{target.db.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
-                            if shot_location == "torso" and target.db.body > 0:
+                            if shot_location == "torso" and target.db.body > 0: 
                                 target.db.body = 0
                                 self.caller.location.msg_contents(f"|025{target.key} has been fatally wounded and is now bleeding to death.|n")
                             else:

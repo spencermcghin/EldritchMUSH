@@ -92,6 +92,7 @@ class Character(DefaultCharacter):
         self.db.in_combat = 0
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.is_staggered = False
 
         # Char slots for equipping items
         self.db.left_slot = []
