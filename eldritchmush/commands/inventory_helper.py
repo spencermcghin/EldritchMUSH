@@ -1,5 +1,3 @@
-from commands.combat import Helper
-
 class Inventory:
     """
     A helper class used to ease readability and flow of combat functions
