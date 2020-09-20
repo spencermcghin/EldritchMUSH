@@ -146,11 +146,12 @@ class CmdRepair(Command):
         # Search for designated prototypes
         try:
             item = self.caller.search(self.item, location=self.caller)
-            item_lower = self.item.lower().replace(" ", "_")
-            prototype = prototypes.search_prototype(item_lower, require_single=True)
         except KeyError:
             self.msg("|430Item not found, or more than one match. Please try again.|n")
         else:
+            item_lower = item.key.lower().replace(" ", "_")
+            prototype = prototypes.search_prototype(item_lower, require_single=True)
+
             # Get search response
             prototype_data = prototype[0]
 
@@ -163,7 +164,7 @@ class CmdRepair(Command):
                 # item.db.broken = False
                 # item.db.patched = False
                 # item.db.material_value = material_value
-                self.msg(item_data)
+                self.msg()
                 self.msg(f"Craft source is {craft_source}")
             else:
                 self.msg("Is artificer.")
