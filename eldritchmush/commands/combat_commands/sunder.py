@@ -65,7 +65,7 @@ class CmdSunder(Command):
                     shot_location = h.shotFinder(target.db.targetArray)
 
                     # Do all the checks
-                    if h.isAlive(target):
+                    if h.isAlive:
                       if sundersRemaining > 0:
                         if not combat_stats.get("weakness", 0):
                                 if attack_result >= target.db.av:

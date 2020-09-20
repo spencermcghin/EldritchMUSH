@@ -1,5 +1,9 @@
+# Imports
+import random
+
 from commands.combat import Helper
-from pprint import pprint
+from commands.inventory_helper import Inventory
+
 
 class Combatant:
     """
@@ -13,12 +17,26 @@ class Combatant:
         self.name = self.caller.key
         self.combatStats = self.helper.getMeleeCombatStats(self.caller)
         self.target = None
+        self.inventory = Inventory(self, caller)
+
+
+    def inventory(self):
+        return self.inventory()
+
+    @property
+    def isStaggered(self):
+        return self.caller.db.is_staggered
 
     def canFight(self):
         return self.helper.canFight(self.caller)
 
+    @property
     def cantFight(self):
         return not self.canFight()
+
+    @property
+    def isAlive(self):
+        return True if self.caller.db.death_points else False
 
     def message(self,msg):
         self.caller.msg(msg)
@@ -186,18 +204,20 @@ class Combatant:
     def getLeftHand(self):
         return self.combatStats.get("left_slot", '')
 
-    def getWeapon(self):
+
+
+    def getShield(self):
         right_hand = self.getRightHand()
         left_hand = self.getLeftHand()
-        if right_hand.db.damage >= 0:
-            return right_hand
-        elif left_hand.db.damage >= 0:
-            return left_hand
+        if right_hand.db.is_shield and right_hand.db.broken == False:
+            return right_hand, "right arm"
+        elif left_hand.db.is_shield and left_hand.db.broken == False:
+            return left_hand, "left arm"
         else:
-            return None
+            return None, None
 
     def isArmed(self,message=None):
-        if message and not self.getRightHand() and not self.getLeftHand():
+        if message and not self.inventory.getWeapon():
             self.message(message)
             return False
         else:
@@ -210,13 +230,29 @@ class Combatant:
         else:
             return True
 
+    def hitsAttack(self, difficulty, victimAv, message):
+        result = self.rollAttack(difficulty)
+        if (result >= victimAv):
+            return True
+        else:
+            if message:
+                self.broadcast(message)
+            return False
+
     def rollAttack(self, maneuver_difficulty = 0):
         die_result = self.helper.fayneChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("wylding_hand", 0))
+        stagger_penalty = 0
+
+        if(self.isStaggered):
+            stagger_penalty = 1
+            self.caller.db.is_staggered = False
+
+
 
         # Get damage result and damage for weapon type
         attack_result = (die_result + self.caller.db.weapon_level) - self.combatStats.get("dmg_penalty",
                                                                                       0) - self.combatStats.get("weakness",
-                                                                                                            0) - maneuver_difficulty
+                                                                                                            0) - maneuver_difficulty - stagger_penalty
         return attack_result
 
     def hasTwoHandedWeapon(self, message = None):
@@ -228,18 +264,14 @@ class Combatant:
     def isTwoHanded(self):
         return self.combatStats.get("two_handed", 0)
 
+    @property
     def av(self):
         return self.caller.db.av
 
     def determineHitLocation(self,victim):
         return self.helper.shotFinder(self.caller.db.targetArray)
 
-    def isAlive(self,message=None):
-        is_alive = True if self.caller.db.death_points else False
-        if message and not is_alive:
-            self.message(message)
 
-        return is_alive
 
     def hasWeakness(self,message=None):
         weakness = self.combatStats.get("weakness", 0)
@@ -285,7 +317,7 @@ class Combatant:
         self.caller.db.skip_turn = True
 
     def stagger(self):
-        self.broadcast(f"|430Warning: Stagger not fully implemented")
+        self.caller.db.is_staggered = True
 
     def hasDamageVulnerability(self):
         return
@@ -305,8 +337,17 @@ class Combatant:
         #TODO: Should we set Max/Min?
         self.caller.db.av = amount
 
-    def getShield(self):
-        return self.caller.db.shield
+    def blocksWithShield(self, shot_location):
+
+        has_shield, location = self.getShield()
+        
+        if has_shield and shot_location == location:
+            return True
+        elif has_shield and shot_location == 'torso':
+            if random.randint(1, 2) == 1:
+                return True
+
+        return False
 
     def getArmorSpecialist(self):
         return self.caller.db.armor_specialist
@@ -324,6 +365,10 @@ class Combatant:
             has_kit = True
 
         return has_kit
+
+    def reportAv(self):
+        self.message(
+            f"|430Your new total Armor Value is {self.av}:\nArmor Specialist: {self.getArmorSpecialist()}\nArmor: {self.getArmor()}\nTough: {self.getTough()}|n")
 
     def useChirurgeonsKit(self):
         self.helper.useKit()
@@ -384,12 +429,12 @@ class Combatant:
         return remaining_damage
 
     def updateAv(self):
-        self.caller.db.av = self.caller.db.shield_value + self.caller.db.armor + self.caller.db.tough + self.caller.db.armor_specialist
+        self.caller.db.av = self.caller.db.armor + self.caller.db.tough + self.caller.db.armor_specialist
 
 
     def takeAvDamage(self,amount):
         # Take Damage to Armor
-        amount = self.takeShieldDamage(amount)
+        # amount = self.takeShieldDamage(amount)
         if amount > 0:
             amount = self.takeArmorSpecialistDamage(amount)
             if amount > 0:
@@ -403,7 +448,7 @@ class Combatant:
         return amount
 
     def takeDamage(self, combatant, amount, shot_location, skip_av = False):
-        if self.av() and (not skip_av):
+        if self.av and (not skip_av):
             amount = self.takeAvDamage(amount)
 
         if amount > 0:
@@ -427,5 +472,5 @@ class Combatant:
             if amount > 0 and self.deathPoints() > 0:
                 self.addWeakness()
                 self.takeDeathDamage(amount, combatant)
-                self.message("|400You are unconscious and can no longer move of your own volition.|n")
+                self.message("|300You are unconscious and can no longer move of your own volition.|n")
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")

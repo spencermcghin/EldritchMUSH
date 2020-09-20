@@ -79,6 +79,7 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.body_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.is_staggered = False
 
         # Entries for following
         self.db.isLeading = False
