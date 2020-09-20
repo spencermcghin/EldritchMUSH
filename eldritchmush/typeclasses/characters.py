@@ -62,6 +62,7 @@ class Character(DefaultCharacter):
         self.db.bowyer = 0
         self.db.gunsmith = 0
         self.db.alchemist = 0
+        self.db.last_repair = 0
 
         # Entries for healing
         self.db.stabilize = 0

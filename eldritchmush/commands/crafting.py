@@ -1,10 +1,13 @@
 # Imports
 import random
+import time
+import math
 
 # Local imports
 from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
 from commands import command
+from commands.combatant import Combatant
 from evennia.utils import evmenu
 
 """
@@ -111,4 +114,81 @@ class CmdCraft(Command):
                     self.msg(f"|400You don't have the required resources.|n")
             else:
                 self.msg(f"|430Please equip the correct kit before attempting to craft your item.|n")
+                return
+
+
+class CmdRepair(Command):
+
+    key = "repair"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+
+    def func(self):
+
+        if self.caller.db.blacksmith:
+            pass
+        elif self.caller.db.bowyer:
+            pass
+        elif self.caller.db.artificer:
+            pass
+        elif self.caller.db.gunsmith:
+            pass
+        else:
+            self.msg(f"|400You don't have the proper skills to repair a {self.item}.|n")
+            return
+
+        use_err_msg = "|430Usage: repair <item>|n"
+
+        if not self.item:
+            self.msg(use_err_msg)
+            return
+
+        # Search for designated prototypes
+        try:
+            item = self.caller.search(self.item,
+                                      location=self.caller)
+        except KeyError:
+            self.msg("|430Item not found, or more than one match. Please try again.|n")
+        else:
+            if item:
+                # Check that cooldown has expired.
+                combatant = Combatant(self.caller)
+                seconds_left = combatant.secondsUntilNextRepair(time.time())
+                if seconds_left > 0:
+                    combatant.message(f"|430You cannot use this ability for another {math.floor(seconds_left/60)} minutes and {seconds_left % 60} seconds.|n")
+                    return
+
+                item_lower = item.key.lower().replace(" ", "_")
+                prototype = prototypes.search_prototype(item_lower, require_single=True)
+
+                # Get search response
+                prototype_data = prototype[0]
+
+                # Get item attributes and who makes it.
+                item_data = prototype_data['attrs']
+                craft_source = item_data[0][1]
+
+                # Make sure item has material value attribute.
+                if item_data[9][0] == "material_value":
+                    material_value = item_data[9][1]
+                else:
+                    self.msg(f"{item.key} cannot be repaired.")
+                    return
+
+                if craft_source in ("blacksmith", "bowyer", "gunsmith"):
+                    # Set command time execution
+                    now = time.time()
+                    combatant.setRepairTimer(now)
+
+                    # Reset stats
+                    item.db.broken = False
+                    item.db.patched = False
+                    item.db.material_value = material_value
+                    self.msg(f"You repair the {item}.")
+                else:
+                    self.msg("|430You cannot repair this item|n.")
+            else:
                 return
