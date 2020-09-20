@@ -32,7 +32,7 @@ class CmdCleave(Command):
             self.msg("|430Usage: cleave <target>|n")
             return
 
-        if combatant.cantFight():
+        if combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
 
@@ -54,21 +54,24 @@ class CmdCleave(Command):
                                 f"|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action."):
                             if not combatant.hasTwoHandedWeapon(
                                     f"|430Before you attack you must equip a two handed weapon using the command equip <weapon>.|n"):
-                                if victim.isAlive():
+                                if victim.isAlive:
                                     #TODO: Spence sanity check - Cleave has no difficulty?
                                     maneuver_difficulty = 0
-                                    attack_result = combatant.rollAttack(maneuver_difficulty)
-                                    if attack_result >= victim.av():
-                                        combatant.decreaseCleaves(1)
-
+                                    attack_result = combatant.rollAttack(maneuver_difficulty, victim)
+                                    if attack_result >= victim.av:
                                         shot_location = combatant.determineHitLocation(victim)
+                                        if not victim.blocksWithShield(shot_location):
+                                            combatant.decreaseCleaves(1)
 
-                                        skip_av_damage = True
-                                        victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
+                                            skip_av_damage = True
+                                            victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
 
-                                        combatant.location.msg_contents(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av()}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                            combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                        else:
+                                            combatant.broadcast(
+                                                f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however {victim.name} manages to block the blow with their shield!|n.")
                                     else:
-                                        combatant.location.msg_contents(f"|025{combatant.name} swings ferociously|n (|030{attack_result}|n) |025at {victim.name}|n (|400{victim.av()}|n)|025, but misses.|n")
+                                        combatant.broadcast(f"|025{combatant.name} swings ferociously|n (|030{attack_result}|n) |025at {victim.name}|n (|400{victim.av}|n)|025, but misses.|n")
                                 else:
                                     self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
                                     combatant.location.msg_contents(f"|025{combatant.key} further mutilates the corpse of {target.key}.|n")
