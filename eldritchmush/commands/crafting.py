@@ -162,3 +162,5 @@ class CmdRepair(Command):
                 mv = item_data[9][1]
 
                 self.msg(mv)
+
+            # set broken and patched to False
