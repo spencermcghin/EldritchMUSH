@@ -112,3 +112,51 @@ class CmdCraft(Command):
             else:
                 self.msg(f"|430Please equip the correct kit before attempting to craft your item.|n")
                 return
+
+
+class CmdRepair(Command):
+
+    key = "repair"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+
+    def func(self):
+
+        if self.caller.db.blacksmith:
+            pass
+        elif self.caller.db.bowyer:
+            pass
+        elif self.caller.db.artificer:
+            pass
+        elif self.caller.db.gunsmith:
+            pass
+        else:
+            self.msg(f"|400You don't have the proper skills to repair a {self.item}.|n")
+            return
+
+        use_err_msg = "|430Usage: repair <item>|n"
+
+        if not self.item:
+            self.msg(use_err_msg)
+            return
+
+        # Search for designated prototypes
+        try:
+            item = self.caller.search(self.item, location=self.caller)
+            item_lower = self.item.lower().replace(" ", "_")
+            prototype = prototypes.search_prototype(self.item, require_single=True)
+        except KeyError:
+            self.msg("|430Item not found, or more than one match. Please try again.|n")
+        else:
+            # Get search response
+            prototype_data = prototype[0]
+
+            # Get item attributes and who makes it.
+            item_data = prototype_data['attrs']
+            craft_source = item_data[0][1]
+
+
+            self.msg(item_data)
