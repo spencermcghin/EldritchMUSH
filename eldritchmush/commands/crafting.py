@@ -170,7 +170,13 @@ class CmdRepair(Command):
                 # Get item attributes and who makes it.
                 item_data = prototype_data['attrs']
                 craft_source = item_data[0][1]
-                material_value = item_data[9][1]
+
+                # Make sure item has material value attribute.
+                if item_data[9][0] == "material_value":
+                    material_value = item_data[9][1]
+                else:
+                    self.msg(f"{item.key} cannot be repaired.")
+                    return
 
                 if craft_source in ("blacksmith", "bowyer", "gunsmith"):
                     # Set command time execution
