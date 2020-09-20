@@ -7,7 +7,7 @@ import math
 from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
 from commands import command
-from commands.combatant import Combatant
+from combatant import Combatant
 from evennia.utils import evmenu
 
 """
