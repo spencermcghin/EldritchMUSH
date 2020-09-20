@@ -158,5 +158,6 @@ class CmdRepair(Command):
             item_data = prototype_data['attrs']
             craft_source = item_data[0][1]
 
+            mv = item_data[9]
 
-            self.msg(item_data)
+            self.msg(mv)
