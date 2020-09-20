@@ -24,7 +24,7 @@ class CmdChirurgery(Command):
 
         combatant = Combatant(self.caller)
 
-        if combatant.cantFight():
+        if combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
 

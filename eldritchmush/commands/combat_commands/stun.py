@@ -33,7 +33,7 @@ class CmdStun(Command):
             self.caller.msg("|430Usage: stun <target>|n")
             return
 
-        if combatant.cantFight():
+        if combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
 
@@ -53,15 +53,15 @@ class CmdStun(Command):
             if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
                 if combatant.hasStunsRemaining(f"|400You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n"):
                     if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
-                        if victim.isAlive():
+                        if victim.isAlive:
                             maneuver_difficulty = 1
                             attack_result = combatant.rollAttack(maneuver_difficulty)
-                            if attack_result >= victim.av():
+                            if attack_result >= victim.av:
                                 victim.stun()
                                 combatant.decreaseStuns(1)
-                                combatant.broadcast(f"|025{combatant.name} lines up behind {victim.name} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|400{victim.av()}|n)|025.|n")
+                                combatant.broadcast(f"|025{combatant.name} lines up behind {victim.name} and strikes|n (|025{attack_result}|n)|025, stunning them momentarily|n (|400{victim.av}|n)|025.|n")
                             else:
-                                combatant.broadcast(f"|025{combatant.name} (|020{attack_result}|n) |025lines up behind {victim.name}|n (|400{victim.av()}|n)|025, but misses their opportunity to stun them.|n")
+                                combatant.broadcast(f"|025{combatant.name} (|020{attack_result}|n) |025lines up behind {victim.name}|n (|400{victim.av}|n)|025, but misses their opportunity to stun them.|n")
                         else:
                             combatant.message(f"|400{victim.name} is dead. You only further mutilate their body.|n")
                             combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
