@@ -163,6 +163,7 @@ class CmdRepair(Command):
                 # item.db.broken = False
                 # item.db.patched = False
                 # item.db.material_value = material_value
+                self.msg(item_data)
                 self.msg(f"Craft source is {craft_source}")
             else:
                 self.msg("Is artificer.")
