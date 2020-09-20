@@ -162,10 +162,10 @@ class CmdRepair(Command):
                 craft_source = item_data[0][1]
                 material_value = item_data[9][1]
 
-                if craft_source in ["blacksmith", "bowyer", "gunsmith"]:
-                    # item.db.broken = False
-                    # item.db.patched = False
-                    # item.db.material_value = material_value
+                if craft_source in ("blacksmith", "bowyer", "gunsmith"):
+                    item.db.broken = False
+                    item.db.patched = False
+                    item.db.material_value = material_value
                     self.msg(f"Craft source is {craft_source}")
                 else:
                     self.msg("Is artificer.")
