@@ -147,7 +147,7 @@ class CmdRepair(Command):
         try:
             item = self.caller.search(self.item, location=self.caller)
             item_lower = self.item.lower().replace(" ", "_")
-            prototype = prototypes.search_prototype(self.item, require_single=True)
+            prototype = prototypes.search_prototype(item_lower, require_single=True)
         except KeyError:
             self.msg("|430Item not found, or more than one match. Please try again.|n")
         else:
