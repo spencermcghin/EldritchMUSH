@@ -173,6 +173,7 @@ class CmdRepair(Command):
                 if craft_source in ("blacksmith", "bowyer", "gunsmith"):
                     # Set command time execution
                     now = time.time()
+                    combatant = Combatant(self.caller)
                     combatant.setRepairTimer(now)
 
                     # Reset stats
