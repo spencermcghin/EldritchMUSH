@@ -145,26 +145,30 @@ class CmdRepair(Command):
 
         # Search for designated prototypes
         try:
-            item = self.caller.search(self.item, location=self.caller)
+            item = self.caller.search(self.item,
+                                      location=self.caller)
         except KeyError:
             self.msg("|430Item not found, or more than one match. Please try again.|n")
         else:
-            item_lower = item.key.lower().replace(" ", "_")
-            prototype = prototypes.search_prototype(item_lower, require_single=True)
+            if item:
+                item_lower = item.key.lower().replace(" ", "_")
+                prototype = prototypes.search_prototype(item_lower, require_single=True)
 
-            # Get search response
-            prototype_data = prototype[0]
+                # Get search response
+                prototype_data = prototype[0]
 
-            # Get item attributes and who makes it.
-            item_data = prototype_data['attrs']
-            craft_source = item_data[0][1]
-            material_value = item_data[9][1]
+                # Get item attributes and who makes it.
+                item_data = prototype_data['attrs']
+                craft_source = item_data[0][1]
+                material_value = item_data[9][1]
 
-            if craft_source in ["blacksmith", "bowyer", "gunsmith"]:
-                # item.db.broken = False
-                # item.db.patched = False
-                # item.db.material_value = material_value
-                self.msg()
-                self.msg(f"Craft source is {craft_source}")
+                if craft_source in ["blacksmith", "bowyer", "gunsmith"]:
+                    # item.db.broken = False
+                    # item.db.patched = False
+                    # item.db.material_value = material_value
+                    self.msg()
+                    self.msg(f"Craft source is {craft_source}")
+                else:
+                    self.msg("Is artificer.")
             else:
-                self.msg("Is artificer.")
+                return
