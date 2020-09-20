@@ -160,6 +160,16 @@ class Combatant:
     def setChirurgeryTimer(self,current_time):
         self.caller.db.last_chirurgery = current_time
 
+    def secondsUntilNextRepair(self, current_time):
+        if not self.caller.db.last_repair:
+            return 0
+        else:
+            seconds_since_last_repair = (int(current_time) - int(self.caller.db.last_repair))
+            return 600 - seconds_since_last_repair
+
+    def setRepairTimer(self,current_time):
+        self.caller.db.last_repair = current_time
+
 
     def resetTough(self):
         self.caller.db.tough = self.caller.db.total_tough
@@ -340,7 +350,7 @@ class Combatant:
     def blocksWithShield(self, shot_location):
 
         has_shield, location = self.getShield()
-        
+
         if has_shield and shot_location == location:
             return True
         elif has_shield and shot_location == 'torso':
