@@ -91,12 +91,12 @@ IRON_SMALL_WEAPON = {
 "refined_wood": 1,
 "leather": 0,
 "cloth": 0,
-"damage": 1,
 "value_copper": 70,
 "value_silver": 7,
 "value_gold": .7,
 "material_value": 1,
-"level": 0
+"level": 0,
+"damage": 1
 }
 
 IRON_MEDIUM_WEAPON = {
@@ -109,12 +109,12 @@ IRON_MEDIUM_WEAPON = {
 "refined_wood": 1,
 "leather": 1,
 "cloth": 0,
-"damage": 1,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 0,
-"level": 0
+"level": 0,
+"damage": 1
 }
 
 IRON_LARGE_WEAPON = {
@@ -127,18 +127,17 @@ IRON_LARGE_WEAPON = {
 "refined_wood": 1,
 "leather": 1,
 "cloth": 0,
-"damage": 2,
-"twohanded": True,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 0,
-"level": 0
+"level": 0,
+"twohanded": True,
+"damage": 2
 }
 
 IRON_SHIELD = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
-"is_shield": True,
 "key": "Iron Shield",
 "aliases": ["iron shield"],
 "craft_source": "blacksmith",
@@ -151,29 +150,30 @@ IRON_SHIELD = {
 "value_silver": 8,
 "value_gold": .8,
 "material_value": 0,
-"level": 0
+"level": 0,
+"is_shield": True
 }
 
 LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Leather Armor",
+"aliases": ["leather armor"],
 "craft_source": "blacksmith",
 "required_resources": 2,
 "iron_ingots": 1,
 "refined_wood": 1,
 "leather": 1,
 "cloth": 0,
- "value_copper": 70,
- "value_silver": 7,
- "value_gold": .7,
- "material_value": 0,
- "level": 0
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": .7,
+"material_value": 0,
+"level": 0,
+"is_armor": True
 }
 
 IRON_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Iron Chain Shirt",
 "aliases": ["iron chain shirt"],
 "craft_source": "blacksmith",
@@ -182,11 +182,12 @@ IRON_CHAIN_SHIRT = {
 "refined_wood": 1,
 "leather": 0,
 "cloth": 0,
- "value_copper": 70,
- "value_silver": 7,
- "value_gold": .7,
- "material_value": 0,
- "level": 0
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": .7,
+"material_value": 0,
+"level": 0,
+"is_armor": True
 }
 
 IRON_COAT_OF_PLATES = {
@@ -194,17 +195,17 @@ IRON_COAT_OF_PLATES = {
 "key": "Iron Coat of Plates",
 "aliases": ["iron coat of plates"],
 "craft_source": "blacksmith",
-"is_armor": True,
 "required_resources": 5,
 "iron_ingots": 2,
 "refined_wood": 1,
 "leather": 2,
 "cloth": 0,
- "value_copper": 100,
- "value_silver": 10,
- "value_gold": 1,
- "material_value": 3,
- "level": 0
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"material_value": 3,
+"level": 0,
+"is_armor": True
 }
 
 IRON_PLATEMAIL = {
@@ -212,17 +213,17 @@ IRON_PLATEMAIL = {
 "key": "Iron Platemail",
 "aliases": ["iron platemail"],
 "craft_source": "blacksmith",
-"is_armor": True,
 "required_resources": 7,
 "iron_ingots": 4,
 "refined_wood": 1,
 "leather": 2,
 "cloth": 0,
- "value_copper": 120,
- "value_silver": 12,
- "value_gold": 1.2,
- "material_value": 5,
- "level": 0
+"value_copper": 120,
+"value_silver": 12,
+"value_gold": 1.2,
+"material_value": 5,
+"level": 0,
+"is_armor": True
 }
 
 """
@@ -256,12 +257,12 @@ HARDENED_IRON_SMALL_WEAPON = {
 "refined_wood": 1,
 "leather": 2,
 "cloth": 0,
-"damage": 1,
 "value_copper": 130,
 "value_silver": 13,
 "value_gold": 1.3,
 "material_value": 1,
-"level": 1
+"level": 1,
+"damage": 1
 }
 
 HARDENED_IRON_MEDIUM_WEAPON = {
@@ -274,12 +275,12 @@ HARDENED_IRON_MEDIUM_WEAPON = {
 "refined_wood": 2,
 "leather": 2,
 "cloth": 0,
-"damage": 1,
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
 "material_value": 1,
-"level": 1
+"level": 1,
+"damage": 1
 }
 
 HARDENED_IRON_LARGE_WEAPON = {
@@ -292,18 +293,17 @@ HARDENED_IRON_LARGE_WEAPON = {
 "refined_wood": 1,
 "leather": 1,
 "cloth": 0,
-"damage": 2,
-"twohanded": True,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 1,
-"level": 1
+"level": 1,
+"damage": 2,
+"twohanded": True
 }
 
 HARDENED_IRON_SHIELD = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
-"is_shield": True,
 "key": "Hardened Iron Shield",
 "aliases": ["hardened iron shield"],
 "craft_source": "blacksmith",
@@ -316,12 +316,12 @@ HARDENED_IRON_SHIELD = {
 "value_silver": 14,
 "value_gold": 1.4,
 "material_value": 1,
-"level": 1
+"level": 1,
+"is_shield": True
 }
 
 HARDENED_LEATHER_ARMOR = {
 "typeclass": "typeclasses.objects.BlacksmithObject",
-"is_armor": True,
 "key": "Hardened Leather Armor",
 "aliases": ["hardened leather armor"],
 "craft_source": "blacksmith",
@@ -334,12 +334,12 @@ HARDENED_LEATHER_ARMOR = {
 "value_silver": 14,
 "value_gold": 1.4,
 "material_value": 2,
-"level": 1
+"level": 1,
+"is_armor": True
 }
 
 HARDENED_IRON_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Hardened Iron Shield",
 "aliases": ["hardened iron shield"],
 "craft_source": "blacksmith",
@@ -352,12 +352,12 @@ HARDENED_IRON_CHAIN_SHIRT = {
 "value_silver": 15,
 "value_gold": 1.5,
 "material_value": 2,
-"level": 1
+"level": 1,
+"is_armor": True
 }
 
 HARDENED_IRON_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Hardened Iron Coat of Plates",
 "aliases": ["hardened iron coat of plates"],
 "craft_source": "blacksmith",
@@ -370,12 +370,12 @@ HARDENED_IRON_COAT_OF_PLATES = {
 "value_silver": 20,
 "value_gold": 2,
 "material_value": 4,
-"level": 1
+"level": 1,
+"is_armor": True
 }
 
 HARDENED_IRON_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Hardened Iron Plate",
 "aliases": ["hardened iron plate"],
 "craft_source": "blacksmith",
@@ -388,7 +388,8 @@ HARDENED_IRON_PLATEMAIL = {
 "value_silver": 22,
 "value_gold": 2.2,
 "material_value": 6,
-"level": 1
+"level": 1,
+"is_armor": True
 }
 
 """
@@ -405,12 +406,12 @@ STEEL_SMALL_WEAPON = {
 "refined_wood": 1,
 "leather": 1,
 "cloth": 0,
-"damage": 1,
 "value_copper": 180,
 "value_silver": 18,
 "value_gold": 1.8,
 "material_value": 2,
-"level": 2
+"level": 2,
+"damage": 1
 }
 
 STEEL_MEDIUM_WEAPON = {
@@ -423,12 +424,12 @@ STEEL_MEDIUM_WEAPON = {
 "refined_wood": 2,
 "leather": 3,
 "cloth": 0,
-"damage": 1,
 "value_copper": 230,
 "value_silver": 23,
 "value_gold": 2.3,
 "material_value": 2,
-"level": 2
+"level": 2,
+"damage": 1
 }
 
 STEEL_LARGE_WEAPON = {
@@ -441,13 +442,13 @@ STEEL_LARGE_WEAPON = {
 "refined_wood": 2,
 "leather": 3,
 "cloth": 0,
-"damage": 2,
-"twohanded": True,
 "value_copper": 250,
 "value_silver": 25,
 "value_gold": 2.5,
 "material_value": 2,
-"level": 2
+"level": 2,
+"damage": 2,
+"twohanded": True
 }
 
 STEEL_SHIELD = {
@@ -470,7 +471,6 @@ STEEL_SHIELD = {
 
 STEEL_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Steel Chain Shirt",
 "aliases": ["steel chain shirt"],
 "craft_source": "blacksmith",
@@ -483,13 +483,13 @@ STEEL_CHAIN_SHIRT = {
 "value_silver": 20,
 "value_gold": 2,
 "material_value": 4,
-"level": 2
+"level": 2,
+"is_armor": True
 }
 
 
 STEEL_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Steel Coat of Plates",
 "aliases": ["steel coat of plates"],
 "craft_source": "blacksmith",
@@ -501,12 +501,12 @@ STEEL_COAT_OF_PLATES = {
 "value_copper": 260,
 "value_silver": 26,
 "value_gold": 2.6,
-"material_value": 6
+"material_value": 6,
+"is_armor": True
 }
 
 STEEL_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Steel Platemail",
 "aliases": ["steel platemail"],
 "craft_source": "blacksmith",
@@ -519,7 +519,8 @@ STEEL_PLATEMAIL = {
 "value_silver": 29,
 "value_gold": 2.9,
 "material_value": 8,
-"level": 2
+"level": 2,
+"is_armor": True
 }
 
 """
@@ -536,12 +537,12 @@ MASTERWORK_STEEL_SMALL_WEAPON = {
 "refined_wood": 2,
 "leather": 4,
 "cloth": 0,
-"damage": 1,
 "value_copper": 320,
 "value_silver": 32,
 "value_gold": 3.2,
 "material_value": 3,
-"level": 3
+"level": 3,
+"damage": 1
 }
 
 MASTERWORK_STEEL_MEDIUM_WEAPON = {
@@ -554,12 +555,12 @@ MASTERWORK_STEEL_MEDIUM_WEAPON = {
 "refined_wood": 5,
 "leather": 5,
 "cloth": 0,
-"damage": 1,
 "value_copper": 390,
 "value_silver": 39,
 "value_gold": 3.9,
 "material_value": 3,
-"level": 3
+"level": 3,
+"damage": 1
 }
 
 MASTERWORK_STEEL_LARGE_WEAPON = {
@@ -583,7 +584,6 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 
 MASTERWORK_STEEL_SHIELD = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_shield": True,
 "key": "Masterwork Steel Shield",
 "aliases": ["masterwork steel shield"],
 "craft_source": "blacksmith",
@@ -596,12 +596,12 @@ MASTERWORK_STEEL_SHIELD = {
 "value_silver": 35,
 "value_gold": 3.8,
 "material_value": 4,
-"level": 3
+"level": 3,
+"is_shield": True
 }
 
 MASTERWORK_STEEL_CHAIN_SHIRT = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Masterwork Steel Chain Shirt",
 "aliases": ["masterwork steel chain shirt"],
 "craft_source": "blacksmith",
@@ -614,13 +614,13 @@ MASTERWORK_STEEL_CHAIN_SHIRT = {
 "value_silver": 35,
 "value_gold": 3.5,
 "material_value": 8,
-"level": 3
+"level": 3,
+"is_armor": True
 }
 
 
 MASTERWORK_STEEL_COAT_OF_PLATES = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Masterwork Steel Coat of Plates",
 "aliases": ["masterwork steel coat of plates"],
 "craft_source": "blacksmith",
@@ -633,12 +633,12 @@ MASTERWORK_STEEL_COAT_OF_PLATES = {
 "value_silver": 42,
 "value_gold": 4.2,
 "material_value": 10,
-"level": 3
+"level": 3,
+"is_armor": True
 }
 
 MASTERWORK_STEEL_PLATEMAIL = {
 "typeclass": "typeclasses.objects.WeaponObject",
-"is_armor": True,
 "key": "Masterwork Steel Platemail",
 "aliases": ["masterwork steel platemail"],
 "craft_source": "blacksmith",
@@ -651,7 +651,8 @@ MASTERWORK_STEEL_PLATEMAIL = {
 "value_silver": 46,
 "value_gold": 4.6,
 "material_value": 12,
-"level": 3
+"level": 3,
+"is_armor": True
 }
 
 
