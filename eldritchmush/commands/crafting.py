@@ -154,6 +154,7 @@ class CmdRepair(Command):
         else:
             if item:
                 # Check that cooldown has expired.
+                combatant = Combatant(self.caller)
                 seconds_left = combatant.secondsUntilNextRepair(time.time())
                 if seconds_left > 0:
                     combatant.message(f"|430You cannot use this ability for another {math.floor(seconds_left/60)} minutes and {seconds_left % 60} seconds.|n")
@@ -173,7 +174,6 @@ class CmdRepair(Command):
                 if craft_source in ("blacksmith", "bowyer", "gunsmith"):
                     # Set command time execution
                     now = time.time()
-                    combatant = Combatant(self.caller)
                     combatant.setRepairTimer(now)
 
                     # Reset stats
