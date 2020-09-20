@@ -128,12 +128,12 @@ IRON_LARGE_WEAPON = {
 "leather": 1,
 "cloth": 0,
 "damage": 2,
-"twohanded": True,
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 0,
-"level": 0
+"level": 0,
+"twohanded": True
 }
 
 IRON_SHIELD = {
