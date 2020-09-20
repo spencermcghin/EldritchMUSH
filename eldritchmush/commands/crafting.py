@@ -1,10 +1,12 @@
 # Imports
 import random
+import time
+import math
 
 # Local imports
 from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
-from commands import command
+from commands import command, combatant
 from evennia.utils import evmenu
 
 """
@@ -151,6 +153,12 @@ class CmdRepair(Command):
             self.msg("|430Item not found, or more than one match. Please try again.|n")
         else:
             if item:
+                # Check that cooldown has expired.
+                seconds_left = combatant.secondsUntilNextChirurgery(time.time())
+                if seconds_left > 0:
+                    combatant.message(f"|430You cannot use this ability for another {math.floor(seconds_left/60)} minutes and {seconds_left % 60} seconds.|n")
+                    return
+
                 item_lower = item.key.lower().replace(" ", "_")
                 prototype = prototypes.search_prototype(item_lower, require_single=True)
 
