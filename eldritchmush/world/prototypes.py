@@ -95,9 +95,9 @@ IRON_SMALL_WEAPON = {
 "value_silver": 7,
 "value_gold": .7,
 "material_value": 1,
+"required_skill": "melee_weapons",
 "level": 0,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 IRON_MEDIUM_WEAPON = {
@@ -114,9 +114,9 @@ IRON_MEDIUM_WEAPON = {
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 0,
+"required_skill": "melee_weapons",
 "level": 0,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 IRON_LARGE_WEAPON = {
@@ -133,10 +133,10 @@ IRON_LARGE_WEAPON = {
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 0,
+"required_skill": "melee_weapons",
 "level": 0,
 "twohanded": True,
-"damage": 2,
-"required_skill": "melee_weapons"
+"damage": 2
 }
 
 IRON_SHIELD = {
@@ -153,9 +153,9 @@ IRON_SHIELD = {
 "value_silver": 8,
 "value_gold": .8,
 "material_value": 0,
+"required_skill": "shields",
 "level": 0,
-"is_shield": True,
-"required_skill": "shields"
+"is_shield": True
 }
 
 LEATHER_ARMOR = {
@@ -172,6 +172,7 @@ LEATHER_ARMOR = {
 "value_silver": 7,
 "value_gold": .7,
 "material_value": 0,
+"required_skill": "armor_proficiency",
 "level": 0,
 "is_armor": True
 }
@@ -190,6 +191,7 @@ IRON_CHAIN_SHIRT = {
 "value_silver": 7,
 "value_gold": .7,
 "material_value": 0,
+"required_skill": "armor_proficiency",
 "level": 0,
 "is_armor": True
 }
@@ -208,6 +210,7 @@ IRON_COAT_OF_PLATES = {
 "value_silver": 10,
 "value_gold": 1,
 "material_value": 3,
+"required_skill": "armor_proficiency",
 "level": 0,
 "is_armor": True
 }
@@ -226,6 +229,7 @@ IRON_PLATEMAIL = {
 "value_silver": 12,
 "value_gold": 1.2,
 "material_value": 5,
+"required_skill": "armor_proficiency",
 "level": 0,
 "is_armor": True
 }
@@ -265,9 +269,9 @@ HARDENED_IRON_SMALL_WEAPON = {
 "value_silver": 13,
 "value_gold": 1.3,
 "material_value": 1,
+"required_skill": "melee_weapons",
 "level": 1,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 HARDENED_IRON_MEDIUM_WEAPON = {
@@ -284,9 +288,9 @@ HARDENED_IRON_MEDIUM_WEAPON = {
 "value_silver": 17,
 "value_gold": 1.7,
 "material_value": 1,
+"required_skill": "melee_weapons",
 "level": 1,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 HARDENED_IRON_LARGE_WEAPON = {
@@ -303,10 +307,10 @@ HARDENED_IRON_LARGE_WEAPON = {
 "value_silver": 9,
 "value_gold": .9,
 "material_value": 1,
+"required_skill": "melee_weapons",
 "level": 1,
 "damage": 2,
-"twohanded": True,
-"required_skill": "melee_weapons"
+"twohanded": True
 }
 
 HARDENED_IRON_SHIELD = {
@@ -323,9 +327,9 @@ HARDENED_IRON_SHIELD = {
 "value_silver": 14,
 "value_gold": 1.4,
 "material_value": 1,
+"required_skill": "shields",
 "level": 1,
-"is_shield": True,
-"required_skill": "shields"
+"is_shield": True
 }
 
 HARDENED_LEATHER_ARMOR = {
@@ -342,9 +346,9 @@ HARDENED_LEATHER_ARMOR = {
 "value_silver": 14,
 "value_gold": 1.4,
 "material_value": 2,
+"required_skill": "armor_proficiency",
 "level": 1,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 HARDENED_IRON_CHAIN_SHIRT = {
@@ -361,6 +365,7 @@ HARDENED_IRON_CHAIN_SHIRT = {
 "value_silver": 15,
 "value_gold": 1.5,
 "material_value": 2,
+"required_skill": "armor_proficiency",
 "level": 1,
 "is_armor": True
 }
@@ -379,9 +384,9 @@ HARDENED_IRON_COAT_OF_PLATES = {
 "value_silver": 20,
 "value_gold": 2,
 "material_value": 4,
+"required_skill": "armor_proficiency",
 "level": 1,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 HARDENED_IRON_PLATEMAIL = {
@@ -398,9 +403,9 @@ HARDENED_IRON_PLATEMAIL = {
 "value_silver": 22,
 "value_gold": 2.2,
 "material_value": 6,
+"required_skill": "armor_proficiency",
 "level": 1,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 """
@@ -421,9 +426,9 @@ STEEL_SMALL_WEAPON = {
 "value_silver": 18,
 "value_gold": 1.8,
 "material_value": 2,
+"required_skill": "melee_weapons",
 "level": 2,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 STEEL_MEDIUM_WEAPON = {
@@ -440,9 +445,9 @@ STEEL_MEDIUM_WEAPON = {
 "value_silver": 23,
 "value_gold": 2.3,
 "material_value": 2,
+"required_skill": "melee_weapons",
 "level": 2,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 STEEL_LARGE_WEAPON = {
@@ -459,10 +464,10 @@ STEEL_LARGE_WEAPON = {
 "value_silver": 25,
 "value_gold": 2.5,
 "material_value": 2,
+"required_skill": "melee_weapons",
 "level": 2,
 "damage": 2,
-"twohanded": True,
-"required_skill": "melee_weapons"
+"twohanded": True
 }
 
 STEEL_SHIELD = {
@@ -480,8 +485,8 @@ STEEL_SHIELD = {
 "value_silver": 23,
 "value_gold": 2.3,
 "material_value": 2,
-"level": 2,
-"required_skill": "shields"
+"required_skill": "shields",
+"level": 2
 }
 
 STEEL_CHAIN_SHIRT = {
@@ -498,9 +503,9 @@ STEEL_CHAIN_SHIRT = {
 "value_silver": 20,
 "value_gold": 2,
 "material_value": 4,
+"required_skill": "armor_proficiency",
 "level": 2,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 
@@ -518,8 +523,8 @@ STEEL_COAT_OF_PLATES = {
 "value_silver": 26,
 "value_gold": 2.6,
 "material_value": 6,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"required_skill": "armor_proficiency",
+"is_armor": True
 }
 
 STEEL_PLATEMAIL = {
@@ -536,9 +541,9 @@ STEEL_PLATEMAIL = {
 "value_silver": 29,
 "value_gold": 2.9,
 "material_value": 8,
+"required_skill": "armor_proficiency",
 "level": 2,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 """
@@ -559,9 +564,9 @@ MASTERWORK_STEEL_SMALL_WEAPON = {
 "value_silver": 32,
 "value_gold": 3.2,
 "material_value": 3,
+"required_skill": "melee_weapons",
 "level": 3,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 MASTERWORK_STEEL_MEDIUM_WEAPON = {
@@ -578,9 +583,9 @@ MASTERWORK_STEEL_MEDIUM_WEAPON = {
 "value_silver": 39,
 "value_gold": 3.9,
 "material_value": 3,
+"required_skill": "melee_weapons",
 "level": 3,
-"damage": 1,
-"required_skill": "melee_weapons"
+"damage": 1
 }
 
 MASTERWORK_STEEL_LARGE_WEAPON = {
@@ -617,9 +622,9 @@ MASTERWORK_STEEL_SHIELD = {
 "value_silver": 35,
 "value_gold": 3.8,
 "material_value": 4,
+"required_skill": "shields",
 "level": 3,
-"is_shield": True,
-"required_skill": "shields"
+"is_shield": True
 }
 
 MASTERWORK_STEEL_CHAIN_SHIRT = {
@@ -636,9 +641,9 @@ MASTERWORK_STEEL_CHAIN_SHIRT = {
 "value_silver": 35,
 "value_gold": 3.5,
 "material_value": 8,
+"required_skill": "armor_proficiency",
 "level": 3,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 
@@ -656,9 +661,9 @@ MASTERWORK_STEEL_COAT_OF_PLATES = {
 "value_silver": 42,
 "value_gold": 4.2,
 "material_value": 10,
+"required_skill": "armor_proficiency",
 "level": 3,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 MASTERWORK_STEEL_PLATEMAIL = {
@@ -675,9 +680,9 @@ MASTERWORK_STEEL_PLATEMAIL = {
 "value_silver": 46,
 "value_gold": 4.6,
 "material_value": 12,
+"required_skill": "armor_proficiency",
 "level": 3,
-"is_armor": True,
-"required_skill": "armor_proficiency"
+"is_armor": True
 }
 
 
@@ -1235,10 +1240,10 @@ BOW = {
 "value_silver": 17,
 "value_gold": 1.7,
 "material_value": 2,
+"required_skill": "archer",
 "level": 1,
 "is_bow": True,
-"twohanded": True,
-"required_skill": "archer"
+"twohanded": True
 }
 
 MASTERWORK_BOW = {
@@ -1255,10 +1260,10 @@ MASTERWORK_BOW = {
 "value_silver": 35,
 "value_gold": 3.5,
 "material_value": 3,
+"required_skill": "archer",
 "level": 3,
 "is_bow": True,
-"twohanded": True,
-"required_skill": "archer"
+"twohanded": True
 }
 
 """
@@ -1298,9 +1303,9 @@ PISTOL = {
 "value_silver": 30,
 "value_gold": 3,
 "material_value": 2,
+"required_skill": "gunner",
 "level": 2,
-"is_pistol": True,
-"required_skill": "gunner"
+"is_pistol": True
 }
 
 MASTERWORK_PISTOL = {
@@ -1317,7 +1322,7 @@ MASTERWORK_PISTOL = {
 "value_silver": 40,
 "value_gold": 4,
 "material_value": 3,
+"required_skill": "gunner",
 "level": 3,
-"is_pistol": True,
-"required_skill": "gunner"
+"is_pistol": True
 }

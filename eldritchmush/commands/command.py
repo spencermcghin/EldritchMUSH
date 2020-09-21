@@ -479,8 +479,8 @@ class CmdEquip(Command):
         # Check if the item is of armor type
         if item:
             # Do some skill checks
-            if item_data and item_data[13] and item_data[13][0] and (item_data[13][0] == "required_skill"):
-                required_skill = item_data[13][1]
+            if item_data and item_data[10] and item_data[10][0] and (item_data[10][0] == "required_skill"):
+                required_skill = item_data[10][1]
 
                 if required_skill == "gunner" and not self.caller.db.gunner:
                     self.msg(f"You lack the skill in Firearms to use {item.key}.")
