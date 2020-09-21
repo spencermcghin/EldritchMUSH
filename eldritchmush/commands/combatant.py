@@ -200,6 +200,9 @@ class Combatant:
     def staggersRemaining(self):
         return self.caller.db.stagger
 
+    def cleavesRemaining(self):
+        return self.caller.db.cleave
+
     def resistsRemaining(self):
         return self.caller.db.resist
 
@@ -226,6 +229,12 @@ class Combatant:
             self.message(message)
 
         return self.staggersRemaining()
+
+    def hasCleavesRemaining(self, message=None):
+        if message and self.cleavesRemaining() <= 0:
+            self.message(message)
+
+        return self.cleavesRemaining()
 
     def getRightHand(self):
         return self.combatStats.get("right_slot", '')
@@ -320,6 +329,9 @@ class Combatant:
     def setStaggers(self, value):
         self.caller.db.stagger = value
 
+    def setCleaves(self, value):
+        self.caller.db.cleave = value
+
     def decreaseStuns(self, value):
         new_stun_value = self.stunsRemaining() - value
         if new_stun_value < 0 or value < 0:
@@ -347,6 +359,13 @@ class Combatant:
             new_stagger_value = 0
 
         self.setStaggers(new_stagger_value)
+
+    def decreaseCleaves(self, value):
+        new_cleave_value = self.cleavesRemaining() - value
+        if new_cleave_value < 0 or value < 0:
+            new_cleave_value = 0
+
+        self.setCleaves(new_cleave_value)
 
     def stun(self):
         self.caller.db.skip_turn = True
