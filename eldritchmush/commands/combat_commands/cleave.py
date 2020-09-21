@@ -16,7 +16,7 @@ class CmdCleave(Command):
     """
 
     key = "cleave"
-    help_category = "mush"
+    help_category = "combat"
 
     def __init__(self):
         self.target = None
@@ -62,11 +62,14 @@ class CmdCleave(Command):
                                         shot_location = combatant.determineHitLocation(victim)
                                         if not victim.blocksWithShield(shot_location):
                                             combatant.decreaseCleaves(1)
+                                            if not victim.resistsAttack():
+                                                skip_av_damage = True
+                                                victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
 
-                                            skip_av_damage = True
-                                            victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
-
-                                            combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                                combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                            else:
+                                                combatant.broadcast(
+                                                    f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n but {victim.name} Resists the attack with grim determination.")
                                         else:
                                             combatant.broadcast(
                                                 f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however {victim.name} manages to block the blow with their shield!|n.")
