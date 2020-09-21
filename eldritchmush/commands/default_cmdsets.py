@@ -18,7 +18,7 @@ from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import combat, blacksmith, crafting, command, npc, dice
-from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery, resist
+from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
 class RoomCmdSet(CmdSet):
@@ -108,7 +108,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(strike.CmdStrike())
-        self.add(resist.CmdResist())
         self.add(skip.CmdSkip())
         self.add(shoot.CmdShoot())
         self.add(cleave.CmdCleave())

@@ -2109,7 +2109,6 @@ class CharSheet(Command):
             active_marshall_table = evtable.EvTable("|430Active Marshall Skills|n", "|430Available|n",
                 table = [
                     [
-                        "Resist",
                         "Disarm",
                         "Stun",
                         "Stagger",
@@ -2117,7 +2116,7 @@ class CharSheet(Command):
                         "Cleave"
                     ],
                     [
-                        self.caller.db.resist,
+
                         self.caller.db.disarm,
                         self.caller.db.stun,
                         self.caller.db.stagger,
@@ -2129,12 +2128,14 @@ class CharSheet(Command):
             pass_marshall_table = evtable.EvTable("|430Passive Marshall Skills|n", "|430Level|n",
                 table = [
                     [
+                        "Resist",
                         "Tough",
                         "Armor",
                         "Master of Arms",
                         "Armor Specialist"
                     ],
                     [
+                        self.caller.db.resist,
                         self.caller.db.tough,
                         self.caller.db.armor,
                         self.caller.db.master_of_arms,
