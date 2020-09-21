@@ -59,6 +59,13 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.bleed_points = 3
         self.db.death_points = 3
 
+        # Entries for skill proficencies
+        self.db.gunner = 1
+        self.db.archer = 1
+        self.db.shields = 1
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
+
         # Entries for combat
         self.db.resist = 0
         self.db.disarm = 1
