@@ -37,6 +37,7 @@ class Character(DefaultCharacter):
         self.db.tracking = 0
         self.db.perception = 0
         self.db.master_of_arms = 0
+        self.db.sniper = 0
         self.db.armor = 0
         self.db.armor_specialist = 0
         self.db.tough = 0
@@ -69,6 +70,13 @@ class Character(DefaultCharacter):
         self.db.medicine = 0
         self.db.battlefieldmedicine = 0
         self.db.chirurgeon = 0
+
+        # Entries for skill proficencies
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 0
+        self.db.melee_weapons = 0
+        self.db.armor_proficiency = 0
 
         # Entries for status
         self.db.weakness = 0
