@@ -52,12 +52,12 @@ class CmdCleave(Command):
                 if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
                         if combatant.hasCleavesRemaining(
                                 f"|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action."):
-                            if not combatant.hasTwoHandedWeapon(
+                            if combatant.hasTwoHandedWeapon(
                                     f"|430Before you attack you must equip a two handed weapon using the command equip <weapon>.|n"):
                                 if victim.isAlive:
                                     #TODO: Spence sanity check - Cleave has no difficulty?
                                     maneuver_difficulty = 0
-                                    attack_result = combatant.rollAttack(maneuver_difficulty, victim)
+                                    attack_result = combatant.rollAttack(maneuver_difficulty)
                                     if attack_result >= victim.av:
                                         shot_location = combatant.determineHitLocation(victim)
                                         if not victim.blocksWithShield(shot_location):
