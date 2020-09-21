@@ -466,19 +466,20 @@ class CmdEquip(Command):
             return
 
         item = self.caller.search(self.item, location=self.caller)
-        item_lower = item.key.lower().replace(" ", "_")
-        prototype = prototypes.search_prototype(item_lower, require_single=True)
-
-        # Get search response
-        prototype_data = prototype[0]
-
-        # Get item attributes and who makes it.
-        item_data = prototype_data['attrs']
-
-        indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
 
         # Check if the item is of armor type
         if item:
+            item_lower = item.key.lower().replace(" ", "_")
+            prototype = prototypes.search_prototype(item_lower, require_single=True)
+
+            # Get search response
+            prototype_data = prototype[0]
+
+            # Get item attributes and who makes it.
+            item_data = prototype_data['attrs']
+
+            indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
+
             # Do some skill checks
             if indexOfRequired:
                 required_skill = item_data[indexOfRequired][1]
