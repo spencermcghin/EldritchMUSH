@@ -36,6 +36,7 @@ class GreenMeleeSoldierOneHanded(Npc):
         "This is called when object is first created, only."
         # Entries for general stats
         self.db.master_of_arms = 1
+        self.db.sniper = 1
         self.db.armor = 0
         self.db.armor_specialist = 1
         self.db.tough = 1
