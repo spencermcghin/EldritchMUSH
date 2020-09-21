@@ -19,7 +19,7 @@ class Inventory:
         else:
             return None
 
-    def hasBow(self, message):
+    def hasBow(self, message = None):
         right_hand = self.parent.getRightHand()
 
         if (right_hand == self.parent.getLeftHand()) and right_hand.db.is_bow:
