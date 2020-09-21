@@ -1,6 +1,6 @@
-from evennia import utils
-from typeclasses.characters import Character
-from typeclasses.npc import Npc
+from ...evennia.evennia import utils
+from ..typeclasses.characters import Character
+from ..typeclasses.npc import Npc
 import random
 
 """
@@ -62,7 +62,7 @@ setmelee needs to be counted as an action in loop
 
 class CombatLoop:
 
-	def __init__(self, caller, target):
+	def __init__(self, caller, target = None):
 		self.caller = caller
 		self.target = target
 
