@@ -466,24 +466,35 @@ class CmdEquip(Command):
             return
 
         item = self.caller.search(self.item,location=self.caller)
+        item_lower = item.key.lower().replace(" ", "_")
+        prototype = prototypes.search_prototype(item_lower, require_single=True)
+
+        # Get search response
+        prototype_data = prototype[0]
+
+        # Get item attributes and who makes it.
+        item_data = prototype_data['attrs']
+
 
         # Check if the item is of armor type
         if item:
             # Do some skill checks
-            if item.db.required_skill:
-                if item.db.required_skill == "gunner" and not self.caller.db.gunner:
+            if item_data and item_data[13] and item_data[13][0] and (item_data[13][0] == "required_skill"):
+                required_skill = item_data[13][1]
+
+                if required_skill == "gunner" and not self.caller.db.gunner:
                     self.msg(f"You lack the skill in Firearms to use {item.key}.")
                     return
-                elif item.db.required_skill == "archer" and not self.caller.db.archer:
+                elif required_skill == "archer" and not self.caller.db.archer:
                     self.msg(f"You lack the skill in Archery to use {item.key}.")
                     return
-                elif item.db.required_skill == "shields" and not self.caller.db.shields:
+                elif required_skill == "shields" and not self.caller.db.shields:
                     self.msg(f"You lack the skill in Shields to use {item.key}.")
                     return
-                elif item.db.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
+                elif required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
                     self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
                     return
-                elif item.db.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
+                elif required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
                     self.msg(f"You lack the skill in Armor to use {item.key}.")
                     return
                 else:
@@ -738,7 +749,7 @@ class CmdUnequip(Command):
 
             elif self.left_slot and item in self.left_slot:
                 self.left_slot.remove(item)
-                
+
                 if item.db.damage > 0:
                     self.caller.db.weapon_level = 0
 
