@@ -388,10 +388,10 @@ class Combatant:
         return Combatant(self.target)
 
     def getDamage(self):
-        if self.combatStats.get("two_handed", False):
-            return 1
-        else:
+        if self.isTwoHanded():
             return 2
+        else:
+            return 1
 
     def setAv(self, amount):
         #TODO: Should we set Max/Min?
