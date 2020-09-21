@@ -14,7 +14,7 @@ class CmdSunder(Command):
     """
 
     key = "sunder"
-    help_category = "mush"
+    help_category = "combat"
 
     def parse(self):
         "Very trivial parser"
