@@ -36,7 +36,7 @@ class Combatant:
 
     @property
     def cantFight(self):
-        return not self.canFight()
+        return not self.canFight
 
     @property
     def isAlive(self):

@@ -1,6 +1,6 @@
-from ...evennia.evennia import utils
-from ..typeclasses.characters import Character
-from ..typeclasses.npc import Npc
+from evennia import utils
+from typeclasses.characters import Character
+from typeclasses.npc import Npc
 import random
 
 """
