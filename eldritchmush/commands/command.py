@@ -469,6 +469,29 @@ class CmdEquip(Command):
 
         # Check if the item is of armor type
         if item:
+            # Do some skill checks
+            if item.required_skill:
+                if item.required_skill == "gunner" and not self.caller.db.gunner:
+                    self.msg(f"You lack the skill in Firearms to use {item.key}.")
+                    return
+                elif item.required_skill == "archer" and not self.caller.db.archer:
+                    self.msg(f"You lack the skill in Archery to use {item.key}.")
+                    return
+                elif item.required_skill == "shields" and not self.caller.db.shields:
+                    self.msg(f"You lack the skill in Shields to use {item.key}.")
+                    return
+                elif item.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
+                    self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
+                    return
+                elif item.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
+                    self.msg(f"You lack the skill in Armor to use {item.key}.")
+                    return
+                else:
+                    self.msg(f"Something has gone horribly wrong equipping {item.key}.")
+                    return
+
+
+
             # Equip gloves and add resists
             if item.db.hand_slot and not self.caller.db.hand_slot:
                 self.caller.db.hand_slot.append(item)
@@ -1285,6 +1308,170 @@ class SetCleave(Command):
             self.caller.db.total_cleave = cleave
             self.caller.msg("Your cleave level was set to %i." % cleave)
 
+class SetGunner(Command):
+    """Set the Gunner level of a character
+
+    Usage: setresilience <0 - 1>
+
+    This sets the Gunner level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setgunner"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setgunner <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            gunner = int(self.args)
+            if gunner > 1:
+                gunner = 1
+
+            if gunner < 0:
+                gunner = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.gunner = gunner
+
+        self.caller.msg("Your Gunner level was set to %i." % gunner)
+
+class SetArcher(Command):
+    """Set the Archer level of a character
+
+    Usage: setarcher <0 - 1>
+
+    This sets the Archer level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setarcher"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setarcher <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            archer = int(self.args)
+            if archer > 1:
+                archer = 1
+
+            if archer < 0:
+                archer = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.archer = archer
+
+        self.caller.msg("Your Archer level was set to %i." % archer)
+
+class SetShields(Command):
+    """Set the Shields level of a character
+
+    Usage: setshields <0 - 1>
+
+    This sets the Shields level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setshields"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setshields <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            shields = int(self.args)
+            if shields > 1:
+                shields = 1
+
+            if shields < 0:
+                shields = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.shields = shields
+
+        self.caller.msg("Your Shields level was set to %i." % shields)
+
+class SetMeleeWeapons(Command):
+    """Set the Melee Weapons level of a character
+
+    Usage: setmeleeweapons <0 - 1>
+
+    This sets the Shields level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setmeleeweapons"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setmeleeweapons <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            meleeweapons = int(self.args)
+            if meleeweapons > 1:
+                meleeweapons = 1
+
+            if meleeweapons < 0:
+                meleeweapons = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.melee_weapons = meleeweapons
+
+        self.caller.msg("Your Melee Weapons level was set to %i." % meleeweapons)
+
+class SetArmorProficiency(Command):
+    """Set the Melee Weapons level of a character
+
+    Usage: setmeleeweapons <0 - 1>
+
+    This sets the Shields level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setarmorproficiency"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setarmorproficiency <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            armorproficiency = int(self.args)
+            if armorproficiency > 1:
+                armorproficiency = 1
+
+            if armorproficiency < 0:
+                armorproficiency = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.armor_proficiency = armorproficiency
+
+        self.caller.msg("Your Armor Proficiency level was set to %i." % armorproficiency)
 
 class SetStun(Command):
     """Set the stun level of a character
