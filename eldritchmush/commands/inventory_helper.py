@@ -8,13 +8,13 @@ class Inventory:
         self.caller = caller
         self.parent = parent
 
-
     def getWeapon(self):
         right_hand = self.parent.getRightHand()
         left_hand = self.parent.getLeftHand()
-        if right_hand.db.damage >= 0:
+
+        if right_hand and right_hand.db.damage >= 0:
             return right_hand
-        elif left_hand.db.damage >= 0:
+        elif left_hand and left_hand.db.damage >= 0:
             return left_hand
         else:
             return None
