@@ -253,6 +253,8 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
         self.db.body_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
 
         # Entries for following
         self.db.isLeading = False
@@ -413,6 +415,8 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
         self.db.arrow_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.archer = 1
+        self.db.armor_proficiency = 1
 
         # Entries for following
         self.db.isLeading = False
@@ -578,6 +582,8 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.db.body_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
 
         # Entries for following
         self.db.isLeading = False
@@ -743,6 +749,8 @@ class BlueMeleeSoldierTwoHanded(Npc):
         self.db.body_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
 
         # Entries for following
         self.db.isLeading = False
@@ -902,6 +910,8 @@ class BlueSoldierBow(Npc):
         self.db.body_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
+        self.db.archer = 1
+        self.db.armor_proficiency = 1
 
         # Entries for following
         self.db.isLeading = False
