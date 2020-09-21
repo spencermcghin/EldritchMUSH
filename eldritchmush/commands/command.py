@@ -465,7 +465,7 @@ class CmdEquip(Command):
             self.caller.msg("|430Usage: equip <item>|n")
             return
 
-        item = self.caller.search(self.item,location=self.caller)
+        item = self.caller.search(self.item, location=self.caller)
         item_lower = item.key.lower().replace(" ", "_")
         prototype = prototypes.search_prototype(item_lower, require_single=True)
 
@@ -475,12 +475,13 @@ class CmdEquip(Command):
         # Get item attributes and who makes it.
         item_data = prototype_data['attrs']
 
+        indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
 
         # Check if the item is of armor type
         if item:
             # Do some skill checks
-            if item_data and item_data[10] and item_data[10][0] and (item_data[10][0] == "required_skill"):
-                required_skill = item_data[10][1]
+            if indexOfRequired:
+                required_skill = item_data[indexOfRequired][1]
 
                 if required_skill == "gunner" and not self.caller.db.gunner:
                     self.msg(f"You lack the skill in Firearms to use {item.key}.")
