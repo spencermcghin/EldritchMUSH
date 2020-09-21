@@ -1311,7 +1311,7 @@ class SetCleave(Command):
 class SetGunner(Command):
     """Set the Gunner level of a character
 
-    Usage: setresilience <0 - 1>
+    Usage: setgunner <0 - 1>
 
     This sets the Gunner level of the current character. This can only be
     used during character generation.
@@ -2346,6 +2346,25 @@ class CharSheet(Command):
                 ],
                 border = "cells")
 
+            proficiency_table = evtable.EvTable("|430Proficiencies|n", "|430Level|n",
+                                               table=[
+                                                   [
+                                                       "Gunner",
+                                                        "Archer",
+                                                        "Shield",
+                                                        "Melee Weapons",
+                                                        "Armor Proficiency"
+                                                   ],
+                                                   [
+                                                       self.caller.db.gunner,
+                                                       self.caller.db.archer,
+                                                       self.caller.db.shields,
+                                                       self.caller.db.melee_weapons,
+                                                       self.caller.db.armor_proficiency
+                                                   ]
+                                               ],
+                                               border="cells")
+
             profession_table = evtable.EvTable("|430Profession Skills|n", "|430Level|n",
                 table = [
                     [
@@ -2375,12 +2394,16 @@ class CharSheet(Command):
             pass_marshall_table.reformat_column(1, width=15, align="c")
             generalist_table.reformat_column(0, width=30, align="l")
             generalist_table.reformat_column(1, width=15, align="c")
+            proficiency_table.reformat_column(0, width=30, align="l")
+            proficiency_table.reformat_column(1, width=15, align="c")
             profession_table.reformat_column(0, width=30, align="l")
             profession_table.reformat_column(1, width=15, align="c")
+
             self.caller.msg(status_table)
             self.caller.msg(active_marshall_table)
             self.caller.msg(pass_marshall_table)
             self.caller.msg(generalist_table)
+            self.caller.msg(proficiency_table)
             self.caller.msg(profession_table)
         else:
             self.caller.msg("|430Usage: charsheet|n\n|400You can only see your own character sheet.|n")
