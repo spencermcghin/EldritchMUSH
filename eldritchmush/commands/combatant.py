@@ -27,8 +27,12 @@ class Combatant:
     def isStaggered(self):
         return self.caller.db.is_staggered
 
+    @property
     def canFight(self):
-        return self.helper.canFight(self.caller)
+        if self.caller.db.bleed_points > 0:
+            return True
+
+        return False
 
     @property
     def cantFight(self):
@@ -93,11 +97,17 @@ class Combatant:
     def resilience(self):
         return self.caller.db.resilience
 
+    def hasSniper(self):
+        return self.caller.db.sniper
+
     def bleedPoints(self):
         return self.caller.db.bleed_points
 
     def atMaxBleedPoints(self):
         return self.bleedPoints() == self.totalBleedPoints()
+
+    def atMaxBodyPoints(self):
+        return self.body() == 3
 
     #TODO: Magic Number?
     def totalBleedPoints(self):
@@ -121,7 +131,7 @@ class Combatant:
     def resetBleedPoints(self):
         self.setBleedPoints(self.totalBleedPoints())
 
-    def isAtMaxDeathPoints(self):
+    def atMaxDeathPoints(self):
         return self.deathPoints() >= 3
 
     def addDeathPoints(self, value):
@@ -190,11 +200,20 @@ class Combatant:
     def staggersRemaining(self):
         return self.caller.db.stagger
 
+    def resistsRemaining(self):
+        return self.caller.db.resist
+
     def hasStunsRemaining(self,message=None):
         if message and self.stunsRemaining() <= 0:
             self.message(message)
 
         return self.stunsRemaining()
+
+    def hasResistsRemaining(self, message = None):
+        if message and self.resistsRemaining() <= 0:
+            self.message(message)
+
+        return self.resistsRemaining()
 
     def hasDisarmsRemaining(self, message=None):
         if message and self.disarmsRemaining() <= 0:
@@ -292,6 +311,9 @@ class Combatant:
     def setStuns(self, value):
         self.caller.db.stun = value
 
+    def setResists(self, value):
+        self.caller.db.resist = value
+
     def setDisarms(self, value):
         self.caller.db.disarm = value
 
@@ -304,6 +326,13 @@ class Combatant:
             new_stun_value = 0
 
         self.setStuns(new_stun_value)
+
+    def decreaseResists(self, value):
+        new_resist_value = self.resistsRemaining() - value
+        if new_resist_value < 0 or value < 0:
+            new_resist_value = 0
+
+        self.setResists(new_resist_value)
 
     def decreaseDisarms(self,value):
         new_disarm_value = self.disarmsRemaining() - value
@@ -484,3 +513,10 @@ class Combatant:
                 self.takeDeathDamage(amount, combatant)
                 self.message("|300You are unconscious and can no longer move of your own volition.|n")
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")
+
+    def resistsAttack(self):
+        if self.resistsRemaining() > 0:
+            self.decreaseResists(1)
+            return True
+
+        return False

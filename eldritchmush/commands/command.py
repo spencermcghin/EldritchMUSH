@@ -469,6 +469,29 @@ class CmdEquip(Command):
 
         # Check if the item is of armor type
         if item:
+            # Do some skill checks
+            if item.required_skill:
+                if item.required_skill == "gunner" and not self.caller.db.gunner:
+                    self.msg(f"You lack the skill in Firearms to use {item.key}.")
+                    return
+                elif item.required_skill == "archer" and not self.caller.db.archer:
+                    self.msg(f"You lack the skill in Archery to use {item.key}.")
+                    return
+                elif item.required_skill == "shields" and not self.caller.db.shields:
+                    self.msg(f"You lack the skill in Shields to use {item.key}.")
+                    return
+                elif item.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
+                    self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
+                    return
+                elif item.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
+                    self.msg(f"You lack the skill in Armor to use {item.key}.")
+                    return
+                else:
+                    self.msg(f"Something has gone horribly wrong equipping {item.key}.")
+                    return
+
+
+
             # Equip gloves and add resists
             if item.db.hand_slot and not self.caller.db.hand_slot:
                 self.caller.db.hand_slot.append(item)
@@ -543,15 +566,14 @@ class CmdEquip(Command):
                 armor_value = self.caller.db.armor
                 indomitable = self.caller.db.indomitable
                 tough = self.caller.db.tough
-                shield_value = self.caller.db.shield_value
                 armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
                 # Add them up and set the curent armor value in the database
-                currentArmorValue = armor_value + tough + shield_value + armor_specialist + indomitable
+                currentArmorValue = armor_value + tough + armor_specialist + indomitable
                 self.caller.db.av = currentArmorValue
 
                 # Return armor value to console.
-                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
             # For weapons/shields
             elif item and item not in self.right_slot:
@@ -578,19 +600,17 @@ class CmdEquip(Command):
                         self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                         if item.db.is_shield:
-                            self.caller.db.shield_value = item.db.material_value
                             # Get vals for armor value calc
                             armor_value = self.caller.db.armor
                             indomitable = self.caller.db.indomitable
                             tough = self.caller.db.tough
-                            shield_value = self.caller.db.shield_value
                             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
                             # Add them up and set the curent armor value in the database
-                            currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                            currentArmorValue = armor_value + tough + armor_specialist
                             self.caller.db.av = currentArmorValue
 
                             # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
                         else:
                             # Add weapon bonus
@@ -602,19 +622,17 @@ class CmdEquip(Command):
                         self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                         if item.db.is_shield:
-                            self.caller.db.shield_value = item.db.material_value
 
                             # Get vals for armor value calc
                             armor_value = self.caller.db.armor
                             indomitable = self.caller.db.indomitable
                             tough = self.caller.db.tough
-                            shield_value = self.caller.db.shield_value
                             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
                             # Add them up and set the curent armor value in the database
-                            currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                            currentArmorValue = armor_value + tough + armor_specialist
                             self.caller.db.av = currentArmorValue
                             # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
                         else:
                             # Add weapon bonus
@@ -705,30 +723,26 @@ class CmdUnequip(Command):
                 # Get vals for armor value calc
                 armor_value = self.caller.db.armor
                 tough = self.caller.db.tough
-                shield_value = self.caller.db.shield_value
                 armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
                 # Add them up and set the curent armor value in the database
-                currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                currentArmorValue = armor_value + tough + armor_specialist
                 self.caller.db.av = currentArmorValue
                 # Return armor value to console.
-                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
 
             elif item in self.right_slot:
                 self.right_slot.remove(item)
 
                 if item.db.is_shield:
-                    self.caller.db.shield_value = 0
-
                     # Get vals for armor value calc
                     armor_value = self.caller.db.armor
                     tough = self.caller.db.tough
-                    shield_value = self.caller.db.shield_value
                     armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
                     # Add them up and set the curent armor value in the database
-                    currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                    currentArmorValue = armor_value + tough + armor_specialist
                     self.caller.db.av = currentArmorValue
                     # Return armor value to console.
-                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
 
                 else:
                     self.caller.db.weapon_level = 0
@@ -737,18 +751,17 @@ class CmdUnequip(Command):
                 self.left_slot.remove(item)
 
                 if item.db.is_shield:
-                    self.caller.db.shield_value = 0
 
                     # Get vals for armor value calc
                     armor_value = self.caller.db.armor
                     tough = self.caller.db.tough
-                    shield_value = self.caller.db.shield_value
+
                     armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
                     # Add them up and set the curent armor value in the database
-                    currentArmorValue = armor_value + tough + shield_value + armor_specialist
+                    currentArmorValue = armor_value + tough + armor_specialist
                     self.caller.db.av = currentArmorValue
                     # Return armor value to console.
-                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
 
                 else:
                     self.caller.db.weapon_level = 0
@@ -1035,16 +1048,15 @@ class SetTough(Command):
             # Get armor value objects
             armor = self.caller.db.armor
             tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
             armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
             indomitable = self.caller.db.indomitable
 
             # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
+            currentArmorValue = armor + tough + armor_specialist + indomitable
             self.caller.db.av = currentArmorValue
 
             # Return armor value to console.
-            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}|n")
+            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
 
 
 class SetBody(Command):
@@ -1120,15 +1132,14 @@ class SetArmorSpecialist(Command):
             # Get armor value objects
             armor = self.caller.db.armor
             tough = self.caller.db.tough
-            shield_value = self.caller.db.shield_value if self.caller.db.shield == True else 0
             indomitable = self.caller.db.indomitable
 
             # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
+            currentArmorValue = armor + tough + armor_specialist + indomitable
             self.caller.db.av = currentArmorValue
 
             # Return armor value to console.
-            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
 class SetWyldingHand(Command):
     """Set the wylding hand level of a character
@@ -1285,6 +1296,203 @@ class SetCleave(Command):
             self.caller.db.total_cleave = cleave
             self.caller.msg("Your cleave level was set to %i." % cleave)
 
+class SetGunner(Command):
+    """Set the Gunner level of a character
+
+    Usage: setgunner <0 - 1>
+
+    This sets the Gunner level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setgunner"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setgunner <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            gunner = int(self.args)
+            if gunner > 1:
+                gunner = 1
+
+            if gunner < 0:
+                gunner = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.gunner = gunner
+
+        self.caller.msg("Your Gunner level was set to %i." % gunner)
+
+class SetSniper(Command):
+    """Set the Sniper level of a character
+
+    Usage: setsniper <0 - 1>
+
+    This sets the Gunner level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setsniper"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setsniper <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            sniper = int(self.args)
+            if sniper > 1:
+                sniper = 1
+
+            if sniper < 0:
+                sniper = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.sniper = sniper
+
+        self.caller.msg("Your Sniper level was set to %i." % sniper)
+
+class SetArcher(Command):
+    """Set the Archer level of a character
+
+    Usage: setarcher <0 - 1>
+
+    This sets the Archer level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setarcher"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setarcher <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            archer = int(self.args)
+            if archer > 1:
+                archer = 1
+
+            if archer < 0:
+                archer = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.archer = archer
+
+        self.caller.msg("Your Archer level was set to %i." % archer)
+
+class SetShields(Command):
+    """Set the Shields level of a character
+
+    Usage: setshields <0 - 1>
+
+    This sets the Shields level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setshields"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setshields <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            shields = int(self.args)
+            if shields > 1:
+                shields = 1
+
+            if shields < 0:
+                shields = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.shields = shields
+
+        self.caller.msg("Your Shields level was set to %i." % shields)
+
+class SetMeleeWeapons(Command):
+    """Set the Melee Weapons level of a character
+
+    Usage: setmeleeweapons <0 - 1>
+
+    This sets the Shields level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setmeleeweapons"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setmeleeweapons <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            meleeweapons = int(self.args)
+            if meleeweapons > 1:
+                meleeweapons = 1
+
+            if meleeweapons < 0:
+                meleeweapons = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.melee_weapons = meleeweapons
+
+        self.caller.msg("Your Melee Weapons level was set to %i." % meleeweapons)
+
+class SetArmorProficiency(Command):
+    """Set the Melee Weapons level of a character
+
+    Usage: setmeleeweapons <0 - 1>
+
+    This sets the Shields level of the current character. This can only be
+    used during character generation.
+    """
+
+    key = "setarmorproficiency"
+    help_category = "mush"
+
+    def func(self):
+        "This performs the actual command"
+        errmsg = "|430Usage: setarmorproficiency <0 - 1>|n"
+        if not self.args:
+            self.caller.msg(errmsg)
+            return
+        try:
+            armorproficiency = int(self.args)
+            if armorproficiency > 1:
+                armorproficiency = 1
+
+            if armorproficiency < 0:
+                armorproficiency = 0
+        except ValueError:
+            self.caller.msg(errmsg)
+            return
+        # at this point the argument is tested as valid. Let's set it.
+        self.caller.db.armor_proficiency = armorproficiency
+
+        self.caller.msg("Your Armor Proficiency level was set to %i." % armorproficiency)
 
 class SetStun(Command):
     """Set the stun level of a character
@@ -2109,7 +2317,6 @@ class CharSheet(Command):
             active_marshall_table = evtable.EvTable("|430Active Marshall Skills|n", "|430Available|n",
                 table = [
                     [
-                        "Resist",
                         "Disarm",
                         "Stun",
                         "Stagger",
@@ -2117,7 +2324,7 @@ class CharSheet(Command):
                         "Cleave"
                     ],
                     [
-                        self.caller.db.resist,
+
                         self.caller.db.disarm,
                         self.caller.db.stun,
                         self.caller.db.stagger,
@@ -2129,16 +2336,20 @@ class CharSheet(Command):
             pass_marshall_table = evtable.EvTable("|430Passive Marshall Skills|n", "|430Level|n",
                 table = [
                     [
+                        "Resist",
                         "Tough",
                         "Armor",
                         "Master of Arms",
-                        "Armor Specialist"
+                        "Armor Specialist",
+                        "Sniper"
                     ],
                     [
+                        self.caller.db.resist,
                         self.caller.db.tough,
                         self.caller.db.armor,
                         self.caller.db.master_of_arms,
-                        self.caller.db.armor_specialist
+                        self.caller.db.armor_specialist,
+                        self.caller.db.sniper
                     ]
                 ],
                 border = "cells")
@@ -2157,6 +2368,25 @@ class CharSheet(Command):
                     ]
                 ],
                 border = "cells")
+
+            proficiency_table = evtable.EvTable("|430Proficiencies|n", "|430Level|n",
+                                               table=[
+                                                   [
+                                                       "Gunner",
+                                                        "Archer",
+                                                        "Shield",
+                                                        "Melee Weapons",
+                                                        "Armor Proficiency"
+                                                   ],
+                                                   [
+                                                       self.caller.db.gunner,
+                                                       self.caller.db.archer,
+                                                       self.caller.db.shields,
+                                                       self.caller.db.melee_weapons,
+                                                       self.caller.db.armor_proficiency
+                                                   ]
+                                               ],
+                                               border="cells")
 
             profession_table = evtable.EvTable("|430Profession Skills|n", "|430Level|n",
                 table = [
@@ -2187,12 +2417,16 @@ class CharSheet(Command):
             pass_marshall_table.reformat_column(1, width=15, align="c")
             generalist_table.reformat_column(0, width=30, align="l")
             generalist_table.reformat_column(1, width=15, align="c")
+            proficiency_table.reformat_column(0, width=30, align="l")
+            proficiency_table.reformat_column(1, width=15, align="c")
             profession_table.reformat_column(0, width=30, align="l")
             profession_table.reformat_column(1, width=15, align="c")
+
             self.caller.msg(status_table)
             self.caller.msg(active_marshall_table)
             self.caller.msg(pass_marshall_table)
             self.caller.msg(generalist_table)
+            self.caller.msg(proficiency_table)
             self.caller.msg(profession_table)
         else:
             self.caller.msg("|430Usage: charsheet|n\n|400You can only see your own character sheet.|n")

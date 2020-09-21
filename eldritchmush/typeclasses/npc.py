@@ -36,6 +36,7 @@ class GreenMeleeSoldierOneHanded(Npc):
         "This is called when object is first created, only."
         # Entries for general stats
         self.db.master_of_arms = 1
+        self.db.sniper = 1
         self.db.armor = 0
         self.db.armor_specialist = 1
         self.db.tough = 1
@@ -58,6 +59,13 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.weakness = 0
         self.db.bleed_points = 3
         self.db.death_points = 3
+
+        # Entries for skill proficencies
+        self.db.gunner = 1
+        self.db.archer = 1
+        self.db.shields = 1
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
 
         # Entries for combat
         self.db.resist = 0

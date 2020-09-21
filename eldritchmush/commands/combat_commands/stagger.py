@@ -50,32 +50,43 @@ class CmdStagger(Command):
                     if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
                         if combatant.hasStaggersRemaining(
                             f"|400You have 0 staggers remaining or do not have the skill.\nPlease choose another action.|n"):
-                            if victim.isAlive:
-                                maneuver_difficulty = 2
-                                attack_result = combatant.rollAttack(maneuver_difficulty)
-                                if attack_result >= victim.av:
-                                    victim.stagger()
-                                    combatant.decreaseStaggers(1)
+                            if not combatant.inventory.hasBow() or combatant.hasSniper():
+                                if victim.isAlive:
+                                    maneuver_difficulty = 2
+                                    attack_result = combatant.rollAttack(maneuver_difficulty)
+                                    if attack_result >= victim.av:
+                                        combatant.decreaseStaggers(1)
 
-                                    shot_location = combatant.determineHitLocation(victim)
-                                    victim.message(
-                                        f"|430You have been staggered. You suffer a penalty on your next attack|n")
+                                        shot_location = combatant.determineHitLocation(victim)
+                                        victim.message(
+                                            f"|430You have been staggered. You suffer a penalty on your next attack|n")
 
-                                    if not victim.blocksWithShield(shot_location):
+                                        if not victim.blocksWithShield(shot_location):
+                                            victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
+                                            victim.reportAv()
 
-                                        victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
+                                            if not victim.resistsAttack():
+                                                victim.stagger()
 
-                                        victim.reportAv()
+                                                combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {victim.name} out of their footing|n (|400{victim.av}|n)|025, and dealing {combatant.getStaggerDamage()} damage.|n")
+                                            else:
+                                                combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} (|400{victim.av}|n)|025, and dealing {combatant.getStaggerDamage()} damage.|n {victim.name} Resists being staggered by the powerful attack|n")
 
+                                        else:
+                                            if not victim.resistsAttack():
+                                                victim.stagger()
+                                                combatant.broadcast(
+                                                    f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} but {victim.name} manages to block with their shield.  However {victim.name} is still staggered by the powerful attack |n")
+                                            else:
+                                                combatant.broadcast(
+                                                    f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} but {victim.name} manages to block with their shield, {victim.name} also Resists being staggered by the powerful attack |n")
+                                else:
+                                    combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
+                                    combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
 
-                                        combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering {victim.name} out of their footing|n (|400{victim.av}|n)|025, and dealing {combatant.getStaggerDamage()} damage.|n")
-                                    else:
-                                        combatant.broadcast(
-                                            f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} but {victim.name} manages to block with their shield.  However {victim.name} is still staggered |n")
+                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                loop.combatTurnOff(self.caller)
+                                loop.cleanup()
                             else:
-                                combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
-                                combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
-
-                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                            loop.combatTurnOff(self.caller)
-                            loop.cleanup()
+                                combatant.message(
+                                    f"|430To use Stagger with a bow equipped you must have the Sniper skill|n")
