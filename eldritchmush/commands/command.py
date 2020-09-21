@@ -497,11 +497,6 @@ class CmdEquip(Command):
                 elif required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
                     self.msg(f"You lack the skill in Armor to use {item.key}.")
                     return
-                else:
-                    self.msg(f"Something has gone horribly wrong equipping {item.key}.")
-                    return
-
-
 
             # Equip gloves and add resists
             if item.db.hand_slot and not self.caller.db.hand_slot:
