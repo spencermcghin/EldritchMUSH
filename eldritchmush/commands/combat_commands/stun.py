@@ -17,7 +17,7 @@ class CmdStun(Command):
     """
 
     key = "stun"
-    help_category = "mush"
+    help_category = "combat"
 
     def __init__(self):
         self.target = None
