@@ -470,20 +470,20 @@ class CmdEquip(Command):
         # Check if the item is of armor type
         if item:
             # Do some skill checks
-            if item.required_skill:
-                if item.required_skill == "gunner" and not self.caller.db.gunner:
+            if item.db.required_skill:
+                if item.db.required_skill == "gunner" and not self.caller.db.gunner:
                     self.msg(f"You lack the skill in Firearms to use {item.key}.")
                     return
-                elif item.required_skill == "archer" and not self.caller.db.archer:
+                elif item.db.required_skill == "archer" and not self.caller.db.archer:
                     self.msg(f"You lack the skill in Archery to use {item.key}.")
                     return
-                elif item.required_skill == "shields" and not self.caller.db.shields:
+                elif item.db.required_skill == "shields" and not self.caller.db.shields:
                     self.msg(f"You lack the skill in Shields to use {item.key}.")
                     return
-                elif item.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
+                elif item.db.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
                     self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
                     return
-                elif item.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
+                elif item.db.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
                     self.msg(f"You lack the skill in Armor to use {item.key}.")
                     return
                 else:
