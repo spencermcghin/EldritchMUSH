@@ -1,7 +1,7 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combatant import Combatant
+from ..combatant import Combatant
 
 
 class CmdMedicine(Command):
@@ -61,7 +61,7 @@ class CmdMedicine(Command):
                             victim.broadcast(
                                 f"|025{combatant.name} tries to aid {victim.name} but they are not skilled enough to benefit them further.|n")
                             combatant.message(f"|025You can help {victim.name} no more.|n");
-                    elif victim.atMaxBleedPoints() and victim.body() == 0:
+                    elif victim.atMaxBleedPoints() and victim.hasBody(0):
                         # Check which skills get applied at 0 bleed and body
                         if combatant.battlefieldMedicine() or combatant.stabilize() or combatant.medicine():
                             victim.broadcast(f"|025{combatant.name} performs some minor healing techniques and provides|n (|4301|n) |025points of aid to {victim.name}.|n")
@@ -70,7 +70,7 @@ class CmdMedicine(Command):
                         else:
                             victim.broadcast(
                                 f"|025{combatant.name} tries to aid {victim.name} but with no training they are unable to help.|n")
-                    elif victim.isAtMaxDeathPoints() and not victim.atMaxBleedPoints():
+                    elif victim.atMaxDeathPoints() and not victim.atMaxBleedPoints():
                         if combatant.stabilize() or combatant.medicine():
                             amount_to_heal = combatant.medicine()
                             if combatant.stabilize() > combatant.medicine():
