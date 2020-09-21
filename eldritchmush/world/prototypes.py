@@ -598,14 +598,15 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 "refined_wood": 6,
 "leather": 6,
 "cloth": 0,
-"damage": 2,
 "twohanded": True,
 "value_copper": 420,
 "value_silver": 42,
 "value_gold": 4.2,
 "level": 3,
 "material_value": 3,
-"required_skill": "melee_weapons"
+"required_skill": "melee_weapons",
+"damage": 2,
+"twohanded": True
 }
 
 MASTERWORK_STEEL_SHIELD = {
