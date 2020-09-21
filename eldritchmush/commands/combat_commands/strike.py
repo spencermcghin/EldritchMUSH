@@ -68,7 +68,7 @@ class CmdStrike(Command):
                                 f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av}|n), |025dealing|n (|430{combatant.getDamage()}|n) |025damage!|n")
                         else:
                             combatant.broadcast(
-                                f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av}|n), but {victim.name} blocks with their shield |n")
+                                f"|025{combatant.name} strikes deftly|n (|020{attack_result}|n) |025at {victim.name} and hits|n (|400{victim.av}|n), |025but {victim.name} blocks with their shield |n")
                     else:
                         combatant.broadcast(f"|025{combatant.name} swings wildly|n (|400{attack_result}|n)|025, missing {victim.name}|n (|020{victim.av}|n)")
                 else:
