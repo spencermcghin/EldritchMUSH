@@ -470,20 +470,20 @@ class CmdEquip(Command):
         # Check if the item is of armor type
         if item:
             # Do some skill checks
-            if item.required_skill:
-                if item.required_skill == "gunner" and not self.caller.db.gunner:
+            if item.db.required_skill:
+                if item.db.required_skill == "gunner" and not self.caller.db.gunner:
                     self.msg(f"You lack the skill in Firearms to use {item.key}.")
                     return
-                elif item.required_skill == "archer" and not self.caller.db.archer:
+                elif item.db.required_skill == "archer" and not self.caller.db.archer:
                     self.msg(f"You lack the skill in Archery to use {item.key}.")
                     return
-                elif item.required_skill == "shields" and not self.caller.db.shields:
+                elif item.db.required_skill == "shields" and not self.caller.db.shields:
                     self.msg(f"You lack the skill in Shields to use {item.key}.")
                     return
-                elif item.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
+                elif item.db.required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
                     self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
                     return
-                elif item.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
+                elif item.db.required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
                     self.msg(f"You lack the skill in Armor to use {item.key}.")
                     return
                 else:
@@ -683,40 +683,40 @@ class CmdUnequip(Command):
                 self.left_slot.remove(item)
                 self.caller.db.weapon_level = 0
 
-            elif item in self.caller.db.cloak_slot:
+            elif self.caller.db.cloak_slot and item in self.caller.db.cloak_slot:
                 # Unequip cloak and remove associated espionage points.
                 self.caller.db.cloak_slot.remove(item)
                 self.caller.db.espionage -= item.db.espionage
 
-            elif item in self.caller.db.arrow_slot:
+            elif self.caller.db.arrow_slot and item in self.caller.db.arrow_slot:
                 # Unequip arrows.
                 self.caller.db.arrow_slot.remove(item)
 
-            elif item in self.caller.db.bullet_slot:
+            elif self.caller.db.bullet_slot and item in self.caller.db.bullet_slot:
                 # Unequip bullets.
                 self.caller.db.bullet_slot.remove(item)
 
-            elif item in self.caller.db.clothing_slot:
+            elif self.caller.db.clothing_slot and item in self.caller.db.clothing_slot:
                 # Unequip clothing and remove associated influential points.
                 self.caller.db.clothing_slot.remove(item)
                 self.caller.db.influential -= item.db.influential
 
-            elif item in self.caller.db.kit_slot:
+            elif self.caller.db.kit_slot and item in self.caller.db.kit_slot:
                 # Unequip kit.
                 self.caller.db.kit_slot.remove(item)
 
-            elif item in self.caller.db.hand_slot:
+            elif self.caller.db.hand_slot and item in self.caller.db.hand_slot:
                 # Unequip gloves and remove associated resists.
                 self.caller.db.hand_slot.remove(item)
                 self.caller.db.resist -= item.db.resist
 
-            elif item in self.caller.db.foot_slot:
+            elif self.caller.db.foot_slot and item in self.caller.db.foot_slot:
                 # Unequip boots and remove associated resists.
                 self.caller.db.foot_slot.remove(item)
                 self.caller.db.resist -= item.db.resist
 
             # Check to see if right hand is empty.
-            elif item in self.caller.db.body_slot:
+            elif self.caller.db.body_slot and item in self.caller.db.body_slot:
                 self.caller.db.body_slot.remove(item)
                 # Item is armor, decrement from av
                 self.caller.db.armor = 0
@@ -730,40 +730,16 @@ class CmdUnequip(Command):
                 # Return armor value to console.
                 self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
 
-            elif item in self.right_slot:
+            elif self.right_slot and item in self.right_slot:
                 self.right_slot.remove(item)
 
-                if item.db.is_shield:
-                    # Get vals for armor value calc
-                    armor_value = self.caller.db.armor
-                    tough = self.caller.db.tough
-                    armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                    # Add them up and set the curent armor value in the database
-                    currentArmorValue = armor_value + tough + armor_specialist
-                    self.caller.db.av = currentArmorValue
-                    # Return armor value to console.
-                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
-
-                else:
+                if item.db.damage > 0:
                     self.caller.db.weapon_level = 0
 
-            elif item in self.left_slot:
+            elif self.left_slot and item in self.left_slot:
                 self.left_slot.remove(item)
-
-                if item.db.is_shield:
-
-                    # Get vals for armor value calc
-                    armor_value = self.caller.db.armor
-                    tough = self.caller.db.tough
-
-                    armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                    # Add them up and set the curent armor value in the database
-                    currentArmorValue = armor_value + tough + armor_specialist
-                    self.caller.db.av = currentArmorValue
-                    # Return armor value to console.
-                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
-
-                else:
+                
+                if item.db.damage > 0:
                     self.caller.db.weapon_level = 0
 
             else:
