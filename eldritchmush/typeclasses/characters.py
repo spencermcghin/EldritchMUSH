@@ -70,6 +70,13 @@ class Character(DefaultCharacter):
         self.db.battlefieldmedicine = 0
         self.db.chirurgeon = 0
 
+        # Entries for skill proficencies
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 0
+        self.db.melee_weapons = 0
+        self.db.armor_proficiency = 0
+
         # Entries for status
         self.db.weakness = 0
         self.db.bleed_points = 3
