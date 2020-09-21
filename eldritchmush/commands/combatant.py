@@ -294,13 +294,15 @@ class Combatant:
         return attack_result
 
     def hasTwoHandedWeapon(self, message = None):
-        if message and self.isTwoHanded():
+        if message and not self.isTwoHanded():
             self.message(message)
 
         return self.isTwoHanded()
 
     def isTwoHanded(self):
-        return self.combatStats.get("two_handed", 0)
+        two_handed = self.getRightHand() == self.getLeftHand()
+
+        return two_handed
 
     @property
     def av(self):
