@@ -15,7 +15,7 @@ class CmdStagger(Command):
     """
 
     key = "stagger"
-    help_category = "mush"
+    help_category = "combat"
 
     def __init__(self):
         self.target = None
