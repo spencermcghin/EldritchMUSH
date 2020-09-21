@@ -97,7 +97,8 @@ class Combatant:
     def resilience(self):
         return self.caller.db.resilience
 
-
+    def hasSniper(self):
+        return self.caller.db.sniper
 
     def bleedPoints(self):
         return self.caller.db.bleed_points

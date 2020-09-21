@@ -52,40 +52,43 @@ class CmdDisarm(Command):
             if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
                 if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
                     if combatant.hasDisarmsRemaining(f"|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.|n"):
-                        if not victim.hasTwoHandedWeapon(
-                                f"|430You cannot disarm a two-handed weapon. Please try another attack.|n"):
-                            if victim.isAlive:
-                                maneuver_difficulty = 2
-                                attack_result = combatant.rollAttack(maneuver_difficulty)
-                                if attack_result >= victim.av:
-                                    # Check for NPC calling the command and pick a new command if so.
-                                    # TODO: Spence - Why shouldn't NPCs use Disarm?
-                                    if utils.inherits_from(self.caller, Npc) and combatant.isTwoHanded():
-                                        self.caller.execute_cmd(f"strike {target.key}")
-                                        return
+                        if not combatant.inventory.hasBow() or combatant.hasSniper():
+                            if not victim.hasTwoHandedWeapon(
+                                    f"|430You cannot disarm a two-handed weapon. Please try another attack.|n"):
+                                if victim.isAlive:
+                                    maneuver_difficulty = 2
+                                    attack_result = combatant.rollAttack(maneuver_difficulty)
+                                    if attack_result >= victim.av:
+                                        # Check for NPC calling the command and pick a new command if so.
+                                        # TODO: Spence - Why shouldn't NPCs use Disarm?
+                                        if utils.inherits_from(self.caller, Npc) and combatant.isTwoHanded():
+                                            self.caller.execute_cmd(f"strike {target.key}")
+                                            return
 
 
-                                    combatant.decreaseDisarms(1)
+                                        combatant.decreaseDisarms(1)
 
-                                    shot_location = combatant.determineHitLocation(victim)
-                                    victim.takeDamage(combatant, combatant.getDamage(), shot_location)
+                                        shot_location = combatant.determineHitLocation(victim)
+                                        victim.takeDamage(combatant, combatant.getDamage(), shot_location)
 
-                                    victim.reportAv()
+                                        victim.reportAv()
 
-                                    if not victim.resistsAttack():
-                                        victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
-                                        victim.disarm()
-                                        combatant.broadcast(f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {victim.name}|n (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                        if not victim.resistsAttack():
+                                            victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
+                                            victim.disarm()
+                                            combatant.broadcast(f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {victim.name}|n (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                        else:
+                                            combatant.broadcast(
+                                                f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n. {combatant.name} attempts to disarm {victim.name}, but {victim.name} Resists the attempt")
+
                                     else:
-                                        combatant.broadcast(
-                                            f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n. {combatant.name} attempts to disarm {victim.name}, but {victim.name} Resists the attempt")
-
+                                        combatant.broadcast(f"|025{combatant.name} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {victim.name}, but misses|n (|400{victim.av}|n)|025.|n")
                                 else:
-                                    combatant.broadcast(f"|025{combatant.name} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {victim.name}, but misses|n (|400{victim.av}|n)|025.|n")
-                            else:
-                                combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
-                                combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
-                        # Clean up
-                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                        loop.combatTurnOff(self.caller)
-                        loop.cleanup()
+                                    combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
+                                    combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
+                            # Clean up
+                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                            loop.combatTurnOff(self.caller)
+                            loop.cleanup()
+                        else:
+                            combatant.message(f"|430To use Disarm with a bow equipped you must have the Sniper skill|n")
