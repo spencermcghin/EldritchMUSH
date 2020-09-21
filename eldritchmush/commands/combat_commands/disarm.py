@@ -53,8 +53,7 @@ class CmdDisarm(Command):
                 if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
                     if combatant.hasDisarmsRemaining(f"|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.|n"):
                         if not combatant.inventory.hasBow() or combatant.hasSniper():
-                            if not victim.hasTwoHandedWeapon(
-                                    f"|430You cannot disarm a two-handed weapon. Please try another attack.|n"):
+                            if not victim.hasTwoHandedWeapon():
                                 if victim.isAlive:
                                     maneuver_difficulty = 2
                                     attack_result = combatant.rollAttack(maneuver_difficulty)
@@ -86,6 +85,10 @@ class CmdDisarm(Command):
                                 else:
                                     combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
                                     combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
+                            else:
+                                combatant.message(f"|430You cannot disarm a two-handed weapon. Please try another attack.|n")
+                                combatant.broadcast(
+                                    f"|025{combatant.name} tries to disarm {victim.name}|025, but cannot disarm a 2-handed weapon!|n")
                             # Clean up
                             # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                             loop.combatTurnOff(self.caller)
