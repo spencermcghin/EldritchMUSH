@@ -2423,6 +2423,7 @@ class CharStatus(Command):
         combat_turn = (location_combat_loop.index(self.caller) + 1) if in_loop else "Not in combat"
         # Turn order
         current_turn = [combatant for combatant in location_combat_loop if combatant.db.combat_turn and in_loop]
+        current_turn_value = current_turn[0] if current_turn else "No active combat"
 
 
         if self.target == "self" or self.target == "me" or not self.target:
@@ -2448,7 +2449,7 @@ class CharStatus(Command):
                         right_item_mv,
                         left_item_mv,
                         combat_turn,
-                        current_turn[0]
+                        current_turn_value
                     ]
                 ],
                 border = "cells")
