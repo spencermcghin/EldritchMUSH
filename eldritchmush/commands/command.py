@@ -2409,22 +2409,41 @@ class CharStatus(Command):
     def func(self):
         # target = self.caller.search(self.target)
 
+        # Make item objects for printing
+        # Right and left hand objects
+        right_item = self.caller.db.right_slot[0] if self.caller.db.right_slot else None
+        right_item_mv = right_item.db.material_value if right_item else "Empty"
+        left_item = self.caller.db.left_slot[0] if self.caller.db.left_slot else None
+        left_item_mv = left_item.db.material_value if left_item else "Empty"
+
+        # Combat turn
+        location_combat_loop = self.caller.location.db.combat_loop
+        in_loop = True if self.caller in location_combat_loop else False
+        combat_turn = location_combat_loop.index(self.caller + 1) if in_loop else "Not in combat."
+
+
         if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|430Status|n", "|430Value|n",
                 table = [
                     [
                         "Armor",
+                        "Armor Value",
                         "Armor Specialist",
                         "Tough",
                         "Body",
-                        "Armor Value"
+                        "Right Item Durability",
+                        "Left Item Durability",
+                        "Combat Turn"
                     ],
                     [
                         self.caller.db.armor,
+                        self.caller.db.av,
                         self.caller.db.armor_specialist,
                         self.caller.db.tough,
                         self.caller.db.body,
-                        self.caller.db.av
+                        right_item_mv,
+                        left_item_mv,
+                        combat_turn
                     ]
                 ],
                 border = "cells")
