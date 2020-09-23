@@ -2419,7 +2419,7 @@ class CharStatus(Command):
         # Combat turn
         location_combat_loop = self.caller.location.db.combat_loop
         in_loop = True if self.caller in location_combat_loop else False
-        combat_turn = location_combat_loop.index(self.caller + 1) if in_loop else "Not in combat."
+        combat_turn = (location_combat_loop.index(self.caller) + 1) if in_loop else "Not in combat."
 
 
         if self.target == "self" or self.target == "me" or not self.target:
