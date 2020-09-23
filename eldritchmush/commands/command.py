@@ -2422,7 +2422,7 @@ class CharStatus(Command):
         in_loop = True if self.caller in location_combat_loop else False
         combat_turn = (location_combat_loop.index(self.caller) + 1) if in_loop else "Not in combat"
         # Turn order
-        turns = location_combat_loop[0:-1] if combat_turn else "No active combat"
+        turns = location_combat_loop[0] if combat_turn else "No active combat"
 
         if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|430Status|n", "|430Value|n",
