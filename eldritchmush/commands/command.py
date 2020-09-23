@@ -2416,11 +2416,13 @@ class CharStatus(Command):
         left_item = self.caller.db.left_slot[0] if self.caller.db.left_slot else None
         left_item_mv = left_item.db.material_value if left_item else "Empty"
 
-        # Combat turn
+        # Combat turns
+        # Callers turn
         location_combat_loop = self.caller.location.db.combat_loop
         in_loop = True if self.caller in location_combat_loop else False
         combat_turn = (location_combat_loop.index(self.caller) + 1) if in_loop else "Not in combat"
-
+        # Turn order
+        turns = f"{combatant.key}\n" for combatant in location_combat_loop if combat_turn else "No active combat"
 
         if self.target == "self" or self.target == "me" or not self.target:
             status_table = evtable.EvTable("|430Status|n", "|430Value|n",
@@ -2433,7 +2435,8 @@ class CharStatus(Command):
                         "Body",
                         "Right Item Durability",
                         "Left Item Durability",
-                        "Combat Turn"
+                        "Combat Turn",
+                        "Turn Order"
                     ],
                     [
                         self.caller.db.armor,
@@ -2443,7 +2446,8 @@ class CharStatus(Command):
                         self.caller.db.body,
                         right_item_mv,
                         left_item_mv,
-                        combat_turn
+                        combat_turn,
+                        turns
                     ]
                 ],
                 border = "cells")
