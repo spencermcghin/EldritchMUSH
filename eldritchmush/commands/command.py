@@ -604,46 +604,24 @@ class CmdEquip(Command):
                             return
                     # Check to see if right hand is empty.
                     elif not self.right_slot and (item.db.is_shield or item.db.damage):
-                        self.right_slot.append(item)
                         self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                         if item.db.is_shield:
-                            # Get vals for armor value calc
-                            armor_value = self.caller.db.armor
-                            indomitable = self.caller.db.indomitable
-                            tough = self.caller.db.tough
-                            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                            # Add them up and set the curent armor value in the database
-                            currentArmorValue = armor_value + tough + armor_specialist
-                            self.caller.db.av = currentArmorValue
-
-                            # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
-
+                            self.right_slot.append(item)
                         else:
                             # Add weapon bonus
+                            self.right_slot.append(item)
                             weapon_bonus = h.weaponValue(item.db.level)
                             self.caller.db.weapon_level = weapon_bonus
 
                     elif not self.left_slot and (item.db.is_shield or item.db.damage):
-                        self.left_slot.append(item)
                         self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
                         if item.db.is_shield:
-
-                            # Get vals for armor value calc
-                            armor_value = self.caller.db.armor
-                            indomitable = self.caller.db.indomitable
-                            tough = self.caller.db.tough
-                            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                            # Add them up and set the curent armor value in the database
-                            currentArmorValue = armor_value + tough + armor_specialist
-                            self.caller.db.av = currentArmorValue
-                            # Return armor value to console.
-                            self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
-
+                            self.left_slot.append(item)
                         else:
                             # Add weapon bonus
+                            self.left_slot.append(item)
                             weapon_bonus = h.weaponValue(item.db.level)
                             self.caller.db.weapon_level = weapon_bonus
 
