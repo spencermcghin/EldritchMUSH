@@ -247,9 +247,9 @@ class Combatant:
     def getShield(self):
         right_hand = self.getRightHand()
         left_hand = self.getLeftHand()
-        if right_hand.db.is_shield and right_hand.db.broken == False:
+        if right_hand and right_hand.db.is_shield and right_hand.db.broken == False:
             return right_hand, "right arm"
-        elif left_hand.db.is_shield and left_hand.db.broken == False:
+        elif left_hand and left_hand.db.is_shield and left_hand.db.broken == False:
             return left_hand, "left arm"
         else:
             return None, None
@@ -388,10 +388,10 @@ class Combatant:
         return Combatant(self.target)
 
     def getDamage(self):
-        if self.combatStats.get("two_handed", False):
-            return 1
-        else:
+        if self.isTwoHanded():
             return 2
+        else:
+            return 1
 
     def setAv(self, amount):
         #TODO: Should we set Max/Min?
