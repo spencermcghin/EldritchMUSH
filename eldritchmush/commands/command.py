@@ -2447,7 +2447,7 @@ class CharStatus(Command):
                         right_item_mv,
                         left_item_mv,
                         combat_turn,
-                        turns[:]
+                        turns
                     ]
                 ],
                 border = "cells")
