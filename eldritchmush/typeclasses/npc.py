@@ -992,12 +992,12 @@ class BlueSoldierBow(Npc):
         # Generate an array of possible commands.
         ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
         flat_ams_commands = [attack for groups in ams_commands for attack in groups]
-        self.msg(flat_ams_commands)
+        self.caller.location.msg_contents(flat_ams_commands)
         # Add free command to list
         flat_ams_commands.append("shoot")
         # Choose random command
         chosen_command = random.choice(flat_ams_commands)
-        self.msg(chosen_command)
+        self.caller.location.msg_contents(chosen_command)
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
