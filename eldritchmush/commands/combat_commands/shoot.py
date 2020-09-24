@@ -63,7 +63,7 @@ class CmdShoot(Command):
             if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
                 if victim.isAlive:
                     bow_penalty = 2
-                    bow_damage = 2
+                    bow_damage = 1
 
                     attack_result = combatant.rollAttack(bow_penalty)
                     shot_location = combatant.determineHitLocation(victim)
