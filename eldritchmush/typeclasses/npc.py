@@ -492,11 +492,8 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
         # helper = Helper(self)
         # combat_bank = helper.activeMartialCounter(self)
         amSkills = {
-        "stun": self.db.stun,
         "disarm": self.db.disarm,
-        "sunder": self.db.sunder,
-        "stagger": self.db.stagger,
-        "cleave": self.db.cleave
+        "stagger": self.db.stagger
         }
 
         # Generate an array of possible commands.
@@ -939,18 +936,22 @@ class BlueSoldierBow(Npc):
     def make_equipment(self):
         prototype = prototypes.search_prototype("bow", require_single=True)
         armor_prototype = prototypes.search_prototype("hardened_iron_coat_of_plates", require_single=True)
+        arrow_prototype = prototypes.search_prototype("arrows", require_single=True)
         # Get prototype data
         bow_data = prototype[0]
         armor_data = armor_prototype[0]
+        arrow_data = arrow_prototype[0]
         # Spawn item using data
         weapon_item = spawn(bow_data)
         armor_item = spawn(armor_data)
         # Move item to caller's inventory
         weapon_item[0].move_to(self, quiet=True)
         armor_item[0].move_to(self, quiet=True)
+        arrow_item[0].move_to(self, quiet=True)
         # Equip items
         self.execute_cmd('equip bow')
         self.execute_cmd('equip hardened iron coat of plates')
+        self.execute_cmd('equip arrows')
 
 
     def at_char_entered(self, character):
@@ -982,11 +983,8 @@ class BlueSoldierBow(Npc):
         # helper = Helper(self)
         # combat_bank = helper.activeMartialCounter(self)
         amSkills = {
-        "stun": self.db.stun,
         "disarm": self.db.disarm,
-        "sunder": self.db.sunder,
-        "stagger": self.db.stagger,
-        "cleave": self.db.cleave
+        "stagger": self.db.stagger
         }
 
         # Generate an array of possible commands.
