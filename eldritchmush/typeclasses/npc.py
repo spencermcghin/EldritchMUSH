@@ -905,6 +905,7 @@ class BlueSoldierBow(Npc):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
+        self.db.arrow_slot = []
         self.db.is_aggressive = False
         self.db.skip_turn = False
         self.db.archer = 1
