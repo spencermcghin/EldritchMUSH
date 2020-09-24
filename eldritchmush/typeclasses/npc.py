@@ -944,6 +944,7 @@ class BlueSoldierBow(Npc):
         # Spawn item using data
         weapon_item = spawn(bow_data)
         armor_item = spawn(armor_data)
+        arrow_item = spawn(arrow_data)
         # Move item to caller's inventory
         weapon_item[0].move_to(self, quiet=True)
         armor_item[0].move_to(self, quiet=True)
