@@ -197,6 +197,9 @@ class Command(BaseCommand):
 #                 self.character = self.caller.get_puppet(self.session)
 #             else:
 #                 self.character = None
+"""
+Utility commands
+"""
 class CmdGet(Command):
     """
     pick up something
@@ -736,7 +739,9 @@ class CmdUnequip(Command):
         else:
             self.caller.msg(f"Please be more specific.")
 
-
+"""
+Chargen Skill Setters
+"""
 class SetBlacksmith(Command):
     """Set the blacksmith level of a character
 
@@ -765,7 +770,6 @@ class SetBlacksmith(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.blacksmith = blacksmith
         self.caller.msg("|430Your Blacksmith level was set to %i.|n" % blacksmith)
-
 
 class SetArtificer(Command):
     """Set the artificer level of a character
@@ -882,7 +886,6 @@ class SetAlchemist(Command):
         self.caller.db.alchemist = alchemist
         self.caller.msg("|430Your Alchemist level was set to %i.|n" % alchemist)
 
-
 class SetTracking(Command):
     """Set the tracking of a character
 
@@ -912,8 +915,6 @@ class SetTracking(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.tracking = tracking
         self.caller.msg("|430Your Tracking was set to %i.|n" % tracking)
-
-
 
 class SetPerception(Command):
     """Set the perception of a character
@@ -945,7 +946,6 @@ class SetPerception(Command):
         self.caller.db.perception = perception
         self.caller.msg("|430Your Perception was set to %i.|n" % perception)
 
-
 class SetMasterOfArms(Command):
     """Set the tracking of a character
 
@@ -974,7 +974,6 @@ class SetMasterOfArms(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.master_of_arms = master_of_arms
         self.caller.msg("|430Your Master of Arms was set to %i.|n" % master_of_arms)
-
 
 class SetTough(Command):
     """Set the tough of a character
@@ -1019,47 +1018,6 @@ class SetTough(Command):
 
             # Return armor value to console.
             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
-
-
-class SetBody(Command):
-    """Set the body of a character
-
-    Usage: setbody <value>
-
-    This sets the body of the current character. This is available to all characters.
-    """
-
-    key = "setbody"
-    help_category = "mush"
-
-    def func(self):
-        "This performs the actual command"
-        errmsg = "|430Usage: setbody <value>|n"
-        if not self.args:
-            self.caller.msg(errmsg)
-            return
-        try:
-            body = int(self.args)
-        except ValueError:
-            self.caller.msg(errmsg)
-            return
-
-        # Error handling to keep from going below -6.
-        if body < -6:
-            self.caller.msg("|430Usage: setbody <value>|n\n|400You may not set a value lower than -6.|n")
-        elif body > 3:
-            self.caller.msg("|430Usage: setbody <value>|n\n|400You may not set a value higher than 3.|n")
-        else:
-            current_body = self.caller.db.body
-
-            # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.body = body
-            self.caller.msg("|430Your Body was set to %i.|n" % body)
-            if current_body > body:
-                damage = current_body - body
-                self.caller.location.msg_contents(f"|400{self.caller.key} takes {damage} damage to their body.|n")
-            if body == 0:
-                self.caller.location.msg_contents(f"|400{self.caller.key} is now bleeding profusely from many wounds.|n")
 
 class SetArmorSpecialist(Command):
     """Set the armor specialist property of a character
@@ -1162,7 +1120,6 @@ class SetResilience(Command):
         self.caller.db.bleed_points += resilience
         self.caller.msg("Your Resilience level was set to %i." % resilience)
 
-
 class SetResist(Command):
     """Set the resist level of a character
 
@@ -1194,7 +1151,6 @@ class SetResist(Command):
             self.caller.db.total_resist = resist
             self.caller.msg("Your resist level was set to %i." % resist)
 
-
 class SetDisarm(Command):
     """Set the disarm level of a character
 
@@ -1225,7 +1181,6 @@ class SetDisarm(Command):
         self.caller.db.disarm = disarm
         self.caller.db.total_disarm = disarm
         self.caller.msg("Your disarm level was set to %i." % disarm)
-
 
 class SetCleave(Command):
     """Set the cleave level of a character
@@ -1487,7 +1442,6 @@ class SetStun(Command):
             self.caller.db.total_stun = stun
             self.caller.msg("Your stun level was set to %i." % stun)
 
-
 class SetSunder(Command):
     """Set the stun level of a character
 
@@ -1518,7 +1472,6 @@ class SetSunder(Command):
             self.caller.db.sunder = sunder
             self.caller.db.total_sunder = sunder
             self.caller.msg("Your sunder level was set to %i." % sunder)
-
 
 class SetStagger(Command):
     """Set the stagger level of a character
