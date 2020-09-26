@@ -56,6 +56,11 @@ class CmdShoot(Command):
             combatant.message("|430Please designate an appropriate target.|n")
             return
 
+        if not victim.db.bleed_points:
+            combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
+            combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
+            return
+
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
 
@@ -74,10 +79,10 @@ class CmdShoot(Command):
                         if not victim.blocksWithShield(shot_location):
                             # Get damage result and damage for weapon type
                             victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
-                            combatant.broadcast(f"|025{combatant.name} lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
+                            combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
                         else:
                             combatant.broadcast(
-                                f"|025{combatant.name} lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
+                                f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
 
                         combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
                         # Clean up
@@ -86,5 +91,5 @@ class CmdShoot(Command):
                         loop.cleanup()
 
                 else:
-                    combatant.message(f"|400{victim.name} is dead. You only further mutiliate their body.|n")
-                    combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
+                    combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
+                    combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
