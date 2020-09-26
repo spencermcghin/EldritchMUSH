@@ -113,7 +113,7 @@ IRON_MEDIUM_WEAPON = {
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
-"material_value": 0,
+"material_value": 1,
 "required_skill": "melee_weapons",
 "level": 0,
 "damage": 1
@@ -132,7 +132,7 @@ IRON_LARGE_WEAPON = {
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
-"material_value": 0,
+"material_value": 1,
 "required_skill": "melee_weapons",
 "level": 0,
 "twohanded": True,
@@ -152,7 +152,7 @@ IRON_SHIELD = {
 "value_copper": 80,
 "value_silver": 8,
 "value_gold": .8,
-"material_value": 0,
+"material_value": 1,
 "required_skill": "shields",
 "level": 0,
 "is_shield": True
@@ -171,7 +171,7 @@ LEATHER_ARMOR = {
 "value_copper": 70,
 "value_silver": 7,
 "value_gold": .7,
-"material_value": 0,
+"material_value": 1,
 "required_skill": "armor_proficiency",
 "level": 0,
 "is_armor": True
@@ -190,7 +190,7 @@ IRON_CHAIN_SHIRT = {
 "value_copper": 70,
 "value_silver": 7,
 "value_gold": .7,
-"material_value": 0,
+"material_value": 1,
 "required_skill": "armor_proficiency",
 "level": 0,
 "is_armor": True
@@ -268,7 +268,7 @@ HARDENED_IRON_SMALL_WEAPON = {
 "value_copper": 130,
 "value_silver": 13,
 "value_gold": 1.3,
-"material_value": 1,
+"material_value": 2,
 "required_skill": "melee_weapons",
 "level": 1,
 "damage": 1
@@ -287,7 +287,7 @@ HARDENED_IRON_MEDIUM_WEAPON = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"material_value": 1,
+"material_value": 2,
 "required_skill": "melee_weapons",
 "level": 1,
 "damage": 1
@@ -306,7 +306,7 @@ HARDENED_IRON_LARGE_WEAPON = {
 "value_copper": 90,
 "value_silver": 9,
 "value_gold": .9,
-"material_value": 1,
+"material_value": 2,
 "required_skill": "melee_weapons",
 "level": 1,
 "damage": 2,
@@ -326,7 +326,7 @@ HARDENED_IRON_SHIELD = {
 "value_copper": 140,
 "value_silver": 14,
 "value_gold": 1.4,
-"material_value": 1,
+"material_value": 2,
 "required_skill": "shields",
 "level": 1,
 "is_shield": True
@@ -425,7 +425,7 @@ STEEL_SMALL_WEAPON = {
 "value_copper": 180,
 "value_silver": 18,
 "value_gold": 1.8,
-"material_value": 2,
+"material_value": 3,
 "required_skill": "melee_weapons",
 "level": 2,
 "damage": 1
@@ -444,7 +444,7 @@ STEEL_MEDIUM_WEAPON = {
 "value_copper": 230,
 "value_silver": 23,
 "value_gold": 2.3,
-"material_value": 2,
+"material_value": 3,
 "required_skill": "melee_weapons",
 "level": 2,
 "damage": 1
@@ -463,7 +463,7 @@ STEEL_LARGE_WEAPON = {
 "value_copper": 250,
 "value_silver": 25,
 "value_gold": 2.5,
-"material_value": 2,
+"material_value": 3,
 "required_skill": "melee_weapons",
 "level": 2,
 "damage": 2,
@@ -484,7 +484,7 @@ STEEL_SHIELD = {
 "value_copper": 230,
 "value_silver": 23,
 "value_gold": 2.3,
-"material_value": 2,
+"material_value": 3,
 "required_skill": "shields",
 "level": 2
 }
@@ -563,7 +563,7 @@ MASTERWORK_STEEL_SMALL_WEAPON = {
 "value_copper": 320,
 "value_silver": 32,
 "value_gold": 3.2,
-"material_value": 3,
+"material_value": 4,
 "required_skill": "melee_weapons",
 "level": 3,
 "damage": 1
@@ -582,7 +582,7 @@ MASTERWORK_STEEL_MEDIUM_WEAPON = {
 "value_copper": 390,
 "value_silver": 39,
 "value_gold": 3.9,
-"material_value": 3,
+"material_value": 4,
 "required_skill": "melee_weapons",
 "level": 3,
 "damage": 1
@@ -603,7 +603,7 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 "value_silver": 42,
 "value_gold": 4.2,
 "level": 3,
-"material_value": 3,
+"material_value": 4,
 "required_skill": "melee_weapons",
 "damage": 2,
 "twohanded": True
@@ -622,7 +622,7 @@ MASTERWORK_STEEL_SHIELD = {
 "value_copper": 350,
 "value_silver": 35,
 "value_gold": 3.8,
-"material_value": 4,
+"material_value": 5,
 "required_skill": "shields",
 "level": 3,
 "is_shield": True
