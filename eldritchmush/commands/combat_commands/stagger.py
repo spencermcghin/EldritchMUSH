@@ -62,13 +62,12 @@ class CmdStagger(Command):
                                             f"|430You have been staggered. You suffer a penalty on your next attack|n")
 
                                         if not victim.blocksWithShield(shot_location):
-                                            victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
-                                            victim.reportAv()
 
                                             if not victim.resistsAttack():
-                                                victim.stagger()
-
                                                 combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering|n {victim.name} |025out of their footing|n (|400{victim.av}|n)|025, and dealing|n (|430{combatant.getStaggerDamage()}|n) |025damage.|n")
+                                                victim.stagger()
+                                                victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
+                                                victim.reportAv()
                                             else:
                                                 combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location}|n (|400{victim.av}|n)|025, and dealing|n (|430{combatant.getStaggerDamage()}|n) |025damage.|n {victim.name} Resists being staggered by the powerful attack.|n")
 
@@ -82,7 +81,7 @@ class CmdStagger(Command):
                                                     f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} but|n {victim.name} |025manages to block with their shield,|n {victim.name} |025also Resists being staggered by the powerful attack.|n")
                                 else:
                                     combatant.message(f"{victim.name} |430is dead. You only further mutilate their body.|n")
-                                    combatant.broadcast(f"|025{combatant.name} |02further mutilates the corpse of|n {victim.name}.|n")
+                                    combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}.|n")
 
                                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                 loop.combatTurnOff(self.caller)
