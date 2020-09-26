@@ -64,31 +64,29 @@ class CmdDisarm(Command):
                                             self.caller.execute_cmd(f"strike {target.key}")
                                             return
 
-
                                         combatant.decreaseDisarms(1)
 
                                         shot_location = combatant.determineHitLocation(victim)
                                         victim.takeDamage(combatant, combatant.getDamage(), shot_location)
 
-                                        victim.reportAv()
-
                                         if not victim.resistsAttack():
                                             victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
                                             victim.disarm()
-                                            combatant.broadcast(f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms {victim.name}|n (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                            combatant.broadcast(f"{combatant.name} |025nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms|n {victim.name} (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                            victim.reportAv()
                                         else:
                                             combatant.broadcast(
-                                                f"|025{combatant.name} nimbly strikes|n (|020{attack_result}|n) |025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n. {combatant.name} attempts to disarm {victim.name}, but {victim.name} Resists the attempt")
+                                                f"{combatant.name} |025nimbly strikes|n (|020{attack_result}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n. {combatant.name} |025attempts to disarm|n {victim.name}|025, but|n {victim.name} |025Resists the attempt.|n")
 
                                     else:
-                                        combatant.broadcast(f"|025{combatant.name} swings deftly,|n (|020{attack_result}|n) |025attempting to disarm {victim.name}, but misses|n (|400{victim.av}|n)|025.|n")
+                                        combatant.broadcast(f"{combatant.name} |025swings deftly,|n (|020{attack_result}|n) |025attempting to disarm|n {victim.name}|025, but misses|n (|400{victim.av}|n)|025.|n")
                                 else:
-                                    combatant.message(f"|430{victim.name} is dead. You only further mutilate their body.|n")
-                                    combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
+                                    combatant.message(f"{victim.name} |430is dead. You only further mutilate their body.|n")
+                                    combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}.|n")
                             else:
                                 combatant.message(f"|430You cannot disarm a two-handed weapon. Please try another attack.|n")
                                 combatant.broadcast(
-                                    f"|025{combatant.name} tries to disarm {victim.name}|025, but cannot disarm a 2-handed weapon!|n")
+                                    f"{combatant.name} |025tries to disarm|n {victim.name}|025, but cannot disarm a 2-handed weapon!|n")
                             # Clean up
                             # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                             loop.combatTurnOff(self.caller)
