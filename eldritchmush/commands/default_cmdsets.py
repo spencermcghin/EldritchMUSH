@@ -119,7 +119,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdGet())
         self.add(command.CmdSmile())
         self.add(command.SetTough())
-        self.add(command.SetBody())
         self.add(command.SetWeakness())
         self.add(combat.CmdBattlefieldCommander())
         self.add(command.SetIndomitable())
