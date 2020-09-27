@@ -43,7 +43,7 @@ class CmdStagger(Command):
 
         victim = combatant.getVictim(self.target)
 
-        if not target.db.bleed_points:
+        if not self.target.db.bleed_points:
             combatant.message(f"|400{victim.name} is dead. You only further mutiliate their body.|n")
             combatant.broadcast(f"|025{combatant.name} further mutilates the corpse of {victim.name}.|n")
             return
