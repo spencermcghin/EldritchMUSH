@@ -56,7 +56,7 @@ class CmdShoot(Command):
             combatant.message("|430Please designate an appropriate target.|n")
             return
 
-        if not target.db.bleed_points:
+        if not self.target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
             return

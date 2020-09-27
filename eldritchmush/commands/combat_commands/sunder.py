@@ -39,7 +39,7 @@ class CmdSunder(Command):
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if target:
-            if not target.db.bleed_points:
+            if not self.target.db.bleed_points:
                 self.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
                 self.caller.location.msg_contents(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
                 return
