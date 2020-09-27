@@ -38,6 +38,11 @@ class CmdStun(Command):
             return
 
         # Get target if there is one
+        # Check for and error handle designated target
+        target = self.caller.search(self.target)
+
+        # Pass all checks now execute command.
+        # Use parsed args in combat loop. Handles turn order in combat.
         if not target:
             combatant.message("|430Please designate an appropriate target.|n")
             return
