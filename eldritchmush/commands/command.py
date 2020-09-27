@@ -319,7 +319,6 @@ class CmdGet(Command):
             else:
                 return
 
-
 class CmdGive(Command):
     """
     give away something to someone
@@ -439,8 +438,6 @@ class CmdGive(Command):
             target.msg("%s gives you %s." % (self.caller.key, to_give.key))
             # Call the object script's at_give() method.
             to_give.at_give(self.caller, target)
-
-
 
 class CmdEquip(Command):
     """Equip a weapon or shield
@@ -637,7 +634,6 @@ class CmdEquip(Command):
                 self.msg("|400You can't equip the same weapon twice.|n")
         else:
             self.caller.msg(f"Please be more specific.")
-
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
