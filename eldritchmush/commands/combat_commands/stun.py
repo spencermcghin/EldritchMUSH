@@ -46,7 +46,7 @@ class CmdStun(Command):
 
         victim = Combatant(target)
 
-        if not victim.db.bleed_points:
+        if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
             return
