@@ -569,7 +569,7 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.db.weapon_level = 0
         self.db.shield_value = 0
         self.db.wyldinghand = 0
-        self.db.shield = 0
+        self.db.shields = 1
         self.db.bow = 0
         self.db.activemartialskill = 1
         self.db.combat_turn = 1
