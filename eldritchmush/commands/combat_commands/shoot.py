@@ -32,7 +32,7 @@ class CmdShoot(Command):
         # Check for correct command
         # Target handling
         if not self.args:
-            self.msg("|430Usage: strike <target>|n")
+            self.msg("|430Usage: shoot <target>|n")
             return
         elif self.args == self.caller:
             self.msg("|400You can't do that.|n")
@@ -47,20 +47,21 @@ class CmdShoot(Command):
             combatant.message("|400You are all out of arrows.|n")
             return
 
-
-        victim = combatant.getVictim(self.target)
+        # Check for and error handle designated target
+        target = self.caller.search(self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
-        if not victim:
+        if not target:
             combatant.message("|430Please designate an appropriate target.|n")
             return
 
-        if not self.target.db.bleed_points:
+        if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
             return
 
+        victim = combatant.getVictim(self.target)
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
 
