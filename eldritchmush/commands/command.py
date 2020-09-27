@@ -1503,7 +1503,6 @@ class SetStagger(Command):
 """
 General commands
 """
-
 class CmdPerception(default_cmds.MuxCommand):
     """
     sets a detail on a room
@@ -1642,7 +1641,6 @@ class CmdTracking(default_cmds.MuxCommand):
             else:
                 self.caller.msg("|400Search didn't return anything.|n")
 
-
 class CmdSmile(Command):
     """
     A smile command
@@ -1681,7 +1679,6 @@ class CmdSmile(Command):
             string = f"{caller.key} smiles at {target.key}"
 
         caller.location.msg_contents(string)
-
 
 """
 Carnival commands
@@ -1728,7 +1725,6 @@ class CmdPull(Command):
             fortune = random.choice(fortuneStrings)
             self.caller.msg(fortune)
 
-
 class CmdThrow(Command):
     """
     Usage: throw dagger
@@ -1772,7 +1768,6 @@ class CmdThrow(Command):
             else:
                 self.caller.location.msg_contents(f"|230{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
-
 class CmdStart(Command):
     """
     Usage: start
@@ -1791,8 +1786,6 @@ class CmdStart(Command):
         self.caller.msg(f"|/|430Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.|n|/|230You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n|/")
         maze_foyer = self.caller.search('#449')
         self.caller.move_to(maze_foyer)
-
-
 
 class CmdPushButton(Command):
     """
@@ -1858,7 +1851,6 @@ class CmdPushButton(Command):
         # Call spawner
         ticket = spawn({"key": "A Small Paper Ticket", "desc": "|yThis is a small, rectangular slip of stained paper. On one side is the faded black and white stamp of a " + cardType + ".", "location": self.caller.location, "aliases": ["ticket", "small ticket"]})
 
-
 class CmdSwing(Command):
     """
     Usage: swing hammer
@@ -1909,10 +1901,8 @@ class CmdSwing(Command):
             else:
                 self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, well before reaching the top.|n|/")
 
-
 """
 Set Skill Related Attributes
-
 """
 class SetStabilize(Command):
     """Set the stun level of a character
@@ -1945,7 +1935,6 @@ class SetStabilize(Command):
             self.caller.db.stabilize = stabilize
             self.caller.msg(f"Your stabilize level was set to {stabilize}")
 
-
 class SetMedicine(Command):
     """Set the medicine level of a character
 
@@ -1976,7 +1965,6 @@ class SetMedicine(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.medicine = medicine
             self.caller.msg(f"Your medicine level was set to {medicine}")
-
 
 class SetBattleFieldMedicine(Command):
     """Set the battlefieldmedicine level of a character
@@ -2012,7 +2000,6 @@ class SetBattleFieldMedicine(Command):
         else:
             self.caller.msg("|400You have deactivated the battlefield medicine ability.|n")
 
-
 class SetChirurgeon(Command):
     """Activate the chirurgery ability.
 
@@ -2047,8 +2034,6 @@ class SetChirurgeon(Command):
         else:
             self.caller.msg("|400You have deactivated the chirurgeon ability.|n")
 
-
-
 """
 Knight skills
 """
@@ -2082,7 +2067,6 @@ class SetBattleFieldCommander(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.battlefieldcommander = battlefieldcommander
             self.caller.msg(f"Your battlefield commander was set to {battlefieldcommander}")
-
 
 class SetRally(Command):
     """Set the rally level of a knight character
@@ -2143,8 +2127,6 @@ class SetIndomitable(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.indomitable = indomitable
             self.caller.msg(f"Your indomitable level was set to {indomitable}")
-
-
 
 """
 Effects status commands
@@ -2482,7 +2464,6 @@ class CmdDiagnose(Command):
 
                 caller.msg(message)
 
-
 """
 General gameplay commands
 """
@@ -2652,7 +2633,6 @@ class CmdFollow(Command):
                         caller.db.isFollowing = True
                         caller.msg("|430You are now following " + target.key + "|n")
                         target.msg("|430"+ caller.key + " is now following you.|n")
-
 
 class CmdUnfollow(Command):
     """
