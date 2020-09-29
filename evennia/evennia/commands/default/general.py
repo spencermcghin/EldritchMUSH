@@ -381,8 +381,7 @@ class CmdInventory(COMMAND_DEFAULT_CLASS):
         or item in self.caller.hand_slot \
         or item in self.caller.foot_slot \
         or item in self.caller.clothing_slot \
-        or item in self.caller.cloak_slot
-        else False
+        or item in self.caller.cloak_slot else False
 
 
     def func(self):
