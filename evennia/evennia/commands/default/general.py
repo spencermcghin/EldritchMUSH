@@ -373,6 +373,18 @@ class CmdInventory(COMMAND_DEFAULT_CLASS):
     locks = "cmd:all()"
     arg_regex = r"$"
 
+    def isEquipped(self, item):
+        return "Equipped" if item in self.caller.right_slot \
+        or item in self.caller.left_slot \
+        or item in self.caller.arrow_slot \
+        or item in self.caller.body_slot \
+        or item in self.caller.hand_slot \
+        or item in self.caller.foot_slot \
+        or item in self.caller.clothing_slot \
+        or item in self.caller.cloak_slot
+        else False
+
+
     def func(self):
         """check inventory"""
         items = self.caller.contents
@@ -381,7 +393,7 @@ class CmdInventory(COMMAND_DEFAULT_CLASS):
         else:
             table = self.styled_table(border="header")
             for item in items:
-                table.add_row("|C%s|n" % item.name, item.db.desc or "")
+                table.add_row("|C%s|n" % item.name, item.db.desc or "", self.isEquipped(item) or "")
             string = "|wYou are carrying:\n%s" % table
         self.caller.msg(string)
 
