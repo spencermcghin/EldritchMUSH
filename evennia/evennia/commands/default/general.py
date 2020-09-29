@@ -374,14 +374,14 @@ class CmdInventory(COMMAND_DEFAULT_CLASS):
     arg_regex = r"$"
 
     def isEquipped(self, item):
-        return "Equipped" if item in self.caller.right_slot \
-        or item in self.caller.left_slot \
-        or item in self.caller.arrow_slot \
-        or item in self.caller.body_slot \
-        or item in self.caller.hand_slot \
-        or item in self.caller.foot_slot \
-        or item in self.caller.clothing_slot \
-        or item in self.caller.cloak_slot else False
+        return "Equipped" if item in self.caller.db.right_slot \
+        or item in self.caller.db.left_slot \
+        or item in self.caller.db.arrow_slot \
+        or item in self.caller.db.body_slot \
+        or item in self.caller.db.hand_slot \
+        or item in self.caller.db.foot_slot \
+        or item in self.caller.db.clothing_slot \
+        or item in self.caller.db.cloak_slot else False
 
 
     def func(self):
