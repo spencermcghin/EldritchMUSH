@@ -21,6 +21,7 @@ class CmdSunder(Command):
         self.target = self.args.strip()
 
     def func(self):
+        combatant = Combatant(self.caller)
 
         if not self.target:
             self.caller.msg("|430Usage: sunder <target>|n")

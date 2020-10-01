@@ -993,7 +993,6 @@ class BlueSoldierBow(Npc):
         # Generate an array of possible commands.
         ams_commands = [(command,)*value for command, value in amSkills.items() if value != 0]
         flat_ams_commands = [attack for groups in ams_commands for attack in groups]
-        self.location.msg_contents(flat_ams_commands)
         # Add free command to list
         flat_ams_commands.append("shoot")
         # Choose random command
