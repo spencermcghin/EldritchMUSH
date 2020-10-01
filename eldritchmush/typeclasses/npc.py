@@ -910,6 +910,7 @@ class BlueSoldierBow(Npc):
         self.db.skip_turn = False
         self.db.archer = 1
         self.db.armor_proficiency = 1
+        self.db.sniper = 1
 
         # Entries for following
         self.db.isLeading = False
