@@ -4,6 +4,7 @@ from world.combat_loop import CombatLoop
 from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
+from commands.combatant import Combatant
 
 class CmdSunder(Command):
     """
