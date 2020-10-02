@@ -79,7 +79,7 @@ class CmdShoot(Command):
 
                         if not victim.blocksWithShield(shot_location):
                             # Get damage result and damage for weapon type
-                            victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
+                            victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage=True)
                             combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
                         else:
                             combatant.broadcast(
