@@ -24,9 +24,9 @@ class CmdDisengage(Command):
     aliases = ["disengage", "escape", "flee"]
     help_category = "combat"
 
-    def __init__(self):
-        self.combat_loop = None
-        self.caller_index = None
+    # def __init__(self):
+    #     self.combat_loop = None
+    #     self.caller_index = None
 
     def parse(self):
         self.combat_loop = self.caller.location.db.combat_loop
