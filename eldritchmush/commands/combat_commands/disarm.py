@@ -47,7 +47,7 @@ class CmdDisarm(Command):
 
         victim = combatant.getVictim(self.target)
 
-        if not victim.isAlive:
+        if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
             return
@@ -62,6 +62,7 @@ class CmdDisarm(Command):
                     if combatant.hasDisarmsRemaining(f"|400You have 0 disarms remaining or do not have the skill.\nPlease choose another action.|n"):
                         if not combatant.inventory.hasBow() or combatant.hasSniper():
                             if not victim.hasTwoHandedWeapon():
+                                if victim.isAlive:
                                     maneuver_difficulty = 2
                                     attack_result = combatant.rollAttack(maneuver_difficulty)
                                     if attack_result >= victim.av:
@@ -87,6 +88,9 @@ class CmdDisarm(Command):
 
                                     else:
                                         combatant.broadcast(f"{combatant.name} |025swings deftly,|n (|020{attack_result}|n) |025attempting to disarm|n {victim.name}|025, but misses|n (|400{victim.av}|n)|025.|n")
+                                else:
+                                    combatant.message(f"{victim.name} |430is dead. You only further mutilate their body.|n")
+                                    combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}.|n")
                             else:
                                 combatant.message(f"|430You cannot disarm a two-handed weapon. Please try another attack.|n")
                                 combatant.broadcast(
