@@ -65,6 +65,7 @@ class CmdShoot(Command):
 
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
+
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
                 if victim.isAlive:
@@ -92,8 +93,8 @@ class CmdShoot(Command):
                         combatant.broadcast(f"|025{combatant.name} shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
                         # Clean up
                         # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                        loop.combatTurnOff(self.caller)
-                        loop.cleanup()
+                    loop.combatTurnOff(self.caller)
+                    loop.cleanup()
                 else:
                     combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
                     combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
