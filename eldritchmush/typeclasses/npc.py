@@ -692,7 +692,6 @@ class BlueMeleeSoldierOneHanded(Npc):
                 chosen_command = 'strike' if self.db.weakness else chosen_command
                 # Establish command string
                 action_string = chosen_command + ' ' + target.key
-                self.location.msg_contents(f"My chosen action string is: {action_string}")
 
         return action_string
 
@@ -855,7 +854,6 @@ class BlueMeleeSoldierTwoHanded(Npc):
                 chosen_command = 'strike' if self.db.weakness else chosen_command
                 # Establish command string
                 action_string = chosen_command + ' ' + target.key
-        self.location.msg_contents(f"My chosen action string is: {action_string}")
         return action_string
 
 class BlueSoldierBow(Npc):
