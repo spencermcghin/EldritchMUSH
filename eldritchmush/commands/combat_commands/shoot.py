@@ -38,13 +38,13 @@ class CmdShoot(Command):
             self.msg("|400You can't do that.|n")
             return
         elif combatant.cantFight:
-            combatant.broadcast("|400You are too injured to act.|n")
+            combatant.message("|400You are too injured to act.|n")
             return
         elif not combatant.inventory.hasArrowsEquipped:
-            combatant.broadcast("|430Please equip arrows to use your bow.|n")
+            combatant.message("|430Please equip arrows to use your bow.|n")
             return
         elif not combatant.inventory.hasArrowsLeft:
-            combatant.broadcast("|400You are all out of arrows.|n")
+            combatant.message("|400You are all out of arrows.|n")
             return
 
         # Check for and error handle designated target
@@ -53,7 +53,7 @@ class CmdShoot(Command):
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if not target:
-            combatant.broadcast("|430Please designate an appropriate target.|n")
+            combatant.message("|430Please designate an appropriate target.|n")
             return
 
         if not target.db.bleed_points:
