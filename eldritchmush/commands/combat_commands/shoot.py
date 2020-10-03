@@ -64,7 +64,7 @@ class CmdShoot(Command):
         victim = combatant.getVictim(self.target)
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
-
+        self.caller.location.msg_contents("Got to core logic.")
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
                 if victim.isAlive:
