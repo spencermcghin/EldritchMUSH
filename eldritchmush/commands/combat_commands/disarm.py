@@ -38,13 +38,14 @@ class CmdDisarm(Command):
 
         # Check for and error handle designated target
         target = self.caller.search(self.target)
-        victim = combatant.getVictim(self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if not target:
             combatant.message("|430Please designate an appropriate target.|n")
             return
+
+        victim = combatant.getVictim(self.target)
 
         if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
