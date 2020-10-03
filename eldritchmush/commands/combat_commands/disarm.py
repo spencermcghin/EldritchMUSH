@@ -38,6 +38,7 @@ class CmdDisarm(Command):
 
         # Check for and error handle designated target
         target = self.caller.search(self.target)
+        victim = combatant.getVictim(self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
@@ -50,7 +51,6 @@ class CmdDisarm(Command):
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
             return
 
-        victim = combatant.getVictim(self.target)
         loop = CombatLoop(combatant.caller, target)
         loop.resolveCommand()
 
