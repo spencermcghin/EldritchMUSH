@@ -56,12 +56,13 @@ class CmdShoot(Command):
             combatant.message("|430Please designate an appropriate target.|n")
             return
 
+        victim = combatant.getVictim(self.target)
+
         if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
             return
 
-        victim = combatant.getVictim(self.target)
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
