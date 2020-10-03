@@ -64,7 +64,6 @@ class CmdShoot(Command):
         victim = combatant.getVictim(self.target)
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
-        self.caller.location.msg_contents("Got to core logic.")
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
                 if victim.isAlive:
@@ -73,9 +72,9 @@ class CmdShoot(Command):
 
                     attack_result = combatant.rollAttack(bow_penalty)
                     shot_location = combatant.determineHitLocation(victim)
+                    combatant.inventory.useArrows(1)
 
                     if attack_result >= victim.av:
-                        combatant.inventory.useArrows(1)
 
                         if not victim.blocksWithShield(shot_location):
                             # Get damage result and damage for weapon type
@@ -87,11 +86,13 @@ class CmdShoot(Command):
                                 f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
 
                         combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
+
+                    else:
+                        combatant.broadcast(f"|025{combatant.name} shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
                         # Clean up
                         # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                         loop.combatTurnOff(self.caller)
                         loop.cleanup()
-
                 else:
                     combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
                     combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
