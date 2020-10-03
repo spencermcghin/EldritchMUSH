@@ -71,9 +71,8 @@ class CmdCleave(Command):
                                             combatant.decreaseCleaves(1)
                                             if not victim.resistsAttack():
                                                 skip_av_damage = True
-                                                victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
-
                                                 combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                                victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
                                             else:
                                                 combatant.broadcast(
                                                     f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n but {victim.name} |025Resists the attack with grim determination.|n")
