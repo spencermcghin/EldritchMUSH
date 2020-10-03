@@ -87,6 +87,9 @@ class CmdStagger(Command):
                                             else:
                                                 combatant.broadcast(
                                                     f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} but|n {victim.name} |025manages to block with their shield,|n {victim.name} |025also Resists being staggered by the powerful attack.|n")
+                                    else:
+                                        combatant.broadcast(f"|025{combatant.name} swings wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
+
                                 else:
                                     combatant.message(f"{victim.name} |430is dead. You only further mutilate their body.|n")
                                     combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}.|n")
