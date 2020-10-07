@@ -78,7 +78,7 @@ class CmdStagger(Command):
                                                 victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
                                                 victim.reportAv()
                                             else:
-                                                combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location}|n (|400{victim.av}|n)|025, and dealing|n (|430{combatant.getStaggerDamage()}|n) |025damage.|n {victim.name} Resists being staggered by the powerful attack.|n")
+                                                combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getStaggerDamage()}|n) |025damage.|n {victim.name} |025resists being staggered by the powerful attack.|n")
 
                                         else:
                                             if not victim.resistsAttack():
