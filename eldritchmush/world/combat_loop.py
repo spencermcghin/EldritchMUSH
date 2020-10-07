@@ -208,8 +208,8 @@ class CombatLoop:
 		combatant.location.msg_contents(statusMessage)
 		self.combatTurnOff(combatant)
 		self.cleanup()
-		
-	
+
+
 	def cleanup(self):
 		# Check for number of elements in the combat loop
 		if self.getLoopLength() > 1:
@@ -219,7 +219,7 @@ class CombatLoop:
 			nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
 
 			# Iterate through combat_loop until finding a character w/out the skip_turn flag set.
-			while nextCharacter.db.skip_turn:
+			while nextCharacter.db.skip_turn or not nextCharacter.db.bleed_points:
 				# Turn off the skip_turn flag and then try to go to the next character in the loop
 				nextCharacter.db.skip_turn = False
 				nextCharacter.location.msg_contents(f"|430{nextCharacter.key} is unable to act this round.|n")
