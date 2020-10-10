@@ -72,19 +72,19 @@ class CmdCleave(Command):
                                             combatant.decreaseCleaves(1)
                                             if not victim.resistsAttack():
                                                 skip_av_damage = True
-                                                combatant.broadcast(f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                                combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves|n {victim.name}|025's {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
                                                 victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
                                             else:
                                                 combatant.broadcast(
-                                                    f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location} but|n {victim.name} |025resists the attack with grim determination.|n")
+                                                    f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location} but|n {victim.name} |025resists the attack with grim determination.|n")
                                         else:
                                             combatant.broadcast(
-                                                f"|025{combatant.name} strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however {victim.name} manages to block the blow with their shield!|n.")
+                                                f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however |n{victim.name} |025manages to block the blow with their shield!|n.")
                                     else:
-                                        combatant.broadcast(f"|025{combatant.name} swings ferociously|n (|030{attack_result}|n) |025at {victim.name}|n (|400{victim.av}|n)|025, but misses.|n")
+                                        combatant.broadcast(f"{combatant.name} |025swings ferociously|n (|030{attack_result}|n) |025at|n {victim.name} (|400{victim.av}|n)|025, but misses.|n")
                                 else:
-                                    self.msg(f"|430{target.key} is dead. You only further mutiliate their body.|n")
-                                    combatant.location.msg_contents(f"|025{combatant.key} further mutilates the corpse of {target.key}.|n")
+                                    self.msg(f"{target.key} |430is dead. You only further mutiliate their body.|n")
+                                    combatant.location.msg_contents(f"{combatant.key} |025further mutilates the corpse of|n {target.key}|025.|n")
 
                                 # Clean up
                                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
