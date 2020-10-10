@@ -670,7 +670,6 @@ class BlueMeleeSoldierOneHanded(Npc):
         flat_ams_commands.append("strike")
         # Choose random command
         chosen_command = random.choice(flat_ams_commands)
-        self.location.msg_contents(f"My chosen command is: {chosen_command}")
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
@@ -854,6 +853,7 @@ class BlueMeleeSoldierTwoHanded(Npc):
                 chosen_command = 'strike' if self.db.weakness else chosen_command
                 # Establish command string
                 action_string = chosen_command + ' ' + target.key
+
         return action_string
 
 class BlueSoldierBow(Npc):
