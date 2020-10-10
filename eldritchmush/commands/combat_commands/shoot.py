@@ -81,7 +81,7 @@ class CmdShoot(Command):
                         if not victim.blocksWithShield(shot_location):
                             # Get damage result and damage for weapon type
                             skip_av_damage=True
-                            combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
+                            combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n) |025straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
                             victim.takeDamage(combatant, bow_damage, shot_location, skip_av_damage)
                         else:
                             combatant.broadcast(
@@ -90,7 +90,7 @@ class CmdShoot(Command):
                         combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
 
                     else:
-                        combatant.broadcast(f"|025{combatant.name} shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
+                        combatant.broadcast(f"{combatant.name} |025shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
                         # Clean up
                         # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                     loop.combatTurnOff(self.caller)
