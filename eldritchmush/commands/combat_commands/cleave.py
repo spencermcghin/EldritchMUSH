@@ -76,7 +76,7 @@ class CmdCleave(Command):
                                                 victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
                                             else:
                                                 combatant.broadcast(
-                                                    f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location} but|n {victim.name} |025resists the attack with grim determination.|n")
+                                                    f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves|n {victim.name}|025's {shot_location} but|n {victim.name} |025resists the attack with grim determination.|n")
                                         else:
                                             combatant.broadcast(
                                                 f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however |n{victim.name} |025manages to block the blow with their shield!|n.")
