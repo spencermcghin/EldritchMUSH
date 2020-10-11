@@ -77,9 +77,9 @@ class CmdDisarm(Command):
                                         shot_location = combatant.determineHitLocation(victim)
 
                                         if not victim.resistsAttack():
-                                            victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
                                             victim.disarm()
                                             combatant.broadcast(f"{combatant.name} |025nimbly strikes|n (|020{attack_result}|n) |025with a deft maneuver and disarms|n {victim.name} (|400{victim.av}|n)|025, striking them in the {shot_location} and dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                            victim.message(f"|430You have been disarmed. Your next turn will be skipped.|n")
                                             victim.takeDamage(combatant, combatant.getDamage(), shot_location)
                                             victim.reportAv()
                                         else:
@@ -100,4 +100,4 @@ class CmdDisarm(Command):
                             loop.combatTurnOff(self.caller)
                             loop.cleanup()
                         else:
-                            combatant.message(f"|430To use Disarm with a bow equipped you must have the Sniper skill|n")
+                            combatant.message(f"|430To use Disarm with a bow equipped you must have the Sniper skill.|n")

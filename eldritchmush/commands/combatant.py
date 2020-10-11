@@ -373,7 +373,6 @@ class Combatant:
         self.caller.db.skip_turn = True
 
     def disarm(self):
-        self.broadcast(f"|430Warning: Disarm not fully implemented")
         self.caller.db.skip_turn = True
 
     def stagger(self):
