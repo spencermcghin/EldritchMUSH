@@ -70,7 +70,7 @@ class CmdStagger(Command):
                                     if not victim.blocksWithShield(shot_location):
 
                                         if not victim.resistsAttack():
-                                            combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location} and staggering|n {victim.name} |025out of their footing|n (|400{victim.av}|n)|025, and dealing|n (|430{combatant.getStaggerDamage()}|n) |025damage.|n")
+                                            combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with a powerful blow to the {shot_location}, staggering|n {victim.name} |025out of their footing|n (|400{victim.av}|n)|025, and dealing|n (|430{combatant.getStaggerDamage()}|n) |025damage.|n")
                                             victim.message(f"|430You have been staggered. You suffer a penalty on your next attack.|n")
                                             victim.stagger()
                                             victim.takeDamage(combatant, combatant.getStaggerDamage(), shot_location)
