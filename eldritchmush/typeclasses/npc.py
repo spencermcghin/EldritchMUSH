@@ -854,7 +854,6 @@ class BlueMeleeSoldierTwoHanded(Npc):
                 # Establish command string
                 action_string = chosen_command + ' ' + target.key
 
-        self.location.msg_contents(f"Action String: {action_string}")
         return action_string
 
 class BlueSoldierBow(Npc):
