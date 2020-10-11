@@ -62,29 +62,24 @@ class CmdCleave(Command):
                                 f"|400You have 0 cleaves remaining or do not have the skill.\nPlease choose another action."):
                             if combatant.hasTwoHandedWeapon(
                                     f"|430Before you attack you must equip a two handed weapon using the command equip <weapon>.|n"):
-                                if victim.isAlive:
-                                    #TODO: Spence sanity check - Cleave has no difficulty?
-                                    maneuver_difficulty = 0
-                                    attack_result = combatant.rollAttack(maneuver_difficulty)
-                                    if attack_result >= victim.av:
-                                        shot_location = combatant.determineHitLocation(victim)
-                                        if not victim.blocksWithShield(shot_location):
-                                            combatant.decreaseCleaves(1)
-                                            if not victim.resistsAttack():
-                                                skip_av_damage = True
-                                                combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves|n {victim.name}|025's {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
-                                                victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
-                                            else:
-                                                combatant.broadcast(
-                                                    f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves|n {victim.name}|025's {shot_location} but|n {victim.name} |025resists the attack with grim determination.|n")
+                                maneuver_difficulty = 0
+                                attack_result = combatant.rollAttack(maneuver_difficulty)
+                                if attack_result >= victim.av:
+                                    shot_location = combatant.determineHitLocation(victim)
+                                    if not victim.blocksWithShield(shot_location):
+                                        combatant.decreaseCleaves(1)
+                                        if not victim.resistsAttack():
+                                            skip_av_damage = True
+                                            combatant.broadcast(f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves|n {victim.name}|025's {shot_location}|n (|400{victim.av}|n)|025, dealing|n (|430{combatant.getDamage()}|n) |025damage|n.")
+                                            victim.takeDamage(combatant, combatant.getDamage(), shot_location, skip_av_damage)
                                         else:
                                             combatant.broadcast(
-                                                f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however |n{victim.name} |025manages to block the blow with their shield!|n.")
+                                                f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves|n {victim.name}|025's {shot_location} but|n {victim.name} |025resists the attack with grim determination.|n")
                                     else:
-                                        combatant.broadcast(f"{combatant.name} |025swings ferociously|n (|030{attack_result}|n) |025at|n {victim.name} (|400{victim.av}|n)|025, but misses.|n")
+                                        combatant.broadcast(
+                                            f"{combatant.name} |025strikes|n (|020{attack_result}|n) |025with great ferocity and cleaves {victim.name}'s {shot_location}|n (|400{victim.av}|n)|025, however |n{victim.name} |025manages to block the blow with their shield!|n.")
                                 else:
-                                    self.msg(f"{target.key} |430is dead. You only further mutiliate their body.|n")
-                                    combatant.location.msg_contents(f"{combatant.key} |025further mutilates the corpse of|n {target.key}|025.|n")
+                                    combatant.broadcast(f"{combatant.name} |025swings ferociously|n (|030{attack_result}|n) |025at|n {victim.name} (|400{victim.av}|n)|025, but misses.|n")
 
                                 # Clean up
                                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
