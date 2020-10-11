@@ -222,7 +222,7 @@ class CombatLoop:
 			while nextCharacter.db.skip_turn or not nextCharacter.db.bleed_points:
 				# Turn off the skip_turn flag and then try to go to the next character in the loop
 				nextCharacter.db.skip_turn = False
-				nextCharacter.location.msg_contents(f"|430{nextCharacter.key} is unable to act this round.|n")
+				nextCharacter.location.msg_contents(f"{nextCharacter.key} |430is unable to act this round.|n")
 				try:
 					# Try going to the next character based on the character that had skip_turn active
 					nextTurn = self.combat_loop.index(nextCharacter) + 1
@@ -271,10 +271,10 @@ class CombatLoop:
 								# If character target, attack a random one.
 								nextCharacter.at_char_entered(random_target)
 							else:
-								nextCharacter.location.msg_contents(f"|025{nextCharacter.key} has nothing to attack with.|n")
+								nextCharacter.location.msg_contents(f"{nextCharacter.key} |025has nothing to attack with.|n")
 								nextCharacter.execute_cmd("disengage")
 						else:
-							nextCharacter.location.msg_contents(f"|300{nextCharacter.key} is too injured to act.|n")
+							nextCharacter.location.msg_contents(f"{nextCharacter.key} |300is too injured to act.|n")
 							nextCharacter.execute_cmd("skip")
 					else:
 						nextCharacter.location.msg_contents(f"|430There are no possible targets.|n")
