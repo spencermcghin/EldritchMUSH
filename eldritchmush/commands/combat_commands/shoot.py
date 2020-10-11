@@ -68,33 +68,29 @@ class CmdShoot(Command):
 
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
-                if victim.isAlive:
-                    bow_penalty = 2
-                    bow_damage = 1
+                bow_penalty = 2
+                bow_damage = 1
 
-                    attack_result = combatant.rollAttack(bow_penalty)
-                    shot_location = combatant.determineHitLocation(victim)
-                    combatant.inventory.useArrows(1)
+                attack_result = combatant.rollAttack(bow_penalty)
+                shot_location = combatant.determineHitLocation(victim)
+                combatant.inventory.useArrows(1)
 
-                    if attack_result >= victim.av:
+                if attack_result >= victim.av:
 
-                        if not victim.blocksWithShield(shot_location):
-                            # Get damage result and damage for weapon type
-                            skip_av_damage=True
-                            combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n) |025straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
-                            victim.takeDamage(combatant, bow_damage, shot_location, skip_av_damage)
-                        else:
-                            combatant.broadcast(
-                                f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
-
-                        combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
-
+                    if not victim.blocksWithShield(shot_location):
+                        # Get damage result and damage for weapon type
+                        skip_av_damage=True
+                        combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n) |025straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
+                        victim.takeDamage(combatant, bow_damage, shot_location, skip_av_damage)
                     else:
-                        combatant.broadcast(f"{combatant.name} |025shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
-                        # Clean up
-                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                    loop.combatTurnOff(self.caller)
-                    loop.cleanup()
+                        combatant.broadcast(
+                            f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
+
+                    combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
+
                 else:
-                    combatant.message(f"{victim.name} |400is dead. You only further mutiliate their body.|n")
-                    combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
+                    combatant.broadcast(f"{combatant.name} |025shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
+                    # Clean up
+                    # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                loop.combatTurnOff(self.caller)
+                loop.cleanup()
