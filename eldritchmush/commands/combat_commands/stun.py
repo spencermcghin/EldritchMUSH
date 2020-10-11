@@ -62,18 +62,14 @@ class CmdStun(Command):
             if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):
                 if combatant.hasStunsRemaining(f"|400You have 0 stuns remaining or do not have the skill.\nPlease choose another action.|n"):
                     if not combatant.hasWeakness(f"|400You are too weak to use this attack.|n"):
-                        if victim.isAlive:
-                            maneuver_difficulty = 1
-                            attack_result = combatant.rollAttack(maneuver_difficulty)
-                            if attack_result >= victim.av:
-                                victim.stun()
-                                combatant.decreaseStuns(1)
-                                combatant.broadcast(f"{combatant.name} |025lines up behind|n {victim.name} |025and strikes|n (|020{attack_result}|n)|025, stunning them momentarily|n (|400{victim.av}|n)|025.|n")
-                            else:
-                                combatant.broadcast(f"{combatant.name} (|020{attack_result}|n) |025lines up behind|n {victim.name} (|400{victim.av}|n)|025, but misses their opportunity to stun them.|n")
+                        maneuver_difficulty = 1
+                        attack_result = combatant.rollAttack(maneuver_difficulty)
+                        if attack_result >= victim.av:
+                            victim.stun()
+                            combatant.decreaseStuns(1)
+                            combatant.broadcast(f"{combatant.name} |025lines up behind|n {victim.name} |025and strikes|n (|020{attack_result}|n)|025, stunning them momentarily|n (|400{victim.av}|n)|025.|n")
                         else:
-                            combatant.message(f"{victim.name} |400is dead. You only further mutilate their body.|n")
-                            combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}.|n")
+                            combatant.broadcast(f"{combatant.name} (|020{attack_result}|n) |025lines up behind|n {victim.name} (|400{victim.av}|n)|025, but misses their opportunity to stun them.|n")
 
                         # Clean up
                         # Set self.caller's combat_turn to 0. Can no longer use combat commands.
