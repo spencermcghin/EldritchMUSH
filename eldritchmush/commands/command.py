@@ -2342,9 +2342,9 @@ class CharStatus(Command):
 
         # Make item objects for printing
         # Right and left hand objects
-        right_item = self.caller.db.right_slot[0] if self.caller.db.right_slot else None
+        right_item = self.caller.db.right_slot[0] if self.caller.db.right_slot else ''
         right_item_mv = right_item.db.material_value if right_item else "Empty"
-        left_item = self.caller.db.left_slot[0] if self.caller.db.left_slot else None
+        left_item = self.caller.db.left_slot[0] if self.caller.db.left_slot else ''
         left_item_mv = left_item.db.material_value if left_item else "Empty"
 
         # Combat turns
