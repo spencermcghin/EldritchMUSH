@@ -75,12 +75,12 @@ class CmdSunder(Command):
                     shot_location = h.shotFinder(target.db.targetArray)
 
                     # Do all the checks
-                      if sundersRemaining > 0:
+                    if sundersRemaining > 0:
                         if not combat_stats.get("weakness", 0):
                             if attack_result >= target.db.av:
 
-                                # Check target left and right slots for items. Decrement material value from right and then left.
-                                # If no more items, subtract damage as normal.
+                            # Check target left and right slots for items. Decrement material value from right and then left.
+                            # If no more items, subtract damage as normal.
                                 if target_stats.get("right_slot", ''):
                                     # Get item and material value for right slot.
                                     right_item = self.caller.search(target.db.right_slot[0], location=target)
@@ -134,14 +134,14 @@ class CmdSunder(Command):
                                     else:
                                         h.deathSubtractor(damage, target, self.caller)
 
-                                # Decrement amount of cleaves from amount in database
-                                self.caller.db.sunder -= 1
-                            else:
-                                self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
-                            # Clean up
-                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                            loop.combatTurnOff(self.caller)
-                            loop.cleanup()
+                            # Decrement amount of cleaves from amount in database
+                            self.caller.db.sunder -= 1
+                        else:
+                            self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
+                        # Clean up
+                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                        loop.combatTurnOff(self.caller)
+                        loop.cleanup()
                     else:
                         self.caller.msg("|430You are too weak to use this attack.|n")
                 else:
