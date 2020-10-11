@@ -63,14 +63,14 @@ class CmdSunder(Command):
             left_hand_item = combat_stats.get("left_slot", '')
             sundersRemaining = self.caller.db.sunder
 
-            if right_hand_item and right_hand_item == left_hand_item:
+            if right_hand_item and (right_hand_item == left_hand_item):
                 if sundersRemaining > 0:
 
                     die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
 
                     # Get damage result and damage for weapon type
                     attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)
-                    damage = 2 if combat_stats.get("two_handed", False) else 1
+                        damage = 2 if combat_stats.get("two_handed", False) else 1
                     target_av = target.db.av
                     shot_location = h.shotFinder(target.db.targetArray)
 
@@ -79,8 +79,8 @@ class CmdSunder(Command):
                         if not combat_stats.get("weakness", 0):
                             if attack_result >= target.db.av:
 
-                            # Check target left and right slots for items. Decrement material value from right and then left.
-                            # If no more items, subtract damage as normal.
+                                # Check target left and right slots for items. Decrement material value from right and then left.
+                                # If no more items, subtract damage as normal.
                                 if target_stats.get("right_slot", ''):
                                     # Get item and material value for right slot.
                                     right_item = self.caller.search(target.db.right_slot[0], location=target)
@@ -134,21 +134,21 @@ class CmdSunder(Command):
                                     else:
                                         h.deathSubtractor(damage, target, self.caller)
 
-                            # Decrement amount of cleaves from amount in database
-                            self.caller.db.sunder -= 1
+                                # Decrement amount of cleaves from amount in database
+                                self.caller.db.sunder -= 1
+                            else:
+                                self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
+                            # Clean up
+                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                loop.combatTurnOff(self.caller)
+                            loop.cleanup()
                         else:
-                            self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
-                        # Clean up
-                        # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-                        loop.combatTurnOff(self.caller)
-                        loop.cleanup()
+                            self.caller.msg("|430You are too weak to use this attack.|n")
                     else:
-                        self.caller.msg("|430You are too weak to use this attack.|n")
+                        self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
                 else:
-                    self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
+                    self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
+                    return
             else:
-                self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
+                self.msg("|430You need to wait until it is your turn before you are able to act.|n")
                 return
-        else:
-            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
-            return
