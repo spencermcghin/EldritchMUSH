@@ -137,7 +137,7 @@ class GreenMeleeSoldierOneHanded(Npc):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
 
@@ -299,7 +299,7 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
 
@@ -466,7 +466,7 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage or item.db.is_bow]
 
@@ -630,7 +630,7 @@ class BlueMeleeSoldierOneHanded(Npc):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
 
@@ -792,7 +792,7 @@ class BlueMeleeSoldierTwoHanded(Npc):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage]
 
@@ -960,7 +960,7 @@ class BlueSoldierBow(Npc):
     def at_char_entered(self, character):
         # Do stuff to equip your character
         # Choose a random command and run it
-        if self.db.is_aggressive and self.db.bleed_points:
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             inventory = self.contents
             weapons = [item for item in inventory if item.db.damage or item.db.is_bow]
 
