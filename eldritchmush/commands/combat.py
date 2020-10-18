@@ -6,6 +6,7 @@ from evennia import Command
 from evennia import CmdSet
 from evennia import default_cmds, utils, create_script
 from evennia.utils import evtable
+from typeclasses import npc
 from commands import command
 from world.combat_loop import CombatLoop
 
