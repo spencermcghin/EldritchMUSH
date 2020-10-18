@@ -366,7 +366,7 @@ class CmdTargets(Command):
 
             table = self.styled_table(border="header")
             for enemy in enemies:
-                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "", self.isBleeding(enemy.name), self.isDying(enemy.name))
+                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "", self.isBleeding(enemy), self.isDying(enemy))
             string = "|430Current Targets:|n\n%s" % table
             self.caller.msg(string)
 
