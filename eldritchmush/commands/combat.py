@@ -4,8 +4,8 @@ import random
 # Local imports
 from evennia import Command
 from evennia import CmdSet
-from evennia import default_cmds
-from evennia import create_script
+from evennia import default_cmds, utils, create_script
+from evennia.utils import evtable
 from commands import command
 from world.combat_loop import CombatLoop
 
@@ -311,7 +311,7 @@ class Helper():
                        "disarm_penalty": 2,
                        "stagger_penalty": 2,
                        "stagger_damage": 2,
-                       "bow_damage": 2,
+                       "bow_damage": 1,
                        "stun_penalty": 1}
 
         return melee_stats
@@ -325,6 +325,44 @@ class Helper():
             die_result = self.masterOfArms(master_of_arms)
 
         return die_result
+
+"""
+General Combat Commands
+"""
+class CmdTargets(Command):
+    """
+    Lists current possible targets and their general status per the look command.
+
+    Usage:
+      targets
+
+    Logic:
+    1. Check to see if in combat loop for location.
+    2. Else broadcast not in combat message.
+    3. If in combat, get turn order, enemy names, and their general status.
+
+
+    """
+    key = "targets"
+    aliases = ["combat targets", "enemies"]
+    help_category = "combat"
+
+    def parse(self):
+        self.combat_loop = self.caller.location.db.combat_loop
+
+    def func(self):
+        # Check to see if caller is in combat loop:
+        if self.caller in self.combat_loop:
+            enemies = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
+
+            table = self.styled_table(border="header")
+            for enemy in enemies:
+                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "")
+            string = "|430Current Targets:|n\n%s" % table
+            self.caller.msg(string)
+
+        else:
+            self.msg(f"|400You are not part of any combat for {self.caller.location}.|n")
 
 
 """
