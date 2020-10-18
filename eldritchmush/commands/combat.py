@@ -357,7 +357,7 @@ class CmdTargets(Command):
 
     def isDying(self, character):
         isDying = True if not self.caller.db.bleed_points and not self.caller.db.body else False
-        return f"\n{self.key} |025has succumbed to their injuries and is now unconscious.|n" if isDying else ""
+        return f"\n{character.name} |025has succumbed to their injuries and is now unconscious.|n" if isDying else ""
 
     def func(self):
         # Check to see if caller is in combat loop:
