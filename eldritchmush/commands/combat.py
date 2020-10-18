@@ -355,10 +355,12 @@ class CmdTargets(Command):
         # Check to see if caller is in combat loop:
         if self.caller in self.combat_loop:
             enemies = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
+            isBleeding = True if not self.caller.db.body and self.caller.db.bleed_points else False
+            isDying = True if not self.caller.db.bleed_points and not self.caller.db.body else False
 
             table = self.styled_table(border="header")
             for enemy in enemies:
-                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "")
+                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "", f"\n{enemy.name} |025is bleeding profusely from mutliple, serious wounds.|n" if isBleeding else "", f"\n{enemy.name} |025has succumbed to their injuries and is now unconscious.|n" if isDying else "")
             string = "|430Current Targets:|n\n%s" % table
             self.caller.msg(string)
 
