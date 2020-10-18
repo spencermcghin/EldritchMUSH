@@ -351,16 +351,22 @@ class CmdTargets(Command):
     def parse(self):
         self.combat_loop = self.caller.location.db.combat_loop
 
+    def isBleeding(self, character):
+        isBleeding = True if not self.caller.db.body and self.caller.db.bleed_points else False
+        return f"\n{character.name} |025is bleeding profusely from mutliple, serious wounds.|n" if isBleeding else ""
+
+    def isDying(self, character):
+        isDying = True if not self.caller.db.bleed_points and not self.caller.db.body else False
+        return f"\n{self.key} |025has succumbed to their injuries and is now unconscious.|n" if isDying else ""
+
     def func(self):
         # Check to see if caller is in combat loop:
         if self.caller in self.combat_loop:
             enemies = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
-            isBleeding = True if not self.caller.db.body and self.caller.db.bleed_points else False
-            isDying = True if not self.caller.db.bleed_points and not self.caller.db.body else False
 
             table = self.styled_table(border="header")
             for enemy in enemies:
-                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "", f"\n{enemy.name} |025is bleeding profusely from mutliple, serious wounds.|n" if isBleeding else "", f"\n{enemy.name} |025has succumbed to their injuries and is now unconscious.|n" if isDying else "")
+                table.add_row("|C%s|n" % enemy.name, enemy.db.desc or "", self.isBleeding(enemy.name), self.isDying(enemy.name))
             string = "|430Current Targets:|n\n%s" % table
             self.caller.msg(string)
 
