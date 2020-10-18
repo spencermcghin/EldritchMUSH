@@ -352,11 +352,11 @@ class CmdTargets(Command):
         self.combat_loop = self.caller.location.db.combat_loop
 
     def isBleeding(self, character):
-        isBleeding = True if not self.caller.db.body and self.caller.db.bleed_points else False
+        isBleeding = True if not character.db.body and character.db.bleed_points else False
         return f"\n{character.name} |025is bleeding profusely from mutliple, serious wounds.|n" if isBleeding else ""
 
     def isDying(self, character):
-        isDying = True if not self.caller.db.bleed_points and not self.caller.db.body else False
+        isDying = True if not character.db.bleed_points and not character.db.body else False
         return f"\n{character.name} |025has succumbed to their injuries and is now unconscious.|n" if isDying else ""
 
     def func(self):
