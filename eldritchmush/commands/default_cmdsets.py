@@ -137,6 +137,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdFollowStatus())
         self.add(command.CmdPatch())
         self.add(medicine.CmdMedicine())
+        self.add(combat.CmdTargets())
 
 #### Special command sets
 
