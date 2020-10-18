@@ -2373,7 +2373,7 @@ class CharStatus(Command):
                         "Resist",
                         "Right Item Durability",
                         "Left Item Durability",
-                        "Combat Turn",
+                        "Combat Order",
                         "Current Turn"
                     ],
                     [
