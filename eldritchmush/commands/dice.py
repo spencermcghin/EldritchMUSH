@@ -136,7 +136,7 @@ class CmdDice(default_cmds.MuxCommand):
         """Mostly parsing for calling the dice roller function"""
 
         if not self.args:
-            self.caller.msg("Usage: @dice <nr>d<sides> [modifier] [conditional]")
+            self.caller.msg("|430Usage: @dice <nr>d<sides> [modifier] [conditional]|n")
             return
         argstring = "".join(str(arg) for arg in self.args)
 
@@ -146,17 +146,14 @@ class CmdDice(default_cmds.MuxCommand):
         conditional = None
 
         if len_parts < 3 or parts[1] != "d":
-            self.caller.msg(
-                "You must specify the die roll(s) as <nr>d<sides>."
-                " For example, 2d6 means rolling a 6-sided die 2 times."
-            )
+            self.caller.msg("|430You must specify the die roll(s) as <nr>d<sides>.\nFor example, 2d6 means rolling a 6-sided die 2 times.|n")
             return
 
         # Limit the number of dice and sides a character can roll to prevent server slow down and crashes
         ndicelimit = 10000  # Maximum number of dice
         nsidelimit = 10000  # Maximum number of sides
         if int(parts[0]) > ndicelimit or int(parts[2]) > nsidelimit:
-            self.caller.msg("The maximum roll allowed is %sd%s." % (ndicelimit, nsidelimit))
+            self.caller.msg("|430The maximum roll allowed is %sd%s.|n" % (ndicelimit, nsidelimit))
             return
 
         ndice, nsides = parts[0], parts[2]
@@ -175,7 +172,7 @@ class CmdDice(default_cmds.MuxCommand):
             conditional = (parts[5], parts[6])
         else:
             # error
-            self.caller.msg("You must specify a valid die roll")
+            self.caller.msg("|430You must specify a valid die roll.|n")
             return
         # do the roll
         try:
@@ -183,10 +180,7 @@ class CmdDice(default_cmds.MuxCommand):
                 ndice, nsides, modifier=modifier, conditional=conditional, return_tuple=True
             )
         except ValueError:
-            self.caller.msg(
-                "You need to enter valid integer numbers, modifiers and operators."
-                " |w%s|n was not understood." % self.args
-            )
+            self.caller.msg("|430You need to enter valid integer numbers, modifiers and operators.\n|w%s|n was not understood.|n" % self.args)
             return
         # format output
         if len(rolls) > 1:
@@ -208,23 +202,23 @@ class CmdDice(default_cmds.MuxCommand):
             string = yourollstring % (argstring, " (secret, not echoed)")
             string += "\n" + resultstring % (rolls, result)
             string += outcomestring + " (not echoed)"
-            self.caller.msg(string)
+            self.caller.msg("|430" + string + "|n")
         elif "hidden" in self.switches:
             # announce the roll to the room, result only to caller
             string = yourollstring % (argstring, " (hidden)")
-            self.caller.msg(string)
+            self.caller.msg("|430" + string + "|n")
             string = roomrollstring % (self.caller.key, argstring, " (hidden)")
-            self.caller.location.msg_contents(string, exclude=self.caller)
+            self.caller.location.msg_contents("|025" + string + "|n", exclude=self.caller)
             # handle result
             string = resultstring % (rolls, result)
             string += outcomestring + " (not echoed)"
-            self.caller.msg(string)
+            self.caller.msg("|430" + string + "|n")
         else:
             # normal roll
             string = yourollstring % (argstring, "")
-            self.caller.msg(string)
+            self.caller.msg("|430" + string + "|n")
             string = roomrollstring % (self.caller.key, argstring, "")
-            self.caller.location.msg_contents(string, exclude=self.caller)
+            self.caller.location.msg_contents("|025" + string + "|n", exclude=self.caller)
             string = resultstring % (rolls, result)
             string += outcomestring
-            self.caller.location.msg_contents(string)
+            self.caller.msg("|430" + string + "|n")

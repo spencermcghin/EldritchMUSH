@@ -36,7 +36,7 @@ class CmdCreateNPC(Command):
                       location=caller.location,
                       locks="edit:id(%i) and perm(Builders);call:false()" % caller.id)
         # announce
-        message = "%s created the NPC '%s'."
+        message = "|430%s created the NPC '%s'.|n"
         caller.msg(message % ("You", name))
 
 
@@ -101,13 +101,13 @@ class CmdEditNPC(Command):
                              "chirurgeon")
 
         if not self.args or not self.name:
-            caller.msg("Usage: editnpc name[/propname][=propval]")
+            caller.msg("|430Usage: editnpc name[/propname][=propval]|n")
             return
         npc = self.caller.search(self.name)
         if not npc:
             return
         if not npc.access(self.caller, "edit"):
-            self.caller.msg("|300You cannot change this NPC.|n")
+            self.caller.msg("|430You cannot change this NPC.|n")
             return
         if not self.propname:
             # this means we just list the values
@@ -115,16 +115,16 @@ class CmdEditNPC(Command):
             for propname in allowed_propnames:
                 propvalue = npc.attributes.get(propname, default="N/A")
                 output += "\n %s = %s" % (propname, propvalue)
-            self.caller.msg(output)
+            self.caller.msg("|430" + output + "|n")
         elif self.propname not in allowed_propnames:
-            self.caller.msg("You may only change %s." %
+            self.caller.msg("|430You may only change %s.|n" %
                               ", ".join(allowed_propnames))
         elif self.propval:
             # assigning a new propvalue
             # in this example, the properties are all integers...
             intpropval = int(self.propval)
             npc.attributes.add(self.propname, intpropval)
-            self.caller.msg("Set %s's property '%s' to %s" %
+            self.caller.msg("|430Set %s's property '%s' to %s|n" %
                          (npc.key, self.propname, self.propval))
 
             # if stat is part of total armor value update it
@@ -146,7 +146,7 @@ class CmdEditNPC(Command):
 
         else:
             # propname set, but not propval - show current value
-            caller.msg("%s has property %s = %s" %
+            caller.msg("|430%s has property %s = %s|n" %
                          (npc.key, self.propname,
                           npc.attributes.get(self.propname, default="N/A")))
 
@@ -183,7 +183,7 @@ class CmdNPC(Command):
         if not npc:
             return
         if not npc.access(caller, "edit"):
-            caller.msg("|300You may not order this NPC to do anything.|n")
+            caller.msg("|430You may not order this NPC to do anything.|n")
             return
         # send the command order
         npc.execute_cmd(self.cmdname, sessid=self.caller.sessid)

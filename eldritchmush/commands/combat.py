@@ -27,7 +27,7 @@ class Helper():
             target = self.caller.search(target)
 
         except:
-            self.caller.msg(f"|300No such target, {target}, or target not legal.|n")
+            self.caller.msg(f"|430No such target, {target}, or target not legal.|n")
             return
 
         else:
@@ -168,7 +168,7 @@ class Helper():
                 damage = 0
                 target.db.weakness = 1
 
-            target.msg("|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
+            target.msg("|400You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
             target.location.msg_contents(f"|025{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
 
 
@@ -181,7 +181,7 @@ class Helper():
                 target.db.death_points = death_damage
                 damage = 0
 
-            target.msg("|300You are unconscious and can no longer move of your own volition.|n")
+            target.msg("|400You are unconscious and can no longer move of your own volition.|n")
             target.location.msg_contents(f"|025{target.key} does not seem to be moving.|n")
 
         else:
@@ -353,11 +353,11 @@ class CmdTargets(Command):
 
     def isBleeding(self, character):
         isBleeding = True if not character.db.body and character.db.bleed_points else False
-        return f"{character.name} |025is bleeding profusely from mutliple, serious wounds.|n" if isBleeding else ""
+        return f"{character.name} |430is bleeding profusely from mutliple, serious wounds.|n" if isBleeding else ""
 
     def isDying(self, character):
         isDying = True if not character.db.bleed_points and not character.db.body else False
-        return f"{character.name} |025has succumbed to their injuries and is now unconscious.|n" if isDying else ""
+        return f"{character.name} |430has succumbed to their injuries and is now unconscious.|n" if isDying else ""
 
     def func(self):
         # Check to see if caller is in combat loop:
@@ -371,7 +371,7 @@ class CmdTargets(Command):
             self.caller.msg(string)
 
         else:
-            self.msg(f"|400You are not part of any combat for {self.caller.location}.|n")
+            self.msg(f"|430You are not part of any combat for {self.caller.location}.|n")
 
 
 """

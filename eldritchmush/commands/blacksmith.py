@@ -23,11 +23,11 @@ class CmdForge(Command):
         self.item = self.args.strip()
 
     def func(self):
-        use_err_msg = "|540Usage: forge <item>|n"
+        use_err_msg = "|430Usage: forge <item>|n"
 
         # Do all checks
         if not self.caller.db.blacksmith:
-            self.msg("|400You are not trained in how to properly utilze a forge. Please find a blacksmith.|n")
+            self.msg("|430You are not trained in how to properly utilze a forge. Please find a blacksmith.|n")
             return
 
         if not self.item:
@@ -38,7 +38,7 @@ class CmdForge(Command):
         try:
             prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
-            self.msg("Item not found, or more than one match. Please try again.")
+            self.msg("|430Item not found, or more than one match. Please try again.|n")
         else:
             # Get search response
             prototype_data = prototype[0]
@@ -70,7 +70,7 @@ class CmdForge(Command):
             # Check that all conditions in above list are true.
 
             if all(requirements_checker) or self.caller.is_superuser:
-                self.msg(f"You forge a {self.item}")
+                self.msg(f"|430You forge a {self.item}|n")
                 # Get required resources and decrement from player totals.
                 self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
                 self.caller.db.refined_wood -= item_requirements["refined_wood"]
@@ -81,4 +81,4 @@ class CmdForge(Command):
                 blacksmith_item[0].move_to(self.caller, quiet=True)
 
             else:
-                self.msg(f"|400You don't have the required resources.|n")
+                self.msg(f"|430You don't have the required resources.|n")

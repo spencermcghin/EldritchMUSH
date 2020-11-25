@@ -34,7 +34,7 @@ class CmdCraft(Command):
         elif self.caller.db.gunsmith:
             pass
         else:
-            self.msg(f"|400You don't have the proper skills to create a {self.item}.|n")
+            self.msg(f"|430You don't have the proper skills to create a {self.item}.|n")
             return
 
         use_err_msg = "|430Usage: craft <item>|n"
@@ -66,7 +66,7 @@ class CmdCraft(Command):
                 return
 
             if kit_uses <= 0 and (craft_source == kit_type):
-                self.msg(f"|400Your {kit} is out of uses.|n")
+                self.msg(f"|430Your {kit} is out of uses.|n")
                 return
 
             # Passed checks. Make item.
@@ -111,7 +111,7 @@ class CmdCraft(Command):
                     kit.db.uses -= 1
 
                 else:
-                    self.msg(f"|400You don't have the required resources.|n")
+                    self.msg(f"|430You don't have the required resources.|n")
             else:
                 self.msg(f"|430Please equip the correct kit before attempting to craft your item.|n")
                 return
@@ -137,7 +137,7 @@ class CmdRepair(Command):
         elif self.caller.db.gunsmith:
             pass
         else:
-            self.msg(f"|400You don't have the proper skills to repair a {self.item}.|n")
+            self.msg(f"|430You don't have the proper skills to repair a {self.item}.|n")
             return
 
         use_err_msg = "|430Usage: repair <item>|n"
@@ -175,7 +175,7 @@ class CmdRepair(Command):
                 if item_data[9][0] == "material_value":
                     material_value = item_data[9][1]
                 else:
-                    self.msg(f"{item.key} cannot be repaired.")
+                    self.msg(f"|430{item.key} cannot be repaired.|n")
                     return
 
                 if craft_source in ("blacksmith", "bowyer", "gunsmith"):
@@ -187,7 +187,7 @@ class CmdRepair(Command):
                     item.db.broken = False
                     item.db.patched = False
                     item.db.material_value = material_value
-                    self.msg(f"You repair the {item}.")
+                    self.msg(f"|430You repair the {item}.|n")
                 else:
                     self.msg("|430You cannot repair this item|n.")
             else:
