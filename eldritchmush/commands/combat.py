@@ -469,30 +469,3 @@ class CmdRally(Command):
 
         # Return armor value to console.
         character.msg(f"|430You feel less afraid. Your courage and resolve have been restored.|n")
-
-
-class CmdRally(Command):
-    """
-    Usage: rally <speech>
-
-    Use the rally command followed by a speech to remove a fear effect from those in the room.
-    """
-    key = "rally"
-    help_category = "combat"
-
-    def parse(self):
-        "Very trivial parser"
-        self.speech = self.args.strip()
-
-    def func(self):
-        if not self.args:
-            self.caller.msg("|430Usage: rally <speech>|n")
-            return
-
-        rallyRemaining = self.caller.db.rally
-
-        if rallyRemaining > 0:
-            self.caller.location.msg_contents(f"|025{self.caller.key} shouts so all can hear,|n |300{self.speech}|n.\n|430Everyone in the room now feels unafraid. Cancel the fear effect.|n")
-            self.caller.db.rally -= 1
-        else:
-            self.caller.msg("|300You have no uses of your rally ability remaining or do not have the skill.|n")
