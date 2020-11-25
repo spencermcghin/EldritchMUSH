@@ -402,9 +402,9 @@ class CmdBattlefieldCommander(Command):
 
             # self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n {self.speech}|025.|n")
             # self.caller.db.battlefieldcommander -= 1
+        characters = []
         room_contents = self.caller.location.contents
-        characters = [character for utils.inherits_from(character, Character) in room_contents]
-        self.msg(characters)
+        self.msg(room_contents)
 
         # else:
         #     self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
