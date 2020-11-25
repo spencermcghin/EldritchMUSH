@@ -243,13 +243,13 @@ class CmdGet(Command):
         """
 
         if not self.args or not self.target:
-            self.caller.msg("|430Usage: get <qty> <object> from <target> or get <object>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.")
+            self.caller.msg("|430Usage: get <qty> <object> from <target> or get <object>\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.|n")
             return
 
         target = self.caller.search(self.target, location=self.caller.location)
 
         if target == self.caller:
-            self.caller.msg(f"You keep {self.item} to yourself.")
+            self.caller.msg(f"|430You keep {self.item} to yourself.|n")
             return
 
         resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
@@ -288,13 +288,13 @@ class CmdGet(Command):
                         if target.db.get_err_msg:
                             self.msg(target.db.get_err_msg)
                         else:
-                            self.msg("|400You can't get that.|n")
+                            self.msg("|430You can't get that.|n")
                         return
 
                     elif (target_attribute.value - self.qty) < 0:
-                        self.msg("|400You can't get that amount.|n")
+                        self.msg("|430You can't get that amount.|n")
                     else:
-                        self.msg(f"You get {self.qty} {self.item} from the {target}")
+                        self.msg(f"|430You get {self.qty} {self.item} from the {target}|n")
                         target_attribute.value -= self.qty
                         caller_item_qty.value += self.qty
         else:
@@ -304,7 +304,7 @@ class CmdGet(Command):
                     if target.db.get_err_msg:
                         self.msg(target.db.get_err_msg)
                     else:
-                        self.msg("|400You can't get that.|n")
+                        self.msg("|430You can't get that.|n")
                     return
 
                 # calling at_before_get hook method
@@ -312,7 +312,7 @@ class CmdGet(Command):
                     return
 
                 target.move_to(self.caller, quiet=True)
-                self.caller.msg("You pick up %s." % target.name)
+                self.caller.msg("|430You pick up %s.|n" % target.name)
                 self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
                 # calling at_get hook method
                 target.at_get(self.caller)
@@ -360,13 +360,13 @@ class CmdGive(Command):
 
         # Get target and target handling
         if not self.args or not self.target:
-            self.caller.msg("|430Usage: give <qty> <inventory object> to <target>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: give 5 gold to Tom.")
+            self.caller.msg("|430Usage: give <qty> <inventory object> to <target>\nNote - Quantity of an item is optional and only works on reosources or currency - ex: give 5 gold to Tom.|n")
             return
 
         target = self.caller.search(self.target)
 
         if target == self.caller:
-            self.caller.msg(f"You keep {self.item} to yourself.")
+            self.caller.msg(f"|430You keep {self.item} to yourself.|n")
             return
 
         """
@@ -406,10 +406,10 @@ class CmdGive(Command):
                 else:
                     attribute.value -= self.qty
                     target_attribute.value += self.qty
-                    self.msg(f"You give {self.qty} {self.item} to {self.target}")
-                    self.msg(f"You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.")
+                    self.msg(f"|430You give {self.qty} {self.item} to {self.target}|n")
+                    self.msg(f"|430You have {self.caller.attributes.get(item_db_key[0])} {self.item} left.|n")
             else:
-                self.msg(f"|400You don't have enough {self.item}.|n")
+                self.msg(f"|430You don't have enough {self.item}.|n")
 
         else:
 
@@ -418,14 +418,14 @@ class CmdGive(Command):
                 self.item,
                 location=self.caller,
                 nofound_string=f"|430You aren't carrying a {self.item}. If you want to give resources or currency please specify a quantity before the item. Ex: give 1 gold to Tom.|n" ,
-                multimatch_string=f"|430You carry more than one {self.item}|n:" ,
+                multimatch_string=f"|430You carry more than one {self.item}:|n" ,
             )
 
             if not (to_give and target):
                 return
 
             if not to_give.location == self.caller:
-                caller.msg("You are not holding %s." % to_give.key)
+                caller.msg("|430You are not holding %s.|n" % to_give.key)
                 return
 
             # calling at_before_give hook method
@@ -433,9 +433,9 @@ class CmdGive(Command):
                 return
 
             # give object
-            self.caller.msg("You give %s to %s." % (to_give.key, target.key))
+            self.caller.msg("|430You give %s to %s.|n" % (to_give.key, target.key))
             to_give.move_to(target, quiet=True)
-            target.msg("%s gives you %s." % (self.caller.key, to_give.key))
+            target.msg("|430%s gives you %s.|n" % (self.caller.key, to_give.key))
             # Call the object script's at_give() method.
             to_give.at_give(self.caller, target)
 
@@ -485,19 +485,19 @@ class CmdEquip(Command):
                 required_skill = item_data[indexOfRequired][1]
 
                 if required_skill == "gunner" and not self.caller.db.gunner:
-                    self.msg(f"You lack the skill in Firearms to use {item.key}.")
+                    self.msg(f"|430You lack the skill in Firearms to use {item.key}.|n")
                     return
                 elif required_skill == "archer" and not self.caller.db.archer:
-                    self.msg(f"You lack the skill in Archery to use {item.key}.")
+                    self.msg(f"|430You lack the skill in Archery to use {item.key}.|n")
                     return
                 elif required_skill == "shields" and not self.caller.db.shields:
-                    self.msg(f"You lack the skill in Shields to use {item.key}.")
+                    self.msg(f"|430You lack the skill in Shields to use {item.key}.|n")
                     return
                 elif required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
-                    self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
+                    self.msg(f"|430You lack the skill in Melee Weapons to use {item.key}.|n")
                     return
                 elif required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
-                    self.msg(f"You lack the skill in Armor to use {item.key}.")
+                    self.msg(f"|430You lack the skill in Armor to use {item.key}.|n")
                     return
 
             # Equip gloves and add resists
@@ -508,7 +508,7 @@ class CmdEquip(Command):
                 if item.db.resist > 0:
                     self.caller.db.resist += item.db.resist
 
-                self.msg(f"You don {item.key}.")
+                self.msg(f"|430You don {item.key}.|n")
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
             # Equip boots and add resists
@@ -519,26 +519,26 @@ class CmdEquip(Command):
                 if item.db.resist:
                     self.caller.db.resist += item.db.resist
 
-                self.msg(f"You don {item.key}.")
+                self.msg(f"|430You don {item.key}.|n")
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
 
             # Equip kit. Corresponding skill should reference the number of uses left.
             elif item.db.kit_slot and not self.caller.db.kit_slot:
                 self.caller.db.kit_slot.append(item)
 
-                self.msg(f"You equip a {item.key} with {item.db.uses} uses left.")
+                self.msg(f"|430You equip a {item.key} with {item.db.uses} uses left.|n")
 
             # Equip arrows. Corresponding skill should reference the number of uses left.
             elif item.db.arrow_slot and not self.caller.db.arrow_slot:
                 self.caller.db.arrow_slot.append(item)
 
-                self.msg(f"You equip a quiver with {item.db.quantity} arrows left.")
+                self.msg(f"|430You equip a quiver with {item.db.quantity} arrows left.|n")
 
             # Equip arrows. Corresponding skill should reference the number of uses left.
             elif item.db.bullet_slot and not self.caller.db.bullet_slot:
                 self.caller.db.bullet_slot.append(item)
 
-                self.msg(f"You equip a bundle of {item.db.quantity} bullets.")
+                self.msg(f"|430You equip a bundle of {item.db.quantity} bullets.|n")
 
             # Equip clothing. Add to character's influential skill.
             elif item.db.clothing_slot and not self.caller.db.clothing_slot:
@@ -547,7 +547,7 @@ class CmdEquip(Command):
                 if item.db.influential:
                     self.caller.db.influential += item.db.influential
 
-                self.msg(f"You put on the {item.key}.")
+                self.msg(f"|430You put on the {item.key}.|n")
 
             # Equip clothing. Add to character's influential skill.
             elif item.db.cloak_slot and not self.caller.db.cloak_slot:
@@ -556,7 +556,7 @@ class CmdEquip(Command):
                 if item.db.espionage:
                     self.caller.db.espionage += item.db.espionage
 
-                self.msg(f"You put on the {item.key}.")
+                self.msg(f"|430You put on the {item.key}.|n")
 
             # Equip armor
             elif item.db.is_armor and not self.caller.db.body_slot:
@@ -567,7 +567,7 @@ class CmdEquip(Command):
                 if item.db.material_value > 0 and self.caller.db.indomitable:
                     self.caller.db.armor += self.caller.db.indomitable
 
-                self.msg(f"You don {item.key}.")
+                self.msg(f"|430You don {item.key}.|n")
                 self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
 
                 # Get vals for armor value calc
@@ -598,7 +598,7 @@ class CmdEquip(Command):
 
                             # Send some messages
                             self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
-                            self.caller.msg(f"You have equipped your {item.key}")
+                            self.caller.msg(f"|430You have equipped your {item.key}|n")
                         else:
                             self.caller.msg(f"|430You can't equip the {item} unless you first unequip something.|n")
                             return
@@ -629,11 +629,11 @@ class CmdEquip(Command):
                         self.caller.msg("|430You are already carrying an item in that slot.|n")
                         return
                 else:
-                    self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
+                    self.caller.msg(f"|430{item} is broken and may not be equipped.|n")
             else:
-                self.msg("|400You can't equip the same weapon twice.|n")
+                self.msg("|430You can't equip the same weapon twice.|n")
         else:
-            self.caller.msg(f"Please be more specific.")
+            self.caller.msg(f"|430Please be more specific.|n")
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
@@ -731,9 +731,9 @@ class CmdUnequip(Command):
                 self.caller.msg(f"|430You aren't carrying a {item}.|n")
                 return
 
-            self.caller.msg(f"You have unequipped your {item}.")
+            self.caller.msg(f"|430You have unequipped your {item}.|n")
         else:
-            self.caller.msg(f"Please be more specific.")
+            self.caller.msg(f"|430Please be more specific.|n")
 
 """
 Chargen Skill Setters
@@ -809,7 +809,7 @@ class SetBowyer(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setbowyer <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setbowyer <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -838,7 +838,7 @@ class SetGunsmith(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setgunsmith <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setgunsmith <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -866,7 +866,7 @@ class SetAlchemist(Command):
     help_category = "mush"
 
     def func(self):
-        errmsg = "|430Usage: setalchemist <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setalchemist <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -896,7 +896,7 @@ class SetTracking(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: settracking <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: settracking <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -926,7 +926,7 @@ class SetPerception(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setperception <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setperception <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -955,7 +955,7 @@ class SetMasterOfArms(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setmasterofarms <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setmasterofarms <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -984,7 +984,7 @@ class SetTough(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: settough <value>|n\n|400You must supply a number 0 or greater.|n"
+        errmsg = "|430Usage: settough <value>\nYou must supply a number 0 or greater.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1029,7 +1029,7 @@ class SetArmorSpecialist(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setarmorspecialist <0 or 1>|n\n|400You must supply a value between 0 and 1.|n"
+        errmsg = "|430Usage: setarmorspecialist <0 or 1>\nYou must supply a value between 0 and 1.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1071,7 +1071,7 @@ class SetWyldingHand(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setwyldinghand <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setwyldinghand <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1085,7 +1085,7 @@ class SetWyldingHand(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.wyldinghand = wyldinghand
-            self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
+            self.caller.msg(f"|430Your level of Wylding Hand was set to {wyldinghand}|n")
 
 class SetResilience(Command):
     """Set the resilience level of a character
@@ -1114,7 +1114,7 @@ class SetResilience(Command):
         self.caller.db.resilience = resilience
         # Add one point to total bleed points per level.
         self.caller.db.bleed_points += resilience
-        self.caller.msg("Your Resilience level was set to %i." % resilience)
+        self.caller.msg("|430Your Resilience level was set to %i.|n" % resilience)
 
 class SetResist(Command):
     """Set the resist level of a character
@@ -1145,7 +1145,7 @@ class SetResist(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.resist = resist
             self.caller.db.total_resist = resist
-            self.caller.msg("Your resist level was set to %i." % resist)
+            self.caller.msg("|430Your resist level was set to %i.|n" % resist)
 
 class SetDisarm(Command):
     """Set the disarm level of a character
@@ -1176,7 +1176,7 @@ class SetDisarm(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.disarm = disarm
         self.caller.db.total_disarm = disarm
-        self.caller.msg("Your disarm level was set to %i." % disarm)
+        self.caller.msg("|430Your disarm level was set to %i.|n" % disarm)
 
 class SetCleave(Command):
     """Set the cleave level of a character
@@ -1207,7 +1207,7 @@ class SetCleave(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.cleave = cleave
             self.caller.db.total_cleave = cleave
-            self.caller.msg("Your cleave level was set to %i." % cleave)
+            self.caller.msg("|430Your cleave level was set to %i.|n" % cleave)
 
 class SetGunner(Command):
     """Set the Gunner level of a character
@@ -1240,7 +1240,7 @@ class SetGunner(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.gunner = gunner
 
-        self.caller.msg("Your Gunner level was set to %i." % gunner)
+        self.caller.msg("|430Your Gunner level was set to %i.|n" % gunner)
 
 class SetSniper(Command):
     """Set the Sniper level of a character
@@ -1273,7 +1273,7 @@ class SetSniper(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.sniper = sniper
 
-        self.caller.msg("Your Sniper level was set to %i." % sniper)
+        self.caller.msg("|430Your Sniper level was set to %i.|n" % sniper)
 
 class SetArcher(Command):
     """Set the Archer level of a character
@@ -1306,7 +1306,7 @@ class SetArcher(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.archer = archer
 
-        self.caller.msg("Your Archer level was set to %i." % archer)
+        self.caller.msg("|430Your Archer level was set to %i.|n" % archer)
 
 class SetShields(Command):
     """Set the Shields level of a character
@@ -1339,7 +1339,7 @@ class SetShields(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.shields = shields
 
-        self.caller.msg("Your Shields level was set to %i." % shields)
+        self.caller.msg("|430Your Shields level was set to %i.|n" % shields)
 
 class SetMeleeWeapons(Command):
     """Set the Melee Weapons level of a character
@@ -1372,7 +1372,7 @@ class SetMeleeWeapons(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.melee_weapons = meleeweapons
 
-        self.caller.msg("Your Melee Weapons level was set to %i." % meleeweapons)
+        self.caller.msg("|430Your Melee Weapons level was set to %i.|n" % meleeweapons)
 
 class SetArmorProficiency(Command):
     """Set the Melee Weapons level of a character
@@ -1405,7 +1405,7 @@ class SetArmorProficiency(Command):
         # at this point the argument is tested as valid. Let's set it.
         self.caller.db.armor_proficiency = armorproficiency
 
-        self.caller.msg("Your Armor Proficiency level was set to %i." % armorproficiency)
+        self.caller.msg("|430Your Armor Proficiency level was set to %i.|n" % armorproficiency)
 
 class SetStun(Command):
     """Set the stun level of a character
@@ -1436,7 +1436,7 @@ class SetStun(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.stun = stun
             self.caller.db.total_stun = stun
-            self.caller.msg("Your stun level was set to %i." % stun)
+            self.caller.msg("|430Your stun level was set to %i.|n" % stun)
 
 class SetSunder(Command):
     """Set the stun level of a character
@@ -1467,7 +1467,7 @@ class SetSunder(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.sunder = sunder
             self.caller.db.total_sunder = sunder
-            self.caller.msg("Your sunder level was set to %i." % sunder)
+            self.caller.msg("|430Your sunder level was set to %i.|n" % sunder)
 
 class SetStagger(Command):
     """Set the stagger level of a character
@@ -1498,7 +1498,7 @@ class SetStagger(Command):
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.stagger = stagger
             self.caller.db.total_stagger = stagger
-            self.caller.msg("Your stagger level was set to %i." % stagger)
+            self.caller.msg("|430Your stagger level was set to %i.|n" % stagger)
 
 """
 General commands
@@ -1531,7 +1531,7 @@ class CmdPerception(default_cmds.MuxCommand):
         """
         # No args error handler
         if not self.args or not self.rhs:
-            self.caller.msg("Usage: @perception level key = description")
+            self.caller.msg("|430Usage: @perception level key = description|n")
             return
 
         # Get level of perception
@@ -1764,9 +1764,9 @@ class CmdThrow(Command):
                 # If the caller has not done this before, they should get a result from the random ticket chance.
                 # Check the database to make sure that the jester ticket hasn't been chosen yet.
                 # If a player gets the random jester ticket from this booth, it should log the entry in the database and not allow it to be generated again.
-                self.caller.location.msg_contents(f"|230{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield striking true.|n")
             else:
-                self.caller.location.msg_contents(f"|230{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
+                self.caller.location.msg_contents(f"|025{self.caller.key} picks up a dagger from the table, takes aim, and hurls the dagger downfield wide of the target.|n")
 
 class CmdStart(Command):
     """
@@ -1783,7 +1783,7 @@ class CmdStart(Command):
         # If not found return a default fortune string
 
         # Generate throw result
-        self.caller.msg(f"|/|430Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.|n|/|230You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n|/")
+        self.caller.msg(f"|/|430\"Giving up so soon, {self.caller.name}? You were doing so well. Be sure to try again soon.\"|/You notice a door open up where before there was none. Stepping through it, you find yourself back in the foyer of the strange maze.|n")
         maze_foyer = self.caller.search('#449')
         self.caller.move_to(maze_foyer)
 
@@ -1811,8 +1811,8 @@ class CmdPushButton(Command):
         hasWinner = self.obj.db.hasWinner
 
         # Commands to generate tickets
-        button_emote = f"|230{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
-        get_ticket_emote = "|430A ticket pops up from a small slit in the top of the box.|n\n|430Use the |nget ticket|430 command to pick it up|n\n|430Use the |nlook ticket|430 command to examine it.|n"
+        button_emote = f"|025{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        get_ticket_emote = "|430A ticket pops up from a small slit in the top of the box.\nUse the \"get ticket\" command to pick it up\nUse the \"look ticket\" command to examine it.|n"
 
         # If the player has already pressed the button on this particular box, nothing happens.
         if self.caller in self.obj.db.characters:
@@ -1841,8 +1841,8 @@ class CmdPushButton(Command):
 
     def dropCard(self, cardType):
         # Commands to generate tickets
-        button_emote = f"|230{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
-        get_ticket_emote = "|430A ticket pops up from a small slit in the top of the box.|n\n|430Use the |nget ticket|430 command to pick it up|n\n|430Use the |nlook ticket|430 command to examine it.|n"
+        button_emote = f"|025{self.caller} pushes the button. After a brief pause, a ticket pops up from a small slit on the top of the box.|n"
+        get_ticket_emote = "|430A ticket pops up from a small slit in the top of the box.\nUse the \"get ticket\" command to pick it up\nUse the \"look ticket\" command to examine it.|n"
 
         # Drop a ticket object with a skull description
         self.caller.msg(get_ticket_emote)
@@ -1893,13 +1893,13 @@ class CmdSwing(Command):
             return
         else:
             if die_result > (target_dc * 2):
-                self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board, sending the metal pin up and up, until it hits the rusty bell. The sound it makes is a rather anti-climatic, hollow clang.|n|/")
+                self.caller.location.msg_contents(f"|/|025{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board, sending the metal pin up and up, until it hits the rusty bell. The sound it makes is a rather anti-climatic, hollow clang.|n|/")
 
             elif die_result == target_dc:
-                self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, just before reaching the top.|n|/")
+                self.caller.location.msg_contents(f"|/|025{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, just before reaching the top.|n|/")
 
             else:
-                self.caller.location.msg_contents(f"|/|230{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, well before reaching the top.|n|/")
+                self.caller.location.msg_contents(f"|/|025{self.caller.key} picks up the hammer, hoists it over their head and brings it down upon the heavy wooden board. The metal pin climbs up towards the rusty bell but falls short, well before reaching the top.|n|/")
 
 """
 Set Skill Related Attributes
@@ -1918,7 +1918,7 @@ class SetStabilize(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setstabilize <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setstabilize <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1933,7 +1933,7 @@ class SetStabilize(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.stabilize = stabilize
-            self.caller.msg(f"Your stabilize level was set to {stabilize}")
+            self.caller.msg(f"|430Your stabilize level was set to {stabilize}|n")
 
 class SetMedicine(Command):
     """Set the medicine level of a character
@@ -1949,7 +1949,7 @@ class SetMedicine(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setmedicine <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setmedicine <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -1964,7 +1964,7 @@ class SetMedicine(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.medicine = medicine
-            self.caller.msg(f"Your medicine level was set to {medicine}")
+            self.caller.msg(f"|430Your medicine level was set to {medicine}|n")
 
 class SetBattleFieldMedicine(Command):
     """Set the battlefieldmedicine level of a character
@@ -1996,9 +1996,9 @@ class SetBattleFieldMedicine(Command):
         self.caller.db.battlefieldmedicine = battlefieldmedicine
 
         if battlefieldmedicine:
-            self.caller.msg("|030You have activated the battlefield medicine ability.|n")
+            self.caller.msg("|430You have activated the battlefield medicine ability.|n")
         else:
-            self.caller.msg("|400You have deactivated the battlefield medicine ability.|n")
+            self.caller.msg("|430You have deactivated the battlefield medicine ability.|n")
 
 class SetChirurgeon(Command):
     """Activate the chirurgery ability.
@@ -2030,9 +2030,9 @@ class SetChirurgeon(Command):
         self.caller.db.chirurgeon = chirurgeon
 
         if chirurgeon:
-            self.caller.msg("|030You have activated the chirurgeon ability.|n")
+            self.caller.msg("|430You have activated the chirurgeon ability.|n")
         else:
-            self.caller.msg("|400You have deactivated the chirurgeon ability.|n")
+            self.caller.msg("|430You have deactivated the chirurgeon ability.|n")
 
 """
 Knight skills
@@ -2066,7 +2066,7 @@ class SetBattleFieldCommander(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.battlefieldcommander = battlefieldcommander
-            self.caller.msg(f"Your battlefield commander was set to {battlefieldcommander}")
+            self.caller.msg(f"|430Your battlefield commander was set to {battlefieldcommander}|n")
 
 class SetRally(Command):
     """Set the rally level of a knight character
@@ -2082,7 +2082,7 @@ class SetRally(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setrally <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setrally <0-3>\nYou must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -2096,7 +2096,7 @@ class SetRally(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.rally = rally
-            self.caller.msg(f"Your rally was set to {rally}")
+            self.caller.msg(f"|430Your rally was set to {rally}|n")
 
 class SetIndomitable(Command):
     """Set the indomitable level of a knight character
@@ -2126,7 +2126,7 @@ class SetIndomitable(Command):
         else:
             # at this point the argument is tested as valid. Let's set it.
             self.caller.db.indomitable = indomitable
-            self.caller.msg(f"Your indomitable level was set to {indomitable}")
+            self.caller.msg(f"|430Your indomitable level was set to {indomitable}|n")
 
 """
 Effects status commands
@@ -2143,7 +2143,7 @@ class SetWeakness(Command):
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setweakness <0/1>|n\n|400You must supply a number of either 0 or 1.|n"
+        errmsg = "|430Usage: setweakness <0/1>\nYou must supply a number of either 0 or 1.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
@@ -2399,7 +2399,7 @@ class CharStatus(Command):
             status_table.reformat_column(1, width=15, align="c")
             self.caller.msg(status_table)
         else:
-            self.caller.msg("|430Usage: charstatus|n\n|400You can only see your own character status.|n")
+            self.caller.msg("|430Usage: charstatus\nYou can only see your own character status.|n")
 
 class CmdDiagnose(Command):
     """
@@ -2425,7 +2425,7 @@ class CmdDiagnose(Command):
             death_points = caller.db.death_points
 
             if body >= 3:
-                message += "|230You are in tiptop shape!|n"
+                message += "|030You are in tiptop shape!|n"
             elif 0 < body < 3:
                 message += "|430You're a little roughed up and bruised, but not bleeding. It might be worth looking for someone versed in medicine before you go looking for a fight.|n"
             elif body <= 0 and bleed_points:
@@ -2440,7 +2440,7 @@ class CmdDiagnose(Command):
         else:
             target = caller.search(self.target)
             if not target:
-                caller.msg("|430Usage: diagnose <target>|n\n|400Your target wasn't found. Please try again.|n")
+                caller.msg("|430Usage: diagnose <target>\nYour target wasn't found. Please try again.|n")
 
             elif not caller.db.medicine:
                 caller.msg("|430Sorry, but you don't have the Medicine skill so you can't diagnose other characters.|n")
@@ -2452,7 +2452,7 @@ class CmdDiagnose(Command):
                 target_death_points = target.db.death_points
 
                 if target_body >= 3:
-                    message += "|230" + target.key + " is in tiptop shape and doesn't need any healing.|n"
+                    message += "|030" + target.key + " is in tiptop shape and doesn't need any healing.|n"
                 elif 0 < target_body < 3:
                     message += "|430" + target.key + " is a little roughed up and bruised, but not bleeding. They could use some tending before heading into a fight.|n"
                 elif target_body <= 0 and target_bleed_points:
@@ -2507,12 +2507,12 @@ class CmdPatch(Command):
         # Search for item in char inventory
         inv_item = self.caller.search(self.item,
                                       location=self.caller,
-                                      nofound_string=f"|400{self.item} not found.|n",
+                                      nofound_string=f"|430{self.item} not found.|n",
                                       multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
         patch_kit = self.caller.search("1-patch kit",
                                        location=self.caller,
-                                       nofound_string="You are not carrying any patch kits.",
+                                       nofound_string="|430You are not carrying any patch kits.|n",
                                        multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
         if inv_item and patch_kit:
@@ -2520,13 +2520,13 @@ class CmdPatch(Command):
             try:
                 prototype = prototypes.search_prototype(prototyped_string, require_single=True)
             except KeyError:
-                self.msg("This item cannot be patched or you have entered an incorrect spelling.")
+                self.msg("|430This item cannot be patched or you have entered an incorrect spelling.|n")
             else:
                 # Get prototype attributes
                 item_attrs = prototype[0]["attrs"]
                 # Check if the item has been patched already.
                 if inv_item.db.patched:
-                    self.msg(f"{inv_item} has been patched already. You will have to take it to a blacksmith to be repaired.")
+                    self.msg(f"|430{inv_item} has been patched already. You will have to take it to a blacksmith to be repaired.|n")
                     return
                 # Material value should always be 9th element in attrs array.
                 item_material_value = item_attrs[9][1]
@@ -2538,9 +2538,9 @@ class CmdPatch(Command):
                     inv_item.db.patched = True
                     inv_item.db.broken = False
                     patch_kit.delete()
-                    self.msg(f"You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.")
+                    self.msg(f"|430You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.|n")
                 else:
-                    self.msg(f"Your {inv_item} is not in need of repair.")
+                    self.msg(f"|430Your {inv_item} is not in need of repair.|n")
         else:
             return
 
@@ -2564,17 +2564,17 @@ class CmdFollow(Command):
 
         # If the character attempts to call follow on themselves...
         if self.target == "self" or self.target == "me":
-            caller.msg("|430Usage: follow <target>|n\n|400You can't follow yourself. Please select a different target.|n")
+            caller.msg("|430Usage: follow <target>\nYou can't follow yourself. Please select a different target.|n")
 
         # If they didn't specify a target...
         elif not self.target:
-            caller.msg("|430Usage: follow <target>|n\n|400Please specify a target for the follow command.|n")
+            caller.msg("|430Usage: follow <target>\nPlease specify a target for the follow command.|n")
 
         elif caller.db.in_combat:
-            caller.msg("|430Usage: follow <target>|n\n|400You are currently in combat and cannot follow another character.|n")
+            caller.msg("|430Usage: follow <target>\nYou are currently in combat and cannot follow another character.|n")
 
         elif caller.db.body <= 0:
-            caller.msg("|430Usage: follow <target>|n\n|400You are currently too weak to move beyond your immediate surroundings, and thus cannot follow another character out of here. You must seek medical attention.|n")
+            caller.msg("|430Usage: follow <target>\nYou are currently too weak to move beyond your immediate surroundings, and thus cannot follow another character out of here. You must seek medical attention.|n")
 
         # If their isFollowing attribute is already set to true...
         elif caller.db.isFollowing == True:
@@ -2582,11 +2582,11 @@ class CmdFollow(Command):
             # If their leader attribute is blank, there must have been an issue. Set their isFollowing attribue to False and tell
             # them to start over.
             if (caller.db.leader == []):
-                caller.msg("|430Usage: follow <target>|n\n|400It appears you may have already been following someone, but the original target was lost. Try executing the follow command on your new target again.|n")
+                caller.msg("|430Usage: follow <target>\nIt appears you may have already been following someone, but the original target was lost. Try executing the follow command on your new target again.|n")
                 caller.db.isFollowing = False
             # Otherwise, let them know they are already following someone.
             else:
-                caller.msg("|430Usage: follow <target>|n\n|400You're already following " + caller.db.leader.key + ". Unfollow them first, then follow a new leader.|n")
+                caller.msg("|430Usage: follow <target>\nYou're already following " + caller.db.leader.key + ". Unfollow them first, then follow a new leader.|n")
 
         # If all is well...
         else:
@@ -2601,14 +2601,14 @@ class CmdFollow(Command):
 
             # If the target wasn't found within the room they are in...
             if not target:
-                caller.msg("|430Usage: follow <target>|n\n|400Your target wasn't found within your vicinity. You must be in the same area as your target.|n")
+                caller.msg("|430Usage: follow <target>\nYour target wasn't found within your vicinity. You must be in the same area as your target.|n")
             else:
                 # First try to find the target within the follower's followers array (is the leader already following you?)
                 try:
                     leaderIndex = caller.db.followers.index(target)
 
                     # If the leader is already following the character, then they cannot follow them; the leader must unfollow them first.
-                    caller.msg("|430Usage: follow <target>|n\n|400" + target.key + " is following you, which means that you cannot follow them. Ask them to unfollow you first, then try again.|n")
+                    caller.msg("|430Usage: follow <target>\n" + target.key + " is following you, which means that you cannot follow them. Ask them to unfollow you first, then try again.|n")
 
                 # If the leader is not following them, then try adding them to the leader's followers array.
                 except ValueError:
@@ -2619,7 +2619,7 @@ class CmdFollow(Command):
                         # If they were found in the target's follower array, then they were already following them.
                         # Set the caller's leader attribute to the target key, and the isFollowing attribute to True.
                         if followerIndex:
-                            caller.msg("|430Usage: follow <target>|n\n|400You are already following " + target.key + ".|n")
+                            caller.msg("|430Usage: follow <target>\nYou are already following " + target.key + ".|n")
                             caller.db.leader = target
                             caller.db.isFollowing = True
 
@@ -2660,11 +2660,11 @@ class CmdUnfollow(Command):
 
         # If the character attempts to call unfollow on themselves...
         if self.target == "self" or self.target == "me":
-            caller.msg("|430Usage: unfollow <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
+            caller.msg("|430Usage: unfollow <target>\nYou can't unfollow yourself. Please select a different target.|n")
 
         # If they didn't specify a target...
         elif not self.target:
-            caller.msg("|430Usage: unfollow <target>|n\n|400Please specify a target for the unfollow command.|n")
+            caller.msg("|430Usage: unfollow <target>\nPlease specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
         elif caller.db.isFollowing == False:
@@ -2691,11 +2691,11 @@ class CmdUnfollow(Command):
 
                 # Else, the user should be told that they were not following the selected target
                 else:
-                    caller.msg("|430Usage: unfollow <target>|n\n|400It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
+                    caller.msg("|430Usage: unfollow <target>\nIt appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
 
             # Otherwise, let them know they were not following anyone to begin with.
             else:
-                caller.msg("|430Usage: unfollow <target>|n\n|400You weren't following anyone. If you think this is an error, you can try unfollowforce <target> to ensure you are removed as a follower from another character.|n")
+                caller.msg("|430Usage: unfollow <target>\nYou weren't following anyone. If you think this is an error, you can try unfollowforce <target> to ensure you are removed as a follower from another character.|n")
 
         # If all is well...
         else:
@@ -2710,9 +2710,9 @@ class CmdUnfollow(Command):
 
             # If the target wasn't found in the game...
             if not target:
-                caller.msg("|430Usage: unfollow <target>|n\n|400Your target wasn't found. Please try again. For this command, you may need to be explicit. For example, if you are trying to unfollow 'Balthazar Bordello', you may need to type out his full name and not just 'Balthazar'.|n")
+                caller.msg("|430Usage: unfollow <target>\nYour target wasn't found. Please try again. For this command, you may need to be explicit. For example, if you are trying to unfollow 'Balthazar Bordello', you may need to type out his full name and not just 'Balthazar'.|n")
             elif (caller.db.leader != target):
-                caller.msg("|430Usage: unfollow <target>|n\n|400It appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
+                caller.msg("|430Usage: unfollow <target>\nIt appears that you were following " + caller.db.leader.key + " and not " + target.key + ". Try unfollowing the former. If you think that there is an error, you can try unfollowforce <target> with the original target you specified.|n")
             else:
                 try:
                     # Attempt to remove the follower from the leader's followers array.
@@ -2760,11 +2760,11 @@ class CmdUnfollowForce(Command):
 
         # If the character attempts to call unfollowforce on themselves...
         if self.target == "self" or self.target == "me":
-            caller.msg("|430Usage: unfollowforce <target>|n\n|400You can't unfollow yourself. Please select a different target.|n")
+            caller.msg("|430Usage: unfollowforce <target>\nYou can't unfollow yourself. Please select a different target.|n")
 
         # If they didn't specify a target...
         elif not self.target:
-            caller.msg("|430Usage: unfollowforce <target>|n\n|400Please specify a target for the unfollow command.|n")
+            caller.msg("|430Usage: unfollowforce <target>\nPlease specify a target for the unfollow command.|n")
 
         # If their isFollowing attribute is already set to false...
         else:
@@ -2841,7 +2841,7 @@ class CmdFollowStatus(Command):
             self.caller.msg(status_table)
             self.caller.msg(follower_table)
         else:
-            self.caller.msg("|430Usage: followstatus|n\n|400You can only see your own follow status.|n")
+            self.caller.msg("|430Usage: followstatus\nYou can only see your own follow status.|n")
 
 """
 Random Encounter Commands
@@ -2880,9 +2880,9 @@ class CmdTouchAltar(Command):
                 return
 
             if target == self.caller:
-                self.caller.msg(f"|400{self.caller}, you can't do that!|n")
+                self.caller.msg(f"|430{self.caller}, you can't do that!|n")
                 return
 
             message = random.choice(self.ALTAR_STRINGS)
-            self.caller.location.msg_contents(f"|/|230{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
+            self.caller.location.msg_contents(f"|/|025{self.caller} approaches the altar, putting their hand on top of the smooth stone...|n|/")
             self.caller.msg(message)
