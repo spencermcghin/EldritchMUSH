@@ -405,7 +405,7 @@ class CmdBattlefieldCommander(Command):
         room_contents = self.caller.location.contents
         characters = [character for character in room_contents if character.has_account]
         update_tough = [character.db.tough + 1 for character in characters]
-        self.msg(character_objects)
+        self.msg(characters)
 
         # else:
         #     self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
