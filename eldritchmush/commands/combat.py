@@ -2,13 +2,12 @@
 import random
 
 # Local imports
-from evennia import Command
-from evennia import CmdSet
-from evennia import default_cmds, utils, create_script
+from evennia import Command, CmdSet, default_cmds, utils, create_script
 from evennia.utils import evtable
 from typeclasses.npc import Npc
 from commands import command
 from world.combat_loop import CombatLoop
+from typeclasses.characters import Character
 
 
 class Helper():
@@ -399,11 +398,16 @@ class CmdBattlefieldCommander(Command):
 
         bolsterRemaining = self.caller.db.battlefieldcommander
 
-        if bolsterRemaining > 0:
-            self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n |300{self.speech}|n.\n|430Everyone in the room may now add 1 Tough to their av, using the command settough #|n |300(Should be one more than your current value).|n")
-            self.caller.db.battlefieldcommander -= 1
-        else:
-            self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
+        # if bolsterRemaining > 0:
+
+            # self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n {self.speech}|025.|n")
+            # self.caller.db.battlefieldcommander -= 1
+        room_contents = self.caller.location.contents
+        characters = [utils.inherits_from(character, Character) for character in room_contents]
+        self.msg(characters)
+
+        # else:
+        #     self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
 
 class CmdRally(Command):
