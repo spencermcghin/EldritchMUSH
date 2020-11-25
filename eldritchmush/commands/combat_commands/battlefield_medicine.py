@@ -50,3 +50,5 @@ class CmdBattlefieldMedicine(Command):
         if not combatant.hasChirurgeonsKit():
             combatant.message(f"|400You are out of materials in your Chirurgeon's kit.|n")
             return
+
+        if combatant.hasTurn():
