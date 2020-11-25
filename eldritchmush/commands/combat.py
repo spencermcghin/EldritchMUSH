@@ -412,6 +412,7 @@ class CmdBattlefieldCommander(Command):
         new_tough_value = current_tough_value + 1
         character.db.tough = new_tough_value
 
+
 class CmdRally(Command):
     """
     Usage: rally <speech>
