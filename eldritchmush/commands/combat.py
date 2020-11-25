@@ -434,6 +434,47 @@ class CmdRally(Command):
     """
     Usage: rally <speech>
 
+    Use the rally command followed by a speech to remove the fear effect from those in the room.
+    """
+    key = "rally"
+    help_category = "combat"
+
+    def parse(self):
+        "Very trivial parser"
+        self.speech = self.args.strip()
+
+    def func(self):
+        if not self.args:
+            self.caller.msg("|430Usage: rally <target>|n")
+            return
+
+        rallyRemaining = self.caller.db.rally
+
+        if rallyRemaining > 0:
+            self.caller.location.msg_contents(f"|025{self.caller.key} shouts so all can hear,|n {self.speech}|n|025.|n")
+            self.caller.db.rally -= 1
+            # Get contents of room as array.
+            room_contents = self.caller.location.contents
+            # Genearte array of characters.
+            characters = [char for char in room_contents if char.has_account]
+            # Generate array of characters with fear.
+            hasFear = [char for char in characters if char.db.fear]
+            # Update tough values for all characters in array and report updated av to each character.
+            update_fear_vals = [self.update_fear(char) for char in hasFear]
+        else:
+            self.caller.msg("|300You have no uses of your rally ability remaining or do not have the skill.|n")
+
+    def update_fear(self, character):
+        character.db.fear = False
+
+        # Return armor value to console.
+        character.msg(f"|430You feel less afraid. Your courage and resolve have been restored.|n")
+
+
+class CmdRally(Command):
+    """
+    Usage: rally <speech>
+
     Use the rally command followed by a speech to remove a fear effect from those in the room.
     """
     key = "rally"
