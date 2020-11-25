@@ -404,12 +404,16 @@ class CmdBattlefieldCommander(Command):
             # self.caller.db.battlefieldcommander -= 1
         room_contents = self.caller.location.contents
         characters = [char for char in room_contents if char.has_account]
-        tough_vals = [char.db.tough.value + 1 for char in characters]
+        tough_vals = [map(update_tough, char) for char in characters]
         self.msg(tough_vals)
 
         # else:
         #     self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
+    def update_tough(self, character):
+        current_tough_value = character.db.tough
+        new_tough_value = current_tough_value + 1
+        character.db.tough = new_tough_value
 
 class CmdRally(Command):
     """
