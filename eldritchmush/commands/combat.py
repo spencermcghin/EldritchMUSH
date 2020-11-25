@@ -403,7 +403,7 @@ class CmdBattlefieldCommander(Command):
         self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n {self.speech}|025.|n")
             # self.caller.db.battlefieldcommander -= 1
         room_contents = self.caller.location.contents
-        characters = [character for character in room_contents if character.has_account]
+        characters = [char for char in room_contents if utils.inherits_from(char, Character)]
         update_tough = [character.db.tough + 1 for character in characters]
         self.msg(characters)
 
