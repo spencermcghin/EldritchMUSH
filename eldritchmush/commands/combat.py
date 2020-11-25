@@ -399,7 +399,7 @@ class CmdBattlefieldCommander(Command):
         bolsterRemaining = self.caller.db.battlefieldcommander
 
         if bolsterRemaining > 0:
-            self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, |n{self.caller.key} |025shouts so all can hear, |n"{self.speech}"|025.|n")
+            self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, |n{self.caller.key} |025shouts so all can hear,|n {self.speech}|025.|n")
             self.caller.db.battlefieldcommander -= 1
             # Get contents of room as array.
             room_contents = self.caller.location.contents
