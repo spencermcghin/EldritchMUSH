@@ -421,14 +421,14 @@ class WeaponObject(BlacksmithObject):
         level = self.db.level
 
         if self.db.arrow_slot:
-            looker.msg(f"This quiver contains {self.db.quantity} arrows.")
+            looker.msg(f"|430This quiver contains {self.db.quantity} arrows.|n")
 
-        looker.msg(f"Level: {level}")
+        looker.msg(f"|430Level: {level}|n")
 
-        looker.msg(f"Value - Silver Dragons: {self.db.value_silver}")
+        looker.msg(f"|430Value - Silver Dragons: {self.db.value_silver}|n")
 
         if self.db.material_value:
-            looker.msg(f"Durability (sunders received before broken): {self.db.material_value}")
+            looker.msg(f"|430Durability (sunders received before broken): {self.db.material_value}|n")
 
 
 class ArtificerObject(DefaultObject):
@@ -453,21 +453,21 @@ class ArtificerObject(DefaultObject):
         level = self.db.level
 
         if self.db.uses:
-            looker.msg(f"This {self.key} has {self.db.uses} remaining.")
+            looker.msg(f"|430This {self.key} has {self.db.uses} remaining.|n")
 
         if self.db.resist:
-            looker.msg(f"{self.key} grant the wearer an additional {self.db.resist} resist(s).")
+            looker.msg(f"|430{self.key} grant the wearer an additional {self.db.resist} resist(s).|n")
 
         if self.db.influential:
-            looker.msg(f"{self.key} grant the wearer an additional {self.db.influential} point(s) of influential.")
+            looker.msg(f"|430{self.key} grant the wearer an additional {self.db.influential} point(s) of influential.|n")
 
         if self.db.espionage:
-            looker.msg(f"{self.key} grants the wearer an additional {self.db.espionage} point(s) of espionage.")
+            looker.msg(f"|430{self.key} grants the wearer an additional {self.db.espionage} point(s) of espionage.|n")
 
 
-        looker.msg(f"Level: {level}")
+        looker.msg(f"|430Level: {level}|n")
 
-        looker.msg(f"Value - Silver Dragons: {self.db.value_silver}")
+        looker.msg(f"|430Value - Silver Dragons: {self.db.value_silver}|n")
 
 """
 Storage Objects
