@@ -1,0 +1,39 @@
+20-06-02 03:46:52 Loading /Users/countzero/Documents/mush_test/evennia/evennia/server/server.py...
+20-06-02 03:46:53 Loaded.
+20-06-02 03:46:53 twistd 19.10.0 (/Users/countzero/Documents/mush_test/localevenv/bin/python 3.7.7) starting up.
+20-06-02 03:46:53 reactor class: twisted.internet.selectreactor.SelectReactor.
+20-06-02 03:46:53 Traceback (most recent call last):
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 1361, in startListening
+20-06-02 03:46:53     skt.bind(addr)
+20-06-02 03:46:53 OSError: [Errno 48] Address already in use
+20-06-02 03:46:53 
+20-06-02 03:46:53 During handling of the above exception, another exception occurred:
+20-06-02 03:46:53 
+20-06-02 03:46:53 Traceback (most recent call last):
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/bin/twistd", line 8, in <module>
+20-06-02 03:46:53     sys.exit(run())
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/scripts/twistd.py", line 31, in run
+20-06-02 03:46:53     app.run(runApp, ServerOptions)
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/application/app.py", line 674, in run
+20-06-02 03:46:53     runApp(config)
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/scripts/twistd.py", line 25, in runApp
+20-06-02 03:46:53     runner.run()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/application/app.py", line 385, in run
+20-06-02 03:46:53     self.postApplication()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/scripts/_twistd_unix.py", line 254, in postApplication
+20-06-02 03:46:53     self.startApplication(self.application)
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/scripts/_twistd_unix.py", line 442, in startApplication
+20-06-02 03:46:53     service.IService(application).privilegedStartService()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/application/service.py", line 283, in privilegedStartService
+20-06-02 03:46:53     service.privilegedStartService()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/application/service.py", line 283, in privilegedStartService
+20-06-02 03:46:53     service.privilegedStartService()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/application/internet.py", line 114, in privilegedStartService
+20-06-02 03:46:53     self._port = self._getPort()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/application/internet.py", line 142, in _getPort
+20-06-02 03:46:53     'listen%s' % (self.method,))(*self.args, **self.kwargs)
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/internet/posixbase.py", line 495, in listenTCP
+20-06-02 03:46:53     p.startListening()
+20-06-02 03:46:53   File "/Users/countzero/Documents/mush_test/localevenv/lib/python3.7/site-packages/twisted/internet/tcp.py", line 1363, in startListening
+20-06-02 03:46:53     raise CannotListenError(self.interface, self.port, le)
+20-06-02 03:46:53 twisted.internet.error.CannotListenError: Couldn't listen on 127.0.0.1:4005: [Errno 48] Address already in use.
