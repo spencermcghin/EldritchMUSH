@@ -401,9 +401,12 @@ class CmdBattlefieldCommander(Command):
         if bolsterRemaining > 0:
             self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, |n{self.caller.key} |025shouts so all can hear,|n {self.speech}|025.|n")
             self.caller.db.battlefieldcommander -= 1
+            # Get contents of room as array.
             room_contents = self.caller.location.contents
+            # Genearte array of characters.
             characters = [char for char in room_contents if char.has_account]
-            tough_vals = [self.update_tough(char) for char in characters]
+            # Update tough values for all characters in array and report updated av to each character.
+            update_tough_vals = [self.update_tough(char) for char in characters]
         else:
             self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
@@ -411,6 +414,20 @@ class CmdBattlefieldCommander(Command):
         current_tough_value = character.db.tough
         new_tough_value = current_tough_value + 1
         character.db.tough = new_tough_value
+
+        # Broadcast message to all characters in array.
+        armor = character.db.armor
+        tough = character.db.tough
+        indomitable = character.db.indomitable
+        armor_specialist = character.db.armor_specialist
+        shield_value = character.db.shield_value
+
+        # Add them up and set the curent armor value in the database
+        currentArmorValue = armor + tough + shield_value + armor_specialist + indomitable
+        character.db.av = currentArmorValue
+
+        # Return armor value to console.
+        self.caller.msg(f"|430Your new total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
 
 class CmdRally(Command):
