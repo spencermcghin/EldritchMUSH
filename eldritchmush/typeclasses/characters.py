@@ -155,10 +155,10 @@ class Character(DefaultCharacter):
 
         # Return
         if isBleeding:
-            return text + f"\n{self.key} |025is bleeding profusely from mutliple, serious wounds.|n"
+            return text + f"\n{self.key} |430is bleeding profusely from mutliple, serious wounds.|n"
 
         elif isDying:
-            return text + f"\n{self.key} |025has succumbed to their injuries and is now unconscious.|n"
+            return text + f"\n{self.key} |430has succumbed to their injuries and is now unconscious.|n"
 
         else:
             return text
@@ -191,8 +191,8 @@ class Character(DefaultCharacter):
                     tempList = list(self.db.followers)
                     if (len(tempList) == 0):
                         self.db.isLeading = False
-                    self.msg("|540"+ char.key + " is no longer following you.|n")
-                    char.msg("|540You are no longer following " + self.key + "|n")
+                    self.msg("|430"+ char.key + " is no longer following you.|n")
+                    char.msg("|430You are no longer following " + self.key + "|n")
 
         # If a follower performed a move away from the leader, they will be removed from the followers array and will
         # no longer be following the leader.
@@ -209,10 +209,10 @@ class Character(DefaultCharacter):
                     tempList = list(leader.db.followers)
                     if (len(tempList) == 0):
                         leader.db.isLeading = False
-                    self.msg("|540You are no longer following " + leader.key + "|n")
-                    leader.msg("|540"+ self.key + " is no longer following you.|n")
+                    self.msg("|430You are no longer following " + leader.key + "|n")
+                    leader.msg("|430"+ self.key + " is no longer following you.|n")
                 except ValueError:
-                    self.msg("|540You are no longer following " + leader.key + "|n")
+                    self.msg("|430You are no longer following " + leader.key + "|n")
 
                 self.db.isFollowing = False
                 self.db.leader = []
