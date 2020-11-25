@@ -82,6 +82,12 @@ class Character(DefaultCharacter):
         self.db.weakness = 0
         self.db.bleed_points = 3
         self.db.death_points = 3
+        self.db.fear = False
+        self.db.disease = False
+        self.db.poison = False
+        self.db.paralyze = False
+        self.db.sleep = False
+        
 
         # Entries for combat
         self.db.melee = 0
