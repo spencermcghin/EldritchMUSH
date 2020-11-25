@@ -398,17 +398,14 @@ class CmdBattlefieldCommander(Command):
 
         bolsterRemaining = self.caller.db.battlefieldcommander
 
-        # if bolsterRemaining > 0:
-
-        self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, |n{self.caller.key} |025shouts so all can hear,|n {self.speech}|025.|n")
-            # self.caller.db.battlefieldcommander -= 1
-        room_contents = self.caller.location.contents
-        characters = [char for char in room_contents if char.has_account]
-        tough_vals = [self.update_tough(char) for char in characters]
-        self.msg(tough_vals)
-
-        # else:
-        #     self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
+        if bolsterRemaining > 0:
+            self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, |n{self.caller.key} |025shouts so all can hear,|n {self.speech}|025.|n")
+            self.caller.db.battlefieldcommander -= 1
+            room_contents = self.caller.location.contents
+            characters = [char for char in room_contents if char.has_account]
+            tough_vals = [self.update_tough(char) for char in characters]
+        else:
+            self.caller.msg("|300You have no uses of your battlefield commander ability remaining or do not have the skill.|n")
 
     def update_tough(self, character):
         current_tough_value = character.db.tough
