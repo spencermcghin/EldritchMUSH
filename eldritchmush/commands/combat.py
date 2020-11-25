@@ -404,7 +404,7 @@ class CmdBattlefieldCommander(Command):
             # self.caller.db.battlefieldcommander -= 1
         room_contents = self.caller.location.contents
         characters = [char for char in room_contents if char.has_account]
-        tough_vals = [update_tough(char) for char in characters]
+        tough_vals = [self.update_tough(char) for char in characters]
         self.msg(tough_vals)
 
         # else:
