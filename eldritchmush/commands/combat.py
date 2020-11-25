@@ -427,7 +427,7 @@ class CmdBattlefieldCommander(Command):
         character.db.av = currentArmorValue
 
         # Return armor value to console.
-        self.caller.msg(f"|430Your new total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+        character.msg(f"|430Your new total Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nShield: {shield_value}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
 
 class CmdRally(Command):
