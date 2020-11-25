@@ -400,11 +400,11 @@ class CmdBattlefieldCommander(Command):
 
         # if bolsterRemaining > 0:
 
-        self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, {self.caller.key} shouts so all can hear,|n {self.speech}|025.|n")
+        self.caller.location.msg_contents(f"|025Amidst the chaos of the fighting, |n{self.caller.key} |025shouts so all can hear,|n {self.speech}|025.|n")
             # self.caller.db.battlefieldcommander -= 1
         room_contents = self.caller.location.contents
         characters = [char for char in room_contents if char.has_account]
-        tough_vals = [char.db.tough for char in characters]
+        tough_vals = [type(char.db.tough) for char in characters]
         self.msg(tough_vals)
 
         # else:
