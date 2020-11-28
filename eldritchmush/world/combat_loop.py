@@ -266,7 +266,13 @@ class CombatLoop:
 					# If there are targets, make sure NPC has something to fight with and is not dying.
 					if targets:
 						if not self.isDying(nextCharacter):
-							if (nextCharacter.db.right_slot or nextCharacter.db.left_slot):
+							# Check to make sure carried item does damage
+							right_item = nextCharacter.search(nextCharacter.db.right_slot) if nextCharacter.db.right_slot else ''
+							left_item = nextCharacter.search(nextCharacter.db.left_slot) if nextCharacter.db.left_slot else ''
+							rightDamage = True if right_item.db.damage else False
+							leftDamage = True if left_item.db.damage else False
+							
+							if (rightDamage or leftDamage):
 								random_target = random.choice(targets)
 								# If character target, attack a random one.
 								nextCharacter.at_char_entered(random_target)
@@ -284,9 +290,9 @@ class CombatLoop:
 			try:
 				remaining_character = self.combat_loop[0]
 			except IndexError:
-				self.caller.location.msg_contents(f"Combat is now over for {loop.current_room}.")
+				self.caller.location.msg_contents(f"|430Combat is now over for {loop.current_room}.|n")
 			else:
-				self.caller.location.msg_contents(f"Combat is now over for the {remaining_character.location}")
+				self.caller.location.msg_contents(f"|430Combat is now over for the {remaining_character.location}.|n")
 				self.removeFromLoop(remaining_character)
 				self.caller.db.in_combat = 0
 				# Change self.callers combat_turn to 1 so they can attack again.
