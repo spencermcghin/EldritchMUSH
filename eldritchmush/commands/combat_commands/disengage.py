@@ -21,7 +21,7 @@ class CmdDisengage(Command):
 
     """
     key = "disengage"
-    aliases = ["disengage", "escape", "flee"]
+    aliases = ["disengage", "escape", "flee", "retreat"]
     help_category = "combat"
 
     def parse(self):
