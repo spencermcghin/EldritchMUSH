@@ -168,7 +168,7 @@ class Helper():
                 target.db.weakness = 1
 
             target.msg("|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
-            target.location.msg_contents(f"|025{target.key} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+            target.location.msg_contents(f"{target.key} |025is bleeding profusely from many wounds and will soon lose consciousness.|n")
 
 
         if target_death_points and damage:
@@ -181,7 +181,7 @@ class Helper():
                 damage = 0
 
             target.msg("|300You are unconscious and can no longer move of your own volition.|n")
-            target.location.msg_contents(f"|025{target.key} does not seem to be moving.|n")
+            target.location.msg_contents(f"{target.key} |025does not seem to be moving.|n")
 
         else:
             pass
