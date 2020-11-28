@@ -269,8 +269,8 @@ class CombatLoop:
 							# Check to make sure carried item does damage
 							right_item = self.caller.search(nextCharacter.db.right_slot[0], location=nextCharacter) if nextCharacter.db.right_slot else ''
 							left_item = self.caller.search(nextCharacter.db.left_slot[0], location=nextCharacter) if nextCharacter.db.left_slot else ''
-							rightDamage = True if right_item.db.damage else False
-							leftDamage = True if left_item.db.damage else False
+							rightDamage = right_item.db.damage if right_item else False
+							leftDamage = left_item.db.damage if right_item else False
 
 							if (rightDamage or leftDamage):
 								random_target = random.choice(targets)
