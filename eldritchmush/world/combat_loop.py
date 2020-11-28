@@ -267,8 +267,8 @@ class CombatLoop:
 					if targets:
 						if not self.isDying(nextCharacter):
 							# Check to make sure carried item does damage
-							right_item = self.caller.search(nextCharacter.db.right_slot) if nextCharacter.db.right_slot else ''
-							left_item = self.caller.search(nextCharacter.db.left_slot) if nextCharacter.db.left_slot else ''
+							right_item = self.caller.search(nextCharacter.db.right_slot[0]) if nextCharacter.db.right_slot else ''
+							left_item = self.caller.search(nextCharacter.db.left_slot[0]) if nextCharacter.db.left_slot else ''
 							rightDamage = True if right_item.db.damage else False
 							leftDamage = True if left_item.db.damage else False
 
