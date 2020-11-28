@@ -399,28 +399,28 @@ class CmdInventory(COMMAND_DEFAULT_CLASS):
         self.caller.msg(string)
 
         if self.caller.db.iron_ingots:
-            self.msg("\nIron Ingots:" self.caller.db.iron_ingots)
+            self.msg(f"\nIron Ingots: {self.caller.db.iron_ingots}")
 
         if self.caller.db.refined_wood:
-            self.msg("\nRefined Wood:" self.caller.db.refined_wood)
+            self.msg(f"\nRefined Wood: {self.caller.db.refined_wood}")
 
         if self.caller.db.leather:
-            self.msg("\nLeather:" self.caller.db.leather)
+            self.msg(f"\nLeather: {self.caller.db.leather}")
 
         if self.caller.db.cloth:
-            self.msg("\nCloth:" self.caller.db.cloth)
+            self.msg(f"\nCloth: {self.caller.db.cloth}")
 
         if self.caller.db.gold:
-            self.msg("\nGold:" self.caller.db.gold)
+            self.msg(f"\nGold: {self.caller.db.gold}")
 
         if self.caller.db.silver:
-            self.msg("\nSilver:" self.caller.db.silver)
+            self.msg(f"\nSilver: {self.caller.db.silver}")
 
         if self.caller.db.copper:
-            self.msg("\nCopper:" self.caller.db.copper)
+            self.msg(f"\nCopper: {self.caller.db.copper}")
 
         if self.caller.db.arrows:
-            self.msg("\nArrows:" self.caller.db.arrows)
+            self.msg(f"\nArrows: {self.caller.db.arrows}")
 
 
 
