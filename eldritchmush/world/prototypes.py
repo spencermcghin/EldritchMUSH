@@ -1213,8 +1213,6 @@ ARROWS = {
 "key": "Arrows",
 "aliases": ["arrows"],
 "craft_source": "bowyer",
-"arrow_slot": True,
-"quantity": 10,
 "required_resources": 3,
 "iron_ingots": 1,
 "refined_wood": 2,
@@ -1223,7 +1221,9 @@ ARROWS = {
 "value_copper": 80,
 "value_silver": 8,
 "value_gold": .8,
-"level": 0
+"level": 0,
+"arrow_slot": True,
+"quantity": 10
 }
 
 
