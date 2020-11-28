@@ -138,17 +138,20 @@ class CmdSunder(Command):
                                 self.caller.db.sunder -= 1
                             else:
                                 self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
-                            # Clean up
-                            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
+                                # Clean up
+                                # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                 loop.combatTurnOff(self.caller)
+
                             loop.cleanup()
                         else:
                             self.caller.msg("|430You are too weak to use this attack.|n")
+                            return
                     else:
                         self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
-                else:
-                    self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
-                    return
+                        return
             else:
-                self.msg("|430You need to wait until it is your turn before you are able to act.|n")
+                self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
                 return
+        else:
+            self.msg("|430You need to wait until it is your turn before you are able to act.|n")
+            return
