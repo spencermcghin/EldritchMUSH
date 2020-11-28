@@ -33,7 +33,7 @@ class CmdDisengage(Command):
 
             # Check to see if caller is in combat loop:
             if self.caller in self.combat_loop:
-                self.caller.location.msg_contents(f"|025{self.caller.key} breaks away from combat.|n")
+                self.caller.location.msg_contents(f"{self.caller.key} |025breaks away from combat.|n")
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
