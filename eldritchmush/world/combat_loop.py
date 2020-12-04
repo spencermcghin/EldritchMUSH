@@ -275,7 +275,7 @@ class CombatLoop:
 							hasLeftItem = True if nextCharacter.db.left_slot else False
 							leftItem = nextCharacter.db.left_slot[0] if hasLeftItem else False
 							leftObject = nextCharacter.search(leftItem, location=nextCharacter) if leftItem else False
-							leftDamage = True if leftItem.db.damage or leftItem.db.is_bow else False
+							leftDamage = True if leftObject.db.damage or leftObject.db.is_bow else False
 
 							if rightDamage or leftDamage:
 								random_target = random.choice(targets)
