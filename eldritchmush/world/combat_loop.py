@@ -269,12 +269,12 @@ class CombatLoop:
 							# Check to make sure carried item does damage
 							hasRightItem = True if nextCharacter.db.right_slot else False
 							rightItem = nextCharacter.db.right_slot[0] if hasRightItem else False
-							rightObject = nextCharacter.caller.search(rightItem) if rightItem else False
+							rightObject = nextCharacter.search(rightItem) if rightItem else False
 							rightDamage = True if rightObject.db.damage or rightObject.db.is_bow else False
 
 							hasLeftItem = True if nextCharacter.db.left_slot else False
 							leftItem = nextCharacter.db.left_slot[0] if hasLeftItem else False
-							leftObject = nextCharacter.caller.search(leftItem) if leftItem else False
+							leftObject = nextCharacter.search(leftItem) if leftItem else False
 							leftDamage = True if leftItem.db.damage or leftItem.db.is_bow else False
 
 							if rightDamage or leftDamage:
