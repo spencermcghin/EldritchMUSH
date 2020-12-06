@@ -469,10 +469,6 @@ class ArtificerObject(DefaultObject):
 
         looker.msg(f"Value - Silver Dragons: {self.db.value_silver}")
 
-"""
-Storage Objects
-This is the base class type for an object that contains resources as attributes, i.e. gold, refined wood, etc...
-"""
 
 class Container(DefaultObject):
     """
