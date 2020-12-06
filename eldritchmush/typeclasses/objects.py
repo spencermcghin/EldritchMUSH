@@ -488,35 +488,5 @@ class Container(DefaultObject):
         # Get desc and default text for object.
         string = super().return_appearance(looker)
 
-        # Get values for db entries.
-        gold = self.db.gold
-        silver = self.db.silver
-        copper = self.db.copper
-        iron_ingots = self.db.iron_ingots
-        refined_wood = self.db.refined_wood
-        leather = self.db.leather
-        cloth = self.db.cloth
-
         # Show desc and other objects inside
         looker.msg(f"{string}\n")
-
-        if gold:
-            looker.msg(f"|540Gold|n: {gold}\n")
-
-        if silver:
-            looker.msg(f"|=tSilver|n: {silver}\n")
-
-        if copper:
-            looker.msg(f"|310Copper|n: {copper}\n")
-
-        if iron_ingots:
-            looker.msg(f"|=kIron|n: {iron_ingots}\n")
-
-        if refined_wood:
-            looker.msg(f"|210Wood|n: {refined_wood}\n")
-
-        if leather:
-            looker.msg(f"|320Leather|n: {leather}\n")
-
-        if cloth:
-            looker.msg(f"|020Cloth|n: {cloth}")
