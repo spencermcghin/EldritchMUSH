@@ -11,7 +11,7 @@ import re
 
 # Local imports
 from commands import combat
-from objects import Container
+from typeclasses.objects import Container
 from evennia import Command as BaseCommand
 from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
