@@ -1680,9 +1680,6 @@ class CmdOpen(Command):
             leather = item.db.leather
             cloth = item.db.cloth
 
-            # Show desc and other objects inside
-            self.msg(f"{string}\n")
-
             if gold:
                 self.msg(f"|540Gold|n: {gold}\n")
 
