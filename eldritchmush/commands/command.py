@@ -11,6 +11,7 @@ import re
 
 # Local imports
 from commands import combat
+from objects import Container
 from evennia import Command as BaseCommand
 from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
@@ -1640,6 +1641,70 @@ class CmdTracking(default_cmds.MuxCommand):
                 self.caller.msg(f"|430Tracking set on {self.obj.name}\nLevel: {level}\nDescription: {self.rhs}|n")
             else:
                 self.caller.msg("|400Search didn't return anything.|n")
+
+
+class CmdOpen(Command):
+    """Open a container object
+
+    Usage: open <object>
+
+    Searches for object. If not an object of type container, caller can't open.
+    If is container, then caller can open.
+    """
+
+    key = "open"
+    help_category = "mush"
+
+    def parse(self):
+        "Very trivial parser"
+        self.item = self.args.strip()
+
+    def func(self):
+
+        if not self.item:
+            self.caller.msg("|430Usage: open <item>|n")
+            return
+
+        item = self.caller.search(self.item)
+
+        if not utils.inherits_from(item, Container):
+            self.msg(f"You cannot open the {item}.")
+            return
+        else:
+            # Get values for db entries.
+            gold = item.db.gold
+            silver = item.db.silver
+            copper = item.db.copper
+            iron_ingots = item.db.iron_ingots
+            refined_wood = item.db.refined_wood
+            leather = item.db.leather
+            cloth = item.db.cloth
+
+            # Show desc and other objects inside
+            self.msg(f"{string}\n")
+
+            if gold:
+                self.msg(f"|540Gold|n: {gold}\n")
+
+            if silver:
+                self.msg(f"|=tSilver|n: {silver}\n")
+
+            if copper:
+                self.msg(f"|310Copper|n: {copper}\n")
+
+            if iron_ingots:
+                self.msg(f"|=kIron|n: {iron_ingots}\n")
+
+            if refined_wood:
+                self.msg(f"|210Wood|n: {refined_wood}\n")
+
+            if leather:
+                self.msg(f"|320Leather|n: {leather}\n")
+
+            if cloth:
+                self.msg(f"|020Cloth|n: {cloth}")
+
+
 
 class CmdSmile(Command):
     """
