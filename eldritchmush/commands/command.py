@@ -1680,7 +1680,7 @@ class CmdOpen(Command):
             leather = item.db.leather
             cloth = item.db.cloth
 
-            self.msg("This chest contains the following:\n")
+            self.msg(f"This {item} contains the following:\n")
 
             if gold:
                 self.msg(f"|540Gold|n: {gold}\n")
