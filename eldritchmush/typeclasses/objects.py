@@ -520,7 +520,7 @@ class Container(DefaultObject):
             looker.msg(f"|210Wood|n: {refined_wood}\n")
 
         if leather:
-            looker.msg(f"|322Leather|n: {leather}\n")
+            looker.msg(f"|320Leather|n: {leather}\n")
 
         if cloth:
             looker.msg(f"|020Cloth|n: {cloth}")
