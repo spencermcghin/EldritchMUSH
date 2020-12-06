@@ -716,7 +716,7 @@ APOTHECARY_KIT = {
 
 ARTIFICER_KIT = {
 "typeclass": "typeclasses.objects.ArtificerObject",
-"key": "Arifticer Kit",
+"key": "Artificer Kit",
 "aliases": ["artificer kit"],
 "craft_source": "artificer",
 "type": "artificer",
