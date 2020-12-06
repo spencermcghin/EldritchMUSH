@@ -117,6 +117,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(stagger.CmdStagger())
         self.add(command.CmdGive())
         self.add(command.CmdGet())
+        self.add(command.CmdOpen())
         self.add(command.CmdSmile())
         self.add(command.SetTough())
         self.add(command.SetWeakness())
