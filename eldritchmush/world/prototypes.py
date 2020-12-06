@@ -908,6 +908,7 @@ HIGHWAYMAN_CLOAK = {
 "typeclass": "typeclasses.objects.ArtificerObject",
 "key": "Highwayman Cloak",
 "aliases": ["highwayman cloak"],
+"craft_source": "artificer",
 "cloak_slot": True,
 "required_resources": 10,
 "iron_ingots": 0,
