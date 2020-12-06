@@ -4,8 +4,6 @@ Commands
 Commands describe the input the account can do to the game.
 
 """
-from typeclasses.objects import Container
-
 # Global imports
 import random
 from django.conf import settings
