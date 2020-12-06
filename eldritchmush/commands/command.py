@@ -11,13 +11,13 @@ import re
 
 # Local imports
 from commands import combat
+from commands.fortunestrings import FORTUNE_STRINGS
 from evennia import Command as BaseCommand
 from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
-from commands.fortunestrings import FORTUNE_STRINGS
-from typeclasses.objects import Container
+from typeclasses import objects.Container
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
