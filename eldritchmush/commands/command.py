@@ -17,8 +17,7 @@ from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.utils import evtable
-from typeclasses import objects
-from objects import Container
+from typeclasses.objects import Container
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
