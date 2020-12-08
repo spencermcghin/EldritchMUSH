@@ -50,6 +50,7 @@ class CmdMedicine(Command):
             # Anything from this level on, consumes the users turn.  Learn to Diagnose!
             if combatant.hasChirurgeonsKit():
                 if not target.db.body == 3:
+
                     if target.db.body > 0:
                         if self.caller.db.battlefieldmedicine:
                             # Victim is at 1 or 2 body, apply Battlefield_Medicine
@@ -62,6 +63,7 @@ class CmdMedicine(Command):
                             victim.broadcast(
                                 f"|025{combatant.name} tries to aid {victim.name} but they are not skilled enough to benefit them further.|n")
                             combatant.message(f"|025You can help {victim.name} no more.|n");
+
                     elif (target.db.bleed_points == target_max_bleed_points) \
                      and target.db.body == 0:
                         # Check which skills get applied at 0 bleed and body
@@ -72,6 +74,7 @@ class CmdMedicine(Command):
                         else:
                             victim.broadcast(
                                 f"|025{combatant.name} tries to aid {victim.name} but with no training they are unable to help.|n")
+
                     elif target.db.death_points == 3 and not target.db.bleed_points == target_max_bleed_points:
                         if self.caller.db.stabilize or self.caller.db.medicine:
                             amount_to_heal = self.caller.db.medicine
@@ -94,6 +97,7 @@ class CmdMedicine(Command):
                             combatant.message(f"|400You are not skilled enough.|n")
                             victim.broadcast(
                                 f"|025{combatant.name} tries to stop {victim.name} from bleeding, but is unable to|n")
+
                     elif target.db.death_points == 1 or target.db.death_points == 2:
                         if self.caller.db.stabilize:
                             combatant.broadcast(f"|025{combatant.name} performs advanced healing techniques and provides|n (|430{combatant.stabilize()}|n) |025 points of aid to {victim.name}.|n")
@@ -112,8 +116,10 @@ class CmdMedicine(Command):
                         else:
                             combatant.message(f"|400{victim.name}'s injuries are beyond your skill as a healer.|n")
                             victim.broadcast(f"|025{combatant.name} tries to stop {victim.name} from dying, but is unable to.|n")
+
                     else:
                         combatant.message(f"{victim.name} |025is too fargone to administer further healing.|n")
+
                 else:
                     combatant.message(f"{victim.name} does not require the application of your healing skills.|n")
                     combatant.broadcast( f"|025{combatant.name} tries to aid {victim.name} but they are uninjured!|n")
