@@ -44,16 +44,17 @@ class CmdMedicine(Command):
             self.msg("|430Please designate an appropriate target.|n")
             return
 
+        target_max_bleed_points = 3 + target.db.resilience
+
         if combatant.hasTurn():
             # Anything from this level on, consumes the users turn.  Learn to Diagnose!
             if combatant.hasChirurgeonsKit():
-                if not victim.hasBody(3):
-                    if victim.hasMoreBodyThan(0):
-                        if combatant.battlefieldMedicine():
+                if not target.db.body == 3:
+                    if target.db.body > 0:
+                        if self.caller.db.battlefieldmedicine:
                             # Victim is at 1 or 2 body, apply Battlefield_Medicine
-                            victim.addBody(1)
+                            target.db.body += 1
                             combatant.useChirurgeonsKit()
-
                             victim.broadcast(
                                 f"|025{combatant.name} comes to {victim.name}'s rescue, healing {victim.name} for|n (|4301|n) |025body point.|n")
                             victim.message(f"|540Your new body value is:|n {victim.body()}|n")
@@ -61,29 +62,31 @@ class CmdMedicine(Command):
                             victim.broadcast(
                                 f"|025{combatant.name} tries to aid {victim.name} but they are not skilled enough to benefit them further.|n")
                             combatant.message(f"|025You can help {victim.name} no more.|n");
-                    elif victim.atMaxBleedPoints() and victim.hasBody(0):
+                    elif (target.db.bleed_points == target_max_bleed_points) \
+                     and target.db.body == 0:
                         # Check which skills get applied at 0 bleed and body
-                        if combatant.battlefieldMedicine() or combatant.stabilize() or combatant.medicine():
+                        if self.caller.db.battlefieldmedicine or self.caller.db.stabilize or self.caller.db.medicine:
                             victim.broadcast(f"|025{combatant.name} performs some minor healing techniques and provides|n (|4301|n) |025points of aid to {victim.name}.|n")
                             victim.addBody(1)
                             combatant.useChirurgeonsKit()
                         else:
                             victim.broadcast(
                                 f"|025{combatant.name} tries to aid {victim.name} but with no training they are unable to help.|n")
-                    elif victim.atMaxDeathPoints() and not victim.atMaxBleedPoints():
-                        if combatant.stabilize() or combatant.medicine():
-                            amount_to_heal = combatant.medicine()
-                            if combatant.stabilize() > combatant.medicine():
-                                amount_to_heal = combatant.stabilize()
+                    elif target.db.death_points == 3 and not target.db.bleed_points == target_max_bleed_points:
+                        if self.caller.db.stabilize or self.caller.db.medicine:
+                            amount_to_heal = self.caller.db.medicine
+                            if self.caller.db.stabilize > self.caller.db.medicine:
+                                amount_to_heal = self.caller.db.stabilize
 
-                            if amount_to_heal > victim.missingBleedPoints():
-                                victim.setBody(1)
-                                victim.resetBleedPoints()
+                            missing_bleed_points = target_max_bleed_points - target.db.bleed_points
+                            if amount_to_heal > missing_bleed_points:
+                                target.db.body = 1
+                                target.db.bleed_points = target_max_bleed_points
                                 combatant.useChirurgeonsKit()
                                 combatant.broadcast(
                                     f"|025{combatant.name} performs some minor healing techniques and provides|n (|430{amount_to_heal}|n) |025points of aid to {victim.name}.  {victim.name} returns to the fight, but weakened|n")
                             else:
-                                victim.addBleedPoints(combatant.medicine())
+                                target.db.bleed_points += self.caller.db.medicine
                                 combatant.useChirurgeonsKit()
                                 combatant.broadcast(
                                     f"|025{combatant.name} performs some minor healing techniques and provides|n (|430{amount_to_heal}|n) |025points of aid to {victim.name}.|n")
@@ -91,12 +94,14 @@ class CmdMedicine(Command):
                             combatant.message(f"|400You are not skilled enough.|n")
                             victim.broadcast(
                                 f"|025{combatant.name} tries to stop {victim.name} from bleeding, but is unable to|n")
-                    elif victim.hasDeathPoints(1) or victim.hasDeathPoints(2):
-                        if combatant.stabilize():
+                    elif target.db.death_points == 1 or target.db.death_points == 2:
+                        if self.caller.db.stabilize:
                             combatant.broadcast(f"|025{combatant.name} performs advanced healing techniques and provides|n (|430{combatant.stabilize()}|n) |025 points of aid to {victim.name}.|n")
-                            if combatant.stabilize() > victim.missingDeathPoints():
-                                remaining_healing = combatant.stabilize() - victim.missingDeathPoints()
-                                victim.setDeathPoints(3)
+
+                            missing_death_points = 3 - target.db.death_points
+                            if self.caller.db.stabilize > missing_death_points:
+                                remaining_healing = self.caller.db.stabilize - missing_death_points
+                                target.db.death_points = 3
                                 victim.addBleedPoints(remaining_healing)
                                 combatant.useChirurgeonsKit()
 
