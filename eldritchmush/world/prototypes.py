@@ -700,9 +700,6 @@ APOTHECARY_KIT = {
 "key": "Apothecary Kit",
 "aliases": ["apothecary kit"],
 "craft_source": "artificer",
-"type": "apothecary",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 4,
@@ -711,7 +708,10 @@ APOTHECARY_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "apothecary",
+"kit_slot": True,
+"uses": 10
 }
 
 ARTIFICER_KIT = {
