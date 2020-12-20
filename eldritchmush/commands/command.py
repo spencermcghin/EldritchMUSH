@@ -467,17 +467,16 @@ class CmdEquip(Command):
             self.caller.msg("|430Usage: equip <item>|n")
             return
 
-        item = self.caller.search(self.item, location=self.caller)
-
-        # Check if the item is of armor type
-        item_lower = item.key.lower().replace(" ", "_") if item else return
-
         try:
-            prototype = prototypes.search_prototype(item_lower, require_single=True)
+            item = self.caller.search(self.item, location=self.caller)
         except KeyError:
-            self.msg(f"You are not carrying a {item}.")
+            return
         else:
-        # Get search response
+
+            # Check if the item is of armor type
+            item_lower = item.key.lower().replace(" ", "_")
+            prototype = prototypes.search_prototype(item_lower, require_single=True)
+            # Get search response
             prototype_data = prototype[0]
 
             # Get item attributes and who makes it.
