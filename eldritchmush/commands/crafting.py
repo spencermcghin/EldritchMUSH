@@ -87,7 +87,7 @@ class CmdCraft(Command):
                 "cloth": item_data[5][1]
                 }
 
-                self.msg(f"{item_data}")
+                self.msg(f"{item_requirements}")
 
             #     requirements_checker = [
             #     character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
