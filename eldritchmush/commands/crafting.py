@@ -81,10 +81,10 @@ class CmdCraft(Command):
 
                 # Get item requirements
                 item_requirements = {
-                "iron_ingots": item_data[1][1],
-                "refined_wood": item_data[2][1],
-                "leather": item_data[3][1],
-                "cloth": item_data[4][1]
+                "iron_ingots": item_data[2][1],
+                "refined_wood": item_data[3][1],
+                "leather": item_data[4][1],
+                "cloth": item_data[5][1]
                 }
 
                 requirements_checker = [

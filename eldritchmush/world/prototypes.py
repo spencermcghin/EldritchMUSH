@@ -719,9 +719,6 @@ ARTIFICER_KIT = {
 "key": "Artificer Kit",
 "aliases": ["artificer kit"],
 "craft_source": "artificer",
-"type": "artificer",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 4,
@@ -730,7 +727,10 @@ ARTIFICER_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "artificer",
+"kit_slot": True,
+"uses": 10
 }
 
 BLACKSMITH_KIT = {
@@ -738,9 +738,6 @@ BLACKSMITH_KIT = {
 "key": "Blacksmith Kit",
 "aliases": ["blacksmith kit"],
 "craft_source": "artificer",
-"type": "blacksmith",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 4,
@@ -749,7 +746,10 @@ BLACKSMITH_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "blacksmith",
+"kit_slot": True,
+"uses": 10
 }
 
 AURON_KIT = {
@@ -757,9 +757,6 @@ AURON_KIT = {
 "key": "Auron Kit",
 "aliases": ["auron kit"],
 "craft_source": "artificer",
-"type": "auron",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 2,
@@ -768,7 +765,10 @@ AURON_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "auron",
+"kit_slot": True,
+"uses": 10
 }
 
 BOWYER_KIT = {
@@ -776,9 +776,6 @@ BOWYER_KIT = {
 "key": "Bowyer Kit",
 "aliases": ["bowyer kit"],
 "craft_source": "artificer",
-"type": "bowyer",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 0,
 "refined_wood": 4,
@@ -787,7 +784,10 @@ BOWYER_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "bowyer",
+"kit_slot": True,
+"uses": 10
 }
 
 GUNSMITH_KIT = {
@@ -795,9 +795,6 @@ GUNSMITH_KIT = {
 "key": "Gunsmith Kit",
 "aliases": ["gunsmith kit"],
 "craft_source": "artificer",
-"type": "gunsmith",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 4,
@@ -806,7 +803,10 @@ GUNSMITH_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "gunsmith",
+"kit_slot": True,
+"uses": 10
 }
 
 CHIRURGEON_KIT = {
@@ -814,9 +814,6 @@ CHIRURGEON_KIT = {
 "key": "Chirurgeon Kit",
 "aliases": ["chirurgeon kit"],
 "craft_source": "artificer",
-"type": "chirurgeon",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 4,
@@ -825,7 +822,10 @@ CHIRURGEON_KIT = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 0
+"level": 0,
+"type": "chirurgeon",
+"kit_slot": True,
+"uses": 10
 }
 
 """
