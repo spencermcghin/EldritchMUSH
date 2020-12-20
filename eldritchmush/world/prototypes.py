@@ -1287,7 +1287,7 @@ BULLETS = {
 "value_gold": 1.7,
 "level": 1,
 "bullet_slot": True,
-"quantity": 3c
+"quantity": 3
 }
 
 
