@@ -470,12 +470,13 @@ class CmdEquip(Command):
         item = self.caller.search(self.item, location=self.caller)
 
         # Check if the item is of armor type
-        if item:
-            item_lower = item.key.lower().replace(" ", "_")
+        item_lower = item.key.lower().replace(" ", "_")
+        try:
             prototype = prototypes.search_prototype(item_lower, require_single=True)
-
-        if prototype:
-            # Get search response
+        except KeyError:
+            self.msg(f"You are not carrying a {item}.")
+        else:
+        # Get search response
             prototype_data = prototype[0]
 
             # Get item attributes and who makes it.
@@ -635,8 +636,6 @@ class CmdEquip(Command):
                     self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
             else:
                 self.msg("|400You can't equip the same weapon twice.|n")
-        else:
-            self.caller.msg(f"Please be more specific.")
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
