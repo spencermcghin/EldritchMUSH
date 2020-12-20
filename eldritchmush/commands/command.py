@@ -471,170 +471,174 @@ class CmdEquip(Command):
 
 
         if item:
-
             # Check if the item is of armor type
             item_lower = item.key.lower().replace(" ", "_")
-            prototype = prototypes.search_prototype(item_lower, require_single=True)
-            # Get search response
-            prototype_data = prototype[0]
 
-            # Get item attributes and who makes it.
-            item_data = prototype_data['attrs']
-
-            indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
-
-            # Do some skill checks
-            if indexOfRequired:
-                required_skill = item_data[indexOfRequired][1]
-
-                if required_skill == "gunner" and not self.caller.db.gunner:
-                    self.msg(f"You lack the skill in Firearms to use {item.key}.")
-                    return
-                elif required_skill == "archer" and not self.caller.db.archer:
-                    self.msg(f"You lack the skill in Archery to use {item.key}.")
-                    return
-                elif required_skill == "shields" and not self.caller.db.shields:
-                    self.msg(f"You lack the skill in Shields to use {item.key}.")
-                    return
-                elif required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
-                    self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
-                    return
-                elif required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
-                    self.msg(f"You lack the skill in Armor to use {item.key}.")
-                    return
-
-            # Equip gloves and add resists
-            if item.db.hand_slot and not self.caller.db.hand_slot:
-                self.caller.db.hand_slot.append(item)
-
-                # Add extra points from indomitable if armor still has material_value
-                if item.db.resist > 0:
-                    self.caller.db.resist += item.db.resist
-
-                self.msg(f"You don {item.key}.")
-                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
-
-            # Equip boots and add resists
-            elif item.db.foot_slot and not self.caller.db.foot_slot:
-                self.caller.db.foot_slot.append(item)
-
-                # Add extra points from indomitable if armor still has material_value
-                if item.db.resist:
-                    self.caller.db.resist += item.db.resist
-
-                self.msg(f"You don {item.key}.")
-                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
-
-            # Equip kit. Corresponding skill should reference the number of uses left.
-            elif item.db.kit_slot and not self.caller.db.kit_slot:
-                self.caller.db.kit_slot.append(item)
-
-                self.msg(f"You equip a {item.key} with {item.db.uses} uses left.")
-
-            # Equip arrows. Corresponding skill should reference the number of uses left.
-            elif item.db.arrow_slot and not self.caller.db.arrow_slot:
-                self.caller.db.arrow_slot.append(item)
-
-                self.msg(f"You equip a quiver with {item.db.quantity} arrows left.")
-
-            # Equip arrows. Corresponding skill should reference the number of uses left.
-            elif item.db.bullet_slot and not self.caller.db.bullet_slot:
-                self.caller.db.bullet_slot.append(item)
-
-                self.msg(f"You equip a bundle of {item.db.quantity} bullets.")
-
-            # Equip clothing. Add to character's influential skill.
-            elif item.db.clothing_slot and not self.caller.db.clothing_slot:
-                self.caller.db.clothing_slot.append(item)
-
-                if item.db.influential:
-                    self.caller.db.influential += item.db.influential
-
-                self.msg(f"You put on the {item.key}.")
-
-            # Equip clothing. Add to character's influential skill.
-            elif item.db.cloak_slot and not self.caller.db.cloak_slot:
-                self.caller.db.cloak_slot.append(item)
-
-                if item.db.espionage:
-                    self.caller.db.espionage += item.db.espionage
-
-                self.msg(f"You put on the {item.key}.")
-
-            # Equip armor
-            elif item.db.is_armor and not self.caller.db.body_slot:
-                self.caller.db.body_slot.append(item)
-                self.caller.db.armor = item.db.material_value
-
-                # Add extra points from indomitable if armor still has material_value
-                if item.db.material_value > 0 and self.caller.db.indomitable:
-                    self.caller.db.armor += self.caller.db.indomitable
-
-                self.msg(f"You don {item.key}.")
-                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
-
-                # Get vals for armor value calc
-                armor_value = self.caller.db.armor
-                indomitable = self.caller.db.indomitable
-                tough = self.caller.db.tough
-                armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-
-                # Add them up and set the curent armor value in the database
-                currentArmorValue = armor_value + tough + armor_specialist + indomitable
-                self.caller.db.av = currentArmorValue
-
-                # Return armor value to console.
-                self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
-
-            # For weapons/shields
-            elif item and item not in self.right_slot:
-                if not item.db.broken:
-                    # Check if item is twohanded
-                    if item.db.twohanded:
-                        if not self.right_slot and not self.left_slot:
-                            self.right_slot.append(item)
-                            self.left_slot.append(item)
-
-                            # Add weapon bonus
-                            weapon_bonus = h.weaponValue(item.db.level)
-                            self.caller.db.weapon_level = weapon_bonus
-
-                            # Send some messages
-                            self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
-                            self.caller.msg(f"You have equipped your {item.key}")
-                        else:
-                            self.caller.msg(f"|430You can't equip the {item} unless you first unequip something.|n")
-                            return
-                    # Check to see if right hand is empty.
-                    elif not self.right_slot and (item.db.is_shield or item.db.damage):
-                        self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
-
-                        if item.db.is_shield:
-                            self.right_slot.append(item)
-                        else:
-                            # Add weapon bonus
-                            self.right_slot.append(item)
-                            weapon_bonus = h.weaponValue(item.db.level)
-                            self.caller.db.weapon_level = weapon_bonus
-
-                    elif not self.left_slot and (item.db.is_shield or item.db.damage):
-                        self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
-
-                        if item.db.is_shield:
-                            self.left_slot.append(item)
-                        else:
-                            # Add weapon bonus
-                            self.left_slot.append(item)
-                            weapon_bonus = h.weaponValue(item.db.level)
-                            self.caller.db.weapon_level = weapon_bonus
-
-                    else:
-                        self.caller.msg("|430You are already carrying an item in that slot.|n")
-                        return
-                else:
-                    self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
+            try:
+                prototype = prototypes.search_prototype(item_lower, require_single=True)
+            except KeyError:
+                return
             else:
-                self.msg("|400You can't equip the same weapon twice.|n")
+                # Get search response
+                prototype_data = prototype[0]
+
+                # Get item attributes and who makes it.
+                item_data = prototype_data['attrs']
+
+                indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
+
+                # Do some skill checks
+                if indexOfRequired:
+                    required_skill = item_data[indexOfRequired][1]
+
+                    if required_skill == "gunner" and not self.caller.db.gunner:
+                        self.msg(f"You lack the skill in Firearms to use {item.key}.")
+                        return
+                    elif required_skill == "archer" and not self.caller.db.archer:
+                        self.msg(f"You lack the skill in Archery to use {item.key}.")
+                        return
+                    elif required_skill == "shields" and not self.caller.db.shields:
+                        self.msg(f"You lack the skill in Shields to use {item.key}.")
+                        return
+                    elif required_skill == "melee_weapons" and not self.caller.db.melee_weapons:
+                        self.msg(f"You lack the skill in Melee Weapons to use {item.key}.")
+                        return
+                    elif required_skill == "armor_proficiency" and not self.caller.db.armor_proficiency:
+                        self.msg(f"You lack the skill in Armor to use {item.key}.")
+                        return
+
+                # Equip gloves and add resists
+                if item.db.hand_slot and not self.caller.db.hand_slot:
+                    self.caller.db.hand_slot.append(item)
+
+                    # Add extra points from indomitable if armor still has material_value
+                    if item.db.resist > 0:
+                        self.caller.db.resist += item.db.resist
+
+                    self.msg(f"You don {item.key}.")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+
+                # Equip boots and add resists
+                elif item.db.foot_slot and not self.caller.db.foot_slot:
+                    self.caller.db.foot_slot.append(item)
+
+                    # Add extra points from indomitable if armor still has material_value
+                    if item.db.resist:
+                        self.caller.db.resist += item.db.resist
+
+                    self.msg(f"You don {item.key}.")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+
+                # Equip kit. Corresponding skill should reference the number of uses left.
+                elif item.db.kit_slot and not self.caller.db.kit_slot:
+                    self.caller.db.kit_slot.append(item)
+
+                    self.msg(f"You equip a {item.key} with {item.db.uses} uses left.")
+
+                # Equip arrows. Corresponding skill should reference the number of uses left.
+                elif item.db.arrow_slot and not self.caller.db.arrow_slot:
+                    self.caller.db.arrow_slot.append(item)
+
+                    self.msg(f"You equip a quiver with {item.db.quantity} arrows left.")
+
+                # Equip arrows. Corresponding skill should reference the number of uses left.
+                elif item.db.bullet_slot and not self.caller.db.bullet_slot:
+                    self.caller.db.bullet_slot.append(item)
+
+                    self.msg(f"You equip a bundle of {item.db.quantity} bullets.")
+
+                # Equip clothing. Add to character's influential skill.
+                elif item.db.clothing_slot and not self.caller.db.clothing_slot:
+                    self.caller.db.clothing_slot.append(item)
+
+                    if item.db.influential:
+                        self.caller.db.influential += item.db.influential
+
+                    self.msg(f"You put on the {item.key}.")
+
+                # Equip clothing. Add to character's influential skill.
+                elif item.db.cloak_slot and not self.caller.db.cloak_slot:
+                    self.caller.db.cloak_slot.append(item)
+
+                    if item.db.espionage:
+                        self.caller.db.espionage += item.db.espionage
+
+                    self.msg(f"You put on the {item.key}.")
+
+                # Equip armor
+                elif item.db.is_armor and not self.caller.db.body_slot:
+                    self.caller.db.body_slot.append(item)
+                    self.caller.db.armor = item.db.material_value
+
+                    # Add extra points from indomitable if armor still has material_value
+                    if item.db.material_value > 0 and self.caller.db.indomitable:
+                        self.caller.db.armor += self.caller.db.indomitable
+
+                    self.msg(f"You don {item.key}.")
+                    self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
+
+                    # Get vals for armor value calc
+                    armor_value = self.caller.db.armor
+                    indomitable = self.caller.db.indomitable
+                    tough = self.caller.db.tough
+                    armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
+
+                    # Add them up and set the curent armor value in the database
+                    currentArmorValue = armor_value + tough + armor_specialist + indomitable
+                    self.caller.db.av = currentArmorValue
+
+                    # Return armor value to console.
+                    self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
+
+                # For weapons/shields
+                elif item and item not in self.right_slot:
+                    if not item.db.broken:
+                        # Check if item is twohanded
+                        if item.db.twohanded:
+                            if not self.right_slot and not self.left_slot:
+                                self.right_slot.append(item)
+                                self.left_slot.append(item)
+
+                                # Add weapon bonus
+                                weapon_bonus = h.weaponValue(item.db.level)
+                                self.caller.db.weapon_level = weapon_bonus
+
+                                # Send some messages
+                                self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+                                self.caller.msg(f"You have equipped your {item.key}")
+                            else:
+                                self.caller.msg(f"|430You can't equip the {item} unless you first unequip something.|n")
+                                return
+                        # Check to see if right hand is empty.
+                        elif not self.right_slot and (item.db.is_shield or item.db.damage):
+                            self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+
+                            if item.db.is_shield:
+                                self.right_slot.append(item)
+                            else:
+                                # Add weapon bonus
+                                self.right_slot.append(item)
+                                weapon_bonus = h.weaponValue(item.db.level)
+                                self.caller.db.weapon_level = weapon_bonus
+
+                        elif not self.left_slot and (item.db.is_shield or item.db.damage):
+                            self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key}.|n")
+
+                            if item.db.is_shield:
+                                self.left_slot.append(item)
+                            else:
+                                # Add weapon bonus
+                                self.left_slot.append(item)
+                                weapon_bonus = h.weaponValue(item.db.level)
+                                self.caller.db.weapon_level = weapon_bonus
+
+                        else:
+                            self.caller.msg("|430You are already carrying an item in that slot.|n")
+                            return
+                    else:
+                        self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
+                else:
+                    self.msg("|400You can't equip the same weapon twice.|n")
 
         else:
             return
