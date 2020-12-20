@@ -440,6 +440,7 @@ class CmdGive(Command):
             # Call the object script's at_give() method.
             to_give.at_give(self.caller, target)
 
+
 class CmdEquip(Command):
     """Equip a weapon or shield
 
@@ -473,6 +474,7 @@ class CmdEquip(Command):
             item_lower = item.key.lower().replace(" ", "_")
             prototype = prototypes.search_prototype(item_lower, require_single=True)
 
+        if prototype:
             # Get search response
             prototype_data = prototype[0]
 
