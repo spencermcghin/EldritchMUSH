@@ -470,7 +470,8 @@ class CmdEquip(Command):
         item = self.caller.search(self.item, location=self.caller)
 
         # Check if the item is of armor type
-        item_lower = item.key.lower().replace(" ", "_")
+        item_lower = item.key.lower().replace(" ", "_") if item else return
+
         try:
             prototype = prototypes.search_prototype(item_lower, require_single=True)
         except KeyError:
