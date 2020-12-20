@@ -837,7 +837,6 @@ DUELIST_GLOVES = {
 "key": "Duelist Gloves",
 "aliases": ["duelist gloves"],
 "craft_source": "artificer",
-"hand_slot": True,
 "required_resources": 12,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -847,7 +846,8 @@ DUELIST_GLOVES = {
 "value_silver": 20,
 "value_gold": 2,
 "level": 1,
-"resist": 1
+"resist": 1,
+"hand_slot": True
 }
 
 STALWART_BOOTS = {
@@ -855,7 +855,6 @@ STALWART_BOOTS = {
 "key": "Stalwart Boots",
 "aliases": ["stalwart boots"],
 "craft_source": "artificer",
-"foot_slot": True,
 "required_resources": 12,
 "iron_ingots": 3,
 "refined_wood": 0,
@@ -865,7 +864,8 @@ STALWART_BOOTS = {
 "value_silver": 20,
 "value_gold": 2,
 "level": 1,
-"resist": 1
+"resist": 1,
+"foot_slot": True
 }
 
 LIGHT_BOOTS = {
@@ -873,7 +873,6 @@ LIGHT_BOOTS = {
 "key": "Light Boots",
 "aliases": ["light boots"],
 "craft_source": "artificer",
-"foot_slot": True,
 "required_resources": 12,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -883,7 +882,8 @@ LIGHT_BOOTS = {
 "value_silver": 20,
 "value_gold": 2,
 "level": 1,
-"resist": 1
+"resist": 1,
+"foot_slot": True
 }
 
 FINE_CLOTHING = {
@@ -891,7 +891,6 @@ FINE_CLOTHING = {
 "key": "Fine Clothing",
 "aliases": ["fine clothing"],
 "craft_source": "artificer",
-"clothing_slot": True,
 "required_resources": 10,
 "iron_ingots": 3,
 "refined_wood": 0,
@@ -901,7 +900,8 @@ FINE_CLOTHING = {
 "value_silver": 18,
 "value_gold": 1.8,
 "level": 1,
-"influential": 1
+"influential": 1,
+"clothing_slot": True
 }
 
 HIGHWAYMAN_CLOAK = {
@@ -909,7 +909,6 @@ HIGHWAYMAN_CLOAK = {
 "key": "Highwayman Cloak",
 "aliases": ["highwayman cloak"],
 "craft_source": "artificer",
-"cloak_slot": True,
 "required_resources": 10,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -919,7 +918,8 @@ HIGHWAYMAN_CLOAK = {
 "value_silver": 18,
 "value_gold": 1.8,
 "level": 1,
-"espionage": 1
+"espionage": 1,
+"cloak_slot": True
 }
 
 """
@@ -931,7 +931,6 @@ SHADOW_MANTLE = {
 "key": "Shadow Mantle",
 "aliases": ["shadow mantle"],
 "craft_source": "artificer",
-"cloak_slot": True,
 "required_resources": 13,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -941,7 +940,8 @@ SHADOW_MANTLE = {
 "value_silver": 25,
 "value_gold": 2.5,
 "level": 2,
-"espionage": 4
+"espionage": 4,
+"cloak_slot": True
 }
 
 COURTIER_CLOTHING = {
@@ -949,7 +949,6 @@ COURTIER_CLOTHING = {
 "key": "Courtier Clothing",
 "aliases": ["courtier clothing"],
 "craft_source": "artificer",
-"clothing_slot": True,
 "required_resources": 13,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -959,7 +958,8 @@ COURTIER_CLOTHING = {
 "value_silver": 25,
 "value_gold": 2.5,
 "level": 2,
-"influential": 2
+"influential": 2,
+"clothing_slot": True
 }
 
 FINE_DUELIST_GLOVES = {
@@ -967,7 +967,6 @@ FINE_DUELIST_GLOVES = {
 "key": "Fine Duelist Gloves",
 "aliases": ["fine duelist gloves"],
 "craft_source": "artificer",
-"hand_slot": True,
 "required_resources": 16,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -977,7 +976,8 @@ FINE_DUELIST_GLOVES = {
 "value_silver": 28,
 "value_gold": 2.8,
 "level": 2,
-"resist": 2
+"resist": 2,
+"hand_slot": True
 }
 
 SWORDDANCER_BOOTS = {
@@ -985,7 +985,6 @@ SWORDDANCER_BOOTS = {
 "key": "Sworddancer Boots",
 "aliases": ["sworddancer boots"],
 "craft_source": "artificer",
-"foot_slot": True,
 "required_resources": 16,
 "iron_ingots": 4,
 "refined_wood": 0,
@@ -995,7 +994,8 @@ SWORDDANCER_BOOTS = {
 "value_silver": 28,
 "value_gold": 2.8,
 "level": 2,
-"resist": 2
+"resist": 2,
+"foot_slot": True
 }
 
 HUNTER_BOOTS = {
@@ -1003,7 +1003,6 @@ HUNTER_BOOTS = {
 "key": "Hunter Boots",
 "aliases": ["hunter boots"],
 "craft_source": "artificer",
-"foot_slot": True,
 "required_resources": 16,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -1013,7 +1012,8 @@ HUNTER_BOOTS = {
 "value_silver": 28,
 "value_gold": 2.8,
 "level": 2,
-"resist": 2
+"resist": 2,
+"foot_slot": True
 }
 
 """
@@ -1025,9 +1025,6 @@ MASTERWORK_APOTHECARY_KIT = {
 "key": "Masterwork Apothecary Kit",
 "aliases": ["masterwork apothecary kit"],
 "craft_source": "artificer",
-"type": "apothecary",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 15,
 "iron_ingots": 0,
 "refined_wood": 5,
@@ -1036,7 +1033,10 @@ MASTERWORK_APOTHECARY_KIT = {
 "value_copper": 320,
 "value_silver": 32,
 "value_gold": 3.2,
-"level": 3
+"level": 3,
+"type": "apothecary",
+"kit_slot": True,
+"uses": 10
 }
 
 MASTERWORK_ARTIFICER_KIT = {
@@ -1044,9 +1044,6 @@ MASTERWORK_ARTIFICER_KIT = {
 "key": "Masterwork Arifticer Kit",
 "aliases": ["masterwork artificer kit"],
 "craft_source": "artificer",
-"type": "artificer",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 15,
 "iron_ingots": 0,
 "refined_wood": 5,
@@ -1055,7 +1052,10 @@ MASTERWORK_ARTIFICER_KIT = {
 "value_copper": 320,
 "value_silver": 32,
 "value_gold": 3.2,
-"level": 3
+"level": 3,
+"type": "artificer",
+"kit_slot": True,
+"uses": 10
 }
 
 MASTERWORK_BLACKSMITH_KIT = {
@@ -1063,9 +1063,6 @@ MASTERWORK_BLACKSMITH_KIT = {
 "key": "Masterwork Blacksmith Kit",
 "aliases": ["masterwork blacksmith kit"],
 "craft_source": "artificer",
-"type": "blacksmith",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 12,
 "iron_ingots": 4,
 "refined_wood": 4,
@@ -1074,7 +1071,10 @@ MASTERWORK_BLACKSMITH_KIT = {
 "value_copper": 290,
 "value_silver": 29,
 "value_gold": 2.9,
-"level": 3
+"level": 3,
+"type": "blacksmith",
+"kit_slot": True,
+"uses": 10
 }
 
 MASTERWORK_BOWYER_KIT = {
@@ -1082,9 +1082,6 @@ MASTERWORK_BOWYER_KIT = {
 "key": "Masterwork Bowyer Kit",
 "aliases": ["masterwork bowyer kit"],
 "craft_source": "artificer",
-"type": "bowyer",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 15,
 "iron_ingots": 5,
 "refined_wood": 5,
@@ -1093,7 +1090,10 @@ MASTERWORK_BOWYER_KIT = {
 "value_copper": 320,
 "value_silver": 32,
 "value_gold": 3.2,
-"level": 3
+"level": 3,
+"type": "bowyer",
+"kit_slot": True,
+"uses": 10
 }
 
 MASTERWORK_GUNSMITH_KIT = {
@@ -1101,9 +1101,6 @@ MASTERWORK_GUNSMITH_KIT = {
 "key": "Masterwork Gunsmith Kit",
 "aliases": ["masterwork gunsmith kit"],
 "craft_source": "artificer",
-"type": "gunsmith",
-"kit_slot": True,
-"uses": 10,
 "required_resources": 23,
 "iron_ingots": 8,
 "refined_wood": 5,
@@ -1112,7 +1109,10 @@ MASTERWORK_GUNSMITH_KIT = {
 "value_copper": 400,
 "value_silver": 40,
 "value_gold": 4,
-"level": 3
+"level": 3,
+"type": "gunsmith",
+"kit_slot": True,
+"uses": 10
 }
 
 DARK_SILK_CLOAK = {
@@ -1120,7 +1120,6 @@ DARK_SILK_CLOAK = {
 "key": "Dark Silk Cloak",
 "aliases": ["Dark Silk Cloak"],
 "craft_source": "artificer",
-"cloak_slot": True,
 "required_resources": 18,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -1130,7 +1129,8 @@ DARK_SILK_CLOAK = {
 "value_silver": 35,
 "value_gold": 3.5,
 "level": 3,
-"espionage": 6
+"espionage": 6,
+"cloak_slot": True
 }
 
 NOBLE_FINERY = {
@@ -1138,7 +1138,6 @@ NOBLE_FINERY = {
 "key": "Noble Finery",
 "aliases": ["noble finery"],
 "craft_source": "artificer",
-"clothing_slot": True,
 "required_resources": 18,
 "iron_ingots": 2,
 "refined_wood": 0,
@@ -1148,7 +1147,8 @@ NOBLE_FINERY = {
 "value_silver": 35,
 "value_gold": 3.5,
 "level": 3,
-"influential": 3
+"influential": 3,
+"clothing_slot": True
 }
 
 MASTER_DUELIST_GLOVES = {
@@ -1156,7 +1156,6 @@ MASTER_DUELIST_GLOVES = {
 "key": "Master Duelist Gloves",
 "aliases": ["master duelist gloves"],
 "craft_source": "artificer",
-"hand_slot": True,
 "required_resources": 23,
 "iron_ingots": 3,
 "refined_wood": 0,
@@ -1166,7 +1165,8 @@ MASTER_DUELIST_GLOVES = {
 "value_silver": 40,
 "value_gold": 4,
 "level": 3,
-"resist": 3
+"resist": 3,
+"hand_slot": True
 }
 
 KNIGHT_BOOTS = {
@@ -1174,7 +1174,6 @@ KNIGHT_BOOTS = {
 "key": "Knight Boots",
 "aliases": ["knight boots"],
 "craft_source": "artificer",
-"foot_slot": True,
 "required_resources": 23,
 "iron_ingots": 3,
 "refined_wood": 0,
@@ -1184,7 +1183,8 @@ KNIGHT_BOOTS = {
 "value_silver": 40,
 "value_gold": 4,
 "level": 3,
-"resist": 3
+"resist": 3,
+"foot_slot": True
 }
 
 THIEF_BOOTS = {
@@ -1192,7 +1192,6 @@ THIEF_BOOTS = {
 "key": "Thief Boots",
 "aliases": ["thie boots"],
 "craft_source": "artificer",
-"foot_slot": True,
 "required_resources": 23,
 "iron_ingots": 0,
 "refined_wood": 0,
@@ -1202,7 +1201,8 @@ THIEF_BOOTS = {
 "value_silver": 40,
 "value_gold": 4,
 "level": 3,
-"resist": 3
+"resist": 3,
+"foot_slot": True
 }
 
 """
@@ -1277,8 +1277,6 @@ BULLETS = {
 "key": "Bullets",
 "aliases": ["bullets"],
 "craft_source": "gunsmith",
-"bullet_slot": True,
-"quantity": 3,
 "required_resources": 9,
 "iron_ingots": 6,
 "refined_wood": 3,
@@ -1287,7 +1285,9 @@ BULLETS = {
 "value_copper": 170,
 "value_silver": 17,
 "value_gold": 1.7,
-"level": 1
+"level": 1,
+"bullet_slot": True,
+"quantity": 3
 }
 
 
