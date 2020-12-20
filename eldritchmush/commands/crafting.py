@@ -108,7 +108,7 @@ class CmdCraft(Command):
                     item[0].move_to(self.caller, quiet=True)
 
                     # Decrement the kit of one use.
-                    kit.db.uses -= 1
+                    # kit.db.uses -= 1
 
                 else:
                     self.msg(f"|400You don't have the required resources.|n")
