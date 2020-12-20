@@ -467,11 +467,10 @@ class CmdEquip(Command):
             self.caller.msg("|430Usage: equip <item>|n")
             return
 
-        try:
-            item = self.caller.search(self.item, location=self.caller)
-        except KeyError:
-            return
-        else:
+        item = self.caller.search(self.item, location=self.caller, multimatch_string=f"You are carrying multiple {self.item}s. Please be more specific.")
+
+
+        if item:
 
             # Check if the item is of armor type
             item_lower = item.key.lower().replace(" ", "_")
@@ -636,6 +635,9 @@ class CmdEquip(Command):
                     self.caller.msg(f"|400{item} is broken and may not be equipped.|n")
             else:
                 self.msg("|400You can't equip the same weapon twice.|n")
+
+        else:
+            return
 
 class CmdUnequip(Command):
     """Equip a weapon or shield
