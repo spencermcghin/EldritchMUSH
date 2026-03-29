@@ -37,6 +37,7 @@ EldritchMUSH/
 │   │   │   ├── strike.py         # Basic melee attack
 │   │   │   ├── stun.py           # Stun opponent
 │   │   │   └── sunder.py         # Sunder armor/weapons
+│   │   ├── alchemy.py            # CmdBrew, CmdReagents, CmdAddReagent (apothecary system)
 │   │   ├── blacksmith.py         # CmdForge — smithing commands
 │   │   ├── combatant.py          # Combatant mixin helpers
 │   │   ├── crafting.py           # CmdCraft, CmdRepair
@@ -51,13 +52,15 @@ EldritchMUSH/
 │   │   ├── characters.py         # Player Character — all stats initialized here
 │   │   ├── exits.py              # Exit typeclass
 │   │   ├── npc.py                # NPC typeclass with AI — ~1085 lines
-│   │   ├── objects.py            # Item/weapon/crafting station typeclasses
+│   │   ├── objects.py            # Item/weapon/crafting station typeclasses; ConsumableObject, ApothecaryWorkbench
 │   │   ├── rooms.py              # Room types (Room, WeatherRoom, MarketRoom, ChargenRoom) — ~613 lines
 │   │   └── scripts.py            # Evennia scripts (timers, recurring tasks)
 │   ├── world/                    # Game data and systems
 │   │   ├── batch_cmds.ev         # Evennia batch commands for world building
 │   │   ├── combat_loop.py        # Turn-based combat loop management
 │   │   ├── prototypes.py         # Item/weapon/armor templates — ~1330 lines, 100+ items
+│   │   ├── alchemy_prototypes.py # All 66 alchemical substance prototypes (levels 1-3)
+│   │   ├── reagents.py           # Reagent definitions — 32 reagents with rarities
 │   │   ├── reset.py              # World reset logic
 │   │   └── rules.py              # Combat formulas (legacy — newer logic is in commands/)
 │   ├── server/
@@ -295,14 +298,58 @@ IRON_SWORD = {
 | Artificer Workbench | `CrafterCmdSet` | `craft`, `repair` |
 | Bowyer Workbench | `CrafterCmdSet` | `craft`, `repair` |
 | Gunsmith Workbench | `CrafterCmdSet` | `craft`, `repair` |
+| Apothecary Workbench | `ApothecaryWorkbenchCmdSet` | `brew` |
 
 Crafting station objects have their CmdSet attached in `typeclasses/objects.py`. Commands become available when a player is in the same room as the station.
+
+### Alchemy System (`commands/alchemy.py`)
+
+Alchemists brew consumable substances at an **Apothecary Workbench** object (`typeclasses.objects.ApothecaryWorkbench`). The system is skill-gated:
+
+| Alchemist Level | Brews |
+|----------------|-------|
+| 1 | Level 1 substances only |
+| 2 | Level 1–2 substances |
+| 3 | Level 1–3 substances |
+
+**Requirements to brew:**
+- `alchemist` skill ≥ substance level
+- Apothecary Kit equipped in `kit_slot` (`kit.db.type == "apothecary"`, `kit.db.uses > 0`)
+- Required reagents present in `caller.db.reagents` (a `{name: qty}` dict)
+
+**Substance types:** Apotheca, Poison, Drug (66 recipes total in `world/alchemy_prototypes.py`).
+
+**Prototype fields** (all alchemy prototypes have `craft_source = "apothecary"`):
+```python
+{
+    "key": "blade oil",
+    "typeclass": "typeclasses.objects.ConsumableObject",
+    "craft_source": "apothecary",
+    "substance_type": "Apotheca",
+    "level": 1,
+    "qty_produced": 2,
+    "effect": "Weapon coated gains +1 damage for 1 combat.",
+    "reagent_1": "Sayge", "reagent_1_qty": 2,
+    "reagent_2": "Crow Feather", "reagent_2_qty": 1,
+    ...
+}
+```
+
+**Reagents** (`world/reagents.py`): 32 named reagents with descriptions and rarities (Common, Uncommon, Rare, Loot Drop, Black Market). Stored on characters as `self.db.reagents = {"Sayge": 3, ...}`.
+
+**Commands:**
+- `brew <substance name>` — brew at a workbench (requires skill, kit, reagents)
+- `reagents` — display your reagent inventory
+- `addreagent <name> = <qty>` — staff command (Builder+) to give reagents to yourself
+
+**Output typeclass:** `ConsumableObject` — stores `substance_type`, `level`, `effect`, `craft_source`, `value` on `db`; `return_appearance()` shows effect/type/level/value to the looker.
 
 ### Resources
 
 - **Materials:** `iron_ingots`, `refined_wood`, `leather`, `cloth`
 - **Currency:** `gold`, `silver`, `copper`
 - **Ammunition:** `arrows`, `bullets`
+- **Reagents:** stored in `char.db.reagents` dict (not physical inventory items)
 
 ---
 
@@ -345,12 +392,13 @@ Crafting station objects have their CmdSet attached in `typeclasses/objects.py`.
 
 | CmdSet | Attached To | Key Commands |
 |--------|-------------|--------------|
-| `CharacterCmdSet` | `Character` typeclass | All combat, inventory, social, healing commands |
-| `AccountCmdSet` | `Account` typeclass | `createnpc`, `editnpc`, `npc` |
-| `ChargenCmdset` | `ChargenRoom` room | All `Set*` skill selection commands |
+| `CharacterCmdSet` | `Character` typeclass | All combat, inventory, social, healing commands; also `reagents` |
+| `AccountCmdSet` | `Account` typeclass | `createnpc`, `editnpc`, `npc`, `addreagent` |
+| `ChargenCmdset` | `ChargenRoom` room | All `Set*` skill selection commands including `SetAlchemist` |
 | `RoomCmdSet` | All `Room` instances (default) | `perception`, `tracking` |
 | `BlacksmithCmdSet` | Forge objects | `forge`, `craft`, `repair` |
 | `CrafterCmdSet` | Workbench objects | `craft`, `repair` |
+| `ApothecaryWorkbenchCmdSet` | Apothecary Workbench objects | `brew` |
 
 ---
 
