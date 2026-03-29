@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice, alchemy
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -69,6 +69,20 @@ class ApothecaryWorkbenchCmdSet(CmdSet):
         super().at_cmdset_creation()
 
         self.add(alchemy.CmdBrew())
+
+
+class ShopCmdSet(CmdSet):
+    """
+    Commands available when a Merchant object is in the room.
+    browse/buy/sell become available to all players in the room.
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(shop.CmdBrowse())
+        self.add(shop.CmdBuy())
+        self.add(shop.CmdSell())
 
 """
 Strange Circus Command Sets - Virtual Event 1
@@ -151,6 +165,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(medicine.CmdMedicine())
         self.add(combat.CmdTargets())
         self.add(alchemy.CmdReagents())
+        self.add(shop.CmdBrowse())
+        self.add(shop.CmdBuy())
+        self.add(shop.CmdSell())
 
 #### Special command sets
 
@@ -274,7 +291,7 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetStun())
         self.add(command.SetSunder())
         self.add(command.SetStagger())
-        self.add(command.SetWyldingHand())
+        self.add(command.SetVigil())
         self.add(command.SetStabilize())
         self.add(command.SetMedicine())
         self.add(command.SetBattleFieldMedicine())

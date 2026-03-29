@@ -278,7 +278,7 @@ class Combatant:
             return False
 
     def rollAttack(self, maneuver_difficulty = 0):
-        die_result = self.helper.fayneChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("wylding_hand", 0))
+        die_result = self.helper.attackDiceChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("vigil", 0))
         stagger_penalty = 0
 
         if(self.isStaggered):
