@@ -149,6 +149,9 @@ class Character(DefaultCharacter):
         self.db.copper = 0
         self.db.arrows = 0
 
+        # Alchemy reagent inventory: {reagent_name: quantity}
+        self.db.reagents = {}
+
 
     def return_appearance(self, looker):
         """
