@@ -1065,35 +1065,36 @@ class SetArmorSpecialist(Command):
             # Return armor value to console.
             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
-class SetWyldingHand(Command):
-    """Set the wylding hand level of a character
+class SetVigil(Command):
+    """Set the Vigil archetype level of a character
 
-    Usage: setwyldinghand <0-3>
+    Usage: setvigil <0-3>
 
-    This sets the wylding hand level of the current character. This can only be
-    used during character generation.
+    This sets the Vigil archetype level of the current character. Vigil is a
+    combat-focused archetype that grants an enhanced attack die in place of the
+    standard Master of Arms roll. This can only be used during character generation.
     """
 
-    key = "setwyldinghand"
+    key = "setvigil"
     help_category = "mush"
 
     def func(self):
         "This performs the actual command"
-        errmsg = "|430Usage: setwyldinghand <0-3>|n\n|400You must supply a number between 0 and 3.|n"
+        errmsg = "|430Usage: setvigil <0-3>|n\n|400You must supply a number between 0 and 3.|n"
         if not self.args:
             self.caller.msg(errmsg)
             return
         try:
-            wyldinghand = int(self.args)
+            vigil = int(self.args)
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= wyldinghand <= 3):
+        if not (0 <= vigil <= 3):
             self.caller.msg(errmsg)
         else:
             # at this point the argument is tested as valid. Let's set it.
-            self.caller.db.wyldinghand = wyldinghand
-            self.caller.msg(f"Your level of Wylding Hand was set to {wyldinghand}")
+            self.caller.db.vigil = vigil
+            self.caller.msg(f"Your Vigil level was set to {vigil}")
 
 class SetResilience(Command):
     """Set the resilience level of a character
@@ -1945,12 +1946,12 @@ class CmdSwing(Command):
 
         # Generate throw result
         master_of_arms = self.caller.db.master_of_arms
-        wyldinghand = self.caller.db.wyldinghand
+        vigil = self.caller.db.vigil
 
         if master_of_arms:
             die_result = h.masterOfArms(master_of_arms)
-        elif wyldinghand:
-            die_result = h.wyldingHand(wyldinghand)
+        elif vigil:
+            die_result = h.vigilDie(vigil)
         else:
             die_result = random.randint(1, 4)
 
@@ -2360,7 +2361,7 @@ class CharSheet(Command):
                         "Chirurgeon",
                         "Rally",
                         "Battlefield Commander",
-                        "Wylding Hand"
+                        "Vigil"
                     ],
                     [
                         self.caller.db.stabilize,
@@ -2368,7 +2369,7 @@ class CharSheet(Command):
                         self.caller.db.chirurgeon,
                         self.caller.db.rally,
                         self.caller.db.battlefieldcommander,
-                        self.caller.db.wyldinghand
+                        self.caller.db.vigil
                     ]
                 ],
                 border = "cells")

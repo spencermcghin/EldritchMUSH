@@ -106,7 +106,7 @@ class Character(DefaultCharacter):
         self.db.weapon_level = 0
         self.db.shield_value = 0
         self.db.twohanded = 0
-        self.db.wyldinghand = 0
+        self.db.vigil = 0
         self.db.shield = 0
         self.db.bow = 0
         self.db.activemartialskill = 1

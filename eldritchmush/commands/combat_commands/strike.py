@@ -61,7 +61,7 @@ class CmdStrike(Command):
 
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.isArmed(f"|430Before you strike you must equip a melee weapon using the command equip <weapon name>.|n"):
-                # Check if damage bonus comes from fayne or master_of_arms
+                # Check if damage bonus comes from vigil or master_of_arms
                 attack_result = combatant.rollAttack()
                 shot_location = combatant.determineHitLocation(victim)
 

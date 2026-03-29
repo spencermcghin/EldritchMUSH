@@ -79,9 +79,9 @@ class Helper():
         return die_result
 
 
-    def wyldingHand(self, level):
+    def vigilDie(self, level):
         """
-        Returns die result based on wylding hand level
+        Returns die result based on Vigil archetype level
         """
         if level == 0:
             die_result = random.randint(1,6)
@@ -280,7 +280,7 @@ class Helper():
         # Vars for melee attack_result logic
         master_of_arms = combatant.db.master_of_arms
         weapon_level = self.weaponValue(combatant.db.weapon_level)
-        wylding_hand = combatant.db.wylding_hand
+        vigil = combatant.db.vigil
 
         # Penalties
         weakness = self.weaknessChecker(combatant.db.weakness)
@@ -302,7 +302,7 @@ class Helper():
                        "bow_penalty": 2,
                        "master_of_arms": master_of_arms,
                        "weapon_level": weapon_level,
-                       "wylding_hand": wylding_hand,
+                       "vigil": vigil,
                        "weakness": weakness,
                        "dmg_penalty": dmg_penalty,
                        "two_handed": two_handed,
@@ -317,10 +317,10 @@ class Helper():
         return melee_stats
 
 
-    def fayneChecker(self, master_of_arms, wylding_hand):
-        # Return die roll based on level in master of arms or wylding hand.
-        if wylding_hand:
-            die_result = self.wyldingHand(wylding_hand)
+    def attackDiceChecker(self, master_of_arms, vigil):
+        # Return die roll based on level in master of arms or vigil archetype.
+        if vigil:
+            die_result = self.vigilDie(vigil)
         else:
             die_result = self.masterOfArms(master_of_arms)
 

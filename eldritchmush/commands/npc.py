@@ -94,7 +94,7 @@ class CmdEditNPC(Command):
                              "sunder",
                              "stun",
                              "stagger",
-                             "wyldinghand",
+                             "vigil",
                              "bow",
                              "activemartialskill",
                              "weakness",
