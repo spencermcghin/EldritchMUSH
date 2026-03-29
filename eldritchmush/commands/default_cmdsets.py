@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -58,6 +58,17 @@ class CrafterCmdSet(CmdSet):
 
         self.add(crafting.CmdCraft())
         self.add(crafting.CmdRepair())
+
+class ApothecaryWorkbenchCmdSet(CmdSet):
+    """
+    Commands available at an Apothecary workbench.
+    Merged into the character's cmdset when in the same room as the bench.
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+
+        self.add(alchemy.CmdBrew())
 
 """
 Strange Circus Command Sets - Virtual Event 1
@@ -139,6 +150,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdPatch())
         self.add(medicine.CmdMedicine())
         self.add(combat.CmdTargets())
+        self.add(alchemy.CmdReagents())
 
 #### Special command sets
 
@@ -192,6 +204,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(npc.CmdCreateNPC())
         self.add(npc.CmdEditNPC())
         self.add(npc.CmdNPC())
+        self.add(alchemy.CmdAddReagent())
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """
@@ -247,6 +260,7 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetArtificer())
         self.add(command.SetGunsmith())
         self.add(command.SetBowyer())
+        self.add(command.SetAlchemist())
         self.add(command.SetMasterOfArms())
         self.add(command.SetArmorSpecialist())
         self.add(command.SetGunner())
