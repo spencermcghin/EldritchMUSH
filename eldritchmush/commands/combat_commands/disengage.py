@@ -4,6 +4,8 @@ from world.combat_loop import CombatLoop
 from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
+from world.events import emit
+from world.available_commands import push_available_commands
 
 class CmdDisengage(Command):
     """
@@ -34,6 +36,7 @@ class CmdDisengage(Command):
             # Check to see if caller is in combat loop:
             if self.caller in self.combat_loop:
                 self.caller.location.msg_contents(f"{self.caller.key} |025breaks away from combat.|n")
+                emit(self.caller.location, "combat_disengage", {"character": self.caller.key})
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
@@ -41,6 +44,7 @@ class CmdDisengage(Command):
                 # Reset stats
                 self.caller.db.in_combat = 0
                 self.caller.db.combat_turn = 1
+                push_available_commands(self.caller)
 
                 # Check for only npcs remaining.
                 loop_contents = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
@@ -51,6 +55,7 @@ class CmdDisengage(Command):
                         char.db.in_combat = 0
                     self.combat_loop.clear()
                     self.caller.location.msg_contents("|025Combat is now over.|n")
+                    emit(self.caller.location, "combat_end", {"reason": "all_disengaged"})
                     return
                 else:
                     loop.cleanup()

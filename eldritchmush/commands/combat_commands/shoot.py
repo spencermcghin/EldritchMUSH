@@ -2,6 +2,7 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combatant import Combatant
+from world.events import emit
 
 class CmdShoot(Command):
     """
@@ -82,14 +83,36 @@ class CmdShoot(Command):
                         skip_av_damage=True
                         combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n) |025straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
                         victim.takeDamage(combatant, bow_damage, shot_location, skip_av_damage)
+                        emit(self.caller.location, "combat_hit", {
+                            "attacker": combatant.name,
+                            "target": victim.name,
+                            "damage": bow_damage,
+                            "location": shot_location,
+                            "weapon": "bow",
+                            "roll": attack_result,
+                            "target_av": victim.av,
+                        })
                     else:
                         combatant.broadcast(
                             f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
+                        emit(self.caller.location, "combat_miss", {
+                            "attacker": combatant.name,
+                            "target": victim.name,
+                            "reason": "shield_block",
+                            "roll": attack_result,
+                        })
 
                     combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
 
                 else:
                     combatant.broadcast(f"{combatant.name} |025shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
+                    emit(self.caller.location, "combat_miss", {
+                        "attacker": combatant.name,
+                        "target": victim.name,
+                        "reason": "missed",
+                        "roll": attack_result,
+                        "target_av": victim.av,
+                    })
                     # Clean up
                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                 loop.combatTurnOff(self.caller)
