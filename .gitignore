@@ -3,6 +3,7 @@
 *.log
 *.pid
 __pycache__
+eldritchmush/server/.static/
 jessmushtest
 devevenv
 prodevenv
