@@ -1,0 +1,399 @@
+import { useState, useCallback, useRef, useEffect } from 'react'
+
+const MAX_RECONNECT_DELAY = 30000
+const BASE_RECONNECT_DELAY = 1000
+const MAX_COMBAT_LOG = 10
+const MAX_MESSAGES = 500
+
+let msgIdCounter = 0
+function nextId() {
+  return ++msgIdCounter
+}
+
+function classifyMessage(text) {
+  const t = text.toLowerCase()
+  if (
+    t.includes('strike') ||
+    t.includes('shoots') ||
+    t.includes('hits') ||
+    t.includes('misses') ||
+    t.includes('damage') ||
+    t.includes('combat') ||
+    t.includes('bleed') ||
+    t.includes('dying') ||
+    t.includes('cleave') ||
+    t.includes('disarm') ||
+    t.includes('stagger') ||
+    t.includes('stun') ||
+    t.includes('sunder')
+  ) {
+    return 'combat'
+  }
+  if (
+    t.includes('error') ||
+    t.includes('huh?') ||
+    t.includes("you can't") ||
+    t.includes('you cannot') ||
+    t.includes('invalid')
+  ) {
+    return 'error'
+  }
+  return 'game'
+}
+
+export function useEvennia() {
+  const [connectionState, setConnectionState] = useState('disconnected')
+  const [messages, setMessages] = useState([])
+  const [oobState, setOobState] = useState({
+    availableCommands: [],
+    inCombat: false,
+    combatTurnOrder: [],
+    myTurn: false,
+    combatLog: [],
+    characterName: '',
+    // Character stats parsed from game text or OOB
+    body: null,
+    totalBody: null,
+    bleedPoints: null,
+    deathPoints: null,
+    av: 0,
+    statusFlags: {
+      bleeding: false,
+      dying: false,
+      unconscious: false,
+    },
+    equipment: {
+      rightHand: null,
+      leftHand: null,
+      body: null,
+    },
+    // HP tracking for combatants (key: name, value: { hp: 0-100 })
+    combatantHp: {},
+  })
+
+  const wsRef = useRef(null)
+  const reconnectTimeoutRef = useRef(null)
+  const reconnectDelayRef = useRef(BASE_RECONNECT_DELAY)
+  const connectionParamsRef = useRef({ host: 'localhost', port: 4002 })
+  const shouldReconnectRef = useRef(false)
+  const pingIntervalRef = useRef(null)
+  const pingStartRef = useRef(null)
+  const [latency, setLatency] = useState(null)
+
+  const addMessage = useCallback((type, content, raw = '') => {
+    setMessages((prev) => {
+      const next = [
+        ...prev,
+        { id: nextId(), type, content, timestamp: Date.now(), raw },
+      ]
+      return next.length > MAX_MESSAGES ? next.slice(next.length - MAX_MESSAGES) : next
+    })
+  }, [])
+
+  const parseCharacterName = useCallback((text) => {
+    // "Your name is Aldric" or "Welcome, Aldric."
+    let m = text.match(/your name is ([A-Za-z]+)/i)
+    if (m) return m[1]
+    m = text.match(/welcome(?:,| back,)?\s+([A-Za-z]+)/i)
+    if (m) return m[1]
+    return null
+  }, [])
+
+  const parseStats = useCallback((text) => {
+    // Try to parse charsheet output
+    const updates = {}
+    let m
+
+    m = text.match(/body[:\s]+(\d+)\s*\/\s*(\d+)/i)
+    if (m) { updates.body = parseInt(m[1]); updates.totalBody = parseInt(m[2]) }
+
+    m = text.match(/bleed[:\s]+(\d+)/i)
+    if (m) updates.bleedPoints = parseInt(m[1])
+
+    m = text.match(/death[:\s]+(\d+)/i)
+    if (m) updates.deathPoints = parseInt(m[1])
+
+    m = text.match(/armor value[:\s]+(\d+)/i)
+    if (!m) m = text.match(/\bav[:\s]+(\d+)/i)
+    if (m) updates.av = parseInt(m[1])
+
+    return Object.keys(updates).length > 0 ? updates : null
+  }, [])
+
+  const handleOobEvent = useCallback((eventType, args, kwargs) => {
+    setOobState((prev) => {
+      const next = { ...prev }
+
+      switch (eventType) {
+        case 'available_commands': {
+          next.availableCommands = kwargs.commands || []
+          break
+        }
+        case 'combat_start': {
+          const combatants = kwargs.combatants || []
+          const turnOrder = kwargs.turn_order || combatants
+          next.inCombat = true
+          next.combatTurnOrder = turnOrder
+          // Initialize all combatants at 100% HP
+          const hp = {}
+          combatants.forEach((c) => { hp[c] = 100 })
+          next.combatantHp = hp
+          next.myTurn = turnOrder[0] === prev.characterName
+          const entry = { id: nextId(), type: 'start', text: 'Combat begins!', ts: Date.now() }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          break
+        }
+        case 'combat_join': {
+          const combatants = kwargs.combatants || []
+          const turnOrder = kwargs.turn_order || combatants
+          next.inCombat = true
+          next.combatTurnOrder = turnOrder
+          const newHp = { ...prev.combatantHp }
+          combatants.forEach((c) => { if (!newHp[c]) newHp[c] = 100 })
+          next.combatantHp = newHp
+          next.myTurn = turnOrder[0] === prev.characterName
+          break
+        }
+        case 'combat_end': {
+          next.inCombat = false
+          next.combatTurnOrder = []
+          next.myTurn = false
+          next.combatantHp = {}
+          const entry = {
+            id: nextId(),
+            type: 'end',
+            text: kwargs.reason ? `Combat ends: ${kwargs.reason}` : 'Combat ends.',
+            ts: Date.now(),
+          }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          break
+        }
+        case 'turn_change': {
+          const turnOrder = kwargs.turn_order || prev.combatTurnOrder
+          next.combatTurnOrder = turnOrder
+          next.myTurn = kwargs.character === prev.characterName
+          break
+        }
+        case 'combat_hit': {
+          const { attacker, target, damage, location, weapon, roll, target_av } = kwargs
+          // Reduce target HP by damage (rough %)
+          const newHp = { ...prev.combatantHp }
+          if (target && newHp[target] !== undefined) {
+            newHp[target] = Math.max(0, newHp[target] - (damage || 1) * 10)
+          }
+          next.combatantHp = newHp
+          const text = `⚔ ${attacker} strikes ${target} for ${damage} dmg${location ? ` [${location}]` : ''}`
+          const entry = { id: nextId(), type: 'hit', text, ts: Date.now() }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          break
+        }
+        case 'combat_miss': {
+          const { attacker, target, reason } = kwargs
+          const text = `✕ ${attacker} misses ${target}${reason ? ` (${reason})` : ''}`
+          const entry = { id: nextId(), type: 'miss', text, ts: Date.now() }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          break
+        }
+        case 'combat_disengage': {
+          const { character } = kwargs
+          const text = `${character} disengages from combat`
+          const entry = { id: nextId(), type: 'disengage', text, ts: Date.now() }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          // Remove from HP tracking
+          const newHp = { ...prev.combatantHp }
+          delete newHp[character]
+          next.combatantHp = newHp
+          break
+        }
+        case 'character_bleed': {
+          const { character } = kwargs
+          if (character === prev.characterName) {
+            next.statusFlags = { ...prev.statusFlags, bleeding: true }
+          }
+          const entry = { id: nextId(), type: 'bleed', text: `🩸 ${character} is bleeding`, ts: Date.now() }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          break
+        }
+        case 'character_dying': {
+          const { character } = kwargs
+          if (character === prev.characterName) {
+            next.statusFlags = { ...prev.statusFlags, dying: true }
+          }
+          const entry = { id: nextId(), type: 'dying', text: `☠ ${character} is dying`, ts: Date.now() }
+          next.combatLog = [entry, ...prev.combatLog].slice(0, MAX_COMBAT_LOG)
+          break
+        }
+        default:
+          break
+      }
+      return next
+    })
+  }, [])
+
+  const processFrame = useCallback(
+    (data) => {
+      let parsed
+      try {
+        parsed = JSON.parse(data)
+      } catch {
+        addMessage('system', `[Malformed frame: ${data}]`)
+        return
+      }
+
+      if (!Array.isArray(parsed)) return
+
+      for (const msg of parsed) {
+        if (!Array.isArray(msg) || msg.length < 1) continue
+        const [cmd, args = [], kwargs = {}] = msg
+
+        if (cmd === 'text') {
+          // args[0] is the text content
+          const text = Array.isArray(args) ? args[0] || '' : args
+          if (typeof text === 'string' && text.length > 0) {
+            const type = classifyMessage(text)
+            addMessage(type, text, text)
+
+            // Try to parse character name from welcome messages
+            const charName = parseCharacterName(text)
+            if (charName) {
+              setOobState((prev) => ({ ...prev, characterName: charName }))
+            }
+
+            // Try to parse stats
+            const stats = parseStats(text)
+            if (stats) {
+              setOobState((prev) => ({ ...prev, ...stats }))
+            }
+          }
+        } else if (cmd === 'event') {
+          // OOB event
+          const eventType = kwargs.type || (Array.isArray(args) && args[0])
+          if (eventType) {
+            handleOobEvent(eventType, args, kwargs)
+          }
+        } else if (cmd === 'pong') {
+          if (pingStartRef.current) {
+            setLatency(Date.now() - pingStartRef.current)
+            pingStartRef.current = null
+          }
+        } else {
+          // Unknown command — treat as system message if it has text
+          const text = Array.isArray(args) && args[0]
+          if (text && typeof text === 'string') {
+            addMessage('system', text, text)
+          }
+        }
+      }
+    },
+    [addMessage, handleOobEvent, parseCharacterName, parseStats]
+  )
+
+  const connect = useCallback((host = 'localhost', port = 4002) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
+    }
+
+    connectionParamsRef.current = { host, port }
+    shouldReconnectRef.current = true
+    setConnectionState('connecting')
+
+    const url = `ws://${host}:${port}`
+    let ws
+    try {
+      ws = new WebSocket(url)
+    } catch (err) {
+      setConnectionState('disconnected')
+      addMessage('error', `Failed to create WebSocket: ${err.message}`)
+      return
+    }
+
+    wsRef.current = ws
+
+    ws.onopen = () => {
+      setConnectionState('connected')
+      reconnectDelayRef.current = BASE_RECONNECT_DELAY
+      addMessage('system', `Connected to ${url}. Type |wconnect <username> <password>|n to log in.`)
+
+      // Start ping interval
+      pingIntervalRef.current = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) {
+          pingStartRef.current = Date.now()
+          ws.send(JSON.stringify([['ping', [], {}]]))
+        }
+      }, 15000)
+    }
+
+    ws.onmessage = (event) => {
+      processFrame(event.data)
+    }
+
+    ws.onerror = () => {
+      addMessage('error', 'WebSocket error. Connection may be unavailable.')
+    }
+
+    ws.onclose = () => {
+      setConnectionState('disconnected')
+      clearInterval(pingIntervalRef.current)
+      pingIntervalRef.current = null
+
+      if (shouldReconnectRef.current) {
+        const delay = reconnectDelayRef.current
+        addMessage('system', `Connection lost. Reconnecting in ${Math.round(delay / 1000)}s...`)
+        reconnectDelayRef.current = Math.min(delay * 2, MAX_RECONNECT_DELAY)
+        reconnectTimeoutRef.current = setTimeout(() => {
+          const { host, port } = connectionParamsRef.current
+          connect(host, port)
+        }, delay)
+      }
+    }
+  }, [addMessage, processFrame])
+
+  const disconnect = useCallback(() => {
+    shouldReconnectRef.current = false
+    clearInterval(pingIntervalRef.current)
+    pingIntervalRef.current = null
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
+    }
+    if (wsRef.current) {
+      wsRef.current.close()
+      wsRef.current = null
+    }
+    setConnectionState('disconnected')
+    addMessage('system', 'Disconnected from server.')
+  }, [addMessage])
+
+  const sendCommand = useCallback((text) => {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+      addMessage('error', 'Not connected to server.')
+      return
+    }
+    const frame = JSON.stringify([['text', [text], {}]])
+    wsRef.current.send(frame)
+    // Echo command to output
+    addMessage('system', `> ${text}`)
+  }, [addMessage])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      shouldReconnectRef.current = false
+      clearInterval(pingIntervalRef.current)
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
+      if (wsRef.current) wsRef.current.close()
+    }
+  }, [])
+
+  return {
+    connectionState,
+    messages,
+    oobState,
+    latency,
+    sendCommand,
+    connect,
+    disconnect,
+  }
+}
