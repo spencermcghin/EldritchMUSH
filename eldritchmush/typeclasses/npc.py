@@ -21,6 +21,13 @@ class Npc(Character):
         """
         pass
 
+    def take_combat_turn(self, target):
+        """
+        Called by the combat loop when it is this NPC's turn.
+        Non-combatant NPCs disengage by default; combat subclasses override this.
+        """
+        self.execute_cmd("disengage")
+
     def on_switch(self):
         self.db.is_aggressive = True
 
@@ -85,7 +92,7 @@ class GreenMeleeSoldierOneHanded(Npc):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
-        self.db.is_aggressive = False
+        self.db.is_aggressive = True
         self.db.skip_turn = False
         self.db.is_staggered = False
 
@@ -111,6 +118,15 @@ class GreenMeleeSoldierOneHanded(Npc):
     def remove_equipment(self):
         inventory = self.contents
         [obj.delete() for obj in inventory]
+
+    def take_combat_turn(self, target):
+        """Called by the combat loop on this NPC's turn. Always executes regardless of is_aggressive."""
+        inventory = self.contents
+        weapons = [item for item in inventory if item.db.damage]
+        if not weapons:
+            self.make_equipment()
+        command = self.command_picker(target)
+        self.execute_cmd(command)
 
     def make_equipment(self):
         prototype = prototypes.search_prototype("iron_medium_weapon", require_single=True)
@@ -180,9 +196,8 @@ class GreenMeleeSoldierOneHanded(Npc):
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
-        if not self.db.right_slot or self.db.left_slot:
+        if not self.db.right_slot:
             self.execute_cmd('equip iron medium weapon')
-            pass
 
         # Random command is strike. Run it, else check to make sure npc can run an active martial skill w/o exception.
         if chosen_command not in amSkills:
@@ -251,7 +266,7 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
-        self.db.is_aggressive = False
+        self.db.is_aggressive = True
         self.db.skip_turn = False
         self.db.melee_weapons = 1
         self.db.armor_proficiency = 1
@@ -342,9 +357,8 @@ class GreenMeleeSoldierTwoHanded(GreenMeleeSoldierOneHanded):
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
-        if not self.db.right_slot or self.db.left_slot:
+        if not self.db.right_slot:
             self.execute_cmd('equip iron large weapon')
-            pass
 
         # Random command is strike. Run it, else check to make sure npc can run an active martial skill w/o exception.
         if chosen_command not in amSkills:
@@ -413,7 +427,7 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
         self.db.right_slot = []
         self.db.body_slot = []
         self.db.arrow_slot = []
-        self.db.is_aggressive = False
+        self.db.is_aggressive = True
         self.db.skip_turn = False
         self.db.archer = 1
         self.db.armor_proficiency = 1
@@ -577,7 +591,7 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
-        self.db.is_aggressive = False
+        self.db.is_aggressive = True
         self.db.skip_turn = False
         self.db.melee_weapons = 1
         self.db.armor_proficiency = 1
@@ -626,6 +640,14 @@ class BlueMeleeSoldierOneHanded(Npc):
         self.execute_cmd('equip hardened iron coat of plates')
         self.execute_cmd('equip hardened iron shield')
 
+    def take_combat_turn(self, target):
+        """Called by the combat loop on this NPC's turn. Always executes regardless of is_aggressive."""
+        inventory = self.contents
+        weapons = [item for item in inventory if item.db.damage]
+        if not weapons:
+            self.make_equipment()
+        command = self.command_picker(target)
+        self.execute_cmd(command)
 
     def at_char_entered(self, character):
         # Do stuff to equip your character
@@ -744,7 +766,7 @@ class BlueMeleeSoldierTwoHanded(Npc):
         self.db.left_slot = []
         self.db.right_slot = []
         self.db.body_slot = []
-        self.db.is_aggressive = False
+        self.db.is_aggressive = True
         self.db.skip_turn = False
         self.db.melee_weapons = 1
         self.db.armor_proficiency = 1
@@ -788,6 +810,14 @@ class BlueMeleeSoldierTwoHanded(Npc):
         self.execute_cmd('equip hardened iron large weapon')
         self.execute_cmd('equip hardened iron coat of plates')
 
+    def take_combat_turn(self, target):
+        """Called by the combat loop on this NPC's turn. Always executes regardless of is_aggressive."""
+        inventory = self.contents
+        weapons = [item for item in inventory if item.db.damage]
+        if not weapons:
+            self.make_equipment()
+        command = self.command_picker(target)
+        self.execute_cmd(command)
 
     def at_char_entered(self, character):
         # Do stuff to equip your character
@@ -906,7 +936,7 @@ class BlueSoldierBow(Npc):
         self.db.right_slot = []
         self.db.body_slot = []
         self.db.arrow_slot = []
-        self.db.is_aggressive = False
+        self.db.is_aggressive = True
         self.db.skip_turn = False
         self.db.archer = 1
         self.db.armor_proficiency = 1
@@ -956,6 +986,14 @@ class BlueSoldierBow(Npc):
         self.execute_cmd('equip hardened iron coat of plates')
         self.execute_cmd('equip arrows')
 
+    def take_combat_turn(self, target):
+        """Called by the combat loop on this NPC's turn. Always executes regardless of is_aggressive."""
+        inventory = self.contents
+        weapons = [item for item in inventory if item.db.damage or item.db.is_bow]
+        if not weapons:
+            self.make_equipment()
+        command = self.command_picker(target)
+        self.execute_cmd(command)
 
     def at_char_entered(self, character):
         # Do stuff to equip your character

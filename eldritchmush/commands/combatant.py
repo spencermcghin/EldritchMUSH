@@ -85,10 +85,11 @@ class Combatant:
         self.caller.db.body = value
 
     def addBody(self, value):
-        if (self.caller.db.body + value) <= 3:
+        max_body = self.caller.db.total_body or 3
+        if (self.caller.db.body + value) <= max_body:
             self.caller.db.body += value
         else:
-            self.setBody(3)
+            self.setBody(max_body)
 
     def body(self):
         #self.caller.message(f"Debug body is {self.caller.db.body}")
@@ -439,10 +440,10 @@ class Combatant:
         return self.alternateDamage(amount, "armor_specialist")
 
     def takeArmorDamage(self, amount):
-        return self.alternateDamage(amount, "tough")
+        return self.alternateDamage(amount, "armor")
 
     def takeToughDamage(self, amount):
-        return self.alternateDamage(amount, "armor")
+        return self.alternateDamage(amount, "tough")
 
     def alternateArmorSpecialistDamage(self, amount):
         return self.alternateDamage(amount, "armor_specialist")
@@ -470,9 +471,8 @@ class Combatant:
         remaining_damage = amount
 
         if self.caller.attributes.get(type):
-            if self.caller.attributes.get(type):
-                # How much damage is left after the shield
-                remaining_damage = amount - self.caller.attributes.get(type)
+            # How much damage is left after absorption
+            remaining_damage = amount - self.caller.attributes.get(type)
                 if remaining_damage < 0:
                     remaining_damage = 0
 

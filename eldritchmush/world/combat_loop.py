@@ -218,18 +218,28 @@ class CombatLoop:
 			# go back to beginning of combat_loop and prompt character for input.
 			nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
 
-			# Iterate through combat_loop until finding a character w/out the skip_turn flag set.
+			# Iterate through combat_loop until finding a character who can act.
+			# Guard with a counter to prevent infinite loops when all combatants are incapacitated.
+			checked = 0
+			loop_len = self.getLoopLength()
 			while nextCharacter.db.skip_turn or not nextCharacter.db.bleed_points:
-				# Turn off the skip_turn flag and then try to go to the next character in the loop
+				if checked >= loop_len:
+					# Everyone is incapacitated — end combat
+					for char in list(self.combat_loop):
+						char.db.combat_turn = 1
+						char.db.in_combat = 0
+					self.combat_loop.clear()
+					self.caller.location.msg_contents(f"|025All combatants are unable to act. Combat is over.|n")
+					return
+				# Turn off the skip flag and advance to the next combatant
 				nextCharacter.db.skip_turn = False
 				nextCharacter.location.msg_contents(f"{nextCharacter.key} |430is unable to act this round.|n")
+				checked += 1
 				try:
-					# Try going to the next character based on the character that had skip_turn active
 					nextTurn = self.combat_loop.index(nextCharacter) + 1
-					nextCharacter = self.caller.search(self.combat_loop[nextTurn])
-
+					nextCharacter = self.combat_loop[nextTurn]
 				except IndexError:
-					nextCharacter = self.caller.search(self.combat_loop[0])
+					nextCharacter = self.combat_loop[0]
 
 			self.combatTurnOn(nextCharacter)
 			nextCharacter.location.msg_contents(f"ס₪₪₪₪§|(Ξ≥≤≥≤≥≤ΞΞΞΞΞΞΞΞΞΞ> |025It is now |n{nextCharacter.key}'s |025turn.|n")
@@ -287,8 +297,8 @@ class CombatLoop:
 
 							if rightDamage or leftDamage:
 								random_target = random.choice(targets)
-								# If character target, attack a random one.
-								nextCharacter.at_char_entered(random_target)
+								# Use take_combat_turn so the NPC acts regardless of is_aggressive flag.
+								nextCharacter.take_combat_turn(random_target)
 							else:
 								nextCharacter.location.msg_contents(f"{nextCharacter.key} |025has nothing to attack with.|n")
 								nextCharacter.execute_cmd("disengage")
@@ -303,10 +313,11 @@ class CombatLoop:
 			try:
 				remaining_character = self.combat_loop[0]
 			except IndexError:
-				self.caller.location.msg_contents(f"|430Combat is now over for {loop.current_room}.|n")
+				self.caller.location.msg_contents(f"|430Combat is now over for {self.current_room}.|n")
 			else:
 				self.caller.location.msg_contents(f"|430Combat is now over for the {remaining_character.location}.|n")
 				self.removeFromLoop(remaining_character)
+				remaining_character.db.in_combat = 0
 				self.caller.db.in_combat = 0
-				# Change self.callers combat_turn to 1 so they can attack again.
+				# Restore combat_turn so both parties can engage again.
 				self.combatTurnOn(remaining_character)
