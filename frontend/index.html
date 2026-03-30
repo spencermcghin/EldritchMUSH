@@ -4,12 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>☠ EldritchMUSH</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
+    <!--
+      Google Fonts: UnifrakturMaguntia, Cinzel, Share Tech Mono, Barlow Condensed.
+      Enable these links when external network is available:
+    -->
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com" /> -->
+    <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /> -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet" /> -->
+    <style>
+      /* Fallback font-face declarations when Google Fonts is unreachable.
+         The CSS references these font families; monospace/serif fallbacks
+         keep the layout intact until the real fonts are available. */
+      @font-face { font-family: 'UnifrakturMaguntia'; src: local('UnifrakturMaguntia'), local('serif'); }
+      @font-face { font-family: 'Cinzel'; src: local('Cinzel'), local('Georgia'), local('serif'); font-weight: 400 700; }
+      @font-face { font-family: 'Share Tech Mono'; src: local('Share Tech Mono'), local('Courier New'), local('monospace'); }
+      @font-face { font-family: 'Barlow Condensed'; src: local('Barlow Condensed'), local('Arial Narrow'), local('sans-serif'); font-weight: 300 600; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
