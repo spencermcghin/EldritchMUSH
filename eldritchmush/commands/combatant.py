@@ -475,17 +475,17 @@ class Combatant:
         if self.caller.attributes.get(type):
             # How much damage is left after absorption
             remaining_damage = amount - self.caller.attributes.get(type)
-                if remaining_damage < 0:
-                    remaining_damage = 0
+            if remaining_damage < 0:
+                remaining_damage = 0
 
-                # Damage the shield
-                if amount >= self.caller.attributes.get(type):
-                    new_value = 0
-                else:
-                    new_value = self.caller.attributes.get(type) - amount
+            # Damage the shield
+            if amount >= self.caller.attributes.get(type):
+                new_value = 0
+            else:
+                new_value = self.caller.attributes.get(type) - amount
 
-                obj_to_set = self.caller.attributes.get(type, return_obj=True)
-                obj_to_set.value = new_value
+            obj_to_set = self.caller.attributes.get(type, return_obj=True)
+            obj_to_set.value = new_value
 
         return remaining_damage
 
