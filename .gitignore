@@ -8,6 +8,7 @@ devevenv
 prodevenv
 evenv
 localevenv
+.venv/
 .idea/
 
 eldritchmush/web/static/admin/js/vendor/xregexp/xregexp.min.js
