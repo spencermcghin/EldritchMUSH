@@ -1,0 +1,110 @@
+.cmd-input-wrap {
+  flex-shrink: 0;
+  position: relative;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.cmd-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  background: var(--surface);
+  transition: box-shadow 0.15s;
+}
+
+.cmd-input-row:focus-within {
+  box-shadow: inset 0 1px 0 rgba(212,175,55,0.15);
+}
+
+.cmd-input-row.disabled {
+  opacity: 0.5;
+}
+
+.cmd-prompt {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  color: var(--phosphor);
+  padding: 10px 0 10px 14px;
+  user-select: none;
+  flex-shrink: 0;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(0,229,160,0.5);
+}
+
+.cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-light);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  padding: 10px 10px 10px 8px;
+  caret-color: var(--phosphor);
+  min-width: 0;
+}
+
+.cmd-input::placeholder {
+  color: var(--text-aged);
+  opacity: 0.35;
+}
+
+.cmd-input:not(:placeholder-shown) {
+  text-shadow: 0 0 4px rgba(0,229,160,0.12);
+}
+
+.cmd-send-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  padding: 0 14px;
+  height: 100%;
+  cursor: pointer;
+  min-height: 42px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.cmd-send-btn:hover:not(:disabled) {
+  color: var(--accent-gold);
+  background: rgba(212,175,55,0.06);
+}
+
+.cmd-send-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Tab completion dropdown */
+.cmd-completions {
+  position: absolute;
+  bottom: 100%;
+  left: 14px;
+  right: 14px;
+  background: var(--parchment);
+  border: 1px solid var(--border-bright);
+  border-bottom: none;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.5);
+  z-index: 100;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.cmd-completion-item {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-light);
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.cmd-completion-item:hover,
+.cmd-completion-item.active {
+  background: rgba(212,175,55,0.1);
+  color: var(--accent-gold);
+}
