@@ -3,6 +3,8 @@ import random
 
 from commands.combat import Helper
 from commands.inventory_helper import Inventory
+from world.events import emit
+from world.available_commands import push_available_commands
 
 
 class Combatant:
@@ -527,12 +529,16 @@ class Combatant:
                     "|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
                 self.broadcast(
                     f"|025{self.name} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                emit(self.caller.location, "character_bleed", {"character": self.name})
+                push_available_commands(self.caller)
 
             if amount > 0 and self.deathPoints() > 0:
                 self.addWeakness()
                 self.takeDeathDamage(amount, combatant)
                 self.message("|300You are unconscious and can no longer move of your own volition.|n")
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")
+                emit(self.caller.location, "character_dying", {"character": self.name})
+                push_available_commands(self.caller)
 
     def resistsAttack(self):
         if self.resistsRemaining() > 0:

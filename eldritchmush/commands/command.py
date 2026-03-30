@@ -18,6 +18,7 @@ from evennia.prototypes import prototypes
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 from typeclasses import objects
+from world.available_commands import push_available_commands
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
@@ -640,6 +641,9 @@ class CmdEquip(Command):
                 else:
                     self.msg("|400You can't equip the same weapon twice.|n")
 
+            # Push updated available commands to the web UI sidebar.
+            push_available_commands(self.caller)
+
         else:
             return
 
@@ -740,6 +744,8 @@ class CmdUnequip(Command):
                 return
 
             self.caller.msg(f"You have unequipped your {item}.")
+            # Push updated available commands to the web UI sidebar.
+            push_available_commands(self.caller)
         else:
             self.caller.msg(f"Please be more specific.")
 
