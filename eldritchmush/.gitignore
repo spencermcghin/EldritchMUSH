@@ -1,5 +1,6 @@
 # Custom
 *.db3
+!server/evennia.db3
 *.log
 *.pid
 __pycache__
