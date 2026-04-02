@@ -1121,3 +1121,261 @@ class GreenRevenant(Npc):
                 action_string = chosen_command + ' ' + target.key
 
         return action_string
+
+
+# ---------------------------------------------------------------------------
+# New NPC types
+# ---------------------------------------------------------------------------
+
+class BanditMeleeOneHanded(Npc):
+    """
+    A human bandit fighter. Tougher than a basic zombie — medium weapon,
+    more body, and sunder for disabling armour.
+    """
+
+    def at_object_creation(self):
+        self.db.master_of_arms = 2
+        self.db.armor = 1
+        self.db.armor_specialist = 1
+        self.db.tough = 1
+        self.db.body = 5
+        self.db.total_body = 5
+        self.db.av = 1
+        self.db.resilience = 1
+        self.db.indomitable = 0
+        self.db.perception = 1
+        self.db.tracking = 0
+
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+        self.db.weakness = 0
+        self.db.bleed_points = 3
+        self.db.death_points = 3
+
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 1
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
+
+        self.db.resist = 1
+        self.db.disarm = 1
+        self.db.cleave = 0
+        self.db.sunder = 1
+        self.db.stun = 0
+        self.db.stagger = 1
+        self.db.weapon_level = 0
+        self.db.shield_value = 0
+        self.db.vigil = 0
+        self.db.shield = 0
+        self.db.bow = 0
+        self.db.activemartialskill = 1
+        self.db.combat_turn = 1
+        self.db.in_combat = 0
+        self.db.left_slot = []
+        self.db.right_slot = []
+        self.db.body_slot = []
+        self.db.is_aggressive = True
+        self.db.skip_turn = False
+        self.db.is_staggered = False
+
+    def make_equipment(self):
+        from evennia import spawn
+        weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
+        self.db.right_slot = [weapon.key]
+
+    def remove_equipment(self):
+        for item in list(self.contents):
+            if item.db.damage:
+                item.delete()
+        self.db.right_slot = []
+        self.db.left_slot = []
+
+    def command_picker(self, target):
+        amSkills = {"sunder": self.db.sunder, "disarm": self.db.disarm, "stagger": self.db.stagger}
+        flat = [c for c, v in amSkills.items() for _ in range(v)]
+        flat.append("strike")
+        chosen = random.choice(flat)
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not target.db.bleed_points:
+            return "disengage"
+        chosen = "strike" if self.db.weakness else chosen
+        return f"{chosen} {target.key}"
+
+    def take_combat_turn(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        self.execute_cmd(self.command_picker(target))
+
+
+class WildWolfNpc(Npc):
+    """
+    A wild wolf — fast, unarmoured, bite attack. Flees when bleeding.
+    """
+
+    def at_object_creation(self):
+        self.db.master_of_arms = 1
+        self.db.armor = 0
+        self.db.armor_specialist = 0
+        self.db.tough = 0
+        self.db.body = 4
+        self.db.total_body = 4
+        self.db.av = 0
+        self.db.resilience = 0
+        self.db.indomitable = 0
+        self.db.perception = 2
+        self.db.tracking = 2
+
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+        self.db.weakness = 0
+        self.db.bleed_points = 2
+        self.db.death_points = 2
+
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 0
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 0
+
+        self.db.resist = 0
+        self.db.disarm = 0
+        self.db.cleave = 0
+        self.db.sunder = 0
+        self.db.stun = 0
+        self.db.stagger = 1
+        self.db.weapon_level = 0
+        self.db.shield_value = 0
+        self.db.vigil = 0
+        self.db.shield = 0
+        self.db.bow = 0
+        self.db.activemartialskill = 0
+        self.db.combat_turn = 1
+        self.db.in_combat = 0
+        self.db.left_slot = []
+        self.db.right_slot = []
+        self.db.body_slot = []
+        self.db.is_aggressive = True
+        self.db.skip_turn = False
+        self.db.is_staggered = False
+
+    def make_equipment(self):
+        from evennia import spawn
+        weapon = spawn({"prototype_parent": "IRON_SMALL_WEAPON",
+                        "key": "wolf bite", "location": self})[0]
+        self.db.right_slot = [weapon.key]
+
+    def remove_equipment(self):
+        for item in list(self.contents):
+            if item.db.damage:
+                item.delete()
+        self.db.right_slot = []
+
+    def command_picker(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not self.db.bleed_points or not target.db.bleed_points:
+            return "disengage"
+        return f"{random.choice(['strike','strike','strike','stagger'])} {target.key}"
+
+    def take_combat_turn(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        self.execute_cmd(self.command_picker(target))
+
+
+class SkeletonArcher(Npc):
+    """
+    An undead skeleton armed with a bow. Shoots until arrows run out,
+    then falls back to melee.
+    """
+
+    def at_object_creation(self):
+        self.db.master_of_arms = 1
+        self.db.sniper = 1
+        self.db.armor = 0
+        self.db.armor_specialist = 0
+        self.db.tough = 0
+        self.db.body = 3
+        self.db.total_body = 3
+        self.db.av = 0
+        self.db.resilience = 0
+        self.db.indomitable = 0
+        self.db.perception = 2
+        self.db.tracking = 0
+
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+        self.db.weakness = 0
+        self.db.bleed_points = 3
+        self.db.death_points = 2
+
+        self.db.gunner = 0
+        self.db.archer = 1
+        self.db.shields = 0
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 0
+
+        self.db.resist = 0
+        self.db.disarm = 0
+        self.db.cleave = 0
+        self.db.sunder = 0
+        self.db.stun = 0
+        self.db.stagger = 0
+        self.db.weapon_level = 0
+        self.db.shield_value = 0
+        self.db.vigil = 0
+        self.db.shield = 0
+        self.db.bow = 1
+        self.db.activemartialskill = 0
+        self.db.combat_turn = 1
+        self.db.in_combat = 0
+        self.db.left_slot = []
+        self.db.right_slot = []
+        self.db.arrow_slot = []
+        self.db.body_slot = []
+        self.db.is_aggressive = True
+        self.db.skip_turn = False
+        self.db.is_staggered = False
+
+    def make_equipment(self):
+        from evennia import spawn
+        bow = spawn({"prototype_parent": "HUNTING_BOW", "location": self})[0]
+        arrows = spawn({"prototype_parent": "ARROWS", "location": self})[0]
+        self.db.right_slot = [bow.key]
+        self.db.arrow_slot = [arrows.key]
+
+    def remove_equipment(self):
+        for item in list(self.contents):
+            if item.db.damage or item.db.is_bow or item.db.arrow_slot:
+                item.delete()
+        self.db.right_slot = []
+        self.db.arrow_slot = []
+
+    def command_picker(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not target.db.bleed_points:
+            return "disengage"
+        return f"{'shoot' if self.db.arrow_slot else 'strike'} {target.key}"
+
+    def take_combat_turn(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        self.execute_cmd(self.command_picker(target))
