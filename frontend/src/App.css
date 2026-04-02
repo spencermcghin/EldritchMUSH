@@ -277,6 +277,23 @@ body::before {
   overflow: hidden;
 }
 
+.app-connecting {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--void);
+}
+
+.app-connecting-text {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  animation: glow-gold 1.5s ease-in-out infinite;
+  text-transform: uppercase;
+}
+
 .app-main {
   display: flex;
   flex-direction: column;
