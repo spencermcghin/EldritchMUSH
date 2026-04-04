@@ -333,6 +333,54 @@ if not ObjectDB.objects.filter(db_key="bandit", db_location=west_cabin.pk).exist
     )
 
 # ---------------------------------------------------------------------------
+# Quest giver NPCs — non-combatant
+# ---------------------------------------------------------------------------
+
+def create_quest_giver(key, location, desc):
+    tp = "typeclasses.npc.QuestGiverNpc"
+    if not ObjectDB.objects.filter(db_key=key, db_typeclass_path=tp).exists():
+        npc = create_object(tp, key=key, location=location)
+        npc.db.desc = desc
+        npc.db.is_aggressive = False
+        npc.db.is_npc = True
+        print(f"  + quest giver: {key}")
+    else:
+        print(f"  (quest giver {key!r} already exists)")
+
+
+# Elara — innkeeper in the Tavern Main Hall
+create_quest_giver(
+    "elara",
+    tavern,
+    "The innkeeper of the Raven & Candle. Dark circles under her eyes and hands "
+    "that won't stay still. Something is wrong and she clearly needs help.",
+)
+
+# Grimwald — blacksmith in Maker's Hollow
+try:
+    makers_hollow = ObjectDB.objects.filter(db_key="maker's hollow").first() or tavern
+except Exception:
+    makers_hollow = tavern
+create_quest_giver(
+    "grimwald",
+    makers_hollow,
+    "A broad, soot-stained blacksmith with a wrestler's build. He speaks in short "
+    "sentences and watches the door when he talks, as if expecting trouble.",
+)
+
+# Mira — apothecary in the Marketplace
+try:
+    marketplace_room = ObjectDB.objects.filter(db_key="the marketplace").first() or tavern
+except Exception:
+    marketplace_room = tavern
+create_quest_giver(
+    "mira",
+    marketplace_room,
+    "A wiry woman surrounded by jars and bundled herbs. She moves with quick "
+    "efficiency and smells faintly of lavender and something sharper.",
+)
+
+# ---------------------------------------------------------------------------
 # Done
 # ---------------------------------------------------------------------------
 print("\n=== POPULATE COMPLETE ===")

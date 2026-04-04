@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -168,6 +168,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(shop.CmdBrowse())
         self.add(shop.CmdBuy())
         self.add(shop.CmdSell())
+        self.add(quests.CmdQuest())
 
 #### Special command sets
 

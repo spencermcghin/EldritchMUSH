@@ -14,6 +14,10 @@ class Npc(Character):
     A NPC typeclass which extends the character class.
     """
 
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.is_npc = True
+
     def at_char_entered(self, character):
         """
          A simple is_aggressive check.
@@ -1379,3 +1383,33 @@ class SkeletonArcher(Npc):
         if not self.db.right_slot:
             self.make_equipment()
         self.execute_cmd(self.command_picker(target))
+
+
+class QuestGiverNpc(Npc):
+    """
+    A non-combatant NPC that offers quests.
+    Has a description, will not attack players, and
+    greets players who enter the room with available quest hints.
+    """
+
+    def at_char_entered(self, character):
+        """Hint at available quests when a player enters."""
+        if not getattr(character, "has_account", False) or not character.has_account:
+            return
+        try:
+            from commands.quests import _available_quests, QUESTS
+            available = [
+                q for q in _available_quests(character)
+                if q["giver"].lower() == self.key.lower()
+            ]
+            if available:
+                titles = ", ".join(f"|w{q['title']}|n" for q in available)
+                character.msg(
+                    f"|540{self.key} has a task for you: {titles}. "
+                    f"Type |wquest accept <title>|n to begin.|n"
+                )
+        except Exception:
+            pass
+
+    def take_combat_turn(self, target):
+        self.execute_cmd("disengage")
