@@ -2,20 +2,30 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combatant import Combatant
+from world.events import emit
 
 class CmdShoot(Command):
     """
-    issues a shoot command if armed with a bow.
+    Fire a ranged shot at a target.
 
     Usage:
+      shoot <target>
 
-    shoot <target>
+    Rolls your ranged attack (d6 + archer/sniper bonus) against the target's
+    armor value.  Requires a bow equipped in right_slot and arrows in
+    arrow_slot (or bullets in bullet_slot for firearms).
 
-    This will calculate an attack score based on your weapon and master of arms level.
+    Each shot consumes one arrow/bullet.  When ammunition runs out you
+    must replenish from your inventory or switch to melee.
+
+    Requires: bow/firearm equipped, ammo in arrow_slot/bullet_slot.
+    Consumes your combat turn.
+
+    See also: strike, disengage
     """
 
     key = "shoot"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None
@@ -82,14 +92,36 @@ class CmdShoot(Command):
                         skip_av_damage=True
                         combatant.broadcast(f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n) |025straight for|n {victim.name}|025's {shot_location} and hits|n (|400{victim.av}|n), |025dealing|n (|430{bow_damage}|n) |025damage!|n")
                         victim.takeDamage(combatant, bow_damage, shot_location, skip_av_damage)
+                        emit(self.caller.location, "combat_hit", {
+                            "attacker": combatant.name,
+                            "target": victim.name,
+                            "damage": bow_damage,
+                            "location": shot_location,
+                            "weapon": "bow",
+                            "roll": attack_result,
+                            "target_av": victim.av,
+                        })
                     else:
                         combatant.broadcast(
                             f"{combatant.name} |025lets loose an arrow|n (|020{attack_result}|n)|025 straight for|n {victim.name}'s |025{shot_location} and hits|n (|400{victim.av}|n)|025, but|n {victim.name} |025is able to raise their shield to block!|n")
+                        emit(self.caller.location, "combat_miss", {
+                            "attacker": combatant.name,
+                            "target": victim.name,
+                            "reason": "shield_block",
+                            "roll": attack_result,
+                        })
 
                     combatant.message(f"|430You have {combatant.inventory.arrowQuantity} arrows left.")
 
                 else:
                     combatant.broadcast(f"{combatant.name} |025shoots wide|n (|400{attack_result}|n)|025, missing|n {victim.name} (|020{victim.av}|n)|025.|n")
+                    emit(self.caller.location, "combat_miss", {
+                        "attacker": combatant.name,
+                        "target": victim.name,
+                        "reason": "missed",
+                        "roll": attack_result,
+                        "target_av": victim.av,
+                    })
                     # Clean up
                     # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                 loop.combatTurnOff(self.caller)

@@ -1,0 +1,176 @@
+.cmd-sidebar {
+  width: 270px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  border-top: none;
+  border-left: none;
+  border-bottom: none;
+  background: var(--surface);
+  overflow: hidden;
+  position: relative;
+}
+
+.cmd-sidebar-header {
+  flex-shrink: 0;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--parchment);
+}
+
+.cmd-sidebar-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+}
+
+/* Combat banner */
+.combat-banner {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.combat-banner.my-turn {
+  background: rgba(139,0,0,0.25);
+  border-bottom: 1px solid var(--blood-bright);
+  color: #ff8888;
+  animation: pulse-blood 1.5s infinite;
+}
+
+.combat-banner.waiting {
+  background: rgba(212,175,55,0.06);
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  color: var(--text-aged);
+}
+
+/* Sidebar body */
+.cmd-sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0 8px;
+}
+
+/* Category */
+.cmd-category {
+  margin-bottom: 12px;
+}
+
+.cmd-category-header {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-aged);
+  padding: 4px 14px 4px;
+  border-bottom: 1px solid rgba(212,175,55,0.15);
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.cmd-category-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 14px;
+  width: 30px;
+  height: 1px;
+  background: var(--accent-gold);
+  opacity: 0.4;
+}
+
+/* Command entries */
+.cmd-category-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.cmd-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  cursor: default;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.cmd-entry.cmd-enabled {
+  cursor: pointer;
+}
+
+.cmd-entry.cmd-enabled:hover {
+  background: rgba(139,0,0,0.12);
+  box-shadow: inset 3px 0 0 rgba(204,34,17,0.4);
+}
+
+.cmd-entry.cmd-enabled:hover .cmd-key {
+  color: var(--accent-gold);
+}
+
+.cmd-entry.cmd-disabled {
+  opacity: 0.4;
+}
+
+.cmd-entry.cmd-disabled .cmd-key {
+  text-decoration: line-through;
+  color: var(--text-aged);
+}
+
+.cmd-arrow {
+  color: var(--accent-gold);
+  font-size: 12px;
+  width: 10px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.cmd-key {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-light);
+  flex: 1;
+  min-width: 0;
+}
+
+.cmd-args {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-aged);
+  opacity: 0.6;
+  flex-shrink: 0;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmd-reason {
+  font-size: 10px;
+  color: var(--text-aged);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* Footer */
+.cmd-sidebar-footer {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.cmd-footer-text {
+  font-size: 10px;
+  color: var(--accent-gold);
+  opacity: 0.25;
+  letter-spacing: 3px;
+}

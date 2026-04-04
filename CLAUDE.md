@@ -37,6 +37,8 @@ EldritchMUSH/
 │   │   │   ├── strike.py         # Basic melee attack
 │   │   │   ├── stun.py           # Stun opponent
 │   │   │   └── sunder.py         # Sunder armor/weapons
+│   │   ├── alchemy.py            # CmdBrew, CmdReagents, CmdAddReagent (apothecary system)
+│   │   ├── shop.py               # CmdBrowse, CmdBuy, CmdSell (merchant shop system)
 │   │   ├── blacksmith.py         # CmdForge — smithing commands
 │   │   ├── combatant.py          # Combatant mixin helpers
 │   │   ├── crafting.py           # CmdCraft, CmdRepair
@@ -51,13 +53,15 @@ EldritchMUSH/
 │   │   ├── characters.py         # Player Character — all stats initialized here
 │   │   ├── exits.py              # Exit typeclass
 │   │   ├── npc.py                # NPC typeclass with AI — ~1085 lines
-│   │   ├── objects.py            # Item/weapon/crafting station typeclasses
+│   │   ├── objects.py            # Item/weapon/crafting station typeclasses; ConsumableObject, ApothecaryWorkbench, Merchant
 │   │   ├── rooms.py              # Room types (Room, WeatherRoom, MarketRoom, ChargenRoom) — ~613 lines
 │   │   └── scripts.py            # Evennia scripts (timers, recurring tasks)
 │   ├── world/                    # Game data and systems
 │   │   ├── batch_cmds.ev         # Evennia batch commands for world building
 │   │   ├── combat_loop.py        # Turn-based combat loop management
 │   │   ├── prototypes.py         # Item/weapon/armor templates — ~1330 lines, 100+ items
+│   │   ├── alchemy_prototypes.py # All 66 alchemical substance prototypes (levels 1-3)
+│   │   ├── reagents.py           # Reagent definitions — 32 reagents with rarities
 │   │   ├── reset.py              # World reset logic
 │   │   └── rules.py              # Combat formulas (legacy — newer logic is in commands/)
 │   ├── server/
@@ -172,6 +176,9 @@ self.db.stabilize = 0
 self.db.medicine = 0
 self.db.battlefieldmedicine = 0
 self.db.chirurgeon = 0
+
+# Vigil archetype (replaces legacy WyldingHand)
+self.db.vigil = 0             # Vigil archetype level (0-3); grants enhanced attack die
 
 # Support skills
 self.db.tracking = 0
@@ -295,14 +302,75 @@ IRON_SWORD = {
 | Artificer Workbench | `CrafterCmdSet` | `craft`, `repair` |
 | Bowyer Workbench | `CrafterCmdSet` | `craft`, `repair` |
 | Gunsmith Workbench | `CrafterCmdSet` | `craft`, `repair` |
+| Apothecary Workbench | `ApothecaryWorkbenchCmdSet` | `brew` |
 
 Crafting station objects have their CmdSet attached in `typeclasses/objects.py`. Commands become available when a player is in the same room as the station.
+
+### Alchemy System (`commands/alchemy.py`)
+
+Alchemists brew consumable substances at an **Apothecary Workbench** object (`typeclasses.objects.ApothecaryWorkbench`). The system is skill-gated:
+
+| Alchemist Level | Brews |
+|----------------|-------|
+| 1 | Level 1 substances only |
+| 2 | Level 1–2 substances |
+| 3 | Level 1–3 substances |
+
+**Requirements to brew:**
+- `alchemist` skill ≥ substance level
+- Apothecary Kit equipped in `kit_slot` (`kit.db.type == "apothecary"`, `kit.db.uses > 0`)
+- Required reagents present in `caller.db.reagents` (a `{name: qty}` dict)
+
+**Substance types:** Apotheca, Poison, Drug (66 recipes total in `world/alchemy_prototypes.py`).
+
+**Prototype fields** (all alchemy prototypes have `craft_source = "apothecary"`):
+```python
+{
+    "key": "blade oil",
+    "typeclass": "typeclasses.objects.ConsumableObject",
+    "craft_source": "apothecary",
+    "substance_type": "Apotheca",
+    "level": 1,
+    "qty_produced": 2,
+    "effect": "Weapon coated gains +1 damage for 1 combat.",
+    "reagent_1": "Sayge", "reagent_1_qty": 2,
+    "reagent_2": "Crow Feather", "reagent_2_qty": 1,
+    ...
+}
+```
+
+**Reagents** (`world/reagents.py`): 32 named reagents with descriptions and rarities (Common, Uncommon, Rare, Loot Drop, Black Market). Stored on characters as `self.db.reagents = {"Sayge": 3, ...}`.
+
+**Commands:**
+- `brew <substance name>` — brew at a workbench (requires skill, kit, reagents)
+- `reagents` — display your reagent inventory
+- `addreagent <name> = <qty>` — staff command (Builder+) to give reagents to yourself
+
+**Output typeclass:** `ConsumableObject` — stores `substance_type`, `level`, `effect`, `craft_source`, `value` on `db`; `return_appearance()` shows effect/type/level/value to the looker.
+
+### Shop System (`commands/shop.py`)
+
+Players buy and sell goods with **Merchant** objects (`typeclasses.objects.Merchant`) placed in rooms. The merchant holds a list of prototype keys in `db.shop_inventory`.
+
+**Commands (available globally, check for merchants in room):**
+- `browse [<merchant>]` — list merchant's wares with buy prices in silver
+- `buy <item> from <merchant>` — spawn item into inventory, deduct `db.silver`
+- `sell <item> to <merchant>` — delete item from inventory, receive 50% value in silver
+
+**Pricing:** `value_silver` field from prototype. If absent, falls back to `value_copper / 10`.
+
+**Admin setup:**
+```
+@create General Merchant:typeclasses.objects.Merchant
+@set General Merchant/shop_inventory = ["IRON_MEDIUM_WEAPON", "IRON_SMALL_WEAPON"]
+```
 
 ### Resources
 
 - **Materials:** `iron_ingots`, `refined_wood`, `leather`, `cloth`
-- **Currency:** `gold`, `silver`, `copper`
+- **Currency:** `gold`, `silver` (primary shop currency), `copper`
 - **Ammunition:** `arrows`, `bullets`
+- **Reagents:** stored in `char.db.reagents` dict (not physical inventory items)
 
 ---
 
@@ -345,12 +413,14 @@ Crafting station objects have their CmdSet attached in `typeclasses/objects.py`.
 
 | CmdSet | Attached To | Key Commands |
 |--------|-------------|--------------|
-| `CharacterCmdSet` | `Character` typeclass | All combat, inventory, social, healing commands |
-| `AccountCmdSet` | `Account` typeclass | `createnpc`, `editnpc`, `npc` |
-| `ChargenCmdset` | `ChargenRoom` room | All `Set*` skill selection commands |
+| `CharacterCmdSet` | `Character` typeclass | All combat, inventory, social, healing commands; also `reagents`, `browse`, `buy`, `sell` |
+| `AccountCmdSet` | `Account` typeclass | `createnpc`, `editnpc`, `npc`, `addreagent` |
+| `ChargenCmdset` | `ChargenRoom` room | All `Set*` skill selection commands including `SetAlchemist`, `SetVigil` |
 | `RoomCmdSet` | All `Room` instances (default) | `perception`, `tracking` |
 | `BlacksmithCmdSet` | Forge objects | `forge`, `craft`, `repair` |
 | `CrafterCmdSet` | Workbench objects | `craft`, `repair` |
+| `ApothecaryWorkbenchCmdSet` | Apothecary Workbench objects | `brew` |
+| `ShopCmdSet` | Merchant objects | `browse`, `buy`, `sell` |
 
 ---
 
@@ -452,7 +522,7 @@ Default ports: **4000** (MUD protocol), **4001** (web/Django)
 - Help text for every command (`help_category` and docstrings)
 
 ### Priority 3 — New Features
-- **Magic system** — `SetWyldingHand` hook exists in `ChargenCmdset`, needs full implementation
+- **Vigil archetype abilities** — `setvigil` chargen command and die mechanic implemented; unique combat abilities (e.g. special active skills) not yet wired
 - Faction/guild system with reputation
 - Advanced crafting: item quality levels, enchanting, recipe discovery
 - Weather effects on gameplay (WeatherRooms already tick, effects need wiring)

@@ -3,6 +3,9 @@ import random
 
 from commands.combat import Helper
 from commands.inventory_helper import Inventory
+from world.events import emit
+from world.available_commands import push_available_commands
+from evennia import utils as ev_utils
 
 
 class Combatant:
@@ -85,10 +88,11 @@ class Combatant:
         self.caller.db.body = value
 
     def addBody(self, value):
-        if (self.caller.db.body + value) <= 3:
+        max_body = self.caller.db.total_body or 3
+        if (self.caller.db.body + value) <= max_body:
             self.caller.db.body += value
         else:
-            self.setBody(3)
+            self.setBody(max_body)
 
     def body(self):
         #self.caller.message(f"Debug body is {self.caller.db.body}")
@@ -278,7 +282,7 @@ class Combatant:
             return False
 
     def rollAttack(self, maneuver_difficulty = 0):
-        die_result = self.helper.fayneChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("wylding_hand", 0))
+        die_result = self.helper.attackDiceChecker(self.combatStats.get("master_of_arms", 0), self.combatStats.get("vigil", 0))
         stagger_penalty = 0
 
         if(self.isStaggered):
@@ -387,10 +391,12 @@ class Combatant:
         return Combatant(self.target)
 
     def getDamage(self):
-        if self.isTwoHanded():
-            return 2
-        else:
-            return 1
+        """Return damage for this attack based on the equipped weapon's damage stat."""
+        weapon = self.inventory.getWeapon()
+        if weapon and weapon.db.damage:
+            return int(weapon.db.damage)
+        # Fallback if no weapon or damage attr missing
+        return 2 if self.isTwoHanded() else 1
 
     def setAv(self, amount):
         #TODO: Should we set Max/Min?
@@ -439,10 +445,10 @@ class Combatant:
         return self.alternateDamage(amount, "armor_specialist")
 
     def takeArmorDamage(self, amount):
-        return self.alternateDamage(amount, "tough")
+        return self.alternateDamage(amount, "armor")
 
     def takeToughDamage(self, amount):
-        return self.alternateDamage(amount, "armor")
+        return self.alternateDamage(amount, "tough")
 
     def alternateArmorSpecialistDamage(self, amount):
         return self.alternateDamage(amount, "armor_specialist")
@@ -470,20 +476,19 @@ class Combatant:
         remaining_damage = amount
 
         if self.caller.attributes.get(type):
-            if self.caller.attributes.get(type):
-                # How much damage is left after the shield
-                remaining_damage = amount - self.caller.attributes.get(type)
-                if remaining_damage < 0:
-                    remaining_damage = 0
+            # How much damage is left after absorption
+            remaining_damage = amount - self.caller.attributes.get(type)
+            if remaining_damage < 0:
+                remaining_damage = 0
 
-                # Damage the shield
-                if amount >= self.caller.attributes.get(type):
-                    new_value = 0
-                else:
-                    new_value = self.caller.attributes.get(type) - amount
+            # Damage the shield
+            if amount >= self.caller.attributes.get(type):
+                new_value = 0
+            else:
+                new_value = self.caller.attributes.get(type) - amount
 
-                obj_to_set = self.caller.attributes.get(type, return_obj=True)
-                obj_to_set.value = new_value
+            obj_to_set = self.caller.attributes.get(type, return_obj=True)
+            obj_to_set.value = new_value
 
         return remaining_damage
 
@@ -512,10 +517,11 @@ class Combatant:
 
         if amount > 0:
             #We have damage that made it through armor!
-            #TODO: Check with spence that this is right, if we hit the torso, and the hit goes through all the armor, should they go down?
-            #TODO: Or does this only happen if they're totally unarmored when they take damage
-            if shot_location == "torso" and amount < self.body():
-                amount = self.body()
+            # Torso rule: a hit that deals damage >= the target's current body pool
+            # is particularly dangerous — it immediately clears all remaining body,
+            # forcing the overflow into bleed_points on the same strike.
+            if shot_location == "torso" and amount >= self.body():
+                amount = self.body() + amount  # include body in overflow to bleed
 
             if self.body() > 0:
                 amount = self.takeBodyDamage(amount)
@@ -527,12 +533,27 @@ class Combatant:
                     "|430You are bleeding profusely from many wounds and can no longer use any active martial skills.\n|n")
                 self.broadcast(
                     f"|025{self.name} is bleeding profusely from many wounds and will soon lose consciousness.|n")
+                emit(self.caller.location, "character_bleed", {"character": self.name})
+                push_available_commands(self.caller)
+                # Quest kill hook: fire when an NPC drops to 0 bleed_points
+                if not self.bleedPoints():
+                    from typeclasses.npc import Npc
+                    if ev_utils.inherits_from(self.caller, Npc):
+                        try:
+                            from commands.quests import quest_kill
+                            for obj in self.caller.location.contents:
+                                if getattr(obj, "has_account", False) and obj.has_account:
+                                    quest_kill(obj, self.caller.key)
+                        except Exception:
+                            pass
 
             if amount > 0 and self.deathPoints() > 0:
                 self.addWeakness()
                 self.takeDeathDamage(amount, combatant)
                 self.message("|300You are unconscious and can no longer move of your own volition.|n")
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")
+                emit(self.caller.location, "character_dying", {"character": self.name})
+                push_available_commands(self.caller)
 
     def resistsAttack(self):
         if self.resistsRemaining() > 0:

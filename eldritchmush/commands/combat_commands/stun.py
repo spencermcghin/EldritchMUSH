@@ -7,17 +7,23 @@ from commands.combatant import Combatant
 
 class CmdStun(Command):
     """
-    Issues a stun command.
+    Stun a target, causing them to lose their next turn.
 
     Usage:
+      stun <target>
 
-    stun <target>
+    A precise blow to a vulnerable point.  If the attack roll beats the
+    target's AV, the target is stunned: they skip their next turn and
+    suffer a -1 penalty to their following attack roll.
 
-    This will issue a stun command that makes a target skip their turn, with a -1 penalty to attack.
+    Requires: stun skill ≥ 1, melee weapon equipped.
+    Consumes your combat turn.
+
+    See also: stagger, disarm, strike
     """
 
     key = "stun"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None

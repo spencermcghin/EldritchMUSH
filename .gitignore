@@ -4,11 +4,13 @@
 *.log
 *.pid
 __pycache__
+eldritchmush/server/.static/
 jessmushtest
 devevenv
 prodevenv
 evenv
 localevenv
+.venv/
 .idea/
 
 eldritchmush/web/static/admin/js/vendor/xregexp/xregexp.min.js
@@ -239,3 +241,9 @@ eldritchmush/web/static/admin/css/dashboard.css
 eldritchmush/web/static/admin/css/changelists.css
 eldritchmush/web/static/admin/css/base.css
 eldritchmush/web/static/admin/css/autocomplete.css
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local

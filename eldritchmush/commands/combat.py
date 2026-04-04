@@ -79,9 +79,9 @@ class Helper():
         return die_result
 
 
-    def wyldingHand(self, level):
+    def vigilDie(self, level):
         """
-        Returns die result based on wylding hand level
+        Returns die result based on Vigil archetype level
         """
         if level == 0:
             die_result = random.randint(1,6)
@@ -280,7 +280,7 @@ class Helper():
         # Vars for melee attack_result logic
         master_of_arms = combatant.db.master_of_arms
         weapon_level = self.weaponValue(combatant.db.weapon_level)
-        wylding_hand = combatant.db.wylding_hand
+        vigil = combatant.db.vigil
 
         # Penalties
         weakness = self.weaknessChecker(combatant.db.weakness)
@@ -302,7 +302,7 @@ class Helper():
                        "bow_penalty": 2,
                        "master_of_arms": master_of_arms,
                        "weapon_level": weapon_level,
-                       "wylding_hand": wylding_hand,
+                       "vigil": vigil,
                        "weakness": weakness,
                        "dmg_penalty": dmg_penalty,
                        "two_handed": two_handed,
@@ -317,10 +317,10 @@ class Helper():
         return melee_stats
 
 
-    def fayneChecker(self, master_of_arms, wylding_hand):
-        # Return die roll based on level in master of arms or wylding hand.
-        if wylding_hand:
-            die_result = self.wyldingHand(wylding_hand)
+    def attackDiceChecker(self, master_of_arms, vigil):
+        # Return die roll based on level in master of arms or vigil archetype.
+        if vigil:
+            die_result = self.vigilDie(vigil)
         else:
             die_result = self.masterOfArms(master_of_arms)
 
@@ -331,21 +331,22 @@ General Combat Commands
 """
 class CmdTargets(Command):
     """
-    Lists current possible targets and their general status per the look command.
+    List all enemies in the current combat and their condition.
 
     Usage:
       targets
 
-    Logic:
-    1. Check to see if in combat loop for location.
-    2. Else broadcast not in combat message.
-    3. If in combat, get turn order, enemy names, and their general status.
+    Aliases: enemies, combat targets
 
+    Shows each NPC in the active combat loop along with their health
+    description (bleeding, dying, etc.).  Only works while you are in
+    an active combat loop.
 
+    See also: strike, shoot, disengage
     """
     key = "targets"
     aliases = ["combat targets", "enemies"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         self.combat_loop = self.caller.location.db.combat_loop
@@ -379,13 +380,24 @@ Knight commands
 
 class CmdBattlefieldCommander(Command):
     """
-    Usage: bolster <speech>
+    Deliver a rousing speech to temporarily bolster allies' toughness.
 
-    Use the bolster command followed by a speech to give all in the room 1 tough.
+    Usage:
+      bolster <speech text>
+
+    Aliases: battlefieldcommander
+
+    Grants every conscious ally in the room +1 tough for the duration of
+    the current combat encounter.  The text of your speech is broadcast
+    to the room.  Uses are limited by your battlefieldcommander skill level.
+
+    Requires: battlefieldcommander skill ≥ 1.
+
+    See also: rally, strike
     """
     key = "bolster"
     aliases = ["battlefieldcommander"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         "Very trivial parser"
@@ -432,12 +444,21 @@ class CmdBattlefieldCommander(Command):
 
 class CmdRally(Command):
     """
-    Usage: rally <speech>
+    Rally fearful allies to remove the fear status effect.
 
-    Use the rally command followed by a speech to remove the fear effect from those in the room.
+    Usage:
+      rally <speech text>
+
+    Broadcasts your rallying words to the room and removes the |wfear|n
+    status flag from all affected allies present.  Uses are limited by
+    your rally skill level.
+
+    Requires: rally skill ≥ 1.
+
+    See also: bolster, strike
     """
     key = "rally"
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         "Very trivial parser"

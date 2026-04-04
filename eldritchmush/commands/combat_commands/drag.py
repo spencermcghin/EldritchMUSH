@@ -7,17 +7,26 @@ from commands.combat import Helper
 class Drag(Command):
 
     """
-    Drags immobile target out of combat or initiates a follow.
-    If both of target's legs are injured, they will need to be healed or drug from combat.
-    If player is between 4 - 6 body, they will need to be drug from combat.
-    If caller and target are in a combat loop, they will have to disengage from combat at the same time.
-    If caller is in loop but target is not, caller will need to exit the loop and then execute the command.
-    If caller is not in loop but target is, target will be removed from loop.
-    If caller and target are not in combat, command issues a follow.
+    Drag an incapacitated ally or corpse to safety.
+
+    Usage:
+      drag <target>
+
+    Moves a dying or immobile character out of the combat area.  The target
+    must be unable to move on their own (both legs injured, dying, or body ≤ 0).
+
+    - If both you and the target are in combat, you must both disengage first.
+    - If only you are in combat, disengage then drag.
+    - If neither is in combat, drag initiates a temporary follow.
+
+    Requires: target must be incapacitated (cannot drag a conscious fighter).
+    Does not consume a combat turn by itself.
+
+    See also: disengage, medicine, restore
     """
 
     key = "drag"
-    help_category = "combat"
+    help_category = "Combat"
     def __init__(self):
         self.target = None
 
