@@ -9,8 +9,8 @@ const FLAVOR_LINES = [
 ]
 
 export default function LoginScreen({ connectionState, onConnect }) {
-  const [host, setHost] = useState('localhost')
-  const [port, setPort] = useState('4002')
+  const [host, setHost] = useState(import.meta.env.VITE_GAME_HOST || 'localhost')
+  const [port, setPort] = useState(import.meta.env.VITE_GAME_PORT || '4002')
   const [flavorIdx] = useState(() => Math.floor(Math.random() * FLAVOR_LINES.length))
 
   const handleConnect = (e) => {

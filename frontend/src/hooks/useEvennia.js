@@ -74,7 +74,10 @@ export function useEvennia() {
   const wsRef = useRef(null)
   const reconnectTimeoutRef = useRef(null)
   const reconnectDelayRef = useRef(BASE_RECONNECT_DELAY)
-  const connectionParamsRef = useRef({ host: 'localhost', port: 4002 })
+  // Default host/port can be overridden by env vars (set in Vercel dashboard)
+  const defaultHost = import.meta.env.VITE_GAME_HOST || 'localhost'
+  const defaultPort = parseInt(import.meta.env.VITE_GAME_PORT || '4002')
+  const connectionParamsRef = useRef({ host: defaultHost, port: defaultPort })
   const shouldReconnectRef = useRef(false)
   const pingIntervalRef = useRef(null)
   const pingStartRef = useRef(null)
