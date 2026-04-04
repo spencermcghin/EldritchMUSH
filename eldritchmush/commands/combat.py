@@ -331,21 +331,22 @@ General Combat Commands
 """
 class CmdTargets(Command):
     """
-    Lists current possible targets and their general status per the look command.
+    List all enemies in the current combat and their condition.
 
     Usage:
       targets
 
-    Logic:
-    1. Check to see if in combat loop for location.
-    2. Else broadcast not in combat message.
-    3. If in combat, get turn order, enemy names, and their general status.
+    Aliases: enemies, combat targets
 
+    Shows each NPC in the active combat loop along with their health
+    description (bleeding, dying, etc.).  Only works while you are in
+    an active combat loop.
 
+    See also: strike, shoot, disengage
     """
     key = "targets"
     aliases = ["combat targets", "enemies"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         self.combat_loop = self.caller.location.db.combat_loop
@@ -379,13 +380,24 @@ Knight commands
 
 class CmdBattlefieldCommander(Command):
     """
-    Usage: bolster <speech>
+    Deliver a rousing speech to temporarily bolster allies' toughness.
 
-    Use the bolster command followed by a speech to give all in the room 1 tough.
+    Usage:
+      bolster <speech text>
+
+    Aliases: battlefieldcommander
+
+    Grants every conscious ally in the room +1 tough for the duration of
+    the current combat encounter.  The text of your speech is broadcast
+    to the room.  Uses are limited by your battlefieldcommander skill level.
+
+    Requires: battlefieldcommander skill ≥ 1.
+
+    See also: rally, strike
     """
     key = "bolster"
     aliases = ["battlefieldcommander"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         "Very trivial parser"
@@ -432,12 +444,21 @@ class CmdBattlefieldCommander(Command):
 
 class CmdRally(Command):
     """
-    Usage: rally <speech>
+    Rally fearful allies to remove the fear status effect.
 
-    Use the rally command followed by a speech to remove the fear effect from those in the room.
+    Usage:
+      rally <speech text>
+
+    Broadcasts your rallying words to the room and removes the |wfear|n
+    status flag from all affected allies present.  Uses are limited by
+    your rally skill level.
+
+    Requires: rally skill ≥ 1.
+
+    See also: bolster, strike
     """
     key = "rally"
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         "Very trivial parser"

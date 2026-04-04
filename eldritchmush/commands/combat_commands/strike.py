@@ -6,18 +6,26 @@ from world.events import emit
 
 class CmdStrike(Command):
     """
-    issues an attack
+    Strike a target with your equipped melee weapon.
 
     Usage:
+      strike <target>
 
-    strike <target>
+    Aliases: hit, slash, bash, punch
 
-    This will calculate an attack score based on your weapon and master of arms level.
+    Rolls your melee attack (d6 + master_of_arms + vigil bonus) against the
+    target's armor value (AV).  On a hit, deals weapon damage to the target's
+    body, then bleed_points, then death_points.
+
+    Requires: melee weapon in right_slot or left_slot.
+    Consumes your combat turn.
+
+    See also: shoot, cleave, stagger, stun, disarm, sunder
     """
 
     key = "strike"
     aliases = ["hit", "slash", "bash", "punch"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None

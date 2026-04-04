@@ -7,14 +7,19 @@ from typeclasses.npc import Npc
 
 class CmdSkip(Command):
     """
-    Pass on your turn while in combat.
+    Pass your combat turn without acting.
 
     Usage:
       skip
 
+    Advances the combat turn order without taking any action.  Useful if
+    all your targets are down or you want to wait before committing to an
+    attack.
+
+    See also: disengage, strike
     """
     key = "skip"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.combat_loop = None

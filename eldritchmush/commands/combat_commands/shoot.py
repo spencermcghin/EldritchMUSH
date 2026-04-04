@@ -6,17 +6,26 @@ from world.events import emit
 
 class CmdShoot(Command):
     """
-    issues a shoot command if armed with a bow.
+    Fire a ranged shot at a target.
 
     Usage:
+      shoot <target>
 
-    shoot <target>
+    Rolls your ranged attack (d6 + archer/sniper bonus) against the target's
+    armor value.  Requires a bow equipped in right_slot and arrows in
+    arrow_slot (or bullets in bullet_slot for firearms).
 
-    This will calculate an attack score based on your weapon and master of arms level.
+    Each shot consumes one arrow/bullet.  When ammunition runs out you
+    must replenish from your inventory or switch to melee.
+
+    Requires: bow/firearm equipped, ammo in arrow_slot/bullet_slot.
+    Consumes your combat turn.
+
+    See also: strike, disengage
     """
 
     key = "shoot"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None

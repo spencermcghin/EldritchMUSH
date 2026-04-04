@@ -8,14 +8,23 @@ from commands.combatant import Combatant
 
 class CmdSunder(Command):
     """
-    Issues a sunder command.
+    Destroy or damage a target's armor or equipped weapon.
+
     Usage:
-    sunder <target>
-    This will calculate an attack score based on your weapon and master of arms level.
+      sunder <target>
+
+    Aims a powerful strike at the target's equipment rather than their body.
+    On a successful hit (roll vs. AV), reduces the target's armor value (AV)
+    by 1.  Against an unarmored target, damages their equipped weapon instead.
+
+    Requires: sunder skill ≥ 1, melee weapon equipped.
+    Consumes your combat turn.
+
+    See also: disarm, strike, stagger
     """
 
     key = "sunder"
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         "Very trivial parser"

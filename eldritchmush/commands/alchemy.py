@@ -156,12 +156,21 @@ class CmdReagents(Command):
     """
     Display your current reagent inventory.
 
-    Usage: reagents
+    Usage:
+      reagents
+
+    Aliases: reagent inventory, reagentinv
+
+    Lists all reagents you currently carry along with their quantities.
+    Reagents are used at an Apothecary Workbench to brew alchemical
+    substances.  They are stored separately from regular inventory items.
+
+    See also: brew, addreagent (staff)
     """
 
     key = "reagents"
     aliases = ["reagent inventory", "reagentinv"]
-    help_category = "mush"
+    help_category = "Crafting"
 
     def func(self):
         caller = self.caller
