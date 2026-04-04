@@ -302,7 +302,10 @@ export function useEvennia() {
     shouldReconnectRef.current = true
     setConnectionState('connecting')
 
-    const url = `ws://${host}:${port}`
+    const isSecure = window.location.protocol === 'https:'
+    const protocol = isSecure ? 'wss:' : 'ws:'
+    const portStr = (port === 443 || port === 80) ? '' : `:${port}`
+    const url = `${protocol}//${host}${portStr}`
     let ws
     try {
       ws = new WebSocket(url)
