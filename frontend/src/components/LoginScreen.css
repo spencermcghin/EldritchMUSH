@@ -76,24 +76,25 @@
 
 .login-title {
   font-family: 'UnifrakturMaguntia', serif;
-  font-size: clamp(36px, 7vw, 64px);
+  font-size: clamp(42px, 8vw, 76px);
   color: var(--accent-gold);
   animation: glow-gold 4s ease-in-out infinite;
   text-shadow:
-    0 0 10px rgba(212,175,55,0.5),
-    0 0 30px rgba(212,175,55,0.2),
-    0 0 60px rgba(139,0,0,0.15);
-  letter-spacing: 2px;
+    0 0 10px rgba(212,175,55,0.6),
+    0 0 30px rgba(212,175,55,0.3),
+    0 0 60px rgba(139,0,0,0.25),
+    0 2px 4px rgba(0,0,0,0.8);
+  letter-spacing: 3px;
   line-height: 1;
 }
 
 .login-subtitle {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 4px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 10px;
+  letter-spacing: 5px;
   color: var(--text-aged);
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 /* Divider */
@@ -113,14 +114,14 @@
 
 /* Flavor text */
 .login-flavor {
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
+  font-family: 'IM Fell English', serif;
+  font-size: 15px;
+  font-style: italic;
   color: var(--text-aged);
   text-align: center;
-  font-style: italic;
   opacity: 0.9;
   max-width: 380px;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
 /* Form panel */
@@ -196,11 +197,11 @@
   background: transparent;
   border: 1px solid var(--accent-gold);
   color: var(--accent-gold);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  padding: 12px 24px;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  padding: 13px 24px;
   cursor: pointer;
   text-transform: uppercase;
   transition: background 0.2s, box-shadow 0.2s, color 0.2s;
@@ -241,10 +242,11 @@
 
 /* Hint text */
 .login-hint {
-  font-size: 11px;
+  font-family: 'IM Fell English', serif;
+  font-size: 12px;
   color: var(--text-aged);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.7;
   opacity: 0.8;
 }
 

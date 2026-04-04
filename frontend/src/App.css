@@ -213,8 +213,8 @@ body::before {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -257,12 +257,12 @@ body::before {
   background: transparent;
   border: 1px solid rgba(139,0,0,0.4);
   color: var(--text-aged);
-  font-size: 11px;
+  font-size: 10px;
   padding: 2px 7px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.5px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
 }
 
 .header-disconnect-btn:hover {
