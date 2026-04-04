@@ -319,6 +319,12 @@ class CmdGet(Command):
                 self.caller.location.msg_contents("%s picks up %s." % (self.caller.name, target.name), exclude=self.caller)
                 # calling at_get hook method
                 target.at_get(self.caller)
+                # Quest gather hook
+                try:
+                    from commands.quests import quest_gather
+                    quest_gather(self.caller, target.key)
+                except Exception:
+                    pass
             else:
                 return
 

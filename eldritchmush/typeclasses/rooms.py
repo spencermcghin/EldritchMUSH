@@ -40,6 +40,12 @@ class Room(DefaultRoom):
                     if utils.inherits_from(item, Npc):
                         # An NPC is in the room
                         item.at_char_entered(obj)
+                # Quest explore hook
+                try:
+                    from commands.quests import quest_explore
+                    quest_explore(obj, self.key)
+                except Exception:
+                    pass
 
 
     def at_object_creation(self):

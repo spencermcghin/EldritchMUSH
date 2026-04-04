@@ -5,6 +5,7 @@ from commands.combat import Helper
 from commands.inventory_helper import Inventory
 from world.events import emit
 from world.available_commands import push_available_commands
+from evennia import utils as ev_utils
 
 
 class Combatant:
@@ -531,6 +532,17 @@ class Combatant:
                     f"|025{self.name} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                 emit(self.caller.location, "character_bleed", {"character": self.name})
                 push_available_commands(self.caller)
+                # Quest kill hook: fire when an NPC drops to 0 bleed_points
+                if not self.bleedPoints():
+                    from typeclasses.npc import Npc
+                    if ev_utils.inherits_from(self.caller, Npc):
+                        try:
+                            from commands.quests import quest_kill
+                            for obj in self.caller.location.contents:
+                                if getattr(obj, "has_account", False) and obj.has_account:
+                                    quest_kill(obj, self.caller.key)
+                        except Exception:
+                            pass
 
             if amount > 0 and self.deathPoints() > 0:
                 self.addWeakness()
