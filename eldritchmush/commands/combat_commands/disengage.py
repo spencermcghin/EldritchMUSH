@@ -9,22 +9,24 @@ from world.available_commands import push_available_commands
 
 class CmdDisengage(Command):
     """
-    disengage from an enemy
+    Exit combat and remove yourself from the turn order.
 
     Usage:
       disengage
 
-    Disengages from a fight.
+    Aliases: escape, flee, retreat
 
-    Logic:
-    1. Get next player turn in loop.
-    2.
+    Safely withdraws you from the current combat loop.  You can disengage
+    even while bleeding — it is the only combat action available in that
+    state.  Once disengaged you can move, seek healing, or re-engage later.
 
+    Does NOT consume your combat turn (the loop advances normally after).
 
+    See also: drag, medicine, chirurgery
     """
     key = "disengage"
     aliases = ["disengage", "escape", "flee", "retreat"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         self.combat_loop = self.caller.location.db.combat_loop

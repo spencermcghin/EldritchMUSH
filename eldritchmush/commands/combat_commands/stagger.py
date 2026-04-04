@@ -5,17 +5,22 @@ from commands.combatant import Combatant
 
 class CmdStagger(Command):
     """
-    Issues a stagger command.
+    Deliver a forceful blow to throw a target off balance.
 
     Usage:
+      stagger <target>
 
-    stagger <target>
+    If the attack roll beats the target's AV, the target is staggered: they
+    lose their next combat turn and take a penalty on their following attack.
 
-    This will calculate an attack score based on your weapon and master of arms level.
+    Requires: stagger skill ≥ 1, melee weapon equipped.
+    Consumes your combat turn.
+
+    See also: stun, disarm, strike
     """
 
     key = "stagger"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None

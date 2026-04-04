@@ -15,9 +15,25 @@ Crafting Commands
 """
 
 class CmdCraft(Command):
+    """
+    Craft an item at a workbench using raw materials.
+
+    Usage:
+      craft <item name>
+
+    Available at: Artificer Workbench, Bowyer Workbench, Gunsmith Workbench.
+    The items you can craft depend on your trained skill:
+      artificer   — gadgets, mechanical items
+      bowyer      — bows and crossbows
+      gunsmith    — firearms and related components
+
+    Requires: appropriate skill ≥ 1, workbench in the room, raw materials.
+
+    See also: forge, repair, brew
+    """
 
     key = "craft"
-    help_category = "mush"
+    help_category = "Crafting"
 
     def parse(self):
         "Very trivial parser"
@@ -118,9 +134,23 @@ class CmdCraft(Command):
 
 
 class CmdRepair(Command):
+    """
+    Repair a damaged item at a crafting station.
+
+    Usage:
+      repair <item name>
+
+    Fully restores a damaged or patched weapon/armor to its original
+    material value.  Can be used at any crafting workbench by a character
+    with the matching craft skill.
+
+    Requires: matching skill (blacksmith/bowyer/etc.) ≥ 1, workbench in room.
+
+    See also: craft, patch, forge
+    """
 
     key = "repair"
-    help_category = "mush"
+    help_category = "Crafting"
 
     def parse(self):
         "Very trivial parser"

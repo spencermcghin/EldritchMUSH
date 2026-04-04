@@ -205,13 +205,22 @@ Utility commands
 """
 class CmdGet(Command):
     """
-    pick up something
+    Pick up an object or transfer resources from a container.
 
     Usage:
-      get (optional:<qty>) <obj> <from||=> <target>
+      get <object>
+      get <qty> <resource> from <container>
 
-    Picks up an object from your location and puts it in
-    your inventory.
+    Picks up an item from the room and places it in your inventory.
+    For stackable resources (iron_ingots, silver, arrows, etc.) you can
+    specify a quantity and source:
+
+      get 5 iron ingots from chest
+      get 10 arrows from quiver
+
+    Aliases: grab
+
+    See also: give, equip, inventory (inv)
     """
 
     key = "get"
@@ -450,17 +459,29 @@ class CmdGive(Command):
 
 
 class CmdEquip(Command):
-    """Equip a weapon or shield
+    """
+    Equip a weapon, shield, or piece of armor from your inventory.
 
-    Usage: equip <weapon, shield, or armor>
+    Usage:
+      equip <item>
 
-    Searches the callers inventory and puts the item in the right_slot if 1H, and then the left_slot
-    if the character equips something else.
-    If the item is denoted as 2H, it will occupy both slots.
+    Slots are filled in this order: right_slot (primary), then left_slot
+    (off-hand for 1H weapons or shields).  Two-handed weapons occupy both.
+    Armor goes to body_slot; gloves to hand_slot; boots to foot_slot.
+
+    You must unequip an existing item before equipping a new one in the
+    same slot.
+
+    Examples:
+      equip iron sword
+      equip tower shield
+      equip iron medium armor
+
+    See also: unequip, get, charsheet
     """
 
     key = "equip"
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
@@ -655,17 +676,21 @@ class CmdEquip(Command):
             return
 
 class CmdUnequip(Command):
-    """Equip a weapon or shield
+    """
+    Remove an equipped item and return it to your inventory.
 
-    Usage: unequip <weapon or shield>
+    Usage:
+      unequip <item>
 
-    Searches the callers right or left slot.
-    If item is denoted as 2H, remove from both slots.
-    If item is not, remove it from the equipped slot.
+    Removes the named item from whichever slot it occupies (right_slot,
+    left_slot, body_slot, hand_slot, foot_slot, etc.) and places it back
+    in your carried inventory.  Two-handed weapons vacate both slots.
+
+    See also: equip, inventory (inv)
     """
 
     key = "unequip"
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
@@ -2253,12 +2278,24 @@ class SetWeakness(Command):
 
 class CharSheet(Command):
     """
-    Prints out the character's sheet and current status.
+    Display your full character sheet including all skills and stats.
+
+    Usage:
+      charsheet
+      charsheet <target>   (admin only)
+
+    Aliases: sheet, char sheet, character sheet, view sheet
+
+    Shows all combat skills, crafting skills, proficiencies, resource
+    counts, and current equipment.  This is the primary way to review
+    your character build and check what skills you have purchased.
+
+    See also: charstatus, diagnose
     """
 
     key = "charsheet"
     aliases = ["sheet", "char sheet", "character sheet", "view sheet"]
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
@@ -2412,12 +2449,23 @@ class CharSheet(Command):
 
 class CharStatus(Command):
     """
-    Prints out the character's relevant status information.
+    Show a compact combat-status summary for yourself.
+
+    Usage:
+      charstatus
+
+    Aliases: status, char status, view status
+
+    Displays current body / bleed_points / death_points, AV, equipped
+    weapons and armor, and your active combat turn state.  Useful for
+    a quick check mid-fight without the full charsheet.
+
+    See also: charsheet, diagnose
     """
 
     key = "charstatus"
     aliases = ["status", "char status", "character status", "view status"]
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
@@ -2489,12 +2537,24 @@ class CharStatus(Command):
 
 class CmdDiagnose(Command):
     """
-    Prints out the character's relevant status information.
+    Assess the health status of yourself or another character.
+
+    Usage:
+      diagnose
+      diagnose <target>
+
+    Aliases: dia, check
+
+    Reports the current body / bleed / death point status of a target in
+    plain language.  Diagnosing others requires the medicine skill ≥ 1.
+    Diagnosing yourself is always free.
+
+    See also: medicine (heal), restore (chirurgery), patch, charsheet
     """
 
     key = "diagnose"
     aliases = ["dia", "check"]
-    help_category = "mush"
+    help_category = "Healing"
 
     def parse(self):
         "Very trivial parser"
@@ -2555,18 +2615,19 @@ General gameplay commands
 """
 class CmdPatch(Command):
     """
-    Looks in a character's inventory for the object they want to patch.
+    Use a patch kit to do quick field repairs on a damaged item.
 
-    Usage: patch <item name>
+    Usage:
+      patch <item>
 
-    Arg handle
-    Search for item to be repaired in char inventory.
-    If not there, char doesn't have it.
-    If there, search in prototypes for max material value.
-    If not there, item is not a prototype.
-    If in prototypes, check to see if it's under its max material_value.
-    If so, set to max value and then delete the patch kit.
-    If not, the item doesn't need to be repaired. Prompt and do nothing.
+    Restores a damaged weapon or piece of armor to its original material
+    value using a patch kit from your inventory.  Each patch kit is
+    consumed on use.  An item can only be patched once before it requires
+    a full blacksmith repair.
+
+    Requires: patch kit in inventory.
+
+    See also: repair (at forge/workbench), equip
     """
 
     key = "patch"
@@ -2632,14 +2693,24 @@ class CmdPatch(Command):
 
 class CmdFollow(Command):
     """
-    Follows the targeted character.
-    This needs to copy the commands of another character, but only if those commands are
-    movement related.x
+    Follow another character, automatically moving with them.
+
+    Usage:
+      follow <target>
+
+    Aliases: chase
+
+    Causes you to automatically move whenever the target moves to a
+    new room — provided you are not in combat and are physically able to
+    move.  Following ends if the target moves into combat, if you become
+    injured beyond walking, or if you use |wunfollow|n.
+
+    See also: unfollow, followstatus, drag
     """
 
     key = "follow"
     aliases = ["chase"]
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
@@ -2722,12 +2793,22 @@ class CmdFollow(Command):
 
 class CmdUnfollow(Command):
     """
-    Unfollows the targeted character.
+    Stop following a character.
+
+    Usage:
+      unfollow <target>
+
+    Aliases: stop following, stopfollowing
+
+    Ends the follow relationship between you and the target.  If the target
+    is leading a group, you are removed from their follower list.
+
+    See also: follow, followstatus
     """
 
     key = "unfollow"
     aliases = ["stop following", "stopfollowing", "stop chasing", "stopchasing"]
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
@@ -2870,12 +2951,22 @@ class CmdUnfollowForce(Command):
 
 class CmdFollowStatus(Command):
     """
-    Prints out the character's follow related information.
+    Show your current follow/lead relationships.
+
+    Usage:
+      followstatus
+
+    Aliases: followstat, folstat
+
+    Displays whether you are currently following anyone, leading a group,
+    and who is in your follower list.
+
+    See also: follow, unfollow
     """
 
     key = "followstatus"
     aliases = ["followstat", "follow status", "folstat", "follow stat", "fol stat"]
-    help_category = "mush"
+    help_category = "General"
 
     def parse(self):
         "Very trivial parser"
