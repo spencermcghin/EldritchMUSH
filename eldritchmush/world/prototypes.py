@@ -566,7 +566,7 @@ MASTERWORK_STEEL_SMALL_WEAPON = {
 "material_value": 4,
 "required_skill": "melee_weapons",
 "level": 3,
-"damage": 1
+"damage": 2
 }
 
 MASTERWORK_STEEL_MEDIUM_WEAPON = {
@@ -585,7 +585,7 @@ MASTERWORK_STEEL_MEDIUM_WEAPON = {
 "material_value": 4,
 "required_skill": "melee_weapons",
 "level": 3,
-"damage": 1
+"damage": 2
 }
 
 MASTERWORK_STEEL_LARGE_WEAPON = {
@@ -605,7 +605,7 @@ MASTERWORK_STEEL_LARGE_WEAPON = {
 "level": 3,
 "material_value": 4,
 "required_skill": "melee_weapons",
-"damage": 2,
+"damage": 3,
 "twohanded": True
 }
 
