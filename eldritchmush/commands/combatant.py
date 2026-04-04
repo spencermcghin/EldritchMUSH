@@ -391,10 +391,12 @@ class Combatant:
         return Combatant(self.target)
 
     def getDamage(self):
-        if self.isTwoHanded():
-            return 2
-        else:
-            return 1
+        """Return damage for this attack based on the equipped weapon's damage stat."""
+        weapon = self.inventory.getWeapon()
+        if weapon and weapon.db.damage:
+            return int(weapon.db.damage)
+        # Fallback if no weapon or damage attr missing
+        return 2 if self.isTwoHanded() else 1
 
     def setAv(self, amount):
         #TODO: Should we set Max/Min?
@@ -515,10 +517,11 @@ class Combatant:
 
         if amount > 0:
             #We have damage that made it through armor!
-            #TODO: Check with spence that this is right, if we hit the torso, and the hit goes through all the armor, should they go down?
-            #TODO: Or does this only happen if they're totally unarmored when they take damage
-            if shot_location == "torso" and amount < self.body():
-                amount = self.body()
+            # Torso rule: a hit that deals damage >= the target's current body pool
+            # is particularly dangerous — it immediately clears all remaining body,
+            # forcing the overflow into bleed_points on the same strike.
+            if shot_location == "torso" and amount >= self.body():
+                amount = self.body() + amount  # include body in overflow to bleed
 
             if self.body() > 0:
                 amount = self.takeBodyDamage(amount)

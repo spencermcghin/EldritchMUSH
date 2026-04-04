@@ -1192,6 +1192,8 @@ class BanditMeleeOneHanded(Npc):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
         self.db.right_slot = [weapon.key]
+        # Iron medium weapon is level 1 → weaponValue(1) = 2
+        self.db.weapon_level = 2
 
     def remove_equipment(self):
         for item in list(self.contents):
@@ -1279,6 +1281,8 @@ class WildWolfNpc(Npc):
         weapon = spawn({"prototype_parent": "IRON_SMALL_WEAPON",
                         "key": "wolf bite", "location": self})[0]
         self.db.right_slot = [weapon.key]
+        # Small weapon is level 0 → weapon_level bonus 0
+        self.db.weapon_level = 0
 
     def remove_equipment(self):
         for item in list(self.contents):
@@ -1364,6 +1368,10 @@ class SkeletonArcher(Npc):
         arrows = spawn({"prototype_parent": "ARROWS", "location": self})[0]
         self.db.right_slot = [bow.key]
         self.db.arrow_slot = [arrows.key]
+        # Bow uses archer skill; weapon_level bonus from bow level
+        bow_level = getattr(bow.db, 'level', 0) or 0
+        from commands.combat import Helper
+        self.db.weapon_level = Helper().weaponValue(bow_level)
 
     def remove_equipment(self):
         for item in list(self.contents):
