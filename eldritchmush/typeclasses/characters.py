@@ -8,6 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
+from world.available_commands import push_available_commands
 
 
 class Character(DefaultCharacter):
@@ -106,7 +107,7 @@ class Character(DefaultCharacter):
         self.db.weapon_level = 0
         self.db.shield_value = 0
         self.db.twohanded = 0
-        self.db.wyldinghand = 0
+        self.db.vigil = 0
         self.db.shield = 0
         self.db.bow = 0
         self.db.activemartialskill = 1
@@ -148,6 +149,9 @@ class Character(DefaultCharacter):
         self.db.silver = 0
         self.db.copper = 0
         self.db.arrows = 0
+
+        # Alchemy reagent inventory: {reagent_name: quantity}
+        self.db.reagents = {}
 
 
     def return_appearance(self, looker):
@@ -223,4 +227,11 @@ class Character(DefaultCharacter):
                 self.db.isFollowing = False
                 self.db.leader = []
 
-        pass
+        # Push updated available commands to the web UI sidebar after every move.
+        push_available_commands(self)
+
+    def at_post_puppet(self, **kwargs):
+        """Called when a player puppets this character (login / reconnect)."""
+        super().at_post_puppet(**kwargs)
+        # Push sidebar commands immediately so the UI is populated on connect.
+        push_available_commands(self)

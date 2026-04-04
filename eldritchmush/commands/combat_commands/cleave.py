@@ -6,17 +6,23 @@ from commands.combatant import Combatant
 
 class CmdCleave(Command):
     """
-    Issues a cleave command.
+    Cleave through a primary target and hit adjacent enemies.
 
     Usage:
+      cleave <target>
 
-    cleave <target>
+    Executes a wide swinging attack against the named target and any other
+    combatants standing nearby in the same combat loop.  Each additional
+    target is hit for the same damage roll.
 
-    This will calculate an attack score based on your weapon and master of arms level.
+    Requires: cleave skill ≥ 1, melee weapon equipped.
+    Consumes your combat turn.
+
+    See also: strike, stagger, sunder
     """
 
     key = "cleave"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None

@@ -4,25 +4,29 @@ from world.combat_loop import CombatLoop
 from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
+from world.events import emit
+from world.available_commands import push_available_commands
 
 class CmdDisengage(Command):
     """
-    disengage from an enemy
+    Exit combat and remove yourself from the turn order.
 
     Usage:
       disengage
 
-    Disengages from a fight.
+    Aliases: escape, flee, retreat
 
-    Logic:
-    1. Get next player turn in loop.
-    2.
+    Safely withdraws you from the current combat loop.  You can disengage
+    even while bleeding — it is the only combat action available in that
+    state.  Once disengaged you can move, seek healing, or re-engage later.
 
+    Does NOT consume your combat turn (the loop advances normally after).
 
+    See also: drag, medicine, chirurgery
     """
     key = "disengage"
     aliases = ["disengage", "escape", "flee", "retreat"]
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         self.combat_loop = self.caller.location.db.combat_loop
@@ -34,6 +38,7 @@ class CmdDisengage(Command):
             # Check to see if caller is in combat loop:
             if self.caller in self.combat_loop:
                 self.caller.location.msg_contents(f"{self.caller.key} |025breaks away from combat.|n")
+                emit(self.caller.location, "combat_disengage", {"character": self.caller.key})
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
                 # Run cleanup to move to next target
@@ -41,6 +46,7 @@ class CmdDisengage(Command):
                 # Reset stats
                 self.caller.db.in_combat = 0
                 self.caller.db.combat_turn = 1
+                push_available_commands(self.caller)
 
                 # Check for only npcs remaining.
                 loop_contents = [char for char in self.combat_loop if utils.inherits_from(char, Npc)]
@@ -51,6 +57,7 @@ class CmdDisengage(Command):
                         char.db.in_combat = 0
                     self.combat_loop.clear()
                     self.caller.location.msg_contents("|025Combat is now over.|n")
+                    emit(self.caller.location, "combat_end", {"reason": "all_disengaged"})
                     return
                 else:
                     loop.cleanup()

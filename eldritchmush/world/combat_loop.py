@@ -3,6 +3,9 @@ from typeclasses.characters import Character
 from typeclasses.npc import Npc
 import random
 
+from world.events import emit
+from world.available_commands import push_available_commands
+
 """
 Combat Loop
 
@@ -161,6 +164,14 @@ class CombatLoop:
 			# Disable their ability to use combat commands
 			self.combatTurnOff(self.target)
 
+			# Emit combat_start event with full turn order
+			emit(self.current_room, "combat_start", {
+				"combatants": [c.key for c in self.combat_loop],
+				"turn_order": [c.key for c in self.combat_loop],
+			})
+			for combatant in self.combat_loop:
+				push_available_commands(combatant)
+
 		elif self.inLoop() is False and loopLength > 1:
 
 			if self.target not in self.combat_loop:
@@ -175,6 +186,12 @@ class CombatLoop:
 				self.combatTurnOff(self.caller)
 				self.combatTurnOff(self.target)
 				self.caller.location.msg_contents(f"{self.caller.key} and {self.target.key} have been added to the combat loop for the {self.current_room}.\nThey are currently number ({callerTurn}) and ({targetTurn}) in the round order.")
+				emit(self.current_room, "combat_join", {
+					"combatants": [self.caller.key, self.target.key],
+					"turn_order": [c.key for c in self.combat_loop],
+				})
+				push_available_commands(self.caller)
+				push_available_commands(self.target)
 
 			else:
 
@@ -186,6 +203,11 @@ class CombatLoop:
 				# Change combat_turn to 0
 				self.combatTurnOff(self.caller)
 				self.caller.location.msg_contents(f"{self.caller.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {callerTurn} in the round order.")
+				emit(self.current_room, "combat_join", {
+					"combatants": [self.caller.key],
+					"turn_order": [c.key for c in self.combat_loop],
+				})
+				push_available_commands(self.caller)
 
 		elif self.inLoop() is True and self.target not in self.combat_loop and self.target is not None:
 
@@ -195,6 +217,11 @@ class CombatLoop:
 			self.target.db.in_combat = 1
 			self.combatTurnOff(self.target)
 			self.target.location.msg_contents(f"{self.target.key} has been added to the combat loop for the {self.current_room}.\nThey are currently number {self.getCombatTurn(self.target)} in the round order.")
+			emit(self.current_room, "combat_join", {
+				"combatants": [self.target.key],
+				"turn_order": [c.key for c in self.combat_loop],
+			})
+			push_available_commands(self.target)
 
 		# Solve for when no target as in resist command.
 		elif self.inLoop() is True and self.target == None:
@@ -218,21 +245,38 @@ class CombatLoop:
 			# go back to beginning of combat_loop and prompt character for input.
 			nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
 
-			# Iterate through combat_loop until finding a character w/out the skip_turn flag set.
+			# Iterate through combat_loop until finding a character who can act.
+			# Guard with a counter to prevent infinite loops when all combatants are incapacitated.
+			checked = 0
+			loop_len = self.getLoopLength()
 			while nextCharacter.db.skip_turn or not nextCharacter.db.bleed_points:
-				# Turn off the skip_turn flag and then try to go to the next character in the loop
+				if checked >= loop_len:
+					# Everyone is incapacitated — end combat
+					for char in list(self.combat_loop):
+						char.db.combat_turn = 1
+						char.db.in_combat = 0
+					self.combat_loop.clear()
+					self.caller.location.msg_contents(f"|025All combatants are unable to act. Combat is over.|n")
+					emit(self.current_room, "combat_end", {"reason": "all_incapacitated"})
+					return
+				# Turn off the skip flag and advance to the next combatant
 				nextCharacter.db.skip_turn = False
 				nextCharacter.location.msg_contents(f"{nextCharacter.key} |430is unable to act this round.|n")
+				checked += 1
 				try:
-					# Try going to the next character based on the character that had skip_turn active
 					nextTurn = self.combat_loop.index(nextCharacter) + 1
-					nextCharacter = self.caller.search(self.combat_loop[nextTurn])
-
+					nextCharacter = self.combat_loop[nextTurn]
 				except IndexError:
-					nextCharacter = self.caller.search(self.combat_loop[0])
+					nextCharacter = self.combat_loop[0]
 
 			self.combatTurnOn(nextCharacter)
 			nextCharacter.location.msg_contents(f"ס₪₪₪₪§|(Ξ≥≤≥≤≥≤ΞΞΞΞΞΞΞΞΞΞ> |025It is now |n{nextCharacter.key}'s |025turn.|n")
+			emit(self.current_room, "turn_change", {
+				"character": nextCharacter.key,
+				"turn_order": [c.key for c in self.combat_loop],
+			})
+			for combatant in self.combat_loop:
+				push_available_commands(combatant)
 
 
 
@@ -250,13 +294,17 @@ class CombatLoop:
 
 				# If bots are all dying, reset combat stats and empty loop.
 				if total_bots == total_dying_bots:
-					for char in nextCharacter.location.db.combat_loop:
+					survivors = list(nextCharacter.location.db.combat_loop)
+					for char in survivors:
 						self.combatTurnOn(char)
 						char.db.in_combat = 0
 
 					# Clear the loop for combat
 					nextCharacter.location.db.combat_loop.clear()
 					nextCharacter.location.msg_contents(f"|025All NPC combatants are now unable to act. Combat is now over for the {nextCharacter.location}.|n")
+					emit(self.current_room, "combat_end", {"reason": "npcs_defeated"})
+					for char in survivors:
+						push_available_commands(char)
 
 				else:
 					# Hook into the npcs command generator.
@@ -287,8 +335,8 @@ class CombatLoop:
 
 							if rightDamage or leftDamage:
 								random_target = random.choice(targets)
-								# If character target, attack a random one.
-								nextCharacter.at_char_entered(random_target)
+								# Use take_combat_turn so the NPC acts regardless of is_aggressive flag.
+								nextCharacter.take_combat_turn(random_target)
 							else:
 								nextCharacter.location.msg_contents(f"{nextCharacter.key} |025has nothing to attack with.|n")
 								nextCharacter.execute_cmd("disengage")
@@ -303,10 +351,16 @@ class CombatLoop:
 			try:
 				remaining_character = self.combat_loop[0]
 			except IndexError:
-				self.caller.location.msg_contents(f"|430Combat is now over for {loop.current_room}.|n")
+				self.caller.location.msg_contents(f"|430Combat is now over for {self.current_room}.|n")
+				emit(self.current_room, "combat_end", {})
+				push_available_commands(self.caller)
 			else:
 				self.caller.location.msg_contents(f"|430Combat is now over for the {remaining_character.location}.|n")
 				self.removeFromLoop(remaining_character)
+				remaining_character.db.in_combat = 0
 				self.caller.db.in_combat = 0
-				# Change self.callers combat_turn to 1 so they can attack again.
+				# Restore combat_turn so both parties can engage again.
 				self.combatTurnOn(remaining_character)
+				emit(self.current_room, "combat_end", {})
+				push_available_commands(remaining_character)
+				push_available_commands(self.caller)

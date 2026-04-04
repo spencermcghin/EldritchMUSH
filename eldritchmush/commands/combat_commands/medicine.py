@@ -5,8 +5,23 @@ from ..combatant import Combatant
 
 
 class CmdMedicine(Command):
+    """
+    Apply field medicine to stabilize or heal a target.
+
+    Usage:
+      heal <target>
+
+    Restores body points to a wounded ally or yourself.  The amount healed
+    depends on your medicine skill level.  At medicine 1 you can stabilize
+    a bleeding target; higher levels restore more body and can revive the dying.
+
+    Requires: medicine skill ≥ 1, medicine kit in kit_slot.
+    Can be used in or out of combat.
+
+    See also: restore (chirurgery), diagnose, patch
+    """
     key = "heal"
-    help_category = "mush"
+    help_category = "Healing"
 
     def __init__(self):
         self.target = None

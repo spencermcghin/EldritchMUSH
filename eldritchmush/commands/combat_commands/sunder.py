@@ -8,14 +8,23 @@ from commands.combatant import Combatant
 
 class CmdSunder(Command):
     """
-    Issues a sunder command.
+    Destroy or damage a target's armor or equipped weapon.
+
     Usage:
-    sunder <target>
-    This will calculate an attack score based on your weapon and master of arms level.
+      sunder <target>
+
+    Aims a powerful strike at the target's equipment rather than their body.
+    On a successful hit (roll vs. AV), reduces the target's armor value (AV)
+    by 1.  Against an unarmored target, damages their equipped weapon instead.
+
+    Requires: sunder skill ≥ 1, melee weapon equipped.
+    Consumes your combat turn.
+
+    See also: disarm, strike, stagger
     """
 
     key = "sunder"
-    help_category = "combat"
+    help_category = "Combat"
 
     def parse(self):
         "Very trivial parser"
@@ -72,7 +81,7 @@ class CmdSunder(Command):
             self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
             return
 
-        die_result = h.fayneChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("wylding_hand", 0))
+        die_result = h.attackDiceChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("vigil", 0))
 
         # Get damage result and damage for weapon type
         attack_result = (die_result + self.caller.db.weapon_level) - combat_stats.get("dmg_penalty", 0) - combat_stats.get("weakness", 0)

@@ -14,9 +14,28 @@ Crafting Commands
 """
 
 class CmdForge(Command):
+    """
+    Forge a metal weapon or piece of armor at a forge.
+
+    Usage:
+      forge <item name>
+
+    Available at: Forge (Maker's Hollow).  Uses iron ingots from your
+    inventory to create weapons and armor.  Higher blacksmith skill levels
+    unlock higher tier recipes.
+
+    Examples:
+      forge iron sword
+      forge iron medium armor
+      forge iron medium weapon
+
+    Requires: blacksmith skill ≥ 1, forge in room, iron ingots.
+
+    See also: craft, repair, patch
+    """
 
     key = "forge"
-    help_category = "mush"
+    help_category = "Crafting"
 
     def parse(self):
         "Very trivial parser"

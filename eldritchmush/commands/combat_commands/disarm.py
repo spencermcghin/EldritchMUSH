@@ -6,17 +6,23 @@ from commands.combatant import Combatant
 
 class CmdDisarm(Command):
     """
-    Issues a disarm command.
+    Attempt to knock the weapon from a target's hand.
 
     Usage:
+      disarm <target>
 
-    disarm <target>
+    Makes a contested roll (your disarm skill vs. target's grip) to strip the
+    target's weapon from their right_slot.  A disarmed target cannot make
+    weapon attacks until they re-equip.
 
-    This will issue a disarm command that reduces the next amount of damage taken by master of arms level.
+    Requires: disarm skill ≥ 1, melee weapon equipped.
+    Consumes your combat turn.
+
+    See also: sunder, stagger, strike
     """
 
     key = "disarm"
-    help_category = "combat"
+    help_category = "Combat"
 
     def __init__(self):
         self.target = None

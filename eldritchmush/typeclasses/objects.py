@@ -11,7 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject, utils
-from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet, CrafterCmdSet
+from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet, CrafterCmdSet, ApothecaryWorkbenchCmdSet, ShopCmdSet
 import random
 
 
@@ -490,3 +490,102 @@ class Container(DefaultObject):
 
         # Show desc and other objects inside
         looker.msg(f"{string}\n")
+
+
+"""
+Alchemy Objects
+"""
+
+class ConsumableObject(DefaultObject):
+    """
+    An alchemical consumable (potion, decoction, poison, drug, etc.)
+    Spawned by the alchemy crafting system from alchemy_prototypes.py.
+    """
+
+    def at_object_creation(self):
+        self.db.substance_type = ""
+        self.db.level = 0
+        self.db.effect = ""
+        self.db.craft_source = "apothecary"
+        self.db.value_copper = 0
+        self.db.value_silver = 0
+        self.db.value_gold = 0
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        looker.msg(f"{string}\n")
+        if self.db.effect:
+            looker.msg(f"|230Effect:|n {self.db.effect}")
+        if self.db.substance_type:
+            looker.msg(f"|230Type:|n {self.db.substance_type.title()}")
+        if self.db.level:
+            looker.msg(f"|230Level:|n {self.db.level}")
+        looker.msg(f"|230Market Value:|n {self.db.value_silver} Silver Dragons")
+
+
+class ApothecaryWorkbench(DefaultObject):
+    """
+    Apothecary workbench. Provides the brew command to characters with
+    the Alchemist skill who are in the same room.
+
+    Usage (at workbench):
+      brew <substance name>
+      reagents
+    """
+
+    def at_object_creation(self):
+        self.locks.add("get:false()")
+        self.db.desc = (
+            "\nThis is the workbench of an Apothecary. Rows of clay jars and glass "
+            "flasks line the shelves, each labelled in a practiced hand. Bundles of "
+            "dried herbs hang overhead, and the air carries a layered scent of roots, "
+            "resins, and faintly medicinal smoke."
+        )
+        self.db.apothecary_text = (
+            "|430Usage:\n"
+            "  brew <substance>       - Brew an alchemical substance\n"
+            "  reagents               - View your reagent inventory\n"
+            "Enter the substance name as-is, e.g.: brew blade oil|n"
+        )
+        self.cmdset.add_default(ApothecaryWorkbenchCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        if looker.db.alchemist:
+            string += f"\n\n{self.db.apothecary_text}"
+        return string
+
+
+"""
+Shop / Merchant Objects
+"""
+
+class Merchant(DefaultObject):
+    """
+    A merchant NPC-like object that sells items to players.
+
+    Set up the merchant's inventory by assigning a list of prototype keys:
+      merchant.db.shop_inventory = ["IRON_MEDIUM_WEAPON", "IRON_SMALL_WEAPON", ...]
+
+    Players interact via the browse, buy, and sell commands which become
+    available in any room that contains a Merchant object.
+
+    Admin setup example:
+      @create General Merchant:typeclasses.objects.Merchant
+      @set General Merchant/shop_inventory = ["IRON_MEDIUM_WEAPON", "IRON_SMALL_WEAPON"]
+    """
+
+    def at_object_creation(self):
+        self.locks.add("get:false()")
+        self.db.shop_inventory = []   # list of prototype keys this merchant sells
+        self.db.desc = (
+            "\nA merchant stands here, goods arrayed before them. "
+            "They eye you with professional interest."
+        )
+        self.db.shop_text = "|430Browse their wares with: browse <merchant name>|n"
+        self.cmdset.add_default(ShopCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        string += f"\n\n{self.db.shop_text}"
+        return string

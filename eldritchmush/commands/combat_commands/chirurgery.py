@@ -7,8 +7,23 @@ import time
 import math
 
 class CmdChirurgery(Command):
+    """
+    Perform advanced field surgery to restore a target's limbs or bleed points.
+
+    Usage:
+      restore <target>
+
+    A skilled chirurgeon can repair injured hit locations (arms, legs) and
+    restore bleed_points on a downed ally.  Unlike basic medicine, chirurgery
+    can re-enable disabled limbs.
+
+    Requires: chirurgeon skill ≥ 1, medicine kit in kit_slot.
+    Can be used outside of combat or on your turn in combat.
+
+    See also: medicine, diagnose, disengage
+    """
     key = "restore"
-    help_category = "mush"
+    help_category = "Healing"
 
     def __init__(self):
         self.target = None
