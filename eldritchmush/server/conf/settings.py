@@ -48,6 +48,26 @@ WEBSOCKET_CLIENT_PORT = 4001
 
 
 ######################################################################
+# Database — use Railway Volume for persistence if available
+######################################################################
+import os
+
+_volume_path = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "")
+if _volume_path:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(_volume_path, "evennia.db3"),
+        }
+    }
+    # Also persist server logs to the volume
+    LOG_DIR = os.path.join(_volume_path, "logs")
+    os.makedirs(LOG_DIR, exist_ok=True)
+    SERVER_LOG_FILE = os.path.join(LOG_DIR, "server.log")
+    PORTAL_LOG_FILE = os.path.join(LOG_DIR, "portal.log")
+    HTTP_LOG_FILE = os.path.join(LOG_DIR, "http_requests.log")
+
+######################################################################
 # Settings given in secret_settings.py override those in this file.
 ######################################################################
 try:
