@@ -48,9 +48,16 @@ if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
 import sys
 try:
     from evennia.accounts.models import AccountDB
-    from evennia.utils import create
+    from django.contrib.auth.hashers import make_password
     if not AccountDB.objects.filter(username='${ADMIN_USERNAME}').exists():
-        acct = create.create_account('${ADMIN_USERNAME}', '${ADMIN_EMAIL:-admin@eldritchmush.com}', '${ADMIN_PASSWORD}', is_superuser=True)
+        acct = AccountDB(
+            username='${ADMIN_USERNAME}',
+            email='${ADMIN_EMAIL:-admin@eldritchmush.com}',
+            is_superuser=True,
+            is_staff=True,
+        )
+        acct.password = make_password('${ADMIN_PASSWORD}')
+        acct.save()
         print('Admin account created: ${ADMIN_USERNAME}')
     else:
         print('Admin account already exists: ${ADMIN_USERNAME}')
