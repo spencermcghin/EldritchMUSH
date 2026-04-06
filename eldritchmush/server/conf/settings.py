@@ -37,9 +37,8 @@ SERVERNAME = "eldritchmush"
 # Allow connections from any host (Railway proxy + Vercel frontend)
 ALLOWED_HOSTS = ["*"]
 
-# Bind WebSocket directly to Railway's assigned PORT so no proxy is needed
-import os as _os
-WEBSOCKET_CLIENT_PORT = int(_os.environ.get('PORT', 4002))
+# WebSocket stays on fixed port 4002; nginx proxies from Railway's PORT
+WEBSOCKET_CLIENT_PORT = 4002
 
 
 ######################################################################
