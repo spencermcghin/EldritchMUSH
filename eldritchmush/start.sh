@@ -77,6 +77,9 @@ echo "=== Starting Evennia ==="
 # (Portal may still hold port 4001 if a previous start timed out)
 evennia stop || true
 sleep 2
+# Force-kill any process still holding Evennia's ports after the stop
+fuser -k 4001/tcp 4002/tcp 4005/tcp 4006/tcp 2>/dev/null || true
+sleep 1
 evennia start || true
 
 sleep 5
