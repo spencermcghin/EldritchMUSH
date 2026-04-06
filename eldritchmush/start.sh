@@ -96,14 +96,20 @@ sleep 1
 # Portal and Server subprocesses start fine; we just need to not block on the launcher.
 evennia start 2>&1 &
 
-# Poll port 4002 (WebSocket) until Evennia is actually accepting connections.
+# Wait for both Portal (4002 WebSocket) AND Server (4005 internal web) to be up.
+# Port 4002 opens when Portal is ready; port 4005 opens when Server is fully started.
+# Only when both are open can clients actually log in.
 echo "=== Waiting for Evennia to be ready ==="
 for i in $(seq 1 150); do
-    if nc -z 127.0.0.1 4002 2>/dev/null; then
-        echo "=== Evennia is up! (port 4002 open after ${i}x2s) ==="
+    portal_up=0
+    server_up=0
+    nc -z 127.0.0.1 4002 2>/dev/null && portal_up=1
+    nc -z 127.0.0.1 4005 2>/dev/null && server_up=1
+    if [ $portal_up -eq 1 ] && [ $server_up -eq 1 ]; then
+        echo "=== Evennia is fully up! (Portal+Server ready after ${i}x2s) ==="
         break
     fi
-    echo "  waiting... ($i/150)"
+    echo "  waiting... portal=$portal_up server=$server_up ($i/150)"
     sleep 2
 done
 
