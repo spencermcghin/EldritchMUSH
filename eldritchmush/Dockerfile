@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # bust cache: 2026-04-04
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc nginx netcat-openbsd \
+    gcc nginx netcat-openbsd curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
