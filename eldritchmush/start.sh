@@ -24,6 +24,14 @@ echo "=== Configuring nginx on port $PORT ==="
 cat > /etc/nginx/nginx.conf << NGINXCONF
 events { worker_connections 1024; }
 http {
+    access_log /dev/stdout;
+    error_log /dev/stderr;
+
+    map \$http_upgrade \$connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
+
     server {
         listen ${PORT};
 
@@ -36,10 +44,11 @@ http {
             proxy_pass http://localhost:4002;
             proxy_http_version 1.1;
             proxy_set_header Upgrade \$http_upgrade;
-            proxy_set_header Connection "upgrade";
+            proxy_set_header Connection \$connection_upgrade;
             proxy_set_header Host \$host;
             proxy_set_header Origin \$http_origin;
             proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_read_timeout 86400;
             proxy_connect_timeout 10s;
         }
