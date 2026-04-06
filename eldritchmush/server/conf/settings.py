@@ -43,8 +43,10 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
-# WebSocket port — nginx proxies from Railway's PORT to Evennia's web server
-WEBSOCKET_CLIENT_PORT = 4001
+# Evennia's WebSocket server runs on 4002 (default).
+# nginx routes /websocket → 4002 and everything else → 4001 (HTTP proxy).
+# Do NOT set WEBSOCKET_CLIENT_PORT = 4001 here — that would create a second
+# TCP listener on 4001, conflicting with the Portal's HTTP proxy (also on 4001).
 
 
 ######################################################################

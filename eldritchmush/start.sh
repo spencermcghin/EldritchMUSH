@@ -22,6 +22,18 @@ http {
             return 200 "OK\n";
             add_header Content-Type text/plain;
         }
+        # WebSocket connections go to Evennia's dedicated WS server (port 4002)
+        location /websocket {
+            proxy_pass http://127.0.0.1:4002;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade \$http_upgrade;
+            proxy_set_header Connection \$connection_upgrade;
+            proxy_set_header Host \$host;
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+            proxy_connect_timeout 10s;
+        }
+        # Everything else (HTTP, Evennia web client, admin) → HTTP proxy (port 4001)
         location / {
             proxy_pass http://127.0.0.1:4001;
             proxy_http_version 1.1;
