@@ -320,15 +320,18 @@ export function useEvennia() {
     ws.onopen = () => {
       setConnectionState('connected')
       reconnectDelayRef.current = BASE_RECONNECT_DELAY
-      addMessage('system', `Connected to ${url}. Type |wconnect <username> <password>|n to log in.`)
+      addMessage('system', `Connected to ${url}. Type connect <username> <password> to log in.`)
 
-      // Start ping interval
-      pingIntervalRef.current = setInterval(() => {
+      // Ping immediately so Railway edge proxy sees bidirectional traffic right away,
+      // then every 5s to stay under Railway's ~10s idle timeout
+      const sendPing = () => {
         if (ws.readyState === WebSocket.OPEN) {
           pingStartRef.current = Date.now()
           ws.send(JSON.stringify([['ping', [], {}]]))
         }
-      }, 10000)
+      }
+      sendPing()
+      pingIntervalRef.current = setInterval(sendPing, 5000)
     }
 
     ws.onmessage = (event) => {
