@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 
-const MAX_RECONNECT_DELAY = 30000
-const BASE_RECONNECT_DELAY = 1000
+const MAX_RECONNECT_DELAY = 10000
+const BASE_RECONNECT_DELAY = 500
 const MAX_COMBAT_LOG = 10
 const MAX_MESSAGES = 500
 
@@ -328,7 +328,7 @@ export function useEvennia() {
           pingStartRef.current = Date.now()
           ws.send(JSON.stringify([['ping', [], {}]]))
         }
-      }, 15000)
+      }, 30000)
     }
 
     ws.onmessage = (event) => {
