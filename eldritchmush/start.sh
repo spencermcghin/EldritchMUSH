@@ -5,6 +5,21 @@ cd /app
 
 PORT=${PORT:-8080}
 
+echo "=== Running database migrations ==="
+evennia migrate --no-input
+
+echo "=== Starting Evennia ==="
+evennia start
+
+echo "=== Waiting for Evennia WebSocket on port 4002 ==="
+for i in $(seq 1 30); do
+    if nc -z localhost 4002 2>/dev/null; then
+        echo "    WebSocket ready."
+        break
+    fi
+    sleep 1
+done
+
 echo "=== Configuring nginx on port $PORT ==="
 cat > /etc/nginx/nginx.conf << NGINXCONF
 events { worker_connections 1024; }
@@ -18,25 +33,21 @@ http {
         }
 
         location / {
-            proxy_pass http://127.0.0.1:4002;
+            proxy_pass http://localhost:4002;
             proxy_http_version 1.1;
             proxy_set_header Upgrade \$http_upgrade;
             proxy_set_header Connection "upgrade";
             proxy_set_header Host \$host;
+            proxy_set_header Origin \$http_origin;
             proxy_set_header X-Real-IP \$remote_addr;
             proxy_read_timeout 86400;
+            proxy_connect_timeout 10s;
         }
     }
 }
 NGINXCONF
 
 nginx
-
-echo "=== Running database migrations ==="
-evennia migrate --no-input
-
-echo "=== Starting Evennia ==="
-evennia start
 
 echo "=== All services running ==="
 tail -f /dev/null
