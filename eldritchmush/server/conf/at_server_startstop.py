@@ -22,7 +22,19 @@ def at_server_start():
     This is called every time the server starts up, regardless of
     how it was shut down.
     """
-    pass
+    from twisted.internet import task, reactor
+    from evennia.server.sessionhandler import SESSIONS
+
+    def _keepalive():
+        for session in SESSIONS.values():
+            try:
+                session.data_out(keepalive=[True])
+            except Exception:
+                pass
+
+    lc = task.LoopingCall(_keepalive)
+    # Start after 5s delay, then every 10s — keeps Railway's 15s idle timeout at bay
+    reactor.callLater(5, lc.start, 10, False)
 
 
 def at_server_stop():

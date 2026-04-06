@@ -328,7 +328,7 @@ export function useEvennia() {
           pingStartRef.current = Date.now()
           ws.send(JSON.stringify([['ping', [], {}]]))
         }
-      }, 30000)
+      }, 10000)
     }
 
     ws.onmessage = (event) => {
