@@ -34,6 +34,10 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "eldritchmush"
 
+# Bind all services to all interfaces so nginx can proxy to them
+WEBSOCKET_CLIENT_INTERFACE = "0.0.0.0"
+WEBSERVER_INTERFACES = ["0.0.0.0"]
+
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
