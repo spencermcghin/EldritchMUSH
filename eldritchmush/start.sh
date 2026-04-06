@@ -86,14 +86,27 @@ else:
 
 echo "=== Starting Evennia ==="
 # Kill any lingering Evennia processes from previous start attempts
-# (Portal may still hold port 4001 if a previous start timed out)
-evennia stop || true
+evennia stop 2>/dev/null || true
 sleep 2
-# Force-kill any process still holding Evennia's ports after the stop
 fuser -k 4001/tcp 4002/tcp 4005/tcp 4006/tcp 2>/dev/null || true
 sleep 1
-evennia start || true
 
-sleep 5
+# evennia start's wait_for_status_reply has no timeout — it hangs forever if
+# the Server subprocess takes too long to signal readiness (common in Docker).
+# Use timeout(1) to cap the launcher at 120s; Portal+Server subprocesses are
+# already detached and keep running after the launcher exits.
+timeout 120 evennia start 2>&1 || true
+
+# Wait up to 120s for Evennia's WebSocket port (4002) to actually accept connections
+echo "=== Waiting for Evennia to be ready ==="
+for i in $(seq 1 60); do
+    if nc -z 127.0.0.1 4002 2>/dev/null; then
+        echo "=== Evennia is up (port 4002 open) ==="
+        break
+    fi
+    echo "  waiting... ($i/60)"
+    sleep 2
+done
+
 echo "=== All services running ==="
 tail -f /dev/null
