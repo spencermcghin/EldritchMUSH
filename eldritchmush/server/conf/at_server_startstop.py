@@ -26,15 +26,15 @@ def at_server_start():
     from evennia.server.sessionhandler import SESSIONS
 
     def _keepalive():
-        for session in SESSIONS.values():
+        for session in SESSIONS.all():
             try:
-                session.data_out(keepalive=[True])
+                session.msg(keepalive=True)
             except Exception:
                 pass
 
     lc = task.LoopingCall(_keepalive)
-    # Start after 5s delay, then every 10s — keeps Railway's 15s idle timeout at bay
-    reactor.callLater(5, lc.start, 10, False)
+    # Delay 10s before first ping so server is fully up, then every 10s
+    reactor.callLater(10, lc.start, 10, False)
 
 
 def at_server_stop():
