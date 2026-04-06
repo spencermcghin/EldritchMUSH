@@ -51,7 +51,11 @@ echo "=== Running database migrations ==="
 export DJANGO_SUPERUSER_USERNAME="${ADMIN_USERNAME:-admin}"
 export DJANGO_SUPERUSER_PASSWORD="${ADMIN_PASSWORD:-changeme}"
 export DJANGO_SUPERUSER_EMAIL="${ADMIN_EMAIL:-admin@eldritchmush.com}"
+# Disable set -e here: Evennia's initial setup exits non-zero when no TTY for
+# superuser prompt, which would kill the script before our account creation runs
+set +e
 evennia migrate --no-input
+set -e
 
 # Create admin account if not already present
 if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
