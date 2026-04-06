@@ -44,7 +44,7 @@ evennia migrate --no-input
 # Auto-create superuser from env vars (errors here must NOT stop Evennia from starting)
 if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
     echo "=== Creating/verifying admin account: $ADMIN_USERNAME ==="
-    evennia manage shell -c "
+    evennia shell -c "
 import sys
 try:
     from evennia.accounts.models import AccountDB
