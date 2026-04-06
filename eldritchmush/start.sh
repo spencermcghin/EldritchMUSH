@@ -73,7 +73,12 @@ else:
 " || echo "Warning: could not pre-create Account #1"
 
 echo "=== Starting Evennia ==="
+# Kill any lingering Evennia processes from previous start attempts
+# (Portal may still hold port 4001 if a previous start timed out)
+evennia stop || true
+sleep 2
 evennia start || true
 
+sleep 5
 echo "=== All services running ==="
 tail -f /dev/null
