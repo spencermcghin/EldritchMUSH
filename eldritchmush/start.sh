@@ -20,6 +20,9 @@ for i in $(seq 1 30); do
     sleep 1
 done
 
+echo "=== Testing Evennia WebSocket connectivity ==="
+curl -sv http://127.0.0.1:4002/ 2>&1 | head -40 || true
+
 echo "=== Configuring nginx on port $PORT ==="
 cat > /etc/nginx/nginx.conf << NGINXCONF
 events { worker_connections 1024; }
