@@ -3,6 +3,8 @@ set -e
 
 cd /app
 
+echo "=== ENV: PORT=${PORT} (Railway-assigned port) ==="
+
 echo "=== Running database migrations ==="
 evennia migrate --no-input
 
