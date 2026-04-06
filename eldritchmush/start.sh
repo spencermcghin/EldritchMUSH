@@ -28,8 +28,9 @@ http {
             proxy_set_header Upgrade \$http_upgrade;
             proxy_set_header Connection \$connection_upgrade;
             proxy_set_header Host \$host;
-            proxy_read_timeout 86400;
-            proxy_connect_timeout 5s;
+            proxy_read_timeout 3600s;
+            proxy_send_timeout 3600s;
+            proxy_connect_timeout 10s;
         }
     }
 }
