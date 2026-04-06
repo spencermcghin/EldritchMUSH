@@ -305,7 +305,7 @@ export function useEvennia() {
     const isSecure = window.location.protocol === 'https:'
     const protocol = isSecure ? 'wss:' : 'ws:'
     const portStr = (port === 443 || port === 80) ? '' : `:${port}`
-    const url = `${protocol}//${host}${portStr}`
+    const url = `${protocol}//${host}${portStr}/websocket`
     let ws
     try {
       ws = new WebSocket(url)
