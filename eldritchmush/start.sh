@@ -24,6 +24,9 @@ echo "=== Starting nginx on port $PORT -> 127.0.0.1:4002 ==="
 cat > /etc/nginx/nginx.conf << NGINXCONF
 events { worker_connections 1024; }
 http {
+    access_log /dev/stdout;
+    error_log /dev/stderr debug;
+
     map \$http_upgrade \$connection_upgrade {
         default upgrade;
         ''      close;
