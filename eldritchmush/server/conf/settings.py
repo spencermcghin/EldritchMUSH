@@ -52,6 +52,43 @@ WEBSOCKET_CLIENT_PORT = 4001
 ######################################################################
 import os
 
+######################################################################
+# Patch Evennia's create_superuser to work non-interactively.
+# check_database() in evennia_launcher calls create_superuser() with
+# interactive=True hardcoded. In a non-TTY env (Railway/Docker) this
+# recurses infinitely. We replace it with a direct DB write using env vars.
+######################################################################
+def _patch_evennia_superuser():
+    _username = os.environ.get("ADMIN_USERNAME")
+    _password = os.environ.get("ADMIN_PASSWORD")
+    _email = os.environ.get("ADMIN_EMAIL", "admin@eldritchmush.com")
+    if not _username or not _password:
+        return
+    try:
+        from evennia.server import evennia_launcher
+        from django.contrib.auth.hashers import make_password
+
+        def _create_superuser_noninteractive():
+            from evennia.accounts.models import AccountDB
+            if not AccountDB.objects.filter(id=1).exists():
+                acct = AccountDB(
+                    id=1,
+                    username=_username,
+                    email=_email,
+                    is_superuser=True,
+                    is_staff=True,
+                )
+                acct.password = make_password(_password)
+                acct.save()
+                print(f"[settings] Created Account #1: {_username}")
+
+        evennia_launcher.create_superuser = _create_superuser_noninteractive
+        print("[settings] Patched evennia_launcher.create_superuser for non-TTY deployment")
+    except Exception as exc:
+        print(f"[settings] Warning: could not patch create_superuser: {exc}")
+
+_patch_evennia_superuser()
+
 _volume_path = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "")
 if _volume_path:
     DATABASES = {
