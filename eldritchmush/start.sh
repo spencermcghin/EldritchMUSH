@@ -38,6 +38,14 @@ NGINXCONF
 
 nginx
 
+# Ensure volume directory exists for persistent storage
+if [ -n "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
+    echo "=== Using persistent volume at $RAILWAY_VOLUME_MOUNT_PATH ==="
+    mkdir -p "$RAILWAY_VOLUME_MOUNT_PATH/logs"
+else
+    echo "=== WARNING: No volume mounted — database will be lost on redeploy ==="
+fi
+
 echo "=== Running database migrations ==="
 evennia migrate --no-input
 
