@@ -34,12 +34,38 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "eldritchmush"
 
-# Allow connections from any host (Railway proxy + Vercel frontend)
-ALLOWED_HOSTS = ["*"]
+# Allowed hosts for Django — Railway internal + custom domain
+ALLOWED_HOSTS = [
+    "eldritchmush-production.up.railway.app",
+    "eldritch-mud.com",
+    "www.eldritch-mud.com",
+    "localhost",
+    "127.0.0.1",
+]
 
-# WebSocket stays on fixed port 4002; nginx proxies from Railway's PORT
-WEBSOCKET_CLIENT_PORT = 4002
+# WebSocket port — nginx proxies from Railway's PORT to Evennia's web server
+WEBSOCKET_CLIENT_PORT = 4001
 
+
+######################################################################
+# Database — use Railway Volume for persistence if available
+######################################################################
+import os
+
+_volume_path = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "")
+if _volume_path:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(_volume_path, "evennia.db3"),
+        }
+    }
+    # Also persist server logs to the volume
+    LOG_DIR = os.path.join(_volume_path, "logs")
+    os.makedirs(LOG_DIR, exist_ok=True)
+    SERVER_LOG_FILE = os.path.join(LOG_DIR, "server.log")
+    PORTAL_LOG_FILE = os.path.join(LOG_DIR, "portal.log")
+    HTTP_LOG_FILE = os.path.join(LOG_DIR, "http_requests.log")
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
