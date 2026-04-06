@@ -47,9 +47,30 @@ else
 fi
 
 echo "=== Running database migrations ==="
-# at_initial_setup.py creates admin account (id=1) from ADMIN_USERNAME/ADMIN_PASSWORD
-# Evennia exits non-zero when no TTY for superuser prompt — ignore that exit code
 evennia migrate --no-input || true
+
+# Create Account id=1 BEFORE evennia start.
+# check_database() in evennia_launcher.py does AccountDB.objects.get(id=1) and
+# if not found, recursively calls create_superuser() which crashes in non-TTY.
+# We must pre-create the account so check_database() passes immediately.
+echo "=== Pre-creating Account #1 ==="
+python3 -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
+django.setup()
+from evennia.accounts.models import AccountDB
+from django.contrib.auth.hashers import make_password
+username = os.environ.get('ADMIN_USERNAME', 'admin')
+password = os.environ.get('ADMIN_PASSWORD', 'changeme123!')
+email = os.environ.get('ADMIN_EMAIL', 'admin@eldritchmush.com')
+if not AccountDB.objects.filter(id=1).exists():
+    acct = AccountDB(id=1, username=username, email=email, is_superuser=True, is_staff=True)
+    acct.password = make_password(password)
+    acct.save()
+    print(f'Account #1 created: {username}')
+else:
+    print('Account #1 already exists')
+" || echo "Warning: could not pre-create Account #1"
 
 echo "=== Starting Evennia ==="
 evennia start || true
