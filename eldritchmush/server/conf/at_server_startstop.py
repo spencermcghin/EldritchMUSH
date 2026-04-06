@@ -33,8 +33,8 @@ def at_server_start():
                 pass
 
     lc = task.LoopingCall(_keepalive)
-    # Delay 10s before first ping so server is fully up, then every 10s
-    reactor.callLater(10, lc.start, 10, False)
+    # Fire immediately at start, then every 5s — Railway idle timeout is ~10s
+    reactor.callLater(3, lc.start, 5, True)
 
 
 def at_server_stop():
