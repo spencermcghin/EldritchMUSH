@@ -44,7 +44,6 @@ evennia migrate --no-input
 # Auto-create superuser from env vars (errors here must NOT stop Evennia from starting)
 if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
     echo "=== Creating/verifying admin account: $ADMIN_USERNAME ==="
-    cd /app/eldritchmush
     python manage.py shell -c "
 import sys
 try:
@@ -58,7 +57,6 @@ try:
 except Exception as e:
     print('Warning: could not create admin account:', e, file=sys.stderr)
 " || echo "Warning: admin account creation failed, continuing anyway"
-    cd /app
 fi
 
 echo "=== Starting Evennia ==="
