@@ -91,20 +91,25 @@ sleep 2
 fuser -k 4001/tcp 4002/tcp 4005/tcp 4006/tcp 2>/dev/null || true
 sleep 1
 
-# evennia start's wait_for_status_reply has no timeout — it hangs forever if
-# the Server subprocess takes too long to signal readiness (common in Docker).
-# Use timeout(1) to cap the launcher at 120s; Portal+Server subprocesses are
-# already detached and keep running after the launcher exits.
-timeout 120 evennia start 2>&1 || true
+# Run evennia start in the background — the launcher blocks indefinitely
+# waiting for an AMP status reply that may never come in Docker.
+# Portal and Server subprocesses start fine; we just need to not block on the launcher.
+evennia start 2>&1 &
 
-# Wait up to 120s for Evennia's WebSocket port (4002) to actually accept connections
+# Wait for both Portal (4002 WebSocket) AND Server (4005 internal web) to be up.
+# Port 4002 opens when Portal is ready; port 4005 opens when Server is fully started.
+# Only when both are open can clients actually log in.
 echo "=== Waiting for Evennia to be ready ==="
-for i in $(seq 1 60); do
-    if nc -z 127.0.0.1 4002 2>/dev/null; then
-        echo "=== Evennia is up (port 4002 open) ==="
+for i in $(seq 1 150); do
+    portal_up=0
+    server_up=0
+    nc -z 127.0.0.1 4002 2>/dev/null && portal_up=1
+    nc -z 127.0.0.1 4005 2>/dev/null && server_up=1
+    if [ $portal_up -eq 1 ] && [ $server_up -eq 1 ]; then
+        echo "=== Evennia is fully up! (Portal+Server ready after ${i}x2s) ==="
         break
     fi
-    echo "  waiting... ($i/60)"
+    echo "  waiting... portal=$portal_up server=$server_up ($i/150)"
     sleep 2
 done
 
