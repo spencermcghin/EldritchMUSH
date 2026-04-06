@@ -5,7 +5,7 @@ cd /app
 
 PORT=${PORT:-8080}
 
-echo "=== Starting nginx on port $PORT (proxy to 127.0.0.1:4002 when ready) ==="
+echo "=== Starting nginx on port $PORT ==="
 cat > /etc/nginx/nginx.conf << NGINXCONF
 events { worker_connections 1024; }
 http {
@@ -47,9 +47,13 @@ else
 fi
 
 echo "=== Running database migrations ==="
+# DJANGO_SUPERUSER_* env vars allow non-interactive superuser creation during migrate
+export DJANGO_SUPERUSER_USERNAME="${ADMIN_USERNAME:-admin}"
+export DJANGO_SUPERUSER_PASSWORD="${ADMIN_PASSWORD:-changeme}"
+export DJANGO_SUPERUSER_EMAIL="${ADMIN_EMAIL:-admin@eldritchmush.com}"
 evennia migrate --no-input
 
-# Auto-create superuser from env vars (errors here must NOT stop Evennia from starting)
+# Create admin account if not already present
 if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
     echo "=== Creating/verifying admin account: $ADMIN_USERNAME ==="
     evennia shell -c "
@@ -75,7 +79,16 @@ except Exception as e:
 fi
 
 echo "=== Starting Evennia ==="
+# Disable set -e so evennia start failure doesn't kill the container
+set +e
 evennia start
+EVENNIA_EXIT=$?
+set -e
+
+if [ $EVENNIA_EXIT -ne 0 ]; then
+    echo "ERROR: evennia start failed with exit code $EVENNIA_EXIT — check logs above"
+    echo "Keeping container alive for debugging..."
+fi
 
 echo "=== All services running ==="
 tail -f /dev/null
