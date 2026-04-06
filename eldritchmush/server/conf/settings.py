@@ -34,6 +34,9 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "eldritchmush"
 
+# Allow connections from any host (Railway proxy + Vercel frontend)
+ALLOWED_HOSTS = ["*"]
+
 # Bind all services to all interfaces so nginx can proxy to them
 WEBSOCKET_CLIENT_INTERFACE = "0.0.0.0"
 WEBSERVER_INTERFACES = ["0.0.0.0"]
