@@ -34,11 +34,17 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "eldritchmush"
 
-# Allow connections from any host (Railway proxy + Vercel frontend)
-ALLOWED_HOSTS = ["*"]
+# Allowed hosts for Django — Railway internal + custom domain
+ALLOWED_HOSTS = [
+    "eldritchmush-production.up.railway.app",
+    "eldritch-mud.com",
+    "www.eldritch-mud.com",
+    "localhost",
+    "127.0.0.1",
+]
 
-# WebSocket stays on fixed port 4002; nginx proxies from Railway's PORT
-WEBSOCKET_CLIENT_PORT = 4002
+# WebSocket port — nginx proxies from Railway's PORT to Evennia's web server
+WEBSOCKET_CLIENT_PORT = 4001
 
 
 ######################################################################
