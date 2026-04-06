@@ -4,7 +4,7 @@ views. Search the Django documentation for "URL dispatcher" for more
 help.
 
 """
-from django.conf.urls import url, include
+from django.urls import re_path as url, include
 
 # default evennia patterns
 from evennia.web.urls import urlpatterns
