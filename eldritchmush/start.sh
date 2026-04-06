@@ -47,53 +47,12 @@ else
 fi
 
 echo "=== Running database migrations ==="
-# DJANGO_SUPERUSER_* env vars allow non-interactive superuser creation during migrate
-export DJANGO_SUPERUSER_USERNAME="${ADMIN_USERNAME:-admin}"
-export DJANGO_SUPERUSER_PASSWORD="${ADMIN_PASSWORD:-changeme}"
-export DJANGO_SUPERUSER_EMAIL="${ADMIN_EMAIL:-admin@eldritchmush.com}"
-# Disable set -e here: Evennia's initial setup exits non-zero when no TTY for
-# superuser prompt, which would kill the script before our account creation runs
-set +e
-evennia migrate --no-input
-set -e
-
-# Create admin account if not already present
-if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
-    echo "=== Creating/verifying admin account: $ADMIN_USERNAME ==="
-    evennia shell -c "
-import sys
-try:
-    from evennia.accounts.models import AccountDB
-    from django.contrib.auth.hashers import make_password
-    if not AccountDB.objects.filter(id=1).exists():
-        acct = AccountDB(
-            id=1,
-            username='${ADMIN_USERNAME}',
-            email='${ADMIN_EMAIL:-admin@eldritchmush.com}',
-            is_superuser=True,
-            is_staff=True,
-        )
-        acct.password = make_password('${ADMIN_PASSWORD}')
-        acct.save()
-        print('Admin account created with id=1: ${ADMIN_USERNAME}')
-    else:
-        print('Admin account (id=1) already exists')
-except Exception as e:
-    print('Warning: could not create admin account:', e, file=sys.stderr)
-" || echo "Warning: admin account creation failed, continuing anyway"
-fi
+# at_initial_setup.py creates admin account (id=1) from ADMIN_USERNAME/ADMIN_PASSWORD
+# Evennia exits non-zero when no TTY for superuser prompt — ignore that exit code
+evennia migrate --no-input || true
 
 echo "=== Starting Evennia ==="
-# Disable set -e so evennia start failure doesn't kill the container
-set +e
-evennia start
-EVENNIA_EXIT=$?
-set -e
-
-if [ $EVENNIA_EXIT -ne 0 ]; then
-    echo "ERROR: evennia start failed with exit code $EVENNIA_EXIT — check logs above"
-    echo "Keeping container alive for debugging..."
-fi
+evennia start || true
 
 echo "=== All services running ==="
 tail -f /dev/null
