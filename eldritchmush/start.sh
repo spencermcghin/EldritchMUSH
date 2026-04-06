@@ -61,8 +61,9 @@ import sys
 try:
     from evennia.accounts.models import AccountDB
     from django.contrib.auth.hashers import make_password
-    if not AccountDB.objects.filter(username='${ADMIN_USERNAME}').exists():
+    if not AccountDB.objects.filter(id=1).exists():
         acct = AccountDB(
+            id=1,
             username='${ADMIN_USERNAME}',
             email='${ADMIN_EMAIL:-admin@eldritchmush.com}',
             is_superuser=True,
@@ -70,9 +71,9 @@ try:
         )
         acct.password = make_password('${ADMIN_PASSWORD}')
         acct.save()
-        print('Admin account created: ${ADMIN_USERNAME}')
+        print('Admin account created with id=1: ${ADMIN_USERNAME}')
     else:
-        print('Admin account already exists: ${ADMIN_USERNAME}')
+        print('Admin account (id=1) already exists')
 except Exception as e:
     print('Warning: could not create admin account:', e, file=sys.stderr)
 " || echo "Warning: admin account creation failed, continuing anyway"
