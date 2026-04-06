@@ -111,6 +111,13 @@ for i in $(seq 1 150); do
     fi
     echo "  waiting... portal=$portal_up server=$server_up ($i/150)"
     sleep 2
+    # Every 30 iterations dump diagnostics to help debug server startup failures
+    if [ $((i % 30)) -eq 0 ]; then
+        echo "--- running twistd/python processes ---"
+        ps aux | grep -E "twistd|server\.py|portal\.py" | grep -v grep || echo "(none found)"
+        echo "--- server log tail ---"
+        tail -20 "${RAILWAY_VOLUME_MOUNT_PATH}/logs/server.log" 2>/dev/null || echo "(no server log yet)"
+    fi
 done
 
 echo "=== All services running ==="
