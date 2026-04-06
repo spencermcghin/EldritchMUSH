@@ -41,6 +41,21 @@ nginx
 echo "=== Running database migrations ==="
 evennia migrate --no-input
 
+# Auto-create superuser from env vars (safe to run on every start — skips if exists)
+if [ -n "$ADMIN_USERNAME" ] && [ -n "$ADMIN_PASSWORD" ]; then
+    echo "=== Creating/verifying admin account: $ADMIN_USERNAME ==="
+    cd /app/eldritchmush && python manage.py shell -c "
+from evennia.accounts.models import AccountDB
+from evennia.utils import create
+if not AccountDB.objects.filter(username='${ADMIN_USERNAME}').exists():
+    acct = create.create_account('${ADMIN_USERNAME}', '${ADMIN_EMAIL:-admin@eldritchmush.com}', '${ADMIN_PASSWORD}', is_superuser=True, is_staff=True)
+    print('Admin account created: ${ADMIN_USERNAME}')
+else:
+    print('Admin account already exists: ${ADMIN_USERNAME}')
+"
+    cd /app
+fi
+
 echo "=== Starting Evennia ==="
 evennia start
 
