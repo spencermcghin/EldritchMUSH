@@ -26,11 +26,15 @@ def at_server_start():
     from evennia.server.sessionhandler import SESSIONS
 
     def _keepalive():
-        for session in SESSIONS.all():
-            try:
-                session.msg(keepalive=True)
-            except Exception:
-                pass
+        try:
+            for session in SESSIONS.all():
+                try:
+                    # Send an invisible keepalive that produces real WebSocket bytes
+                    session.msg(" ")
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
     lc = task.LoopingCall(_keepalive)
     # Fire immediately at start, then every 5s — Railway idle timeout is ~10s
