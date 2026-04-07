@@ -235,6 +235,9 @@ export function useEvennia() {
 
   const processFrame = useCallback(
     (data) => {
+      // Evennia webclient protocol: each message is a flat 3-element JSON array
+      //   ["cmd", args, kwargs]
+      // e.g. ["text", ["Hello!"], {}] or ["pong", [], {}]
       let parsed
       try {
         parsed = JSON.parse(data)
@@ -243,48 +246,42 @@ export function useEvennia() {
         return
       }
 
-      if (!Array.isArray(parsed)) return
+      if (!Array.isArray(parsed) || parsed.length < 1) return
 
-      for (const msg of parsed) {
-        if (!Array.isArray(msg) || msg.length < 1) continue
-        const [cmd, args = [], kwargs = {}] = msg
+      const cmd = parsed[0]
+      const args = parsed[1] ?? []
+      const kwargs = parsed[2] ?? {}
 
-        if (cmd === 'text') {
-          // args[0] is the text content
-          const text = Array.isArray(args) ? args[0] || '' : args
-          if (typeof text === 'string' && text.length > 0) {
-            const type = classifyMessage(text)
-            addMessage(type, text, text)
+      if (cmd === 'text') {
+        const text = Array.isArray(args) ? args[0] || '' : args
+        if (typeof text === 'string' && text.length > 0) {
+          const type = classifyMessage(text)
+          addMessage(type, text, text)
 
-            // Try to parse character name from welcome messages
-            const charName = parseCharacterName(text)
-            if (charName) {
-              setOobState((prev) => ({ ...prev, characterName: charName }))
-            }
+          const charName = parseCharacterName(text)
+          if (charName) {
+            setOobState((prev) => ({ ...prev, characterName: charName }))
+          }
 
-            // Try to parse stats
-            const stats = parseStats(text)
-            if (stats) {
-              setOobState((prev) => ({ ...prev, ...stats }))
-            }
+          const stats = parseStats(text)
+          if (stats) {
+            setOobState((prev) => ({ ...prev, ...stats }))
           }
-        } else if (cmd === 'event') {
-          // OOB event
-          const eventType = kwargs.type || (Array.isArray(args) && args[0])
-          if (eventType) {
-            handleOobEvent(eventType, args, kwargs)
-          }
-        } else if (cmd === 'pong') {
-          if (pingStartRef.current) {
-            setLatency(Date.now() - pingStartRef.current)
-            pingStartRef.current = null
-          }
-        } else {
-          // Unknown command — treat as system message if it has text
-          const text = Array.isArray(args) && args[0]
-          if (text && typeof text === 'string') {
-            addMessage('system', text, text)
-          }
+        }
+      } else if (cmd === 'event') {
+        const eventType = kwargs.type || (Array.isArray(args) && args[0])
+        if (eventType) {
+          handleOobEvent(eventType, args, kwargs)
+        }
+      } else if (cmd === 'pong') {
+        if (pingStartRef.current) {
+          setLatency(Date.now() - pingStartRef.current)
+          pingStartRef.current = null
+        }
+      } else {
+        const text = Array.isArray(args) && args[0]
+        if (text && typeof text === 'string') {
+          addMessage('system', text, text)
         }
       }
     },
@@ -327,7 +324,7 @@ export function useEvennia() {
       const sendPing = () => {
         if (ws.readyState === WebSocket.OPEN) {
           pingStartRef.current = Date.now()
-          ws.send(JSON.stringify([['ping', [], {}]]))
+          ws.send(JSON.stringify(['ping', [], {}]))
         }
       }
       sendPing()
@@ -380,7 +377,7 @@ export function useEvennia() {
       addMessage('error', 'Not connected to server.')
       return
     }
-    const frame = JSON.stringify([['text', [text], {}]])
+    const frame = JSON.stringify(['text', [text], {}])
     wsRef.current.send(frame)
     // Echo command to output
     addMessage('system', `> ${text}`)
