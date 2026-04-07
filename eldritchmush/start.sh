@@ -9,6 +9,8 @@ echo "=== Starting nginx on port $PORT ==="
 cat > /etc/nginx/nginx.conf << NGINXCONF
 events { worker_connections 1024; }
 http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
     access_log /dev/stdout;
     error_log /dev/stderr;
 
@@ -33,16 +35,16 @@ http {
             proxy_send_timeout 3600s;
             proxy_connect_timeout 10s;
         }
-        # Everything else (HTTP, Evennia web client, admin) → HTTP proxy (port 4001)
-        location / {
+        # Evennia admin and API endpoints
+        location /admin {
             proxy_pass http://127.0.0.1:4001;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade \$http_upgrade;
-            proxy_set_header Connection \$connection_upgrade;
             proxy_set_header Host \$host;
-            proxy_read_timeout 3600s;
-            proxy_send_timeout 3600s;
-            proxy_connect_timeout 10s;
+        }
+        # Serve React frontend for everything else
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+            try_files \$uri \$uri/ /index.html;
         }
     }
 }
