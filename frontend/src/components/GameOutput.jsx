@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import { parseAnsi } from '../utils/ansiParser'
 import './GameOutput.css'
 
 function formatTime(ts) {
@@ -8,15 +7,14 @@ function formatTime(ts) {
 }
 
 function MessageLine({ msg, index }) {
-  const nodes = parseAnsi(msg.content, `msg-${msg.id}`)
+  const html = msg.content || ''
   return (
     <div
       className={`msg msg-${msg.type}`}
       data-time={formatTime(msg.timestamp)}
       style={{ animationDelay: `${Math.min(index * 0.01, 0.1)}s` }}
-    >
-      {nodes.length > 0 ? nodes : <span className="msg-empty">&nbsp;</span>}
-    </div>
+      dangerouslySetInnerHTML={{ __html: html || '&nbsp;' }}
+    />
   )
 }
 
