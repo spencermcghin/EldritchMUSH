@@ -91,14 +91,17 @@ sleep 2
 fuser -k 4001/tcp 4002/tcp 4005/tcp 4006/tcp 2>/dev/null || true
 sleep 1
 
+# Stream Evennia's server and portal logs live to Docker stdout so errors are visible
+LOGDIR="${RAILWAY_VOLUME_MOUNT_PATH}/logs"
+touch "$LOGDIR/server.log" "$LOGDIR/portal.log" 2>/dev/null || true
+tail -F "$LOGDIR/server.log" 2>/dev/null | sed 's/^/[server] /' &
+tail -F "$LOGDIR/portal.log" 2>/dev/null | sed 's/^/[portal] /' &
+
 # Run evennia start in the background — the launcher blocks indefinitely
 # waiting for an AMP status reply that may never come in Docker.
-# Portal and Server subprocesses start fine; we just need to not block on the launcher.
 evennia start 2>&1 &
 
 # Wait for both Portal (4002 WebSocket) AND Server (4005 internal web) to be up.
-# Port 4002 opens when Portal is ready; port 4005 opens when Server is fully started.
-# Only when both are open can clients actually log in.
 echo "=== Waiting for Evennia to be ready ==="
 for i in $(seq 1 150); do
     portal_up=0
@@ -111,13 +114,6 @@ for i in $(seq 1 150); do
     fi
     echo "  waiting... portal=$portal_up server=$server_up ($i/150)"
     sleep 2
-    # Every 30 iterations dump diagnostics to help debug server startup failures
-    if [ $((i % 30)) -eq 0 ]; then
-        echo "--- running twistd/python processes ---"
-        ps aux | grep -E "twistd|server\.py|portal\.py" | grep -v grep || echo "(none found)"
-        echo "--- server log tail ---"
-        tail -20 "${RAILWAY_VOLUME_MOUNT_PATH}/logs/server.log" 2>/dev/null || echo "(no server log yet)"
-    fi
 done
 
 echo "=== All services running ==="
