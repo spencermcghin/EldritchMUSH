@@ -57,10 +57,22 @@ if [ -n "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
     echo "=== Using persistent volume at $RAILWAY_VOLUME_MOUNT_PATH ==="
     mkdir -p "$RAILWAY_VOLUME_MOUNT_PATH/logs"
 
-    # Seed the volume with the baked-in db3 if no database exists yet.
+    # Seed the volume with the baked-in db3 if no database exists yet,
+    # or if FORCE_DB_SEED=1 is set (to replace a stale/empty db).
     # This copies the world data (rooms, NPCs, items, etc.) from the repo
-    # so the first deploy starts with the full game world intact.
+    # so the deploy starts with the full game world intact.
+    SHOULD_SEED=0
     if [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" ]; then
+        SHOULD_SEED=1
+        echo "=== No database on volume — will seed ==="
+    elif [ "${FORCE_DB_SEED:-0}" = "1" ]; then
+        SHOULD_SEED=1
+        echo "=== FORCE_DB_SEED=1 — replacing existing database ==="
+    else
+        echo "=== Existing database found on volume — skipping seed ==="
+    fi
+
+    if [ "$SHOULD_SEED" = "1" ]; then
         if [ -f /app/server/evennia.db3 ]; then
             echo "=== Seeding volume with baked-in evennia.db3 ==="
             cp /app/server/evennia.db3 "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3"
@@ -68,8 +80,6 @@ if [ -n "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
         else
             echo "=== No baked-in db3 found at /app/server/evennia.db3 — starting fresh ==="
         fi
-    else
-        echo "=== Existing database found on volume — skipping seed ==="
     fi
 else
     echo "=== WARNING: No volume mounted — database will be lost on redeploy ==="
