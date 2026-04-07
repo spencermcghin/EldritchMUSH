@@ -314,13 +314,14 @@ export function useEvennia() {
       reconnectDelayRef.current = BASE_RECONNECT_DELAY
       addMessage('system', `Connected to ${url}. Type connect <username> <password> to log in.`)
 
-      // Keepalive: send a webclient_options command every 60s to prevent
-      // Railway's edge proxy from closing idle connections. This is a
-      // valid Evennia protocol command handled silently by the Portal
-      // (unlike "ping" which spams the server error log).
+      // Keepalive: send a minimal no-op every 60s to prevent Railway's
+      // edge proxy from closing idle WebSocket connections. We send a
+      // single newline as raw text — Evennia treats empty/blank input
+      // as a no-op for unauthenticated sessions and just re-shows the
+      // connection screen for logged-in sessions (harmless).
       const sendKeepalive = () => {
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(['webclient_options', [], {}]))
+          ws.send('\n')
         }
       }
       pingIntervalRef.current = setInterval(sendKeepalive, 60000)
