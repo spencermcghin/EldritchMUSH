@@ -54,6 +54,21 @@ nginx
 if [ -n "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
     echo "=== Using persistent volume at $RAILWAY_VOLUME_MOUNT_PATH ==="
     mkdir -p "$RAILWAY_VOLUME_MOUNT_PATH/logs"
+
+    # Seed the volume with the baked-in db3 if no database exists yet.
+    # This copies the world data (rooms, NPCs, items, etc.) from the repo
+    # so the first deploy starts with the full game world intact.
+    if [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" ]; then
+        if [ -f /app/server/evennia.db3 ]; then
+            echo "=== Seeding volume with baked-in evennia.db3 ==="
+            cp /app/server/evennia.db3 "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3"
+            echo "=== Database seeded ($(ls -lh "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" | awk '{print $5}')) ==="
+        else
+            echo "=== No baked-in db3 found at /app/server/evennia.db3 — starting fresh ==="
+        fi
+    else
+        echo "=== Existing database found on volume — skipping seed ==="
+    fi
 else
     echo "=== WARNING: No volume mounted — database will be lost on redeploy ==="
 fi
