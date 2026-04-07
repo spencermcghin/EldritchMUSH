@@ -74,9 +74,9 @@ export function useEvennia() {
   const wsRef = useRef(null)
   const reconnectTimeoutRef = useRef(null)
   const reconnectDelayRef = useRef(BASE_RECONNECT_DELAY)
-  // Default host/port can be overridden by env vars (set in Vercel dashboard)
-  const defaultHost = import.meta.env.VITE_GAME_HOST || 'localhost'
-  const defaultPort = parseInt(import.meta.env.VITE_GAME_PORT || '4002')
+  // Default host/port — when co-located (Railway), use same origin; else env vars or localhost
+  const defaultHost = import.meta.env.VITE_GAME_HOST || window.location.hostname || 'localhost'
+  const defaultPort = parseInt(import.meta.env.VITE_GAME_PORT || (window.location.port || (window.location.protocol === 'https:' ? '443' : '80')))
   const connectionParamsRef = useRef({ host: defaultHost, port: defaultPort })
   const shouldReconnectRef = useRef(false)
   const pingIntervalRef = useRef(null)
@@ -273,11 +273,6 @@ export function useEvennia() {
         if (eventType) {
           handleOobEvent(eventType, args, kwargs)
         }
-      } else if (cmd === 'pong') {
-        if (pingStartRef.current) {
-          setLatency(Date.now() - pingStartRef.current)
-          pingStartRef.current = null
-        }
       } else {
         const text = Array.isArray(args) && args[0]
         if (text && typeof text === 'string') {
@@ -319,16 +314,16 @@ export function useEvennia() {
       reconnectDelayRef.current = BASE_RECONNECT_DELAY
       addMessage('system', `Connected to ${url}. Type connect <username> <password> to log in.`)
 
-      // Ping immediately so Railway edge proxy sees bidirectional traffic right away,
-      // then every 5s to stay under Railway's ~10s idle timeout
-      const sendPing = () => {
+      // Keepalive: send a webclient_options command every 60s to prevent
+      // Railway's edge proxy from closing idle connections. This is a
+      // valid Evennia protocol command handled silently by the Portal
+      // (unlike "ping" which spams the server error log).
+      const sendKeepalive = () => {
         if (ws.readyState === WebSocket.OPEN) {
-          pingStartRef.current = Date.now()
-          ws.send(JSON.stringify(['ping', [], {}]))
+          ws.send(JSON.stringify(['webclient_options', [], {}]))
         }
       }
-      sendPing()
-      pingIntervalRef.current = setInterval(sendPing, 5000)
+      pingIntervalRef.current = setInterval(sendKeepalive, 60000)
     }
 
     ws.onmessage = (event) => {
