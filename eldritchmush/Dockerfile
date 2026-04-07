@@ -11,10 +11,15 @@ RUN pip install --no-cache-dir evennia
 
 COPY . .
 
-# Bake in PYTHONPATH and DJANGO_SETTINGS_MODULE so every subprocess
-# (Portal, Server) can import 'server.conf.settings' without relying
-# on sys.path propagation through nested Popen calls.
-ENV PYTHONPATH=/app
+# Add /app to sys.path for EVERY Python process via a .pth file.
+# This is more reliable than PYTHONPATH because getenv() in the Portal's
+# amp_server.py OVERRIDES PYTHONPATH with sys.path — if /app somehow
+# drops out of the Portal daemon's sys.path, the Server subprocess won't
+# have it either and 'import server' (needed by evennia.utils.utils →
+# Django settings → server.conf.settings) will fail.
+# .pth files are processed at Python startup unconditionally.
+RUN echo "/app" > /usr/local/lib/python3.11/site-packages/eldritchmush_path.pth
+
 ENV DJANGO_SETTINGS_MODULE=server.conf.settings
 
 COPY start.sh /start.sh
