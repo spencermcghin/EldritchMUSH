@@ -60,7 +60,7 @@
   padding: 1px 0;
   color: var(--text-light);
   word-break: break-word;
-  white-space: pre-wrap;
+  white-space: normal;
   animation: fade-in 0.15s ease-out both;
   position: relative;
 }
@@ -116,6 +116,40 @@
 .game-output-wrap.in-combat .game-output {
   background: #1c1510;
 }
+
+/* Evennia xterm color classes — server sends <span class="color-NNN"> */
+.color-000 { color: #000000; }
+.color-001 { color: #aa0000; }
+.color-002 { color: #00aa00; }
+.color-003 { color: #aa5500; }
+.color-004 { color: #0000aa; }
+.color-005 { color: #aa00aa; }
+.color-006 { color: #00aaaa; }
+.color-007 { color: #aaaaaa; }
+.color-008 { color: #555555; }
+.color-009 { color: #ff5555; }
+.color-010 { color: #55ff55; }
+.color-011 { color: #ffff55; }
+.color-012 { color: #5555ff; }
+.color-013 { color: #ff55ff; }
+.color-014 { color: #55ffff; }
+.color-015 { color: #ffffff; }
+
+/* Background variants */
+.bgcolor-000 { background-color: #000000; }
+.bgcolor-001 { background-color: #aa0000; }
+.bgcolor-002 { background-color: #00aa00; }
+.bgcolor-003 { background-color: #aa5500; }
+.bgcolor-004 { background-color: #0000aa; }
+.bgcolor-005 { background-color: #aa00aa; }
+.bgcolor-006 { background-color: #00aaaa; }
+.bgcolor-007 { background-color: #aaaaaa; }
+.bgcolor-008 { background-color: #555555; }
+
+/* Evennia formatting spans */
+.msg-game span, .msg-system span { display: inline; }
+/* Allow <br> to work inside pre-wrap */
+.msg br { display: block; content: ''; }
 
 /* Login hint overlay styling */
 .login-overlay {
