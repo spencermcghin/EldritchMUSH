@@ -31,7 +31,6 @@ RUN echo "/app" > /usr/local/lib/python3.11/site-packages/eldritchmush_path.pth
 
 ENV DJANGO_SETTINGS_MODULE=server.conf.settings
 
-COPY eldritchmush/start.sh /start.sh
-RUN chmod +x /start.sh
+RUN cp /app/start.sh /start.sh && chmod +x /start.sh
 
 CMD ["/start.sh"]
