@@ -28,7 +28,7 @@ class Room(DefaultRoom):
     properties and methods available on all Objects.
     """
 
-    def at_object_receive(self, obj, source_location):
+    def at_object_receive(self, obj, source_location, **kwargs):
         if utils.inherits_from(obj, Npc): # An NPC has entered
             pass
         else:
