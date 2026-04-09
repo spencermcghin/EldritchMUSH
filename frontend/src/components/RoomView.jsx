@@ -15,9 +15,8 @@ function decodeEntities(str) {
 function parseRoomData(messages) {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i]
-    if (msg.type !== 'game' && msg.type !== 'system') continue
 
-    // Strip HTML tags, then decode entities
+    // Strip HTML tags, then decode entities — check ALL message types
     const raw = decodeEntities((msg.content || '').replace(/<[^>]*>/g, ''))
 
     const hasExits = /Exits?:/i.test(raw)
