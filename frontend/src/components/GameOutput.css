@@ -60,7 +60,7 @@
   padding: 1px 0;
   color: var(--text-light);
   word-break: break-word;
-  white-space: normal;
+  white-space: pre-wrap;
   animation: fade-in 0.15s ease-out both;
   position: relative;
 }
