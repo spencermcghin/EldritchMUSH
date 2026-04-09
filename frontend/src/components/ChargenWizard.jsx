@@ -434,6 +434,9 @@ export default function ChargenWizard({ sendCommand, onExit }) {
   return (
     <div className="chargen-wizard">
       <div className="chargen-wizard-header">
+        <button className="chargen-btn secondary chargen-back-btn" onClick={onExit}>
+          Back to Game
+        </button>
         <StepIndicator current={state.step} steps={STEPS} />
         <CpTracker spent={cpSpent} total={state.cpTotal} />
       </div>
