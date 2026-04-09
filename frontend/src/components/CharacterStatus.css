@@ -266,6 +266,38 @@
   font-size: 10px;
 }
 
+/* Actions */
+.char-actions {
+  margin-top: 12px;
+}
+
+.char-action-btn {
+  display: block;
+  width: 100%;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border: 1px solid var(--border-bright);
+  background: transparent;
+  color: var(--text-aged);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.char-action-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212,175,55,0.06);
+}
+
+.chargen-btn-link {
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
+  background: rgba(212,175,55,0.04);
+}
+
 /* Footer */
 .char-status-footer {
   flex-shrink: 0;
