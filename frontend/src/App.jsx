@@ -132,6 +132,7 @@ function App() {
         <ChargenWizard
           sendCommand={sendCommand}
           onExit={exitChargen}
+          viewMode={oobState.chargenViewMode || false}
         />
       )}
 

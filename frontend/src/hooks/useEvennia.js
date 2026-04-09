@@ -400,8 +400,8 @@ export function useEvennia() {
     setOobState((prev) => ({ ...prev, inChargen: false }))
   }, [])
 
-  const enterChargen = useCallback(() => {
-    setOobState((prev) => ({ ...prev, inChargen: true }))
+  const enterChargen = useCallback((viewMode = true) => {
+    setOobState((prev) => ({ ...prev, inChargen: true, chargenViewMode: viewMode }))
   }, [])
 
   return {
