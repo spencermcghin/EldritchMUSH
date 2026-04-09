@@ -6,34 +6,34 @@
 // Images are ink wash PNGs in /art/ named by Google Drive file ID.
 // Many are duplicates at different sizes — we pick one per subject.
 export const ART = {
-  blacksmith:    '/art/1Wzg9sTSQJO77OpQryhZlD7hVImOcL1WQ.png',  // smith with hammer + anvil
-  apothecary:    '/art/16W6pA1TJz2Cbs83pKNjbQ8vBzbTuW5ga.png',   // hooded figure with potions/scales
-  soldier:       '/art/1b6WFdXSL3Gl4YRzNo7d77kWGlDPunWdN.png',   // armored fighter with shield + arrows
-  scholar:       '/art/1VOOV6u376nIvHg0TuyvMo791WvbSFIUt.png',   // robed reader with books + candles
-  merchant:      '/art/1d3T5XpuEeNX0W-eMuG0jxxX77uHS5W8K.png',   // jolly merchant tossing coins
-  urchin:        '/art/1k0Us9F9sSwLIN9f7kLNwyvJZ3aoXXlBB.png',   // hooded figure with dagger in shadows
-  farmer:        '/art/1Ondss_mfX4vIm5m7pPlp2DSBjVoOK8SK.png',   // stout figure with pitchfork
-  miner:         '/art/1slUbLpAe3qQvqVKcopmL2KrYxbiCxgFG.png',   // miners with pickaxe in crystal cave
-  herbalist:     '/art/1KkKd59dO5msLKTyUdDDoIWxjOz0Ro3Qy.png',  // seated woman with herbs + bowl
-  feller:        '/art/18u6D36nbsvxkctDEtak0Otkp_T9n8j3J.png',   // figure chopping at tree stump
-  hunter:        '/art/1tFZ8Ul5jcYBZQaNeoCHCdYZAt2hyPKVA.png',   // bearded man with rifle + satchel
-  resurrectionist: '/art/1lTdFP7HY2vzoYS0lllORsyEVvLObkOUt.png', // sinister figure with shovel + coffin
-  physician:     '/art/162-TTHJ7FcWUtAEzxviswRv6SuE7KVQF.png',  // robed healer with caduceus snakes
-  brigand:       '/art/1o9ve4NdLN52boXbK-NdHsOf5atjuIQxJ.png',   // fencer/duelist figure
-  artificer:     '/art/12xnFNi5yj0iC9Nv6J9T8Q4wZHqPvbLhO.png',  // tinkerer with goggles + tools
-  bowyer:        '/art/12exi3JyAnfO2T_MIpNQRU-FyDihVB2-G.png',   // commonfolk by tree (woodworker)
-  gunsmith:      '/art/1ZQs1BhCd2a3wIEK5TFf-DZA8mozFvlYo.png',  // alchemist with smoke + potions
-  commonfolk:    '/art/1rgX7ty0AlZMSpTsfG44-UIm2DZfy4C2l.png',   // simple person by tree
-  courtier:      '/art/1gJ4wAF05OZPFyku3qL6qDcxLYz_kfQjR.png',  // two figures whispering
-  gentry:        '/art/1IXOQbJMFYyOHNW-L9esK1oV8hOHYpSsB.png',  // noblewoman in elegant dress
+  blacksmith:    '/art/opt/1Wzg9sTSQJO77OpQryhZlD7hVImOcL1WQ.jpg',  // smith with hammer + anvil
+  apothecary:    '/art/opt/16W6pA1TJz2Cbs83pKNjbQ8vBzbTuW5ga.jpg',   // hooded figure with potions/scales
+  soldier:       '/art/opt/1b6WFdXSL3Gl4YRzNo7d77kWGlDPunWdN.jpg',   // armored fighter with shield + arrows
+  scholar:       '/art/opt/1VOOV6u376nIvHg0TuyvMo791WvbSFIUt.jpg',   // robed reader with books + candles
+  merchant:      '/art/opt/1d3T5XpuEeNX0W-eMuG0jxxX77uHS5W8K.jpg',   // jolly merchant tossing coins
+  urchin:        '/art/opt/1k0Us9F9sSwLIN9f7kLNwyvJZ3aoXXlBB.jpg',   // hooded figure with dagger in shadows
+  farmer:        '/art/opt/1Ondss_mfX4vIm5m7pPlp2DSBjVoOK8SK.jpg',   // stout figure with pitchfork
+  miner:         '/art/opt/1slUbLpAe3qQvqVKcopmL2KrYxbiCxgFG.jpg',   // miners with pickaxe in crystal cave
+  herbalist:     '/art/opt/1KkKd59dO5msLKTyUdDDoIWxjOz0Ro3Qy.jpg',  // seated woman with herbs + bowl
+  feller:        '/art/opt/18u6D36nbsvxkctDEtak0Otkp_T9n8j3J.jpg',   // figure chopping at tree stump
+  hunter:        '/art/opt/1tFZ8Ul5jcYBZQaNeoCHCdYZAt2hyPKVA.jpg',   // bearded man with rifle + satchel
+  resurrectionist: '/art/opt/1lTdFP7HY2vzoYS0lllORsyEVvLObkOUt.jpg', // sinister figure with shovel + coffin
+  physician:     '/art/opt/162-TTHJ7FcWUtAEzxviswRv6SuE7KVQF.jpg',  // robed healer with caduceus snakes
+  brigand:       '/art/opt/1o9ve4NdLN52boXbK-NdHsOf5atjuIQxJ.jpg',   // fencer/duelist figure
+  artificer:     '/art/opt/12xnFNi5yj0iC9Nv6J9T8Q4wZHqPvbLhO.jpg',  // tinkerer with goggles + tools
+  bowyer:        '/art/opt/12exi3JyAnfO2T_MIpNQRU-FyDihVB2-G.jpg',   // commonfolk by tree (woodworker)
+  gunsmith:      '/art/opt/1ZQs1BhCd2a3wIEK5TFf-DZA8mozFvlYo.jpg',  // alchemist with smoke + potions
+  commonfolk:    '/art/opt/1rgX7ty0AlZMSpTsfG44-UIm2DZfy4C2l.jpg',   // simple person by tree
+  courtier:      '/art/opt/1gJ4wAF05OZPFyku3qL6qDcxLYz_kfQjR.jpg',  // two figures whispering
+  gentry:        '/art/opt/1IXOQbJMFYyOHNW-L9esK1oV8hOHYpSsB.jpg',  // noblewoman in elegant dress
   // Advanced archetypes
-  auron:         '/art/1r7Y4b-aGhgeXmG0LhslJ1lwQ-QsucrcZ.png',  // radiant priest with sun symbol
-  cirque:        '/art/1kqL_JlVqK2QRuQBB690J_PXqSpQ5RBrF.png',  // acrobat in hoop
-  knight:        '/art/1b6WFdXSL3Gl4YRzNo7d77kWGlDPunWdN.png',  // armored fighter (reuse soldier)
-  magister:      '/art/1VOOV6u376nIvHg0TuyvMo791WvbSFIUt.png',   // scholar with books (reuse)
-  noble:         '/art/1IXOQbJMFYyOHNW-L9esK1oV8hOHYpSsB.png',  // noblewoman (reuse gentry)
-  veteran:       '/art/1tFZ8Ul5jcYBZQaNeoCHCdYZAt2hyPKVA.png',   // grizzled hunter (reuse)
-  vigil:         '/art/1k0Us9F9sSwLIN9f7kLNwyvJZ3aoXXlBB.png',   // shadowed figure (reuse urchin)
+  auron:         '/art/opt/1r7Y4b-aGhgeXmG0LhslJ1lwQ-QsucrcZ.jpg',  // radiant priest with sun symbol
+  cirque:        '/art/opt/1kqL_JlVqK2QRuQBB690J_PXqSpQ5RBrF.jpg',  // acrobat in hoop
+  knight:        '/art/opt/1b6WFdXSL3Gl4YRzNo7d77kWGlDPunWdN.jpg',  // armored fighter (reuse soldier)
+  magister:      '/art/opt/1VOOV6u376nIvHg0TuyvMo791WvbSFIUt.jpg',   // scholar with books (reuse)
+  noble:         '/art/opt/1IXOQbJMFYyOHNW-L9esK1oV8hOHYpSsB.jpg',  // noblewoman (reuse gentry)
+  veteran:       '/art/opt/1tFZ8Ul5jcYBZQaNeoCHCdYZAt2hyPKVA.jpg',   // grizzled hunter (reuse)
+  vigil:         '/art/opt/1k0Us9F9sSwLIN9f7kLNwyvJZ3aoXXlBB.jpg',   // shadowed figure (reuse urchin)
 }
 
 // ── MUD Command Map ──
