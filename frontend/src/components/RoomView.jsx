@@ -108,7 +108,7 @@ function parseExitsAndEntities(text, exits, characters, items) {
   }
 }
 
-export default function RoomView({ messages, onCommand }) {
+export default function RoomView({ messages, onCommand, onEntityClick, onEntityContextMenu, onExitContextMenu }) {
   const room = useMemo(() => parseRoomData(messages), [messages])
 
   if (!room) {
@@ -142,6 +142,7 @@ export default function RoomView({ messages, onCommand }) {
                   key={i}
                   className="room-exit-btn"
                   onClick={() => onCommand(exit.dir)}
+                  onContextMenu={onExitContextMenu ? (e) => onExitContextMenu(e, exit.dir) : undefined}
                   title={`Go ${exit.dir}`}
                 >
                   <span className="room-exit-name">{exit.name}</span>
@@ -161,7 +162,8 @@ export default function RoomView({ messages, onCommand }) {
                 <button
                   key={i}
                   className="room-entity-btn character"
-                  onClick={() => onCommand(`look ${c}`)}
+                  onClick={onEntityClick ? () => onEntityClick(c, 'character') : () => onCommand(`look ${c}`)}
+                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, c, 'character') : undefined}
                   title={`Look at ${c}`}
                 >
                   <span className="entity-icon">⚔</span>
@@ -181,7 +183,8 @@ export default function RoomView({ messages, onCommand }) {
                 <button
                   key={i}
                   className="room-entity-btn item"
-                  onClick={() => onCommand(`look ${item}`)}
+                  onClick={onEntityClick ? () => onEntityClick(item, 'item') : () => onCommand(`look ${item}`)}
+                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, item, 'item') : undefined}
                   title={`Look at ${item}`}
                 >
                   <span className="entity-icon">◆</span>
