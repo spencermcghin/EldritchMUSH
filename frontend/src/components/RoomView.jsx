@@ -85,6 +85,15 @@ function parseRoomData(messages) {
   return null
 }
 
+// Split "a Foo, a Bar, and a Baz" or "a Foo and a Bar" into ["Foo", "Bar", "Baz"]
+function splitEntities(str) {
+  return str
+    .split(/,\s*(?:and\s+)?|\s+and\s+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .map(s => s.replace(/^(?:a|an|the|some)\s+/i, '')) // strip articles
+}
+
 function parseExitsAndEntities(text, exits, characters, items) {
   // Extract exits: "Exits: Room Name <DIR>, ..."
   const exitMatch = text.match(/Exits?:\s*(.+?)(?=Characters?:|You see:|$)/i)
@@ -98,12 +107,12 @@ function parseExitsAndEntities(text, exits, characters, items) {
 
   const charMatch = text.match(/Characters?:\s*(.+?)(?=You see:|Exits?:|$)/i)
   if (charMatch) {
-    charMatch[1].split(/,\s*(?:and\s+)?/).map(s => s.trim()).filter(Boolean).forEach(c => characters.push(c))
+    splitEntities(charMatch[1]).forEach(c => characters.push(c))
   }
 
   const itemMatch = text.match(/You see:\s*(.+?)(?=Characters?:|Exits?:|$)/i)
   if (itemMatch) {
-    itemMatch[1].split(/,\s*(?:and\s+)?/).map(s => s.trim()).filter(Boolean).forEach(it => items.push(it))
+    splitEntities(itemMatch[1]).forEach(it => items.push(it))
   }
 }
 

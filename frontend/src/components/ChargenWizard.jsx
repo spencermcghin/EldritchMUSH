@@ -412,10 +412,50 @@ function ReviewStep({ state, sendCommand, onReset }) {
   )
 }
 
+// ── Character Sheet View (read-only) ──
+
+function CharacterSheetView({ sendCommand, onExit, onEditMode }) {
+  // Show all skill categories with current levels from the MUD
+  // User can request charsheet data and view it visually
+  return (
+    <div className="chargen-step">
+      <h2 className="chargen-section-title">Your Character</h2>
+      <p className="chargen-section-desc">
+        View your current build. To modify skills, enter the Chargen room in-game.
+      </p>
+      <div className="skills-layout">
+        <div className="skills-categories">
+          {SKILL_CATEGORIES.map(cat => (
+            <div key={cat.key} className="skill-category">
+              <h3 className="skill-category-name">{cat.name}</h3>
+              {cat.skills.map(skill => (
+                <div key={skill.key} className="skill-row">
+                  <div className="skill-info">
+                    <span className="skill-name">{skill.name}</span>
+                    <SkillPips current={0} max={skill.max} granted={0} />
+                  </div>
+                  <p className="skill-desc">{skill.desc}</p>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="review-actions" style={{ marginTop: 20 }}>
+        <button className="chargen-btn secondary" onClick={onExit}>Back to Game</button>
+        <button className="chargen-btn primary" onClick={() => sendCommand('charsheet')}>
+          Refresh from Server
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ── Main Wizard ──
 
-export default function ChargenWizard({ sendCommand, onExit }) {
+export default function ChargenWizard({ sendCommand, onExit, viewMode }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [isViewMode, setIsViewMode] = useState(viewMode || false)
   const cpSpent = computeCpSpent(state)
   const cpRemaining = state.cpTotal - cpSpent
 
@@ -426,11 +466,32 @@ export default function ChargenWizard({ sendCommand, onExit }) {
   const canAdvance = () => {
     if (state.step === 0) return true
     if (state.step === 1) return state.basicArchetype !== null
-    if (state.step === 2) return true // can skip
+    if (state.step === 2) return true
     if (state.step === 3) return true
     return false
   }
 
+  // View mode — show read-only character sheet
+  if (isViewMode) {
+    return (
+      <div className="chargen-wizard">
+        <div className="chargen-wizard-header">
+          <button className="chargen-btn secondary chargen-back-btn" onClick={onExit}>
+            Back to Game
+          </button>
+          <span className="chargen-label" style={{ flex: 1, textAlign: 'center' }}>CHARACTER SHEET</span>
+          <button className="chargen-btn primary chargen-back-btn" onClick={() => setIsViewMode(false)}>
+            New Build
+          </button>
+        </div>
+        <div className="chargen-wizard-body">
+          <CharacterSheetView sendCommand={sendCommand} onExit={onExit} />
+        </div>
+      </div>
+    )
+  }
+
+  // Edit mode — full wizard
   return (
     <div className="chargen-wizard">
       <div className="chargen-wizard-header">
