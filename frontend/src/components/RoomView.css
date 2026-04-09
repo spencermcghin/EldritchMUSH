@@ -2,14 +2,13 @@
 /* Graphical room display at the top of the main area */
 
 .room-view {
-  flex-shrink: 0;
+  flex: 65;
   padding: 14px 20px 10px;
   background: var(--parchment);
   border-bottom: 1px solid var(--border);
   position: relative;
-  overflow: hidden;
-  max-height: 280px;
   overflow-y: auto;
+  min-height: 0;
 }
 
 /* Subtle vignette at bottom edge */
@@ -133,27 +132,54 @@
   letter-spacing: 1px;
 }
 
-/* Entity tags (characters and items) */
+/* Entity buttons (characters and items) — clickable, interactive */
 .room-entities {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 
-.room-entity {
+.room-entity-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px;
-  padding: 3px 8px;
+  padding: 5px 10px;
   border: 1px solid var(--border);
   background: rgba(20,18,16,0.5);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.room-entity-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-.room-entity.character {
+.room-entity-btn.character {
   color: var(--phosphor);
-  border-color: rgba(0,229,160,0.2);
+  border-color: rgba(0,229,160,0.25);
+}
+.room-entity-btn.character:hover {
+  border-color: var(--phosphor);
+  background: rgba(0,229,160,0.08);
 }
 
-.room-entity.item {
+.room-entity-btn.item {
   color: var(--text-aged);
   border-color: var(--border);
+}
+.room-entity-btn.item:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212,175,55,0.06);
+}
+
+.entity-icon {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.entity-name {
+  white-space: nowrap;
 }

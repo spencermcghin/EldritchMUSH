@@ -152,25 +152,41 @@ export default function RoomView({ messages, onCommand }) {
           </div>
         )}
 
-        {/* Characters in room */}
+        {/* Characters in room — each as an interactive card */}
         {room.characters.length > 0 && (
           <div className="room-section">
             <span className="room-section-label">Characters</span>
             <div className="room-entities">
               {room.characters.map((c, i) => (
-                <span key={i} className="room-entity character">{c}</span>
+                <button
+                  key={i}
+                  className="room-entity-btn character"
+                  onClick={() => onCommand(`look ${c}`)}
+                  title={`Look at ${c}`}
+                >
+                  <span className="entity-icon">⚔</span>
+                  <span className="entity-name">{c}</span>
+                </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Items in room */}
+        {/* Items in room — each clickable */}
         {room.items.length > 0 && (
           <div className="room-section">
             <span className="room-section-label">You See</span>
             <div className="room-entities">
               {room.items.map((item, i) => (
-                <span key={i} className="room-entity item">{item}</span>
+                <button
+                  key={i}
+                  className="room-entity-btn item"
+                  onClick={() => onCommand(`look ${item}`)}
+                  title={`Look at ${item}`}
+                >
+                  <span className="entity-icon">◆</span>
+                  <span className="entity-name">{item}</span>
+                </button>
               ))}
             </div>
           </div>
