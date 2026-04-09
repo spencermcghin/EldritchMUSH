@@ -302,9 +302,9 @@ body::before {
   min-height: 0;
 }
 
-/* Log area sits below the room view — 35% of vertical space */
+/* Log area sits below the room view — compact, expands only as needed */
 .app-log-area {
-  flex: 35;
+  flex: 0 0 200px;
   display: flex;
   flex-direction: column;
   min-height: 0;
