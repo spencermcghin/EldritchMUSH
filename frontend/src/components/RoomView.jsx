@@ -1,68 +1,111 @@
 import { useMemo } from 'react'
 import './RoomView.css'
 
+// Decode HTML entities
+function decodeEntities(str) {
+  const el = typeof document !== 'undefined' ? document.createElement('textarea') : null
+  if (el) {
+    el.innerHTML = str
+    return el.value
+  }
+  return str.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+}
+
 // Parse room data from game text messages
 function parseRoomData(messages) {
-  // Look backwards for the most recent room description
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i]
     if (msg.type !== 'game' && msg.type !== 'system') continue
-    const raw = (msg.content || '').replace(/<[^>]*>/g, '')
 
-    // Room descriptions typically start with a colored room name on its own line
-    // followed by description text, then "Exits:" and "You see:" or "Characters:"
+    // Strip HTML tags, then decode entities
+    const raw = decodeEntities((msg.content || '').replace(/<[^>]*>/g, ''))
+
     const hasExits = /Exits?:/i.test(raw)
     if (!hasExits) continue
 
-    // Parse room name (first non-empty line, often colored)
-    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean)
     let roomName = ''
     let description = ''
     let exits = []
     let characters = []
     let items = []
 
-    // First line is usually the room name
-    if (lines.length > 0) {
-      roomName = lines[0]
-    }
+    // Evennia room format: "RoomName(#id)Description...Exits: ...Characters: ..."
+    // Or with line breaks: "RoomName\nDescription\nExits: ..."
+    // Try to split room name from description
 
-    // Join remaining lines for parsing
-    const body = lines.slice(1).join(' ')
-
-    // Extract description (everything before "Exits:")
-    const exitsIdx = body.search(/Exits?:/i)
-    if (exitsIdx > 0) {
-      description = body.slice(0, exitsIdx).trim()
-    }
-
-    // Extract exits
-    const exitMatch = body.match(/Exits?:\s*(.+?)(?=Characters?:|You see:|$)/i)
-    if (exitMatch) {
-      const re = /([^,<]+?)\s*<([^>]+)>/g
-      let m
-      while ((m = re.exec(exitMatch[1])) !== null) {
-        exits.push({ name: m[1].trim().replace(/^\s*and\s+/, ''), dir: m[2].trim() })
+    // Check for (#id) pattern which marks the room name boundary
+    const idMatch = raw.match(/^(.+?)\(#\d+\)(.*)$/s)
+    if (idMatch) {
+      roomName = idMatch[1].trim()
+      const rest = idMatch[2]
+      const exitsIdx = rest.search(/Exits?:/i)
+      if (exitsIdx >= 0) {
+        description = rest.slice(0, exitsIdx).trim()
+        parseExitsAndEntities(rest.slice(exitsIdx), exits, characters, items)
+      }
+    } else {
+      // Split on first newline or first "Exits:"
+      const lines = raw.split(/\n/)
+      if (lines.length > 1) {
+        roomName = lines[0].trim()
+        const body = lines.slice(1).join(' ')
+        const exitsIdx = body.search(/Exits?:/i)
+        if (exitsIdx >= 0) {
+          description = body.slice(0, exitsIdx).trim()
+          parseExitsAndEntities(body.slice(exitsIdx), exits, characters, items)
+        } else {
+          description = body.trim()
+          parseExitsAndEntities(raw, exits, characters, items)
+        }
+      } else {
+        // Single block — try to extract room name as first sentence
+        const exitsIdx = raw.search(/Exits?:/i)
+        if (exitsIdx > 0) {
+          const before = raw.slice(0, exitsIdx)
+          // First "sentence" or chunk before the long description
+          const firstDot = before.indexOf('.')
+          if (firstDot > 0 && firstDot < 80) {
+            roomName = before.slice(0, firstDot).trim()
+            description = before.slice(firstDot + 1).trim()
+          } else {
+            roomName = before.slice(0, 60).trim()
+            description = before.slice(60).trim()
+          }
+          parseExitsAndEntities(raw.slice(exitsIdx), exits, characters, items)
+        }
       }
     }
 
-    // Extract characters
-    const charMatch = body.match(/Characters?:\s*(.+?)(?=You see:|Exits?:|$)/i)
-    if (charMatch) {
-      characters = charMatch[1].split(/,\s*(?:and\s+)?/).map(s => s.trim()).filter(Boolean)
-    }
-
-    // Extract items ("You see:")
-    const itemMatch = body.match(/You see:\s*(.+?)(?=Characters?:|Exits?:|$)/i)
-    if (itemMatch) {
-      items = itemMatch[1].split(/,\s*(?:and\s+)?/).map(s => s.trim()).filter(Boolean)
-    }
+    // Clean up room name — remove (#id) suffix
+    roomName = roomName.replace(/\(#\d+\)/, '').trim()
 
     if (roomName) {
       return { roomName, description, exits, characters, items }
     }
   }
   return null
+}
+
+function parseExitsAndEntities(text, exits, characters, items) {
+  // Extract exits: "Exits: Room Name <DIR>, ..."
+  const exitMatch = text.match(/Exits?:\s*(.+?)(?=Characters?:|You see:|$)/i)
+  if (exitMatch) {
+    const re = /([^,<]+?)\s*<([^>]+)>/g
+    let m
+    while ((m = re.exec(exitMatch[1])) !== null) {
+      exits.push({ name: m[1].trim().replace(/^\s*and\s+/, ''), dir: m[2].trim() })
+    }
+  }
+
+  const charMatch = text.match(/Characters?:\s*(.+?)(?=You see:|Exits?:|$)/i)
+  if (charMatch) {
+    charMatch[1].split(/,\s*(?:and\s+)?/).map(s => s.trim()).filter(Boolean).forEach(c => characters.push(c))
+  }
+
+  const itemMatch = text.match(/You see:\s*(.+?)(?=Characters?:|Exits?:|$)/i)
+  if (itemMatch) {
+    itemMatch[1].split(/,\s*(?:and\s+)?/).map(s => s.trim()).filter(Boolean).forEach(it => items.push(it))
+  }
 }
 
 export default function RoomView({ messages, onCommand }) {
