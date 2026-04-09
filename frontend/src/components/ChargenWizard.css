@@ -21,6 +21,12 @@
   gap: 16px;
 }
 
+.chargen-back-btn {
+  padding: 5px 12px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
 .step-indicator {
   display: flex;
   gap: 4px;
