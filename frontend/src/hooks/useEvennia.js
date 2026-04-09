@@ -69,6 +69,8 @@ export function useEvennia() {
     },
     // HP tracking for combatants (key: name, value: { hp: 0-100 })
     combatantHp: {},
+    // Chargen room detection
+    inChargen: false,
   })
 
   const wsRef = useRef(null)
@@ -266,6 +268,12 @@ export function useEvennia() {
           const stats = parseStats(text)
           if (stats) {
             setOobState((prev) => ({ ...prev, ...stats }))
+          }
+
+          // Chargen room detection — look for the ChargenRoom name/description
+          const stripped = text.replace(/<[^>]*>/g, '').toLowerCase()
+          if (stripped.includes('chargen') || stripped.includes('character creation') || stripped.includes('set commands to choose')) {
+            setOobState((prev) => prev.inChargen ? prev : { ...prev, inChargen: true })
           }
         }
       } else if (cmd === 'event') {

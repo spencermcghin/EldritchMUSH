@@ -6,6 +6,7 @@ import CombatTracker from './components/CombatTracker'
 import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
 import CommandInput from './components/CommandInput'
+import ChargenWizard from './components/ChargenWizard'
 import './App.css'
 
 function App() {
@@ -59,8 +60,16 @@ function App() {
         </div>
       )}
 
+      {/* ── Chargen Wizard ── */}
+      {isConnected && oobState.inChargen && (
+        <ChargenWizard
+          sendCommand={sendCommand}
+          onExit={() => {}}
+        />
+      )}
+
       {/* ── Main UI ── */}
-      {isConnected && (
+      {isConnected && !oobState.inChargen && (
         <div className="app-body">
           <CommandSidebar
             availableCommands={oobState.availableCommands}
