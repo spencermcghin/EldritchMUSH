@@ -1,4 +1,4 @@
-import { useReducer, useCallback } from 'react'
+import { useReducer, useCallback, useState } from 'react'
 import {
   BASIC_ARCHETYPES,
   ADVANCED_ARCHETYPES,
@@ -321,7 +321,11 @@ function ReviewStep({ state, sendCommand, onReset }) {
     allSkills[k] = Math.max(allSkills[k] || 0, v)
   })
 
+  const [finalizing, setFinalizing] = useState(false)
+
   const handleFinalize = () => {
+    setFinalizing(true)
+
     // Send all set* commands for the final build
     const cmds = Object.entries(allSkills)
       .filter(([, level]) => level > 0)
@@ -330,14 +334,17 @@ function ReviewStep({ state, sendCommand, onReset }) {
 
     // Send commands with small delays to avoid flooding
     cmds.forEach(([cmd, level], i) => {
-      setTimeout(() => sendCommand(`${cmd} ${level}`), i * 200)
+      setTimeout(() => {
+        sendCommand(`${cmd} ${level}`)
+      }, i * 300)
     })
 
-    // After all skill commands, exit chargen room
+    // After all skill commands, exit the wizard UI
+    // The player can navigate out of chargen room manually via exits
     setTimeout(() => {
-      sendCommand('IC')
+      sendCommand('look')
       if (onExit) onExit()
-    }, cmds.length * 200 + 500)
+    }, cmds.length * 300 + 500)
   }
 
   return (
@@ -396,9 +403,9 @@ function ReviewStep({ state, sendCommand, onReset }) {
         </div>
       </div>
       <div className="review-actions">
-        <button className="chargen-btn secondary" onClick={onReset}>Start Over</button>
-        <button className="chargen-btn primary" onClick={handleFinalize}>
-          Finalize Character
+        <button className="chargen-btn secondary" onClick={onReset} disabled={finalizing}>Start Over</button>
+        <button className="chargen-btn primary" onClick={handleFinalize} disabled={finalizing}>
+          {finalizing ? 'Applying Skills...' : 'Finalize Character'}
         </button>
       </div>
     </div>

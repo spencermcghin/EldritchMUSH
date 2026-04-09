@@ -126,8 +126,8 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
           </div>
         )}
 
-        {/* Quick actions */}
-        {isConnected && (
+        {/* Quick actions — only show when logged in (have a character name) */}
+        {isConnected && characterName && (
           <div className="char-actions">
             <div className="status-section-label cinzel">ACTIONS</div>
             <button className="char-action-btn" onClick={() => sendCommand('charsheet')}>
