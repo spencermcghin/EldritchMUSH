@@ -323,16 +323,21 @@ function ReviewStep({ state, sendCommand, onReset }) {
 
   const handleFinalize = () => {
     // Send all set* commands for the final build
-    Object.entries(allSkills).forEach(([key, level]) => {
-      const cmd = SKILL_COMMANDS[key]
-      if (cmd && level > 0) {
-        sendCommand(`${cmd} ${level}`)
-      }
+    const cmds = Object.entries(allSkills)
+      .filter(([, level]) => level > 0)
+      .map(([key, level]) => [SKILL_COMMANDS[key], level])
+      .filter(([cmd]) => cmd)
+
+    // Send commands with small delays to avoid flooding
+    cmds.forEach(([cmd, level], i) => {
+      setTimeout(() => sendCommand(`${cmd} ${level}`), i * 200)
     })
-    // Small delay then exit chargen
+
+    // After all skill commands, exit chargen room
     setTimeout(() => {
       sendCommand('IC')
-    }, 500)
+      if (onExit) onExit()
+    }, cmds.length * 200 + 500)
   }
 
   return (
