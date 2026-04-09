@@ -6,8 +6,64 @@ function formatTime(ts) {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-function MessageLine({ msg, index }) {
+// Parse "Exits: Tavern Ruins <N>, Market <NW>, ..." into clickable buttons
+function parseExits(html) {
+  // Strip HTML tags for matching
+  const stripped = html.replace(/<[^>]*>/g, '')
+  const exitMatch = stripped.match(/Exits?:\s*(.+)/)
+  if (!exitMatch) return null
+
+  const exitStr = exitMatch[1]
+  // Match patterns like "Room Name <DIR>" or just "<DIR>"
+  const exits = []
+  const re = /([^,<]+?)\s*<([^>]+)>/g
+  let m
+  while ((m = re.exec(exitStr)) !== null) {
+    exits.push({ name: m[1].trim().replace(/^\s*and\s+/, ''), dir: m[2].trim() })
+  }
+  return exits.length > 0 ? exits : null
+}
+
+function ExitButtons({ exits, onCommand }) {
+  return (
+    <div className="exit-buttons">
+      <span className="exit-label">Exits:</span>
+      {exits.map((exit, i) => (
+        <button
+          key={i}
+          className="exit-btn"
+          onClick={() => onCommand(exit.dir)}
+          title={`Go ${exit.dir} to ${exit.name}`}
+        >
+          {exit.name} <span className="exit-dir">{exit.dir}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function MessageLine({ msg, index, onCommand }) {
   const html = msg.content || ''
+  const exits = parseExits(html)
+
+  // If this message contains exits, render them as buttons
+  if (exits) {
+    // Render the non-exit part as HTML, then the exit buttons
+    const beforeExits = html.replace(/Exits?:.*$/s, '')
+    return (
+      <div className="msg-with-exits" style={{ animationDelay: `${Math.min(index * 0.01, 0.1)}s` }}>
+        {beforeExits && (
+          <div
+            className={`msg msg-${msg.type}`}
+            data-time={formatTime(msg.timestamp)}
+            dangerouslySetInnerHTML={{ __html: beforeExits || '&nbsp;' }}
+          />
+        )}
+        <ExitButtons exits={exits} onCommand={onCommand} />
+      </div>
+    )
+  }
+
   return (
     <div
       className={`msg msg-${msg.type}`}
@@ -18,12 +74,11 @@ function MessageLine({ msg, index }) {
   )
 }
 
-export default function GameOutput({ messages, inCombat }) {
+export default function GameOutput({ messages, inCombat, onCommand }) {
   const containerRef = useRef(null)
   const bottomRef = useRef(null)
   const userScrolledRef = useRef(false)
 
-  // Auto-scroll to bottom unless user has scrolled up
   useEffect(() => {
     if (!userScrolledRef.current && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -50,11 +105,10 @@ export default function GameOutput({ messages, inCombat }) {
           </div>
         )}
         {messages.map((msg, i) => (
-          <MessageLine key={msg.id} msg={msg} index={i} />
+          <MessageLine key={msg.id} msg={msg} index={i} onCommand={onCommand} />
         ))}
         <div ref={bottomRef} />
       </div>
-      {/* CRT scanline overlay */}
       <div className="crt-overlay" />
     </div>
   )

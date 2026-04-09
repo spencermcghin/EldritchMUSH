@@ -10,7 +10,7 @@ import ChargenWizard from './components/ChargenWizard'
 import './App.css'
 
 function App() {
-  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen } =
+  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen } =
     useEvennia()
 
   const inputRef = useRef(null)
@@ -78,7 +78,7 @@ function App() {
             onCommandClick={injectCommand}
           />
           <div className="app-main">
-            <GameOutput messages={messages} />
+            <GameOutput messages={messages} onCommand={sendCommand} />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
             <CommandInput
               ref={inputRef}
@@ -87,7 +87,12 @@ function App() {
               disabled={false}
             />
           </div>
-          <CharacterStatus oobState={oobState} connectionState={connectionState} />
+          <CharacterStatus
+            oobState={oobState}
+            connectionState={connectionState}
+            sendCommand={sendCommand}
+            onChargen={enterChargen}
+          />
         </div>
       )}
 

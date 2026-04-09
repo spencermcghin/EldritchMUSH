@@ -400,6 +400,10 @@ export function useEvennia() {
     setOobState((prev) => ({ ...prev, inChargen: false }))
   }, [])
 
+  const enterChargen = useCallback(() => {
+    setOobState((prev) => ({ ...prev, inChargen: true }))
+  }, [])
+
   return {
     connectionState,
     messages,
@@ -409,5 +413,6 @@ export function useEvennia() {
     connect,
     disconnect,
     exitChargen,
+    enterChargen,
   }
 }

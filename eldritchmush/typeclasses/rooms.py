@@ -34,8 +34,7 @@ class Room(DefaultRoom):
         else:
             if utils.inherits_from(obj, Character):
                 # A PC has entered, NPC is caught above.
-                # Cause the character to look around
-                obj.execute_cmd("look")
+                # Note: Evennia 5.x auto-sends "look" on move, so we don't call it here.
                 for item in self.contents:
                     if utils.inherits_from(item, Npc):
                         # An NPC is in the room

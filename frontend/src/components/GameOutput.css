@@ -151,6 +151,56 @@
 /* Allow <br> to work inside pre-wrap */
 .msg br { display: block; content: ''; }
 
+/* ── Clickable Exit Buttons ── */
+.msg-with-exits {
+  animation: fade-in 0.15s ease-out both;
+}
+
+.exit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0 4px;
+}
+
+.exit-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--text-aged);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+
+.exit-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-light);
+  background: rgba(212,175,55,0.06);
+  border: 1px solid var(--border-bright);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.exit-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212,175,55,0.12);
+  box-shadow: 0 0 8px rgba(212,175,55,0.15);
+}
+.exit-btn:active {
+  background: rgba(212,175,55,0.2);
+}
+
+.exit-dir {
+  color: var(--accent-gold);
+  font-size: 10px;
+  opacity: 0.7;
+  margin-left: 3px;
+}
+
 /* Login hint overlay styling */
 .login-overlay {
   position: sticky;
