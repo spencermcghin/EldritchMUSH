@@ -7,6 +7,7 @@ import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
 import CommandInput from './components/CommandInput'
 import ChargenWizard from './components/ChargenWizard'
+import RoomView from './components/RoomView'
 import './App.css'
 
 function App() {
@@ -56,7 +57,7 @@ function App() {
       {/* ── Connecting ── */}
       {isConnecting && (
         <div className="app-connecting">
-          <div className="app-connecting-text">Entering the void…</div>
+          <div className="app-connecting-text">Entering the void...</div>
         </div>
       )}
 
@@ -68,25 +69,33 @@ function App() {
         />
       )}
 
-      {/* ── Main UI ── */}
+      {/* ── Main Game UI ── */}
       {isConnected && !oobState.inChargen && (
         <div className="app-body">
+          {/* Left sidebar: commands */}
           <CommandSidebar
             availableCommands={oobState.availableCommands}
             inCombat={oobState.inCombat}
             myTurn={oobState.myTurn}
             onCommandClick={injectCommand}
           />
+
+          {/* Center: room view on top, log + input on bottom */}
           <div className="app-main">
-            <GameOutput messages={messages} onCommand={sendCommand} />
+            <RoomView messages={messages} onCommand={sendCommand} />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
-            <CommandInput
-              ref={inputRef}
-              onSend={sendCommand}
-              availableCommands={oobState.availableCommands}
-              disabled={false}
-            />
+            <div className="app-log-area">
+              <GameOutput messages={messages} onCommand={sendCommand} />
+              <CommandInput
+                ref={inputRef}
+                onSend={sendCommand}
+                availableCommands={oobState.availableCommands}
+                disabled={false}
+              />
+            </div>
           </div>
+
+          {/* Right sidebar: character status */}
           <CharacterStatus
             oobState={oobState}
             connectionState={connectionState}

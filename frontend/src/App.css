@@ -301,3 +301,12 @@ body::before {
   min-width: 0;
   min-height: 0;
 }
+
+/* Log area sits below the room view and takes remaining space */
+.app-log-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-top: 1px solid var(--border);
+}
