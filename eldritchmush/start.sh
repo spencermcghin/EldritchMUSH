@@ -111,6 +111,26 @@ else:
     print('Account #1 already exists')
 " || echo "Warning: could not pre-create Account #1"
 
+# Grant superuser to spencer_admin if the account exists
+echo "=== Granting superuser to spencer_admin ==="
+python3 -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
+django.setup()
+from evennia.accounts.models import AccountDB
+try:
+    acct = AccountDB.objects.get(username='spencer_admin')
+    if not acct.is_superuser:
+        acct.is_superuser = True
+        acct.is_staff = True
+        acct.save()
+        print('spencer_admin granted superuser')
+    else:
+        print('spencer_admin already superuser')
+except AccountDB.DoesNotExist:
+    print('spencer_admin account not found yet')
+" || echo "Warning: could not grant superuser"
+
 echo "=== Starting Evennia ==="
 # Kill any lingering Evennia processes from previous start attempts
 evennia stop 2>/dev/null || true

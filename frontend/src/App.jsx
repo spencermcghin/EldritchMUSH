@@ -10,7 +10,7 @@ import ChargenWizard from './components/ChargenWizard'
 import './App.css'
 
 function App() {
-  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect } =
+  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen } =
     useEvennia()
 
   const inputRef = useRef(null)
@@ -64,7 +64,7 @@ function App() {
       {isConnected && oobState.inChargen && (
         <ChargenWizard
           sendCommand={sendCommand}
-          onExit={() => {}}
+          onExit={exitChargen}
         />
       )}
 
