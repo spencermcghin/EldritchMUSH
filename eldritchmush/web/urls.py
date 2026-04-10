@@ -11,6 +11,13 @@ from evennia.web.urls import urlpatterns
 
 from web.api_views import webclient_session, account_characters
 
+# Side-effect import: connects OAuth signal handlers. Must happen
+# AFTER django.setup() (we're guaranteed that here because URL
+# routing only fires post-setup) and BEFORE any OAuth callback can
+# arrive (also guaranteed because the callback URL itself is in
+# this file).
+from web import oauth_signals  # noqa: F401
+
 # eventual custom patterns
 custom_patterns = [
     # JSON endpoints used by the React frontend

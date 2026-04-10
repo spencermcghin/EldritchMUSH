@@ -141,12 +141,17 @@ if _volume_path:
 # (allauth respects AUTH_USER_MODEL = "accounts.AccountDB"), and the
 # React frontend's CharacterSelect screen handles puppeting.
 
-# Always register our local Django app so its signal handlers load.
-# Named `eldritch_app` (not `web`) to avoid name shadowing in twistd
-# subprocesses where /usr/local/bin gets prepended to sys.path[0].
-INSTALLED_APPS = list(INSTALLED_APPS) + [
-    "eldritch_app.apps.EldritchAppConfig",
-]
+# NOTE: We deliberately do NOT register a local Django app here.
+# Twistd's portal subprocess fails to import any local package
+# referenced in INSTALLED_APPS — find_spec succeeds but Django's
+# import_module fails inside django.setup(), and we burned multiple
+# rounds chasing it (sys.path injection in settings.py, .pth files,
+# PYTHONPATH export in start.sh, package renames). The OAuth signal
+# handler is wired up via a side-effect import in web/urls.py
+# instead, which Django loads via ROOT_URLCONF after django.setup()
+# has already completed. The signal only needs to fire on OAuth
+# callbacks (which themselves go through web/urls.py), so loading
+# order is guaranteed.
 
 try:
     import allauth  # noqa: F401
