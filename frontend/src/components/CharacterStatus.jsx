@@ -30,7 +30,7 @@ const EQUIP_SLOTS = [
   { key: 'body', label: 'Armor', icon: '◈' },
 ]
 
-export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand }) {
+export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap }) {
   const {
     characterName,
     body,
@@ -136,6 +136,11 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
             <button className="char-action-btn chargen-btn-link" onClick={onChargen}>
               Character Builder
             </button>
+            {onWorldMap && (
+              <button className="char-action-btn world-map-link" onClick={onWorldMap}>
+                ✦ World Map
+              </button>
+            )}
           </div>
         )}
       </div>

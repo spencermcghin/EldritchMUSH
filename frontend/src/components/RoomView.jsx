@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { detectBiome } from '../data/biomes'
 import './RoomView.css'
 
 // Decode HTML entities
@@ -118,6 +119,10 @@ function parseExitsAndEntities(text, exits, characters, items) {
 
 export default function RoomView({ messages, onCommand, onEntityClick, onEntityContextMenu, onExitContextMenu }) {
   const room = useMemo(() => parseRoomData(messages), [messages])
+  const biome = useMemo(
+    () => room ? detectBiome(room.roomName, room.description) : null,
+    [room]
+  )
 
   if (!room) {
     return (
@@ -130,9 +135,29 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
   }
 
   return (
-    <div className="room-view">
+    <div
+      className="room-view"
+      style={biome ? { '--biome-tint': biome.tint, '--biome-accent': biome.accent } : undefined}
+    >
+      {/* Atmospheric biome tint overlay */}
+      <div className="room-biome-tint" />
+
+      {/* Scene header: biome icon + room name */}
       <div className="room-header">
-        <h2 className="room-name">{room.roomName}</h2>
+        {biome && (
+          <div className="room-biome-icon-wrap">
+            <img
+              src={biome.icon}
+              alt={biome.label}
+              className="room-biome-icon"
+              loading="lazy"
+            />
+          </div>
+        )}
+        <div className="room-header-text">
+          <h2 className="room-name">{room.roomName}</h2>
+          {biome && <span className="room-biome-label">{biome.label}</span>}
+        </div>
       </div>
 
       {room.description && (

@@ -11,6 +11,21 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  --biome-tint: transparent;
+  --biome-accent: var(--accent-gold);
+}
+
+/* Atmospheric biome tint — sits above background, below content */
+.room-biome-tint {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top, var(--biome-tint), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.room-view > *:not(.room-biome-tint) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Subtle vignette at bottom edge */
@@ -38,19 +53,72 @@
   padding: 1px 4px;
 }
 
-/* Room name */
+/* Scene header: biome icon + room name */
 .room-header {
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.room-biome-icon-wrap {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  position: relative;
+}
+
+.room-biome-icon-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--biome-accent);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.room-biome-icon {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  /* Slight color shift to match the dark theme without losing detail */
+  filter: brightness(0.95) contrast(1.05) drop-shadow(0 0 4px rgba(0,0,0,0.6));
+}
+
+.room-header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .room-name {
   font-family: 'Cinzel', serif;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--accent-gold);
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   margin: 0;
+  text-shadow: 0 0 8px rgba(212,175,55,0.3);
+}
+
+.room-biome-label {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--biome-accent);
+  margin-top: 4px;
+  padding: 1px 8px;
+  border: 1px solid var(--biome-accent);
+  opacity: 0.7;
 }
 
 /* Description — fills available space */
