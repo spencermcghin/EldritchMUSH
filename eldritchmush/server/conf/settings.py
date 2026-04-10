@@ -75,6 +75,20 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
+# Reverse-proxy / CSRF settings.
+# Django runs behind nginx (which is behind Railway's edge proxy), so it
+# sees requests as coming from 127.0.0.1 over HTTP. Without these
+# settings, CSRF verification fails on every POST (admin login,
+# allauth flows, etc.) because Django thinks the request origin is
+# 127.0.0.1 but the form came from the public HTTPS URL.
+CSRF_TRUSTED_ORIGINS = [
+    "https://eldritchmush-production.up.railway.app",
+    "https://eldritch-mud.com",
+    "https://www.eldritch-mud.com",
+]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 # Evennia's WebSocket server runs on 4002 (default).
 # nginx routes /websocket → 4002 and everything else → 4001 (HTTP proxy).
 # Do NOT set WEBSOCKET_CLIENT_PORT = 4001 here — that would create a second
