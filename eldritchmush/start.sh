@@ -3,6 +3,13 @@ set -e
 
 cd /app
 
+# Export PYTHONPATH so every child process — including the twistd
+# subprocess that boots Evennia's portal — has /app on sys.path.
+# Without this, twistd's sys.path[0] becomes /usr/local/bin (the
+# script's own directory) and local Django apps like eldritch_app
+# fail to import during django.setup() in portal.py.
+export PYTHONPATH="/app:${PYTHONPATH:-}"
+
 PORT=${PORT:-8080}
 
 echo "=== Starting nginx on port $PORT ==="
