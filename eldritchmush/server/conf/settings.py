@@ -32,9 +32,35 @@ put secret game- or server-specific settings in secret_settings.py.
 # `web.apps.WebAppConfig` during portal startup.
 import os as _os
 import sys as _sys
-_GAME_DIR = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
-if _GAME_DIR not in _sys.path:
-    _sys.path.insert(0, _GAME_DIR)
+
+# Try both: the hardcoded Docker path AND the path derived from
+# settings.py's own location. Whichever is real will work; the other
+# is harmless.
+_paths_to_add = ["/app"]
+try:
+    _derived = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+    _paths_to_add.append(_derived)
+except Exception:
+    pass
+
+for _p in _paths_to_add:
+    if _p and _os.path.isdir(_p) and _p not in _sys.path:
+        _sys.path.insert(0, _p)
+
+# Diagnostic: print what we ended up with so deploy logs can confirm
+# the injection actually worked in the twistd subprocess.
+print(f"[settings] sys.path[:5] = {_sys.path[:5]}")
+try:
+    import importlib.util as _ilu
+    _web_spec = _ilu.find_spec("web")
+    print(f"[settings] find_spec('web') = {_web_spec}")
+    if _web_spec is None:
+        # Last-ditch: list what /app actually contains so we can see
+        # whether the web/ directory is even there.
+        if _os.path.isdir("/app"):
+            print(f"[settings] /app contents: {sorted(_os.listdir('/app'))[:20]}")
+except Exception as _exc:
+    print(f"[settings] find_spec failed: {_exc}")
 
 # Use the defaults from Evennia unless explicitly overridden
 from evennia.settings_default import *
