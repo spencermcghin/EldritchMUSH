@@ -93,6 +93,8 @@ export function useEvennia() {
   const pingIntervalRef = useRef(null)
   const pingStartRef = useRef(null)
   const [latency, setLatency] = useState(null)
+  // Manual-login credentials queued for after the WS opens (cleared after send)
+  const pendingLoginRef = useRef(null)
 
   const addMessage = useCallback((type, content, raw = '') => {
     setMessages((prev) => {
@@ -319,7 +321,7 @@ export function useEvennia() {
     [addMessage, handleOobEvent, parseCharacterName, parseStats]
   )
 
-  const connect = useCallback((host = 'localhost', port = 4002) => {
+  const connect = useCallback((host = 'localhost', port = 4002, credentials = null) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current)
@@ -330,61 +332,100 @@ export function useEvennia() {
     shouldReconnectRef.current = true
     setConnectionState('connecting')
 
-    const isSecure = window.location.protocol === 'https:'
-    const protocol = isSecure ? 'wss:' : 'ws:'
-    const portStr = (port === 443 || port === 80) ? '' : `:${port}`
-    const url = `${protocol}//${host}${portStr}/websocket`
-    let ws
-    try {
-      ws = new WebSocket(url)
-    } catch (err) {
-      setConnectionState('disconnected')
-      addMessage('error', `Failed to create WebSocket: ${err.message}`)
-      return
+    // Stash manual-login credentials for after the WS opens.
+    if (credentials && credentials.username && credentials.password) {
+      pendingLoginRef.current = credentials
     }
 
-    wsRef.current = ws
+    // Step 1: ask the Django backend for our session key (csessid).
+    // If the user is already authenticated via Google OAuth, this also
+    // tells us their username so we can skip the manual login dance.
+    // Same-origin so the session cookie rides along automatically.
+    const fetchCsessid = async () => {
+      try {
+        const resp = await fetch('/api/webclient_session/', { credentials: 'include' })
+        if (resp.ok) {
+          const data = await resp.json()
+          return data
+        }
+      } catch (err) {
+        // Endpoint not yet deployed (older builds) — fall through.
+      }
+      return { authenticated: false, csessid: null, username: null }
+    }
 
-    ws.onopen = () => {
-      setConnectionState('connected')
-      reconnectDelayRef.current = BASE_RECONNECT_DELAY
-      addMessage('system', `Connected to ${url}. Type connect <username> <password> to log in.`)
+    fetchCsessid().then((session) => {
+      const isSecure = window.location.protocol === 'https:'
+      const protocol = isSecure ? 'wss:' : 'ws:'
+      const portStr = (port === 443 || port === 80) ? '' : `:${port}`
+      // Evennia's webclient handler reads the csessid from the WS URL
+      // query string and uses it to look up the Django session.
+      const csessidQuery = session.csessid ? `?${session.csessid}` : ''
+      const url = `${protocol}//${host}${portStr}/websocket${csessidQuery}`
 
-      // Keepalive: send an empty text command every 25s to prevent
-      // Railway's edge proxy from closing idle WebSocket connections.
-      // An empty string is valid Evennia protocol and is silently
-      // ignored by the command handler.
-      const sendKeepalive = () => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(['text', [''], {}]))
+      let ws
+      try {
+        ws = new WebSocket(url)
+      } catch (err) {
+        setConnectionState('disconnected')
+        addMessage('error', `Failed to create WebSocket: ${err.message}`)
+        return
+      }
+
+      wsRef.current = ws
+
+      ws.onopen = () => {
+        setConnectionState('connected')
+        reconnectDelayRef.current = BASE_RECONNECT_DELAY
+
+        if (session.authenticated && session.username) {
+          addMessage('system', `Welcome back, ${session.username}.`)
+          // Server-side session already authenticated us — Evennia will
+          // auto-puppet under MULTISESSION_MODE=0. Nothing else to send.
+        } else if (pendingLoginRef.current) {
+          // Manual login flow — fire `connect user pass` automatically.
+          const { username, password } = pendingLoginRef.current
+          pendingLoginRef.current = null
+          ws.send(JSON.stringify(['text', [`connect ${username} ${password}`], {}]))
+          addMessage('system', `Connecting as ${username}...`)
+        } else {
+          addMessage('system', `Connected to ${url}. Type connect <username> <password> to log in.`)
+        }
+
+        // Keepalive: send an empty text command every 25s to prevent
+        // Railway's edge proxy from closing idle WebSocket connections.
+        const sendKeepalive = () => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(['text', [''], {}]))
+          }
+        }
+        pingIntervalRef.current = setInterval(sendKeepalive, 25000)
+      }
+
+      ws.onmessage = (event) => {
+        processFrame(event.data)
+      }
+
+      ws.onerror = () => {
+        addMessage('error', 'WebSocket error. Connection may be unavailable.')
+      }
+
+      ws.onclose = () => {
+        setConnectionState('disconnected')
+        clearInterval(pingIntervalRef.current)
+        pingIntervalRef.current = null
+
+        if (shouldReconnectRef.current) {
+          const delay = reconnectDelayRef.current
+          addMessage('system', `Connection lost. Reconnecting in ${Math.round(delay / 1000)}s...`)
+          reconnectDelayRef.current = Math.min(delay * 2, MAX_RECONNECT_DELAY)
+          reconnectTimeoutRef.current = setTimeout(() => {
+            const { host, port } = connectionParamsRef.current
+            connect(host, port)
+          }, delay)
         }
       }
-      pingIntervalRef.current = setInterval(sendKeepalive, 25000)
-    }
-
-    ws.onmessage = (event) => {
-      processFrame(event.data)
-    }
-
-    ws.onerror = () => {
-      addMessage('error', 'WebSocket error. Connection may be unavailable.')
-    }
-
-    ws.onclose = () => {
-      setConnectionState('disconnected')
-      clearInterval(pingIntervalRef.current)
-      pingIntervalRef.current = null
-
-      if (shouldReconnectRef.current) {
-        const delay = reconnectDelayRef.current
-        addMessage('system', `Connection lost. Reconnecting in ${Math.round(delay / 1000)}s...`)
-        reconnectDelayRef.current = Math.min(delay * 2, MAX_RECONNECT_DELAY)
-        reconnectTimeoutRef.current = setTimeout(() => {
-          const { host, port } = connectionParamsRef.current
-          connect(host, port)
-        }, delay)
-      }
-    }
+    })
   }, [addMessage, processFrame])
 
   const disconnect = useCallback(() => {
