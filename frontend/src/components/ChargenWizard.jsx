@@ -13,9 +13,11 @@ import './ChargenWizard.css'
 
 // ── Reducer ──
 
+const DEFAULT_CP_TOTAL = 15
+
 const initialState = {
   step: 0,
-  cpTotal: 4,
+  cpTotal: DEFAULT_CP_TOTAL,
   basicArchetype: null,
   advancedArchetype: null,
   skills: {},
@@ -81,13 +83,24 @@ function reducer(state, action) {
 
 // ── Sub-Components ──
 
-function CpTracker({ spent, total }) {
+function CpTracker({ spent, total, isAdmin }) {
+  if (isAdmin) {
+    return (
+      <div className="cp-tracker admin-tracker">
+        <span className="cp-label admin-label">∞ ADMIN</span>
+      </div>
+    )
+  }
+  // Cap pips at 30 to avoid overflow with high CP totals
+  const pipCount = Math.min(total, 30)
+  const spentRatio = total > 0 ? spent / total : 0
+  const spentPips = Math.round(spentRatio * pipCount)
   const remaining = total - spent
   return (
     <div className="cp-tracker">
       <div className="cp-pips">
-        {Array.from({ length: total }, (_, i) => (
-          <div key={i} className={`cp-pip ${i < spent ? 'spent' : 'available'}`} />
+        {Array.from({ length: pipCount }, (_, i) => (
+          <div key={i} className={`cp-pip ${i < spentPips ? 'spent' : 'available'}`} />
         ))}
       </div>
       <span className="cp-label">{remaining} / {total} CP</span>
@@ -453,8 +466,13 @@ function CharacterSheetView({ sendCommand, onExit, onEditMode }) {
 
 // ── Main Wizard ──
 
-export default function ChargenWizard({ sendCommand, onExit, viewMode }) {
-  const [state, dispatch] = useReducer(reducer, initialState)
+export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin }) {
+  // Admins get effectively unlimited CP
+  const adminCpTotal = 999
+  const initialStateAdmin = isAdmin
+    ? { ...initialState, cpTotal: adminCpTotal }
+    : initialState
+  const [state, dispatch] = useReducer(reducer, initialStateAdmin)
   const [isViewMode, setIsViewMode] = useState(viewMode || false)
   const cpSpent = computeCpSpent(state)
   const cpRemaining = state.cpTotal - cpSpent
@@ -499,7 +517,7 @@ export default function ChargenWizard({ sendCommand, onExit, viewMode }) {
           Back to Game
         </button>
         <StepIndicator current={state.step} steps={STEPS} />
-        <CpTracker spent={cpSpent} total={state.cpTotal} />
+        <CpTracker spent={cpSpent} total={state.cpTotal} isAdmin={isAdmin} />
       </div>
       <div className="chargen-wizard-body">
         {state.step === 0 && <WelcomeStep onNext={handleNext} />}

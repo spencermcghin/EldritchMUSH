@@ -102,6 +102,16 @@
   white-space: nowrap;
 }
 
+.admin-tracker .admin-label {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--phosphor);
+  text-shadow: 0 0 8px rgba(0,229,160,0.5);
+  border: 1px solid var(--phosphor);
+  padding: 3px 10px;
+}
+
 /* ── Body ── */
 
 .chargen-wizard-body {

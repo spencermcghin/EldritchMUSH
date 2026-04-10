@@ -46,6 +46,7 @@ export function useEvennia() {
   const [messages, setMessages] = useState([])
   const [oobState, setOobState] = useState({
     availableCommands: [],
+    isAdmin: false,
     inCombat: false,
     combatTurnOrder: [],
     myTurn: false,
@@ -132,6 +133,11 @@ export function useEvennia() {
       switch (eventType) {
         case 'available_commands': {
           next.availableCommands = kwargs.commands || []
+          break
+        }
+        case 'account_info': {
+          next.isAdmin = !!kwargs.is_admin
+          if (kwargs.character) next.characterName = kwargs.character
           break
         }
         case 'combat_start': {
