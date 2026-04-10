@@ -51,6 +51,13 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "eldritchmush"
 
+# Use the standard Django admin instead of Evennia's custom override.
+# The custom override at /admin/ requires the evennia_admin.html template,
+# which on some deployments isn't picked up correctly and 404s. The
+# standard Django admin works out of the box and gives us full access
+# to the Sites object (needed for allauth), AccountDB, ObjectDB, etc.
+EVENNIA_ADMIN = False
+
 # Multi-character mode: each Account can own multiple Characters and
 # must explicitly puppet one with `ic <name>`. The React frontend's
 # CharacterSelect screen handles the choice; new players use
