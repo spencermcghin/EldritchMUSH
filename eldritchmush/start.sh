@@ -42,8 +42,33 @@ http {
             proxy_send_timeout 3600s;
             proxy_connect_timeout 10s;
         }
-        # Evennia admin and API endpoints
+        # Django routes — admin, allauth (OAuth), and our JSON API
+        # endpoints all need to be proxied to Evennia's HTTP server
+        # on port 4001. Without this, nginx serves the React SPA's
+        # index.html for these paths and the requests never reach Django.
         location /admin {
+            proxy_pass http://127.0.0.1:4001;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
+        location /accounts {
+            proxy_pass http://127.0.0.1:4001;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
+        location /api {
+            proxy_pass http://127.0.0.1:4001;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
+        location /static {
+            proxy_pass http://127.0.0.1:4001;
+            proxy_set_header Host \$host;
+        }
+        location /media {
             proxy_pass http://127.0.0.1:4001;
             proxy_set_header Host \$host;
         }
