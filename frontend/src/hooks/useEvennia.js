@@ -75,6 +75,9 @@ export function useEvennia() {
     chargenViewMode: false,
     // Current character's skill levels (populated from server when available)
     characterSkills: {},
+    // True when we're authenticated but haven't yet puppeted a character.
+    // Drives the CharacterSelect screen.
+    atCharacterSelect: false,
   })
 
   // Timestamp (ms) of the last manual exit from chargen. Used to
@@ -147,7 +150,13 @@ export function useEvennia() {
         }
         case 'account_info': {
           next.isAdmin = !!kwargs.is_admin
-          if (kwargs.character) next.characterName = kwargs.character
+          if (kwargs.character) {
+            next.characterName = kwargs.character
+            // account_info is emitted from at_post_puppet — receiving
+            // a character name means the player has successfully
+            // puppeted, so dismiss the CharacterSelect screen.
+            next.atCharacterSelect = false
+          }
           break
         }
         case 'character_stats': {
@@ -380,14 +389,22 @@ export function useEvennia() {
 
         if (session.authenticated && session.username) {
           addMessage('system', `Welcome back, ${session.username}.`)
-          // Server-side session already authenticated us — Evennia will
-          // auto-puppet under MULTISESSION_MODE=0. Nothing else to send.
+          // Authenticated via Django session (OAuth or shared cookie).
+          // Under MULTISESSION_MODE=2 we don't auto-puppet, so show
+          // the CharacterSelect screen.
+          setOobState((prev) => ({ ...prev, atCharacterSelect: true }))
         } else if (pendingLoginRef.current) {
           // Manual login flow — fire `connect user pass` automatically.
           const { username, password } = pendingLoginRef.current
           pendingLoginRef.current = null
           ws.send(JSON.stringify(['text', [`connect ${username} ${password}`], {}]))
           addMessage('system', `Connecting as ${username}...`)
+          // Optimistically show the CharacterSelect screen — if the
+          // login fails, the screen will surface an error from
+          // /api/account/characters/ which returns authenticated:false.
+          setTimeout(() => {
+            setOobState((prev) => ({ ...prev, atCharacterSelect: true }))
+          }, 600)
         } else {
           addMessage('system', `Connected to ${url}. Type connect <username> <password> to log in.`)
         }
@@ -441,6 +458,7 @@ export function useEvennia() {
       wsRef.current = null
     }
     setConnectionState('disconnected')
+    setOobState((prev) => ({ ...prev, atCharacterSelect: false, characterName: '' }))
     addMessage('system', 'Disconnected from server.')
   }, [addMessage])
 

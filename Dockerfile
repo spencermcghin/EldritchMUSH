@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir evennia
+RUN pip install --no-cache-dir evennia "django-allauth[socialaccount]>=0.58"
 
 # Copy the game code
 COPY eldritchmush/ .

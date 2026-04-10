@@ -1,1 +1,2 @@
 evennia
+django-allauth[socialaccount]>=0.58

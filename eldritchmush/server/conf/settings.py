@@ -34,6 +34,14 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "eldritchmush"
 
+# Multi-character mode: each Account can own multiple Characters and
+# must explicitly puppet one with `ic <name>`. The React frontend's
+# CharacterSelect screen handles the choice; new players use
+# `charcreate <name>` to spawn a fresh body in the ChargenRoom.
+MULTISESSION_MODE = 2
+AUTO_PUPPET_ON_LOGIN = False
+MAX_NR_CHARACTERS = 5
+
 # Allowed hosts for Django — Railway internal + custom domain
 ALLOWED_HOSTS = [
     "eldritchmush-production.up.railway.app",
@@ -107,66 +115,80 @@ if _volume_path:
     HTTP_LOG_FILE = os.path.join(LOG_DIR, "http_requests.log")
 
 ######################################################################
-# django-allauth (Google OAuth)
+# django-allauth (Google OAuth) — optional dependency
 ######################################################################
-# Allows players to sign in with Google. The OAuth callback creates a
-# real Evennia AccountDB row (allauth respects AUTH_USER_MODEL, which
-# Evennia sets to AccountDB). After the callback, the React frontend
-# fetches the Django session key via /api/webclient_session/ and uses
-# it to authenticate the WebSocket connection.
+# Allows players to sign in with Google. Wrapped in try/except so the
+# server still boots if django-allauth isn't installed (e.g. fresh
+# clone without `pip install django-allauth`). When allauth IS
+# installed, the OAuth callback creates a real Evennia AccountDB row
+# (allauth respects AUTH_USER_MODEL = "accounts.AccountDB"), and the
+# React frontend's CharacterSelect screen handles puppeting.
 
+# Always register the local web app so its signal handlers + URL
+# routes load. The signal handler itself imports allauth lazily and
+# fails-soft if it's missing.
 INSTALLED_APPS = list(INSTALLED_APPS) + [
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
-    # Local app — registers our signal handlers (web/apps.py + web/signals.py)
     "web.apps.WebAppConfig",
 ]
 
-# Allauth uses Django's auth backends — keep the default ModelBackend
-# (so username/password still works as a fallback) and add allauth's.
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
+try:
+    import allauth  # noqa: F401
+    _allauth_available = True
+except ImportError:
+    _allauth_available = False
+    print("[settings] django-allauth not installed — Google sign-in disabled. "
+          "Run `pip install django-allauth[socialaccount]` to enable.")
 
-# Allauth account behavior
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_LOGIN_METHODS = {"username", "email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "username*"]
-SOCIALACCOUNT_AUTO_SIGNUP = True   # skip the "pick a username" interstitial
-SOCIALACCOUNT_LOGIN_ON_GET = True  # one-click — no allauth confirm page
+if _allauth_available:
+    INSTALLED_APPS = list(INSTALLED_APPS) + [
+        "allauth",
+        "allauth.account",
+        "allauth.socialaccount",
+        "allauth.socialaccount.providers.google",
+    ]
 
-# After successful OAuth, land on the React frontend root. The frontend
-# will detect the session and open the WebSocket.
-LOGIN_REDIRECT_URL = "/"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+    # Allauth uses Django's auth backends — keep ModelBackend so
+    # username/password login still works as a fallback.
+    AUTHENTICATION_BACKENDS = [
+        "django.contrib.auth.backends.ModelBackend",
+        "allauth.account.auth_backends.AuthenticationBackend",
+    ]
 
-# Pull OAuth client credentials from env vars first (Railway), then fall
-# back to local oauth_secrets.py (gitignored).
-_google_client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
-_google_client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
-if not _google_client_id or not _google_client_secret:
-    try:
-        from server.conf.oauth_secrets import (
-            GOOGLE_OAUTH_CLIENT_ID as _google_client_id,
-            GOOGLE_OAUTH_CLIENT_SECRET as _google_client_secret,
-        )
-    except ImportError:
-        print("[settings] oauth_secrets.py not found — Google sign-in will be disabled.")
+    # Allauth account behavior
+    ACCOUNT_EMAIL_VERIFICATION = "none"
+    ACCOUNT_LOGIN_METHODS = {"username", "email"}
+    ACCOUNT_SIGNUP_FIELDS = ["email*", "username*"]
+    SOCIALACCOUNT_AUTO_SIGNUP = True
+    SOCIALACCOUNT_LOGIN_ON_GET = True
 
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": _google_client_id,
-            "secret": _google_client_secret,
-            "key": "",
+    LOGIN_REDIRECT_URL = "/"
+    ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+    # Pull OAuth client credentials from env vars first (Railway), then
+    # fall back to local oauth_secrets.py (gitignored).
+    _google_client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
+    _google_client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
+    if not _google_client_id or not _google_client_secret:
+        try:
+            from server.conf.oauth_secrets import (
+                GOOGLE_OAUTH_CLIENT_ID as _google_client_id,
+                GOOGLE_OAUTH_CLIENT_SECRET as _google_client_secret,
+            )
+        except ImportError:
+            print("[settings] oauth_secrets.py not found and no env vars set — "
+                  "Google sign-in will fail until credentials are configured.")
+
+    SOCIALACCOUNT_PROVIDERS = {
+        "google": {
+            "APP": {
+                "client_id": _google_client_id,
+                "secret": _google_client_secret,
+                "key": "",
+            },
+            "SCOPE": ["profile", "email"],
+            "AUTH_PARAMS": {"access_type": "online"},
         },
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-    },
-}
+    }
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

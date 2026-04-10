@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -223,6 +223,9 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(npc.CmdEditNPC())
         self.add(npc.CmdNPC())
         self.add(alchemy.CmdAddReagent())
+        # Override default charcreate so new characters spawn in the
+        # ChargenRoom (so the React ChargenWizard fires automatically).
+        self.add(account.CmdCharCreate())
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """
