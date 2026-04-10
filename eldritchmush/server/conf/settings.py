@@ -147,6 +147,13 @@ if _allauth_available:
         "allauth.socialaccount.providers.google",
     ]
 
+    # allauth >=0.56 requires AccountMiddleware in MIDDLEWARE — without
+    # it the AppConfig.ready() raises ImproperlyConfigured at boot.
+    # Append rather than replace so we don't clobber Evennia's defaults.
+    MIDDLEWARE = list(MIDDLEWARE) + [
+        "allauth.account.middleware.AccountMiddleware",
+    ]
+
     # Allauth uses Django's auth backends — keep ModelBackend so
     # username/password login still works as a fallback.
     AUTHENTICATION_BACKENDS = [
