@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
+import CharacterSelect from './components/CharacterSelect'
 import GameOutput from './components/GameOutput'
 import CombatTracker from './components/CombatTracker'
 import CommandSidebar from './components/CommandSidebar'
@@ -224,8 +225,16 @@ function App() {
         </div>
       )}
 
+      {/* ── Character Select ── */}
+      {/* Shown after authentication, before puppeting a character.
+          Auto-dismissed when an account_info OOB event arrives confirming
+          puppet success (which only happens after `ic <name>`). */}
+      {isConnected && oobState.atCharacterSelect && !oobState.inChargen && (
+        <CharacterSelect sendCommand={sendCommand} />
+      )}
+
       {/* ── Chargen Wizard ── */}
-      {isConnected && oobState.inChargen && (
+      {isConnected && !oobState.atCharacterSelect && oobState.inChargen && (
         <ChargenWizard
           sendCommand={sendCommand}
           onExit={exitChargen}
@@ -237,7 +246,7 @@ function App() {
       )}
 
       {/* ── Main Game UI ── */}
-      {isConnected && !oobState.inChargen && (
+      {isConnected && !oobState.atCharacterSelect && !oobState.inChargen && (
         <div className="app-body">
           {/* Left sidebar: commands */}
           <CommandSidebar
