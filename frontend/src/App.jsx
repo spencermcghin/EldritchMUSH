@@ -39,6 +39,31 @@ function App() {
 
   const inputRef = useRef(null)
 
+  // Auto-connect after OAuth redirect: when the page loads, ask the
+  // backend whether we already have a Django session. If so, skip the
+  // LoginScreen entirely and open the WebSocket — Evennia will see the
+  // csessid and auto-puppet the player's character.
+  const autoConnectAttemptedRef = useRef(false)
+  useEffect(() => {
+    if (autoConnectAttemptedRef.current) return
+    if (connectionState !== 'disconnected') return
+    autoConnectAttemptedRef.current = true
+    fetch('/api/webclient_session/', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.authenticated) {
+          const host = import.meta.env.VITE_GAME_HOST || window.location.hostname || 'localhost'
+          const port = parseInt(
+            import.meta.env.VITE_GAME_PORT ||
+              window.location.port ||
+              (window.location.protocol === 'https:' ? '443' : '80')
+          )
+          connect(host, port)
+        }
+      })
+      .catch(() => { /* endpoint not deployed yet — show LoginScreen */ })
+  }, [connectionState, connect])
+
   // Entity detail panel state
   const [selectedEntity, setSelectedEntity] = useState(null)
   // selectedEntity: { name: string, type: 'character'|'item'|'player' } or null

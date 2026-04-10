@@ -13,6 +13,11 @@ localevenv
 .venv/
 .idea/
 
+# OAuth / API secrets — never commit
+eldritchmush/server/conf/oauth_secrets.py
+.env
+.env.local
+
 eldritchmush/web/static/admin/js/vendor/xregexp/xregexp.min.js
 eldritchmush/web/static/admin/js/vendor/xregexp/xregexp.js
 eldritchmush/web/static/admin/js/vendor/xregexp/LICENSE.txt

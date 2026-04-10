@@ -107,6 +107,68 @@ if _volume_path:
     HTTP_LOG_FILE = os.path.join(LOG_DIR, "http_requests.log")
 
 ######################################################################
+# django-allauth (Google OAuth)
+######################################################################
+# Allows players to sign in with Google. The OAuth callback creates a
+# real Evennia AccountDB row (allauth respects AUTH_USER_MODEL, which
+# Evennia sets to AccountDB). After the callback, the React frontend
+# fetches the Django session key via /api/webclient_session/ and uses
+# it to authenticate the WebSocket connection.
+
+INSTALLED_APPS = list(INSTALLED_APPS) + [
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    # Local app — registers our signal handlers (web/apps.py + web/signals.py)
+    "web.apps.WebAppConfig",
+]
+
+# Allauth uses Django's auth backends — keep the default ModelBackend
+# (so username/password still works as a fallback) and add allauth's.
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# Allauth account behavior
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "username*"]
+SOCIALACCOUNT_AUTO_SIGNUP = True   # skip the "pick a username" interstitial
+SOCIALACCOUNT_LOGIN_ON_GET = True  # one-click — no allauth confirm page
+
+# After successful OAuth, land on the React frontend root. The frontend
+# will detect the session and open the WebSocket.
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+# Pull OAuth client credentials from env vars first (Railway), then fall
+# back to local oauth_secrets.py (gitignored).
+_google_client_id = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
+_google_client_secret = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
+if not _google_client_id or not _google_client_secret:
+    try:
+        from server.conf.oauth_secrets import (
+            GOOGLE_OAUTH_CLIENT_ID as _google_client_id,
+            GOOGLE_OAUTH_CLIENT_SECRET as _google_client_secret,
+        )
+    except ImportError:
+        print("[settings] oauth_secrets.py not found — Google sign-in will be disabled.")
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": _google_client_id,
+            "secret": _google_client_secret,
+            "key": "",
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    },
+}
+
+######################################################################
 # Settings given in secret_settings.py override those in this file.
 ######################################################################
 try:

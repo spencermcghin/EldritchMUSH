@@ -258,6 +258,114 @@
   font-size: 11px;
 }
 
+/* Google sign-in button (primary) */
+.login-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid var(--accent-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding: 12px 18px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 0 12px rgba(212,175,55,0.15);
+}
+
+.login-google-btn:hover:not(:disabled) {
+  box-shadow: 0 0 18px rgba(212,175,55,0.45), 0 0 30px rgba(212,175,55,0.15);
+}
+
+.login-google-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.login-google-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.google-g {
+  flex-shrink: 0;
+}
+
+.login-google-text {
+  color: #1f1f1f;
+}
+
+/* Toggle link to reveal manual login */
+.login-fallback-toggle {
+  background: none;
+  border: none;
+  color: var(--text-aged);
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+  text-align: center;
+  opacity: 0.65;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.login-fallback-toggle:hover {
+  opacity: 1;
+  color: var(--accent-gold);
+}
+
+.login-fallback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: -4px;
+}
+
+.login-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-aged);
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-remember input[type="checkbox"] {
+  accent-color: var(--accent-gold);
+}
+
+.login-advanced {
+  font-size: 11px;
+}
+
+.login-advanced-summary {
+  color: var(--text-aged);
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 0;
+  outline: none;
+  opacity: 0.6;
+}
+
+.login-advanced-summary:hover {
+  opacity: 1;
+  color: var(--accent-gold);
+}
+
+.login-advanced[open] .login-fields {
+  margin-top: 8px;
+}
+
 /* Footer runes */
 .login-runes {
   font-size: 14px;
