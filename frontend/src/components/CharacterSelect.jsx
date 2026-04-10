@@ -64,17 +64,17 @@ export default function CharacterSelect({ sendCommand, onPuppeted }) {
       return
     }
     setError(null)
-    setCreating(true)
-    // charcreate creates the character; ic puppets it. The custom
-    // CmdCharCreate places the new char in the ChargenRoom so the
-    // wizard fires after ic.
+    // Send the commands and close the modal immediately. If puppet
+    // succeeds, the account_info OOB event will dismiss the whole
+    // CharacterSelect screen. If anything fails, the user can see
+    // the server's error message in the game output.
     sendCommand(`charcreate ${name}`)
-    // Brief delay so the create completes before puppet — Evennia
-    // returns the success message before ic resolves anyway.
     setTimeout(() => {
       sendCommand(`ic ${name}`)
       if (onPuppeted) onPuppeted({ name })
-    }, 300)
+    }, 400)
+    setShowCreate(false)
+    setNewName('')
   }, [newName, sendCommand, onPuppeted])
 
   return (

@@ -18,18 +18,37 @@ try:
     from django.dispatch import receiver
 
     @receiver(user_signed_up)
-    def log_new_oauth_signup(sender, request, user, **kwargs):
+    def setup_new_oauth_account(sender, request, user, **kwargs):
         """
         Fired once, the first time a user signs up via any allauth
         flow (Google OAuth in our case). `user` is an AccountDB
         instance because Evennia sets AUTH_USER_MODEL =
         "accounts.AccountDB".
 
-        We don't create a character here — that happens later when
-        the player picks a name in the CharacterSelect screen and
-        the frontend sends `charcreate <name>`.
+        Evennia's normal account creation path calls
+        `create.create_account()` which adds the default account
+        permissions (typically "Player"). Allauth bypasses that and
+        just creates the AccountDB row directly, so OAuth users end
+        up with NO permissions and `cmd:pperm(Player)` locks reject
+        them silently — including charcreate. We add the defaults
+        here so OAuth users can use the same commands as everyone
+        else.
         """
-        print(f"[oauth_signals] New OAuth account created: {user.username}")
+        from django.conf import settings as dj_settings
+
+        try:
+            default_perms = dj_settings.PERMISSION_ACCOUNT_DEFAULT
+            if isinstance(default_perms, str):
+                # Comma-separated string → list of perm names
+                perms = [p.strip() for p in default_perms.split(",") if p.strip()]
+            else:
+                perms = list(default_perms)
+            for perm in perms:
+                user.permissions.add(perm)
+            user.save()
+            print(f"[oauth_signals] New OAuth account: {user.username} (perms={perms})")
+        except Exception as exc:
+            print(f"[oauth_signals] Could not grant default perms to {user.username}: {exc}")
 
     print("[oauth_signals] OAuth signal handlers connected.")
 except ImportError:
