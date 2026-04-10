@@ -9,6 +9,7 @@ creation commands.
 """
 from evennia import DefaultCharacter
 from world.available_commands import push_available_commands
+from world.events import emit_to
 
 
 class Character(DefaultCharacter):
@@ -235,3 +236,13 @@ class Character(DefaultCharacter):
         super().at_post_puppet(**kwargs)
         # Push sidebar commands immediately so the UI is populated on connect.
         push_available_commands(self)
+        # Tell the UI whether this account is admin/superuser
+        try:
+            account = self.account
+            is_admin = bool(account and (account.is_superuser or account.check_permstring("Admin") or account.check_permstring("Builder")))
+        except Exception:
+            is_admin = False
+        emit_to(self, "account_info", {
+            "character": self.key,
+            "is_admin": is_admin,
+        })

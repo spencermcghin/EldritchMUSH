@@ -171,6 +171,7 @@ function App() {
           sendCommand={sendCommand}
           onExit={exitChargen}
           viewMode={oobState.chargenViewMode || false}
+          isAdmin={oobState.isAdmin}
         />
       )}
 
