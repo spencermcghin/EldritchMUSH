@@ -210,6 +210,12 @@ if _allauth_available:
     ACCOUNT_SIGNUP_FIELDS = ["email*", "username*"]
     SOCIALACCOUNT_AUTO_SIGNUP = True
     SOCIALACCOUNT_LOGIN_ON_GET = True
+    # Force allauth to build callback URLs with https://. Twisted's
+    # HTTP layer in front of Django doesn't always pass through the
+    # X-Forwarded-Proto header that nginx sends, so Django thinks
+    # the request is http and allauth builds an http:// callback URL,
+    # which Google rejects with redirect_uri_mismatch.
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
     LOGIN_REDIRECT_URL = "/"
     ACCOUNT_LOGOUT_REDIRECT_URL = "/"
