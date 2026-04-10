@@ -3,6 +3,9 @@ from django.apps import AppConfig
 
 class WebAppConfig(AppConfig):
     name = "web"
+    # Explicit label avoids collision with Evennia's auto-discovered
+    # `web` app — both default to label="web" otherwise.
+    label = "eldritchweb"
     verbose_name = "EldritchMUSH Web"
 
     def ready(self):
