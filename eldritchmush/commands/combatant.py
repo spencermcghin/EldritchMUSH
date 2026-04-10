@@ -5,6 +5,7 @@ from commands.combat import Helper
 from commands.inventory_helper import Inventory
 from world.events import emit
 from world.available_commands import push_available_commands
+from world.character_stats import push_character_stats
 from evennia import utils as ev_utils
 
 
@@ -554,6 +555,12 @@ class Combatant:
                 self.broadcast(f"|025{self.name} does not seem to be moving.|n")
                 emit(self.caller.location, "character_dying", {"character": self.name})
                 push_available_commands(self.caller)
+
+        # Push updated vitals to the web UI sidebar after any damage resolution.
+        try:
+            push_character_stats(self.caller)
+        except Exception:
+            pass
 
     def resistsAttack(self):
         if self.resistsRemaining() > 0:

@@ -5,6 +5,7 @@ from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
+from world.character_stats import push_character_stats
 
 class CmdSunder(Command):
     """
@@ -147,6 +148,12 @@ class CmdSunder(Command):
 
             # Decrement amount of cleaves from amount in database
             self.caller.db.sunder -= 1
+
+            # Push updated vitals to the web UI sidebar.
+            try:
+                push_character_stats(target)
+            except Exception:
+                pass
         else:
             self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
             # Clean up

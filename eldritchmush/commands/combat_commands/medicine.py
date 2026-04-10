@@ -2,6 +2,7 @@
 from evennia import Command
 from world.combat_loop import CombatLoop
 from ..combatant import Combatant
+from world.character_stats import push_character_stats
 
 
 class CmdMedicine(Command):
@@ -141,6 +142,12 @@ class CmdMedicine(Command):
             else:
                 combatant.message(f"|400You are out of materials in your Chirurgeon's kit.|n")
                 combatant.broadcast(f"|025{combatant.name} tries to aid {victim.name} but does not have the supplies to do so.|n")
+
+            # Push updated vitals for the healed target to the web UI sidebar.
+            try:
+                push_character_stats(target)
+            except Exception:
+                pass
 
             # Clean up in combat loop
             if (combatant.caller in combatant.caller.location.db.combat_loop) or (target in combatant.caller.location.db.combat_loop):
