@@ -1,0 +1,124 @@
+/* ── World Map Modal ── */
+
+.world-map-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 7, 0.92);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  animation: fade-in 0.2s ease-out;
+}
+
+.world-map-content {
+  background: var(--parchment);
+  border: 1px solid var(--accent-gold);
+  box-shadow:
+    0 0 60px rgba(212, 175, 55, 0.2),
+    inset 0 0 40px rgba(0, 0, 0, 0.6);
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Decorative corners */
+.world-map-content::before,
+.world-map-content::after {
+  content: '✦';
+  position: absolute;
+  color: var(--accent-gold);
+  font-size: 16px;
+  opacity: 0.7;
+}
+.world-map-content::before {
+  top: -10px;
+  left: -10px;
+}
+.world-map-content::after {
+  bottom: -10px;
+  right: -10px;
+}
+
+.world-map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.world-map-title {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-size: 24px;
+  color: var(--accent-gold);
+  letter-spacing: 2px;
+  animation: glow-gold 4s ease-in-out infinite;
+}
+
+.world-map-close {
+  background: transparent;
+  border: 1px solid rgba(139, 0, 0, 0.4);
+  color: var(--text-aged);
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Cinzel', serif;
+}
+.world-map-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.world-map-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at center, rgba(212,175,55,0.04), transparent 70%),
+    var(--void);
+  min-height: 0;
+}
+
+.world-map-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: brightness(0.95) contrast(1.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+}
+
+.world-map-footer {
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.world-map-hint {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--text-aged);
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .world-map-modal {
+    padding: 12px;
+  }
+  .world-map-title {
+    font-size: 18px;
+  }
+}

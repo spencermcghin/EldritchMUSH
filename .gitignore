@@ -249,3 +249,4 @@ frontend/.env
 frontend/.env.local
 frontend/public/art/*.png
 frontend/public/art/*.jpg
+frontend/public/art/map_raw/

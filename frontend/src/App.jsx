@@ -10,6 +10,7 @@ import ContextMenu from './components/ContextMenu'
 import CommandInput from './components/CommandInput'
 import ChargenWizard from './components/ChargenWizard'
 import RoomView from './components/RoomView'
+import WorldMapModal from './components/WorldMapModal'
 import './App.css'
 
 const NPC_CONTEXT_ITEMS = (name) => [
@@ -46,6 +47,9 @@ function App() {
 
   // Entity description captured from look commands
   const [entityDescription, setEntityDescription] = useState('')
+
+  // World map modal
+  const [worldMapOpen, setWorldMapOpen] = useState(false)
 
   const injectCommand = (text) => {
     if (inputRef.current) {
@@ -183,6 +187,7 @@ function App() {
               connectionState={connectionState}
               sendCommand={sendCommand}
               onChargen={enterChargen}
+              onWorldMap={() => setWorldMapOpen(true)}
             />
           )}
         </div>
@@ -198,6 +203,9 @@ function App() {
           onClose={handleContextMenuClose}
         />
       )}
+
+      {/* World map modal */}
+      <WorldMapModal open={worldMapOpen} onClose={() => setWorldMapOpen(false)} />
 
     </div>
   )
