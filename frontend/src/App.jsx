@@ -11,12 +11,14 @@ import CommandInput from './components/CommandInput'
 import ChargenWizard from './components/ChargenWizard'
 import RoomView from './components/RoomView'
 import WorldMapModal from './components/WorldMapModal'
+import CommandPrompt from './components/CommandPrompt'
+import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
 
 const NPC_CONTEXT_ITEMS = (name) => [
   { label: 'Look', icon: '👁', action: `look ${name}` },
   { label: 'Attack', icon: '⚔', action: `strike ${name}` },
-  { label: 'Whisper', icon: '💬', action: `whisper ${name}=`, kind: 'inject' },
+  { label: 'Whisper', icon: '💬', action: 'whisper', kind: 'prompt', target: name },
   { label: 'Follow', icon: '🚶', action: `follow ${name}` },
 ]
 
@@ -53,6 +55,23 @@ function App() {
 
   // World map modal
   const [worldMapOpen, setWorldMapOpen] = useState(false)
+
+  // Friendly command-input prompt modal
+  const [commandPrompt, setCommandPrompt] = useState(null)
+  // commandPrompt: { title, label, placeholder, icon, submitLabel, buildCommand } or null
+
+  const openPrompt = useCallback((promptDef) => {
+    setCommandPrompt(promptDef)
+  }, [])
+
+  const closePrompt = useCallback(() => {
+    setCommandPrompt(null)
+  }, [])
+
+  const handlePromptSubmit = useCallback((finalCommand) => {
+    sendCommand(finalCommand)
+    setCommandPrompt(null)
+  }, [sendCommand])
 
   const injectCommand = (text) => {
     if (inputRef.current) {
@@ -109,7 +128,22 @@ function App() {
     setContextMenu({ x: e.clientX, y: e.clientY, items: EXIT_CONTEXT_ITEMS(dir) })
   }, [])
 
-  const handleContextMenuSelect = useCallback((action, kind) => {
+  const handleContextMenuSelect = useCallback((action, kind, item) => {
+    if (kind === 'prompt') {
+      // Look up the friendly prompt definition; for whisper/tell we need
+      // a target-aware prompt factory.
+      const promptKey = action
+      let promptDef = null
+      if (typeof PROMPTS[promptKey] === 'function' && item?.target) {
+        promptDef = PROMPTS[promptKey](item.target)
+      } else if (typeof PROMPTS[promptKey] === 'object') {
+        promptDef = PROMPTS[promptKey]
+      }
+      if (promptDef) {
+        setCommandPrompt(promptDef)
+        return
+      }
+    }
     if (kind === 'inject') {
       injectCommand(action)
     } else {
@@ -186,6 +220,8 @@ function App() {
             inCombat={oobState.inCombat}
             myTurn={oobState.myTurn}
             onCommandClick={injectCommand}
+            onPrompt={openPrompt}
+            sendCommand={sendCommand}
           />
 
           {/* Center: room view on top, log + input on bottom */}
@@ -217,6 +253,7 @@ function App() {
               onClose={handleDetailPanelClose}
               sendCommand={sendCommand}
               injectCommand={injectCommand}
+              onPrompt={openPrompt}
               description={entityDescription}
             />
           ) : (
@@ -244,6 +281,13 @@ function App() {
 
       {/* World map modal */}
       <WorldMapModal open={worldMapOpen} onClose={() => setWorldMapOpen(false)} />
+
+      {/* Friendly command input prompt modal */}
+      <CommandPrompt
+        prompt={commandPrompt}
+        onSubmit={handlePromptSubmit}
+        onCancel={closePrompt}
+      />
 
     </div>
   )

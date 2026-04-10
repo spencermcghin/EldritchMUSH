@@ -1,13 +1,16 @@
 import { useCallback } from 'react'
 import { getEntityIcon } from '../data/entityIcons'
+import { PROMPTS } from '../data/commandPrompts'
 import './DetailPanel.css'
 
-// Action types: 'send' = fire the command immediately, 'inject' = put it
-// in the input box so the user can finish typing (used for messages)
+// Action types:
+//   'send'   = fire the command immediately
+//   'inject' = put it in the input box so the user can finish typing
+//   'prompt' = open a friendly modal asking for input (factory key in PROMPTS)
 const NPC_ACTIONS = [
   { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
   { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
-  { label: 'Whisper', icon: '💬', kind: 'inject', command: (name) => `whisper ${name}=` },
+  { label: 'Whisper', icon: '💬', kind: 'prompt', promptKey: 'whisper' },
   { label: 'Follow', icon: '🚶', kind: 'send', command: (name) => `follow ${name}` },
 ]
 
@@ -20,7 +23,7 @@ const ITEM_ACTIONS = [
 const PLAYER_ACTIONS = [
   { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
   { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
-  { label: 'Whisper', icon: '💬', kind: 'inject', command: (name) => `whisper ${name}=` },
+  { label: 'Whisper', icon: '💬', kind: 'prompt', promptKey: 'whisper' },
   { label: 'Follow', icon: '🚶', kind: 'send', command: (name) => `follow ${name}` },
 ]
 
@@ -66,20 +69,28 @@ function getTypeClass(entityType) {
   }
 }
 
-export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, description }) {
+export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, description }) {
   const actions = getActions(entityType)
   const typeLabel = getTypeLabel(entityType)
   const typeClass = getTypeClass(entityType)
   const iconSrc = getEntityIcon(entityName, entityType)
 
   const handleAction = useCallback((action) => {
-    const text = action.command(entityName)
+    if (action.kind === 'prompt' && onPrompt) {
+      const factory = PROMPTS[action.promptKey]
+      const promptDef = typeof factory === 'function' ? factory(entityName) : factory
+      if (promptDef) {
+        onPrompt(promptDef)
+        return
+      }
+    }
+    const text = action.command ? action.command(entityName) : ''
     if (action.kind === 'inject' && injectCommand) {
       injectCommand(text)
-    } else {
+    } else if (text) {
       sendCommand(text)
     }
-  }, [entityName, sendCommand, injectCommand])
+  }, [entityName, sendCommand, injectCommand, onPrompt])
 
   return (
     <aside className="detail-panel panel panel-decorated">
