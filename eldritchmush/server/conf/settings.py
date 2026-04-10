@@ -24,6 +24,18 @@ put secret game- or server-specific settings in secret_settings.py.
 
 """
 
+# Ensure the game directory itself is on sys.path BEFORE any other
+# imports. This matters for processes like twistd (which boots the
+# Evennia portal) that don't pick up the .pth-based path entries used
+# by the regular `evennia` CLI launcher. Without this, Django's
+# INSTALLED_APPS would fail to import local app modules like
+# `web.apps.WebAppConfig` during portal startup.
+import os as _os
+import sys as _sys
+_GAME_DIR = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _GAME_DIR not in _sys.path:
+    _sys.path.insert(0, _GAME_DIR)
+
 # Use the defaults from Evennia unless explicitly overridden
 from evennia.settings_default import *
 
