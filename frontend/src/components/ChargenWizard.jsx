@@ -427,12 +427,27 @@ function ReviewStep({ state, sendCommand, onReset }) {
 
 // ── Character Sheet View (read-only) ──
 
-function CharacterSheetView({ sendCommand, onExit, onEditMode }) {
-  // Show all skill categories with current levels from the MUD
-  // User can request charsheet data and view it visually
+function CharacterSheetView({ sendCommand, onExit, characterName, characterSkills, basicArchetypeName, advancedArchetypeName }) {
+  // Show all skill categories with current levels from the MUD.
+  // characterSkills is a map of { skillKey: level }. If the MUD hasn't
+  // pushed skill data yet, all levels default to 0.
+  const skills = characterSkills || {}
+  const displayName = characterName && characterName.trim() ? characterName : 'Adventurer'
   return (
     <div className="chargen-step">
-      <h2 className="chargen-section-title">Your Character</h2>
+      <div className="character-sheet-header">
+        <h2 className="character-sheet-name">{displayName}</h2>
+        {(basicArchetypeName || advancedArchetypeName) && (
+          <div className="character-sheet-archetypes">
+            {basicArchetypeName && <span className="character-sheet-archetype basic">{basicArchetypeName}</span>}
+            {basicArchetypeName && advancedArchetypeName && <span className="character-sheet-archetype-sep">•</span>}
+            {advancedArchetypeName && <span className="character-sheet-archetype advanced">{advancedArchetypeName}</span>}
+          </div>
+        )}
+        <p className="character-sheet-hint">
+          Click "Refresh from Server" to load your latest stats.
+        </p>
+      </div>
       <p className="chargen-section-desc">
         View your current build. To modify skills, enter the Chargen room in-game.
       </p>
@@ -441,15 +456,18 @@ function CharacterSheetView({ sendCommand, onExit, onEditMode }) {
           {SKILL_CATEGORIES.map(cat => (
             <div key={cat.key} className="skill-category">
               <h3 className="skill-category-name">{cat.name}</h3>
-              {cat.skills.map(skill => (
-                <div key={skill.key} className="skill-row">
-                  <div className="skill-info">
-                    <span className="skill-name">{skill.name}</span>
-                    <SkillPips current={0} max={skill.max} granted={0} />
+              {cat.skills.map(skill => {
+                const current = skills[skill.key] || 0
+                return (
+                  <div key={skill.key} className="skill-row">
+                    <div className="skill-info">
+                      <span className="skill-name">{skill.name}</span>
+                      <SkillPips current={current} max={skill.max} granted={0} />
+                    </div>
+                    <p className="skill-desc">{skill.desc}</p>
                   </div>
-                  <p className="skill-desc">{skill.desc}</p>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ))}
         </div>
@@ -466,7 +484,7 @@ function CharacterSheetView({ sendCommand, onExit, onEditMode }) {
 
 // ── Main Wizard ──
 
-export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin }) {
+export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin, characterName, characterSkills }) {
   // Admins get effectively unlimited CP
   const adminCpTotal = 999
   const initialStateAdmin = isAdmin
@@ -503,7 +521,14 @@ export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin }
           </button>
         </div>
         <div className="chargen-wizard-body">
-          <CharacterSheetView sendCommand={sendCommand} onExit={onExit} />
+          <CharacterSheetView
+            sendCommand={sendCommand}
+            onExit={onExit}
+            characterName={characterName}
+            characterSkills={characterSkills}
+            basicArchetypeName={state.basicArchetype?.name}
+            advancedArchetypeName={state.advancedArchetype?.name}
+          />
         </div>
       </div>
     )

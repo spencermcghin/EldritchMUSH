@@ -633,3 +633,58 @@
     padding: 16px;
   }
 }
+
+/* ── Character Sheet Header (view mode) ── */
+
+.character-sheet-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.character-sheet-name {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--accent-gold);
+  margin: 0 0 8px 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.character-sheet-archetypes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-aged, #c9b899);
+  margin: 0 0 8px 0;
+}
+
+.character-sheet-archetype {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.character-sheet-archetype.basic {
+  color: var(--text-light, #e8e8e8);
+}
+
+.character-sheet-archetype.advanced {
+  color: var(--accent-gold);
+}
+
+.character-sheet-archetype-sep {
+  color: var(--border-bright, #5a5a5a);
+}
+
+.character-sheet-hint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-aged, #c9b899);
+  font-style: italic;
+  margin: 0;
+  opacity: 0.8;
+}

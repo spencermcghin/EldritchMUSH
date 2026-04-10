@@ -72,7 +72,15 @@ export function useEvennia() {
     combatantHp: {},
     // Chargen room detection
     inChargen: false,
+    chargenViewMode: false,
+    // Current character's skill levels (populated from server when available)
+    characterSkills: {},
   })
+
+  // Timestamp (ms) of the last manual exit from chargen. Used to
+  // suppress chargen room auto-detection for a short window so a stale
+  // room description doesn't re-trigger the wizard immediately.
+  const chargenExitedAtRef = useRef(0)
 
   const wsRef = useRef(null)
   const reconnectTimeoutRef = useRef(null)
@@ -277,9 +285,12 @@ export function useEvennia() {
           }
 
           // Chargen room detection — look for the ChargenRoom name/description
+          // Suppress for 3 seconds after a manual exit so a lingering room
+          // description doesn't immediately re-open the wizard.
           const stripped = text.replace(/<[^>]*>/g, '').toLowerCase()
-          if (stripped.includes('chargen') || stripped.includes('character creation') || stripped.includes('set commands to choose')) {
-            setOobState((prev) => prev.inChargen ? prev : { ...prev, inChargen: true })
+          const recentlyExited = Date.now() - chargenExitedAtRef.current < 3000
+          if (!recentlyExited && (stripped.includes('chargen') || stripped.includes('character creation') || stripped.includes('set commands to choose'))) {
+            setOobState((prev) => prev.inChargen ? prev : { ...prev, inChargen: true, chargenViewMode: false })
           }
         }
       } else if (cmd === 'event') {
@@ -403,7 +414,8 @@ export function useEvennia() {
   }, [])
 
   const exitChargen = useCallback(() => {
-    setOobState((prev) => ({ ...prev, inChargen: false }))
+    chargenExitedAtRef.current = Date.now()
+    setOobState((prev) => ({ ...prev, inChargen: false, chargenViewMode: false }))
   }, [])
 
   const enterChargen = useCallback((viewMode = true) => {

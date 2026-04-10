@@ -172,6 +172,8 @@ function App() {
           onExit={exitChargen}
           viewMode={oobState.chargenViewMode || false}
           isAdmin={oobState.isAdmin}
+          characterName={oobState.characterName}
+          characterSkills={oobState.characterSkills || {}}
         />
       )}
 
