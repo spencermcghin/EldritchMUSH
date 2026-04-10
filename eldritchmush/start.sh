@@ -118,6 +118,25 @@ else:
     print('Account #1 already exists')
 " || echo "Warning: could not pre-create Account #1"
 
+# Update the django.contrib.sites Site object so allauth uses the
+# correct domain when generating OAuth callback URLs. Override
+# SITE_DOMAIN env var if you want a different domain.
+echo "=== Configuring Site domain for allauth ==="
+python3 -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
+django.setup()
+from django.contrib.sites.models import Site
+domain = os.environ.get('SITE_DOMAIN', 'eldritchmush-production.up.railway.app')
+name = os.environ.get('SITE_NAME', 'EldritchMUSH')
+site, created = Site.objects.update_or_create(
+    pk=1,
+    defaults={'domain': domain, 'name': name},
+)
+action = 'created' if created else 'updated'
+print(f'Site #1 {action}: domain={site.domain} name={site.name}')
+" || echo "Warning: could not configure Site"
+
 # Grant superuser to spencer_admin if the account exists
 echo "=== Granting superuser to spencer_admin ==="
 python3 -c "

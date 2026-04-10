@@ -5,6 +5,7 @@ help.
 
 """
 from django.urls import re_path as url, include, path
+from django.contrib import admin
 
 # default evennia patterns
 from evennia.web.urls import urlpatterns
@@ -18,8 +19,14 @@ from web.api_views import webclient_session, account_characters
 # this file).
 from web import oauth_signals  # noqa: F401
 
-# eventual custom patterns
+# eventual custom patterns. Anything we put here is prepended to
+# Evennia's defaults, so our routes win on conflicts.
 custom_patterns = [
+    # Mount the standard Django admin explicitly at /admin/. Evennia's
+    # website urls.py conditionally mounts it, but the route was
+    # 404ing on Railway — bypassing the conditional with our own
+    # explicit mount makes the admin reliably reachable.
+    path("admin/", admin.site.urls),
     # JSON endpoints used by the React frontend
     path("api/webclient_session/", webclient_session, name="webclient_session"),
     path("api/account/characters/", account_characters, name="account_characters"),
