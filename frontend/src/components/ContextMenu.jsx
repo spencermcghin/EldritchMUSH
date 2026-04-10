@@ -45,7 +45,7 @@ export default function ContextMenu({ x, y, items, onSelect, onClose }) {
   }, [x, y])
 
   const handleItemClick = useCallback((item) => {
-    onSelect(item.action)
+    onSelect(item.action, item.kind)
     onClose()
   }, [onSelect, onClose])
 

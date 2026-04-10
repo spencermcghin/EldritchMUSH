@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
 import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
 import GameOutput from './components/GameOutput'
@@ -16,7 +16,7 @@ import './App.css'
 const NPC_CONTEXT_ITEMS = (name) => [
   { label: 'Look', icon: '👁', action: `look ${name}` },
   { label: 'Attack', icon: '⚔', action: `strike ${name}` },
-  { label: 'Talk', icon: '💬', action: `say to ${name}` },
+  { label: 'Whisper', icon: '💬', action: `whisper ${name}=`, kind: 'inject' },
   { label: 'Follow', icon: '🚶', action: `follow ${name}` },
 ]
 
@@ -47,6 +47,9 @@ function App() {
 
   // Entity description captured from look commands
   const [entityDescription, setEntityDescription] = useState('')
+  // Index where we last sent a look command — used to capture the next response
+  const lookWatcherRef = useRef(null)
+  // lookWatcherRef.current: { entityName: string, fromIndex: number } or null
 
   // World map modal
   const [worldMapOpen, setWorldMapOpen] = useState(false)
@@ -61,8 +64,34 @@ function App() {
   const handleEntityClick = useCallback((name, type) => {
     setSelectedEntity({ name, type })
     setEntityDescription('')
+    // Mark the current message index — anything new after this is the look response
+    lookWatcherRef.current = { entityName: name, fromIndex: messages.length }
     sendCommand(`look ${name}`)
-  }, [sendCommand])
+  }, [sendCommand, messages.length])
+
+  // Watch for the entity look response and capture it as description
+  useEffect(() => {
+    const watcher = lookWatcherRef.current
+    if (!watcher) return
+    if (messages.length <= watcher.fromIndex) return
+
+    // Look at messages after the watcher index for game-type text matching the entity
+    for (let i = watcher.fromIndex; i < messages.length; i++) {
+      const msg = messages[i]
+      if (!msg || msg.type === 'system') continue // skip our own command echo
+      const raw = (msg.content || '').replace(/<[^>]*>/g, '').trim()
+      if (!raw) continue
+      // The first non-system message after the look command is the response
+      // Strip the entity name + (#id) header if present
+      const cleaned = raw
+        .replace(new RegExp(`^${watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\(#\\d+\\)\\s*`, 'i'), '')
+        .replace(/^[A-Za-z][^\n]{0,40}\(#\d+\)\s*/, '')
+        .trim()
+      setEntityDescription(cleaned || raw)
+      lookWatcherRef.current = null
+      break
+    }
+  }, [messages])
 
   const handleEntityContextMenu = useCallback((e, name, type) => {
     e.preventDefault()
@@ -80,8 +109,12 @@ function App() {
     setContextMenu({ x: e.clientX, y: e.clientY, items: EXIT_CONTEXT_ITEMS(dir) })
   }, [])
 
-  const handleContextMenuSelect = useCallback((action) => {
-    sendCommand(action)
+  const handleContextMenuSelect = useCallback((action, kind) => {
+    if (kind === 'inject') {
+      injectCommand(action)
+    } else {
+      sendCommand(action)
+    }
   }, [sendCommand])
 
   const handleContextMenuClose = useCallback(() => {
@@ -91,6 +124,7 @@ function App() {
   const handleDetailPanelClose = useCallback(() => {
     setSelectedEntity(null)
     setEntityDescription('')
+    lookWatcherRef.current = null
   }, [])
 
   const isConnected = connectionState === 'connected'
@@ -179,6 +213,7 @@ function App() {
               entityType={selectedEntity.type}
               onClose={handleDetailPanelClose}
               sendCommand={sendCommand}
+              injectCommand={injectCommand}
               description={entityDescription}
             />
           ) : (
