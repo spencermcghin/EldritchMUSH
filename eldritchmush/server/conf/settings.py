@@ -25,17 +25,11 @@ put secret game- or server-specific settings in secret_settings.py.
 """
 
 # Ensure the game directory itself is on sys.path BEFORE any other
-# imports. This matters for processes like twistd (which boots the
-# Evennia portal) that don't pick up the .pth-based path entries used
-# by the regular `evennia` CLI launcher. Without this, Django's
-# INSTALLED_APPS would fail to import local app modules like
-# `web.apps.WebAppConfig` during portal startup.
+# imports. Critical for processes like twistd (which boots the
+# Evennia portal) that don't always pick up .pth-based entries.
 import os as _os
 import sys as _sys
 
-# Try both: the hardcoded Docker path AND the path derived from
-# settings.py's own location. Whichever is real will work; the other
-# is harmless.
 _paths_to_add = ["/app"]
 try:
     _derived = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
@@ -46,21 +40,6 @@ except Exception:
 for _p in _paths_to_add:
     if _p and _os.path.isdir(_p) and _p not in _sys.path:
         _sys.path.insert(0, _p)
-
-# Diagnostic: print what we ended up with so deploy logs can confirm
-# the injection actually worked in the twistd subprocess.
-print(f"[settings] sys.path[:5] = {_sys.path[:5]}")
-try:
-    import importlib.util as _ilu
-    _web_spec = _ilu.find_spec("web")
-    print(f"[settings] find_spec('web') = {_web_spec}")
-    if _web_spec is None:
-        # Last-ditch: list what /app actually contains so we can see
-        # whether the web/ directory is even there.
-        if _os.path.isdir("/app"):
-            print(f"[settings] /app contents: {sorted(_os.listdir('/app'))[:20]}")
-except Exception as _exc:
-    print(f"[settings] find_spec failed: {_exc}")
 
 # Use the defaults from Evennia unless explicitly overridden
 from evennia.settings_default import *
@@ -162,11 +141,11 @@ if _volume_path:
 # (allauth respects AUTH_USER_MODEL = "accounts.AccountDB"), and the
 # React frontend's CharacterSelect screen handles puppeting.
 
-# Always register the local web app so its signal handlers + URL
-# routes load. The signal handler itself imports allauth lazily and
-# fails-soft if it's missing.
+# Always register our local Django app so its signal handlers load.
+# Named `eldritch_app` (not `web`) to avoid name shadowing in twistd
+# subprocesses where /usr/local/bin gets prepended to sys.path[0].
 INSTALLED_APPS = list(INSTALLED_APPS) + [
-    "web.apps.WebAppConfig",
+    "eldritch_app.apps.EldritchAppConfig",
 ]
 
 try:

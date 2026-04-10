@@ -1,5 +1,5 @@
 """
-Signal handlers wired up by web/apps.py during app load.
+Signal handlers wired up by eldritch_app/apps.py during app load.
 
 When allauth creates a new AccountDB via Google OAuth, we do NOT
 auto-create a Character. Instead, the React frontend's CharacterSelect
@@ -8,8 +8,8 @@ create a new one with their chosen name. New characters are spawned
 in the ChargenRoom (via the custom `charcreate` command override) so
 the ChargenWizard fires automatically.
 
-This module is loaded by web/apps.py inside a try/except, so it's
-safe to assume django-allauth is installed if we get this far.
+This module is loaded by eldritch_app/apps.py inside a try/except, so
+it's safe to assume django-allauth is installed if we get this far.
 """
 from allauth.account.signals import user_signed_up
 from django.dispatch import receiver
@@ -26,4 +26,4 @@ def log_new_oauth_signup(sender, request, user, **kwargs):
     player picks a name in the CharacterSelect screen and the frontend
     sends `charcreate <name>`.
     """
-    print(f"[web.signals] New OAuth account created: {user.username}")
+    print(f"[eldritch_app.signals] New OAuth account created: {user.username}")
