@@ -1,3 +1,4 @@
+import { getPromptForCommand } from '../data/commandPrompts'
 import './CommandSidebar.css'
 
 // Always-available commands (no skill required)
@@ -87,8 +88,20 @@ function groupCommands(commands) {
   return sorted
 }
 
-function CommandEntry({ cmd, onClick }) {
+function CommandEntry({ cmd, onClick, onPrompt, sendCommand }) {
   const handleClick = () => {
+    // If this command needs input, prefer the friendly prompt modal
+    const promptDef = getPromptForCommand(cmd.key)
+    if (cmd.args_hint && promptDef && onPrompt && typeof promptDef === 'object') {
+      onPrompt(promptDef)
+      return
+    }
+    // Commands with no args fire immediately
+    if (!cmd.args_hint && sendCommand) {
+      sendCommand(cmd.key)
+      return
+    }
+    // Fallback: inject into the input box
     const text = cmd.args_hint ? `${cmd.key} ` : cmd.key
     onClick(text)
   }
@@ -104,7 +117,7 @@ function CommandEntry({ cmd, onClick }) {
   )
 }
 
-export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, characterSkills = {} }) {
+export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, characterSkills = {} }) {
   const commands = buildCommandList(inCombat, characterSkills)
   const groups = groupCommands(commands)
 
@@ -126,7 +139,13 @@ export default function CommandSidebar({ availableCommands, inCombat, myTurn, on
             <div className="cmd-category-header cinzel">{category}</div>
             <div className="cmd-category-list">
               {cmds.map((cmd) => (
-                <CommandEntry key={cmd.key} cmd={cmd} onClick={onCommandClick} />
+                <CommandEntry
+                  key={cmd.key}
+                  cmd={cmd}
+                  onClick={onCommandClick}
+                  onPrompt={onPrompt}
+                  sendCommand={sendCommand}
+                />
               ))}
             </div>
           </div>

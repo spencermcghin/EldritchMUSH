@@ -1,0 +1,184 @@
+/* ── Command Prompt Modal ── */
+
+.command-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 7, 0.78);
+  backdrop-filter: blur(3px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fade-in 0.15s ease-out;
+}
+
+.command-prompt-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--parchment);
+  border: 1px solid var(--accent-gold);
+  box-shadow:
+    0 0 50px rgba(212, 175, 55, 0.2),
+    inset 0 0 30px rgba(0, 0, 0, 0.6);
+  position: relative;
+  animation: prompt-rise 0.2s ease-out;
+}
+
+@keyframes prompt-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Decorative corners */
+.command-prompt-modal::before,
+.command-prompt-modal::after {
+  content: '✦';
+  position: absolute;
+  color: var(--accent-gold);
+  font-size: 14px;
+  opacity: 0.7;
+}
+.command-prompt-modal::before { top: -8px; left: -8px; }
+.command-prompt-modal::after { bottom: -8px; right: -8px; }
+
+.command-prompt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.command-prompt-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.command-prompt-title {
+  flex: 1;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.command-prompt-close {
+  background: transparent;
+  border: 1px solid rgba(139, 0, 0, 0.4);
+  color: var(--text-aged);
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Cinzel', serif;
+  line-height: 1;
+}
+.command-prompt-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.command-prompt-body {
+  padding: 20px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.command-prompt-label {
+  font-family: 'IM Fell English', serif;
+  font-size: 15px;
+  color: var(--text-light);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.command-prompt-input {
+  width: 100%;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  padding: 10px 12px;
+  background: rgba(10, 8, 7, 0.6);
+  border: 1px solid var(--border-bright);
+  color: var(--text-light);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.command-prompt-input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+}
+.command-prompt-input::placeholder {
+  color: var(--text-aged);
+  opacity: 0.5;
+}
+
+.command-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.command-prompt-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid;
+}
+
+.command-prompt-btn.primary {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+.command-prompt-btn.primary:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.18);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+.command-prompt-btn.primary:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.command-prompt-btn.secondary {
+  border-color: var(--border-bright);
+  color: var(--text-aged);
+}
+.command-prompt-btn.secondary:hover {
+  border-color: var(--text-aged);
+  color: var(--text-light);
+}
+
+.command-prompt-hint {
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-aged);
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.command-prompt-hint kbd {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid var(--border-bright);
+  padding: 1px 5px;
+  margin: 0 2px;
+  color: var(--accent-gold);
+}
