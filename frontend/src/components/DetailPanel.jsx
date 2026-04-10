@@ -1,24 +1,27 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback } from 'react'
+import { getEntityIcon } from '../data/entityIcons'
 import './DetailPanel.css'
 
+// Action types: 'send' = fire the command immediately, 'inject' = put it
+// in the input box so the user can finish typing (used for messages)
 const NPC_ACTIONS = [
-  { label: 'Look', icon: '👁', command: (name) => `look ${name}` },
-  { label: 'Attack', icon: '⚔', command: (name) => `strike ${name}` },
-  { label: 'Talk', icon: '💬', command: (name) => `say to ${name}` },
-  { label: 'Follow', icon: '🚶', command: (name) => `follow ${name}` },
+  { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
+  { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
+  { label: 'Whisper', icon: '💬', kind: 'inject', command: (name) => `whisper ${name}=` },
+  { label: 'Follow', icon: '🚶', kind: 'send', command: (name) => `follow ${name}` },
 ]
 
 const ITEM_ACTIONS = [
-  { label: 'Look', icon: '👁', command: (name) => `look ${name}` },
-  { label: 'Get', icon: '✋', command: (name) => `get ${name}` },
-  { label: 'Drop', icon: '↓', command: (name) => `drop ${name}` },
+  { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
+  { label: 'Get', icon: '✋', kind: 'send', command: (name) => `get ${name}` },
+  { label: 'Drop', icon: '↓', kind: 'send', command: (name) => `drop ${name}` },
 ]
 
 const PLAYER_ACTIONS = [
-  { label: 'Look', icon: '👁', command: (name) => `look ${name}` },
-  { label: 'Attack', icon: '⚔', command: (name) => `strike ${name}` },
-  { label: 'Talk', icon: '💬', command: (name) => `say to ${name}` },
-  { label: 'Follow', icon: '🚶', command: (name) => `follow ${name}` },
+  { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
+  { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
+  { label: 'Whisper', icon: '💬', kind: 'inject', command: (name) => `whisper ${name}=` },
+  { label: 'Follow', icon: '🚶', kind: 'send', command: (name) => `follow ${name}` },
 ]
 
 function getActions(entityType) {
@@ -63,14 +66,20 @@ function getTypeClass(entityType) {
   }
 }
 
-export default function DetailPanel({ entityName, entityType, onClose, sendCommand, description }) {
+export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, description }) {
   const actions = getActions(entityType)
   const typeLabel = getTypeLabel(entityType)
   const typeClass = getTypeClass(entityType)
+  const iconSrc = getEntityIcon(entityName, entityType)
 
   const handleAction = useCallback((action) => {
-    sendCommand(action.command(entityName))
-  }, [entityName, sendCommand])
+    const text = action.command(entityName)
+    if (action.kind === 'inject' && injectCommand) {
+      injectCommand(text)
+    } else {
+      sendCommand(text)
+    }
+  }, [entityName, sendCommand, injectCommand])
 
   return (
     <aside className="detail-panel panel panel-decorated">
@@ -80,6 +89,13 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
       </div>
 
       <div className="detail-panel-body">
+        {/* Entity portrait */}
+        {iconSrc && (
+          <div className={`detail-portrait ${typeClass}`}>
+            <img src={iconSrc} alt={entityName} className="detail-portrait-img" loading="lazy" />
+          </div>
+        )}
+
         {/* Entity name */}
         <div className="detail-name-row">
           <span className="detail-name">{entityName}</span>
@@ -95,7 +111,7 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
         <div className="detail-description">
           {description || (
             <span className="detail-desc-empty">
-              No description loaded. Click "Look" to inspect.
+              Inspecting...
             </span>
           )}
         </div>

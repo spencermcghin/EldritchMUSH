@@ -142,22 +142,19 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
       {/* Atmospheric biome tint overlay */}
       <div className="room-biome-tint" />
 
-      {/* Scene header: biome icon + room name */}
+      {/* Scene header: room name on left, large faded biome art on right */}
       <div className="room-header">
-        {biome && (
-          <div className="room-biome-icon-wrap">
-            <img
-              src={biome.icon}
-              alt={biome.label}
-              className="room-biome-icon"
-              loading="lazy"
-            />
-          </div>
-        )}
         <div className="room-header-text">
           <h2 className="room-name">{room.roomName}</h2>
-          {biome && <span className="room-biome-label">{biome.label}</span>}
         </div>
+        {biome && (
+          <img
+            src={biome.icon}
+            alt={biome.label}
+            className="room-biome-backdrop"
+            loading="lazy"
+          />
+        )}
       </div>
 
       {room.description && (

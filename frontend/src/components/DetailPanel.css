@@ -58,6 +58,52 @@
   gap: 10px;
 }
 
+/* Entity portrait */
+.detail-portrait {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.5), rgba(0,0,0,0.85));
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-portrait::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(10,8,7,0.7));
+  pointer-events: none;
+}
+
+.detail-portrait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(212,175,55,0.15);
+  pointer-events: none;
+}
+
+.detail-portrait.type-npc::after,
+.detail-portrait.type-character::after {
+  border-color: rgba(0,229,160,0.25);
+}
+
+.detail-portrait.type-item::after {
+  border-color: rgba(212,175,55,0.25);
+}
+
+.detail-portrait-img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: brightness(1.1) contrast(1.05) drop-shadow(0 0 6px rgba(0,0,0,0.6));
+  z-index: 1;
+}
+
 /* Entity name */
 .detail-name-row {
   text-align: center;
