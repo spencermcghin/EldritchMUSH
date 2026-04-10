@@ -1,6 +1,7 @@
 # Local imports
 from evennia import Command
 from commands.combatant import Combatant
+from world.character_stats import push_character_stats
 
 # imports
 import time
@@ -86,5 +87,11 @@ class CmdChirurgery(Command):
 
             combatant.message(f"After some time and many delicate procedures, you skillfully heal {victim.name}")
             victim.message(f"You have been restored to your full measure of health thanks to {target.name}'s skillful application of the healing arts.")
+
+            # Push updated vitals for the healed target to the web UI sidebar.
+            try:
+                push_character_stats(target)
+            except Exception:
+                pass
         else:
             self.msg("|400You are not skilled enough.|n")

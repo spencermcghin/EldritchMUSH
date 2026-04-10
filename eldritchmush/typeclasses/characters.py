@@ -10,6 +10,7 @@ creation commands.
 from evennia import DefaultCharacter
 from world.available_commands import push_available_commands
 from world.events import emit_to
+from world.character_stats import push_character_stats
 
 
 class Character(DefaultCharacter):
@@ -246,3 +247,8 @@ class Character(DefaultCharacter):
             "character": self.key,
             "is_admin": is_admin,
         })
+        # Push character vitals so the sidebar panel populates on login.
+        try:
+            push_character_stats(self)
+        except Exception:
+            pass

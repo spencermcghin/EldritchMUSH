@@ -148,6 +148,17 @@ export function useEvennia() {
           if (kwargs.character) next.characterName = kwargs.character
           break
         }
+        case 'character_stats': {
+          if (kwargs.character) next.characterName = kwargs.character
+          if (typeof kwargs.body === 'number') next.body = kwargs.body
+          if (typeof kwargs.total_body === 'number') next.totalBody = kwargs.total_body
+          if (typeof kwargs.bleed_points === 'number') next.bleedPoints = kwargs.bleed_points
+          if (typeof kwargs.death_points === 'number') next.deathPoints = kwargs.death_points
+          if (typeof kwargs.av === 'number') next.av = kwargs.av
+          if (kwargs.status) next.statusFlags = { ...prev.statusFlags, ...kwargs.status }
+          if (kwargs.equipment) next.equipment = { ...prev.equipment, ...kwargs.equipment }
+          break
+        }
         case 'combat_start': {
           const combatants = kwargs.combatants || []
           const turnOrder = kwargs.turn_order || combatants

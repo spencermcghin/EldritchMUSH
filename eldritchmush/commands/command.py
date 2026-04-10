@@ -20,6 +20,7 @@ from evennia.utils import evtable
 # Lazy-imported in CmdOpenBox.func() to avoid circular import:
 # from typeclasses import objects
 from world.available_commands import push_available_commands
+from world.character_stats import push_character_stats
 
 _SEARCH_AT_RESULT = utils.object_from_module(settings.SEARCH_AT_RESULT)
 
@@ -671,6 +672,11 @@ class CmdEquip(Command):
 
             # Push updated available commands to the web UI sidebar.
             push_available_commands(self.caller)
+            # Push updated vitals (AV and equipment slots) to the web UI.
+            try:
+                push_character_stats(self.caller)
+            except Exception:
+                pass
 
         else:
             return
@@ -778,6 +784,11 @@ class CmdUnequip(Command):
             self.caller.msg(f"You have unequipped your {item}.")
             # Push updated available commands to the web UI sidebar.
             push_available_commands(self.caller)
+            # Push updated vitals (AV and equipment slots) to the web UI.
+            try:
+                push_character_stats(self.caller)
+            except Exception:
+                pass
         else:
             self.caller.msg(f"Please be more specific.")
 
