@@ -58,6 +58,28 @@ All events also carry:
 import time
 
 
+def _send_event(target, payload):
+    """Wire-format helper.
+
+    The Evennia webclient protocol dispatches output by *kwarg name* on
+    msg(), looking up `send_<key>` on the portal session. There is no
+    `send_oob` handler anywhere in Evennia, so calls like
+    `obj.msg(oob=(...))` fall through to `send_default("oob", ...)` and
+    hit the wire as `["oob", ...]` — which the React frontend doesn't
+    recognize as a structured event.
+
+    The correct call is `obj.msg(event=<dict>)`. clean_senddata
+    normalizes that to `[[], dict]`, the portal calls
+    `send_default("event", **dict)`, and the wire format becomes
+    `["event", [], dict]` — which the frontend's `cmd === 'event'`
+    branch picks up and dispatches by `kwargs.type`.
+    """
+    try:
+        target.msg(event=payload)
+    except Exception:
+        pass  # never crash game logic over a UI notification
+
+
 def emit(room, event_type, data=None):
     """Send a structured JSON OOB event to all web-connected players in *room*.
 
@@ -86,10 +108,7 @@ def emit(room, event_type, data=None):
         # has_account covers both Characters and NPCs that happen to be
         # puppeted; NPCs without accounts are silently skipped.
         if hasattr(obj, "has_account") and obj.has_account:
-            try:
-                obj.msg(oob=("event", [], payload))
-            except Exception:
-                pass  # never crash the game loop over a UI notification
+            _send_event(obj, payload)
 
 
 def emit_to(character, event_type, data=None):
@@ -107,7 +126,4 @@ def emit_to(character, event_type, data=None):
     payload.update(data)
 
     if hasattr(character, "has_account") and character.has_account:
-        try:
-            character.msg(oob=("event", [], payload))
-        except Exception:
-            pass
+        _send_event(character, payload)
