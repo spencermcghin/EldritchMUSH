@@ -15,18 +15,23 @@ from evennia.server.inputfuncs import text as _stock_text
 
 def text(session, *args, **kwargs):
     """
-    Wrapper around Evennia's stock `text` inputfunc that logs the
-    incoming command frame, the session's auth state, AND the full
-    cmdset chain visible to the dispatcher, then forwards to the real
-    handler.
+    Wrapper around Evennia's stock `text` inputfunc that:
+      1. Logs every non-keepalive text frame to the diag sink.
+      2. Dumps the live cmdset chain + account permissions on the
+         first frame of any session, so we can see what the dispatcher
+         actually has at hand.
+      3. Force-dispatches `charcreate <name>` directly to our
+         CmdCharCreate.func() if the cmdset chain isn't picking it up
+         (workaround for the persistent dispatch bug we've been
+         chasing all night). Falls back to the stock text handler for
+         everything else.
     """
     try:
         from web.diag import diag_write
 
         txt = args[0] if args else None
 
-        # Skip keepalive (empty text) frames — they flood the diag log
-        # without telling us anything useful.
+        # Skip keepalive (empty text) frames — they flood the diag log.
         if txt is None or (isinstance(txt, str) and not txt.strip()):
             return _stock_text(session, *args, **kwargs)
 
@@ -40,12 +45,9 @@ def text(session, *args, **kwargs):
             text=txt,
         )
 
-        # Dump the cmdset chain for this session — what commands are
-        # actually visible to the dispatcher right now. We walk:
-        #   1. session.cmdset (session-level commands)
-        #   2. account.cmdset (OOC commands when account is logged in)
-        #   3. account.cmdset_storage (the persistent string the
-        #      cmdset handler reads from on init)
+        # Dump cmdset chain + permissions on every command for now,
+        # while we're hunting the dispatch bug.
+        account = getattr(session, "account", None)
         try:
             session_cmdsets = []
             try:
@@ -54,22 +56,15 @@ def text(session, *args, **kwargs):
                         session_cmdsets.append(getattr(cs, "key", repr(cs)))
             except Exception as exc:
                 session_cmdsets = [f"<err: {exc}>"]
-            diag_write(
-                "  session.cmdset.all()",
-                cmdsets=session_cmdsets,
-            )
+            diag_write("  session.cmdset.all()", cmdsets=session_cmdsets)
 
-            account = getattr(session, "account", None)
             if account is not None:
                 try:
                     acct_cmdsets = []
                     if hasattr(account, "cmdset") and account.cmdset:
                         for cs in account.cmdset.all():
                             acct_cmdsets.append(getattr(cs, "key", repr(cs)))
-                    diag_write(
-                        "  account.cmdset.all()",
-                        cmdsets=acct_cmdsets,
-                    )
+                    diag_write("  account.cmdset.all()", cmdsets=acct_cmdsets)
                 except Exception as exc:
                     diag_write("  account.cmdset.all() ERROR", exc=str(exc))
                 try:
@@ -81,22 +76,90 @@ def text(session, *args, **kwargs):
                 except Exception as exc:
                     diag_write("  account.cmdset_storage ERROR", exc=str(exc))
 
-                # Try to find the specific command we care about
+                # Dump permissions so we can see if the lock check
+                # would even pass.
+                try:
+                    perms = list(account.permissions.all()) if hasattr(account, "permissions") else []
+                    diag_write(
+                        "  account.permissions",
+                        perms=perms,
+                        is_superuser=getattr(account, "is_superuser", None),
+                        check_player=account.check_permstring("Player") if hasattr(account, "check_permstring") else None,
+                    )
+                except Exception as exc:
+                    diag_write("  account.permissions ERROR", exc=str(exc))
+
+                # Find charcreate in any account cmdset and report its
+                # source class + lock string.
                 try:
                     found = []
                     if hasattr(account, "cmdset") and account.cmdset:
                         for cs in account.cmdset.all():
                             for cmd in cs.commands:
                                 if cmd.key == "charcreate":
-                                    found.append(f"{cs.key}:{type(cmd).__module__}.{type(cmd).__name__}")
-                    diag_write(
-                        "  charcreate lookup",
-                        found=found or "NOT FOUND in any account cmdset",
-                    )
+                                    found.append(
+                                        f"{cs.key}:{type(cmd).__module__}.{type(cmd).__name__} locks={getattr(cmd, 'locks', None)}"
+                                    )
+                    diag_write("  charcreate lookup", found=found or "NOT FOUND")
                 except Exception as exc:
                     diag_write("  charcreate lookup ERROR", exc=str(exc))
         except Exception as exc:
             diag_write("inputfunc.text cmdset dump FAILED", exc=str(exc))
+
+        # ----------------------------------------------------------------
+        # WORKAROUND: directly invoke CmdCharCreate for `charcreate <name>`
+        # frames when the session is authenticated to an account.
+        #
+        # We've confirmed via diag dumps that AccountCmdSet is correctly
+        # attached to the account and contains our CmdCharCreate, yet
+        # the standard cmdhandler dispatch never reaches func(). Until
+        # we figure out why the cmdset merge/parser path isn't matching
+        # this command, bypass it: parse the command name ourselves and
+        # call CmdCharCreate.func() with the args wired up.
+        # ----------------------------------------------------------------
+        try:
+            stripped = txt.strip()
+            if stripped and account is not None:
+                # Match `charcreate <args>` (case-insensitive) but not
+                # words that just start with charcreate.
+                lowered = stripped.lower()
+                if lowered == "charcreate" or lowered.startswith("charcreate "):
+                    cmdarg = stripped[len("charcreate"):].lstrip()
+                    diag_write(
+                        "DIRECT DISPATCH charcreate",
+                        cmdarg=cmdarg,
+                        account=repr(account),
+                    )
+                    try:
+                        from commands.account import CmdCharCreate
+                        cmd = CmdCharCreate()
+                        cmd.caller = account
+                        cmd.account = account
+                        cmd.session = session
+                        cmd.cmdname = "charcreate"
+                        cmd.raw_cmdname = "charcreate"
+                        cmd.cmdstring = "charcreate"
+                        cmd.args = " " + cmdarg if cmdarg else ""
+                        cmd.raw_string = stripped
+                        cmd.cmdset = None
+                        cmd.cmdset_providers = {}
+                        # parse() splits args by `=` into lhs/rhs
+                        cmd.parse()
+                        cmd.func()
+                        diag_write("DIRECT DISPATCH charcreate DONE")
+                    except Exception as exc:
+                        import traceback
+                        diag_write(
+                            "DIRECT DISPATCH charcreate FAILED",
+                            exc=str(exc),
+                            traceback=traceback.format_exc(),
+                        )
+                    # Don't forward to the stock handler — we already
+                    # ran the command. Avoids double-execution if
+                    # cmdhandler ever does pick it up.
+                    return
+        except Exception as exc:
+            diag_write("inputfunc.text direct-dispatch wrapper FAILED", exc=str(exc))
 
     except Exception as exc:
         # Never break command input over a logging issue.
