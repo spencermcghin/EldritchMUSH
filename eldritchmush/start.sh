@@ -230,10 +230,13 @@ else:
 # the account's persistent cmdset_storage. Without it, OOC commands
 # (charcreate, ic, ooc) silently don't exist for the WS session — the
 # text frame arrives, the dispatcher finds no matching command, and
-# nothing happens. We detect this by looking for accounts whose
-# cmdset_storage doesn't include the configured CMDSET_ACCOUNT path,
-# then call basetype_setup() (and at_account_creation() for the
-# _playable_characters attr) on them.
+# nothing happens.
+#
+# We can't use cmdset.add_default() here because it broadcasts the
+# change via SESSIONS.sessions_from_account(), and we're running
+# BEFORE 'evennia start' so SESSIONS is None. Instead we write
+# directly to db_cmdset_storage via the model property setter, which
+# is what add_default() ultimately does for the persistent path.
 print('[cmdset_repair] Checking accounts for missing AccountCmdSet...')
 fixed_cmdset = 0
 fixed_attrs = 0
@@ -242,12 +245,16 @@ all_accts = AccountDB.objects.all()
 for acct in all_accts:
     checked += 1
     try:
-        # cmdset_storage is a list-style property; missing/empty means
-        # basetype_setup() never ran for this account.
+        # cmdset_storage is a list-style property derived from the
+        # comma-separated db_cmdset_storage CharField. Empty/missing
+        # means basetype_setup() never ran for this account.
         current_storage = acct.cmdset_storage or []
         if expected_cmdset not in current_storage:
             print(f'[cmdset_repair] {acct.username}: cmdset_storage={current_storage!r} -> attaching {expected_cmdset}')
-            acct.cmdset.add_default(expected_cmdset, persistent=True)
+            new_storage = list(current_storage) + [expected_cmdset]
+            # Property setter writes to db_cmdset_storage and saves,
+            # without touching SESSIONS — safe pre-Evennia-start.
+            acct.cmdset_storage = new_storage
             fixed_cmdset += 1
         # _playable_characters attribute is set by at_account_creation();
         # if it's missing, the charcreate command will choke when it
