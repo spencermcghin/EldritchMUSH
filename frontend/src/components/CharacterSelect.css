@@ -354,6 +354,17 @@
   box-shadow: 0 0 0 1px rgba(212,175,55,0.2);
 }
 
+.charsel-modal-error {
+  background: rgba(139, 0, 0, 0.18);
+  border: 1px solid var(--blood-bright, #c93838);
+  color: var(--blood-bright, #c93838);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-family: 'IM Fell English', serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .charsel-modal-buttons {
   display: flex;
   gap: 12px;
