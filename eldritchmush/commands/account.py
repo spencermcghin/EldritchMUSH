@@ -13,6 +13,18 @@ from evennia.objects.models import ObjectDB
 from evennia.utils import create, logger
 
 
+def _diag(msg):
+    """Log to BOTH stdout (for Docker/Railway) AND Evennia's logger
+    (which writes to server.log). We don't know which capture path is
+    actually visible in production logs, so we hit both.
+    """
+    print(f"[charcreate_diag] {msg}", flush=True)
+    try:
+        logger.log_info(f"[charcreate_diag] {msg}")
+    except Exception:
+        pass
+
+
 def _emit_to_session(session, event_type, payload):
     """Send a structured OOB event to a single account session.
 
@@ -28,12 +40,19 @@ def _emit_to_session(session, event_type, payload):
     frontend's `cmd === 'event'` branch never matches. Using
     `event=<dict>` produces the correct `["event", [], dict]` frame.
     """
+    _diag(f"_emit_to_session called: type={event_type} session={session!r}")
     if not session:
+        _diag("session is None — bailing")
         return
     try:
-        session.msg(event={"type": event_type, **payload})
-    except Exception:
-        pass
+        full_payload = {"type": event_type, **payload}
+        _diag(f"sending session.msg(event={full_payload})")
+        session.msg(event=full_payload)
+        _diag("session.msg returned successfully")
+    except Exception as exc:
+        import traceback
+        _diag(f"EXCEPTION in session.msg: {exc}")
+        traceback.print_exc()
 
 
 class CmdCharCreate(default_account.CmdCharCreate):
@@ -49,8 +68,17 @@ class CmdCharCreate(default_account.CmdCharCreate):
     """
 
     def func(self):
-        account = self.account
-        session = self.session
+        _diag(
+            f"CmdCharCreate.func ENTRY args={self.args!r} "
+            f"account={getattr(self, 'account', None)!r} session={getattr(self, 'session', None)!r} "
+            f"caller={getattr(self, 'caller', None)!r}"
+        )
+        try:
+            account = self.account
+            session = self.session
+        except Exception as exc:
+            _diag(f"failed to read self.account/self.session: {exc}")
+            raise
         if not self.args:
             self.msg("Usage: charcreate <charname> [= description]")
             _emit_to_session(session, "character_create_failed", {
@@ -134,7 +162,9 @@ class CmdCharCreate(default_account.CmdCharCreate):
         # Tell the React frontend the character is ready to puppet. The
         # CharacterSelect screen waits for this event before issuing the
         # follow-up `ic <name>` command, so the two stages cannot race.
+        _diag(f"success path — about to emit character_created for {new_character.key}")
         _emit_to_session(session, "character_created", {
             "name": new_character.key,
             "dbref": "#%i" % new_character.id,
         })
+        _diag(f"success path complete for {new_character.key}")
