@@ -20,11 +20,18 @@ def _emit_to_session(session, event_type, payload):
     *before* any character is puppeted, so we cannot use world.events.emit_to
     (which targets puppeted characters). We send directly to the account
     session instead.
+
+    Wire format note: must be `session.msg(event=<dict>)`, NOT
+    `session.msg(oob=(...))`. There is no `send_oob` handler in
+    Evennia's portal — `oob=` falls through to send_default("oob", ...)
+    and the wire frame becomes `["oob", ...]`, which the React
+    frontend's `cmd === 'event'` branch never matches. Using
+    `event=<dict>` produces the correct `["event", [], dict]` frame.
     """
     if not session:
         return
     try:
-        session.msg(oob=("event", [], {"type": event_type, **payload}))
+        session.msg(event={"type": event_type, **payload})
     except Exception:
         pass
 

@@ -31,20 +31,25 @@ def _migrate_oauth_account_typeclasses():
     new signups, but pre-existing broken accounts still need to be
     repaired. Runs once on every server start; idempotent.
     """
+    print("[startup_migration] Checking AccountDB rows for typeclass binding...")
     try:
         from django.conf import settings as dj_settings
         from evennia.accounts.models import AccountDB
 
         target = getattr(dj_settings, "BASE_ACCOUNT_TYPECLASS", "typeclasses.accounts.Account")
+        total = AccountDB.objects.count()
 
         # Match anything that isn't the canonical typeclass — covers both
         # the raw-model fallback ("evennia.accounts.models.AccountDB")
         # and any historical typo paths.
-        broken = AccountDB.objects.exclude(db_typeclass_path=target)
-        count = broken.count()
-        if count == 0:
+        broken = list(AccountDB.objects.exclude(db_typeclass_path=target))
+        if not broken:
+            print(
+                f"[startup_migration] All {total} account(s) already bound to {target}; nothing to do."
+            )
             return
 
+        print(f"[startup_migration] Found {len(broken)}/{total} account(s) needing repair.")
         repaired = 0
         for acct in broken:
             old_path = acct.db_typeclass_path
@@ -61,10 +66,12 @@ def _migrate_oauth_account_typeclasses():
                     f"[startup_migration] Failed to repair account "
                     f"{getattr(acct, 'username', '?')}: {exc}"
                 )
-        print(f"[startup_migration] Account typeclass repair: {repaired}/{count} fixed.")
+        print(f"[startup_migration] Account typeclass repair: {repaired}/{len(broken)} fixed.")
     except Exception as exc:
         # Never crash boot over this migration.
-        print(f"[startup_migration] Account typeclass migration skipped: {exc}")
+        import traceback
+        print(f"[startup_migration] Account typeclass migration ERROR: {exc}")
+        traceback.print_exc()
 
 
 def at_server_start():
