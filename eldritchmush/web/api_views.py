@@ -13,12 +13,35 @@ def webclient_session(request):
 
     Always returns 200 — an unauthenticated session is a valid
     response (front end falls back to manual login).
+
+    CRITICAL: this endpoint also injects two Evennia-specific keys
+    into the Django session: `webclient_authenticated_uid` and
+    `webclient_authenticated_nonce`. Evennia's portal webclient.py
+    looks these up by csessid when a WebSocket connects, and ONLY
+    marks the WebSocket session as logged in if both are present.
+    Allauth (Google OAuth) sets `request.user` but never touches the
+    Evennia-specific keys, so without this injection the WebSocket
+    session stays unauthenticated, lands in UnloggedinCmdSet, and
+    `charcreate` (and every other Account-level command) is silently
+    dropped because UnloggedinCmdSet doesn't define them.
     """
+    import random
+
     # Force the session to exist so it has a key we can return.
     if not request.session.session_key:
         request.session.save()
 
     user = request.user
+    if user.is_authenticated:
+        # Mirror what Evennia's built-in webclient login view does:
+        # write the uid and a nonce into the Django session so the
+        # WebSocket handshake can find them.
+        existing_uid = request.session.get("webclient_authenticated_uid")
+        if existing_uid != user.id:
+            request.session["webclient_authenticated_uid"] = user.id
+            request.session["webclient_authenticated_nonce"] = random.randint(0, 10**6)
+            request.session.save()
+
     return JsonResponse({
         "authenticated": bool(user.is_authenticated),
         "csessid": request.session.session_key,
