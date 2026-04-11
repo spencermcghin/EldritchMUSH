@@ -121,7 +121,7 @@ function StepIndicator({ current, steps }) {
   )
 }
 
-function WelcomeStep({ onNext }) {
+function WelcomeStep({ onNext, cpTotal }) {
   return (
     <div className="chargen-step welcome-step">
       <div className="welcome-content panel panel-decorated">
@@ -134,7 +134,7 @@ function WelcomeStep({ onNext }) {
         </p>
         <div className="welcome-rules">
           <h3 className="chargen-label">CHARACTER POINTS</h3>
-          <p>You begin with <strong>4 Character Points (CP)</strong> to spend on your archetype and skills.</p>
+          <p>You begin with <strong>{cpTotal} Character Points (CP)</strong> to spend on your archetype and skills.</p>
           <ul>
             <li>Choose a <strong>Basic Archetype</strong> (1-4 CP) — your origin and starting skills</li>
             <li>Optionally choose an <strong>Advanced Archetype</strong> (1-6 CP) — your specialization</li>
@@ -545,7 +545,7 @@ export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin, 
         <CpTracker spent={cpSpent} total={state.cpTotal} isAdmin={isAdmin} />
       </div>
       <div className="chargen-wizard-body">
-        {state.step === 0 && <WelcomeStep onNext={handleNext} />}
+        {state.step === 0 && <WelcomeStep onNext={handleNext} cpTotal={state.cpTotal} />}
         {state.step === 1 && (
           <BasicArchetypeStep state={state} dispatch={dispatch} cpRemaining={cpRemaining} />
         )}
