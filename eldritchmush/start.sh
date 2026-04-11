@@ -204,6 +204,7 @@ from django.conf import settings as dj_settings
 from evennia.accounts.models import AccountDB
 
 target = getattr(dj_settings, 'BASE_ACCOUNT_TYPECLASS', 'typeclasses.accounts.Account')
+expected_cmdset = getattr(dj_settings, 'CMDSET_ACCOUNT', 'commands.default_cmdsets.AccountCmdSet')
 total = AccountDB.objects.count()
 broken = list(AccountDB.objects.exclude(db_typeclass_path=target))
 
@@ -222,7 +223,42 @@ else:
         except Exception as exc:
             print(f'[typeclass_repair] FAILED to repair {acct.username}: {exc}')
     print(f'[typeclass_repair] Done: {repaired}/{len(broken)} accounts fixed.')
-" || echo "Warning: typeclass repair failed (non-fatal)"
+
+# Second-stage repair: even with the right typeclass binding, allauth-
+# created accounts skipped Evennia's at_first_save() and never had
+# basetype_setup() run, which is what attaches the AccountCmdSet to
+# the account's persistent cmdset_storage. Without it, OOC commands
+# (charcreate, ic, ooc) silently don't exist for the WS session — the
+# text frame arrives, the dispatcher finds no matching command, and
+# nothing happens. We detect this by looking for accounts whose
+# cmdset_storage doesn't include the configured CMDSET_ACCOUNT path,
+# then call basetype_setup() (and at_account_creation() for the
+# _playable_characters attr) on them.
+print('[cmdset_repair] Checking accounts for missing AccountCmdSet...')
+fixed_cmdset = 0
+fixed_attrs = 0
+checked = 0
+all_accts = AccountDB.objects.all()
+for acct in all_accts:
+    checked += 1
+    try:
+        # cmdset_storage is a list-style property; missing/empty means
+        # basetype_setup() never ran for this account.
+        current_storage = acct.cmdset_storage or []
+        if expected_cmdset not in current_storage:
+            print(f'[cmdset_repair] {acct.username}: cmdset_storage={current_storage!r} -> attaching {expected_cmdset}')
+            acct.cmdset.add_default(expected_cmdset, persistent=True)
+            fixed_cmdset += 1
+        # _playable_characters attribute is set by at_account_creation();
+        # if it's missing, the charcreate command will choke when it
+        # tries to append to None.
+        if acct.attributes.get('_playable_characters', default=None) is None:
+            acct.attributes.add('_playable_characters', [])
+            fixed_attrs += 1
+    except Exception as exc:
+        print(f'[cmdset_repair] FAILED on {getattr(acct, \"username\", \"?\")}: {exc}')
+print(f'[cmdset_repair] Checked {checked} accounts; fixed cmdset on {fixed_cmdset}, _playable_characters on {fixed_attrs}.')
+" || echo "Warning: account repair failed (non-fatal)"
 
 echo "=== Starting Evennia ==="
 # Kill any lingering Evennia processes from previous start attempts

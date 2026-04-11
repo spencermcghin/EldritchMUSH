@@ -67,9 +67,35 @@ try:
                 print(f"[oauth_signals] Could not bind typeclass {target_typeclass} to {user.username}: {exc}")
 
             user.save()
+
+            # Attach the AccountCmdSet that Evennia's basetype_setup()
+            # would normally have added on at_first_save. Allauth's raw
+            # AccountDB.save() bypasses that hook, so OOC commands like
+            # `charcreate` would otherwise silently not exist for this
+            # account's sessions.
+            expected_cmdset = getattr(
+                dj_settings, "CMDSET_ACCOUNT", "commands.default_cmdsets.AccountCmdSet"
+            )
+            try:
+                current_storage = user.cmdset_storage or []
+                if expected_cmdset not in current_storage:
+                    user.cmdset.add_default(expected_cmdset, persistent=True)
+            except Exception as exc:
+                print(f"[oauth_signals] Could not attach cmdset {expected_cmdset} to {user.username}: {exc}")
+
+            # Initialize the _playable_characters attribute that
+            # at_account_creation() would normally have created. Without
+            # it, charcreate's `account.db._playable_characters.append(...)`
+            # call blows up on a NoneType.
+            try:
+                if user.attributes.get("_playable_characters", default=None) is None:
+                    user.attributes.add("_playable_characters", [])
+            except Exception as exc:
+                print(f"[oauth_signals] Could not init _playable_characters on {user.username}: {exc}")
+
             print(
                 f"[oauth_signals] New OAuth account: {user.username} "
-                f"(perms={perms}, typeclass={user.db_typeclass_path})"
+                f"(perms={perms}, typeclass={user.db_typeclass_path}, cmdset={expected_cmdset})"
             )
         except Exception as exc:
             print(f"[oauth_signals] Could not finalize OAuth account {user.username}: {exc}")
