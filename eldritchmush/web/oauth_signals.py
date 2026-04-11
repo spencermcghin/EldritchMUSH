@@ -73,13 +73,18 @@ try:
             # AccountDB.save() bypasses that hook, so OOC commands like
             # `charcreate` would otherwise silently not exist for this
             # account's sessions.
+            #
+            # Write directly to db_cmdset_storage via the property setter
+            # (mirrors the start.sh repair migration). Avoids
+            # cmdset.add_default() which broadcasts via SESSIONS and can
+            # explode if the SessionHandler isn't fully initialized.
             expected_cmdset = getattr(
                 dj_settings, "CMDSET_ACCOUNT", "commands.default_cmdsets.AccountCmdSet"
             )
             try:
                 current_storage = user.cmdset_storage or []
                 if expected_cmdset not in current_storage:
-                    user.cmdset.add_default(expected_cmdset, persistent=True)
+                    user.cmdset_storage = list(current_storage) + [expected_cmdset]
             except Exception as exc:
                 print(f"[oauth_signals] Could not attach cmdset {expected_cmdset} to {user.username}: {exc}")
 
