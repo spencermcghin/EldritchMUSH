@@ -35,7 +35,7 @@ const EXIT_CONTEXT_ITEMS = (dir) => [
 ]
 
 function App() {
-  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen } =
+  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate } =
     useEvennia()
 
   const inputRef = useRef(null)
@@ -230,7 +230,11 @@ function App() {
           Auto-dismissed when an account_info OOB event arrives confirming
           puppet success (which only happens after `ic <name>`). */}
       {isConnected && oobState.atCharacterSelect && !oobState.inChargen && (
-        <CharacterSelect sendCommand={sendCommand} />
+        <CharacterSelect
+          sendCommand={sendCommand}
+          lastCharCreate={oobState.lastCharCreate}
+          clearLastCharCreate={clearLastCharCreate}
+        />
       )}
 
       {/* ── Chargen Wizard ── */}

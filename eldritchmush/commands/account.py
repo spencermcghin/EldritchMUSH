@@ -13,6 +13,22 @@ from evennia.objects.models import ObjectDB
 from evennia.utils import create, logger
 
 
+def _emit_to_session(session, event_type, payload):
+    """Send a structured OOB event to a single account session.
+
+    The CharacterSelect screen needs to react to charcreate results
+    *before* any character is puppeted, so we cannot use world.events.emit_to
+    (which targets puppeted characters). We send directly to the account
+    session instead.
+    """
+    if not session:
+        return
+    try:
+        session.msg(oob=("event", [], {"type": event_type, **payload}))
+    except Exception:
+        pass
+
+
 class CmdCharCreate(default_account.CmdCharCreate):
     """
     create a new character
@@ -27,8 +43,13 @@ class CmdCharCreate(default_account.CmdCharCreate):
 
     def func(self):
         account = self.account
+        session = self.session
         if not self.args:
             self.msg("Usage: charcreate <charname> [= description]")
+            _emit_to_session(session, "character_create_failed", {
+                "reason": "Usage: charcreate <charname> [= description]",
+                "code": "missing_args",
+            })
             return
         key = self.lhs
         desc = self.rhs
@@ -38,13 +59,22 @@ class CmdCharCreate(default_account.CmdCharCreate):
         if not account.is_superuser and (
             account.db._playable_characters and len(account.db._playable_characters) >= charmax
         ):
-            self.msg("You may only create a maximum of %i characters." % charmax)
+            msg = "You may only create a maximum of %i characters." % charmax
+            self.msg(msg)
+            _emit_to_session(session, "character_create_failed", {
+                "reason": msg,
+                "code": "max_characters",
+            })
             return
 
         typeclass = settings.BASE_CHARACTER_TYPECLASS
 
         if ObjectDB.objects.filter(db_typeclass_path=typeclass, db_key__iexact=key):
             self.msg("|rA character named '|w%s|r' already exists.|n" % key)
+            _emit_to_session(session, "character_create_failed", {
+                "reason": "A character named '%s' already exists." % key,
+                "code": "name_taken",
+            })
             return
 
         # Find the ChargenRoom — there should be exactly one. New
@@ -94,3 +124,10 @@ class CmdCharCreate(default_account.CmdCharCreate):
             "Character Created: %s (Caller: %s, IP: %s)."
             % (new_character, account, self.session.address)
         )
+        # Tell the React frontend the character is ready to puppet. The
+        # CharacterSelect screen waits for this event before issuing the
+        # follow-up `ic <name>` command, so the two stages cannot race.
+        _emit_to_session(session, "character_created", {
+            "name": new_character.key,
+            "dbref": "#%i" % new_character.id,
+        })

@@ -1,6 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { getEntityIcon } from '../data/entityIcons'
 import './CharacterSelect.css'
+
+// Hard upper bound on how long we'll wait for the server's
+// character_created / character_create_failed OOB event before
+// assuming the request was lost and surfacing a generic error.
+const CREATE_TIMEOUT_MS = 6000
 
 /**
  * CharacterSelect — shown after the player authenticates (OAuth or
@@ -10,16 +15,30 @@ import './CharacterSelect.css'
  *
  * Props:
  *   sendCommand: (text) => void
- *   onPuppeted: () => void  -- called when the player picks a character
- *                              (for optimistic UI updates)
+ *   lastCharCreate: { status, name?, reason?, code?, ts } | null
+ *     - mirror of oobState.lastCharCreate, set by the server's
+ *       character_created / character_create_failed OOB events.
+ *   clearLastCharCreate: () => void  -- clears that mirror after we handle it.
+ *   onPuppeted: () => void           -- optimistic-UI callback (optional).
  */
-export default function CharacterSelect({ sendCommand, onPuppeted }) {
+export default function CharacterSelect({ sendCommand, lastCharCreate, clearLastCharCreate, onPuppeted }) {
   const [characters, setCharacters] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
+  // creating == true between clicking Begin and receiving the server's
+  // character_created event (or a failure / timeout). Disables the
+  // submit button and shows the "Forging..." label.
   const [creating, setCreating] = useState(false)
+  // Modal-local error string (validation OR server failure reason).
+  // Distinct from `error` above which is for top-level fetch errors.
+  const [modalError, setModalError] = useState(null)
+  // Timeout that fires if the server never responds.
+  const createTimeoutRef = useRef(null)
+  // Snapshot of lastCharCreate.ts at the moment we started the
+  // request, so we can ignore stale results from a prior attempt.
+  const createStartedAtRef = useRef(0)
 
   const fetchCharacters = useCallback(async () => {
     setLoading(true)
@@ -49,6 +68,44 @@ export default function CharacterSelect({ sendCommand, onPuppeted }) {
     fetchCharacters()
   }, [fetchCharacters])
 
+  // Clear pending timeout if the component unmounts mid-create.
+  useEffect(() => {
+    return () => {
+      if (createTimeoutRef.current) clearTimeout(createTimeoutRef.current)
+    }
+  }, [])
+
+  // React to charcreate result events from the server.
+  useEffect(() => {
+    if (!lastCharCreate) return
+    // Only react to events that arrived AFTER we started the current
+    // request — protects against a stale event from a previous attempt
+    // that fired between unmount/remount.
+    if (lastCharCreate.ts <= createStartedAtRef.current) return
+    if (!creating) return
+
+    if (createTimeoutRef.current) {
+      clearTimeout(createTimeoutRef.current)
+      createTimeoutRef.current = null
+    }
+
+    if (lastCharCreate.status === 'success') {
+      // Server confirmed the character exists. Now puppet it. The
+      // account_info OOB event from at_post_puppet will dismiss this
+      // whole screen, so we don't need to navigate manually.
+      sendCommand(`ic ${lastCharCreate.name}`)
+      if (onPuppeted) onPuppeted({ name: lastCharCreate.name })
+      // Leave `creating` true; CharacterSelect will unmount on the
+      // account_info event. If puppet itself fails we'll be stuck on
+      // the spinner — handled below by a fallback timeout.
+      clearLastCharCreate()
+    } else if (lastCharCreate.status === 'error') {
+      setCreating(false)
+      setModalError(lastCharCreate.reason || 'Character creation failed.')
+      clearLastCharCreate()
+    }
+  }, [lastCharCreate, creating, sendCommand, onPuppeted, clearLastCharCreate])
+
   const handlePlay = useCallback((char) => {
     sendCommand(`ic ${char.name}`)
     if (onPuppeted) onPuppeted(char)
@@ -56,26 +113,43 @@ export default function CharacterSelect({ sendCommand, onPuppeted }) {
 
   const handleCreateSubmit = useCallback((e) => {
     e.preventDefault()
+    if (creating) return
     const name = newName.trim()
     if (!name) return
-    // Server-side rules: alpha + spaces, reasonable length
+    // Server-side rules: alpha + spaces, reasonable length.
     if (!/^[A-Za-z][A-Za-z' -]{1,29}$/.test(name)) {
-      setError('Names use letters, spaces, hyphens, or apostrophes (2–30 chars).')
+      setModalError('Names use letters, spaces, hyphens, or apostrophes (2–30 chars).')
       return
     }
-    setError(null)
-    // Send the commands and close the modal immediately. If puppet
-    // succeeds, the account_info OOB event will dismiss the whole
-    // CharacterSelect screen. If anything fails, the user can see
-    // the server's error message in the game output.
+    setModalError(null)
+    setCreating(true)
+    createStartedAtRef.current = Date.now()
+    // Wipe any stale result from a prior (timed-out) attempt so the
+    // useEffect below can't act on it.
+    if (clearLastCharCreate) clearLastCharCreate()
+
     sendCommand(`charcreate ${name}`)
-    setTimeout(() => {
-      sendCommand(`ic ${name}`)
-      if (onPuppeted) onPuppeted({ name })
-    }, 400)
+
+    // Fallback: if the server never replies (lost packet, command not
+    // registered, exception eaten), surface a generic error so the
+    // user isn't stuck on the spinner forever.
+    if (createTimeoutRef.current) clearTimeout(createTimeoutRef.current)
+    createTimeoutRef.current = setTimeout(() => {
+      setCreating(false)
+      setModalError(
+        'No response from the server. The character may not have been created — try a different name or refresh the page.'
+      )
+      // Refetch in case it actually succeeded silently.
+      fetchCharacters()
+    }, CREATE_TIMEOUT_MS)
+  }, [newName, creating, sendCommand, fetchCharacters, clearLastCharCreate])
+
+  const handleCloseModal = useCallback(() => {
+    if (creating) return
     setShowCreate(false)
     setNewName('')
-  }, [newName, sendCommand, onPuppeted])
+    setModalError(null)
+  }, [creating])
 
   return (
     <div className="charsel-screen">
@@ -108,7 +182,7 @@ export default function CharacterSelect({ sendCommand, onPuppeted }) {
             <button
               className="charsel-card charsel-card-create"
               type="button"
-              onClick={() => { setShowCreate(true); setNewName('') }}
+              onClick={() => { setShowCreate(true); setNewName(''); setModalError(null) }}
             >
               <div className="charsel-create-icon">✦</div>
               <div className="charsel-create-label">Create New Character</div>
@@ -119,7 +193,7 @@ export default function CharacterSelect({ sendCommand, onPuppeted }) {
 
         {/* Create modal */}
         {showCreate && (
-          <div className="charsel-modal-backdrop" onClick={() => !creating && setShowCreate(false)}>
+          <div className="charsel-modal-backdrop" onClick={handleCloseModal}>
             <div className="charsel-modal panel panel-decorated" onClick={(e) => e.stopPropagation()}>
               <div className="charsel-modal-header">
                 <span className="cinzel">NAME YOUR CHARACTER</span>
@@ -132,18 +206,21 @@ export default function CharacterSelect({ sendCommand, onPuppeted }) {
                   className="charsel-modal-input"
                   type="text"
                   value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
+                  onChange={(e) => { setNewName(e.target.value); if (modalError) setModalError(null) }}
                   placeholder="Aldric, Mira, Thorne..."
                   autoFocus
                   spellCheck="false"
                   maxLength={30}
                   disabled={creating}
                 />
+                {modalError && (
+                  <div className="charsel-modal-error">{modalError}</div>
+                )}
                 <div className="charsel-modal-buttons">
                   <button
                     type="button"
                     className="charsel-modal-cancel"
-                    onClick={() => setShowCreate(false)}
+                    onClick={handleCloseModal}
                     disabled={creating}
                   >
                     Cancel

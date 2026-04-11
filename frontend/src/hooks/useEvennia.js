@@ -78,6 +78,14 @@ export function useEvennia() {
     // True when we're authenticated but haven't yet puppeted a character.
     // Drives the CharacterSelect screen.
     atCharacterSelect: false,
+    // Result of the most recent `charcreate` attempt. Set by the
+    // character_created / character_create_failed OOB events emitted
+    // from commands/account.py CmdCharCreate. The CharacterSelect
+    // screen reads this to know whether to fire `ic <name>`, surface
+    // an error, or refresh the list.
+    //   { status: 'pending' | 'success' | 'error',
+    //     name?: string, reason?: string, code?: string, ts: number }
+    lastCharCreate: null,
   })
 
   // Timestamp (ms) of the last manual exit from chargen. Used to
@@ -156,6 +164,24 @@ export function useEvennia() {
             // a character name means the player has successfully
             // puppeted, so dismiss the CharacterSelect screen.
             next.atCharacterSelect = false
+          }
+          break
+        }
+        case 'character_created': {
+          next.lastCharCreate = {
+            status: 'success',
+            name: kwargs.name || '',
+            dbref: kwargs.dbref || '',
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'character_create_failed': {
+          next.lastCharCreate = {
+            status: 'error',
+            reason: kwargs.reason || 'Character creation failed.',
+            code: kwargs.code || 'unknown',
+            ts: Date.now(),
           }
           break
         }
@@ -488,6 +514,10 @@ export function useEvennia() {
     setOobState((prev) => ({ ...prev, inChargen: false, chargenViewMode: false }))
   }, [])
 
+  const clearLastCharCreate = useCallback(() => {
+    setOobState((prev) => (prev.lastCharCreate ? { ...prev, lastCharCreate: null } : prev))
+  }, [])
+
   const enterChargen = useCallback((viewMode = true) => {
     setOobState((prev) => ({ ...prev, inChargen: true, chargenViewMode: viewMode }))
   }, [])
@@ -502,5 +532,6 @@ export function useEvennia() {
     disconnect,
     exitChargen,
     enterChargen,
+    clearLastCharCreate,
   }
 }
