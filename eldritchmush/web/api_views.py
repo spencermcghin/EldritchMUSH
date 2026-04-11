@@ -26,21 +26,44 @@ def webclient_session(request):
     dropped because UnloggedinCmdSet doesn't define them.
     """
     import random
+    import sys
 
     # Force the session to exist so it has a key we can return.
     if not request.session.session_key:
         request.session.save()
 
     user = request.user
+    print(
+        f"[webclient_session_diag] called: user_authenticated={user.is_authenticated} "
+        f"user_id={getattr(user, 'id', None)} session_key={request.session.session_key}",
+        flush=True,
+    )
+    sys.stdout.flush()
+
     if user.is_authenticated:
         # Mirror what Evennia's built-in webclient login view does:
         # write the uid and a nonce into the Django session so the
         # WebSocket handshake can find them.
         existing_uid = request.session.get("webclient_authenticated_uid")
+        existing_nonce = request.session.get("webclient_authenticated_nonce")
+        print(
+            f"[webclient_session_diag] existing_uid={existing_uid!r} "
+            f"existing_nonce={existing_nonce!r} target_uid={user.id}",
+            flush=True,
+        )
         if existing_uid != user.id:
             request.session["webclient_authenticated_uid"] = user.id
             request.session["webclient_authenticated_nonce"] = random.randint(0, 10**6)
             request.session.save()
+            print(
+                f"[webclient_session_diag] WROTE uid={user.id} "
+                f"nonce={request.session['webclient_authenticated_nonce']} "
+                f"to session {request.session.session_key}",
+                flush=True,
+            )
+        else:
+            print("[webclient_session_diag] uid already correct, no write", flush=True)
+    sys.stdout.flush()
 
     return JsonResponse({
         "authenticated": bool(user.is_authenticated),
