@@ -15,6 +15,13 @@ at_server_cold_start()
 at_server_cold_stop()
 
 """
+import sys
+
+# Module-level diagnostic — fires the moment Evennia imports this file.
+# Lets us tell from the logs whether the file is being loaded at all
+# (separate from whether the hook functions are actually called).
+print("[at_server_startstop] module imported", flush=True)
+sys.stdout.flush()
 
 
 def _migrate_oauth_account_typeclasses():
@@ -31,7 +38,7 @@ def _migrate_oauth_account_typeclasses():
     new signups, but pre-existing broken accounts still need to be
     repaired. Runs once on every server start; idempotent.
     """
-    print("[startup_migration] Checking AccountDB rows for typeclass binding...")
+    print(f"[startup_migration] Checking AccountDB rows for typeclass binding...")
     try:
         from django.conf import settings as dj_settings
         from evennia.accounts.models import AccountDB

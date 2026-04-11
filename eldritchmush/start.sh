@@ -182,6 +182,48 @@ except AccountDB.DoesNotExist:
     print('spencer_admin account not found yet')
 " || echo "Warning: could not grant superuser"
 
+# Repair AccountDB rows whose db_typeclass_path was never set to the
+# proper typeclass. This happens when allauth creates accounts via a
+# raw AccountDB.save(), bypassing Evennia's create_account() helper.
+# The row ends up bound to evennia.accounts.models.AccountDB — the raw
+# Django model — which has none of the typeclass hook methods
+# (at_pre_login, at_post_login, at_disconnect, at_post_puppet), so
+# every login crashes inside sessionhandler.login() and the React
+# CharacterSelect screen hangs after the user clicks Begin.
+#
+# This used to live in at_server_startstop.at_server_start() but the
+# hook's print output was not appearing in Railway logs (likely buffered
+# or written somewhere we can't see), so we run it inline here BEFORE
+# `evennia start` to guarantee it runs and prints visibly.
+echo "=== Repairing OAuth account typeclass bindings ==="
+python3 -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
+django.setup()
+from django.conf import settings as dj_settings
+from evennia.accounts.models import AccountDB
+
+target = getattr(dj_settings, 'BASE_ACCOUNT_TYPECLASS', 'typeclasses.accounts.Account')
+total = AccountDB.objects.count()
+broken = list(AccountDB.objects.exclude(db_typeclass_path=target))
+
+if not broken:
+    print(f'[typeclass_repair] All {total} account(s) already bound to {target}.')
+else:
+    print(f'[typeclass_repair] Found {len(broken)}/{total} account(s) needing repair.')
+    repaired = 0
+    for acct in broken:
+        old_path = acct.db_typeclass_path
+        try:
+            acct.set_class_from_typeclass(typeclass_path=target)
+            acct.save()
+            repaired += 1
+            print(f'[typeclass_repair] Fixed {acct.username} ({old_path or \"NULL\"} -> {target})')
+        except Exception as exc:
+            print(f'[typeclass_repair] FAILED to repair {acct.username}: {exc}')
+    print(f'[typeclass_repair] Done: {repaired}/{len(broken)} accounts fixed.')
+" || echo "Warning: typeclass repair failed (non-fatal)"
+
 echo "=== Starting Evennia ==="
 # Kill any lingering Evennia processes from previous start attempts
 evennia stop 2>/dev/null || true
