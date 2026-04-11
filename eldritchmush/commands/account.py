@@ -14,15 +14,21 @@ from evennia.utils import create, logger
 
 
 def _diag(msg):
-    """Log to BOTH stdout (for Docker/Railway) AND Evennia's logger
-    (which writes to server.log). We don't know which capture path is
-    actually visible in production logs, so we hit both.
+    """Log to the file-based diagnostic sink (web.diag.diag_write).
+
+    Railway's log capture only sees start.sh and nginx output — Evennia
+    server stdout and server.log are silently dropped. The file sink
+    writes to /data/diag.log which is exposed via /api/diag/.
     """
-    print(f"[charcreate_diag] {msg}", flush=True)
     try:
-        logger.log_info(f"[charcreate_diag] {msg}")
+        from web.diag import diag_write
+        diag_write(f"[charcreate] {msg}")
     except Exception:
-        pass
+        # Fallback so we don't break charcreate over a logging issue.
+        try:
+            print(f"[charcreate_diag] {msg}", flush=True)
+        except Exception:
+            pass
 
 
 def _emit_to_session(session, event_type, payload):

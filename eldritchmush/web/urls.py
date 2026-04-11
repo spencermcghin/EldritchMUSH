@@ -11,6 +11,7 @@ from django.contrib import admin
 from evennia.web.urls import urlpatterns
 
 from web.api_views import webclient_session, account_characters
+from web.diag import diag_view
 
 # Side-effect import: connects OAuth signal handlers. Must happen
 # AFTER django.setup() (we're guaranteed that here because URL
@@ -30,6 +31,10 @@ custom_patterns = [
     # JSON endpoints used by the React frontend
     path("api/webclient_session/", webclient_session, name="webclient_session"),
     path("api/account/characters/", account_characters, name="account_characters"),
+    # Diagnostic log viewer — visit /api/diag/ in a browser to read the
+    # tail of /data/diag.log. Used to debug Railway log capture issues
+    # where Evennia server stdout/server.log isn't being collected.
+    path("api/diag/", diag_view, name="diag_view"),
 ]
 
 # Mount allauth URLs only if django-allauth is installed. Defensive so
