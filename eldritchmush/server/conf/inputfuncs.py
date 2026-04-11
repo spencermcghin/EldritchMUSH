@@ -1,52 +1,44 @@
 """
 Input functions
 
-Input functions are always called from the client (they handle server
-input, hence the name).
+Custom input handlers loaded via settings.INPUT_FUNC_MODULES. Anything
+defined here overrides Evennia's defaults of the same name.
 
-This module is loaded by being included in the
-`settings.INPUT_FUNC_MODULES` tuple.
-
-All *global functions* included in this module are considered
-input-handler functions and can be called by the client to handle
-input.
-
-An input function must have the following call signature:
-
-    cmdname(session, *args, **kwargs)
-
-Where session will be the active session and *args, **kwargs are extra
-incoming arguments and keyword properties.
-
-A special command is the "default" command, which is will be called
-when no other cmdname matches. It also receives the non-found cmdname
-as argument.
-
-    default(session, cmdname, *args, **kwargs)
-
+We override the `text` handler to write a diagnostic line to
+/data/diag.log before forwarding to the stock handler. That gives us
+unconditional visibility into every command frame that reaches the
+server — which has been impossible to confirm any other way given
+Railway's broken log capture.
 """
+from evennia.server.inputfuncs import text as _stock_text
 
-# def oob_echo(session, *args, **kwargs):
-#     """
-#     Example echo function. Echoes args, kwargs sent to it.
-#
-#     Args:
-#         session (Session): The Session to receive the echo.
-#         args (list of str): Echo text.
-#         kwargs (dict of str, optional): Keyed echo text
-#
-#     """
-#     session.msg(oob=("echo", args, kwargs))
-#
-#
-# def default(session, cmdname, *args, **kwargs):
-#     """
-#     Handles commands without a matching inputhandler func.
-#
-#     Args:
-#         session (Session): The active Session.
-#         cmdname (str): The (unmatched) command name
-#         args, kwargs (any): Arguments to function.
-#
-#     """
-#     pass
+
+def text(session, *args, **kwargs):
+    """
+    Wrapper around Evennia's stock `text` inputfunc that logs the
+    incoming command frame and the session's auth state to the diag
+    log, then forwards to the real handler.
+    """
+    try:
+        from web.diag import diag_write
+
+        txt = args[0] if args else None
+        diag_write(
+            "inputfunc.text RECEIVED",
+            sessid=getattr(session, "sessid", None),
+            logged_in=getattr(session, "logged_in", None),
+            uid=getattr(session, "uid", None),
+            account=repr(getattr(session, "account", None)),
+            puppet=repr(getattr(session, "puppet", None)),
+            text=txt,
+        )
+    except Exception as exc:
+        # Never break command input over a logging issue.
+        try:
+            from web.diag import diag_write
+            diag_write("inputfunc.text DIAG FAILED", exc=str(exc))
+        except Exception:
+            pass
+
+    # Forward to Evennia's real text handler — same call signature.
+    return _stock_text(session, *args, **kwargs)
