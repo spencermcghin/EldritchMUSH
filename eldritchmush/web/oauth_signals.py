@@ -25,14 +25,22 @@ try:
         instance because Evennia sets AUTH_USER_MODEL =
         "accounts.AccountDB".
 
-        Evennia's normal account creation path calls
-        `create.create_account()` which adds the default account
-        permissions (typically "Player"). Allauth bypasses that and
-        just creates the AccountDB row directly, so OAuth users end
-        up with NO permissions and `cmd:pperm(Player)` locks reject
-        them silently — including charcreate. We add the defaults
-        here so OAuth users can use the same commands as everyone
-        else.
+        Allauth creates AccountDB rows directly via `user.save()`,
+        which bypasses Evennia's `create.create_account()` helper.
+        That helper does TWO things we have to replicate manually:
+
+        1. Grants default Player permissions. Without these,
+           `cmd:pperm(Player)` locks reject every command silently
+           (including charcreate).
+        2. Sets `db_typeclass_path` to the configured BASE_ACCOUNT_TYPECLASS
+           ("typeclasses.accounts.Account"). Without this, the row
+           defaults to the raw AccountDB model class on next load,
+           which has *none* of the typeclass hook methods Evennia
+           expects (`at_pre_login`, `at_post_login`, `at_disconnect`,
+           `at_post_puppet`, etc.). Every login then crashes inside
+           sessionhandler.login(), which means our `account_info` OOB
+           event never fires and the React CharacterSelect screen
+           hangs forever after the user clicks Begin.
         """
         from django.conf import settings as dj_settings
 
@@ -45,10 +53,26 @@ try:
                 perms = list(default_perms)
             for perm in perms:
                 user.permissions.add(perm)
+
+            # Re-bind the row to the proper Evennia typeclass so all
+            # the at_* hooks resolve. set_class_from_typeclass swaps
+            # __class__ on the instance AND writes db_typeclass_path,
+            # but does not call save() — we save explicitly.
+            target_typeclass = getattr(
+                dj_settings, "BASE_ACCOUNT_TYPECLASS", "typeclasses.accounts.Account"
+            )
+            try:
+                user.set_class_from_typeclass(typeclass_path=target_typeclass)
+            except Exception as exc:
+                print(f"[oauth_signals] Could not bind typeclass {target_typeclass} to {user.username}: {exc}")
+
             user.save()
-            print(f"[oauth_signals] New OAuth account: {user.username} (perms={perms})")
+            print(
+                f"[oauth_signals] New OAuth account: {user.username} "
+                f"(perms={perms}, typeclass={user.db_typeclass_path})"
+            )
         except Exception as exc:
-            print(f"[oauth_signals] Could not grant default perms to {user.username}: {exc}")
+            print(f"[oauth_signals] Could not finalize OAuth account {user.username}: {exc}")
 
     print("[oauth_signals] OAuth signal handlers connected.")
 except ImportError:
