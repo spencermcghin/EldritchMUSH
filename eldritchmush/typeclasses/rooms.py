@@ -280,6 +280,14 @@ class WeatherRoom(Room):
         """
         Called by the tickerhandler at regular intervals.
         """
+        # current_weather_type lives as an instance attribute, not on
+        # self.db, so it's lost across server reloads — at which point
+        # it falls back to the class-level [] default and the
+        # random.choice() calls below crash with IndexError. Re-seed
+        # it here if it ever ends up empty so the ticker can recover.
+        if not self.current_weather_type:
+            self.current_weather_type = SUNNY_STRINGS if random.randint(0, 1) else RAINY_STRINGS
+
         previous_weather = self.current_weather
 
         # When the weather has broadcasted 2 times (every 30 minutes)...
