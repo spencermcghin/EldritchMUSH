@@ -26,19 +26,19 @@ def webclient_session(request):
     dropped because UnloggedinCmdSet doesn't define them.
     """
     import random
-    import sys
+    from web.diag import diag_write
 
     # Force the session to exist so it has a key we can return.
     if not request.session.session_key:
         request.session.save()
 
     user = request.user
-    print(
-        f"[webclient_session_diag] called: user_authenticated={user.is_authenticated} "
-        f"user_id={getattr(user, 'id', None)} session_key={request.session.session_key}",
-        flush=True,
+    diag_write(
+        "webclient_session called",
+        user_authenticated=user.is_authenticated,
+        user_id=getattr(user, "id", None),
+        session_key=request.session.session_key,
     )
-    sys.stdout.flush()
 
     if user.is_authenticated:
         # Mirror what Evennia's built-in webclient login view does:
@@ -46,24 +46,24 @@ def webclient_session(request):
         # WebSocket handshake can find them.
         existing_uid = request.session.get("webclient_authenticated_uid")
         existing_nonce = request.session.get("webclient_authenticated_nonce")
-        print(
-            f"[webclient_session_diag] existing_uid={existing_uid!r} "
-            f"existing_nonce={existing_nonce!r} target_uid={user.id}",
-            flush=True,
+        diag_write(
+            "webclient_session existing values",
+            existing_uid=existing_uid,
+            existing_nonce=existing_nonce,
+            target_uid=user.id,
         )
         if existing_uid != user.id:
             request.session["webclient_authenticated_uid"] = user.id
             request.session["webclient_authenticated_nonce"] = random.randint(0, 10**6)
             request.session.save()
-            print(
-                f"[webclient_session_diag] WROTE uid={user.id} "
-                f"nonce={request.session['webclient_authenticated_nonce']} "
-                f"to session {request.session.session_key}",
-                flush=True,
+            diag_write(
+                "webclient_session WROTE uid+nonce",
+                uid=user.id,
+                nonce=request.session["webclient_authenticated_nonce"],
+                session_key=request.session.session_key,
             )
         else:
-            print("[webclient_session_diag] uid already correct, no write", flush=True)
-    sys.stdout.flush()
+            diag_write("webclient_session uid already correct, skipped write")
 
     return JsonResponse({
         "authenticated": bool(user.is_authenticated),
