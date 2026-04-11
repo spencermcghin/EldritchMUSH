@@ -327,7 +327,7 @@ function SkillsStep({ state, dispatch, cpRemaining }) {
   )
 }
 
-function ReviewStep({ state, sendCommand, onReset }) {
+function ReviewStep({ state, sendCommand, onReset, onExit }) {
   const granted = getGrantedSkills(state)
   const allSkills = { ...granted }
   Object.entries(state.skills).forEach(([k, v]) => {
@@ -556,7 +556,7 @@ export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin, 
           <SkillsStep state={state} dispatch={dispatch} cpRemaining={cpRemaining} />
         )}
         {state.step === 4 && (
-          <ReviewStep state={state} sendCommand={sendCommand} onReset={handleReset} />
+          <ReviewStep state={state} sendCommand={sendCommand} onReset={handleReset} onExit={onExit} />
         )}
       </div>
       {state.step > 0 && state.step < 4 && (

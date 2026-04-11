@@ -265,6 +265,35 @@ for acct in all_accts:
     except Exception as exc:
         print(f'[cmdset_repair] FAILED on {getattr(acct, \"username\", \"?\")}: {exc}')
 print(f'[cmdset_repair] Checked {checked} accounts; fixed cmdset on {fixed_cmdset}, _playable_characters on {fixed_attrs}.')
+
+# Third-stage repair: backfill PERMISSION_ACCOUNT_DEFAULT (Player) on
+# accounts whose permissions list is empty. Diag confirmed spencer2
+# had perms=[] which silently rejected cmd:pperm(Player) locks
+# (charcreate, plus several other Account-level commands). Ours OAuth
+# signal handler grants this perm only on the user_signed_up signal,
+# which fires once at signup; pre-existing accounts created before
+# that code existed never had perms granted.
+default_perm = getattr(dj_settings, 'PERMISSION_ACCOUNT_DEFAULT', 'Player')
+if isinstance(default_perm, str):
+    perm_list = [p.strip() for p in default_perm.split(',') if p.strip()]
+else:
+    perm_list = list(default_perm)
+print(f'[perm_repair] Checking accounts for missing default permissions {perm_list}...')
+fixed_perms = 0
+checked_perms = 0
+for acct in AccountDB.objects.all():
+    checked_perms += 1
+    try:
+        current_perms = list(acct.permissions.all()) if hasattr(acct, 'permissions') else []
+        missing = [p for p in perm_list if p not in current_perms]
+        if missing:
+            print(f'[perm_repair] {acct.username}: perms={current_perms!r} -> adding {missing!r}')
+            for p in missing:
+                acct.permissions.add(p)
+            fixed_perms += 1
+    except Exception as exc:
+        print(f'[perm_repair] FAILED on {getattr(acct, \"username\", \"?\")}: {exc}')
+print(f'[perm_repair] Checked {checked_perms} accounts; granted default perms to {fixed_perms}.')
 " || echo "Warning: account repair failed (non-fatal)"
 
 echo "=== Starting Evennia ==="
