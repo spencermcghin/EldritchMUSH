@@ -15,6 +15,7 @@ import WorldMapModal from './components/WorldMapModal'
 import EquipModal from './components/EquipModal'
 import CharSheetModal from './components/CharSheetModal'
 import AdminPanel from './components/AdminPanel'
+import ShopModal from './components/ShopModal'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -91,6 +92,8 @@ function App() {
   const [charSheetOpen, setCharSheetOpen] = useState(false)
   // Admin panel
   const [adminOpen, setAdminOpen] = useState(false)
+  // Shop modal
+  const [shopOpen, setShopOpen] = useState(false)
 
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
@@ -326,6 +329,11 @@ function App() {
             onPrompt={openPrompt}
             sendCommand={sendCommand}
             onEquip={() => setEquipOpen(true)}
+            onShop={
+              oobState.availableCommands?.some(c => c.key === 'browse')
+                ? () => setShopOpen(true)
+                : undefined
+            }
           />
 
           {/* Center: room view on top, log + input on bottom */}
@@ -407,6 +415,15 @@ function App() {
           onClose={() => setCharSheetOpen(false)}
           sendCommand={sendCommand}
           charsheetData={oobState.charsheetData}
+        />
+      )}
+
+      {/* Shop modal */}
+      {shopOpen && (
+        <ShopModal
+          onClose={() => setShopOpen(false)}
+          sendCommand={sendCommand}
+          shopData={oobState.shopData}
         />
       )}
 

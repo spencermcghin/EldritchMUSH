@@ -238,6 +238,169 @@ def text(session, *args, **kwargs):
                         diag_write("CHARSHEET_UI FAILED", exc=str(exc))
                     return
 
+                # __shop_ui__ — send structured merchant shop data
+                if lowered == "__shop_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet and puppet.location:
+                            merchants = [
+                                obj for obj in puppet.location.contents
+                                if obj != puppet and getattr(obj.db, "shop_inventory", None) is not None
+                            ]
+                            if merchants:
+                                from evennia.prototypes import prototypes as proto_utils
+                                import time
+                                merchant_data = []
+                                for m in merchants:
+                                    items = []
+                                    for proto_key in (m.db.shop_inventory or []):
+                                        try:
+                                            results = proto_utils.search_prototype(proto_key.lower())
+                                            if not results:
+                                                results = proto_utils.search_prototype(proto_key.upper())
+                                            if results:
+                                                proto = results[0]
+                                                price = int(proto.get("value_silver", 0)) or max(1, int(proto.get("value_copper", 0)) // 10)
+                                                items.append({
+                                                    "key": proto_key,
+                                                    "name": proto.get("key", proto_key),
+                                                    "desc": proto.get("desc", ""),
+                                                    "price": price,
+                                                    "damage": proto.get("damage", 0),
+                                                    "materialValue": proto.get("material_value", 0),
+                                                    "level": proto.get("level", 0),
+                                                    "type": proto.get("craft_source", ""),
+                                                })
+                                        except Exception:
+                                            pass
+                                    merchant_data.append({
+                                        "name": m.key,
+                                        "desc": getattr(m.db, "desc", "") or "",
+                                        "items": items,
+                                    })
+                                # Player's sellable inventory
+                                sell_items = []
+                                for item in puppet.contents:
+                                    val = getattr(item.db, "value_silver", 0) or 0
+                                    if not val:
+                                        val = (getattr(item.db, "value_copper", 0) or 0) // 10
+                                    sell_price = max(1, int(val) // 2) if val else 0
+                                    sell_items.append({
+                                        "name": item.key,
+                                        "sellPrice": sell_price,
+                                        "type": getattr(item.db, "craft_source", "") or "",
+                                    })
+                                payload = {
+                                    "type": "shop_data",
+                                    "_ts": time.time(),
+                                    "merchants": merchant_data,
+                                    "playerSilver": getattr(puppet.db, "silver", 0) or 0,
+                                    "sellInventory": sell_items,
+                                }
+                                session.msg(event=payload)
+                                diag_write("SHOP_UI sent", merchants=len(merchant_data))
+                            else:
+                                session.msg(text="|430There are no merchants here.|n")
+                        else:
+                            session.msg(text="|430You need to be in a room to shop.|n")
+                    except Exception as exc:
+                        diag_write("SHOP_UI FAILED", exc=str(exc))
+                    return
+
+                # __buy__ <item> from <merchant> — direct buy handler
+                if lowered.startswith("__buy__ "):
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            args = stripped[len("__buy__ "):].strip()
+                            # Parse "item from merchant"
+                            if " from " in args.lower():
+                                parts = args.lower().split(" from ", 1)
+                                item_name = parts[0].strip()
+                                merchant_name = parts[1].strip()
+                            else:
+                                item_name = args.strip()
+                                merchant_name = ""
+
+                            # Find merchant
+                            merchants = [
+                                obj for obj in puppet.location.contents
+                                if obj != puppet and getattr(obj.db, "shop_inventory", None) is not None
+                            ]
+                            if merchant_name:
+                                merchants = [m for m in merchants if merchant_name in m.key.lower()]
+                            if not merchants:
+                                session.msg(text="|430No merchant found.|n")
+                                return
+                            merchant = merchants[0]
+
+                            # Find proto in merchant inventory
+                            from evennia.prototypes import prototypes as proto_utils
+                            from evennia import spawn as ev_spawn
+                            matched_proto = None
+                            for proto_key in (merchant.db.shop_inventory or []):
+                                results = proto_utils.search_prototype(proto_key.lower()) or proto_utils.search_prototype(proto_key.upper())
+                                if results and item_name in results[0].get("key", "").lower():
+                                    matched_proto = results[0]
+                                    break
+
+                            if not matched_proto:
+                                session.msg(text=f"|430{merchant.key} doesn't sell '{item_name}'.|n")
+                                return
+
+                            price = int(matched_proto.get("value_silver", 0)) or max(1, int(matched_proto.get("value_copper", 0)) // 10)
+                            silver = getattr(puppet.db, "silver", 0) or 0
+
+                            if silver < price:
+                                session.msg(text=f"|400You can't afford {matched_proto['key']}. It costs {price} silver; you have {silver}.|n")
+                                return
+
+                            spawned = ev_spawn(matched_proto, location=puppet)
+                            if spawned:
+                                puppet.db.silver = silver - price
+                                session.msg(text=f"|gYou pay {price} silver and receive |w{matched_proto['key']}|g.|n")
+                                diag_write("BUY DONE", item=matched_proto['key'], price=price)
+                            else:
+                                session.msg(text="|400Failed to create item.|n")
+                    except Exception as exc:
+                        diag_write("BUY FAILED", exc=str(exc))
+                    return
+
+                # __sell__ <item> — direct sell handler
+                if lowered.startswith("__sell__ "):
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            item_name = stripped[len("__sell__ "):].strip()
+                            item = puppet.search(item_name, location=puppet)
+                            if not item:
+                                session.msg(text=f"|430You don't have '{item_name}'.|n")
+                                return
+                            # Check merchant exists
+                            merchants = [
+                                obj for obj in puppet.location.contents
+                                if obj != puppet and getattr(obj.db, "shop_inventory", None) is not None
+                            ]
+                            if not merchants:
+                                session.msg(text="|430There are no merchants here.|n")
+                                return
+                            merchant = merchants[0]
+                            val = getattr(item.db, "value_silver", 0) or 0
+                            if not val:
+                                val = (getattr(item.db, "value_copper", 0) or 0) // 10
+                            sell_price = max(1, int(val) // 2) if val else 0
+                            if sell_price == 0:
+                                session.msg(text=f"|430{merchant.key} has no interest in {item.key}.|n")
+                                return
+                            item_key = item.key
+                            item.delete()
+                            puppet.db.silver = (getattr(puppet.db, "silver", 0) or 0) + sell_price
+                            session.msg(text=f"|gYou sell |w{item_key}|g to {merchant.key} for {sell_price} silver.|n")
+                            diag_write("SELL DONE", item=item_key, price=sell_price)
+                    except Exception as exc:
+                        diag_write("SELL FAILED", exc=str(exc))
+                    return
+
                 # __equip_ui__ — the frontend sends this (not a real MUD
                 # command) to request structured inventory data for the
                 # equip modal. We intercept it here and push the OOB event

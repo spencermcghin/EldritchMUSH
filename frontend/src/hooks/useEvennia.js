@@ -79,6 +79,8 @@ export function useEvennia() {
     inventoryData: null,
     // Structured charsheet data from the server's charsheet_data OOB event.
     charsheetData: null,
+    // Structured shop data from the server's shop_data OOB event.
+    shopData: null,
     // True when we're authenticated but haven't yet puppeted a character.
     // Drives the CharacterSelect screen.
     atCharacterSelect: false,
@@ -199,6 +201,10 @@ export function useEvennia() {
         }
         case 'charsheet_data': {
           next.charsheetData = { ...kwargs, ts: Date.now() }
+          break
+        }
+        case 'shop_data': {
+          next.shopData = { ...kwargs, ts: Date.now() }
           break
         }
         case 'character_stats': {
