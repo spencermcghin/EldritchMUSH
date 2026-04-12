@@ -81,6 +81,8 @@ export function useEvennia() {
     charsheetData: null,
     // Structured shop data from the server's shop_data OOB event.
     shopData: null,
+    // Room graph data for the interactive map.
+    mapData: null,
     // True when we're authenticated but haven't yet puppeted a character.
     // Drives the CharacterSelect screen.
     atCharacterSelect: false,
@@ -205,6 +207,10 @@ export function useEvennia() {
         }
         case 'shop_data': {
           next.shopData = { ...kwargs, ts: Date.now() }
+          break
+        }
+        case 'map_data': {
+          next.mapData = { ...kwargs, ts: Date.now() }
           break
         }
         case 'character_stats': {
