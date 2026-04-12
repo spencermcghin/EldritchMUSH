@@ -10,7 +10,7 @@ from django.contrib import admin
 # default evennia patterns
 from evennia.web.urls import urlpatterns
 
-from web.api_views import webclient_session, account_characters
+from web.api_views import webclient_session, account_characters, admin_all_characters, admin_delete_character
 from web.diag import diag_view
 
 # Side-effect import: connects OAuth signal handlers. Must happen
@@ -31,6 +31,9 @@ custom_patterns = [
     # JSON endpoints used by the React frontend
     path("api/webclient_session/", webclient_session, name="webclient_session"),
     path("api/account/characters/", account_characters, name="account_characters"),
+    # Admin-only endpoints
+    path("api/admin/characters/", admin_all_characters, name="admin_all_characters"),
+    path("api/admin/delete-character/", admin_delete_character, name="admin_delete_character"),
     # Diagnostic log viewer — visit /api/diag/ in a browser to read the
     # tail of /data/diag.log. Used to debug Railway log capture issues
     # where Evennia server stdout/server.log isn't being collected.

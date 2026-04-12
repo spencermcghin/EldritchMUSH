@@ -1,7 +1,10 @@
 """
 Lightweight JSON endpoints used by the React frontend.
 """
+import json
 from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 
 def webclient_session(request):
@@ -178,3 +181,125 @@ def account_characters(request):
         "authenticated": True,
         "characters": characters,
     })
+
+
+def _is_admin(user):
+    """Check if the Django user is a game admin (superuser, Admin, or Builder)."""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    try:
+        return user.check_permstring("Admin") or user.check_permstring("Builder")
+    except Exception:
+        return False
+
+
+def admin_all_characters(request):
+    """
+    Admin-only: returns ALL characters across all accounts with metadata
+    including online/offline status, location, stats, and account info.
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "Admin access required"}, status=403)
+
+    from evennia.objects.models import ObjectDB
+    from django.conf import settings
+
+    typeclass = getattr(settings, "BASE_CHARACTER_TYPECLASS", "typeclasses.characters.Character")
+    all_chars = ObjectDB.objects.filter(db_typeclass_path=typeclass)
+
+    characters = []
+    for char in all_chars:
+        try:
+            location = char.location
+            location_name = location.key if location else "the void"
+            in_chargen = False
+            if location and "ChargenRoom" in (location.typeclass_path or ""):
+                in_chargen = True
+
+            # Online = has an active session (puppeted by someone)
+            is_online = bool(char.has_account and char.sessions.count())
+
+            # Account info
+            account_name = None
+            account_id = None
+            if char.db_account:
+                account_name = char.db_account.username
+                account_id = char.db_account.id
+            else:
+                # Check _playable_characters on all accounts
+                from evennia.accounts.models import AccountDB
+                for acct in AccountDB.objects.all():
+                    pcs = acct.db._playable_characters or []
+                    if char in pcs:
+                        account_name = acct.username
+                        account_id = acct.id
+                        break
+
+            characters.append({
+                "id": char.id,
+                "name": char.key,
+                "dbref": f"#{char.id}",
+                "body": char.db.body if char.db.body is not None else 0,
+                "totalBody": char.db.total_body if char.db.total_body is not None else 0,
+                "av": char.db.av or 0,
+                "location": location_name,
+                "archetype": _archetype_for_character(char),
+                "online": is_online,
+                "inChargen": in_chargen,
+                "accountName": account_name,
+                "accountId": account_id,
+                "created": char.db_date_created.isoformat() if char.db_date_created else None,
+            })
+        except Exception as exc:
+            print(f"[api_views] Error serializing character {char.id}: {exc}")
+            continue
+
+    return JsonResponse({"characters": characters})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def admin_delete_character(request):
+    """
+    Admin-only: delete a character by ID.
+    POST body: {"character_id": 123}
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "Admin access required"}, status=403)
+
+    try:
+        data = json.loads(request.body)
+        char_id = data.get("character_id")
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({"error": "Invalid request body"}, status=400)
+
+    if not char_id:
+        return JsonResponse({"error": "character_id required"}, status=400)
+
+    from evennia.objects.models import ObjectDB
+
+    try:
+        char = ObjectDB.objects.get(id=char_id)
+    except ObjectDB.DoesNotExist:
+        return JsonResponse({"error": f"Character #{char_id} not found"}, status=404)
+
+    # Remove from owner's _playable_characters
+    try:
+        from evennia.accounts.models import AccountDB
+        for acct in AccountDB.objects.all():
+            pcs = acct.db._playable_characters or []
+            if char in pcs:
+                pcs.remove(char)
+                acct.db._playable_characters = pcs
+                break
+    except Exception:
+        pass
+
+    char_name = char.key
+    char.delete()
+
+    return JsonResponse({"success": True, "deleted": char_name})

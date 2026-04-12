@@ -30,7 +30,7 @@ const EQUIP_SLOTS = [
   { key: 'body', label: 'Armor', icon: '◈' },
 ]
 
-export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap, onCharSheet, onSwitchCharacter }) {
+export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap, onCharSheet, onSwitchCharacter, onAdmin }) {
   const {
     characterName,
     body,
@@ -156,6 +156,11 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
             {onWorldMap && (
               <button className="char-action-btn world-map-link" onClick={onWorldMap}>
                 ✦ World Map
+              </button>
+            )}
+            {onAdmin && (
+              <button className="char-action-btn admin-link" onClick={onAdmin}>
+                Admin Dashboard
               </button>
             )}
           </div>
