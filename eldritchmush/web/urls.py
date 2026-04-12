@@ -10,7 +10,11 @@ from django.contrib import admin
 # default evennia patterns
 from evennia.web.urls import urlpatterns
 
-from web.api_views import webclient_session, account_characters, admin_all_characters, admin_delete_character
+from web.api_views import (
+    webclient_session, account_characters,
+    admin_all_characters, admin_delete_character,
+    admin_all_accounts, admin_set_role,
+)
 from web.diag import diag_view
 
 # Side-effect import: connects OAuth signal handlers. Must happen
@@ -34,6 +38,8 @@ custom_patterns = [
     # Admin-only endpoints
     path("api/admin/characters/", admin_all_characters, name="admin_all_characters"),
     path("api/admin/delete-character/", admin_delete_character, name="admin_delete_character"),
+    path("api/admin/accounts/", admin_all_accounts, name="admin_all_accounts"),
+    path("api/admin/set-role/", admin_set_role, name="admin_set_role"),
     # Diagnostic log viewer — visit /api/diag/ in a browser to read the
     # tail of /data/diag.log. Used to debug Railway log capture issues
     # where Evennia server stdout/server.log isn't being collected.

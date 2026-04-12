@@ -290,6 +290,100 @@
   border-color: var(--border);
 }
 
+/* ── Accounts Tab ── */
+
+.admin-accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.admin-acct-card {
+  background: linear-gradient(135deg, rgba(30, 26, 20, 0.7), rgba(20, 18, 16, 0.9));
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  padding: 12px 14px;
+}
+.admin-acct-card.is-online {
+  border-left-color: var(--phosphor);
+}
+
+.admin-acct-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.admin-acct-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  flex: 1;
+}
+
+.admin-acct-email {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-aged);
+  opacity: 0.6;
+  margin-bottom: 6px;
+}
+
+.admin-acct-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.admin-meta-tag.superuser {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+/* Role pills */
+.admin-roles {
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.admin-role-pills {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.admin-role-pill {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-aged);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-role-pill:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--text-light);
+}
+
+.admin-role-pill.active {
+  background: rgba(0, 229, 160, 0.12);
+  border-color: var(--phosphor);
+  color: var(--phosphor);
+}
+
+.admin-role-pill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Footer */
 .admin-footer {
   padding: 10px 20px;

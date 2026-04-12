@@ -303,3 +303,91 @@ def admin_delete_character(request):
     char.delete()
 
     return JsonResponse({"success": True, "deleted": char_name})
+
+
+def admin_all_accounts(request):
+    """
+    Admin-only: returns all accounts with their roles/permissions,
+    online status, and character count.
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "Admin access required"}, status=403)
+
+    from evennia.accounts.models import AccountDB
+
+    accounts = []
+    for acct in AccountDB.objects.all():
+        try:
+            perms = list(acct.permissions.all()) if hasattr(acct, "permissions") else []
+            # Count characters
+            pcs = acct.db._playable_characters or []
+            char_names = [getattr(c, "key", "?") for c in pcs if c]
+            # Online = has connected sessions
+            is_online = bool(acct.sessions.count()) if hasattr(acct, "sessions") else False
+
+            accounts.append({
+                "id": acct.id,
+                "username": acct.username,
+                "email": getattr(acct, "email", "") or "",
+                "permissions": perms,
+                "isSuperuser": acct.is_superuser,
+                "isStaff": acct.is_staff,
+                "online": is_online,
+                "characterCount": len(char_names),
+                "characters": char_names[:5],  # first 5
+                "dateJoined": acct.date_joined.isoformat() if hasattr(acct, "date_joined") and acct.date_joined else None,
+            })
+        except Exception as exc:
+            print(f"[api_views] Error serializing account {acct.id}: {exc}")
+
+    # Available roles for the dropdown
+    roles = ["Player", "Builder", "Admin", "Developer"]
+
+    return JsonResponse({"accounts": accounts, "availableRoles": roles})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def admin_set_role(request):
+    """
+    Admin-only: add or remove a permission/role on an account.
+    POST body: {"account_id": 123, "role": "Builder", "action": "add"|"remove"}
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "Admin access required"}, status=403)
+
+    try:
+        data = json.loads(request.body)
+        account_id = data.get("account_id")
+        role = data.get("role")
+        action = data.get("action", "add")
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({"error": "Invalid request body"}, status=400)
+
+    if not account_id or not role:
+        return JsonResponse({"error": "account_id and role required"}, status=400)
+
+    valid_roles = ["Player", "Builder", "Admin", "Developer"]
+    if role not in valid_roles:
+        return JsonResponse({"error": f"Invalid role. Must be one of: {valid_roles}"}, status=400)
+
+    from evennia.accounts.models import AccountDB
+    try:
+        acct = AccountDB.objects.get(id=account_id)
+    except AccountDB.DoesNotExist:
+        return JsonResponse({"error": f"Account #{account_id} not found"}, status=404)
+
+    current_perms = list(acct.permissions.all())
+
+    if action == "add":
+        if role not in current_perms:
+            acct.permissions.add(role)
+        return JsonResponse({"success": True, "username": acct.username, "permissions": list(acct.permissions.all())})
+    elif action == "remove":
+        if role in current_perms:
+            acct.permissions.remove(role)
+        return JsonResponse({"success": True, "username": acct.username, "permissions": list(acct.permissions.all())})
+    else:
+        return JsonResponse({"error": "action must be 'add' or 'remove'"}, status=400)

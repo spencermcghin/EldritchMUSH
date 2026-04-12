@@ -1,12 +1,113 @@
 import { useState, useEffect, useCallback } from 'react'
 import './AdminPanel.css'
 
+function AccountsTab() {
+  const [accounts, setAccounts] = useState([])
+  const [roles, setRoles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const fetchAccounts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const resp = await fetch('/api/admin/accounts/', { credentials: 'include' })
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const data = await resp.json()
+      setAccounts(data.accounts || [])
+      setRoles(data.availableRoles || [])
+      setError(null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchAccounts() }, [fetchAccounts])
+
+  const handleRoleToggle = useCallback(async (accountId, role, hasRole) => {
+    try {
+      const resp = await fetch('/api/admin/set-role/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          account_id: accountId,
+          role,
+          action: hasRole ? 'remove' : 'add',
+        }),
+      })
+      const data = await resp.json()
+      if (data.success) {
+        setAccounts(prev => prev.map(a =>
+          a.id === accountId ? { ...a, permissions: data.permissions } : a
+        ))
+      } else {
+        setError(data.error)
+      }
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [])
+
+  if (loading) return <div className="admin-loading">Loading accounts...</div>
+  if (error) return <div className="admin-error">{error}</div>
+
+  return (
+    <div className="admin-accounts-grid">
+      {accounts.map(acct => (
+        <div key={acct.id} className={`admin-acct-card ${acct.online ? 'is-online' : ''}`}>
+          <div className="admin-acct-header">
+            <span className={`admin-status-dot ${acct.online ? 'online' : 'offline'}`} />
+            <span className="admin-acct-name">{acct.username}</span>
+            <span className="admin-char-dbref">#{acct.id}</span>
+            {acct.isSuperuser && <span className="admin-meta-tag superuser">SUPERUSER</span>}
+          </div>
+          {acct.email && <div className="admin-acct-email">{acct.email}</div>}
+          <div className="admin-acct-info">
+            <span className="admin-detail-label">Characters:</span>
+            <span className="admin-detail-value">
+              {acct.characters.length > 0 ? acct.characters.join(', ') : 'none'}
+            </span>
+          </div>
+          {acct.dateJoined && (
+            <div className="admin-acct-info">
+              <span className="admin-detail-label">Joined:</span>
+              <span className="admin-detail-value">{new Date(acct.dateJoined).toLocaleDateString()}</span>
+            </div>
+          )}
+          <div className="admin-roles">
+            <span className="admin-detail-label">Roles:</span>
+            <div className="admin-role-pills">
+              {roles.map(role => {
+                const hasRole = acct.permissions.includes(role)
+                return (
+                  <button
+                    key={role}
+                    className={`admin-role-pill ${hasRole ? 'active' : ''}`}
+                    onClick={() => handleRoleToggle(acct.id, role, hasRole)}
+                    disabled={acct.isSuperuser}
+                    title={acct.isSuperuser ? 'Superusers have all permissions' : `${hasRole ? 'Remove' : 'Add'} ${role}`}
+                  >
+                    {role}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function AdminPanel({ onClose }) {
   const [characters, setCharacters] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [tab, setTab] = useState('characters')
 
   const fetchCharacters = useCallback(async () => {
     setLoading(true)
@@ -70,9 +171,22 @@ export default function AdminPanel({ onClose }) {
           <button className="admin-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* Filter bar */}
+        {/* Tab switcher */}
         <div className="admin-filter-bar">
-          {['all', 'online', 'offline', 'chargen'].map(f => (
+          <button
+            className={`admin-filter-btn ${tab === 'characters' ? 'active' : ''}`}
+            onClick={() => setTab('characters')}
+          >
+            Characters
+          </button>
+          <button
+            className={`admin-filter-btn ${tab === 'accounts' ? 'active' : ''}`}
+            onClick={() => setTab('accounts')}
+          >
+            Accounts & Roles
+          </button>
+          <div style={{ flex: 1 }} />
+          {tab === 'characters' && ['all', 'online', 'offline', 'chargen'].map(f => (
             <button
               key={f}
               className={`admin-filter-btn ${filter === f ? 'active' : ''}`}
@@ -85,6 +199,10 @@ export default function AdminPanel({ onClose }) {
 
         {/* Content */}
         <div className="admin-body">
+          {tab === 'accounts' ? (
+            <AccountsTab />
+          ) : (
+          <>
           {loading && <div className="admin-loading">Loading characters...</div>}
           {error && <div className="admin-error">{error}</div>}
 
@@ -167,6 +285,8 @@ export default function AdminPanel({ onClose }) {
                 <div className="admin-empty">No characters match this filter.</div>
               )}
             </div>
+          )}
+          </>
           )}
         </div>
 
