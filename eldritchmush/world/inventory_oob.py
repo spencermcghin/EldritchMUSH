@@ -150,9 +150,16 @@ def push_inventory(character, session=None):
 
     try:
         from web.diag import diag_write
+        # Show the actual slot values for debugging
+        slot_debug = {}
+        for sn in _ALL_SLOTS:
+            sv = character.attributes.get(sn, default=[])
+            if sv:
+                slot_debug[sn] = [getattr(x, 'id', '?') for x in (sv if isinstance(sv, list) else [sv])]
         diag_write(
             "push_inventory debug",
-            equipped_map={k: v for k, v in equipped_map.items()},
+            equipped_map=equipped_map,
+            slot_debug=slot_debug,
             contents_count=len(list(character.contents)),
             contents_ids=[c.id for c in character.contents],
         )
