@@ -282,25 +282,29 @@ def text(session, *args, **kwargs):
                             cmd.cmdset_providers = {}
                             cmd.parse()
                             cmd.func()
-                            # CmdEquip stores slot refs via
-                            #   self.right_slot = self.caller.db.right_slot
-                            # then appends to self.right_slot. In Evennia 5.x
-                            # db attribute reads may return copies, so the
-                            # append doesn't persist. Force-write the cmd's
-                            # captured slot lists back to db.
+                            # CmdEquip captures slot lists in parse() then
+                            # appends in func(). Evennia 5.x db reads return
+                            # copies, so appends don't persist. Force-save ALL
+                            # equipment slots using attributes.add() which is
+                            # guaranteed to write through to the database.
                             try:
-                                if hasattr(cmd, "right_slot"):
-                                    puppet.db.right_slot = cmd.right_slot
-                                if hasattr(cmd, "left_slot"):
-                                    puppet.db.left_slot = cmd.left_slot
-                            except Exception:
-                                pass
+                                for slot_attr in ("right_slot", "left_slot", "body_slot",
+                                                  "hand_slot", "foot_slot", "clothing_slot",
+                                                  "cloak_slot", "kit_slot", "arrow_slot", "bullet_slot"):
+                                    # Read the current in-memory value (which func() modified)
+                                    # and force-write it back via attributes.add()
+                                    val = getattr(puppet.db, slot_attr, [])
+                                    puppet.attributes.add(slot_attr, val)
+                            except Exception as exc:
+                                diag_write(f"SLOT PERSIST FAILED", exc=str(exc))
                             try:
                                 from world.character_stats import push_character_stats
                                 push_character_stats(puppet)
                             except Exception:
                                 pass
-                            diag_write(f"DIRECT DISPATCH {cmd_key} DONE", item=cmdarg)
+                            diag_write(f"DIRECT DISPATCH {cmd_key} DONE", item=cmdarg,
+                                       right=list(getattr(puppet.db, 'right_slot', [])),
+                                       left=list(getattr(puppet.db, 'left_slot', [])))
                         except Exception as exc:
                             import traceback
                             diag_write(f"DIRECT DISPATCH {cmd_key} FAILED", exc=str(exc), traceback=traceback.format_exc())
