@@ -107,8 +107,15 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
   }, [lastCharCreate, creating, sendCommand, onPuppeted, clearLastCharCreate])
 
   const handlePlay = useCallback((char) => {
-    sendCommand(`ic ${char.name}`)
-    if (onPuppeted) onPuppeted(char)
+    // Under MULTISESSION_MODE=2, send `ooc` first to unpuppet any
+    // currently-puppeted character, then `ic <name>` to puppet the
+    // selected one. Without the `ooc`, the old character stays
+    // puppeted in the world alongside the new one.
+    sendCommand('ooc')
+    setTimeout(() => {
+      sendCommand(`ic ${char.name}`)
+      if (onPuppeted) onPuppeted(char)
+    }, 300)
   }, [sendCommand, onPuppeted])
 
   const handleCreateSubmit = useCallback((e) => {

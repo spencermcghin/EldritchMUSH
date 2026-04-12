@@ -343,12 +343,16 @@ export function useEvennia() {
             setOobState((prev) => ({ ...prev, ...stats }))
           }
 
-          // Chargen room detection — look for the ChargenRoom name/description
-          // Suppress for 3 seconds after a manual exit so a lingering room
-          // description doesn't immediately re-open the wizard.
+          // Chargen room detection — only trigger on the specific ChargenRoom
+          // name "The Threshold" or its exact description text. Previous logic
+          // matched any text containing "chargen" which was way too broad —
+          // it re-triggered the wizard when looking at rooms or items that
+          // happened to contain that word (e.g. a room named "Chargenit").
           const stripped = text.replace(/<[^>]*>/g, '').toLowerCase()
           const recentlyExited = Date.now() - chargenExitedAtRef.current < 3000
-          if (!recentlyExited && (stripped.includes('chargen') || stripped.includes('character creation') || stripped.includes('set commands to choose'))) {
+          if (!recentlyExited && (
+            stripped.includes('the threshold') && stripped.includes('mirrored pool')
+          )) {
             setOobState((prev) => prev.inChargen ? prev : { ...prev, inChargen: true, chargenViewMode: false })
           }
         }
