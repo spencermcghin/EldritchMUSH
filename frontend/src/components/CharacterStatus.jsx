@@ -106,7 +106,11 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
         {/* Equipment slots — click an equipped item to unequip */}
         <div className="equip-slots">
           {EQUIP_SLOTS.map((slot) => {
-            const item = equipment?.[slot.key]
+            const rawItem = equipment?.[slot.key]
+            // Strip brackets/parens and #id that Evennia may include
+            const item = rawItem
+              ? rawItem.replace(/^\[|\]$/g, '').replace(/\(#\d+\)/, '').trim()
+              : null
             return (
               <div key={slot.key} className={`equip-slot ${item ? 'has-item' : ''}`}>
                 <span className="equip-icon">{slot.icon}</span>
