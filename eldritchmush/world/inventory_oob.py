@@ -119,8 +119,13 @@ def _check_can_use(item, character):
         return True, None  # on error, allow equip
 
 
-def push_inventory(character):
-    """Send an inventory_list OOB event to the character's web client."""
+def push_inventory(character, session=None):
+    """Send an inventory_list OOB event.
+
+    If session is provided, sends directly via session.msg(event=...) which
+    bypasses character.msg() routing — more reliable from inputfunc context.
+    Otherwise falls back to emit_to(character, ...) for backward compat.
+    """
     if character is None:
         return
 
@@ -187,7 +192,17 @@ def push_inventory(character):
         else:
             slots[slot_name] = {"label": label, "item": None, "itemId": None}
 
-    emit_to(character, "inventory_list", {
+    import time
+    payload = {
+        "type": "inventory_list",
+        "_ts": time.time(),
         "items": items,
         "slots": slots,
-    })
+    }
+    if session:
+        session.msg(event=payload)
+    else:
+        emit_to(character, "inventory_list", {
+            "items": items,
+            "slots": slots,
+        })
