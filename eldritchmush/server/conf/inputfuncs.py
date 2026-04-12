@@ -163,8 +163,13 @@ def text(session, *args, **kwargs):
                                     return getattr(v[0], "key", str(v[0])) if v else None
                                 return getattr(v, "key", str(v))
 
-                            from world.events import emit_to
-                            emit_to(puppet, "charsheet_data", {
+                            # Send via session.msg (not character.msg via emit_to)
+                            # because character.msg OOB events don't reliably
+                            # reach the frontend from the inputfunc context.
+                            import time
+                            payload = {
+                                "type": "charsheet_data",
+                                "_ts": time.time(),
                                 "name": puppet.key,
                                 "status": {
                                     "body": getattr(db, "body", 0),
@@ -226,8 +231,9 @@ def text(session, *args, **kwargs):
                                     "Silver": getattr(db, "silver", 0),
                                     "Copper": getattr(db, "copper", 0),
                                 },
-                            })
-                            diag_write("CHARSHEET_UI sent", puppet=repr(puppet))
+                            }
+                            session.msg(event=payload)
+                            diag_write("CHARSHEET_UI sent via session.msg", puppet=repr(puppet))
                     except Exception as exc:
                         diag_write("CHARSHEET_UI FAILED", exc=str(exc))
                     return
@@ -241,8 +247,8 @@ def text(session, *args, **kwargs):
                         from world.inventory_oob import push_inventory
                         puppet = getattr(session, "puppet", None)
                         if puppet:
-                            push_inventory(puppet)
-                            diag_write("EQUIP_UI push_inventory sent", puppet=repr(puppet))
+                            push_inventory(puppet, session=session)
+                            diag_write("EQUIP_UI push_inventory sent via session", puppet=repr(puppet))
                         else:
                             diag_write("EQUIP_UI no puppet — can't send inventory")
                     except Exception as exc:
