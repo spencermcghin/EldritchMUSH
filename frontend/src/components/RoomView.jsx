@@ -149,14 +149,12 @@ function singularize(name) {
   return name
 }
 
-// Build a command-safe item reference. When there are multiple copies
-// of the same item in a room, Evennia disambiguates with "1-name",
-// "2-name" etc. We always prefix with "1-" so Evennia grabs the first
-// match without asking the player to narrow the target.
-// MUST be lowercase — Evennia's search is case-insensitive but the
-// N- prefix matching requires lowercase.
+// For command targets, just use the name as-is (lowercase for safety).
+// The 1-name prefix syntax doesn't work reliably across all Evennia
+// search contexts. If there are duplicates, Evennia will prompt the
+// player to narrow the target — acceptable UX.
 function cmdRef(name) {
-  return `1-${name.toLowerCase()}`
+  return name.toLowerCase()
 }
 
 // Number words → numeric values for quantity parsing
