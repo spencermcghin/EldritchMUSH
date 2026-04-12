@@ -276,9 +276,19 @@ def text(session, *args, **kwargs):
                             cmd.cmdset_providers = {}
                             cmd.parse()
                             cmd.func()
-                            # Force-push updated stats to the UI in case
-                            # CmdEquip's own push_character_stats call
-                            # didn't reach the client for some reason.
+                            # CmdEquip stores slot refs via
+                            #   self.right_slot = self.caller.db.right_slot
+                            # then appends to self.right_slot. In Evennia 5.x
+                            # db attribute reads may return copies, so the
+                            # append doesn't persist. Force-write the cmd's
+                            # captured slot lists back to db.
+                            try:
+                                if hasattr(cmd, "right_slot"):
+                                    puppet.db.right_slot = cmd.right_slot
+                                if hasattr(cmd, "left_slot"):
+                                    puppet.db.left_slot = cmd.left_slot
+                            except Exception:
+                                pass
                             try:
                                 from world.character_stats import push_character_stats
                                 push_character_stats(puppet)
