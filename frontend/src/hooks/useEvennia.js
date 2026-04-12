@@ -75,6 +75,9 @@ export function useEvennia() {
     chargenViewMode: false,
     // Current character's skill levels (populated from server when available)
     characterSkills: {},
+    // Structured inventory data from the server's inventory_list OOB event.
+    // Populated when the user opens the equip modal (sends __equip_ui__).
+    inventoryData: null,
     // True when we're authenticated but haven't yet puppeted a character.
     // Drives the CharacterSelect screen.
     atCharacterSelect: false,
@@ -181,6 +184,14 @@ export function useEvennia() {
             status: 'error',
             reason: kwargs.reason || 'Character creation failed.',
             code: kwargs.code || 'unknown',
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'inventory_list': {
+          next.inventoryData = {
+            items: kwargs.items || [],
+            slots: kwargs.slots || {},
             ts: Date.now(),
           }
           break
