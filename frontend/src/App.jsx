@@ -225,6 +225,33 @@ function App() {
     lookWatcherRef.current = null
   }, [])
 
+  // Auto-close DetailPanel when the player moves to a new room.
+  // Detect by watching for new messages containing "Exits:" which
+  // indicates a room description (from movement or `look`). Only
+  // close if the panel is open and the message wasn't triggered by
+  // our own look-watcher (which also produces room-like output).
+  const prevMsgCountRef = useRef(messages.length)
+  useEffect(() => {
+    if (!selectedEntity) return
+    if (messages.length <= prevMsgCountRef.current) {
+      prevMsgCountRef.current = messages.length
+      return
+    }
+    // Check new messages for room description markers
+    for (let i = prevMsgCountRef.current; i < messages.length; i++) {
+      const msg = messages[i]
+      if (!msg || msg.type === 'system') continue
+      const raw = (msg.content || '').replace(/<[^>]*>/g, '')
+      if (/Exits?:/i.test(raw) && !lookWatcherRef.current) {
+        // New room — close the detail panel
+        setSelectedEntity(null)
+        setEntityDescription('')
+        break
+      }
+    }
+    prevMsgCountRef.current = messages.length
+  }, [messages, selectedEntity])
+
   const isConnected = connectionState === 'connected'
   const isConnecting = connectionState === 'connecting'
 

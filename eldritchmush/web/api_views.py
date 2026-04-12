@@ -183,6 +183,12 @@ def account_characters(request):
     })
 
 
+def _strip_ansi(text):
+    """Strip Evennia ANSI color codes like |r, |025, |n, |R etc."""
+    import re
+    return re.sub(r'\|[a-zA-Z]|\|\d{3}|\|\[?\d+', '', text or '').strip()
+
+
 def _is_admin(user):
     """Check if the Django user is a game admin (superuser, Admin, or Builder)."""
     if not user.is_authenticated:
@@ -240,12 +246,12 @@ def admin_all_characters(request):
 
             characters.append({
                 "id": char.id,
-                "name": char.key,
+                "name": _strip_ansi(char.key),
                 "dbref": f"#{char.id}",
                 "body": char.db.body if char.db.body is not None else 0,
                 "totalBody": char.db.total_body if char.db.total_body is not None else 0,
                 "av": char.db.av or 0,
-                "location": location_name,
+                "location": _strip_ansi(location_name),
                 "archetype": _archetype_for_character(char),
                 "online": is_online,
                 "inChargen": in_chargen,

@@ -108,6 +108,7 @@ export default function AdminPanel({ onClose }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [filter, setFilter] = useState('all')
   const [tab, setTab] = useState('characters')
+  const [search, setSearch] = useState('')
 
   const fetchCharacters = useCallback(async () => {
     setLoading(true)
@@ -149,11 +150,21 @@ export default function AdminPanel({ onClose }) {
     }
   }, [])
 
-  const filtered = filter === 'all' ? characters
-    : filter === 'online' ? characters.filter(c => c.online)
-    : filter === 'offline' ? characters.filter(c => !c.online)
-    : filter === 'chargen' ? characters.filter(c => c.inChargen)
-    : characters
+  const searchLower = search.toLowerCase()
+  const filtered = characters
+    .filter(c => {
+      if (filter === 'online') return c.online
+      if (filter === 'offline') return !c.online
+      if (filter === 'chargen') return c.inChargen
+      return true
+    })
+    .filter(c => {
+      if (!searchLower) return true
+      return c.name.toLowerCase().includes(searchLower)
+        || (c.accountName || '').toLowerCase().includes(searchLower)
+        || (c.location || '').toLowerCase().includes(searchLower)
+        || (c.archetype || '').toLowerCase().includes(searchLower)
+    })
 
   const onlineCount = characters.filter(c => c.online).length
   const totalCount = characters.length
@@ -186,6 +197,14 @@ export default function AdminPanel({ onClose }) {
             Accounts & Roles
           </button>
           <div style={{ flex: 1 }} />
+          <input
+            className="admin-search"
+            type="text"
+            placeholder="Search..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            spellCheck="false"
+          />
           {tab === 'characters' && ['all', 'online', 'offline', 'chargen'].map(f => (
             <button
               key={f}
