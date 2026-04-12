@@ -114,7 +114,7 @@ function CommandEntry({ cmd, onClick, onPrompt, sendCommand }) {
   )
 }
 
-export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, characterSkills = {} }) {
+export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, onShop, characterSkills = {} }) {
   const commands = buildCommandList(inCombat, characterSkills)
   const groups = groupCommands(commands)
 
@@ -140,6 +140,12 @@ export default function CommandSidebar({ availableCommands, inCombat, myTurn, on
                 <span className="cmd-arrow">›</span>
                 <span className="cmd-key">Equip / Unequip</span>
               </div>
+              {onShop && (
+                <div className="cmd-entry cmd-enabled" onClick={onShop}>
+                  <span className="cmd-arrow">›</span>
+                  <span className="cmd-key">Shop / Trade</span>
+                </div>
+              )}
             </div>
           </div>
         )}
