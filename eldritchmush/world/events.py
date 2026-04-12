@@ -76,8 +76,12 @@ def _send_event(target, payload):
     """
     try:
         target.msg(event=payload)
-    except Exception:
-        pass  # never crash game logic over a UI notification
+    except Exception as exc:
+        try:
+            from web.diag import diag_write
+            diag_write("_send_event FAILED", target=repr(target), event_type=payload.get("type"), exc=str(exc))
+        except Exception:
+            pass
 
 
 def emit(room, event_type, data=None):
@@ -125,5 +129,16 @@ def emit_to(character, event_type, data=None):
     }
     payload.update(data)
 
-    if hasattr(character, "has_account") and character.has_account:
+    has_acct = hasattr(character, "has_account") and character.has_account
+    try:
+        from web.diag import diag_write
+        diag_write(
+            f"emit_to {event_type}",
+            character=repr(character),
+            has_account=has_acct,
+            sessions=len(character.sessions.all()) if has_acct else 0,
+        )
+    except Exception:
+        pass
+    if has_acct:
         _send_event(character, payload)
