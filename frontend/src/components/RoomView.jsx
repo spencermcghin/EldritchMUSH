@@ -149,12 +149,12 @@ function singularize(name) {
   return name
 }
 
-// For command targets, just use the name as-is (lowercase for safety).
-// The 1-name prefix syntax doesn't work reliably across all Evennia
-// search contexts. If there are duplicates, Evennia will prompt the
-// player to narrow the target — acceptable UX.
-function cmdRef(name) {
-  return name.toLowerCase()
+// For rooms with duplicate items, Evennia appends -1, -2, etc. to
+// each copy's key (e.g. "hardened iron shield-1"). When the count
+// is > 1, append "-1" to grab the first copy without disambiguation.
+function cmdRef(name, count) {
+  const lower = name.toLowerCase()
+  return count > 1 ? `${lower}-1` : lower
 }
 
 // Number words → numeric values for quantity parsing
@@ -321,10 +321,10 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
             <span className="room-section-label">You See</span>
             <div className="room-entities">
               {room.items.map((item, i) => {
-                // Singularize when plural, and prefix with 1- to avoid
-                // Evennia's "more than one match" disambiguation prompt
+                // Singularize when plural, and append -1 to target the
+                // first copy when there are duplicates in the room
                 const baseName = item.count > 1 ? singularize(item.name) : item.name
-                const ref = item.count > 1 ? cmdRef(baseName) : baseName
+                const ref = cmdRef(baseName, item.count)
                 return (
                   <button
                     key={i}
