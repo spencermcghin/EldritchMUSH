@@ -150,6 +150,88 @@ def text(session, *args, **kwargs):
                         diag_write("FINISH_CHARGEN FAILED", exc=str(exc))
                     return
 
+                # __charsheet_ui__ — push structured character skill data
+                if lowered == "__charsheet_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            db = puppet.db
+                            def slot_name(s):
+                                v = getattr(db, s, None)
+                                if not v: return None
+                                if isinstance(v, (list, tuple)):
+                                    return getattr(v[0], "key", str(v[0])) if v else None
+                                return getattr(v, "key", str(v))
+
+                            from world.events import emit_to
+                            emit_to(puppet, "charsheet_data", {
+                                "name": puppet.key,
+                                "status": {
+                                    "body": getattr(db, "body", 0),
+                                    "totalBody": getattr(db, "total_body", 0),
+                                    "weaponBonus": getattr(db, "weapon_level", 0),
+                                    "armorValue": getattr(db, "av", 0),
+                                    "rightSlot": slot_name("right_slot"),
+                                    "leftSlot": slot_name("left_slot"),
+                                    "bodySlot": slot_name("body_slot"),
+                                },
+                                "activeMartial": {
+                                    "Disarm": getattr(db, "disarm", 0),
+                                    "Stun": getattr(db, "stun", 0),
+                                    "Stagger": getattr(db, "stagger", 0),
+                                    "Sunder": getattr(db, "sunder", 0),
+                                    "Cleave": getattr(db, "cleave", 0),
+                                },
+                                "passiveMartial": {
+                                    "Resist": getattr(db, "resist", 0),
+                                    "Tough": getattr(db, "tough", 0),
+                                    "Armor": getattr(db, "armor", 0),
+                                    "Master of Arms": getattr(db, "master_of_arms", 0),
+                                    "Armor Specialist": getattr(db, "armor_specialist", 0),
+                                    "Sniper": getattr(db, "sniper", 0),
+                                },
+                                "proficiencies": {
+                                    "Gunner": getattr(db, "gunner", 0),
+                                    "Archer": getattr(db, "archer", 0),
+                                    "Shields": getattr(db, "shields", 0),
+                                    "Melee Weapons": getattr(db, "melee_weapons", 0),
+                                    "Armor Proficiency": getattr(db, "armor_proficiency", 0),
+                                },
+                                "general": {
+                                    "Perception": getattr(db, "perception", 0),
+                                    "Tracking": getattr(db, "tracking", 0),
+                                    "Medicine": getattr(db, "medicine", 0),
+                                },
+                                "profession": {
+                                    "Stabilize": getattr(db, "stabilize", 0),
+                                    "Battlefield Medicine": getattr(db, "battlefieldmedicine", 0),
+                                    "Chirurgeon": getattr(db, "chirurgeon", 0),
+                                    "Rally": getattr(db, "rally", 0),
+                                    "Battlefield Commander": getattr(db, "battlefieldcommander", 0),
+                                    "Vigil": getattr(db, "vigil", 0),
+                                },
+                                "crafting": {
+                                    "Blacksmith": getattr(db, "blacksmith", 0),
+                                    "Artificer": getattr(db, "artificer", 0),
+                                    "Bowyer": getattr(db, "bowyer", 0),
+                                    "Gunsmith": getattr(db, "gunsmith", 0),
+                                    "Alchemist": getattr(db, "alchemist", 0),
+                                },
+                                "resources": {
+                                    "Iron Ingots": getattr(db, "iron_ingots", 0),
+                                    "Refined Wood": getattr(db, "refined_wood", 0),
+                                    "Leather": getattr(db, "leather", 0),
+                                    "Cloth": getattr(db, "cloth", 0),
+                                    "Gold": getattr(db, "gold", 0),
+                                    "Silver": getattr(db, "silver", 0),
+                                    "Copper": getattr(db, "copper", 0),
+                                },
+                            })
+                            diag_write("CHARSHEET_UI sent", puppet=repr(puppet))
+                    except Exception as exc:
+                        diag_write("CHARSHEET_UI FAILED", exc=str(exc))
+                    return
+
                 # __equip_ui__ — the frontend sends this (not a real MUD
                 # command) to request structured inventory data for the
                 # equip modal. We intercept it here and push the OOB event
