@@ -1,0 +1,34 @@
+Name,Cost,Currency,Category,Notes
+Drink (Poor),1,copper,Food & Drink,
+Drink (Good),2,copper,Food & Drink,
+Drink (Excellent),3,copper,Food & Drink,
+Meal (Poor),2,copper,Food & Drink,
+Meal (Good),3,copper,Food & Drink,
+Meal (Feast),4,copper,Food & Drink,
+Peasant Clothing,1,silver,Clothing,
+Gentry Clothing,7,silver,Clothing,
+Noble Vestments,3,gold,Clothing,3+ gold
+Horse,5,gold,Mounts,
+Warhorse,8,gold,Mounts,
+Book,1,gold,Goods,
+Paper or Parchment,5,copper,Goods,per sheet
+Gold Necklace,5,gold,Goods,5+ gold
+50' of Rope,5,copper,Goods,
+Candle,1,copper,Goods,
+Bottle,2,copper,Goods,
+Mend a Weapon (sundered/broken),5,silver,Services,Repair from sundered or broken state
+Repair Armor,1,silver,Services,
+Chirurgical Operation,6,silver,Services,
+Battlefield Medicine,5,silver,Services,
+Medical Diagnoses and Stabilization,4,silver,Services,
+Hexen Bounty (Dangerous),1,gold,Bounties,
+Hexen Bounty (Deadly),2,gold,Bounties,
+Mercenary Fee (Green),1,silver,Services,per day
+Mercenary Fee (Experienced),2,silver,Services,per day
+Mercenary Fee (Veteran),3,silver,Services,per day
+Courier (Close),3,silver,Services,
+Courier (Distant),5,silver,Services,
+Courier (Far),1,gold,Services,
+Raven (Close),5,copper,Services,
+Raven (Distant),1,silver,Services,
+Raven (Far),3,silver,Services,
