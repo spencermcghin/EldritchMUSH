@@ -194,6 +194,14 @@ def text(session, *args, **kwargs):
                             cmd.cmdset_providers = {}
                             cmd.parse()
                             cmd.func()
+                            # Force-push updated stats to the UI in case
+                            # CmdEquip's own push_character_stats call
+                            # didn't reach the client for some reason.
+                            try:
+                                from world.character_stats import push_character_stats
+                                push_character_stats(puppet)
+                            except Exception:
+                                pass
                             diag_write(f"DIRECT DISPATCH {cmd_key} DONE", item=cmdarg)
                         except Exception as exc:
                             import traceback
