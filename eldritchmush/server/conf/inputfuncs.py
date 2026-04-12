@@ -255,60 +255,222 @@ def text(session, *args, **kwargs):
                         diag_write("EQUIP_UI FAILED", exc=str(exc))
                     return
 
-                # Direct-dispatch equip/unequip through the puppet's
-                # command classes, bypassing the standard cmdhandler
-                # (same dispatch issue as charcreate).
+                # ── Equip / Unequip ──
+                # Custom handler that bypasses CmdEquip/CmdUnequip entirely.
+                # Handles auto-swap (equipping replaces existing item in slot)
+                # and slot choice via syntax: equip <item> [to right|left]
+                # Also: unequip <item> or unequip right|left|body|...
                 if lowered.startswith("equip ") or lowered.startswith("unequip "):
                     puppet = getattr(session, "puppet", None)
-                    if puppet:
-                        try:
-                            is_unequip = lowered.startswith("unequip ")
-                            cmd_key = "unequip" if is_unequip else "equip"
-                            cmdarg = stripped[len(cmd_key):].strip()
-                            if is_unequip:
-                                from commands.command import CmdUnequip as CmdClass
-                            else:
-                                from commands.command import CmdEquip as CmdClass
-                            cmd = CmdClass()
-                            cmd.caller = puppet
-                            cmd.account = account
-                            cmd.session = session
-                            cmd.cmdname = cmd_key
-                            cmd.raw_cmdname = cmd_key
-                            cmd.cmdstring = cmd_key
-                            cmd.args = " " + cmdarg if cmdarg else ""
-                            cmd.raw_string = stripped
-                            cmd.cmdset = None
-                            cmd.cmdset_providers = {}
-                            cmd.parse()
-                            cmd.func()
-                            # CmdEquip captures slot lists in parse() then
-                            # appends in func(). Evennia 5.x db reads return
-                            # copies, so appends don't persist. Force-save ALL
-                            # equipment slots using attributes.add() which is
-                            # guaranteed to write through to the database.
-                            try:
-                                for slot_attr in ("right_slot", "left_slot", "body_slot",
-                                                  "hand_slot", "foot_slot", "clothing_slot",
-                                                  "cloak_slot", "kit_slot", "arrow_slot", "bullet_slot"):
-                                    # Read the current in-memory value (which func() modified)
-                                    # and force-write it back via attributes.add()
-                                    val = getattr(puppet.db, slot_attr, [])
-                                    puppet.attributes.add(slot_attr, val)
-                            except Exception as exc:
-                                diag_write(f"SLOT PERSIST FAILED", exc=str(exc))
+                    if not puppet:
+                        return
+                    try:
+                        is_unequip = lowered.startswith("unequip ")
+                        cmdarg = stripped[len("unequip " if is_unequip else "equip "):].strip()
+
+                        # Helper: persist a slot and notify
+                        def _save_slot(slot_name, val):
+                            puppet.attributes.add(slot_name, val)
+
+                        def _get_slot(slot_name):
+                            return puppet.attributes.get(slot_name, default=[])
+
+                        def _push_updates():
                             try:
                                 from world.character_stats import push_character_stats
+                                from world.available_commands import push_available_commands
                                 push_character_stats(puppet)
+                                push_available_commands(puppet)
                             except Exception:
                                 pass
-                            diag_write(f"DIRECT DISPATCH {cmd_key} DONE", item=cmdarg,
-                                       right=list(getattr(puppet.db, 'right_slot', [])),
-                                       left=list(getattr(puppet.db, 'left_slot', [])))
-                        except Exception as exc:
-                            import traceback
-                            diag_write(f"DIRECT DISPATCH {cmd_key} FAILED", exc=str(exc), traceback=traceback.format_exc())
-                        return
+
+                        if is_unequip:
+                            # unequip <item> or unequip <slot_name>
+                            # Try slot name first (right, left, body, etc.)
+                            slot_map = {
+                                "right": "right_slot", "right hand": "right_slot",
+                                "left": "left_slot", "left hand": "left_slot",
+                                "body": "body_slot", "armor": "body_slot",
+                                "hands": "hand_slot", "gloves": "hand_slot",
+                                "feet": "foot_slot", "boots": "foot_slot",
+                                "clothing": "clothing_slot", "cloak": "cloak_slot",
+                                "kit": "kit_slot", "arrows": "arrow_slot",
+                                "bullets": "bullet_slot",
+                            }
+                            target_slot = slot_map.get(cmdarg.lower())
+                            if target_slot:
+                                slot_val = _get_slot(target_slot)
+                                if slot_val:
+                                    old_item = slot_val[0] if isinstance(slot_val, list) and slot_val else slot_val
+                                    _save_slot(target_slot, [])
+                                    # Two-handed: clear both slots
+                                    if hasattr(old_item, "db") and getattr(old_item.db, "twohanded", False):
+                                        _save_slot("right_slot", [])
+                                        _save_slot("left_slot", [])
+                                        puppet.db.weapon_level = 0
+                                    elif hasattr(old_item, "db") and getattr(old_item.db, "damage", 0):
+                                        puppet.db.weapon_level = 0
+                                    if hasattr(old_item, "db") and getattr(old_item.db, "is_armor", False):
+                                        puppet.db.armor = 0
+                                        tough = getattr(puppet.db, "tough", 0) or 0
+                                        armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
+                                        puppet.db.av = tough + armor_specialist
+                                    session.msg(text=f"You unequip {getattr(old_item, 'key', str(old_item))}.")
+                                else:
+                                    session.msg(text=f"Nothing equipped in that slot.")
+                            else:
+                                # Search by item name
+                                item = puppet.search(cmdarg, location=puppet)
+                                if item:
+                                    removed = False
+                                    for sn in ("right_slot", "left_slot", "body_slot", "hand_slot",
+                                               "foot_slot", "clothing_slot", "cloak_slot",
+                                               "kit_slot", "arrow_slot", "bullet_slot"):
+                                        sv = _get_slot(sn)
+                                        if sv and item in sv:
+                                            sv.remove(item)
+                                            _save_slot(sn, sv)
+                                            removed = True
+                                            # Two-handed
+                                            if getattr(item.db, "twohanded", False):
+                                                for other in ("right_slot", "left_slot"):
+                                                    ov = _get_slot(other)
+                                                    if item in ov:
+                                                        ov.remove(item)
+                                                        _save_slot(other, ov)
+                                            if getattr(item.db, "damage", 0):
+                                                puppet.db.weapon_level = 0
+                                            if getattr(item.db, "is_armor", False):
+                                                puppet.db.armor = 0
+                                                tough = getattr(puppet.db, "tough", 0) or 0
+                                                armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
+                                                puppet.db.av = tough + armor_specialist
+                                            break
+                                    if removed:
+                                        session.msg(text=f"You unequip {item.key}.")
+                                    else:
+                                        session.msg(text=f"{item.key} is not equipped.")
+                            _push_updates()
+                            diag_write(f"UNEQUIP DONE", item=cmdarg)
+
+                        else:
+                            # equip <item> [to right|left]
+                            # Parse optional slot target
+                            target_hand = None
+                            parts = cmdarg.rsplit(" to ", 1)
+                            if len(parts) == 2:
+                                item_name = parts[0].strip()
+                                hand_choice = parts[1].strip().lower()
+                                if hand_choice in ("right", "right hand", "r"):
+                                    target_hand = "right_slot"
+                                elif hand_choice in ("left", "left hand", "l"):
+                                    target_hand = "left_slot"
+                                else:
+                                    item_name = cmdarg  # "to" was part of name
+                            else:
+                                item_name = cmdarg
+
+                            item = puppet.search(item_name, location=puppet)
+                            if not item:
+                                return
+
+                            if getattr(item.db, "broken", False):
+                                session.msg(text=f"|400{item.key} is broken and cannot be equipped.|n")
+                                return
+
+                            # Determine target slot
+                            idb = item.db
+                            if getattr(idb, "is_armor", False):
+                                slot = "body_slot"
+                            elif getattr(idb, "hand_slot", False):
+                                slot = "hand_slot"
+                            elif getattr(idb, "foot_slot", False):
+                                slot = "foot_slot"
+                            elif getattr(idb, "clothing_slot", False):
+                                slot = "clothing_slot"
+                            elif getattr(idb, "cloak_slot", False):
+                                slot = "cloak_slot"
+                            elif getattr(idb, "kit_slot", False):
+                                slot = "kit_slot"
+                            elif getattr(idb, "arrow_slot", False):
+                                slot = "arrow_slot"
+                            elif getattr(idb, "bullet_slot", False):
+                                slot = "bullet_slot"
+                            elif getattr(idb, "damage", 0) or getattr(idb, "is_shield", False) or getattr(idb, "is_bow", False):
+                                # Weapon/shield — use target_hand or default to right
+                                if target_hand:
+                                    slot = target_hand
+                                elif getattr(idb, "twohanded", False):
+                                    slot = "right_slot"  # will also fill left
+                                else:
+                                    # Pick the first empty hand, or default right
+                                    r = _get_slot("right_slot")
+                                    l = _get_slot("left_slot")
+                                    if not r:
+                                        slot = "right_slot"
+                                    elif not l:
+                                        slot = "left_slot"
+                                    else:
+                                        slot = "right_slot"  # auto-replace right
+                            else:
+                                session.msg(text=f"Don't know how to equip {item.key}.")
+                                return
+
+                            # Auto-unequip whatever is in the target slot
+                            old_items = _get_slot(slot)
+                            if old_items:
+                                old = old_items[0] if isinstance(old_items, list) else old_items
+                                session.msg(text=f"You unequip {getattr(old, 'key', str(old))}.")
+                                if getattr(old, "db", None) and getattr(old.db, "twohanded", False):
+                                    _save_slot("right_slot", [])
+                                    _save_slot("left_slot", [])
+                                else:
+                                    _save_slot(slot, [])
+                                if hasattr(old, "db") and getattr(old.db, "damage", 0):
+                                    puppet.db.weapon_level = 0
+                                if hasattr(old, "db") and getattr(old.db, "is_armor", False):
+                                    puppet.db.armor = 0
+
+                            # Equip the new item
+                            if getattr(idb, "twohanded", False):
+                                # Two-handed: clear both, equip both
+                                r_old = _get_slot("right_slot")
+                                l_old = _get_slot("left_slot")
+                                if r_old:
+                                    session.msg(text=f"You unequip {getattr(r_old[0], 'key', str(r_old[0]))}.")
+                                if l_old and l_old != r_old:
+                                    session.msg(text=f"You unequip {getattr(l_old[0], 'key', str(l_old[0]))}.")
+                                _save_slot("right_slot", [item])
+                                _save_slot("left_slot", [item])
+                            else:
+                                _save_slot(slot, [item])
+
+                            # Update derived stats
+                            if getattr(idb, "damage", 0):
+                                from commands import combat
+                                h = combat.Helper(puppet)
+                                puppet.db.weapon_level = h.weaponValue(idb.level)
+                            if getattr(idb, "is_armor", False):
+                                puppet.db.armor = getattr(idb, "material_value", 0) or 0
+                                armor = puppet.db.armor
+                                tough = getattr(puppet.db, "tough", 0) or 0
+                                armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
+                                indomitable = getattr(puppet.db, "indomitable", 0) or 0
+                                puppet.db.av = armor + tough + armor_specialist + indomitable
+
+                            session.msg(text=f"You equip {item.key}.")
+                            if puppet.location:
+                                puppet.location.msg_contents(
+                                    f"|025{puppet.key} equips their {item.key}.|n",
+                                    exclude=[puppet]
+                                )
+                            _push_updates()
+                            diag_write(f"EQUIP DONE", item=item_name, slot=slot)
+                    except Exception as exc:
+                        import traceback
+                        diag_write(f"EQUIP/UNEQUIP FAILED", exc=str(exc), tb=traceback.format_exc())
+                        session.msg(text=f"|400Error: {exc}|n")
+                    return
 
                 if lowered == "charcreate" or lowered.startswith("charcreate "):
                     cmdarg = stripped[len("charcreate"):].lstrip()
