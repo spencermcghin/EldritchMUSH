@@ -33,7 +33,7 @@ const TYPE_LABELS = {
   misc: 'Item',
 }
 
-function ItemCard({ item, onEquip, onUnequip, feedback }) {
+function ItemCard({ item, onEquip, onUnequip, onDrop, feedback }) {
   const icon = TYPE_ICONS[item.type] || '◆'
   const typeLabel = TYPE_LABELS[item.type] || 'Item'
 
@@ -70,14 +70,24 @@ function ItemCard({ item, onEquip, onUnequip, feedback }) {
             {feedback ? 'Removing...' : 'Remove'}
           </button>
         ) : (
-          <button
-            className="equip-action-btn equip"
-            onClick={() => onEquip(item.name)}
-            disabled={item.broken || !canUse || feedback}
-            title={item.broken ? 'Item is broken' : !canUse ? `Requires ${item.requiredSkill} skill` : `Equip to ${item.targetSlotLabel || 'slot'}`}
-          >
-            {feedback ? 'Equipping...' : 'Equip'}
-          </button>
+          <>
+            <button
+              className="equip-action-btn equip"
+              onClick={() => onEquip(item.name)}
+              disabled={item.broken || !canUse || feedback}
+              title={item.broken ? 'Item is broken' : !canUse ? `Requires ${item.requiredSkill} skill` : `Equip to ${item.targetSlotLabel || 'slot'}`}
+            >
+              {feedback ? 'Equipping...' : 'Equip'}
+            </button>
+            <button
+              className="equip-action-btn drop"
+              onClick={() => onDrop(item.name)}
+              disabled={feedback}
+              title="Drop item on the ground"
+            >
+              Drop
+            </button>
+          </>
         )}
       </div>
       {item.equipped && (
@@ -132,6 +142,15 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
   const handleUnequip = useCallback((name) => {
     setActionFeedback({ name, action: 'removing' })
     sendCommand(`unequip ${name}`)
+    setTimeout(() => {
+      sendCommand('__equip_ui__')
+      setActionFeedback(null)
+    }, 800)
+  }, [sendCommand])
+
+  const handleDrop = useCallback((name) => {
+    setActionFeedback({ name, action: 'dropping' })
+    sendCommand(`drop ${name}`)
     setTimeout(() => {
       sendCommand('__equip_ui__')
       setActionFeedback(null)
@@ -202,7 +221,7 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
                   <div className="equip-section-label cinzel">EQUIPPED</div>
                   <div className="equip-item-grid">
                     {equippedItems.map(item => (
-                      <ItemCard key={item.id} item={item} onEquip={handleEquip} onUnequip={handleUnequip} feedback={actionFeedback && actionFeedback.name === item.name} />
+                      <ItemCard key={item.id} item={item} onEquip={handleEquip} onUnequip={handleUnequip} onDrop={handleDrop} feedback={actionFeedback && actionFeedback.name === item.name} />
                     ))}
                   </div>
                 </div>
@@ -212,7 +231,7 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
                   <div className="equip-section-label cinzel">INVENTORY</div>
                   <div className="equip-item-grid">
                     {unequippedItems.map(item => (
-                      <ItemCard key={item.id} item={item} onEquip={handleEquip} onUnequip={handleUnequip} feedback={actionFeedback && actionFeedback.name === item.name} />
+                      <ItemCard key={item.id} item={item} onEquip={handleEquip} onUnequip={handleUnequip} onDrop={handleDrop} feedback={actionFeedback && actionFeedback.name === item.name} />
                     ))}
                   </div>
                 </div>
