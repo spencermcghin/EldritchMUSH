@@ -112,17 +112,28 @@ function parseRoomData(messages) {
           }
         }
       } else {
-        // Single block — try to extract room name as first sentence
+        // Single block (no newlines) — the entire room text is one line.
+        // Split room name from description using heuristics.
         const exitsIdx = raw.search(/Exits?:/i)
         if (exitsIdx > 0) {
           const before = raw.slice(0, exitsIdx)
-          const firstDot = before.indexOf('.')
-          if (firstDot > 0 && firstDot < 80) {
-            roomName = before.slice(0, firstDot).trim()
-            description = before.slice(firstDot + 1).trim()
+          // 1. CamelCase join: "WorldsYou" → lowercase immediately
+          //    followed by uppercase, no space. Strongest signal.
+          const camelJoin = before.search(/[a-z][A-Z]/)
+          if (camelJoin > 0 && camelJoin < 80) {
+            roomName = before.slice(0, camelJoin + 1).trim()
+            description = before.slice(camelJoin + 1).trim()
           } else {
-            roomName = before.slice(0, 60).trim()
-            description = before.slice(60).trim()
+            // 2. First period/exclamation within 80 chars
+            const firstDot = before.indexOf('.')
+            if (firstDot > 0 && firstDot < 80) {
+              roomName = before.slice(0, firstDot).trim()
+              description = before.slice(firstDot + 1).trim()
+            } else {
+              // 3. Fallback: first 50 chars
+              roomName = before.slice(0, 50).trim()
+              description = before.slice(50).trim()
+            }
           }
           parseExitsAndEntities(raw.slice(exitsIdx), exits, characters, items)
         }
