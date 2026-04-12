@@ -249,6 +249,39 @@
   font-style: italic;
 }
 
+.equip-item-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--accent-gold);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  text-align: left;
+  padding: 2px 4px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.equip-item-btn:hover {
+  border-color: rgba(204, 34, 17, 0.4);
+  background: rgba(204, 34, 17, 0.08);
+}
+
+.unequip-x {
+  font-size: 9px;
+  color: var(--blood-bright);
+  opacity: 0;
+  margin-left: 4px;
+  transition: opacity 0.2s;
+}
+
+.equip-item-btn:hover .unequip-x {
+  opacity: 1;
+}
+
 /* Hint */
 .status-hint {
   font-size: 10px;
