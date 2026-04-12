@@ -13,6 +13,7 @@ import ChargenWizard from './components/ChargenWizard'
 import RoomView from './components/RoomView'
 import WorldMapModal from './components/WorldMapModal'
 import EquipModal from './components/EquipModal'
+import CharSheetModal from './components/CharSheetModal'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -85,6 +86,8 @@ function App() {
 
   // Equip modal
   const [equipOpen, setEquipOpen] = useState(false)
+  // Character sheet modal
+  const [charSheetOpen, setCharSheetOpen] = useState(false)
 
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
@@ -334,6 +337,7 @@ function App() {
               sendCommand={sendCommand}
               onChargen={enterChargen}
               onWorldMap={() => setWorldMapOpen(true)}
+              onCharSheet={() => setCharSheetOpen(true)}
             />
           )}
         </div>
@@ -359,6 +363,15 @@ function App() {
           onClose={() => setEquipOpen(false)}
           sendCommand={sendCommand}
           inventoryData={oobState.inventoryData}
+        />
+      )}
+
+      {/* Character sheet modal */}
+      {charSheetOpen && (
+        <CharSheetModal
+          onClose={() => setCharSheetOpen(false)}
+          sendCommand={sendCommand}
+          charsheetData={oobState.charsheetData}
         />
       )}
 

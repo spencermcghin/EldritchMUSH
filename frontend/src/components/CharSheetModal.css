@@ -1,0 +1,205 @@
+/* ── Character Sheet Modal ── */
+
+.cs-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.cs-modal {
+  width: 560px;
+  max-width: 95vw;
+  max-height: 85vh;
+  background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
+  border: 1px solid var(--border-bright);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(212, 175, 55, 0.1),
+    inset 0 1px 0 rgba(212, 175, 55, 0.08);
+}
+
+/* Header */
+.cs-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(180deg, rgba(30, 26, 20, 0.9), rgba(20, 18, 16, 0.95));
+}
+
+.cs-modal-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+}
+
+.cs-modal-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.cs-modal-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+/* Body */
+.cs-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.cs-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-aged);
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Status Grid */
+.cs-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(10, 8, 7, 0.5);
+  border: 1px solid var(--border);
+}
+
+.cs-status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.cs-status-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-aged);
+}
+
+.cs-status-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--text-light);
+}
+
+.cs-status-value.equip {
+  font-size: 10px;
+  color: var(--accent-gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+/* Sections */
+.cs-section {
+  margin-bottom: 14px;
+}
+
+.cs-section-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+/* Skill List */
+.cs-skill-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 16px;
+}
+
+.cs-skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 8px;
+  transition: background 0.1s;
+}
+
+.cs-skill-row.has-skill {
+  background: rgba(0, 229, 160, 0.04);
+}
+
+.cs-skill-row.no-skill {
+  opacity: 0.4;
+}
+
+.cs-skill-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.cs-skill-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--accent-gold);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* Skill Pips */
+.cs-skill-bar {
+  display: flex;
+  gap: 3px;
+}
+
+.cs-pip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--border-bright);
+  transition: background 0.2s;
+}
+
+.cs-pip.filled {
+  background: var(--phosphor);
+  border-color: var(--phosphor);
+  box-shadow: 0 0 4px rgba(0, 229, 160, 0.4);
+}
+
+.cs-pip.empty {
+  background: transparent;
+}
+
+/* Footer */
+.cs-modal-footer {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--accent-gold);
+  opacity: 0.2;
+  font-size: 10px;
+  letter-spacing: 3px;
+}

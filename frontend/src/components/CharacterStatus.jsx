@@ -30,7 +30,7 @@ const EQUIP_SLOTS = [
   { key: 'body', label: 'Armor', icon: '◈' },
 ]
 
-export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap }) {
+export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap, onCharSheet }) {
   const {
     characterName,
     body,
@@ -130,7 +130,7 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
         {isConnected && (
           <div className="char-actions">
             <div className="status-section-label cinzel">ACTIONS</div>
-            <button className="char-action-btn" onClick={() => sendCommand('charsheet')}>
+            <button className="char-action-btn" onClick={onCharSheet || (() => sendCommand('charsheet'))}>
               View Charsheet
             </button>
             <button className="char-action-btn chargen-btn-link" onClick={onChargen}>

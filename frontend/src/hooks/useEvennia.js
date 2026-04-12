@@ -76,8 +76,9 @@ export function useEvennia() {
     // Current character's skill levels (populated from server when available)
     characterSkills: {},
     // Structured inventory data from the server's inventory_list OOB event.
-    // Populated when the user opens the equip modal (sends __equip_ui__).
     inventoryData: null,
+    // Structured charsheet data from the server's charsheet_data OOB event.
+    charsheetData: null,
     // True when we're authenticated but haven't yet puppeted a character.
     // Drives the CharacterSelect screen.
     atCharacterSelect: false,
@@ -194,6 +195,10 @@ export function useEvennia() {
             slots: kwargs.slots || {},
             ts: Date.now(),
           }
+          break
+        }
+        case 'charsheet_data': {
+          next.charsheetData = { ...kwargs, ts: Date.now() }
           break
         }
         case 'character_stats': {
