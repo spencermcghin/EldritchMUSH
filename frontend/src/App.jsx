@@ -119,55 +119,54 @@ function App() {
     // +1 to skip the echo message that sendCommand adds synchronously.
     lookWatcherRef.current = { entityName: name, fromIndex: messages.length + 1 }
     sendCommand(`look ${name}`)
-    // Fallback: if no response captured within 2s, show a message
+    // After 1.5s, stop accumulating — clear the watcher so the effect
+    // stops re-running. If nothing was captured, show a fallback.
     if (lookTimeoutRef.current) clearTimeout(lookTimeoutRef.current)
     lookTimeoutRef.current = setTimeout(() => {
       if (lookWatcherRef.current) {
-        setEntityDescription('No description available.')
         lookWatcherRef.current = null
+        setEntityDescription((prev) => prev || 'No description available.')
       }
-    }, 2000)
+    }, 1500)
   }, [sendCommand, messages.length])
 
-  // Watch for the entity look response and capture it as description
+  // Watch for the entity look response and capture it as description.
+  // Evennia sends the look response as MULTIPLE separate text messages
+  // (name, description, level, value, durability — each as its own
+  // frame). We accumulate all non-system messages that arrive after
+  // the look command until the 2-second timeout fires, then combine
+  // them into a single description string.
   useEffect(() => {
     const watcher = lookWatcherRef.current
     if (!watcher) return
     if (messages.length <= watcher.fromIndex) return
 
-    // Look at messages after the watcher index for game-type text matching the entity
+    const parts = []
+    const namePattern = watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
     for (let i = watcher.fromIndex; i < messages.length; i++) {
       const msg = messages[i]
-      if (!msg || msg.type === 'system') continue // skip our own command echo
+      if (!msg || msg.type === 'system') continue
       const raw = (msg.content || '').replace(/<[^>]*>/g, '').trim()
       if (!raw) continue
-      // The first non-system message after the look command is the response.
-      // Evennia sends the entity name on its own line followed by the
-      // description, but they may arrive concatenated without whitespace
-      // (e.g. "Hardened Iron ShieldYou see nothing special.").
-      //
-      // Strip the entity name (with optional #id), then also check for a
-      // lowercase→uppercase camelJoin where two strings were concatenated.
+
       let cleaned = raw
         // Strip "EntityName(#id)" prefix
-        .replace(new RegExp(`^${watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(#\\d+\\)\\s*`, 'i'), '')
+        .replace(new RegExp(`^${namePattern}(-\\d+)?\\s*\\(#\\d+\\)\\s*`, 'i'), '')
         .replace(/^[A-Za-z][^\n]{0,40}\(#\d+\)\s*/, '')
-      // Strip the entity name WITHOUT (#id) — for non-admin players.
-      // Also strip the name with -N suffix (e.g. "Bow-1")
-      const namePattern = watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      // Strip entity name without (#id)
       cleaned = cleaned.replace(new RegExp(`^${namePattern}(-\\d+)?\\s*`, 'i'), '')
-      // Fix concatenated text: lowercase→uppercase joins ("BowYou" → "Bow\nYou"),
-      // period/colon immediately followed by a letter with no space
-      // ("special.Level" → "special.\nLevel", "17Durability" → "17\nDurability")
+      // Fix concatenated text joins
       cleaned = cleaned
         .replace(/([a-z])([A-Z])/g, '$1\n$2')
         .replace(/(\.)([A-Z])/g, '$1\n$2')
         .replace(/(\d)([A-Z])/g, '$1\n$2')
       cleaned = cleaned.trim()
-      setEntityDescription(cleaned || raw)
-      lookWatcherRef.current = null
-      if (lookTimeoutRef.current) clearTimeout(lookTimeoutRef.current)
-      break
+      if (cleaned) parts.push(cleaned)
+    }
+
+    if (parts.length > 0) {
+      setEntityDescription(parts.join('\n'))
     }
   }, [messages])
 
