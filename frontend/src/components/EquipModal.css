@@ -218,6 +218,13 @@
 .equip-item-card.broken {
   opacity: 0.6;
 }
+.equip-item-card.usable {
+  border-left: 3px solid rgba(0, 229, 160, 0.4);
+}
+.equip-item-card.unusable {
+  border-left: 3px solid rgba(204, 34, 17, 0.5);
+  opacity: 0.7;
+}
 
 /* Icon */
 .equip-item-icon {
@@ -248,13 +255,20 @@
   gap: 6px;
 }
 
-.equip-item-broken-tag {
+.equip-item-broken-tag,
+.equip-item-skill-tag {
   font-family: 'Share Tech Mono', monospace;
   font-size: 8px;
   letter-spacing: 1px;
+  padding: 1px 4px;
+}
+.equip-item-broken-tag {
   color: var(--blood-bright);
   border: 1px solid var(--blood-bright);
-  padding: 1px 4px;
+}
+.equip-item-skill-tag {
+  color: var(--text-aged);
+  border: 1px solid rgba(154, 130, 102, 0.4);
 }
 
 .equip-item-type {

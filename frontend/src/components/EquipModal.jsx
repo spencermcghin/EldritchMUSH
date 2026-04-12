@@ -37,13 +37,18 @@ function ItemCard({ item, onEquip, onUnequip, feedback }) {
   const icon = TYPE_ICONS[item.type] || '◆'
   const typeLabel = TYPE_LABELS[item.type] || 'Item'
 
+  const canUse = item.canUse !== false  // default to true if field is missing
+
   return (
-    <div className={`equip-item-card ${item.equipped ? 'equipped' : ''} ${item.broken ? 'broken' : ''}`}>
+    <div className={`equip-item-card ${item.equipped ? 'equipped' : ''} ${item.broken ? 'broken' : ''} ${!canUse ? 'unusable' : 'usable'}`}>
       <div className="equip-item-icon">{icon}</div>
       <div className="equip-item-info">
         <div className="equip-item-name">
           {item.name}
           {item.broken && <span className="equip-item-broken-tag">BROKEN</span>}
+          {!canUse && item.requiredSkill && (
+            <span className="equip-item-skill-tag">Requires {item.requiredSkill}</span>
+          )}
         </div>
         <div className="equip-item-type">{typeLabel}</div>
         {item.desc && <div className="equip-item-desc">{item.desc}</div>}
@@ -68,8 +73,8 @@ function ItemCard({ item, onEquip, onUnequip, feedback }) {
           <button
             className="equip-action-btn equip"
             onClick={() => onEquip(item.name)}
-            disabled={item.broken || feedback}
-            title={item.broken ? 'Item is broken' : `Equip to ${item.targetSlotLabel || 'slot'}`}
+            disabled={item.broken || !canUse || feedback}
+            title={item.broken ? 'Item is broken' : !canUse ? `Requires ${item.requiredSkill} skill` : `Equip to ${item.targetSlotLabel || 'slot'}`}
           >
             {feedback ? 'Equipping...' : 'Equip'}
           </button>

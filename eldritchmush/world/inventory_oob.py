@@ -8,6 +8,15 @@ current equipped status.
 """
 from world.events import emit_to
 
+# Skill check mapping — mirrors the logic in CmdEquip.func()
+_SKILL_LABELS = {
+    "gunner": "Firearms",
+    "archer": "Archery",
+    "shields": "Shields",
+    "melee_weapons": "Melee Weapons",
+    "armor_proficiency": "Armor",
+}
+
 
 # Map of slot attribute name → human-readable label
 _SLOT_LABELS = {
@@ -81,6 +90,35 @@ def _target_slot(item):
     return None
 
 
+def _check_can_use(item, character):
+    """Check if the character has the required skill to equip this item.
+
+    Returns (can_use: bool, required_skill_label: str or None).
+    Mirrors the skill check logic in CmdEquip.func().
+    """
+    try:
+        from evennia.prototypes import prototypes as proto_module
+        item_lower = item.key.lower().replace(" ", "_")
+        try:
+            prototype = proto_module.search_prototype(item_lower, require_single=True)
+        except (KeyError, ValueError):
+            return True, None  # no prototype found — allow equip
+
+        prototype_data = prototype[0]
+        item_data = prototype_data.get("attrs", [])
+
+        idx = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
+        if idx is None:
+            return True, None  # no skill requirement
+
+        required_skill = item_data[idx][1]
+        label = _SKILL_LABELS.get(required_skill, required_skill)
+        has_skill = bool(getattr(character.db, required_skill, 0))
+        return has_skill, label
+    except Exception:
+        return True, None  # on error, allow equip
+
+
 def push_inventory(character):
     """Send an inventory_list OOB event to the character's web client."""
     if character is None:
@@ -105,6 +143,7 @@ def push_inventory(character):
         item_id = item.id
         idb = item.db
         equipped_slot = equipped_map.get(item_id)
+        can_use, required_skill_label = _check_can_use(item, character)
         items.append({
             "id": item_id,
             "name": item.key,
@@ -119,6 +158,8 @@ def push_inventory(character):
             "level": getattr(idb, "level", 0) or 0,
             "broken": bool(getattr(idb, "broken", False)),
             "twohanded": bool(getattr(idb, "twohanded", False)),
+            "canUse": can_use,
+            "requiredSkill": required_skill_label,
         })
 
     # Also send current slot occupancy so the UI can show what's equipped where
