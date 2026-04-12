@@ -37,7 +37,7 @@ const EXIT_CONTEXT_ITEMS = (dir) => [
 ]
 
 function App() {
-  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate } =
+  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate, showCharacterSelect } =
     useEvennia()
 
   const inputRef = useRef(null)
@@ -338,6 +338,10 @@ function App() {
               onChargen={enterChargen}
               onWorldMap={() => setWorldMapOpen(true)}
               onCharSheet={() => setCharSheetOpen(true)}
+              onSwitchCharacter={() => {
+                sendCommand('ooc')
+                setTimeout(() => showCharacterSelect(), 300)
+              }}
             />
           )}
         </div>

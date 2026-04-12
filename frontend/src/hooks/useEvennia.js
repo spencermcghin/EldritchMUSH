@@ -557,6 +557,10 @@ export function useEvennia() {
     setOobState((prev) => ({ ...prev, inChargen: true, chargenViewMode: viewMode }))
   }, [])
 
+  const showCharacterSelect = useCallback(() => {
+    setOobState((prev) => ({ ...prev, atCharacterSelect: true, characterName: '' }))
+  }, [])
+
   return {
     connectionState,
     messages,
@@ -568,5 +572,6 @@ export function useEvennia() {
     exitChargen,
     enterChargen,
     clearLastCharCreate,
+    showCharacterSelect,
   }
 }
