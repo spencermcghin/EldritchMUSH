@@ -12,6 +12,7 @@ import CommandInput from './components/CommandInput'
 import ChargenWizard from './components/ChargenWizard'
 import RoomView from './components/RoomView'
 import WorldMapModal from './components/WorldMapModal'
+import EquipModal from './components/EquipModal'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -81,6 +82,9 @@ function App() {
 
   // World map modal
   const [worldMapOpen, setWorldMapOpen] = useState(false)
+
+  // Equip modal
+  const [equipOpen, setEquipOpen] = useState(false)
 
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
@@ -260,6 +264,7 @@ function App() {
             onCommandClick={injectCommand}
             onPrompt={openPrompt}
             sendCommand={sendCommand}
+            onEquip={() => setEquipOpen(true)}
           />
 
           {/* Center: room view on top, log + input on bottom */}
@@ -319,6 +324,15 @@ function App() {
 
       {/* World map modal */}
       <WorldMapModal open={worldMapOpen} onClose={() => setWorldMapOpen(false)} />
+
+      {/* Equip modal */}
+      {equipOpen && (
+        <EquipModal
+          onClose={() => setEquipOpen(false)}
+          sendCommand={sendCommand}
+          inventoryData={oobState.inventoryData}
+        />
+      )}
 
       {/* Friendly command input prompt modal */}
       <CommandPrompt

@@ -117,7 +117,7 @@ function CommandEntry({ cmd, onClick, onPrompt, sendCommand }) {
   )
 }
 
-export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, characterSkills = {} }) {
+export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, characterSkills = {} }) {
   const commands = buildCommandList(inCombat, characterSkills)
   const groups = groupCommands(commands)
 
@@ -134,6 +134,19 @@ export default function CommandSidebar({ availableCommands, inCombat, myTurn, on
       )}
 
       <div className="cmd-sidebar-body">
+        {/* Special action buttons */}
+        {onEquip && (
+          <div className="cmd-category">
+            <div className="cmd-category-header cinzel">Equipment</div>
+            <div className="cmd-category-list">
+              <div className="cmd-entry cmd-enabled cmd-equip-btn" onClick={onEquip}>
+                <span className="cmd-arrow">›</span>
+                <span className="cmd-key">Equip / Unequip</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {Object.entries(groups).map(([category, cmds]) => (
           <div key={category} className="cmd-category">
             <div className="cmd-category-header cinzel">{category}</div>

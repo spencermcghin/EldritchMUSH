@@ -123,6 +123,23 @@ def text(session, *args, **kwargs):
                 # Match `charcreate <args>` (case-insensitive) but not
                 # words that just start with charcreate.
                 lowered = stripped.lower()
+                # __equip_ui__ — the frontend sends this (not a real MUD
+                # command) to request structured inventory data for the
+                # equip modal. We intercept it here and push the OOB event
+                # directly; it never reaches the cmdhandler.
+                if lowered == "__equip_ui__":
+                    try:
+                        from world.inventory_oob import push_inventory
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            push_inventory(puppet)
+                            diag_write("EQUIP_UI push_inventory sent", puppet=repr(puppet))
+                        else:
+                            diag_write("EQUIP_UI no puppet — can't send inventory")
+                    except Exception as exc:
+                        diag_write("EQUIP_UI FAILED", exc=str(exc))
+                    return
+
                 if lowered == "charcreate" or lowered.startswith("charcreate "):
                     cmdarg = stripped[len("charcreate"):].lstrip()
                     diag_write(
