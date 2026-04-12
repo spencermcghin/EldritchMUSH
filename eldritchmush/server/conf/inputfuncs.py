@@ -167,6 +167,39 @@ def text(session, *args, **kwargs):
                         diag_write("EQUIP_UI FAILED", exc=str(exc))
                     return
 
+                # Direct-dispatch equip/unequip through the puppet's
+                # command classes, bypassing the standard cmdhandler
+                # (same dispatch issue as charcreate).
+                if lowered.startswith("equip ") or lowered.startswith("unequip "):
+                    puppet = getattr(session, "puppet", None)
+                    if puppet:
+                        try:
+                            is_unequip = lowered.startswith("unequip ")
+                            cmd_key = "unequip" if is_unequip else "equip"
+                            cmdarg = stripped[len(cmd_key):].strip()
+                            if is_unequip:
+                                from commands.command import CmdUnequip as CmdClass
+                            else:
+                                from commands.command import CmdEquip as CmdClass
+                            cmd = CmdClass()
+                            cmd.caller = puppet
+                            cmd.account = account
+                            cmd.session = session
+                            cmd.cmdname = cmd_key
+                            cmd.raw_cmdname = cmd_key
+                            cmd.cmdstring = cmd_key
+                            cmd.args = " " + cmdarg if cmdarg else ""
+                            cmd.raw_string = stripped
+                            cmd.cmdset = None
+                            cmd.cmdset_providers = {}
+                            cmd.parse()
+                            cmd.func()
+                            diag_write(f"DIRECT DISPATCH {cmd_key} DONE", item=cmdarg)
+                        except Exception as exc:
+                            import traceback
+                            diag_write(f"DIRECT DISPATCH {cmd_key} FAILED", exc=str(exc), traceback=traceback.format_exc())
+                        return
+
                 if lowered == "charcreate" or lowered.startswith("charcreate "):
                     cmdarg = stripped[len("charcreate"):].lstrip()
                     diag_write(
