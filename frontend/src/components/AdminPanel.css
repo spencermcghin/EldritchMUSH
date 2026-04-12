@@ -100,6 +100,24 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+.admin-search {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  width: 140px;
+  outline: none;
+}
+.admin-search:focus {
+  border-color: var(--accent-gold);
+}
+.admin-search::placeholder {
+  color: var(--text-aged);
+  opacity: 0.5;
+}
+
 .admin-filter-btn:hover { border-color: var(--accent-gold); color: var(--text-light); }
 .admin-filter-btn.active { border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(212,175,55,0.08); }
 
@@ -125,18 +143,21 @@
   font-family: 'Share Tech Mono', monospace;
 }
 
-/* Character Grid */
+/* Character Grid — single column strips */
 .admin-char-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* Character Card */
+/* Character Card — horizontal strip */
 .admin-char-card {
   background: linear-gradient(135deg, rgba(30, 26, 20, 0.7), rgba(20, 18, 16, 0.9));
   border: 1px solid var(--border);
-  padding: 12px 14px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   transition: border-color 0.2s;
 }
 .admin-char-card.is-online {
@@ -154,7 +175,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  min-width: 160px;
 }
 
 .admin-status-dot {
@@ -191,8 +212,8 @@
 .admin-char-meta {
   display: flex;
   gap: 4px;
-  margin-bottom: 8px;
   flex-wrap: wrap;
+  min-width: 80px;
 }
 
 .admin-meta-tag {
@@ -209,16 +230,17 @@
 
 /* Details */
 .admin-char-details {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4px 12px;
-  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .admin-detail {
   display: flex;
-  justify-content: space-between;
-  font-size: 11px;
+  flex-direction: column;
+  font-size: 10px;
+  white-space: nowrap;
 }
 
 .admin-detail-label {
@@ -238,8 +260,7 @@
 
 /* Actions */
 .admin-char-actions {
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
+  flex-shrink: 0;
 }
 
 .admin-btn {
