@@ -132,10 +132,21 @@ def push_inventory(character):
         slot_val = getattr(db, slot_name, None)
         if not slot_val:
             continue
-        items = slot_val if isinstance(slot_val, (list, tuple)) else [slot_val]
-        for it in items:
+        slot_items = slot_val if isinstance(slot_val, (list, tuple)) else [slot_val]
+        for it in slot_items:
             if hasattr(it, "id"):
                 equipped_map[it.id] = slot_name
+
+    try:
+        from web.diag import diag_write
+        diag_write(
+            "push_inventory debug",
+            equipped_map={k: v for k, v in equipped_map.items()},
+            contents_count=len(list(character.contents)),
+            contents_ids=[c.id for c in character.contents],
+        )
+    except Exception:
+        pass
 
     # Build the inventory list
     items = []
