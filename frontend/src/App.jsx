@@ -110,12 +110,23 @@ function App() {
     }
   }
 
+  const lookTimeoutRef = useRef(null)
+
   const handleEntityClick = useCallback((name, type) => {
     setSelectedEntity({ name, type })
     setEntityDescription('')
-    // Mark the current message index — anything new after this is the look response
-    lookWatcherRef.current = { entityName: name, fromIndex: messages.length }
+    // Mark the current message index — anything new after this is the look response.
+    // +1 to skip the echo message that sendCommand adds synchronously.
+    lookWatcherRef.current = { entityName: name, fromIndex: messages.length + 1 }
     sendCommand(`look ${name}`)
+    // Fallback: if no response captured within 2s, show a message
+    if (lookTimeoutRef.current) clearTimeout(lookTimeoutRef.current)
+    lookTimeoutRef.current = setTimeout(() => {
+      if (lookWatcherRef.current) {
+        setEntityDescription('No description available.')
+        lookWatcherRef.current = null
+      }
+    }, 2000)
   }, [sendCommand, messages.length])
 
   // Watch for the entity look response and capture it as description
@@ -138,6 +149,7 @@ function App() {
         .trim()
       setEntityDescription(cleaned || raw)
       lookWatcherRef.current = null
+      if (lookTimeoutRef.current) clearTimeout(lookTimeoutRef.current)
       break
     }
   }, [messages])
