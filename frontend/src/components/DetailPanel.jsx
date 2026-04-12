@@ -73,7 +73,11 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
   const actions = getActions(entityType)
   const typeLabel = getTypeLabel(entityType)
   const typeClass = getTypeClass(entityType)
-  const iconSrc = getEntityIcon(entityName, entityType)
+  // Strip Evennia's -N duplicate suffix (e.g. "bow-1" → "Bow")
+  const displayName = entityName
+    .replace(/-\d+$/, '')
+    .replace(/\b\w/g, c => c.toUpperCase())
+  const iconSrc = getEntityIcon(displayName, entityType)
 
   const handleAction = useCallback((action) => {
     if (action.kind === 'prompt' && onPrompt) {
@@ -109,7 +113,7 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
 
         {/* Entity name */}
         <div className="detail-name-row">
-          <span className="detail-name">{entityName}</span>
+          <span className="detail-name">{displayName}</span>
         </div>
 
         {/* Type tag */}
@@ -119,7 +123,7 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
 
         {/* Description */}
         <div className="status-section-label cinzel">DESCRIPTION</div>
-        <div className="detail-description">
+        <div className="detail-description" style={{ whiteSpace: 'pre-line' }}>
           {description || (
             <span className="detail-desc-empty">
               Inspecting...

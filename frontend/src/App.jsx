@@ -152,12 +152,17 @@ function App() {
         // Strip "EntityName(#id)" prefix
         .replace(new RegExp(`^${watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(#\\d+\\)\\s*`, 'i'), '')
         .replace(/^[A-Za-z][^\n]{0,40}\(#\d+\)\s*/, '')
-      // Strip the entity name WITHOUT (#id) — for non-admin players
-      if (cleaned.toLowerCase().startsWith(watcher.entityName.toLowerCase())) {
-        cleaned = cleaned.slice(watcher.entityName.length)
-      }
-      // Fix camelJoins where name and description merged ("ShieldYou" → "Shield\nYou")
-      cleaned = cleaned.replace(/([a-z])([A-Z])/g, '$1\n$2')
+      // Strip the entity name WITHOUT (#id) — for non-admin players.
+      // Also strip the name with -N suffix (e.g. "Bow-1")
+      const namePattern = watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      cleaned = cleaned.replace(new RegExp(`^${namePattern}(-\\d+)?\\s*`, 'i'), '')
+      // Fix concatenated text: lowercase→uppercase joins ("BowYou" → "Bow\nYou"),
+      // period/colon immediately followed by a letter with no space
+      // ("special.Level" → "special.\nLevel", "17Durability" → "17\nDurability")
+      cleaned = cleaned
+        .replace(/([a-z])([A-Z])/g, '$1\n$2')
+        .replace(/(\.)([A-Z])/g, '$1\n$2')
+        .replace(/(\d)([A-Z])/g, '$1\n$2')
       cleaned = cleaned.trim()
       setEntityDescription(cleaned || raw)
       lookWatcherRef.current = null
