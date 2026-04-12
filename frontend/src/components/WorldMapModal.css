@@ -9,95 +9,168 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  animation: fade-in 0.2s ease-out;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
 }
 
 .world-map-content {
-  background: var(--parchment);
+  background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
   border: 1px solid var(--accent-gold);
   box-shadow:
-    0 0 60px rgba(212, 175, 55, 0.2),
+    0 0 60px rgba(212, 175, 55, 0.15),
     inset 0 0 40px rgba(0, 0, 0, 0.6);
-  max-width: 90vw;
+  width: 900px;
+  max-width: 95vw;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-/* Decorative corners */
-.world-map-content::before,
-.world-map-content::after {
-  content: '✦';
-  position: absolute;
-  color: var(--accent-gold);
-  font-size: 16px;
-  opacity: 0.7;
-}
-.world-map-content::before {
-  top: -10px;
-  left: -10px;
-}
-.world-map-content::after {
-  bottom: -10px;
-  right: -10px;
-}
-
+/* Header */
 .world-map-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-bright);
   background: var(--surface);
   flex-shrink: 0;
 }
 
 .world-map-title {
-  font-family: 'Cinzel', serif;
-  font-size: 24px;
+  font-size: 14px;
   color: var(--accent-gold);
-  letter-spacing: 2px;
-  animation: glow-gold 4s ease-in-out infinite;
+  letter-spacing: 3px;
+}
+
+.map-legend {
+  flex: 1;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-aged);
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.map-dot.current {
+  background: var(--phosphor);
+  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+}
+.map-dot.market {
+  background: var(--accent-gold);
 }
 
 .world-map-close {
-  background: transparent;
-  border: 1px solid rgba(139, 0, 0, 0.4);
+  background: none;
+  border: 1px solid var(--border);
   color: var(--text-aged);
-  font-size: 12px;
-  padding: 4px 10px;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
-  transition: all 0.15s;
-  font-family: 'Cinzel', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
 }
 .world-map-close:hover {
   border-color: var(--blood-bright);
   color: var(--blood-bright);
 }
 
+/* Body */
 .world-map-body {
   flex: 1;
   overflow: auto;
-  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse at center, rgba(212,175,55,0.04), transparent 70%),
+    radial-gradient(ellipse at center, rgba(212,175,55,0.03), transparent 70%),
     var(--void);
-  min-height: 0;
+  min-height: 400px;
 }
 
-.world-map-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  filter: brightness(0.95) contrast(1.05);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+.map-loading {
+  text-align: center;
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
 }
 
+/* SVG Map */
+.map-svg {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+.map-edge {
+  stroke: rgba(154, 130, 102, 0.3);
+  stroke-width: 1.5;
+}
+
+.map-node {
+  cursor: pointer;
+}
+
+.map-node-circle {
+  transition: r 0.2s;
+}
+
+.map-node:hover .map-node-circle {
+  r: 14;
+}
+
+.map-node-glow {
+  fill: none;
+  stroke: var(--phosphor);
+  stroke-width: 2;
+  opacity: 0.4;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.2; r: 20; }
+  50% { opacity: 0.6; r: 26; }
+}
+
+.map-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  fill: var(--text-aged);
+  text-anchor: middle;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+}
+
+.map-label.current {
+  fill: var(--phosphor);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.map-icon {
+  font-size: 10px;
+  pointer-events: none;
+}
+
+/* Footer */
 .world-map-footer {
   padding: 8px 20px;
   border-top: 1px solid var(--border);
@@ -112,13 +185,4 @@
   font-size: 11px;
   color: var(--text-aged);
   letter-spacing: 0.5px;
-}
-
-@media (max-width: 768px) {
-  .world-map-modal {
-    padding: 12px;
-  }
-  .world-map-title {
-    font-size: 18px;
-  }
 }

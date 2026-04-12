@@ -398,7 +398,12 @@ function App() {
       )}
 
       {/* World map modal */}
-      <WorldMapModal open={worldMapOpen} onClose={() => setWorldMapOpen(false)} />
+      <WorldMapModal
+        open={worldMapOpen}
+        onClose={() => setWorldMapOpen(false)}
+        sendCommand={sendCommand}
+        mapData={oobState.mapData}
+      />
 
       {/* Equip modal */}
       {equipOpen && (

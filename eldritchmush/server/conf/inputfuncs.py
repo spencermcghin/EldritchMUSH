@@ -238,6 +238,81 @@ def text(session, *args, **kwargs):
                         diag_write("CHARSHEET_UI FAILED", exc=str(exc))
                     return
 
+                # __map_ui__ — send the room graph for the interactive map
+                if lowered == "__map_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            from evennia.objects.models import ObjectDB
+                            import time
+
+                            # Get all rooms
+                            room_classes = [
+                                "typeclasses.rooms.Room",
+                                "typeclasses.rooms.WeatherRoom",
+                                "typeclasses.rooms.MarketRoom",
+                                "typeclasses.rooms.ChargenRoom",
+                            ]
+                            rooms = ObjectDB.objects.filter(
+                                db_typeclass_path__in=room_classes
+                            )
+                            # Also grab Limbo (#2)
+                            limbo = ObjectDB.objects.filter(id=2).first()
+
+                            nodes = {}
+                            edges = []
+
+                            for room in list(rooms) + ([limbo] if limbo and limbo not in rooms else []):
+                                if not room:
+                                    continue
+                                room_id = room.id
+                                tc = room.typeclass_path or ""
+                                room_type = "chargen" if "ChargenRoom" in tc else \
+                                            "market" if "MarketRoom" in tc else \
+                                            "weather" if "WeatherRoom" in tc else "room"
+                                # Check for merchants/crafting stations
+                                has_merchant = any(
+                                    getattr(obj.db, "shop_inventory", None) is not None
+                                    for obj in room.contents if obj != puppet
+                                )
+                                has_crafting = any(
+                                    "Forge" in (getattr(obj, "typeclass_path", "") or "") or
+                                    "Workbench" in (getattr(obj, "typeclass_path", "") or "")
+                                    for obj in room.contents
+                                )
+                                nodes[room_id] = {
+                                    "id": room_id,
+                                    "name": __import__('re').sub(r'\|[a-zA-Z]|\|\d{3}|\|\[?\d+', '', room.key or '').strip(),
+                                    "type": room_type,
+                                    "hasMerchant": has_merchant,
+                                    "hasCrafting": has_crafting,
+                                    "current": room_id == (puppet.location.id if puppet.location else None),
+                                }
+
+                                # Find exits from this room
+                                for obj in room.contents:
+                                    if hasattr(obj, "destination") and obj.destination:
+                                        dest_id = obj.destination.id
+                                        edges.append({
+                                            "from": room_id,
+                                            "to": dest_id,
+                                            "dir": obj.key,
+                                        })
+
+                            payload = {
+                                "type": "map_data",
+                                "_ts": time.time(),
+                                "nodes": list(nodes.values()),
+                                "edges": edges,
+                                "currentRoom": puppet.location.id if puppet.location else None,
+                            }
+                            session.msg(event=payload)
+                            diag_write("MAP_UI sent", rooms=len(nodes), edges=len(edges))
+                    except Exception as exc:
+                        import traceback
+                        diag_write("MAP_UI FAILED", exc=str(exc), tb=traceback.format_exc())
+                    return
+
                 # __shop_ui__ — send structured merchant shop data
                 if lowered == "__shop_ui__":
                     try:
