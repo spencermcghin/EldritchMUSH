@@ -135,7 +135,7 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
               key={action.label}
               className="detail-action-btn"
               onClick={() => handleAction(action)}
-              title={action.command(entityName)}
+              title={action.command ? action.command(entityName) : action.label}
             >
               <span className="detail-action-icon">{action.icon}</span>
               <span className="detail-action-label">{action.label}</span>
