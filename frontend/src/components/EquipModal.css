@@ -324,6 +324,11 @@
   transition: all 0.2s;
 }
 
+.equip-hand-btns {
+  display: flex;
+  gap: 3px;
+}
+
 .equip-action-btn.equip {
   color: var(--phosphor);
   border-color: rgba(0, 229, 160, 0.3);

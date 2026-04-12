@@ -71,14 +71,35 @@ function ItemCard({ item, onEquip, onUnequip, onDrop, feedback }) {
           </button>
         ) : (
           <>
-            <button
-              className="equip-action-btn equip"
-              onClick={() => onEquip(item.name)}
-              disabled={item.broken || !canUse || feedback}
-              title={item.broken ? 'Item is broken' : !canUse ? `Requires ${item.requiredSkill} skill` : `Equip to ${item.targetSlotLabel || 'slot'}`}
-            >
-              {feedback ? 'Equipping...' : 'Equip'}
-            </button>
+            {(item.type === 'weapon' || item.type === 'shield' || item.type === 'bow') && !item.twohanded ? (
+              <div className="equip-hand-btns">
+                <button
+                  className="equip-action-btn equip"
+                  onClick={() => onEquip(item.name, 'right')}
+                  disabled={item.broken || !canUse || feedback}
+                  title="Equip to right hand"
+                >
+                  {feedback ? '...' : 'R'}
+                </button>
+                <button
+                  className="equip-action-btn equip"
+                  onClick={() => onEquip(item.name, 'left')}
+                  disabled={item.broken || !canUse || feedback}
+                  title="Equip to left hand"
+                >
+                  {feedback ? '...' : 'L'}
+                </button>
+              </div>
+            ) : (
+              <button
+                className="equip-action-btn equip"
+                onClick={() => onEquip(item.name)}
+                disabled={item.broken || !canUse || feedback}
+                title={item.broken ? 'Item is broken' : !canUse ? `Requires ${item.requiredSkill} skill` : `Equip to ${item.targetSlotLabel || 'slot'}`}
+              >
+                {feedback ? 'Equipping...' : 'Equip'}
+              </button>
+            )}
             <button
               className="equip-action-btn drop"
               onClick={() => onDrop(item.name)}
@@ -129,10 +150,10 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
 
   const [actionFeedback, setActionFeedback] = useState(null)
 
-  const handleEquip = useCallback((name) => {
+  const handleEquip = useCallback((name, slot) => {
     setActionFeedback({ name, action: 'equipping' })
-    sendCommand(`equip ${name}`)
-    // Re-request inventory to refresh state
+    const cmd = slot ? `equip ${name} to ${slot}` : `equip ${name}`
+    sendCommand(cmd)
     setTimeout(() => {
       sendCommand('__equip_ui__')
       setActionFeedback(null)
