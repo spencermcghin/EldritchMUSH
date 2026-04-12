@@ -14,6 +14,7 @@ import RoomView from './components/RoomView'
 import WorldMapModal from './components/WorldMapModal'
 import EquipModal from './components/EquipModal'
 import CharSheetModal from './components/CharSheetModal'
+import AdminPanel from './components/AdminPanel'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -88,6 +89,8 @@ function App() {
   const [equipOpen, setEquipOpen] = useState(false)
   // Character sheet modal
   const [charSheetOpen, setCharSheetOpen] = useState(false)
+  // Admin panel
+  const [adminOpen, setAdminOpen] = useState(false)
 
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
@@ -338,6 +341,7 @@ function App() {
               onChargen={enterChargen}
               onWorldMap={() => setWorldMapOpen(true)}
               onCharSheet={() => setCharSheetOpen(true)}
+              onAdmin={oobState.isAdmin ? () => setAdminOpen(true) : undefined}
               onSwitchCharacter={() => {
                 sendCommand('ooc')
                 setTimeout(() => showCharacterSelect(), 300)
@@ -377,6 +381,11 @@ function App() {
           sendCommand={sendCommand}
           charsheetData={oobState.charsheetData}
         />
+      )}
+
+      {/* Admin panel — only for admin users */}
+      {adminOpen && (
+        <AdminPanel onClose={() => setAdminOpen(false)} />
       )}
 
       {/* Friendly command input prompt modal */}
