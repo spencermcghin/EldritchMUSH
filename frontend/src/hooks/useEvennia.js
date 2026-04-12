@@ -488,6 +488,10 @@ export function useEvennia() {
     addMessage('system', 'Disconnected from server.')
   }, [addMessage])
 
+  // Commands that change room contents — after these, auto-send `look`
+  // so the room entity list refreshes in RoomView.
+  const _ROOM_CHANGING_CMDS = /^(get|drop|give|put|pick up)\b/i
+
   const sendCommand = useCallback((text) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       addMessage('error', 'Not connected to server.')
@@ -497,6 +501,17 @@ export function useEvennia() {
     wsRef.current.send(frame)
     // Echo command to output
     addMessage('system', `> ${text}`)
+
+    // Auto-refresh room view after item manipulation commands. A short
+    // delay lets the server process the command before we request the
+    // updated room description.
+    if (_ROOM_CHANGING_CMDS.test(text.trim())) {
+      setTimeout(() => {
+        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+          wsRef.current.send(JSON.stringify(['text', ['look'], {}]))
+        }
+      }, 400)
+    }
   }, [addMessage])
 
   // Cleanup on unmount

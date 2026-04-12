@@ -132,12 +132,26 @@ def account_characters(request):
     from evennia.objects.models import ObjectDB
 
     characters = []
-    # AccountDB stores playable characters two ways: as the db_account FK
-    # on each Character, and via the _playable_characters attribute. We
-    # query by FK because it's authoritative.
-    qs = ObjectDB.objects.filter(db_account=user)
+    # Allauth-created accounts go through our CmdCharCreate which stores
+    # characters in the _playable_characters Attribute (a list of Object
+    # refs) but does NOT set the db_account FK on the Character row.
+    # So we read from _playable_characters first, then fall back to the
+    # db_account FK query for any legacy characters that may exist.
+    from evennia.utils.utils import make_iter
 
-    for char in qs:
+    playable = []
+    attr_chars = user.db._playable_characters if hasattr(user, "db") else None
+    if attr_chars:
+        playable = [c for c in make_iter(attr_chars) if c and hasattr(c, "id")]
+    # Also pick up any characters linked via the FK that aren't already
+    # in the attribute list (covers legacy accounts or manually linked chars).
+    fk_chars = ObjectDB.objects.filter(db_account=user)
+    seen_ids = {c.id for c in playable}
+    for c in fk_chars:
+        if c.id not in seen_ids:
+            playable.append(c)
+
+    for char in playable:
         try:
             location = char.location
             location_name = location.key if location else "the void"
