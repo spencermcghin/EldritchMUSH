@@ -180,6 +180,18 @@ try:
         print('spencer_admin already superuser')
 except AccountDB.DoesNotExist:
     print('spencer_admin account not found yet')
+
+# Grant Admin role to spencer2 (OAuth account)
+try:
+    acct = AccountDB.objects.get(username='spencer2')
+    perms = list(acct.permissions.all())
+    if 'Admin' not in perms:
+        acct.permissions.add('Admin')
+        print('spencer2 granted Admin role')
+    else:
+        print('spencer2 already has Admin role')
+except AccountDB.DoesNotExist:
+    print('spencer2 account not found yet')
 " || echo "Warning: could not grant superuser"
 
 # Repair AccountDB rows whose db_typeclass_path was never set to the
