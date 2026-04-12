@@ -140,6 +140,14 @@ function singularize(name) {
   return name
 }
 
+// Build a command-safe item reference. When there are multiple copies
+// of the same item in a room, Evennia disambiguates with "1-name",
+// "2-name" etc. We always prefix with "1-" so Evennia grabs the first
+// match without asking the player to narrow the target.
+function cmdRef(name) {
+  return `1-${name}`
+}
+
 // Number words → numeric values for quantity parsing
 const NUMBER_WORDS = {
   two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
@@ -304,14 +312,17 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
             <span className="room-section-label">You See</span>
             <div className="room-entities">
               {room.items.map((item, i) => {
-                const cmdName = item.count > 1 ? singularize(item.name) : item.name
+                // Singularize when plural, and prefix with 1- to avoid
+                // Evennia's "more than one match" disambiguation prompt
+                const baseName = item.count > 1 ? singularize(item.name) : item.name
+                const ref = item.count > 1 ? cmdRef(baseName) : baseName
                 return (
                   <button
                     key={i}
                     className="room-entity-btn item"
-                    onClick={onEntityClick ? () => onEntityClick(cmdName, 'item') : () => onCommand(`look ${cmdName}`)}
-                    onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, cmdName, 'item') : undefined}
-                    title={`Look at ${cmdName}`}
+                    onClick={onEntityClick ? () => onEntityClick(ref, 'item') : () => onCommand(`look ${ref}`)}
+                    onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, ref, 'item') : undefined}
+                    title={`Look at ${baseName}`}
                   >
                     <span className="entity-icon">◆</span>
                     <span className="entity-name">{item.name}</span>
