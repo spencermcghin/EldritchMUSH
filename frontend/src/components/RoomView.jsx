@@ -23,6 +23,15 @@ function parseRoomData(messages) {
     const hasExits = /Exits?:/i.test(raw)
     if (!hasExits) continue
 
+    // DEBUG: log the raw text and line split to help diagnose title parsing
+    if (typeof window !== 'undefined' && window.__ROOM_DEBUG) {
+      const lines = raw.split(/\n/).map(l => l.trim()).filter(Boolean)
+      console.log('[RoomView parseRoomData] raw length:', raw.length,
+        'lines:', lines.length,
+        'line0:', JSON.stringify(lines[0]?.substring(0, 80)),
+        'hasId:', /\(#\d+\)/.test(raw))
+    }
+
     let roomName = ''
     let description = ''
     let exits = []
@@ -144,8 +153,10 @@ function singularize(name) {
 // of the same item in a room, Evennia disambiguates with "1-name",
 // "2-name" etc. We always prefix with "1-" so Evennia grabs the first
 // match without asking the player to narrow the target.
+// MUST be lowercase — Evennia's search is case-insensitive but the
+// N- prefix matching requires lowercase.
 function cmdRef(name) {
-  return `1-${name}`
+  return `1-${name.toLowerCase()}`
 }
 
 // Number words → numeric values for quantity parsing
