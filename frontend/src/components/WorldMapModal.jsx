@@ -91,6 +91,7 @@ const NODE_ICONS = {
 export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
   const [loading, setLoading] = useState(true)
   const [layout, setLayout] = useState(null)
+  const [tab, setTab] = useState('rooms')
   const svgRef = useRef(null)
 
   useEffect(() => {
@@ -133,16 +134,32 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
       <div className="world-map-content" onClick={(e) => e.stopPropagation()}>
         <div className="world-map-header">
           <span className="cinzel world-map-title">WORLD MAP</span>
-          <div className="map-legend">
-            <span className="map-legend-item"><span className="map-dot current" /> You are here</span>
-            <span className="map-legend-item"><span className="map-dot market" /> Market</span>
-            <span className="map-legend-item">🪙 Merchant</span>
-            <span className="map-legend-item">🔨 Crafting</span>
+          <div className="map-tabs">
+            <button className={`map-tab-btn ${tab === 'rooms' ? 'active' : ''}`} onClick={() => setTab('rooms')}>
+              Room Map
+            </button>
+            <button className={`map-tab-btn ${tab === 'world' ? 'active' : ''}`} onClick={() => setTab('world')}>
+              The Annwyn
+            </button>
           </div>
+          {tab === 'rooms' && (
+            <div className="map-legend">
+              <span className="map-legend-item"><span className="map-dot current" /> You are here</span>
+              <span className="map-legend-item"><span className="map-dot market" /> Market</span>
+              <span className="map-legend-item">🪙 Merchant</span>
+              <span className="map-legend-item">🔨 Crafting</span>
+            </div>
+          )}
           <button className="world-map-close" onClick={onClose}>✕</button>
         </div>
         <div className="world-map-body">
-          {loading ? (
+          {tab === 'world' ? (
+            <img
+              src="/art/map/annwyn_map.jpg"
+              alt="Map of the Annwyn"
+              className="world-map-image"
+            />
+          ) : loading ? (
             <div className="map-loading">Charting the known lands...</div>
           ) : layout ? (
             <svg
