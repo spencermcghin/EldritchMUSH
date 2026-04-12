@@ -131,13 +131,51 @@ function parseRoomData(messages) {
   return null
 }
 
-// Split "a Foo, a Bar, and a Baz" or "a Foo and a Bar" into ["Foo", "Bar", "Baz"]
+// Number words → numeric values for quantity parsing
+const NUMBER_WORDS = {
+  two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8,
+  nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14,
+  fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,
+}
+
+// Split "a Foo, twelve Bar, and a Baz" into [{name: "Foo", count: 1}, {name: "Bar", count: 12}, ...]
+// Then group duplicates by name, summing counts.
 function splitEntities(str) {
-  return str
+  const raw = str
     .split(/,\s*(?:and\s+)?|\s+and\s+/)
     .map(s => s.trim())
     .filter(Boolean)
-    .map(s => s.replace(/^(?:a|an|the|some)\s+/i, '')) // strip articles
+
+  const parsed = raw.map(s => {
+    // Strip articles
+    s = s.replace(/^(?:a|an|the|some)\s+/i, '')
+    // Check for a leading number word or digit
+    const numWordMatch = s.match(/^(\w+)\s+(.+)$/)
+    if (numWordMatch) {
+      const maybeNum = numWordMatch[1].toLowerCase()
+      if (NUMBER_WORDS[maybeNum]) {
+        return { name: numWordMatch[2], count: NUMBER_WORDS[maybeNum] }
+      }
+      const asInt = parseInt(maybeNum)
+      if (!isNaN(asInt) && asInt > 0) {
+        return { name: numWordMatch[2], count: asInt }
+      }
+    }
+    return { name: s, count: 1 }
+  })
+
+  // Group by normalized name, summing counts
+  const grouped = new Map()
+  for (const { name, count } of parsed) {
+    const key = name.toLowerCase()
+    if (grouped.has(key)) {
+      const existing = grouped.get(key)
+      existing.count += count
+    } else {
+      grouped.set(key, { name, count })
+    }
+  }
+  return Array.from(grouped.values())
 }
 
 function parseExitsAndEntities(text, exits, characters, items) {
@@ -158,6 +196,7 @@ function parseExitsAndEntities(text, exits, characters, items) {
 
   const itemMatch = text.match(/You see:\s*(.+?)(?=Characters?:|Exits?:|$)/i)
   if (itemMatch) {
+    // items are now {name, count} objects
     splitEntities(itemMatch[1]).forEach(it => items.push(it))
   }
 }
@@ -237,19 +276,20 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
                 <button
                   key={i}
                   className="room-entity-btn character"
-                  onClick={onEntityClick ? () => onEntityClick(c, 'character') : () => onCommand(`look ${c}`)}
-                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, c, 'character') : undefined}
-                  title={`Look at ${c}`}
+                  onClick={onEntityClick ? () => onEntityClick(c.name, 'character') : () => onCommand(`look ${c.name}`)}
+                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, c.name, 'character') : undefined}
+                  title={`Look at ${c.name}`}
                 >
                   <span className="entity-icon">⚔</span>
-                  <span className="entity-name">{c}</span>
+                  <span className="entity-name">{c.name}</span>
+                  {c.count > 1 && <span className="entity-count">x{c.count}</span>}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Items in room — each clickable */}
+        {/* Items in room — each clickable, with count badges */}
         {room.items.length > 0 && (
           <div className="room-section">
             <span className="room-section-label">You See</span>
@@ -258,12 +298,13 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
                 <button
                   key={i}
                   className="room-entity-btn item"
-                  onClick={onEntityClick ? () => onEntityClick(item, 'item') : () => onCommand(`look ${item}`)}
-                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, item, 'item') : undefined}
-                  title={`Look at ${item}`}
+                  onClick={onEntityClick ? () => onEntityClick(item.name, 'item') : () => onCommand(`look ${item.name}`)}
+                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, item.name, 'item') : undefined}
+                  title={`Look at ${item.name}`}
                 >
                   <span className="entity-icon">◆</span>
-                  <span className="entity-name">{item}</span>
+                  <span className="entity-name">{item.name}</span>
+                  {item.count > 1 && <span className="entity-count">x{item.count}</span>}
                 </button>
               ))}
             </div>
