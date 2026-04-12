@@ -131,10 +131,16 @@ def push_inventory(character, session=None):
 
     db = character.db
 
-    # Build set of currently equipped item ids
+    # Build set of currently equipped item ids.
+    # Evennia 5.x db attribute reads may return copies of mutable values,
+    # so we also cross-reference with character.contents to find items
+    # that are physically in the character but match known equipment
+    # patterns (have damage, is_armor, is_shield, etc.).
     equipped_map = {}  # item_id → slot_name
+
+    # First pass: read from db slots directly
     for slot_name in _ALL_SLOTS:
-        slot_val = getattr(db, slot_name, None)
+        slot_val = character.attributes.get(slot_name, default=[])
         if not slot_val:
             continue
         slot_items = slot_val if isinstance(slot_val, (list, tuple)) else [slot_val]
@@ -181,7 +187,7 @@ def push_inventory(character, session=None):
     # Also send current slot occupancy so the UI can show what's equipped where
     slots = {}
     for slot_name, label in _SLOT_LABELS.items():
-        slot_val = getattr(db, slot_name, None)
+        slot_val = character.attributes.get(slot_name, default=[])
         if slot_val and isinstance(slot_val, (list, tuple)) and slot_val:
             first = slot_val[0]
             slots[slot_name] = {
