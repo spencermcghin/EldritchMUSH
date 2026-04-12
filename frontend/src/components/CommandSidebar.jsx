@@ -36,12 +36,9 @@ const SKILL_COMMANDS = [
   { key: 'repair', label: 'Repair', args_hint: '<item>', category: 'Crafting', requireAny: ['blacksmith', 'artificer'] },
 ]
 
-// Context commands — always available but contextual
-const CONTEXT_COMMANDS = [
-  { key: 'browse', label: 'Browse', args_hint: '[<merchant>]', category: 'Shop' },
-  { key: 'buy', label: 'Buy', args_hint: '<item> from <merchant>', category: 'Shop' },
-  { key: 'sell', label: 'Sell', args_hint: '<item> to <merchant>', category: 'Shop' },
-]
+// Shop commands — only shown when the server's available_commands OOB
+// event includes them (i.e. when a Merchant is in the room). Removed
+// from the hardcoded static list; the server pushes these dynamically.
 
 const CATEGORY_ORDER = ['Combat', 'Healing', 'Alchemy', 'Crafting', 'Shop', 'Exploration', 'Social', 'General']
 
@@ -62,8 +59,8 @@ function buildCommandList(inCombat, characterSkills) {
     }
   }
 
-  // Context commands (shop — always show, they'll fail gracefully if no merchant)
-  cmds.push(...CONTEXT_COMMANDS)
+  // Context commands (shop) — only shown via OOB available_commands
+  // from the server, not hardcoded. Removed from the static list.
 
   // Always-available
   cmds.push(...ALWAYS_COMMANDS)
