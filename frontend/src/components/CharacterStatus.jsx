@@ -103,17 +103,25 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
         {/* Divider */}
         <div className="status-section-label cinzel">EQUIPMENT</div>
 
-        {/* Equipment slots */}
+        {/* Equipment slots — click an equipped item to unequip */}
         <div className="equip-slots">
           {EQUIP_SLOTS.map((slot) => {
             const item = equipment?.[slot.key]
             return (
-              <div key={slot.key} className="equip-slot">
+              <div key={slot.key} className={`equip-slot ${item ? 'has-item' : ''}`}>
                 <span className="equip-icon">{slot.icon}</span>
                 <span className="equip-slot-label cinzel">{slot.label}</span>
-                <span className={`equip-item ${item ? '' : 'equip-empty'}`}>
-                  {item || 'empty'}
-                </span>
+                {item ? (
+                  <button
+                    className="equip-item-btn"
+                    onClick={() => sendCommand(`unequip ${item}`)}
+                    title={`Unequip ${item}`}
+                  >
+                    {item} <span className="unequip-x">✕</span>
+                  </button>
+                ) : (
+                  <span className="equip-item equip-empty">empty</span>
+                )}
               </div>
             )
           })}
