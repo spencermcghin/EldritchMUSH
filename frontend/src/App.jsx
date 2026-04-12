@@ -141,12 +141,24 @@ function App() {
       if (!msg || msg.type === 'system') continue // skip our own command echo
       const raw = (msg.content || '').replace(/<[^>]*>/g, '').trim()
       if (!raw) continue
-      // The first non-system message after the look command is the response
-      // Strip the entity name + (#id) header if present
-      const cleaned = raw
-        .replace(new RegExp(`^${watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\(#\\d+\\)\\s*`, 'i'), '')
+      // The first non-system message after the look command is the response.
+      // Evennia sends the entity name on its own line followed by the
+      // description, but they may arrive concatenated without whitespace
+      // (e.g. "Hardened Iron ShieldYou see nothing special.").
+      //
+      // Strip the entity name (with optional #id), then also check for a
+      // lowercase→uppercase camelJoin where two strings were concatenated.
+      let cleaned = raw
+        // Strip "EntityName(#id)" prefix
+        .replace(new RegExp(`^${watcher.entityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(#\\d+\\)\\s*`, 'i'), '')
         .replace(/^[A-Za-z][^\n]{0,40}\(#\d+\)\s*/, '')
-        .trim()
+      // Strip the entity name WITHOUT (#id) — for non-admin players
+      if (cleaned.toLowerCase().startsWith(watcher.entityName.toLowerCase())) {
+        cleaned = cleaned.slice(watcher.entityName.length)
+      }
+      // Fix camelJoins where name and description merged ("ShieldYou" → "Shield\nYou")
+      cleaned = cleaned.replace(/([a-z])([A-Z])/g, '$1\n$2')
+      cleaned = cleaned.trim()
       setEntityDescription(cleaned || raw)
       lookWatcherRef.current = null
       if (lookTimeoutRef.current) clearTimeout(lookTimeoutRef.current)

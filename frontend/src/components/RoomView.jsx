@@ -66,26 +66,25 @@ function parseRoomData(messages) {
             parseExitsAndEntities(raw, exits, characters, items)
           }
         } else {
-          // First line is long — might be "RoomNameDescription..." merged.
-          // Try splitting at the first lowercase letter after some uppercase
-          // chars, or at the first period/comma within 60 chars.
-          const sentenceEnd = firstLine.search(/[.!]/)
-          if (sentenceEnd > 0 && sentenceEnd < 60) {
-            roomName = firstLine.slice(0, sentenceEnd).trim()
-            description = firstLine.slice(sentenceEnd + 1).trim()
+          // First line is long — "RoomNameDescription..." merged without
+          // a separator. Evennia sends name and desc as separate text
+          // messages but the webclient may concatenate them into one line.
+          //
+          // Detection strategies, in priority order:
+          // 1. Lowercase→Uppercase transition with no space ("WorldsYou")
+          //    — strongest signal that two strings were concatenated.
+          // 2. Period/exclamation within the first 60 chars — sentence end.
+          // 3. Fallback to first 50 chars.
+          const camelJoin = firstLine.search(/[a-z][A-Z]/)
+          if (camelJoin > 0 && camelJoin < 60) {
+            roomName = firstLine.slice(0, camelJoin + 1).trim()
+            description = firstLine.slice(camelJoin + 1).trim()
           } else {
-            // Look for a transition from titlecase to lowercase sentence
-            const caseBreak = firstLine.search(/[A-Z][a-z]+\s+[A-Z][a-z]/)
-            if (caseBreak > 0 && caseBreak < 60) {
-              // Find the space after the titlecase word
-              const spaceAfter = firstLine.indexOf(' ', caseBreak + 2)
-              if (spaceAfter > 0) {
-                roomName = firstLine.slice(0, spaceAfter).trim()
-                description = firstLine.slice(spaceAfter + 1).trim()
-              }
-            }
-            if (!roomName) {
-              // Fallback: just take the first 50 chars
+            const sentenceEnd = firstLine.search(/[.!]/)
+            if (sentenceEnd > 0 && sentenceEnd < 60) {
+              roomName = firstLine.slice(0, sentenceEnd).trim()
+              description = firstLine.slice(sentenceEnd + 1).trim()
+            } else if (!roomName) {
               roomName = firstLine.slice(0, 50).trim()
               description = firstLine.slice(50).trim()
             }
@@ -129,6 +128,16 @@ function parseRoomData(messages) {
     }
   }
   return null
+}
+
+// Naive singularize for item names — strips trailing 's' when the item
+// has a count > 1, handling common English plural patterns.
+function singularize(name) {
+  if (name.endsWith('ies')) return name.slice(0, -3) + 'y'
+  if (name.endsWith('ves')) return name.slice(0, -3) + 'f'
+  if (name.endsWith('ses') || name.endsWith('xes') || name.endsWith('zes') || name.endsWith('ches') || name.endsWith('shes')) return name.slice(0, -2)
+  if (name.endsWith('s') && !name.endsWith('ss')) return name.slice(0, -1)
+  return name
 }
 
 // Number words → numeric values for quantity parsing
@@ -294,19 +303,22 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
           <div className="room-section">
             <span className="room-section-label">You See</span>
             <div className="room-entities">
-              {room.items.map((item, i) => (
-                <button
-                  key={i}
-                  className="room-entity-btn item"
-                  onClick={onEntityClick ? () => onEntityClick(item.name, 'item') : () => onCommand(`look ${item.name}`)}
-                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, item.name, 'item') : undefined}
-                  title={`Look at ${item.name}`}
-                >
-                  <span className="entity-icon">◆</span>
-                  <span className="entity-name">{item.name}</span>
-                  {item.count > 1 && <span className="entity-count">x{item.count}</span>}
-                </button>
-              ))}
+              {room.items.map((item, i) => {
+                const cmdName = item.count > 1 ? singularize(item.name) : item.name
+                return (
+                  <button
+                    key={i}
+                    className="room-entity-btn item"
+                    onClick={onEntityClick ? () => onEntityClick(cmdName, 'item') : () => onCommand(`look ${cmdName}`)}
+                    onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, cmdName, 'item') : undefined}
+                    title={`Look at ${cmdName}`}
+                  >
+                    <span className="entity-icon">◆</span>
+                    <span className="entity-name">{item.name}</span>
+                    {item.count > 1 && <span className="entity-count">x{item.count}</span>}
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
