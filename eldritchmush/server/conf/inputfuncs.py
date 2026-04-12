@@ -123,6 +123,33 @@ def text(session, *args, **kwargs):
                 # Match `charcreate <args>` (case-insensitive) but not
                 # words that just start with charcreate.
                 lowered = stripped.lower()
+                # __finish_chargen__ — teleport the puppeted character out
+                # of the ChargenRoom to the game's START_LOCATION. Sent
+                # by the chargen wizard's Finalize button after all set*
+                # skill commands have been applied.
+                if lowered == "__finish_chargen__":
+                    try:
+                        from django.conf import settings as dj_settings
+                        from evennia.objects.models import ObjectDB
+                        puppet = getattr(session, "puppet", None)
+                        if puppet and puppet.location:
+                            tc_path = puppet.location.typeclass_path or ""
+                            if "ChargenRoom" in tc_path:
+                                start_id = getattr(dj_settings, "START_LOCATION", 2)
+                                start_loc = ObjectDB.objects.get_id(start_id)
+                                if start_loc:
+                                    puppet.move_to(start_loc, quiet=False)
+                                    diag_write("FINISH_CHARGEN moved to start", puppet=repr(puppet), dest=repr(start_loc))
+                                else:
+                                    diag_write("FINISH_CHARGEN START_LOCATION not found", start_id=start_id)
+                            else:
+                                diag_write("FINISH_CHARGEN not in ChargenRoom, skipping", location=tc_path)
+                        else:
+                            diag_write("FINISH_CHARGEN no puppet or no location")
+                    except Exception as exc:
+                        diag_write("FINISH_CHARGEN FAILED", exc=str(exc))
+                    return
+
                 # __equip_ui__ — the frontend sends this (not a real MUD
                 # command) to request structured inventory data for the
                 # equip modal. We intercept it here and push the OOB event
