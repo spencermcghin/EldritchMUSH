@@ -337,11 +337,13 @@
   cursor: not-allowed;
 }
 
-.equip-action-btn.unequip {
+.equip-action-btn.unequip,
+.equip-action-btn.drop {
   color: var(--blood-bright);
   border-color: rgba(204, 34, 17, 0.3);
 }
-.equip-action-btn.unequip:hover {
+.equip-action-btn.unequip:hover,
+.equip-action-btn.drop:hover:not(:disabled) {
   background: rgba(204, 34, 17, 0.1);
   border-color: var(--blood-bright);
 }
