@@ -55,7 +55,7 @@
 }
 
 .world-map-title {
-  font-family: 'UnifrakturMaguntia', serif;
+  font-family: 'Cinzel', serif;
   font-size: 24px;
   color: var(--accent-gold);
   letter-spacing: 2px;
@@ -107,7 +107,7 @@
 }
 
 .world-map-hint {
-  font-family: 'IM Fell English', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 11px;
   color: var(--text-aged);

@@ -63,8 +63,7 @@ export default function LoginScreen({ connectionState, onConnect }) {
 
       <div className="login-content">
         <div className="login-title-wrap">
-          <div className="login-skull">☠</div>
-          <h1 className="login-title">Eldritch MUSH</h1>
+          <img src="/art/eldritch-logo.png" alt="Eldritch" className="login-logo-img" />
           <div className="login-subtitle">A Dark Survival Chronicle</div>
         </div>
 

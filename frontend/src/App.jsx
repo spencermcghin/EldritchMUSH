@@ -233,7 +233,7 @@ function App() {
       {/* ── Header ── */}
       <header className="app-header">
         <div className="app-header-title">
-          <span className="skull">☠</span> Eldritch MUSH
+          <img src="/art/eldritch-logo.png" alt="Eldritch" className="app-header-logo" />
         </div>
         <div className="app-header-rule" />
         <div className="app-header-status">

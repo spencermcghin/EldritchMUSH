@@ -166,17 +166,15 @@ body::before {
 }
 
 .app-header-title {
-  font-family: 'UnifrakturMaguntia', serif;
-  font-size: 22px;
-  color: var(--accent-gold);
-  animation: glow-gold 4s ease-in-out infinite;
-  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
   user-select: none;
 }
 
-.app-header-title .skull {
-  margin-right: 6px;
-  opacity: 0.9;
+.app-header-logo {
+  height: 30px;
+  width: auto;
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.3));
 }
 
 .app-header-rule {

@@ -66,26 +66,11 @@
   gap: 8px;
 }
 
-.login-skull {
-  font-size: 48px;
-  color: var(--accent-gold);
-  animation: glow-gold 3s ease-in-out infinite;
-  line-height: 1;
-  filter: drop-shadow(0 0 12px rgba(212,175,55,0.5));
-}
-
-.login-title {
-  font-family: 'UnifrakturMaguntia', serif;
-  font-size: clamp(28px, 5vw, 52px);
-  color: var(--accent-gold);
+.login-logo-img {
+  max-width: clamp(200px, 50vw, 420px);
+  height: auto;
+  filter: drop-shadow(0 0 12px rgba(212,175,55,0.4));
   animation: glow-gold 4s ease-in-out infinite;
-  text-shadow:
-    0 0 8px rgba(212,175,55,0.5),
-    0 0 20px rgba(212,175,55,0.2),
-    0 0 40px rgba(139,0,0,0.2),
-    0 2px 4px rgba(0,0,0,0.8);
-  letter-spacing: 1px;
-  line-height: 1.1;
 }
 
 .login-subtitle {
@@ -114,7 +99,7 @@
 
 /* Flavor text */
 .login-flavor {
-  font-family: 'IM Fell English', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 15px;
   font-style: italic;
   color: var(--text-aged);
@@ -242,7 +227,7 @@
 
 /* Hint text */
 .login-hint {
-  font-family: 'IM Fell English', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: 12px;
   color: var(--text-aged);
   text-align: center;
@@ -304,7 +289,7 @@
   background: none;
   border: none;
   color: var(--text-aged);
-  font-family: 'IM Fell English', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: 12px;
   cursor: pointer;
