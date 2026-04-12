@@ -352,11 +352,16 @@ function ReviewStep({ state, sendCommand, onReset, onExit }) {
       }, i * 300)
     })
 
-    // After all skill commands, exit the wizard UI
-    // The player can navigate out of chargen room manually via exits
+    // After all skill commands, teleport out of the ChargenRoom and
+    // dismiss the wizard. __finish_chargen__ is intercepted by the
+    // inputfunc handler and moves the character to START_LOCATION.
     setTimeout(() => {
-      sendCommand('look')
-      if (onExit) onExit()
+      sendCommand('__finish_chargen__')
+      // Small delay for the move to process, then look at the new room
+      setTimeout(() => {
+        sendCommand('look')
+        if (onExit) onExit()
+      }, 600)
     }, cmds.length * 300 + 500)
   }
 
@@ -507,12 +512,21 @@ export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin, 
     return false
   }
 
+  // Helper: leave the ChargenRoom and dismiss the wizard
+  const handleLeaveChargen = useCallback(() => {
+    sendCommand('__finish_chargen__')
+    setTimeout(() => {
+      sendCommand('look')
+      if (onExit) onExit()
+    }, 600)
+  }, [sendCommand, onExit])
+
   // View mode — show read-only character sheet
   if (isViewMode) {
     return (
       <div className="chargen-wizard">
         <div className="chargen-wizard-header">
-          <button className="chargen-btn secondary chargen-back-btn" onClick={onExit}>
+          <button className="chargen-btn secondary chargen-back-btn" onClick={handleLeaveChargen}>
             Back to Game
           </button>
           <span className="chargen-label" style={{ flex: 1, textAlign: 'center' }}>CHARACTER SHEET</span>
@@ -538,7 +552,7 @@ export default function ChargenWizard({ sendCommand, onExit, viewMode, isAdmin, 
   return (
     <div className="chargen-wizard">
       <div className="chargen-wizard-header">
-        <button className="chargen-btn secondary chargen-back-btn" onClick={onExit}>
+        <button className="chargen-btn secondary chargen-back-btn" onClick={handleLeaveChargen}>
           Back to Game
         </button>
         <StepIndicator current={state.step} steps={STEPS} />
