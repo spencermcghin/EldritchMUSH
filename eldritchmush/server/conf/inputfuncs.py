@@ -200,6 +200,26 @@ def text(session, *args, **kwargs):
                         diag_write("FINISH_CHARGEN FAILED", exc=str(exc))
                     return
 
+                # __test_email__ — admin-only test to verify Resend works
+                if lowered == "__test_email__":
+                    is_admin = bool(
+                        account and (account.is_superuser or account.check_permstring("Admin"))
+                    )
+                    if is_admin:
+                        try:
+                            from world.email import send_email
+                            result = send_email(
+                                "contact@eldritchmush.com",
+                                "[EldritchMUSH] Test Email",
+                                "<h1 style='color: #d4af37;'>Email is working!</h1><p>This is a test from EldritchMUSH.</p>"
+                            )
+                            session.msg(text=f"|g{'Email sent successfully!' if result else 'Email failed — check diag log.'}|n")
+                        except Exception as exc:
+                            session.msg(text=f"|400Email test failed: {exc}|n")
+                    else:
+                        session.msg(text="|400Admin only.|n")
+                    return
+
                 # __charsheet_ui__ — push structured character skill data
                 if lowered == "__charsheet_ui__":
                     try:
