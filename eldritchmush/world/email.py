@@ -9,7 +9,7 @@ import json
 
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 FROM_EMAIL = "EldritchMUSH <noreply@eldritchmush.com>"
-ADMIN_EMAIL = "contact@eldritchmush.com"
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "contact@eldritchmush.com")
 
 
 def send_email(to, subject, html_body, text_body=None):
