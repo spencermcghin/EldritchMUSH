@@ -69,8 +69,8 @@ MAX_NR_CHARACTERS = 5
 # Allowed hosts for Django — Railway internal + custom domain
 ALLOWED_HOSTS = [
     "eldritchmush-production.up.railway.app",
-    "eldritch-mud.com",
-    "www.eldritch-mud.com",
+    "eldritchmush.com",
+    "www.eldritchmush.com",
     "localhost",
     "127.0.0.1",
 ]
@@ -83,8 +83,8 @@ ALLOWED_HOSTS = [
 # 127.0.0.1 but the form came from the public HTTPS URL.
 CSRF_TRUSTED_ORIGINS = [
     "https://eldritchmush-production.up.railway.app",
-    "https://eldritch-mud.com",
-    "https://www.eldritch-mud.com",
+    "https://eldritchmush.com",
+    "https://www.eldritchmush.com",
 ]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
