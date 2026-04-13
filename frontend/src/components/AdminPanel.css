@@ -227,6 +227,49 @@
 .admin-meta-tag.archetype { color: var(--accent-gold); border-color: rgba(212,175,55,0.3); }
 .admin-meta-tag.chargen { color: var(--neon-warn); border-color: rgba(201,255,0,0.3); }
 .admin-meta-tag.online { color: var(--phosphor); border-color: rgba(0,229,160,0.3); }
+.admin-meta-tag.pending { color: var(--neon-warn); border-color: rgba(201,255,0,0.3); }
+.admin-meta-tag.approved { color: var(--phosphor); border-color: rgba(0,229,160,0.3); }
+.admin-meta-tag.rejected { color: var(--blood-bright); border-color: rgba(204,34,17,0.3); }
+
+.admin-approval-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.admin-btn.approve-btn {
+  color: var(--phosphor);
+  border-color: rgba(0,229,160,0.3);
+}
+.admin-btn.approve-btn:hover {
+  background: rgba(0,229,160,0.1);
+  border-color: var(--phosphor);
+}
+
+.admin-btn.reject-btn {
+  color: var(--blood-bright);
+  border-color: rgba(204,34,17,0.3);
+}
+.admin-btn.reject-btn:hover {
+  background: rgba(204,34,17,0.1);
+  border-color: var(--blood-bright);
+}
+
+.admin-reject-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  flex: 1;
+  min-width: 80px;
+  outline: none;
+}
+.admin-reject-input:focus {
+  border-color: var(--accent-gold);
+}
 
 /* Details */
 .admin-char-details {
