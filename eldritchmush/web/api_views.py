@@ -257,6 +257,8 @@ def admin_all_characters(request):
                 "accountName": account_name,
                 "accountId": account_id,
                 "created": char.db_date_created.isoformat() if char.db_date_created else None,
+                "approvalStatus": char.attributes.get("approval_status", default="none"),
+                "rejectionReason": char.attributes.get("rejection_reason", default=""),
             })
         except Exception as exc:
             print(f"[api_views] Error serializing character {char.id}: {exc}")
@@ -394,3 +396,71 @@ def admin_set_role(request):
         return JsonResponse({"success": True, "username": acct.username, "permissions": list(acct.permissions.all())})
     else:
         return JsonResponse({"error": "action must be 'add' or 'remove'"}, status=400)
+
+
+@require_http_methods(["POST"])
+def admin_approve_character(request):
+    """
+    Admin-only: approve or reject a character.
+    POST body: {"character_id": 123, "action": "approve"|"reject", "reason": "..."}
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "Admin access required"}, status=403)
+
+    try:
+        data = json.loads(request.body)
+        char_id = data.get("character_id")
+        action = data.get("action")  # "approve" or "reject"
+        reason = data.get("reason", "")
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({"error": "Invalid request body"}, status=400)
+
+    if not char_id or action not in ("approve", "reject"):
+        return JsonResponse({"error": "character_id and action (approve/reject) required"}, status=400)
+
+    from evennia.objects.models import ObjectDB
+    try:
+        char = ObjectDB.objects.get(id=char_id)
+    except ObjectDB.DoesNotExist:
+        return JsonResponse({"error": f"Character #{char_id} not found"}, status=404)
+
+    approved = action == "approve"
+
+    if approved:
+        char.attributes.add("approval_status", "approved")
+        # Move out of chargen room if still there
+        try:
+            from django.conf import settings as dj_settings
+            location = char.location
+            if location and "ChargenRoom" in (location.typeclass_path or ""):
+                start_id = getattr(dj_settings, "START_LOCATION", 2)
+                start_loc = ObjectDB.objects.get_id(start_id)
+                if start_loc:
+                    char.move_to(start_loc, quiet=True)
+        except Exception:
+            pass
+    else:
+        char.attributes.add("approval_status", "rejected")
+        char.attributes.add("rejection_reason", reason)
+
+    # Find player email and send notification
+    try:
+        from evennia.accounts.models import AccountDB
+        from world.email import send_approval_notification
+        player_email = None
+        for acct in AccountDB.objects.all():
+            pcs = acct.db._playable_characters or []
+            if char in pcs:
+                player_email = getattr(acct, "email", None)
+                break
+        if player_email:
+            send_approval_notification(player_email, char.key, approved, reason)
+    except Exception as exc:
+        print(f"[admin_approve] Email failed: {exc}")
+
+    return JsonResponse({
+        "success": True,
+        "character": char.key,
+        "status": "approved" if approved else "rejected",
+    })

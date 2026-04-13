@@ -136,6 +136,27 @@ export default function AdminPanel({ onClose }) {
 
   useEffect(() => { fetchCharacters() }, [fetchCharacters])
 
+  const [rejectInput, setRejectInput] = useState({})
+
+  const handleApproval = useCallback(async (charId, action, reason = '') => {
+    try {
+      const resp = await fetch('/api/admin/approve-character/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+        body: JSON.stringify({ character_id: charId, action, reason }),
+      })
+      const data = await resp.json()
+      if (data.success) {
+        fetchCharacters()
+      } else {
+        setError(data.error)
+      }
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [fetchCharacters])
+
   const handleDelete = useCallback(async (charId, charName) => {
     try {
       const resp = await fetch('/api/admin/delete-character/', {
@@ -248,6 +269,15 @@ export default function AdminPanel({ onClose }) {
                     {char.inChargen && (
                       <span className="admin-meta-tag chargen">IN CHARGEN</span>
                     )}
+                    {char.approvalStatus === 'pending' && (
+                      <span className="admin-meta-tag pending">PENDING APPROVAL</span>
+                    )}
+                    {char.approvalStatus === 'approved' && (
+                      <span className="admin-meta-tag approved">APPROVED</span>
+                    )}
+                    {char.approvalStatus === 'rejected' && (
+                      <span className="admin-meta-tag rejected">REJECTED</span>
+                    )}
                     {char.online && (
                       <span className="admin-meta-tag online">ONLINE</span>
                     )}
@@ -279,6 +309,30 @@ export default function AdminPanel({ onClose }) {
                   </div>
 
                   <div className="admin-char-actions">
+                    {/* Approval actions */}
+                    {(char.approvalStatus === 'pending' || char.approvalStatus === 'submitted') && (
+                      <div className="admin-approval-actions">
+                        <button
+                          className="admin-btn approve-btn"
+                          onClick={() => handleApproval(char.id, 'approve')}
+                        >
+                          Approve
+                        </button>
+                        <input
+                          className="admin-reject-input"
+                          placeholder="Reason (optional)"
+                          value={rejectInput[char.id] || ''}
+                          onChange={e => setRejectInput(prev => ({ ...prev, [char.id]: e.target.value }))}
+                        />
+                        <button
+                          className="admin-btn reject-btn"
+                          onClick={() => handleApproval(char.id, 'reject', rejectInput[char.id] || '')}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+                    {/* Delete */}
                     {deleteConfirm === char.id ? (
                       <div className="admin-delete-confirm">
                         <span className="admin-delete-warn">Delete {char.name}?</span>

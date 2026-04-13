@@ -135,13 +135,51 @@ def text(session, *args, **kwargs):
                         if puppet and puppet.location:
                             tc_path = puppet.location.typeclass_path or ""
                             if "ChargenRoom" in tc_path:
+                                # Mark as pending approval
+                                puppet.attributes.add("approval_status", "pending")
+
+                                # Build skills summary for email
+                                db = puppet.db
+                                skill_lines = []
+                                for attr, label in [
+                                    ("melee_weapons", "Melee Weapons"), ("archer", "Archer"),
+                                    ("shields", "Shields"), ("gunner", "Gunner"),
+                                    ("armor_proficiency", "Armor Prof"),
+                                    ("tough", "Tough"), ("master_of_arms", "Master of Arms"),
+                                    ("disarm", "Disarm"), ("stun", "Stun"),
+                                    ("stagger", "Stagger"), ("sunder", "Sunder"),
+                                    ("cleave", "Cleave"), ("perception", "Perception"),
+                                    ("tracking", "Tracking"), ("medicine", "Medicine"),
+                                    ("blacksmith", "Blacksmith"), ("artificer", "Artificer"),
+                                    ("bowyer", "Bowyer"), ("gunsmith", "Gunsmith"),
+                                    ("alchemist", "Alchemist"), ("vigil", "Vigil"),
+                                ]:
+                                    val = getattr(db, attr, 0) or 0
+                                    if val > 0:
+                                        skill_lines.append(f"  {label}: {val}")
+                                skills_summary = "\n".join(skill_lines) if skill_lines else "  (no skills set)"
+
+                                # Send approval email to admin
+                                try:
+                                    from world.email import send_approval_request
+                                    acct_email = getattr(account, "email", "") or ""
+                                    send_approval_request(
+                                        puppet.key, account.username,
+                                        acct_email, skills_summary
+                                    )
+                                except Exception as exc:
+                                    diag_write("FINISH_CHARGEN email failed", exc=str(exc))
+
+                                # Move to start location
                                 start_id = getattr(dj_settings, "START_LOCATION", 2)
                                 start_loc = ObjectDB.objects.get_id(start_id)
                                 if start_loc:
                                     puppet.move_to(start_loc, quiet=False)
-                                    diag_write("FINISH_CHARGEN moved to start", puppet=repr(puppet), dest=repr(start_loc))
+                                    diag_write("FINISH_CHARGEN moved + pending approval", puppet=repr(puppet))
                                 else:
                                     diag_write("FINISH_CHARGEN START_LOCATION not found", start_id=start_id)
+
+                                session.msg(text="|gYour character has been submitted for approval. You'll receive an email when a game master reviews your build.|n")
                             else:
                                 diag_write("FINISH_CHARGEN not in ChargenRoom, skipping", location=tc_path)
                         else:
