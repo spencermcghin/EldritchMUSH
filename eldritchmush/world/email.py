@@ -53,6 +53,7 @@ def send_email(to, subject, html_body, text_body=None):
             headers={
                 "Authorization": f"Bearer {RESEND_API_KEY}",
                 "Content-Type": "application/json",
+                "User-Agent": "EldritchMUSH/1.0",
             },
         )
         resp = urllib.request.urlopen(req, timeout=10)
