@@ -83,11 +83,6 @@ const NODE_COLORS = {
   chargen: '#8b5cf6',
 }
 
-const NODE_ICONS = {
-  hasMerchant: '🪙',
-  hasCrafting: '🔨',
-}
-
 export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
   const [loading, setLoading] = useState(true)
   const [layout, setLayout] = useState(null)
@@ -152,7 +147,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
           )}
           <button className="world-map-close" onClick={onClose}>✕</button>
         </div>
-        <div className="world-map-body">
+        <div className={`world-map-body ${tab === 'rooms' ? 'has-sidebar' : ''}`}>
           {tab === 'world' ? (
             <img
               src="/art/map/annwyn_map.jpg"
@@ -162,67 +157,82 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
           ) : loading ? (
             <div className="map-loading">Charting the known lands...</div>
           ) : layout ? (
-            <svg
-              ref={svgRef}
-              viewBox={`0 0 ${layout.width} ${layout.height}`}
-              className="map-svg"
-            >
-              {/* Edges */}
-              {layout.edges.map((e, i) => {
-                const from = layout.positions[e.from]
-                const to = layout.positions[e.to]
-                if (!from || !to) return null
-                return (
-                  <line
-                    key={i}
-                    x1={from.x} y1={from.y}
-                    x2={to.x} y2={to.y}
-                    className="map-edge"
-                  />
-                )
-              })}
-              {/* Nodes */}
-              {layout.nodes.map(node => {
-                const p = layout.positions[node.id]
-                if (!p) return null
-                const color = NODE_COLORS[node.type] || NODE_COLORS.room
-                return (
-                  <g
-                    key={node.id}
-                    className={`map-node ${node.current ? 'current' : ''}`}
-                    onClick={() => handleNodeClick(node)}
-                  >
-                    {/* Glow for current room */}
-                    {node.current && (
-                      <circle cx={p.x} cy={p.y} r={22} className="map-node-glow" />
-                    )}
-                    <circle
-                      cx={p.x} cy={p.y}
-                      r={node.current ? 14 : 10}
-                      fill={color}
-                      stroke={node.current ? '#00e5a0' : '#4a3828'}
-                      strokeWidth={node.current ? 3 : 1.5}
-                      className="map-node-circle"
+            <>
+              <svg
+                ref={svgRef}
+                viewBox={`0 0 ${layout.width} ${layout.height}`}
+                className="map-svg"
+              >
+                {/* Edges */}
+                {layout.edges.map((e, i) => {
+                  const from = layout.positions[e.from]
+                  const to = layout.positions[e.to]
+                  if (!from || !to) return null
+                  return (
+                    <line
+                      key={i}
+                      x1={from.x} y1={from.y}
+                      x2={to.x} y2={to.y}
+                      className="map-edge"
                     />
-                    {/* Icons for special features */}
-                    {node.hasMerchant && (
-                      <text x={p.x + 16} y={p.y - 8} className="map-icon">🪙</text>
-                    )}
-                    {node.hasCrafting && (
-                      <text x={p.x + 16} y={p.y + 8} className="map-icon">🔨</text>
-                    )}
-                    {/* Room name */}
-                    <text
-                      x={p.x}
-                      y={p.y + (node.current ? 28 : 24)}
-                      className={`map-label ${node.current ? 'current' : ''}`}
+                  )
+                })}
+                {/* Nodes — numbered circles */}
+                {layout.nodes.map((node, idx) => {
+                  const p = layout.positions[node.id]
+                  if (!p) return null
+                  const color = NODE_COLORS[node.type] || NODE_COLORS.room
+                  const num = idx + 1
+                  return (
+                    <g
+                      key={node.id}
+                      className={`map-node ${node.current ? 'current' : ''}`}
                     >
-                      {node.name}
-                    </text>
-                  </g>
-                )
-              })}
-            </svg>
+                      {node.current && (
+                        <circle cx={p.x} cy={p.y} r={22} className="map-node-glow" />
+                      )}
+                      <circle
+                        cx={p.x} cy={p.y}
+                        r={node.current ? 16 : 12}
+                        fill={color}
+                        stroke={node.current ? '#00e5a0' : '#4a3828'}
+                        strokeWidth={node.current ? 3 : 1.5}
+                        className="map-node-circle"
+                      />
+                      <text
+                        x={p.x} y={p.y + 4}
+                        className="map-node-num"
+                      >
+                        {num}
+                      </text>
+                    </g>
+                  )
+                })}
+              </svg>
+              {/* Sidebar key */}
+              <div className="map-key">
+                <div className="map-key-title cinzel">LOCATIONS</div>
+                <div className="map-key-list">
+                  {layout.nodes.map((node, idx) => (
+                    <div
+                      key={node.id}
+                      className={`map-key-item ${node.current ? 'current' : ''}`}
+                    >
+                      <span
+                        className="map-key-num"
+                        style={{ background: NODE_COLORS[node.type] || NODE_COLORS.room }}
+                      >
+                        {idx + 1}
+                      </span>
+                      <span className="map-key-name">{node.name}</span>
+                      {node.hasMerchant && <span className="map-key-icon">🪙</span>}
+                      {node.hasCrafting && <span className="map-key-icon">🔨</span>}
+                      {node.current && <span className="map-key-you">YOU</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
           ) : null}
         </div>
         <div className="world-map-footer">

@@ -142,8 +142,6 @@
 
 /* SVG Map */
 .map-svg {
-  width: 100%;
-  height: 100%;
   min-height: 400px;
 }
 
@@ -177,24 +175,104 @@
   50% { opacity: 0.6; r: 26; }
 }
 
-.map-label {
-  font-family: 'Cinzel', serif;
-  font-size: 8px;
-  fill: var(--text-aged);
+.map-node-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  fill: #fff;
   text-anchor: middle;
   pointer-events: none;
-  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
-.map-label.current {
-  fill: var(--phosphor);
+/* Sidebar key */
+.world-map-body.has-sidebar {
+  display: flex;
+  gap: 0;
+}
+
+.map-svg {
+  flex: 1;
+}
+
+.map-key {
+  width: 200px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.map-key-title {
   font-size: 9px;
-  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+  padding: 4px 12px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
 }
 
-.map-icon {
+.map-key-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-key-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
   font-size: 10px;
-  pointer-events: none;
+  transition: background 0.1s;
+}
+
+.map-key-item.current {
+  background: rgba(0, 229, 160, 0.08);
+}
+
+.map-key-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.map-key-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-light);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-key-item.current .map-key-name {
+  color: var(--phosphor);
+}
+
+.map-key-icon {
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.map-key-you {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: var(--phosphor);
+  background: rgba(0, 229, 160, 0.12);
+  border: 1px solid rgba(0, 229, 160, 0.3);
+  padding: 1px 4px;
+  flex-shrink: 0;
 }
 
 /* Footer */
