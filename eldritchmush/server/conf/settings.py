@@ -85,6 +85,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://eldritchmush-production.up.railway.app",
     "https://eldritchmush.com",
     "https://www.eldritchmush.com",
+    "http://eldritchmush.com",
+    "http://www.eldritchmush.com",
 ]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
