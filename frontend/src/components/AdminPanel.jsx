@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import './AdminPanel.css'
 
+// Read Django's csrftoken cookie for POST requests
+function getCsrfToken() {
+  const match = document.cookie.match(/csrftoken=([^;]+)/)
+  return match ? match[1] : ''
+}
+
 function AccountsTab() {
   const [accounts, setAccounts] = useState([])
   const [roles, setRoles] = useState([])
@@ -30,7 +36,7 @@ function AccountsTab() {
       const resp = await fetch('/api/admin/set-role/', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
         body: JSON.stringify({
           account_id: accountId,
           role,
@@ -135,7 +141,7 @@ export default function AdminPanel({ onClose }) {
       const resp = await fetch('/api/admin/delete-character/', {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
         body: JSON.stringify({ character_id: charId }),
       })
       const data = await resp.json()

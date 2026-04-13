@@ -4,7 +4,6 @@ Lightweight JSON endpoints used by the React frontend.
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 
 
 def webclient_session(request):
@@ -266,7 +265,6 @@ def admin_all_characters(request):
     return JsonResponse({"characters": characters})
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def admin_delete_character(request):
     """
@@ -353,7 +351,6 @@ def admin_all_accounts(request):
     return JsonResponse({"accounts": accounts, "availableRoles": roles})
 
 
-@csrf_exempt
 @require_http_methods(["POST"])
 def admin_set_role(request):
     """
