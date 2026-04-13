@@ -91,9 +91,20 @@ def diag_write(msg, **fields):
 def diag_view(request):
     """HTTP endpoint that returns the last N lines of the diag log.
 
-    Plain text response so it's easy to read in a browser. Visit
-    /api/diag/ — optionally append ?lines=N to control how much.
+    Admin-only. Plain text response so it's easy to read in a browser.
+    Visit /api/diag/ — optionally append ?lines=N to control how much.
     """
+    user = request.user
+    if not user.is_authenticated:
+        return HttpResponse("Authentication required", status=401, content_type="text/plain")
+    is_admin = user.is_superuser
+    if not is_admin:
+        try:
+            is_admin = user.check_permstring("Admin") or user.check_permstring("Builder")
+        except Exception:
+            pass
+    if not is_admin:
+        return HttpResponse("Admin access required", status=403, content_type="text/plain")
     try:
         n = int(request.GET.get("lines", "200"))
     except ValueError:

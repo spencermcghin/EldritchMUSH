@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import DOMPurify from 'dompurify'
 import './GameOutput.css'
 
 function formatTime(ts) {
@@ -56,7 +57,7 @@ function MessageLine({ msg, index, onCommand }) {
           <div
             className={`msg msg-${msg.type}`}
             data-time={formatTime(msg.timestamp)}
-            dangerouslySetInnerHTML={{ __html: beforeExits || '&nbsp;' }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(beforeExits || '&nbsp;') }}
           />
         )}
         <ExitButtons exits={exits} onCommand={onCommand} />
@@ -69,7 +70,7 @@ function MessageLine({ msg, index, onCommand }) {
       className={`msg msg-${msg.type}`}
       data-time={formatTime(msg.timestamp)}
       style={{ animationDelay: `${Math.min(index * 0.01, 0.1)}s` }}
-      dangerouslySetInnerHTML={{ __html: html || '&nbsp;' }}
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html || '&nbsp;') }}
     />
   )
 }
