@@ -315,6 +315,45 @@ def text(session, *args, **kwargs):
                         if puppet:
                             from evennia.objects.models import ObjectDB
                             import time
+                            import re as _re
+
+                            def _zone_for(room):
+                                """Determine which zone a room belongs to.
+
+                                Preference order:
+                                  1. Explicit room.db.zone attribute (set in populate scripts)
+                                  2. Keyword-based inference from room key
+                                  3. Default 'The Annwyn' (catch-all)
+                                """
+                                z = room.attributes.get("zone", default=None)
+                                if z:
+                                    return z
+                                name = (room.key or "").lower()
+                                tc = room.typeclass_path or ""
+                                if "ChargenRoom" in tc:
+                                    return "Arrival"
+                                # Known keyword patterns
+                                if any(w in name for w in ["tavern", "raven", "aentact"]):
+                                    return "Mistvale"
+                                if any(w in name for w in ["market", "marketplace"]):
+                                    return "Mistvale"
+                                if any(w in name for w in ["maker", "forge", "workbench", "hollow"]):
+                                    return "Mistvale"
+                                if any(w in name for w in ["cabin", "ironhaven", "hart hall", "hardinger"]):
+                                    return "Ironhaven"
+                                if any(w in name for w in ["arcton", "falconer", "corveaux"]):
+                                    return "Arcton"
+                                if any(w in name for w in ["carran"]):
+                                    return "Carran"
+                                if any(w in name for w in ["cirque", "carnival", "circus", "altar", "rookery", "funhouse"]):
+                                    return "The Cirque"
+                                if any(w in name for w in ["dock", "blacktyde", "ship"]):
+                                    return "The Docks"
+                                if any(w in name for w in ["graveyard", "necropolis", "barrow", "tamris"]):
+                                    return "Tamris Ruins"
+                                if any(w in name for w in ["mist", "gateway", "crossroads", "old road", "field", "forest", "clearing", "road"]):
+                                    return "The Wilderness"
+                                return "The Annwyn"
 
                             # Get all rooms
                             room_classes = [
@@ -331,6 +370,7 @@ def text(session, *args, **kwargs):
 
                             nodes = {}
                             edges = []
+                            zone_counts = {}
 
                             for room in list(rooms) + ([limbo] if limbo and limbo not in rooms else []):
                                 if not room:
@@ -340,7 +380,6 @@ def text(session, *args, **kwargs):
                                 room_type = "chargen" if "ChargenRoom" in tc else \
                                             "market" if "MarketRoom" in tc else \
                                             "weather" if "WeatherRoom" in tc else "room"
-                                # Check for merchants/crafting stations
                                 has_merchant = any(
                                     getattr(obj.db, "shop_inventory", None) is not None
                                     for obj in room.contents if obj != puppet
@@ -350,16 +389,18 @@ def text(session, *args, **kwargs):
                                     "Workbench" in (getattr(obj, "typeclass_path", "") or "")
                                     for obj in room.contents
                                 )
+                                zone = _zone_for(room)
+                                zone_counts[zone] = zone_counts.get(zone, 0) + 1
                                 nodes[room_id] = {
                                     "id": room_id,
-                                    "name": __import__('re').sub(r'\|[a-zA-Z]|\|\d{3}|\|\[?\d+', '', room.key or '').strip(),
+                                    "name": _re.sub(r'\|[a-zA-Z]|\|\d{3}|\|\[?\d+', '', room.key or '').strip(),
                                     "type": room_type,
+                                    "zone": zone,
                                     "hasMerchant": has_merchant,
                                     "hasCrafting": has_crafting,
                                     "current": room_id == (puppet.location.id if puppet.location else None),
                                 }
 
-                                # Find exits from this room
                                 for obj in room.contents:
                                     if hasattr(obj, "destination") and obj.destination:
                                         dest_id = obj.destination.id
@@ -369,15 +410,31 @@ def text(session, *args, **kwargs):
                                             "dir": obj.key,
                                         })
 
+                            # Build zone list sorted by node count (biggest first)
+                            zones = [
+                                {"name": z, "count": c}
+                                for z, c in sorted(zone_counts.items(), key=lambda x: -x[1])
+                            ]
+
+                            # Current zone (for auto-select)
+                            current_zone = None
+                            if puppet.location:
+                                for n in nodes.values():
+                                    if n["current"]:
+                                        current_zone = n["zone"]
+                                        break
+
                             payload = {
                                 "type": "map_data",
                                 "_ts": time.time(),
                                 "nodes": list(nodes.values()),
                                 "edges": edges,
+                                "zones": zones,
                                 "currentRoom": puppet.location.id if puppet.location else None,
+                                "currentZone": current_zone,
                             }
                             session.msg(event=payload)
-                            diag_write("MAP_UI sent", rooms=len(nodes), edges=len(edges))
+                            diag_write("MAP_UI sent", rooms=len(nodes), zones=len(zones))
                     except Exception as exc:
                         import traceback
                         diag_write("MAP_UI FAILED", exc=str(exc), tb=traceback.format_exc())
