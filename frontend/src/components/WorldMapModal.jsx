@@ -85,11 +85,19 @@ const NODE_COLORS = {
 
 const ZONE_ALL = '__all__'
 
+const NODE_ICONS = {
+  room: '🏛',
+  weather: '🌲',
+  market: '🪙',
+  chargen: '✦',
+}
+
 export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
   const [loading, setLoading] = useState(true)
   const [layout, setLayout] = useState(null)
   const [tab, setTab] = useState('rooms')
   const [zone, setZone] = useState(ZONE_ALL)
+  const [tooltip, setTooltip] = useState(null) // {node, x, y}
   const svgRef = useRef(null)
 
   useEffect(() => {
@@ -150,6 +158,32 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
     // Could add pathfinding later; for now just show info
   }, [])
 
+  const handleNodeEnter = useCallback((e, node) => {
+    const wrap = e.currentTarget.closest('.map-svg-wrap')
+    if (!wrap) return
+    const rect = wrap.getBoundingClientRect()
+    setTooltip({
+      node,
+      x: e.clientX - rect.left + 14,
+      y: e.clientY - rect.top + 14,
+    })
+  }, [])
+
+  const handleNodeMove = useCallback((e) => {
+    const wrap = e.currentTarget.closest('.map-svg-wrap')
+    if (!wrap) return
+    const rect = wrap.getBoundingClientRect()
+    setTooltip(t => t ? {
+      ...t,
+      x: e.clientX - rect.left + 14,
+      y: e.clientY - rect.top + 14,
+    } : null)
+  }, [])
+
+  const handleNodeLeave = useCallback(() => {
+    setTooltip(null)
+  }, [])
+
   if (!open) return null
 
   return (
@@ -199,11 +233,13 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
         )}
         <div className={`world-map-body ${tab === 'rooms' ? 'has-sidebar' : ''}`}>
           {tab === 'world' ? (
-            <img
-              src="/art/map/annwyn_map.jpg"
-              alt="Map of the Annwyn"
-              className="world-map-image"
-            />
+            <div className="world-map-scroll">
+              <img
+                src="/art/map/annwyn_map.jpg"
+                alt="Map of the Annwyn"
+                className="world-map-image"
+              />
+            </div>
           ) : loading ? (
             <div className="map-loading">Charting the known lands...</div>
           ) : layout ? (
@@ -235,18 +271,14 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                   if (!p) return null
                   const color = NODE_COLORS[node.type] || NODE_COLORS.room
                   const num = idx + 1
-                  const tip = [
-                    node.name,
-                    node.hasMerchant ? '🪙 Merchant' : null,
-                    node.hasCrafting ? '🔨 Crafting' : null,
-                    node.current ? '(You are here)' : null,
-                  ].filter(Boolean).join(' — ')
                   return (
                     <g
                       key={node.id}
                       className={`map-node ${node.current ? 'current' : ''}`}
+                      onMouseEnter={(e) => handleNodeEnter(e, { ...node, num })}
+                      onMouseMove={handleNodeMove}
+                      onMouseLeave={handleNodeLeave}
                     >
-                      <title>{tip}</title>
                       {node.current && (
                         <circle cx={p.x} cy={p.y} r={22} className="map-node-glow" />
                       )}
@@ -268,6 +300,48 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                   )
                 })}
               </svg>
+              {tooltip && (
+                <div
+                  className="map-tooltip"
+                  style={{ left: tooltip.x, top: tooltip.y }}
+                >
+                  <div className="map-tooltip-header">
+                    <span
+                      className="map-tooltip-dot"
+                      style={{ background: NODE_COLORS[tooltip.node.type] || NODE_COLORS.room }}
+                    >
+                      {tooltip.node.num}
+                    </span>
+                    <span className="map-tooltip-name">{tooltip.node.name}</span>
+                  </div>
+                  <div className="map-tooltip-body">
+                    {tooltip.node.current && (
+                      <div className="map-tooltip-row current">
+                        <span className="map-tooltip-icon">✦</span>
+                        <span>You are here</span>
+                      </div>
+                    )}
+                    {tooltip.node.hasMerchant && (
+                      <div className="map-tooltip-row">
+                        <span className="map-tooltip-icon">🪙</span>
+                        <span>Merchant</span>
+                      </div>
+                    )}
+                    {tooltip.node.hasCrafting && (
+                      <div className="map-tooltip-row">
+                        <span className="map-tooltip-icon">🔨</span>
+                        <span>Crafting</span>
+                      </div>
+                    )}
+                    {tooltip.node.zone && (
+                      <div className="map-tooltip-row zone">
+                        <span className="map-tooltip-icon">{NODE_ICONS[tooltip.node.type] || NODE_ICONS.room}</span>
+                        <span>{tooltip.node.zone}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               </div>
               {/* Sidebar key */}
               <div className="map-key">
