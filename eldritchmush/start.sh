@@ -314,7 +314,9 @@ print(f'[perm_repair] Checked {checked_perms} accounts; granted default perms to
 if [ "${MISTVALE_BUILD:-0}" = "1" ]; then
     echo "=== Building Mistvale world ==="
     cd /app
-    python3 -c "
+    # -u forces unbuffered stdout so Railway logs show populate progress
+    # in real time instead of dumping everything at process exit.
+    python3 -u -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
 django.setup()
