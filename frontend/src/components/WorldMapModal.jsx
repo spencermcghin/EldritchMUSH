@@ -158,10 +158,12 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
             <div className="map-loading">Charting the known lands...</div>
           ) : layout ? (
             <>
+              <div className="map-svg-wrap">
               <svg
                 ref={svgRef}
                 viewBox={`0 0 ${layout.width} ${layout.height}`}
                 className="map-svg"
+                preserveAspectRatio="xMidYMid meet"
               >
                 {/* Edges */}
                 {layout.edges.map((e, i) => {
@@ -183,11 +185,18 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                   if (!p) return null
                   const color = NODE_COLORS[node.type] || NODE_COLORS.room
                   const num = idx + 1
+                  const tip = [
+                    node.name,
+                    node.hasMerchant ? '🪙 Merchant' : null,
+                    node.hasCrafting ? '🔨 Crafting' : null,
+                    node.current ? '(You are here)' : null,
+                  ].filter(Boolean).join(' — ')
                   return (
                     <g
                       key={node.id}
                       className={`map-node ${node.current ? 'current' : ''}`}
                     >
+                      <title>{tip}</title>
                       {node.current && (
                         <circle cx={p.x} cy={p.y} r={22} className="map-node-glow" />
                       )}
@@ -209,6 +218,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                   )
                 })}
               </svg>
+              </div>
               {/* Sidebar key */}
               <div className="map-key">
                 <div className="map-key-title cinzel">LOCATIONS</div>
