@@ -308,6 +308,20 @@ for acct in AccountDB.objects.all():
 print(f'[perm_repair] Checked {checked_perms} accounts; granted default perms to {fixed_perms}.')
 " || echo "Warning: account repair failed (non-fatal)"
 
+# Build the Mistvale (reboot campaign) world. Idempotent — skips
+# anything already created. Only runs if MISTVALE_BUILD=1 to allow
+# admins to gate the migration while testing.
+if [ "${MISTVALE_BUILD:-0}" = "1" ]; then
+    echo "=== Building Mistvale world ==="
+    cd /app
+    python3 -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
+django.setup()
+exec(open('/app/world/populate_mistvale.py').read())
+" || echo "Warning: Mistvale build failed (non-fatal)"
+fi
+
 echo "=== Starting Evennia ==="
 # Kill any lingering Evennia processes from previous start attempts
 evennia stop 2>/dev/null || true
