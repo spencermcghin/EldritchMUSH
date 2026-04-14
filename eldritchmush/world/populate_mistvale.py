@@ -801,32 +801,79 @@ if _limbo:
 for _cr in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.ChargenRoom"):
     KEPT_PKS.add(_cr.pk)
 
-# All room-like typeclasses in the project. We look for typeclass paths
-# starting with "typeclasses.rooms" to catch Room, WeatherRoom, MarketRoom,
-# ChargenRoom — the full family.
-room_qs = ObjectDB.objects.filter(
-    db_typeclass_path__startswith="typeclasses.rooms"
+from evennia.utils.utils import inherits_from as _inherits_from
+
+# Safety first: any character (account-owned) currently in a room that
+# is NOT in the whitelist gets moved to Gateway Tent City BEFORE the
+# purge touches that room. Belt-and-suspenders — the per-room salvage
+# below also handles this, but this pass gives us a clean log of who
+# got relocated and makes the move transactional.
+print("\n  Safety pass: relocating account-owned characters out of doomed rooms...")
+relocated = 0
+for char in ObjectDB.objects.filter(db_account__isnull=False):
+    try:
+        loc = char.location
+        if not loc:
+            continue
+        if loc.pk in KEPT_PKS:
+            continue
+        # Only bother if this room looks room-like
+        try:
+            if not _inherits_from(loc, "evennia.objects.objects.DefaultRoom"):
+                continue
+        except Exception:
+            pass
+        print(f"    RELOCATE: {char.key} ({loc.key} → Gateway Tent City)")
+        char.move_to(gateway_tents, quiet=True)
+        relocated += 1
+    except Exception as exc:
+        print(f"    RELOCATE FAIL for {getattr(char, 'key', '?')}: {exc}")
+print(f"  Safety pass: relocated={relocated}")
+
+# Room candidates: ANY ObjectDB with no location and no destination.
+# Rooms uniquely have both null (they ARE locations; they aren't exits).
+# This catches legacy rooms on vanilla DefaultRoom typeclass, custom
+# typeclasses, or anything else that acts as a room — previous filter
+# only caught "typeclasses.rooms.*" and missed e.g. "The Forge of Worlds"
+# which lives on evennia.objects.objects.DefaultRoom.
+room_candidates = ObjectDB.objects.filter(
+    db_location__isnull=True, db_destination__isnull=True
 )
 
 purged = 0
 preserved = 0
+skipped_nonroom = 0
 objects_deleted = 0
-for room in room_qs:
+for room in room_candidates:
+    # Defensive: verify this is actually a room (skip Accounts, Channels,
+    # and other root-level non-rooms that happen to have null location).
+    try:
+        is_room = _inherits_from(room, "evennia.objects.objects.DefaultRoom")
+    except Exception:
+        is_room = False
+    if not is_room:
+        skipped_nonroom += 1
+        continue
+
     if room.pk in KEPT_PKS:
         preserved += 1
         continue
     # Salvage contents before deletion. Rules:
     # - Exits: delete (source is going away).
-    # - Account-puppeted characters: move to Gateway Tent City (safety).
+    # - Characters with ANY account attached (online OR offline): move
+    #   to Gateway Tent City. Checking has_account alone would miss
+    #   offline characters — during deploy all sessions are dropped, so
+    #   has_account is False even for legitimate players.
     # - Everything else (legacy NPCs, items, props, posters, corpses):
-    #   delete outright. The old marketplace got jammed with salvage
-    #   on the first pass — don't repeat that mistake.
+    #   delete outright.
     for obj in list(room.contents):
         try:
             if hasattr(obj, "destination") and obj.destination:
                 obj.delete()
                 continue
-            if hasattr(obj, "has_account") and obj.has_account:
+            # db_account is the persistent FK. Offline chars still have
+            # it set; only NPCs and items are account-less.
+            if getattr(obj, "db_account_id", None) or getattr(obj, "db_account", None):
                 obj.move_to(gateway_tents, quiet=True)
                 continue
             obj.delete()
@@ -846,7 +893,7 @@ for room in room_qs:
     purged += 1
 
 print(f"\n  Cleanup: preserved={preserved}, purged={purged}, "
-      f"objects_deleted={objects_deleted}")
+      f"objects_deleted={objects_deleted}, non_rooms_skipped={skipped_nonroom}")
 
 # ---------------------------------------------------------------------------
 # MARKETPLACE JUNK SWEEP (one-time fix for the earlier partial-run damage)
