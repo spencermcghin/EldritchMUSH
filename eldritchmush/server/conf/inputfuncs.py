@@ -350,14 +350,14 @@ def text(session, *args, **kwargs):
                                     return "Tamris"
                                 if "cirque" in name or "carnival" in name or "circus" in name:
                                     return "The Cirque"
-                                # Mistvale and its sub-locations (Stag Hall is inside Mistvale)
+                                # Mystvale and its sub-locations (Stag Hall is inside Mystvale)
                                 if any(w in name for w in [
-                                    "mistvale", "aentact", "tavern", "raven", "marketplace",
+                                    "mystvale", "mistvale", "aentact", "tavern", "raven", "marketplace",
                                     "crafter", "maker", "forge", "workbench", "hollow",
                                     "stag hall", "hart hall", "manor row", "chantry",
                                     "herbalist", "town hall", "back alley",
                                 ]):
-                                    return "Mistvale"
+                                    return "Mystvale"
                                 # Everything else (roads, mists, wilderness) → The Annwyn
                                 return "The Annwyn"
 

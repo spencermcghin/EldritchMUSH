@@ -1,11 +1,11 @@
 """
-world/populate_mistvale.py — Mistvale (reboot campaign) world builder.
+world/populate_mystvale.py — Mystvale (reboot campaign) world builder.
 
-Creates the new campaign world centered on Mistvale. Idempotent — safe
+Creates the new campaign world centered on Mystvale. Idempotent — safe
 to re-run; skips rooms/exits/objects that already exist by key.
 
 Run once from inside eldritchmush/:
-    evennia shell -c "exec(open('world/populate_mistvale.py').read())"
+    evennia shell -c "exec(open('world/populate_mystvale.py').read())"
 
 Or via start.sh migration for automatic deploy-time setup.
 
@@ -13,7 +13,16 @@ Zones assigned to each room via room.db.zone for the frontend map
 filtering system (see server/conf/inputfuncs.py __map_ui__ handler).
 """
 import evennia
+# Ensure Evennia is fully initialized (populates _create.create_object,
+# evennia.search_object, etc.) Required when this script is run from a
+# plain python shell with only django.setup() — without this,
+# _create.create_object is None and we get TypeError: NoneType not callable.
+try:
+    evennia._init()
+except Exception:
+    pass
 from evennia.objects.models import ObjectDB
+from evennia.utils import create as _create
 
 
 # ---------------------------------------------------------------------------
@@ -29,7 +38,7 @@ def get_or_create_room(key, typeclass_path, desc, zone=None):
         if zone:
             existing.attributes.add("zone", zone)
         return existing
-    room = evennia.create_object(typeclass_path, key=key)
+    room = _create.create_object(typeclass_path, key=key)
     room.db.desc = desc
     if zone:
         room.attributes.add("zone", zone)
@@ -42,7 +51,7 @@ def link(room_a, exit_a, room_b, exit_b, alias_a=None, alias_b=None):
     """Create two exits between rooms, skipping if already present."""
     def _make(name, loc, dest, alias):
         if not ObjectDB.objects.filter(db_key=name, db_location=loc.pk).exists():
-            ex = evennia.create_object(
+            ex = _create.create_object(
                 "evennia.objects.objects.DefaultExit",
                 key=name, location=loc, destination=dest
             )
@@ -59,7 +68,7 @@ def create_obj(key, typeclass_path, location, desc):
     if existing:
         print(f"  EXISTS  : {key} (in {location.key})")
         return existing
-    obj = evennia.create_object(typeclass_path, key=key, location=location)
+    obj = _create.create_object(typeclass_path, key=key, location=location)
     obj.db.desc = desc
     obj.save()
     print(f"  OBJECT  : {key} → {location.key}")
@@ -74,14 +83,37 @@ def move_to(obj, new_location):
 
 
 # ===========================================================================
-# MISTVALE ZONE — the central hub town
+# RENAME MIGRATION — "Mistvale" → "Mystvale"
+# Earlier runs of this script used the spelling "Mistvale"; the canonical
+# spelling is "Mystvale" with a Y. Rename any stale rooms + zone attrs.
+# Also update zone attributes on all rooms that have "Mistvale" as their
+# zone, so the frontend map zone filter works correctly.
 # ===========================================================================
-print("\n=== MISTVALE ROOMS ===")
+print("\n=== RENAME MIGRATION: Mistvale → Mystvale ===")
+for stale in ObjectDB.objects.filter(db_key__icontains="Mistvale"):
+    new_name = stale.db_key.replace("Mistvale", "Mystvale").replace("mistvale", "mystvale")
+    if new_name != stale.db_key:
+        print(f"  RENAMED : '{stale.db_key}' → '{new_name}'")
+        stale.db_key = new_name
+        stale.save()
+# Update zone attrs on all rooms (we can't filter by attribute value easily)
+for room in ObjectDB.objects.filter(db_typeclass_path__contains="typeclasses.rooms"):
+    z = room.attributes.get("zone", default=None)
+    if z and ("Mistvale" in z or "mistvale" in z):
+        new_z = z.replace("Mistvale", "Mystvale").replace("mistvale", "mystvale")
+        room.attributes.add("zone", new_z)
+        print(f"  ZONE    : {room.db_key} zone '{z}' → '{new_z}'")
 
-mistvale_square = get_or_create_room(
-    "Mistvale Square",
+
+# ===========================================================================
+# MYSTVALE ZONE — the central hub town
+# ===========================================================================
+print("\n=== MYSTVALE ROOMS ===")
+
+mystvale_square = get_or_create_room(
+    "Mystvale Square",
     "typeclasses.rooms.Room",
-    "The heart of Mistvale — a broad cobbled square ringed by weathered stone "
+    "The heart of Mystvale — a broad cobbled square ringed by weathered stone "
     "buildings and timber shopfronts. A stone well stands at its center, ringed "
     "by the scars of old mist-sickness and recent siege. The banners of House "
     "Laurent's Stag Hall fly alongside the colors of the Burgomaster's office. "
@@ -90,13 +122,13 @@ mistvale_square = get_or_create_room(
     "Exits lead to |wThe Aentact|n, the |wMarketplace|n, the |wCrafter's Quarter|n, "
     "the |wTown Hall|n, |wManor Row|n to the north, the |wsouth gate|n, and the "
     "|wnorth gate|n.",
-    zone="Mistvale",
+    zone="Mystvale",
 )
 
 aentact = get_or_create_room(
     "The Aentact",
     "typeclasses.rooms.Room",
-    "The Aentact is Mistvale's tavern, council chamber, and beating heart. "
+    "The Aentact is Mystvale's tavern, council chamber, and beating heart. "
     "A long hearth roars against the north wall, its smoke curling up past "
     "beams hung with antlers, tattered banners, and the Crow Favor tokens of "
     "guests past. Rough tables crowd the flagstone floor. A rumor board near "
@@ -104,12 +136,12 @@ aentact = get_or_create_room(
     "whispers from beyond the Mists. In one corner stands an iron-banded box "
     "marked for Decisive Moments — the mechanism by which the town decides "
     "its fate.\n\n"
-    "Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 marketplace = get_or_create_room(
-    "The Mistvale Marketplace",
+    "The Mystvale Marketplace",
     "typeclasses.rooms.MarketRoom",
     "A sprawling marketplace under oiled-canvas awnings, where the Cirque "
     "caravan has set its colorful wagons. Painted cloth snaps in the wind "
@@ -117,21 +149,21 @@ marketplace = get_or_create_room(
     "brought through the Mists. A Cirque trader minds the central pavilion "
     "while hawkers shout their prices. Resource crates stamped with the "
     "Cirque's sigil stack against the walls.\n\n"
-    "Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 crafter_quarter = get_or_create_room(
     "The Crafter's Quarter",
     "typeclasses.rooms.Room",
-    "A grid of workshops crammed against Mistvale's eastern wall. Smoke rises "
+    "A grid of workshops crammed against Mystvale's eastern wall. Smoke rises "
     "from the forge's chimney; steam hisses from the alchemist's still; the "
     "rhythmic thock of the artificer's mallet keeps time. The air tastes of "
     "hot iron, herbs, and sawdust. Workbenches stand in the open so apprentices "
     "can learn the trade from the street. This is where the goods that keep "
     "the Annwyn alive are made.\n\n"
-    "Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 town_hall = get_or_create_room(
@@ -144,8 +176,8 @@ town_hall = get_or_create_room(
     "disputes between crafters, merchants, and noblefolk. A tax coffer is "
     "bolted to the floor behind the desk. A small side table holds a ledger "
     "of current town coffers and a posting for the Sheriff's rounds.\n\n"
-    "Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 herbalist_garden = get_or_create_room(
@@ -157,8 +189,8 @@ herbalist_garden = get_or_create_room(
     "back by the first expeditions. The air smells of mint and turned earth. "
     "A weathered sign reads: |wHerbalists and gatherers welcome — take what "
     "you need, leave what you owe.|n\n\n"
-    "Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 chantry = get_or_create_room(
@@ -170,8 +202,8 @@ chantry = get_or_create_room(
     "brass censers hang from the beams, swaying gently. Aurons and pilgrims "
     "kneel in silent prayer. A cloistered alcove holds the Book of Magnus, "
     "its pages marked by ribbons of blue and gold.\n\n"
-    "Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 black_market = get_or_create_room(
@@ -184,45 +216,45 @@ black_market = get_or_create_room(
     "those with coin and discretion. Strangers are watched. The unwary are "
     "robbed.\n\n"
     "Back to |wthe Marketplace|n.",
-    zone="Mistvale",
+    zone="Mystvale",
 )
 
 south_gate = get_or_create_room(
-    "Mistvale South Gate",
+    "Mystvale South Gate",
     "typeclasses.rooms.Room",
-    "A reinforced timber gate set into the southern wall of Mistvale. The "
+    "A reinforced timber gate set into the southern wall of Mystvale. The "
     "Silver Company's guards stand watch in grey-trimmed surcoats, checking "
     "all who enter. The road beyond winds south through the mist-haunted "
     "forest and eventually leads to the Mistgate — the way back to Gateway "
     "and the wider kingdom. Travelers pause here to steel themselves before "
     "either journey.\n\n"
-    "|wNorth|n into |wMistvale Square|n. |wSouth|n to the |wOld Road|n.",
-    zone="Mistvale",
+    "|wNorth|n into |wMystvale Square|n. |wSouth|n to the |wOld Road|n.",
+    zone="Mystvale",
 )
 
 north_gate = get_or_create_room(
-    "Mistvale North Gate",
+    "Mystvale North Gate",
     "typeclasses.rooms.Room",
-    "The northern gate of Mistvale, smaller than the south but heavily "
+    "The northern gate of Mystvale, smaller than the south but heavily "
     "guarded. Beyond lie the wild country, the road to the ruins of Tamris, "
     "and eventually the lands of the Coldhills at Harrowgate. Wolves have "
     "been heard at night, and stranger things. The sentries keep their "
     "fires high and their crossbows strung.\n\n"
-    "|wSouth|n into |wMistvale Square|n. |wNorth|n toward the |wForest Road|n.",
-    zone="Mistvale",
+    "|wSouth|n into |wMystvale Square|n. |wNorth|n toward the |wForest Road|n.",
+    zone="Mystvale",
 )
 
 manor_row = get_or_create_room(
     "Manor Row",
     "typeclasses.rooms.Room",
     "A short cobbled avenue running north from the square. Stag Hall, the "
-    "seat of House Laurent in the Annwyn, stands at its head — Mistvale's "
+    "seat of House Laurent in the Annwyn, stands at its head — Mystvale's "
     "only noble manor. The other houses hold their own settlements further "
     "afield: Ironhaven to the east (Richter), Arcton to the west (Corveaux), "
     "Carran to the south (Bannon), and rumor of others further out. Silver "
     "Company sentries patrol the street.\n\n"
-    "Gate leads to |wStag Hall|n. Back to |wMistvale Square|n.",
-    zone="Mistvale",
+    "Gate leads to |wStag Hall|n. Back to |wMystvale Square|n.",
+    zone="Mystvale",
 )
 
 # ===========================================================================
@@ -239,7 +271,7 @@ hart_hall_gate = get_or_create_room(
     "the walls. Guards in House Laurent's livery stand watch. The great "
     "hall lies within, through the courtyard.\n\n"
     "|wInside|n to the |wCourtyard|n. Back to |wManor Row|n.",
-    zone="Mistvale",
+    zone="Mystvale",
 )
 
 hart_hall_courtyard = get_or_create_room(
@@ -251,7 +283,7 @@ hart_hall_courtyard = get_or_create_room(
     "Laurent household guard drill daily. The Great Hall's double doors "
     "stand at the eastern side.\n\n"
     "|wEast|n into the |wGreat Hall|n. |wOut|n to the |wgate|n.",
-    zone="Mistvale",
+    zone="Mystvale",
 )
 
 hart_hall_great_hall = get_or_create_room(
@@ -264,7 +296,7 @@ hart_hall_great_hall = get_or_create_room(
     "line from Maidencourt to the present day — and the gap left by those "
     "who have not returned. The air smells of candle wax and old wine.\n\n"
     "|wUp|n to the |wsolar|n. |wOut|n to the |wcourtyard|n.",
-    zone="Mistvale",
+    zone="Mystvale",
 )
 
 hart_hall_solar = get_or_create_room(
@@ -272,11 +304,11 @@ hart_hall_solar = get_or_create_room(
     "typeclasses.rooms.Room",
     "The private solar of Stag Hall's highest noble. A writing desk holds "
     "correspondence sealed with the Laurent hart. A narrow window looks "
-    "out over Mistvale and the road to the Mists. A locked iron chest "
+    "out over Mystvale and the road to the Mists. A locked iron chest "
     "sits beside the chair. The air holds the scent of old ink and the "
     "faintest hint of lavender from some long-ago attendant.\n\n"
     "|wDown|n to the |wGreat Hall|n.",
-    zone="Mistvale",
+    zone="Mystvale",
 )
 
 # ===========================================================================
@@ -287,12 +319,12 @@ print("\n=== TAMRIS RUINS ROOMS ===")
 forest_road = get_or_create_room(
     "The Forest Road",
     "typeclasses.rooms.WeatherRoom",
-    "A narrow track winds north from Mistvale through the ancient forest. "
+    "A narrow track winds north from Mystvale through the ancient forest. "
     "The trees grow close and tall, their trunks wrapped in grey moss. "
     "Somewhere a crow calls, and the answer sounds wrong — slower, deeper. "
     "The road climbs gently, and in the distance the broken towers of "
     "Tamris can be glimpsed through the canopy.\n\n"
-    "|wSouth|n to |wMistvale|n. |wNorth|n to |wthe Ruins of Tamris|n.",
+    "|wSouth|n to |wMystvale|n. |wNorth|n to |wthe Ruins of Tamris|n.",
     zone="Tamris",
 )
 
@@ -353,12 +385,12 @@ print("\n=== WILDERNESS ROOMS ===")
 old_road_south = get_or_create_room(
     "The Old Road — South",
     "typeclasses.rooms.WeatherRoom",
-    "The old road winds south from Mistvale through the mist-shrouded "
+    "The old road winds south from Mystvale through the mist-shrouded "
     "countryside. The ground is rutted with centuries of wheel-tracks. "
     "The trees lean close on either side, and patches of thin fog drift "
     "across the road even in clear weather. Every so often a wooden "
     "marker — carved with the sigil of the Mistguard — marks a league.\n\n"
-    "|wNorth|n to |wMistvale|n. |wSouth|n to the |wMistgate|n. "
+    "|wNorth|n to |wMystvale|n. |wSouth|n to the |wMistgate|n. "
     "|wEast|n toward |wCarran|n. |wWest|n toward |wArcton|n.",
     zone="The Annwyn",
 )
@@ -377,7 +409,7 @@ mistgate = get_or_create_room(
 )
 
 # ===========================================================================
-# IRONHAVEN ZONE — Richter holding east of Mistvale
+# IRONHAVEN ZONE — Richter holding east of Mystvale
 # ===========================================================================
 print("\n=== IRONHAVEN ROOMS ===")
 
@@ -385,13 +417,13 @@ ironhaven_square = get_or_create_room(
     "Ironhaven Square",
     "typeclasses.rooms.Room",
     "The heart of Ironhaven — House Richter's coastal bulwark, perched "
-    "where the Richter claimed land far to the southwest of Mistvale, "
+    "where the Richter claimed land far to the southwest of Mystvale, "
     "down near the sea. A cramped square dominated by the black iron bulk "
     "of the great anvil that serves as both monument and tool. Salt air "
     "mingles with forge smoke. The banners of House Richter — the iron "
     "tower on a field of grey — hang from every pole. The Hardinger Hall "
     "broods over the square from the eastern side.\n\n"
-    "|wNortheast|n toward |wMistvale|n. |wEast|n to |wHardinger's Hall|n. "
+    "|wNortheast|n toward |wMystvale|n. |wEast|n to |wHardinger's Hall|n. "
     "|wSouth|n to the |wIronhaven Forge|n.",
     zone="Ironhaven",
 )
@@ -404,7 +436,7 @@ ironhaven_forge = get_or_create_room(
     "The heat is oppressive. Richter smiths move in practiced silence, "
     "their leather aprons scarred by years of spark. Weapon racks and armor "
     "stands display their wares. This is the secondary crafting hub of the "
-    "Annwyn, should Mistvale fall.\n\n"
+    "Annwyn, should Mystvale fall.\n\n"
     "|wNorth|n to |wIronhaven Square|n.",
     zone="Ironhaven",
 )
@@ -422,20 +454,20 @@ hardinger_hall = get_or_create_room(
 )
 
 # ===========================================================================
-# ARCTON ZONE — Corveaux outpost west of Mistvale
+# ARCTON ZONE — Corveaux outpost west of Mystvale
 # ===========================================================================
 print("\n=== ARCTON ROOMS ===")
 
 arcton_camp = get_or_create_room(
     "Arcton — The Falconer Keep",
     "typeclasses.rooms.WeatherRoom",
-    "Far to the east of Mistvale, near the inland sea, stands Arcton — a "
+    "Far to the east of Mystvale, near the inland sea, stands Arcton — a "
     "fortified Corveaux keep growing into a proper walled settlement. "
     "Stonework rises above palisades as masons work. The banners of House "
     "Corveaux — the grey falcon on sky blue — fly from the keep's towers. "
     "Lady Ella Falconer holds court within, guarded by knights of the "
     "Falconer order.\n\n"
-    "|wWest|n toward |wMistvale|n. |wInside|n to |wLady Ella's Solar|n.",
+    "|wWest|n toward |wMystvale|n. |wInside|n to |wLady Ella's Solar|n.",
     zone="Arcton",
 )
 
@@ -466,7 +498,7 @@ carran_square = get_or_create_room(
     "that keeps watch here for the Crown. A training yard echoes with the "
     "clatter of wood against wood, where Arch Magistrat Symon Bannon drills "
     "his knights.\n\n"
-    "|wNortheast|n toward |wMistvale|n. |wEast|n to the |wBannon Barracks|n.",
+    "|wNortheast|n toward |wMystvale|n. |wEast|n to the |wBannon Barracks|n.",
     zone="Carran",
 )
 
@@ -542,16 +574,16 @@ moonfall = get_or_create_room(
 # ===========================================================================
 print("\n=== EXITS ===")
 
-# Mistvale Square hub
-link(mistvale_square, "tavern",    aentact,           "out",        "t",  "o")
-link(mistvale_square, "market",    marketplace,        "out",        "m",  None)
-link(mistvale_square, "crafters",  crafter_quarter,    "out",        None, None)
-link(mistvale_square, "town hall", town_hall,          "out",        "hall", None)
-link(mistvale_square, "garden",    herbalist_garden,   "out",        None, None)
-link(mistvale_square, "chantry",   chantry,            "out",        None, None)
-link(mistvale_square, "north",     manor_row,          "south",      "n",  "s")
-link(mistvale_square, "south",     south_gate,         "north",      "s",  "n")
-link(mistvale_square, "northgate", north_gate,         "south",      None, None)
+# Mystvale Square hub
+link(mystvale_square, "tavern",    aentact,           "out",        "t",  "o")
+link(mystvale_square, "market",    marketplace,        "out",        "m",  None)
+link(mystvale_square, "crafters",  crafter_quarter,    "out",        None, None)
+link(mystvale_square, "town hall", town_hall,          "out",        "hall", None)
+link(mystvale_square, "garden",    herbalist_garden,   "out",        None, None)
+link(mystvale_square, "chantry",   chantry,            "out",        None, None)
+link(mystvale_square, "north",     manor_row,          "south",      "n",  "s")
+link(mystvale_square, "south",     south_gate,         "north",      "s",  "n")
+link(mystvale_square, "northgate", north_gate,         "south",      None, None)
 
 # Marketplace → Black Market
 link(marketplace, "alley",  black_market, "back", None, None)
@@ -624,16 +656,16 @@ _LEGACY_CABIN_PATTERNS = [
 for room_key in _LEGACY_CABIN_PATTERNS:
     stale = ObjectDB.objects.filter(db_key=room_key).first()
     if stale:
-        # Move any objects/characters inside to Mistvale Square before deletion
+        # Move any objects/characters inside to Mystvale Square before deletion
         for obj in list(stale.contents):
             if hasattr(obj, "destination") and obj.destination:
                 # It's an exit — just delete it
                 obj.delete()
             elif hasattr(obj, "has_account") and obj.has_account:
                 # Character — move to safety
-                obj.move_to(mistvale_square, quiet=True)
+                obj.move_to(mystvale_square, quiet=True)
             else:
-                # Generic object — move to Mistvale Marketplace
+                # Generic object — move to Mystvale Marketplace
                 try:
                     obj.move_to(marketplace, quiet=True)
                 except Exception:
@@ -653,7 +685,7 @@ old_forge = ObjectDB.objects.filter(
 if old_forge:
     move_to(old_forge, crafter_quarter)
 else:
-    # If the old forge doesn't exist, create a new one in Mistvale
+    # If the old forge doesn't exist, create a new one in Mystvale
     create_obj("forge", "typeclasses.objects.Forge", crafter_quarter,
                "A squat stone forge, iron-mouthed and hungry. Coals glow deep "
                "inside. Strike the anvil to shape metal into weapons and armour.")
@@ -690,7 +722,7 @@ if old_merchant:
     move_to(old_merchant, marketplace)
 
 # ===========================================================================
-# REDIRECT THE CHARGEN ROOM TO MISTVALE SOUTH GATE
+# REDIRECT THE CHARGEN ROOM TO MYSTVALE SOUTH GATE
 # ===========================================================================
 print("\n=== CHARGEN ROOM EXIT ===")
 
@@ -703,35 +735,35 @@ if chargen_room:
         if hasattr(ex, "destination") and ex.destination:
             print(f"  REMOVE  : old exit '{ex.key}' from ChargenRoom")
             ex.delete()
-    # New exit: chargen → Mistvale South Gate
+    # New exit: chargen → Mystvale South Gate
     if not ObjectDB.objects.filter(
         db_key="in character", db_location=chargen_room.pk
     ).exists():
-        ex = evennia.create_object(
+        ex = _create.create_object(
             "evennia.objects.objects.DefaultExit",
             key="in character",
             location=chargen_room,
             destination=south_gate,
         )
         ex.aliases.add("ic")
-        ex.aliases.add("mistvale")
-        print(f"  CREATED : ChargenRoom → Mistvale South Gate exit")
+        ex.aliases.add("mystvale")
+        print(f"  CREATED : ChargenRoom → Mystvale South Gate exit")
 
-# Also ensure limbo (#2) points at Mistvale South Gate
+# Also ensure limbo (#2) points at Mystvale South Gate
 limbo = ObjectDB.objects.filter(id=2).first()
 if limbo:
     limbo.db.desc = (
         "A featureless void between worlds. The Mistgate lies to the |wsouth|n, "
-        "and beyond it, the road to Mistvale."
+        "and beyond it, the road to Mystvale."
     )
     for ex in limbo.contents:
         if hasattr(ex, "destination") and ex.destination:
             ex.delete()
     if not ObjectDB.objects.filter(db_key="south", db_location=limbo.pk).exists():
-        evennia.create_object(
+        _create.create_object(
             "evennia.objects.objects.DefaultExit",
             key="south", location=limbo, destination=south_gate,
         )
-        print("  CREATED : Limbo → Mistvale South Gate")
+        print("  CREATED : Limbo → Mystvale South Gate")
 
-print("\n=== MISTVALE POPULATE COMPLETE ===")
+print("\n=== MYSTVALE POPULATE COMPLETE ===")
