@@ -139,10 +139,11 @@ town_hall = get_or_create_room(
     "typeclasses.rooms.Room",
     "The Burgomaster's office — modest, cluttered, and smelling faintly of "
     "apothecary herbs. Ledgers, maps, and official seals cover a heavy oak "
-    "desk. A rack of signed writs and proclamations hangs on the wall. "
-    "Burgomaster Domitille's chair is worn smooth from long hours of "
-    "adjudicating disputes between crafters, merchants, and noblefolk. A tax "
-    "coffer is bolted to the floor behind the desk.\n\n"
+    "desk. A rack of signed writs and proclamations hangs on the wall. The "
+    "Burgomaster's chair is worn smooth from long hours of adjudicating "
+    "disputes between crafters, merchants, and noblefolk. A tax coffer is "
+    "bolted to the floor behind the desk. A small side table holds a ledger "
+    "of current town coffers and a posting for the Sheriff's rounds.\n\n"
     "Back to |wMistvale Square|n.",
     zone="Mistvale",
 )
@@ -238,7 +239,7 @@ hart_hall_gate = get_or_create_room(
     "the walls. Guards in House Laurent's livery stand watch. The great "
     "hall lies within, through the courtyard.\n\n"
     "|wInside|n to the |wCourtyard|n. Back to |wManor Row|n.",
-    zone="Stag Hall",
+    zone="Mistvale",
 )
 
 hart_hall_courtyard = get_or_create_room(
@@ -246,11 +247,11 @@ hart_hall_courtyard = get_or_create_room(
     "typeclasses.rooms.WeatherRoom",
     "A flagstone courtyard open to the grey Annwyn sky. A stag-fountain "
     "stands at its center, water trickling from antlered spouts into a "
-    "moss-ringed basin. Training dummies line the north wall where Ser "
-    "Roger Krieger puts the Laurent guards through their paces. The Great "
-    "Hall's double doors stand at the eastern side.\n\n"
+    "moss-ringed basin. Training dummies line the north wall where the "
+    "Laurent household guard drill daily. The Great Hall's double doors "
+    "stand at the eastern side.\n\n"
     "|wEast|n into the |wGreat Hall|n. |wOut|n to the |wgate|n.",
-    zone="Stag Hall",
+    zone="Mistvale",
 )
 
 hart_hall_great_hall = get_or_create_room(
@@ -258,26 +259,24 @@ hart_hall_great_hall = get_or_create_room(
     "typeclasses.rooms.Room",
     "A long hall with a vaulted beam ceiling and banners hung from the "
     "rafters. A raised dais at the far end holds the carved hart-throne "
-    "where Lord Silas Laurent, in his mother's absence, holds court. "
-    "Trestle tables stretch down the hall for feast days. Tapestries depict "
-    "the Laurent line from Maidencourt to the present day — and the gap "
-    "left by those who have not returned. The air smells of candle wax and "
-    "old wine.\n\n"
+    "where House Laurent holds court in the Annwyn. Trestle tables "
+    "stretch down the hall for feast days. Tapestries depict the Laurent "
+    "line from Maidencourt to the present day — and the gap left by those "
+    "who have not returned. The air smells of candle wax and old wine.\n\n"
     "|wUp|n to the |wsolar|n. |wOut|n to the |wcourtyard|n.",
-    zone="Stag Hall",
+    zone="Mistvale",
 )
 
 hart_hall_solar = get_or_create_room(
     "Stag Hall — The Solar",
     "typeclasses.rooms.Room",
-    "Lady Ludmilla's private solar — though it has been cold and empty "
-    "since her capture. A writing desk still holds her last correspondence, "
-    "sealed with the Laurent hart. A narrow window looks out over Mistvale "
-    "and the road to the Mists. A locked iron chest sits beside the chair. "
-    "Her son Silas sometimes comes here to read his mother's letters, "
-    "hoping for a clue to her fate.\n\n"
+    "The private solar of Stag Hall's highest noble. A writing desk holds "
+    "correspondence sealed with the Laurent hart. A narrow window looks "
+    "out over Mistvale and the road to the Mists. A locked iron chest "
+    "sits beside the chair. The air holds the scent of old ink and the "
+    "faintest hint of lavender from some long-ago attendant.\n\n"
     "|wDown|n to the |wGreat Hall|n.",
-    zone="Stag Hall",
+    zone="Mistvale",
 )
 
 # ===========================================================================
@@ -294,7 +293,7 @@ forest_road = get_or_create_room(
     "The road climbs gently, and in the distance the broken towers of "
     "Tamris can be glimpsed through the canopy.\n\n"
     "|wSouth|n to |wMistvale|n. |wNorth|n to |wthe Ruins of Tamris|n.",
-    zone="Tamris Ruins",
+    zone="Tamris",
 )
 
 tamris_approach = get_or_create_room(
@@ -307,7 +306,7 @@ tamris_approach = get_or_create_room(
     "louder here than the forest; even the crows do not come.\n\n"
     "|wSouth|n to the |wForest Road|n. |wInto|n the ruins. |wEast|n to "
     "the |wTamris Harbor|n. |wDown|n to the |wBarrows|n.",
-    zone="Tamris Ruins",
+    zone="Tamris",
 )
 
 tamris_ruins = get_or_create_room(
@@ -319,7 +318,7 @@ tamris_ruins = get_or_create_room(
     "bear faded runes. Something has been digging among the ruins "
     "recently; fresh earth surrounds several broken crypts.\n\n"
     "Back to |wthe approach|n.",
-    zone="Tamris Ruins",
+    zone="Tamris",
 )
 
 tamris_harbor = get_or_create_room(
@@ -331,7 +330,7 @@ tamris_harbor = get_or_create_room(
     "has no business growing this far north. Bones litter the shore — "
     "some human, some not.\n\n"
     "Back to |wthe approach|n.",
-    zone="Tamris Ruins",
+    zone="Tamris",
 )
 
 barrows_entrance = get_or_create_room(
@@ -343,7 +342,7 @@ barrows_entrance = get_or_create_room(
     "are Annwyn-script, older than the Kingdom itself. A broken torch "
     "lies on the ground, still faintly warm.\n\n"
     "|wUp|n to |wTamris ruins|n. Deeper passages await those who dare.",
-    zone="Tamris Ruins",
+    zone="Tamris",
 )
 
 # ===========================================================================
@@ -361,7 +360,7 @@ old_road_south = get_or_create_room(
     "marker — carved with the sigil of the Mistguard — marks a league.\n\n"
     "|wNorth|n to |wMistvale|n. |wSouth|n to the |wMistgate|n. "
     "|wEast|n toward |wCarran|n. |wWest|n toward |wArcton|n.",
-    zone="The Wilderness",
+    zone="The Annwyn",
 )
 
 mistgate = get_or_create_room(
@@ -374,7 +373,7 @@ mistgate = get_or_create_room(
     "who come through arrive cold, dazed, and usually poorer than when "
     "they left. The air here tastes of metal.\n\n"
     "|wNorth|n back to the |wOld Road|n.",
-    zone="The Wilderness",
+    zone="The Annwyn",
 )
 
 # ===========================================================================
@@ -385,13 +384,13 @@ print("\n=== IRONHAVEN ROOMS ===")
 ironhaven_square = get_or_create_room(
     "Ironhaven Square",
     "typeclasses.rooms.Room",
-    "The heart of Ironhaven — Lord Wilhelm Hardinger's coastal bulwark, "
-    "perched where the Richter claimed land far to the southwest of "
-    "Mistvale, down near the sea. A cramped square dominated by the black "
-    "iron bulk of House Richter's great anvil, a monument as much as a "
-    "tool. Salt air mingles with forge smoke. The banners of House Richter "
-    "— the iron tower on a field of grey — hang from every pole. Hardinger's "
-    "hall broods over the square from the eastern side.\n\n"
+    "The heart of Ironhaven — House Richter's coastal bulwark, perched "
+    "where the Richter claimed land far to the southwest of Mistvale, "
+    "down near the sea. A cramped square dominated by the black iron bulk "
+    "of the great anvil that serves as both monument and tool. Salt air "
+    "mingles with forge smoke. The banners of House Richter — the iron "
+    "tower on a field of grey — hang from every pole. The Hardinger Hall "
+    "broods over the square from the eastern side.\n\n"
     "|wNortheast|n toward |wMistvale|n. |wEast|n to |wHardinger's Hall|n. "
     "|wSouth|n to the |wIronhaven Forge|n.",
     zone="Ironhaven",
@@ -413,12 +412,11 @@ ironhaven_forge = get_or_create_room(
 hardinger_hall = get_or_create_room(
     "Hardinger's Hall",
     "typeclasses.rooms.Room",
-    "The great hall of Lord Wilhelm Hardinger, brother-in-law of Lady "
-    "Ludmilla Laurent and the senior Richter noble in the Annwyn. A long "
-    "table of black oak dominates the room, ringed by high-backed chairs. "
-    "Trophies of the hunt — boar tusks, wolf skulls — line the walls. "
-    "Wilhelm's war-harness stands on a rack beside the throne. The fire "
-    "burns dim even at midday; the Richter prefer it that way.\n\n"
+    "The great hall of the Hardinger lords, senior Richter nobles in the "
+    "Annwyn. A long table of black oak dominates the room, ringed by "
+    "high-backed chairs. Trophies of the hunt — boar tusks, wolf skulls — "
+    "line the walls. A war-harness stands on a rack beside the throne. "
+    "The fire burns dim even at midday; the Richter prefer it that way.\n\n"
     "|wWest|n back to |wIronhaven Square|n.",
     zone="Ironhaven",
 )
@@ -601,6 +599,47 @@ link(forest_road, "north", harrowgate, "south", "n", "s")
 link(tamris_approach, "in", tamris_ruins, "out", None, "o")
 link(tamris_approach, "east", tamris_harbor, "west", "e", "w")
 link(tamris_approach, "down", barrows_entrance, "up", "d", "u")
+
+# ===========================================================================
+# LEGACY CLEANUP — delete old placeholder rooms that don't match canon
+# ===========================================================================
+print("\n=== LEGACY CLEANUP ===")
+
+# Noble-named "cabin" rooms from the old world — these were placeholders.
+# The canonical settlements are Ironhaven, Arcton, Harrowgate, Carran, etc.
+# Any room matching these patterns is a stale placeholder to be removed.
+_LEGACY_CABIN_PATTERNS = [
+    "Eastern Cabin", "Western Cabin",
+    "Hale Cabin", "Hale's Cabin",
+    "Zorya Cabin", "Zorya's Cabin",
+    "Laurent Cabin", "Richter Cabin", "Corveaux Cabin",
+    "Bannon Cabin", "Blayne Cabin", "Innis Cabin",
+    "Aragon Cabin", "Rourke Cabin", "Draghean Cabin",
+    # Fields were also placeholders for the new zones
+    "North Field", "South Field", "East Field", "West Field",
+    # "Inside Ruined Hovel" and similar
+    "Inside Ruined Hovel", "Forest Clearing",
+]
+
+for room_key in _LEGACY_CABIN_PATTERNS:
+    stale = ObjectDB.objects.filter(db_key=room_key).first()
+    if stale:
+        # Move any objects/characters inside to Mistvale Square before deletion
+        for obj in list(stale.contents):
+            if hasattr(obj, "destination") and obj.destination:
+                # It's an exit — just delete it
+                obj.delete()
+            elif hasattr(obj, "has_account") and obj.has_account:
+                # Character — move to safety
+                obj.move_to(mistvale_square, quiet=True)
+            else:
+                # Generic object — move to Mistvale Marketplace
+                try:
+                    obj.move_to(marketplace, quiet=True)
+                except Exception:
+                    pass
+        print(f"  DELETED : legacy room '{room_key}'")
+        stale.delete()
 
 # ===========================================================================
 # MOVE CRAFTING STATIONS INTO CRAFTER'S QUARTER

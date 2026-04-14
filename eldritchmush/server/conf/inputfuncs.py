@@ -320,10 +320,11 @@ def text(session, *args, **kwargs):
                             def _zone_for(room):
                                 """Determine which zone a room belongs to.
 
+                                Zones correspond to canonical settlements.
                                 Preference order:
                                   1. Explicit room.db.zone attribute (set in populate scripts)
                                   2. Keyword-based inference from room key
-                                  3. Default 'The Annwyn' (catch-all)
+                                  3. Default 'The Annwyn' (catch-all for travel/road rooms)
                                 """
                                 z = room.attributes.get("zone", default=None)
                                 if z:
@@ -332,27 +333,32 @@ def text(session, *args, **kwargs):
                                 tc = room.typeclass_path or ""
                                 if "ChargenRoom" in tc:
                                     return "Arrival"
-                                # Known keyword patterns
-                                if any(w in name for w in ["tavern", "raven", "aentact"]):
-                                    return "Mistvale"
-                                if any(w in name for w in ["market", "marketplace"]):
-                                    return "Mistvale"
-                                if any(w in name for w in ["maker", "forge", "workbench", "hollow"]):
-                                    return "Mistvale"
-                                if any(w in name for w in ["cabin", "ironhaven", "hart hall", "hardinger"]):
+                                # Canonical settlements — match by name
+                                if "ironhaven" in name or "hardinger" in name:
                                     return "Ironhaven"
-                                if any(w in name for w in ["arcton", "falconer", "corveaux"]):
+                                if "arcton" in name or "falconer" in name:
                                     return "Arcton"
-                                if any(w in name for w in ["carran"]):
+                                if "carran" in name:
                                     return "Carran"
-                                if any(w in name for w in ["cirque", "carnival", "circus", "altar", "rookery", "funhouse"]):
+                                if "harrowgate" in name or "coldhill" in name:
+                                    return "Harrowgate"
+                                if "goldleaf" in name:
+                                    return "Goldleaf"
+                                if "moonfall" in name:
+                                    return "Moonfall"
+                                if "tamris" in name or "barrow" in name:
+                                    return "Tamris"
+                                if "cirque" in name or "carnival" in name or "circus" in name:
                                     return "The Cirque"
-                                if any(w in name for w in ["dock", "blacktyde", "ship"]):
-                                    return "The Docks"
-                                if any(w in name for w in ["graveyard", "necropolis", "barrow", "tamris"]):
-                                    return "Tamris Ruins"
-                                if any(w in name for w in ["mist", "gateway", "crossroads", "old road", "field", "forest", "clearing", "road"]):
-                                    return "The Wilderness"
+                                # Mistvale and its sub-locations (Stag Hall is inside Mistvale)
+                                if any(w in name for w in [
+                                    "mistvale", "aentact", "tavern", "raven", "marketplace",
+                                    "crafter", "maker", "forge", "workbench", "hollow",
+                                    "stag hall", "hart hall", "manor row", "chantry",
+                                    "herbalist", "town hall", "back alley",
+                                ]):
+                                    return "Mistvale"
+                                # Everything else (roads, mists, wilderness) → The Annwyn
                                 return "The Annwyn"
 
                             # Get all rooms
