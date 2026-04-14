@@ -112,6 +112,53 @@
   color: var(--blood-bright);
 }
 
+/* Zone selector bar */
+.map-zone-bar {
+  display: flex;
+  gap: 2px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10, 8, 7, 0.5);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.map-zone-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.map-zone-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-light);
+}
+.map-zone-btn.active {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.map-zone-count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: var(--text-aged);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  padding: 0px 4px;
+  opacity: 0.7;
+}
+
 /* Body */
 .world-map-body {
   flex: 1;

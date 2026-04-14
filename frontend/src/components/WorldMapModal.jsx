@@ -83,10 +83,13 @@ const NODE_COLORS = {
   chargen: '#8b5cf6',
 }
 
+const ZONE_ALL = '__all__'
+
 export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
   const [loading, setLoading] = useState(true)
   const [layout, setLayout] = useState(null)
   const [tab, setTab] = useState('rooms')
+  const [zone, setZone] = useState(ZONE_ALL)
   const svgRef = useRef(null)
 
   useEffect(() => {
@@ -94,21 +97,46 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
     sendCommand('__map_ui__')
   }, [open, sendCommand])
 
+  // Auto-select the zone of the player's current room on first load
   useEffect(() => {
-    if (mapData && mapData.nodes) {
-      // Deduplicate edges
-      const seen = new Set()
-      const uniqueEdges = mapData.edges.filter(e => {
-        const key = [Math.min(e.from, e.to), Math.max(e.from, e.to)].join('-')
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
-      const result = layoutGraph(mapData.nodes, uniqueEdges)
-      setLayout({ ...result, nodes: mapData.nodes, edges: uniqueEdges, currentRoom: mapData.currentRoom })
-      setLoading(false)
+    if (mapData && mapData.currentZone && zone === ZONE_ALL) {
+      setZone(mapData.currentZone)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapData])
+
+  // Recompute layout when zone filter or mapData changes
+  useEffect(() => {
+    if (!mapData || !mapData.nodes) return
+    // Filter nodes by zone (ALL shows everything)
+    const filteredNodes = zone === ZONE_ALL
+      ? mapData.nodes
+      : mapData.nodes.filter(n => n.zone === zone)
+    const nodeIds = new Set(filteredNodes.map(n => n.id))
+    // Deduplicate edges and keep only those connecting visible nodes
+    const seen = new Set()
+    const filteredEdges = mapData.edges.filter(e => {
+      if (!nodeIds.has(e.from) || !nodeIds.has(e.to)) return false
+      const key = [Math.min(e.from, e.to), Math.max(e.from, e.to)].join('-')
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    if (filteredNodes.length === 0) {
+      setLayout(null)
+      setLoading(false)
+      return
+    }
+    const result = layoutGraph(filteredNodes, filteredEdges)
+    setLayout({
+      ...result,
+      nodes: filteredNodes,
+      edges: filteredEdges,
+      currentRoom: mapData.currentRoom,
+      zones: mapData.zones || [],
+    })
+    setLoading(false)
+  }, [mapData, zone])
 
   useEffect(() => {
     if (!open) return
@@ -147,6 +175,28 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
           )}
           <button className="world-map-close" onClick={onClose}>✕</button>
         </div>
+        {/* Zone selector — only for Room Map */}
+        {tab === 'rooms' && layout && layout.zones && layout.zones.length > 1 && (
+          <div className="map-zone-bar">
+            <button
+              className={`map-zone-btn ${zone === ZONE_ALL ? 'active' : ''}`}
+              onClick={() => setZone(ZONE_ALL)}
+            >
+              All Zones
+              <span className="map-zone-count">{mapData?.nodes?.length || 0}</span>
+            </button>
+            {layout.zones.map(z => (
+              <button
+                key={z.name}
+                className={`map-zone-btn ${zone === z.name ? 'active' : ''}`}
+                onClick={() => setZone(z.name)}
+              >
+                {z.name}
+                <span className="map-zone-count">{z.count}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className={`world-map-body ${tab === 'rooms' ? 'has-sidebar' : ''}`}>
           {tab === 'world' ? (
             <img
