@@ -9,8 +9,9 @@ import './DetailPanel.css'
 //   'prompt' = open a friendly modal asking for input (factory key in PROMPTS)
 const NPC_ACTIONS = [
   { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
-  { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
+  { label: 'Ask', icon: '🗣', kind: 'prompt', promptKey: 'ask' },
   { label: 'Whisper', icon: '💬', kind: 'prompt', promptKey: 'whisper' },
+  { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
   { label: 'Follow', icon: '🚶', kind: 'send', command: (name) => `follow ${name}` },
 ]
 

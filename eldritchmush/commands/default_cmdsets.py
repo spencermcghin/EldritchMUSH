@@ -171,6 +171,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(quests.CmdQuest())
         self.add(ai_dialogue.CmdAsk())
         self.add(ai_dialogue.CmdFarewell())
+        # Overrides default whisper: private messaging still works
+        # player-to-player, but whispering at an AI NPC routes through
+        # the LLM and gets a private in-character reply.
+        self.add(ai_dialogue.CmdWhisper())
 
 #### Special command sets
 
