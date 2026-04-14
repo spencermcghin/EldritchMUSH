@@ -168,16 +168,60 @@ def text(session, *args, **kwargs):
                                 start_id = getattr(dj_settings, "START_LOCATION", 2)
                                 start_loc = ObjectDB.objects.get_id(start_id)
 
+                                # Look up Gateway Tent City — the canonical
+                                # arrival point for players emerging from chargen.
+                                # Players land here pending approval and can
+                                # wander Gateway (talk to NPCs, collect a Writ)
+                                # until a game master approves their crossing.
+                                gateway_tents = ObjectDB.objects.filter(
+                                    db_key="Gateway — The Tent City"
+                                ).first()
+
+                                # Look up Mistgate — the far side of the Mists,
+                                # where approved admins land directly.
+                                mistgate = ObjectDB.objects.filter(
+                                    db_key="The Mistgate"
+                                ).first()
+
                                 if is_admin:
-                                    # Admins are auto-approved
+                                    # Admins are auto-approved and walk straight
+                                    # into the Annwyn. Skip the Gateway rigmarole.
                                     puppet.attributes.add("approval_status", "approved")
-                                    if start_loc:
-                                        puppet.move_to(start_loc, quiet=False)
+                                    target = mistgate or start_loc
+                                    if target:
+                                        puppet.move_to(target, quiet=False)
                                     session.msg(text="|gCharacter approved automatically (admin). Welcome to the world.|n")
                                     diag_write("FINISH_CHARGEN admin auto-approved", puppet=repr(puppet))
                                 else:
-                                    # Regular players: mark pending, DON'T move out
+                                    # Regular players: mark pending, issue a
+                                    # Writ, and deposit them at Gateway Tent
+                                    # City so they can meet the Mistwalker
+                                    # Compact and wait for approval.
                                     puppet.attributes.add("approval_status", "pending")
+
+                                    # Move puppet to Gateway Tent City (the
+                                    # Arnesse-side arrival point). Falls back
+                                    # to START_LOCATION if Gateway isn't built.
+                                    arrival = gateway_tents or start_loc
+                                    if arrival:
+                                        puppet.move_to(arrival, quiet=True)
+
+                                    # Spawn a Writ of Safe Conduct into the
+                                    # player's inventory, bearer pre-filled.
+                                    # This is their ticket once approved.
+                                    try:
+                                        from evennia.utils import create as _create_obj
+                                        writ = _create_obj.create_object(
+                                            "typeclasses.objects.WritOfSafeConduct",
+                                            key="writ of safe conduct",
+                                            location=puppet,
+                                        )
+                                        writ.aliases.add("writ")
+                                        writ.db.bearer = puppet.key
+                                        writ.db.crossings = 1
+                                        diag_write("FINISH_CHARGEN writ issued", bearer=puppet.key)
+                                    except Exception as exc:
+                                        diag_write("FINISH_CHARGEN writ spawn failed", exc=str(exc))
 
                                     # Send approval email to admin
                                     try:
@@ -190,8 +234,18 @@ def text(session, *args, **kwargs):
                                     except Exception as exc:
                                         diag_write("FINISH_CHARGEN email failed", exc=str(exc))
 
-                                    session.msg(text="|gYour character has been submitted for approval. You'll receive an email when a game master reviews your build. You can continue to play with your other characters in the meantime.|n")
-                                    diag_write("FINISH_CHARGEN pending approval", puppet=repr(puppet))
+                                    session.msg(text=(
+                                        "|gYou stand at the tent city of Gateway, damp earth "
+                                        "underfoot, the palisade looming westward. Your papers "
+                                        "are submitted to the Mistwalker Compact — Crane will "
+                                        "register you in due course.|n\n\n"
+                                        "|xWhile you wait: |wlook|x around, |wask|x the "
+                                        "Mistguard or the other travelers about their business, "
+                                        "and |wlook writ|x to read the terms you have agreed to. "
+                                        "A game master will approve your crossing when they have "
+                                        "reviewed your build. You will receive an email.|n"
+                                    ))
+                                    diag_write("FINISH_CHARGEN pending approval at Gateway", puppet=repr(puppet))
                             else:
                                 diag_write("FINISH_CHARGEN not in ChargenRoom, skipping", location=tc_path)
                         else:
@@ -350,6 +404,12 @@ def text(session, *args, **kwargs):
                                     return "Tamris"
                                 if "cirque" in name or "carnival" in name or "circus" in name:
                                     return "The Cirque"
+                                # Gateway — Arnesse-side border town / Mistwall
+                                if any(w in name for w in [
+                                    "gateway", "mistwalker", "mistwall", "broken oar",
+                                    "palisade", "tent city",
+                                ]):
+                                    return "Gateway"
                                 # Mystvale and its sub-locations (Stag Hall is inside Mystvale)
                                 if any(w in name for w in [
                                     "mystvale", "mistvale", "aentact", "tavern", "raven", "marketplace",

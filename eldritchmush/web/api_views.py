@@ -429,15 +429,44 @@ def admin_approve_character(request):
 
     if approved:
         char.attributes.add("approval_status", "approved")
-        # Move out of chargen room if still there
+        # Whisk them through the Mists. Preferred landing: Mistgate
+        # (the Annwyn side of the crossing). Fallbacks: Mystvale South
+        # Gate, then START_LOCATION. This makes approval feel like Soap
+        # leading the bearer across.
         try:
             from django.conf import settings as dj_settings
             location = char.location
-            if location and "ChargenRoom" in (location.typeclass_path or ""):
+            destination = None
+            for lookup_key in ("The Mistgate", "Mystvale South Gate"):
+                destination = ObjectDB.objects.filter(db_key=lookup_key).first()
+                if destination:
+                    break
+            if not destination:
                 start_id = getattr(dj_settings, "START_LOCATION", 2)
-                start_loc = ObjectDB.objects.get_id(start_id)
-                if start_loc:
-                    char.move_to(start_loc, quiet=True)
+                destination = ObjectDB.objects.get_id(start_id)
+            # Only auto-teleport if they're on the Arnesse side (Gateway
+            # zone) or still in the ChargenRoom. Don't move characters
+            # already in the Annwyn — they might be mid-scene.
+            safe_to_move = False
+            if location:
+                tcp = location.typeclass_path or ""
+                if "ChargenRoom" in tcp:
+                    safe_to_move = True
+                z = location.attributes.get("zone", default="")
+                if z == "Gateway":
+                    safe_to_move = True
+            if destination and safe_to_move:
+                char.move_to(destination, quiet=True)
+                try:
+                    char.msg(
+                        "|gSoap's hand closes on your shoulder. The mists "
+                        "rise around you — cold, sweet, full of distant "
+                        "voices — and when they clear, the tall hat is "
+                        "gone, and the wet stone of the Mistgate lies "
+                        "under your boots. You have arrived.|n"
+                    )
+                except Exception:
+                    pass
         except Exception:
             pass
     else:
