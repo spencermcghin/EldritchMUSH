@@ -108,16 +108,41 @@ def _build_system_prompt(npc):
 
 
 def _get_history(npc, character):
+    """Return the last N conversation turns as plain Python dicts.
+
+    Evennia wraps stored lists/dicts in _SaverList/_SaverDict to track
+    mutations. json.dumps() can't serialize those, so we deep-convert
+    back to plain dicts here before the history is sent to the LLM API.
+    """
     convos = npc.attributes.get("ai_conversations", default=None) or {}
-    return list(convos.get(str(character.id), []))
+    raw = convos.get(str(character.id), []) or []
+    out = []
+    for item in raw:
+        try:
+            # dict(_SaverDict(...)) unwraps one level; rebuild content
+            # as a plain string in case it's a _SaverStr or similar.
+            out.append({
+                "role": str(item.get("role", "user")),
+                "content": str(item.get("content", "")),
+            })
+        except Exception:
+            # Best-effort fallback — skip malformed history entries
+            continue
+    return out
 
 
 def _save_history(npc, character, user_msg, assistant_msg):
-    convos = npc.attributes.get("ai_conversations", default=None) or {}
+    # Unwrap Evennia's _SaverDict/_SaverList to plain Python structures
+    # so subsequent json.dumps calls won't choke on the wrapper types.
+    raw_convos = npc.attributes.get("ai_conversations", default=None) or {}
+    convos = {str(k): list(v) for k, v in dict(raw_convos).items()}
     key = str(character.id)
-    turns = list(convos.get(key, []))
-    turns.append({"role": "user", "content": user_msg})
-    turns.append({"role": "assistant", "content": assistant_msg})
+    turns = [
+        {"role": str(t.get("role", "user")), "content": str(t.get("content", ""))}
+        for t in convos.get(key, [])
+    ]
+    turns.append({"role": "user", "content": str(user_msg)})
+    turns.append({"role": "assistant", "content": str(assistant_msg)})
     turns = turns[-(HISTORY_TURNS * 2):]
     convos[key] = turns
     npc.attributes.add("ai_conversations", convos)

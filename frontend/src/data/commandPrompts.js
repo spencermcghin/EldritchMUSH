@@ -58,6 +58,15 @@ export const PROMPTS = {
     buildCommand: (input) => `tell ${targetName}=${input}`,
   }),
 
+  ask: (targetName) => ({
+    title: `Ask ${targetName}`,
+    label: `What do you want to ask ${targetName}?`,
+    placeholder: 'about your sister, about the Mists...',
+    icon: '🗣',
+    submitLabel: 'Ask',
+    buildCommand: (input) => `ask ${targetName} ${input}`,
+  }),
+
   look: {
     title: 'Look At',
     label: 'Who or what do you want to look at?',
