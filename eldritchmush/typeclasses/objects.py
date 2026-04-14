@@ -589,3 +589,79 @@ class Merchant(DefaultObject):
         string = super().return_appearance(looker)
         string += f"\n\n{self.db.shop_text}"
         return string
+
+
+class WritOfSafeConduct(Object):
+    """
+    An in-play document issued by the Mistwalker Compact Gateway Crossing
+    Office. Canonical terms per the Event 8 prop.
+
+    Typically spawned by the Crane NPC after the bearer has agreed to the
+    terms. `look writ` displays the full canonical text with the bearer's
+    name, assigned guide, and crossing date filled in.
+
+    Relevant attributes (override via @set on an instance):
+      bearer        — the bearer's full character name
+      guide         — assigned Mistwalker guide (default "Soap")
+      guide_mark    — distinguishing feature of the guide
+      crossings     — number of crossings the writ entitles (default 1)
+      crossing_date — in-world date (default "4th Moon, 767 AS")
+      registrar     — who registered it (default "Crane")
+    """
+
+    def at_object_creation(self):
+        self.locks.add("get:true();drop:true()")
+        self.db.bearer = ""
+        self.db.guide = "Soap"
+        self.db.guide_mark = "the tall, buckled hat they wear"
+        self.db.crossings = 1
+        self.db.crossing_date = "4th Moon, 767 AS"
+        self.db.registrar = "Crane"
+        self.db.desc = (
+            "A sheet of heavy parchment, its edges scorched by mist-flame and "
+            "stamped with the sigil of the Mistwalker Compact. Hand-lettered "
+            "in a careful gothic script, sealed in blue-black ink. |wLook|n "
+            "at it to read the text."
+        )
+
+    def return_appearance(self, looker, **kwargs):
+        bearer = self.db.bearer or "________________________"
+        guide = self.db.guide or "________"
+        mark = self.db.guide_mark or "(unspecified)"
+        crossings = self.db.crossings if self.db.crossings is not None else 1
+        crossing_date = self.db.crossing_date or "________"
+        registrar = self.db.registrar or "________"
+
+        return (
+            "\n|y=================================================|n\n"
+            "|y         W R I T   of   S A F E   C O N D U C T|n\n"
+            "|y=================================================|n\n"
+            "|xIssued under seal of the Mistwalker Compact Gateway "
+            "Crossing Office — Vale of Shadow|n\n\n"
+            "Know by this writ that the bearer has entered into lawful "
+            "contract with the Mistwalker Compact for guided passage "
+            "through the mists and into the territory known as the "
+            "Annwyn.\n\n"
+            f"Passage is granted for |w{crossings} crossing(s)|n.\n\n"
+            f"The bearer has been assigned to the guide known as |y{guide}|n, "
+            f"who may be identified by {mark}. Approach no other. This "
+            "assignment is binding from the moment of departure. The bearer "
+            "is not to seek alternate passage, deviate from the appointed "
+            "route, or disregard the guide's instruction. |wIn the mists, "
+            "the guide's word is law.|n Those who cannot abide this are "
+            "invited to surrender this writ before the torch is lit.\n\n"
+            "The Compact makes no warranty of safe arrival. It accepts no "
+            "claim for loss of life, property, or sound mind incurred within "
+            "the Mists. Those who have entered the Tangle and become "
+            "separated from their guide are considered lost at their own "
+            "peril. Retrieval, if possible, is billed separately.\n\n"
+            "This writ serves as proof of contracted passage. It is "
+            "non-transferable. It expires upon arrival in the Annwyn or "
+            "upon the bearer's confirmed death, whichever the Mists decide.\n\n"
+            "Present this writ to your assigned guide before departure. "
+            "|wNo writ, no crossing.|n\n\n"
+            f"|xBearer         :|n {bearer}\n"
+            f"|xCrossing Date  :|n {crossing_date}\n"
+            f"|xRegistered by  :|n {registrar}\n"
+            "|y=================================================|n\n"
+        )
