@@ -115,7 +115,7 @@
 /* Body */
 .world-map-body {
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,6 +123,22 @@
     radial-gradient(ellipse at center, rgba(212,175,55,0.03), transparent 70%),
     var(--void);
   min-height: 400px;
+}
+
+/* When the room map sidebar is shown, don't center vertically */
+.world-map-body.has-sidebar {
+  align-items: stretch;
+  overflow: hidden;
+}
+
+/* The SVG container for the room map should scroll independently */
+.map-svg-wrap {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
 }
 
 .world-map-image {
