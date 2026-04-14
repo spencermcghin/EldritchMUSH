@@ -810,25 +810,29 @@ room_qs = ObjectDB.objects.filter(
 
 purged = 0
 preserved = 0
+objects_deleted = 0
 for room in room_qs:
     if room.pk in KEPT_PKS:
         preserved += 1
         continue
-    # Salvage contents before deletion
+    # Salvage contents before deletion. Rules:
+    # - Exits: delete (source is going away).
+    # - Account-puppeted characters: move to Gateway Tent City (safety).
+    # - Everything else (legacy NPCs, items, props, posters, corpses):
+    #   delete outright. The old marketplace got jammed with salvage
+    #   on the first pass — don't repeat that mistake.
     for obj in list(room.contents):
         try:
             if hasattr(obj, "destination") and obj.destination:
-                # Exit — stale once its source is gone
                 obj.delete()
                 continue
-            # Account-puppeted character → move to Gateway Tent City
             if hasattr(obj, "has_account") and obj.has_account:
                 obj.move_to(gateway_tents, quiet=True)
                 continue
-            # Generic object — send to Mystvale Marketplace for later sort
-            obj.move_to(marketplace, quiet=True)
+            obj.delete()
+            objects_deleted += 1
         except Exception as exc:
-            print(f"    SALVAGE FAIL: {getattr(obj, 'key', '?')}: {exc}")
+            print(f"    PURGE OBJ FAIL: {getattr(obj, 'key', '?')}: {exc}")
     # Also delete any exits in other rooms that pointed at this one,
     # so we don't leave dangling exits.
     for ex in ObjectDB.objects.filter(db_destination=room.pk):
@@ -841,7 +845,46 @@ for room in room_qs:
     room.delete()
     purged += 1
 
-print(f"\n  Cleanup: preserved={preserved}, purged={purged}")
+print(f"\n  Cleanup: preserved={preserved}, purged={purged}, "
+      f"objects_deleted={objects_deleted}")
+
+# ---------------------------------------------------------------------------
+# MARKETPLACE JUNK SWEEP (one-time fix for the earlier partial-run damage)
+# An earlier purge pass salvaged orphaned objects into Mystvale Marketplace,
+# jamming it with legacy NPCs, Ravenants, Wights, posters, and assorted
+# prop detritus. Sweep anything in the Marketplace that isn't:
+#   - a Merchant (shopkeeper — canonical)
+#   - a crafting station (Forge / *Workbench)
+#   - a player-puppeted character
+# Anything else: delete.
+# ---------------------------------------------------------------------------
+print("\n=== MARKETPLACE JUNK SWEEP ===")
+SAFE_TYPECLASSES = {
+    "typeclasses.objects.Merchant",
+    "typeclasses.objects.Forge",
+    "typeclasses.objects.ArtificerWorkbench",
+    "typeclasses.objects.BowyerWorkbench",
+    "typeclasses.objects.GunsmithWorkbench",
+    "typeclasses.objects.ApothecaryWorkbench",
+}
+sweep_deleted = 0
+for obj in list(marketplace.contents):
+    try:
+        # Exits pass — keep them
+        if hasattr(obj, "destination") and obj.destination:
+            continue
+        # Puppeted characters pass — never boot an active player
+        if hasattr(obj, "has_account") and obj.has_account:
+            continue
+        tc = obj.typeclass_path or ""
+        if tc in SAFE_TYPECLASSES:
+            continue
+        print(f"  SWEPT   : '{obj.key}' ({tc})")
+        obj.delete()
+        sweep_deleted += 1
+    except Exception as exc:
+        print(f"    SWEEP FAIL: {getattr(obj, 'key', '?')}: {exc}")
+print(f"  Marketplace sweep: deleted={sweep_deleted}")
 
 # ===========================================================================
 # MOVE CRAFTING STATIONS INTO CRAFTER'S QUARTER
