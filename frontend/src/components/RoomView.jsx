@@ -216,13 +216,34 @@ function splitEntities(str) {
 }
 
 function parseExitsAndEntities(text, exits, characters, items) {
-  // Extract exits: "Exits: Room Name <DIR>, ..."
+  // Extract exits. Two formats to handle:
+  //   1. "Exits: Gateway Square <north>, Broken Oar <east>" — custom format
+  //      (older rooms, rooms with custom get_display_exits).
+  //   2. "Exits: north, south, east, west" — Evennia 5.x default format
+  //      (just the exit keys). Applies to our Gateway rooms since we
+  //      create exits via DefaultExit without a custom display hook.
   const exitMatch = text.match(/Exits?:\s*(.+?)(?=Characters?:|You see:|$)/i)
   if (exitMatch) {
+    const raw = exitMatch[1].trim()
+    // Try bracketed format first
     const re = /([^,<]+?)\s*<([^>]+)>/g
     let m
-    while ((m = re.exec(exitMatch[1])) !== null) {
+    while ((m = re.exec(raw)) !== null) {
       exits.push({ name: m[1].trim().replace(/^\s*and\s+/, ''), dir: m[2].trim() })
+    }
+    // Fallback to plain key-only format if nothing matched
+    if (exits.length === 0) {
+      const parts = raw.split(/,\s*(?:and\s+)?|\s+and\s+/)
+      for (const p of parts) {
+        let key = p.trim().replace(/[.?!]+$/, '')
+        if (!key) continue
+        // Strip Evennia's color codes if any slipped through (|w|n etc)
+        key = key.replace(/\|[A-Za-z0-9=]+/g, '').trim()
+        if (!key) continue
+        // Capitalize the display name; direction stays lowercase for the command
+        const displayName = key.charAt(0).toUpperCase() + key.slice(1)
+        exits.push({ name: displayName, dir: key.toLowerCase() })
+      }
     }
   }
 
