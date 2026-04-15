@@ -115,19 +115,12 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
     }
   }, [entityName, sendCommand, injectCommand, onPrompt])
 
-  // When player clicks a topic chip, prompt them with an Ask modal
-  // pre-filled with that topic.
+  // Clicking a topic chip sends the ask directly — no intermediate
+  // modal. The topic text is what gets asked verbatim.
   const handleTopicClick = useCallback((topic) => {
-    if (!onPrompt) return
-    onPrompt({
-      title: `Ask ${displayName}`,
-      label: `Ask ${displayName} about:`,
-      placeholder: topic,
-      icon: '🗣',
-      submitLabel: 'Ask',
-      buildCommand: (input) => `ask ${entityName} ${input || topic}`,
-    })
-  }, [entityName, displayName, onPrompt])
+    if (!topic) return
+    sendCommand(`ask ${entityName} ${topic}`)
+  }, [entityName, sendCommand])
 
   return (
     <aside className="detail-panel panel panel-decorated">
