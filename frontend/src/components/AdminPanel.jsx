@@ -201,6 +201,9 @@ function AccountsTab() {
   const [error, setError] = useState(null)
   const [purgePreview, setPurgePreview] = useState(null)  // null|{accounts,chars,npcs,counts}
   const [purging, setPurging] = useState(false)
+  // Confirm modal state for role changes: {accountId, username, role, action}
+  const [pendingRoleChange, setPendingRoleChange] = useState(null)
+  const [roleBusy, setRoleBusy] = useState(false)
 
   const fetchAccounts = useCallback(async () => {
     setLoading(true)
@@ -246,30 +249,51 @@ function AccountsTab() {
     }
   }, [fetchAccounts])
 
-  const handleRoleToggle = useCallback(async (accountId, role, hasRole) => {
+  // Stage-1: clicking a role pill opens the confirm modal rather than
+  // mutating immediately. Stage-2 (confirmation) runs the actual API call.
+  const requestRoleChange = useCallback((accountId, username, role, hasRole) => {
+    setPendingRoleChange({
+      accountId,
+      username,
+      role,
+      action: hasRole ? 'remove' : 'add',
+    })
+  }, [])
+
+  const cancelRoleChange = useCallback(() => {
+    if (roleBusy) return
+    setPendingRoleChange(null)
+  }, [roleBusy])
+
+  const confirmRoleChange = useCallback(async () => {
+    if (!pendingRoleChange) return
+    const { accountId, role, action } = pendingRoleChange
+    setRoleBusy(true)
     try {
       const resp = await fetch('/api/admin/set-role/', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
-        body: JSON.stringify({
-          account_id: accountId,
-          role,
-          action: hasRole ? 'remove' : 'add',
-        }),
+        body: JSON.stringify({ account_id: accountId, role, action }),
       })
       const data = await resp.json()
       if (data.success) {
+        // Updating accounts state triggers re-render — active/inactive
+        // highlight on the role pill flips automatically because it
+        // reads from acct.permissions.
         setAccounts(prev => prev.map(a =>
           a.id === accountId ? { ...a, permissions: data.permissions } : a
         ))
+        setPendingRoleChange(null)
       } else {
-        setError(data.error)
+        setError(data.error || 'Role change failed')
       }
     } catch (err) {
       setError(err.message)
+    } finally {
+      setRoleBusy(false)
     }
-  }, [])
+  }, [pendingRoleChange])
 
   if (loading) return <div className="admin-loading">Loading accounts...</div>
   if (error) return <div className="admin-error">{error}</div>
@@ -425,11 +449,11 @@ function AccountsTab() {
                   <button
                     key={role}
                     className={`admin-role-pill ${hasRole ? 'active' : ''}`}
-                    onClick={() => handleRoleToggle(acct.id, role, hasRole)}
+                    onClick={() => requestRoleChange(acct.id, acct.username, role, hasRole)}
                     disabled={acct.isSuperuser}
                     title={acct.isSuperuser ? 'Superusers have all permissions' : `${hasRole ? 'Remove' : 'Add'} ${role}`}
                   >
-                    {role}
+                    {hasRole ? '✓ ' : ''}{role}
                   </button>
                 )
               })}
@@ -438,6 +462,59 @@ function AccountsTab() {
         </div>
       ))}
     </div>
+
+    {/* Confirm modal for role add/remove */}
+    {pendingRoleChange && (
+      <div
+        className="admin-confirm-backdrop"
+        onClick={cancelRoleChange}
+      >
+        <div
+          className="admin-confirm-modal"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="admin-confirm-header cinzel">
+            {pendingRoleChange.action === 'add' ? 'Grant Role?' : 'Revoke Role?'}
+          </div>
+          <div className="admin-confirm-body">
+            {pendingRoleChange.action === 'add' ? (
+              <>
+                Grant <span className="admin-confirm-role">{pendingRoleChange.role}</span>
+                {' '}to <span className="admin-confirm-account">{pendingRoleChange.username}</span>?
+              </>
+            ) : (
+              <>
+                Remove <span className="admin-confirm-role">{pendingRoleChange.role}</span>
+                {' '}from <span className="admin-confirm-account">{pendingRoleChange.username}</span>?
+              </>
+            )}
+            <div className="admin-confirm-note">
+              {pendingRoleChange.action === 'add'
+                ? 'This grants elevated game permissions. Confirm to apply.'
+                : 'The user will lose access granted by this role. Confirm to apply.'}
+            </div>
+          </div>
+          <div className="admin-confirm-actions">
+            <button
+              className="admin-btn"
+              onClick={cancelRoleChange}
+              disabled={roleBusy}
+            >
+              Cancel
+            </button>
+            <button
+              className={`admin-btn ${pendingRoleChange.action === 'add' ? 'approve-btn' : 'reject-btn'}`}
+              onClick={confirmRoleChange}
+              disabled={roleBusy}
+            >
+              {roleBusy
+                ? 'Applying…'
+                : (pendingRoleChange.action === 'add' ? 'Grant Role' : 'Revoke Role')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   </>
   )
 }
