@@ -670,6 +670,15 @@ class CmdEquip(Command):
                 else:
                     self.msg("|400You can't equip the same weapon twice.|n")
 
+            # Apply equip-bonus stats from the item's prototype. Safe to
+            # call unconditionally — checks _is_equipped internally and
+            # no-ops if the item didn't actually end up in a slot.
+            try:
+                from world.equip_bonuses import apply as _apply_bonus
+                _apply_bonus(self.caller, item)
+            except Exception:
+                pass
+
             # Push updated available commands to the web UI sidebar.
             push_available_commands(self.caller)
             # Push updated vitals (AV and equipment slots) to the web UI.
@@ -782,6 +791,15 @@ class CmdUnequip(Command):
                 return
 
             self.caller.msg(f"You have unequipped your {item}.")
+
+            # Reverse any equip-bonus stats this item granted. Idempotent
+            # — no-op if the item wasn't tracked in the modifier ledger.
+            try:
+                from world.equip_bonuses import remove as _remove_bonus
+                _remove_bonus(self.caller, item)
+            except Exception:
+                pass
+
             # Push updated available commands to the web UI sidebar.
             push_available_commands(self.caller)
             # Push updated vitals (AV and equipment slots) to the web UI.
