@@ -2377,6 +2377,61 @@ print("\n=== EXTENDED NPC ROSTER COMPLETE ===")
 
 
 # ===========================================================================
+# CANON TAGS — wire each AI NPC to relevant canon files in world/canon/.
+# Tags: house:foo, faction:bar, region:baz. The canon loader matches
+# overlap and includes those entries in the NPC's system prompt.
+# Idempotent: re-tagging an existing NPC just rewrites the attribute.
+# ===========================================================================
+print("\n=== CANON TAGGING ===")
+
+_NPC_CANON_TAGS = {
+    # Gateway — Arnesse-side
+    "Sergeant Hollet Kross":       ["house:richter", "house:bannon", "vigil"],
+    "Crane":                       ["mistwalker"],
+    "Soap":                        ["mistwalker"],
+    "Pelham Faye":                 ["region:vale", "cirque"],
+    "Branwen Innish":              ["house:innis", "region:northern_marches", "cirque"],
+    "Old Mae":                     ["region:hearthlands", "region:midlands"],
+    "Brother Alaric":              ["aurorym", "house:blayne"],
+    "Lissa the Scribe":            ["cirque", "region:midlands"],
+    "Kriegsmann Volkan":           ["house:richter", "house:varga", "region:dusklands"],
+    "Serena of Scrow":             ["region:hearthlands"],
+    "Mab the Gambler":             ["cirque"],
+    "Rhys of the Thornwood":       ["region:thornwood", "house:innis", "house:laurent"],
+    "Old Threnody":                ["cirque"],
+    "Obed the Docker":             ["region:northern_marches", "region:breakwater"],
+    "Rin":                         ["region:hearthlands"],
+    "Pip":                         ["region:hearthlands"],
+    "Cerys":                       ["mistwalker"],
+    "Matron Hegga the Quartermaster": ["house:richter", "region:hearthlands", "cirque"],
+
+    # Mystvale (annwyn-scope)
+    "Auron Maxan":                 ["aurorym", "vellatora", "house:laurent"],
+    "Hemi the Cirque":             ["cirque"],
+    "Clerk Yevan":                 ["house:laurent", "house:bannon"],
+    "Ser Brand Ironhand":          ["house:richter", "house:laurent", "region:hearthlands"],
+    "Mistress Cael the Artificer": ["cirque", "region:midlands"],
+
+    # Settlement specialists (annwyn-scope)
+    "Ser Hartwig Richter":         ["house:richter", "house:hardinger", "house:aragon"],
+    "Gerta Ironblood":             ["house:richter", "region:dusklands"],
+    "Ser Dormund Corveaux":        ["house:corveaux", "house:innis", "house:aragon"],
+    "Marta Falconer":              ["house:corveaux"],
+    "Heron Aragon":                ["house:aragon", "house:oban"],
+    "Tova of the Get":             ["house:hale", "house:coldhill", "region:everfrost"],
+    "Ser Ewan Bannon":             ["house:bannon", "house:laurent"],
+    "Keena Innis":                 ["house:innis", "region:northern_marches"],
+}
+
+_tagged = 0
+for npc_key, tags in _NPC_CANON_TAGS.items():
+    for npc in ObjectDB.objects.filter(db_key=npc_key):
+        npc.attributes.add("canon_tags", tags)
+        _tagged += 1
+print(f"  Tagged {_tagged} NPCs with canon entries.")
+
+
+# ===========================================================================
 # ATMOSPHERIC SERMON TICKER — Brother Alaric preaches to Gateway Square
 # every ~10 minutes via Evennia's script system. Only fires when he is
 # actually in the room, so moving him elsewhere silences it cleanly.
