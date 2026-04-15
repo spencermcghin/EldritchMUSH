@@ -335,6 +335,174 @@ def admin_delete_character(request):
     return JsonResponse({"success": True, "deleted": char_name})
 
 
+# ---------------------------------------------------------------------------
+# Legacy purge — remove non-admin accounts, their characters, and any
+# legacy NPCs still kicking around.
+# ---------------------------------------------------------------------------
+ADMIN_PERMS = {"Admin", "Builder", "Developer"}
+
+
+def _is_admin_account(acct):
+    """Account is admin if superuser or has Admin/Builder/Developer perm."""
+    try:
+        if acct.is_superuser:
+            return True
+        perms = set(acct.permissions.all())
+    except Exception:
+        return False
+    return bool(perms & ADMIN_PERMS)
+
+
+@require_http_methods(["POST"])
+def admin_purge_legacy(request):
+    """Admin-only: purge legacy accounts, characters, and NPCs.
+
+    POST body: {"mode": "preview" | "execute"}
+
+    Deletion rules (both modes return the same candidate lists):
+      - Accounts: delete if NOT an admin account (no superuser, no
+        Admin/Builder/Developer perm). Caller's own account is always
+        preserved even if criteria match.
+      - Characters: delete all characters owned by accounts scheduled
+        for deletion. Also delete characters with no owning account
+        (orphans) if they are not tied to an admin account via the
+        _playable_characters list.
+      - NPCs: delete Npc typeclass instances that do NOT have
+        `ai_personality` set (our scripted Gateway roster is preserved;
+        anything without that attribute is legacy scaffolding).
+
+    Returns:
+      {
+        "mode": "preview"|"executed",
+        "accounts": [{"id": N, "username": "..."}],
+        "characters": [{"id": N, "name": "..."}],
+        "npcs": [{"id": N, "name": "..."}],
+        "counts": {"accounts": N, "characters": N, "npcs": N},
+      }
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "admin_required"}, status=403)
+
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        data = {}
+    mode = data.get("mode", "preview")
+    if mode not in ("preview", "execute"):
+        return JsonResponse({"error": "mode must be preview or execute"}, status=400)
+
+    from evennia.accounts.models import AccountDB
+    from evennia.objects.models import ObjectDB
+
+    # 1. Identify legacy accounts — non-admin accounts. Never include
+    #    the caller's own account, even if it somehow matched.
+    doomed_accounts = []
+    for acct in AccountDB.objects.all():
+        if acct.id == getattr(user, "id", None):
+            continue
+        if _is_admin_account(acct):
+            continue
+        doomed_accounts.append(acct)
+
+    # 2. Characters to delete: anything owned by a doomed account,
+    #    plus orphaned characters (no db_account AND not in any admin's
+    #    _playable_characters list).
+    char_typeclass = "typeclasses.characters.Character"
+    doomed_account_ids = {a.id for a in doomed_accounts}
+    admin_playable_pks = set()
+    for acct in AccountDB.objects.all():
+        if _is_admin_account(acct):
+            for c in (acct.db._playable_characters or []):
+                if c:
+                    admin_playable_pks.add(c.pk)
+
+    doomed_characters = []
+    for char in ObjectDB.objects.filter(db_typeclass_path=char_typeclass):
+        # Owned by a doomed account?
+        if char.db_account_id and char.db_account_id in doomed_account_ids:
+            doomed_characters.append(char)
+            continue
+        # Orphan check: no account FK and not in any admin's playable list
+        if not char.db_account_id and char.pk not in admin_playable_pks:
+            # Double-check it's not in a DOOMED account's list either
+            # (those get cleaned when the account is deleted anyway, so
+            # we only want REAL orphans here)
+            claimed = False
+            for acct in AccountDB.objects.all():
+                pcs = acct.db._playable_characters or []
+                if any(getattr(c, "pk", None) == char.pk for c in pcs if c):
+                    claimed = True
+                    break
+            if not claimed:
+                doomed_characters.append(char)
+
+    # 3. NPCs to delete: typeclasses.npc.Npc (and subclasses) without
+    #    ai_personality set. The whitelist purge already cleaned rooms;
+    #    this catches any NPCs still in canonical rooms that aren't
+    #    part of our scripted roster.
+    doomed_npcs = []
+    for npc in ObjectDB.objects.filter(
+        db_typeclass_path__startswith="typeclasses.npc"
+    ):
+        if npc.attributes.get("ai_personality", default=None):
+            continue
+        doomed_npcs.append(npc)
+
+    payload = {
+        "mode": "preview",
+        "accounts": [{"id": a.id, "username": a.username} for a in doomed_accounts],
+        "characters": [{"id": c.id, "name": c.key} for c in doomed_characters],
+        "npcs": [{"id": n.id, "name": n.key, "location": getattr(n.location, "key", None)} for n in doomed_npcs],
+        "counts": {
+            "accounts": len(doomed_accounts),
+            "characters": len(doomed_characters),
+            "npcs": len(doomed_npcs),
+        },
+    }
+
+    if mode == "preview":
+        return JsonResponse(payload)
+
+    # Execute — actually delete.
+    deleted = {"accounts": 0, "characters": 0, "npcs": 0}
+    errors = []
+
+    # Delete NPCs first (no cascade concerns)
+    for npc in doomed_npcs:
+        try:
+            npc.delete()
+            deleted["npcs"] += 1
+        except Exception as exc:
+            errors.append(f"npc {npc.id}: {exc}")
+
+    # Delete characters (clean up any _playable_characters refs first)
+    for char in doomed_characters:
+        try:
+            for acct in AccountDB.objects.all():
+                pcs = acct.db._playable_characters or []
+                new_pcs = [c for c in pcs if c and getattr(c, "pk", None) != char.pk]
+                if len(new_pcs) != len(pcs):
+                    acct.db._playable_characters = new_pcs
+            char.delete()
+            deleted["characters"] += 1
+        except Exception as exc:
+            errors.append(f"char {char.id}: {exc}")
+
+    # Delete accounts last
+    for acct in doomed_accounts:
+        try:
+            acct.delete()
+            deleted["accounts"] += 1
+        except Exception as exc:
+            errors.append(f"account {acct.id}: {exc}")
+
+    payload["mode"] = "executed"
+    payload["deleted"] = deleted
+    payload["errors"] = errors
+    return JsonResponse(payload)
+
+
 def admin_all_accounts(request):
     """
     Admin-only: returns all accounts with their roles/permissions,
