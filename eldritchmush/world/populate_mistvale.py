@@ -1327,6 +1327,669 @@ get_or_create_npc(
     ],
 )
 
+# ===========================================================================
+# EXTENDED NPC ROSTER — seeded across Gateway and the Annwyn settlements.
+# Inspired by (but not copied from) the PC background log — we draw on
+# regional naming conventions, house affiliations, and life-paths from
+# the canonical character pool to invent fresh NPCs with similar depth.
+# Noble-house surnames (Richter, Corveaux, Aragon, Bannon, Innis, Hale)
+# are placed in their house settlements per canon.
+# ===========================================================================
+print("\n=== EXTENDED GATEWAY NPCs ===")
+
+# --- Brother Alaric — Aurorym preacher at Gateway Square ---------------
+get_or_create_npc(
+    key="Brother Alaric",
+    location=gateway_square,
+    desc=(
+        "A wiry man in his forties in threadbare Aurorym robes, a simple "
+        "sunburst pendant at his throat. Hollow-cheeked, bright-eyed, "
+        "carries a battered copy of the Book of Magnus tucked under one "
+        "arm. Preaches to anyone who pauses within earshot."
+    ),
+    personality=(
+        "Brother Alaric, Auron of the Aurorym faith and self-appointed "
+        "shepherd of Gateway's lost souls. Devout, kind, a little "
+        "zealous. Speaks in the cadence of a preacher — every third "
+        "sentence becomes a small sermon. Warm to the earnest, sharp "
+        "to the hypocritical. Genuinely believes the Day of Mist was "
+        "the first sign of End Times. Carries the Book of Magnus and "
+        "a begging bowl, neither of which he takes seriously in the "
+        "wrong order."
+    ),
+    knowledge=(
+        "- The Aurorym faith: worships Magnus, founder, and the Living "
+        "Saints. The Passage of Magnus is the central text.\n"
+        "- Aurons are preachers and lightkeepers. There are many ranks; "
+        "Brother is a humble one.\n"
+        "- The Day of Mist was a sign — the first seal breaking before "
+        "End Times. Those who cross to the Annwyn as warriors of the "
+        "New Dawn serve a holy calling.\n"
+        "- House Blayne is the Aurorym's secular patron. Queen Alne was "
+        "of House Blayne.\n"
+        "- The Godslayers trouble him — they are Aurorym by flag only, "
+        "and their hands are red.\n"
+        "- He will bless any traveler who asks, free of coin. He will "
+        "also accept coin, for the bowl is empty today."
+    ),
+    quest_hooks=[
+        "Offers a blessing of safe passage to anyone about to cross.",
+        "Seeks earnest souls to carry word of the Aurorym into the "
+        "Annwyn — the New Dawn needs more lamps.",
+        "Has heard a rumor that one of the Living Saints was reborn "
+        "inside Mystvale. Will share what he knows for a real "
+        "conversation, not mere curiosity.",
+    ],
+    scope="gateway",
+)
+
+# --- Juniper the Scribe — letter-writer at the Broken Oar -------------
+get_or_create_npc(
+    key="Juniper the Scribe",
+    location=gateway_tavern,
+    desc=(
+        "A small, mousy woman perched at a corner table by the Oar's "
+        "hearth, a battered writing-case open before her, quills and ink "
+        "arranged with military precision. Ink-stained fingers, spectacles "
+        "perched on her nose. A Cirque sigil embroidered on her cuff."
+    ),
+    personality=(
+        "Juniper, a Cirque-affiliated scribe-for-hire from the Midlands — "
+        "near Stag's Leap, by her own account, though she'll change the "
+        "story for a second cup. Quick-witted, nostalgic, terrified of "
+        "the Mists. Writes letters in a neat hand for those who cannot. "
+        "Overhears more than she admits. Drinks watered wine and nothing "
+        "stronger; 'a scribe's hand must not shake.' Soft spot for "
+        "homesickness in others."
+    ),
+    knowledge=(
+        "- Cirque caravan routes between Gateway, the Dusklands, and "
+        "Highcourt. Postal rates and timings.\n"
+        "- How to write a formal letter, a love letter, a threat, a "
+        "petition, a last will. She has done all of these.\n"
+        "- Gateway gossip from every drunk she's transcribed for — "
+        "three months deep.\n"
+        "- The Cirque Underwriter receives strange proposals at the "
+        "Broken Oar. She's the one who writes them up.\n"
+        "- She will not write forgeries. She WILL write fictions the "
+        "bearer is free to mistake for fact."
+    ),
+    quest_hooks=[
+        "Writes a letter for two silvers — love, petition, or plain news.",
+        "For five silvers, delivers said letter via Cirque post.",
+        "Knows someone recently paid a Mistwalker to carry a specific "
+        "sealed packet. She wrote the outside. She won't say who.",
+    ],
+    scope="gateway",
+)
+
+# --- Kriegsmann Volkan — Dusklander Mistguard at the Palisade ---------
+get_or_create_npc(
+    key="Kriegsmann Volkan",
+    location=mistguard_palisade,
+    desc=(
+        "A broad-shouldered soldier in Richter grey over Dusklander wool, "
+        "a black drake band on his off-shoulder for his seconded service "
+        "to the Bannons. Greying beard, missing two fingers on his left "
+        "hand, carries a heavy-bladed Dusklander kriegsmesser at his hip."
+    ),
+    personality=(
+        "Volkan, late fifties, a Varga-born Dusklander now serving out "
+        "his years with the Mistguard. Stoic, clipped Germanic speech. "
+        "Came up through Varga's household guard, followed silver west "
+        "when the Dusklands went quiet. Loyal to coin, then to comrades, "
+        "then to the Iron Tower. Dry humor that surfaces once he's sure "
+        "you won't waste his time. Calls everyone 'bearer' in mockery of "
+        "the Compact."
+    ),
+    knowledge=(
+        "- House Varga holdings in the Dusklands; Noctuary, Ember. The "
+        "Dusklander wars with the Northern Marches.\n"
+        "- Richter chain of command at Gateway — who reports to whom, "
+        "who drinks with whom, who takes silver on the side.\n"
+        "- Rumors that the Captain of the palisade has been letting "
+        "specific Writs through without Crane's mark. He has not "
+        "reported this upward. Yet.\n"
+        "- The kriegsmesser technique — the Dusklands school of the "
+        "long knife, which half the Mistguard can't parry."
+    ),
+    quest_hooks=[
+        "Looking for quiet work off the palisade rotation — pay in "
+        "silver, no questions.",
+        "Will teach a willing student the first three forms of the "
+        "kriegsmesser for a round of drinks and good manners.",
+        "Knows which Mistwalker has been paid to move a specific "
+        "crate. Will talk for the right reason.",
+    ],
+    scope="gateway",
+)
+
+# --- Serena of Scrow — Hearthlander refugee in Tent City ---------------
+get_or_create_npc(
+    key="Serena of Scrow",
+    location=gateway_tents,
+    desc=(
+        "A woman in her early thirties, dark-haired, Hearthlander by her "
+        "accent. Wears a patched chirurgeon's apron over travel clothes. "
+        "A worn satchel of herbs and rag-bandages at her hip. Her hands "
+        "are steady; her eyes are tired."
+    ),
+    personality=(
+        "Serena, once an apprentice chirurgeon in Scrow before border "
+        "fighting burned her quarter to the ground. Traveled west looking "
+        "for a place the fighting hadn't reached yet. Gentle, practical, "
+        "quietly angry. Not religious but respectful of the Aurorym's "
+        "better sort. Has helped deliver two babies in the tent city "
+        "this moon-cycle alone. Refuses payment for healing; accepts "
+        "food, cloth, and strong drink with grace."
+    ),
+    knowledge=(
+        "- Scrow, the Hearthlands, the border wars. What the retreating "
+        "Richter columns did to her neighborhood.\n"
+        "- Practical healing — bleeding, binding, basic herb-work. No "
+        "advanced chirurgery; 'I watched my master do that, I couldn't.'\n"
+        "- Who in Tent City is sick, who is pregnant, who is hiding "
+        "something worse than a cough.\n"
+        "- Rumor of a Mistwalker who sometimes takes the poor across "
+        "in exchange for a service on the other side. She is considering."
+    ),
+    quest_hooks=[
+        "Would trade healing work for a sponsor to fund her Writ.",
+        "Needs cloth, clean water, and silver for herbs — any coin "
+        "comes back as medicine for Tent City.",
+        "Asks if someone crossing might deliver word to a distant "
+        "cousin she believes made it to Mystvale. Mira, daughter of "
+        "Hanen the vintner. Her cousin, not her sister.",
+    ],
+    scope="gateway",
+)
+
+
+print("\n=== MYSTVALE NPCs ===")
+
+# --- Auron Maxan of the Dawn — senior Aurorym priest at the Chantry ---
+get_or_create_npc(
+    key="Auron Maxan",
+    location=chantry,
+    desc=(
+        "A stern, bearded man in his late fifties wearing the pale gold "
+        "vestments of a senior Auron. A sunburst pendant rests on his "
+        "chest, and a Book of Magnus lies open on a stone lectern before "
+        "him. His voice fills the Chantry without raising."
+    ),
+    personality=(
+        "Auron Maxan of the Dawn, senior Aurorym cleric in Mystvale. "
+        "Patient, unwavering, formal in speech. Addresses strangers as "
+        "'child' or 'bearer.' Has seen two Living Saints die in as many "
+        "years. Suspects something deeper is wrong with the rebirth "
+        "cycle than the faithful are willing to admit. Openly contemptuous "
+        "of the Godslayer movement; privately troubled by the Fayne."
+    ),
+    knowledge=(
+        "- The Aurorym hierarchy: Patriarchs, Matriarchs, Lectors, "
+        "Curates, Aurons, Kindling novices.\n"
+        "- Aurorym doctrine: Magnus, the Passage, the Living Saints, the "
+        "End of Days, the Dawn Vigils.\n"
+        "- The Mystvale Chantry: he lost his novice Casilda — no, that's "
+        "another matter. Two Kindling-rank children have gone missing "
+        "from the Chantry in the past moon-cycle.\n"
+        "- The Godslayer movement: armed Aurorym-flagged zealots funded "
+        "by House Hardinger. He does not trust them.\n"
+        "- The werewolf plague in Mystvale's outskirts. He has blessed "
+        "four hunting parties so far.\n"
+        "- He does NOT speak casually about Scáthach. Or Lirit. Or the "
+        "Tower of Menethil."
+    ),
+    quest_hooks=[
+        "Two Kindling novices are missing. He will bless (and pay) "
+        "searchers who bring them back — or word of what took them.",
+        "The Chantry needs consecrated oil from the Herbalist's Garden; "
+        "will trade doctrinal instruction for delivery.",
+        "If the player speaks of the Fayne with familiarity, he grows "
+        "very quiet and asks them to stay for tea.",
+    ],
+    scope="annwyn",
+)
+
+# --- Hemi Cirque-trader — stall at Mystvale Marketplace ---------------
+get_or_create_npc(
+    key="Hemi the Cirque",
+    location=marketplace,
+    desc=(
+        "A small-framed trader with copper bells braided into her hair, "
+        "eyes the color of cold iron. Cirque silks wrapped at her wrists, "
+        "a fox-fur collar against the Annwyn chill. Her stall is a "
+        "carnival of unlikely goods — dried herbs, foreign steel, papers "
+        "that smell faintly of rose."
+    ),
+    personality=(
+        "Hemi, senior stallkeeper of the Cirque's Mystvale branch and a "
+        "shameless trader. Cheerful, sly, drives a hard bargain with a "
+        "wide smile. Loyal to the Cirque and to profit in that order. "
+        "Speaks with the tilted music of the traveling caravans. Knows "
+        "everyone who passes through the Marketplace within three days "
+        "of arrival."
+    ),
+    knowledge=(
+        "- Mystvale Marketplace economics: who's buying, who's short, "
+        "what a fair silver buys.\n"
+        "- Cirque caravan timings between Mystvale and the Mistgate. "
+        "Next one leaves in three days, Mistwalker willing.\n"
+        "- Which local crafters are honest. Which sell 'Annwyn steel' "
+        "that is in fact Richter seconds.\n"
+        "- Has heard the werewolves moved through the woods east of "
+        "town last tenday. She sells silver shot now.\n"
+        "- If asked about the Underwriter, she smiles and changes the "
+        "subject. Politely."
+    ),
+    quest_hooks=[
+        "Will hire a discreet courier for a specific Cirque delivery.",
+        "Knows someone who wants a particular herb from the Herbalist's "
+        "Garden and will pay double the market rate.",
+        "Can introduce you to a Cirque dealer in 'quieter' goods if "
+        "you've shown the right manners.",
+    ],
+    scope="annwyn",
+)
+
+# --- Clerk Yevan — Burgomaster's clerk at the Town Hall ----------------
+get_or_create_npc(
+    key="Clerk Yevan",
+    location=town_hall,
+    desc=(
+        "A harried man in his mid-thirties in inky clerk's robes, bent "
+        "over a ledger at a scarred oak desk. Spectacles pushed up on his "
+        "forehead, reserve pair on a chain. Stacks of parchments flanked "
+        "by wax seals in three colors. Smells of ink and borrowed tea."
+    ),
+    personality=(
+        "Yevan, chief clerk of the Mystvale Town Hall under the "
+        "Burgomaster. Bookish, precise, flustered-in-a-charming-way, "
+        "perpetually behind. Believes documents should be in three places "
+        "at once, which is why he stacks them. Loyal to the Burgomaster "
+        "and to proper paperwork. Will not gossip; will 'share context.'"
+    ),
+    knowledge=(
+        "- Mystvale's civil rolls: who lives where, who owes whom in "
+        "rent, who is a freeholder, who is under Laurent protection.\n"
+        "- Tax receipts, trade permits, Cirque permissions, Aurorym "
+        "exemptions, guild dues.\n"
+        "- The Burgomaster's schedule for the next week. Which rarely "
+        "survives contact with the morning.\n"
+        "- A Richter emissary visited town hall eight days ago and "
+        "demanded a copy of the town register. The Burgomaster refused. "
+        "Yevan thinks about this often.\n"
+        "- He will write witnessed documents for a fee (to the town "
+        "coffer, always) — testimonies, oaths, warrants."
+    ),
+    quest_hooks=[
+        "Needs a runner to carry sealed writ copies to Stag Hall; two "
+        "silvers and a formal gratitude.",
+        "Will witness any document for ten silver — to the coffer, "
+        "not his purse.",
+        "Is quietly trying to figure out who asked for the town "
+        "register. Would reward a discreet investigator.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== IRONHAVEN NPCs ===")
+
+# --- Ser Hartwig Richter — minor Richter knight at Hardinger's Hall ---
+get_or_create_npc(
+    key="Ser Hartwig Richter",
+    location=hardinger_hall,
+    desc=(
+        "A tall, iron-haired knight in the grey of House Richter, the "
+        "iron tower sigil worked into the chest of his surcoat. Scarred "
+        "across the brow, hands broad and callused. Addresses servants "
+        "by name. Watches every visitor like a sentry."
+    ),
+    personality=(
+        "Ser Hartwig Richter, third son of a minor Richter line, sworn "
+        "to Lord Wilhelm Hardinger's hall. Stern, blunt, Germanic-formal. "
+        "Loyal to the Iron Tower above all. Quietly convinced Hardinger "
+        "is the wrong man for Ironhaven's command — the Godslayer "
+        "funding has made Hardinger look corrupt, and a Richter should "
+        "not look corrupt. Has no patience for flattery and none at all "
+        "for fools."
+    ),
+    knowledge=(
+        "- House Richter politics: the senior Deephold line, the "
+        "Hardinger cadet branch, the cousins at Gateway. The iron tower "
+        "on grey.\n"
+        "- Ironhaven's mining operations, garrison strength, coastal "
+        "defense against Aragon ships.\n"
+        "- The Godslayer movement: Hardinger is one of its primary "
+        "funders. Ser Hartwig does not approve but does not say so "
+        "aloud in the Hall.\n"
+        "- Gateway has fallen firmly to Richter control; Corveaux and "
+        "Innis have been pushed out.\n"
+        "- He will not discuss the Aragon ships. There is a reason he "
+        "will not discuss them."
+    ),
+    quest_hooks=[
+        "Needs a competent sword-arm for a 'matter off the ledger.' "
+        "Pay in silver, done quiet.",
+        "Will grant an audience with Lord Hardinger for the right "
+        "introduction.",
+        "If pressed about the Aragon ships: will take you to the "
+        "coastal watchtower. Quietly. At dusk.",
+    ],
+    scope="annwyn",
+)
+
+# --- Gerta Ironblood — smith's apprentice at Ironhaven Forge -----------
+get_or_create_npc(
+    key="Gerta Ironblood",
+    location=ironhaven_forge,
+    desc=(
+        "A soot-smeared young woman in a leather apron, sleeves rolled, "
+        "arms corded from a decade at the bellows. Squints from years at "
+        "the forge's heat. A steel amulet in the shape of a hammer hangs "
+        "at her throat."
+    ),
+    personality=(
+        "Gerta, daughter of Gaelo the smith, apprentice smith herself "
+        "though she'd be a master in Mystvale if the Richter gave a "
+        "woman the papers. Dry, wry, a reader in secret — letters, not "
+        "hymns. Loyal to her father, skeptical of Hardinger, friendly to "
+        "anyone who treats smiths like craftsmen instead of servants."
+    ),
+    knowledge=(
+        "- Metallurgy: Richter steel, Cirque-imported blue iron, "
+        "Laurent bronze. What can be alloyed, what can be forged.\n"
+        "- Who at the Ironhaven Forge is making what — including one "
+        "commissioned piece that came with silver shot in the price. "
+        "Someone's hunting werewolves.\n"
+        "- The forge's bell — three strikes at midnight means ships in "
+        "the bay. It rang four nights ago.\n"
+        "- She reads. She will not say what. Please do not tell the "
+        "Aurorym."
+    ),
+    quest_hooks=[
+        "Needs specific ore — a pouch of moonstone chips from the "
+        "Tamris barrows — and will pay a quiet commission for it.",
+        "Knows who bought the silver-shot commission. Will trade the "
+        "name for a favor off the books.",
+        "Offers a small knife of her own make to anyone who proves "
+        "steady hands on the bellows for an hour.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== ARCTON NPCs ===")
+
+# --- Ser Dormund Corveaux — courtier-knight at Lady Ella's Solar ------
+get_or_create_npc(
+    key="Ser Dormund Corveaux",
+    location=arcton_pavilion,
+    desc=(
+        "A slender, elegant knight in Corveaux sky-blue, the grey falcon "
+        "embroidered at his shoulder. Silver ring in each ear, black hair "
+        "swept back. A rapier at his hip rather than a sword. Smiles with "
+        "his mouth but not his eyes."
+    ),
+    personality=(
+        "Ser Dormund Corveaux, a cadet of the Corveaux main line, "
+        "courtier-knight in the service of Lady Ella Falconer. Elegant, "
+        "French-inflected, polished. Prefers the rapier and the witty "
+        "exchange. Loyal to his lady, suspicious of House Innis, "
+        "contemptuous of the Godslayer movement, and quietly in love "
+        "with a woman he will not name. Calls common folk 'friend' "
+        "without condescension and nobles 'my lord' with calculated "
+        "degrees of warmth."
+    ),
+    knowledge=(
+        "- House Corveaux politics: the fall of Skywatch, the rise of "
+        "Arcton, the grey falcon. The main line vs the cadet branches.\n"
+        "- Gateway fell to Richter. Corveaux was driven out but maintains "
+        "a shadow presence via the Cirque.\n"
+        "- Lady Ella's agenda: hold Arcton, reopen Skywatch trade, find "
+        "out what Moonfall is actually doing.\n"
+        "- Suspects House Innis is behind the Crow raids on Laurent "
+        "caravans. No proof.\n"
+        "- He will not discuss House Aragon with strangers."
+    ),
+    quest_hooks=[
+        "Carries a sealed letter from Lady Ella that must reach a "
+        "specific Cirque contact at Gateway. Pay is good.",
+        "Will teach the first lessons of the Corveaux fencing school "
+        "for a genuine conversation on houses.",
+        "Is desperately trying to establish whether a particular "
+        "courier is in Aragon's pocket. Would value a second pair of "
+        "discreet eyes.",
+    ],
+    scope="annwyn",
+)
+
+# --- Marta Falconer — falconress at Lady Ella's Solar ------------------
+get_or_create_npc(
+    key="Marta Falconer",
+    location=arcton_pavilion,
+    desc=(
+        "A weathered woman in her fifties in Falconer grey, a heavy "
+        "leather gauntlet on her left forearm, a small grey falcon "
+        "perched on it. Spare, quiet, watches everyone the way her "
+        "falcon watches the sky."
+    ),
+    personality=(
+        "Marta of House Falconer (the Corveaux cadet), master falconress "
+        "of Lady Ella's mews. Taciturn, observant, talks more to her "
+        "birds than to people. Has served the Falconer line since Ella "
+        "was a child. Loyal as stone. Will answer direct questions with "
+        "direct answers; offers nothing freely."
+    ),
+    knowledge=(
+        "- The grey falcons: Falconer bloodline, trained for war and "
+        "messenger work. Three are currently missing — 'lost' to whom "
+        "she will not say.\n"
+        "- Arcton's mews and the coastal cliff-aeries. Which birds "
+        "carry which seals.\n"
+        "- She notices who visits Lady Ella and when. She does not "
+        "report this lightly.\n"
+        "- Her best hunting falcon, Branwen, has not returned from a "
+        "morning flight. That was four days ago."
+    ),
+    quest_hooks=[
+        "Will pay in Falconer silver for the return of Branwen the "
+        "falcon. Alive preferred; feathers acceptable.",
+        "Can dispatch a message-bird anywhere in the Annwyn for the "
+        "right coin — but the seal will be Corveaux, and the message "
+        "will be known to Lady Ella.",
+        "Suspects one of the missing falcons was taken, not lost. "
+        "She is building a list.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== MOONFALL NPC ===")
+
+# --- Heron Aragon — watchman at the Moonfall outpost -------------------
+get_or_create_npc(
+    key="Heron Aragon",
+    location=moonfall,
+    desc=(
+        "A thin, austere man in Aragon deep blue, a crescent-moon sigil "
+        "at his collar. Hair silver though he cannot be past forty. He "
+        "stands very still. The wind off the cliff moves around him, not "
+        "through him."
+    ),
+    personality=(
+        "Heron Aragon, a lesser son of the main Aragon line, posted to "
+        "Moonfall as a watchman. Speaks rarely. When he does, his "
+        "sentences are often unfinished. Considered strange even among "
+        "Aragon. Iberian-cadenced speech, hushed. Does not invite "
+        "familiarity. Will offer tea in a silver cup to any traveler "
+        "who reaches the outpost alive. Will not explain why."
+    ),
+    knowledge=(
+        "- House Aragon politics: the main line, the cadet branches, "
+        "the ascension of Lyra Aragon. The crescent moon on deep blue.\n"
+        "- Moonfall is hidden for a reason. He will not name the reason.\n"
+        "- The standing stones surrounding the outpost are older than "
+        "the Annwyn. They hum at certain moons.\n"
+        "- House Oban's recent aggressions. Aragon is not directly "
+        "involved — he is very clear about this — but Aragon is not "
+        "uninformed.\n"
+        "- He has a letter. It must never reach the interior of "
+        "Moonfall. Do not ask him why."
+    ),
+    quest_hooks=[
+        "Offers the tea. Those who accept are counted. He does not "
+        "explain what they are counted for.",
+        "Will pay a great deal to have a sealed letter delivered to "
+        "Gateway — NOT to the Moonfall interior, on pain of the bearer's "
+        "life.",
+        "Knows something about the Oban incursion at Carran that "
+        "the Laurents do not know.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== HARROWGATE NPC ===")
+
+# --- Tova of the Get — Coldhill berserker at the Hall of Bears ---------
+get_or_create_npc(
+    key="Tova of the Get",
+    location=harrowgate,
+    desc=(
+        "A tall, pale-eyed woman wrapped in furs, a bear-skull pauldron "
+        "on her shoulder, a two-handed axe across her back. Her hair is "
+        "the color of winter wheat, braided with bear teeth. Scars down "
+        "both forearms in deliberate parallel lines."
+    ),
+    personality=(
+        "Tova, sworn of the Get of Ursin, Lady Thora Coldhill's "
+        "berserker retinue. Taciturn, cold-eyed, smells faintly of "
+        "bear-grease and woodsmoke. Norse-cadenced speech when she uses "
+        "it. Respects a strong hand and a straight word; has no patience "
+        "for clever tongues. Loyal to the Get, the Hall, and the Bear "
+        "— in that order."
+    ),
+    knowledge=(
+        "- The Get of Ursin: Coldhill berserker cult, sworn to the "
+        "bear-spirit. Ritual scarring, communal rites.\n"
+        "- Lady Thora Coldhill, mistress of Harrowgate. The Hale "
+        "bloodline, far-north Norse register.\n"
+        "- The Great Bears of the northern woods. One is dying. The "
+        "Get have not yet decided what to do.\n"
+        "- Werewolves have been seen in the southern forests. These "
+        "are not the same as her bears and she is quietly insulted "
+        "that anyone confuses them.\n"
+        "- She knows three oaths. She will recite none of them to "
+        "strangers."
+    ),
+    quest_hooks=[
+        "Will wrestle any challenger for a test of worth. Winning "
+        "earns a Get-token; losing earns bruises.",
+        "The dying Great Bear needs a successor cub tracked and "
+        "brought back. Dangerous work. Pays in Hale silver and "
+        "standing with the Get.",
+        "Would carry word south to Mystvale for a traveler going her "
+        "way, if their oath rings true.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== CARRAN NPC ===")
+
+# --- Ser Ewan Bannon — Bannon lieutenant at the barracks ---------------
+get_or_create_npc(
+    key="Ser Ewan Bannon",
+    location=bannon_barracks,
+    desc=(
+        "A broad-shouldered knight in Bannon black, the drake sigil on "
+        "his chest, short-cropped hair going silver at the temples. "
+        "Carries a training blunt rather than a live blade — he's just "
+        "come off the drill yard. Commanding voice, used sparingly."
+    ),
+    personality=(
+        "Ser Ewan Bannon, lieutenant to Arch Magistrat Symon Bannon of "
+        "the Carran garrison. Disciplined, decent, exhausted. Treats his "
+        "drillmasters well, his knights fairly, and his magistrat "
+        "honestly. Takes his oath to the crown seriously — even now, "
+        "with the crown murdered. Has a three-year-old daughter he has "
+        "not seen in a season. Speaks plainly; Celtic-Welsh cadence."
+    ),
+    knowledge=(
+        "- The Bannon garrison at Carran: three score knights, two "
+        "score men-at-arms, archers from the royal levy.\n"
+        "- Arch Magistrat Symon Bannon drills the knights himself. "
+        "Ewan handles the men-at-arms.\n"
+        "- Crow raids on Laurent caravans: increasing in frequency, "
+        "and there are patterns that suggest inside knowledge.\n"
+        "- The succession crisis back home after King Giles's murder. "
+        "The Bannons are split three ways. He tries not to discuss it.\n"
+        "- Laurent-Bannon tensions: subtle. Both houses hold Carran, "
+        "both want it to themselves. Ewan navigates this daily."
+    ),
+    quest_hooks=[
+        "Recruiting hunters to track Crow raiders — silver per head, "
+        "proofs returned.",
+        "Needs a message carried to his family in the Sovereignlands. "
+        "Wax-sealed, heartfelt, priority one.",
+        "If the player shows knowledge of the Crows' inner circles, "
+        "Ewan will pay for ALL of it, and protect the source.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== GOLDLEAF NPC ===")
+
+# --- Keena Innis — healer-scout at the Innis encampment ---------------
+get_or_create_npc(
+    key="Keena Innis",
+    location=goldleaf,
+    desc=(
+        "A wiry, freckled woman in a leaf-green Innis cloak, her braid "
+        "coming loose from a long walk. A bow across her back, a "
+        "herbalist's pouch at her hip, dirt under her nails. Her smile "
+        "is sharp, her eyes are sharper."
+    ),
+    personality=(
+        "Keena Innis, scout and healer of the Goldleaf encampment. Irish-"
+        "Celtic lilt. Sharp-tongued, herbal-handed, doesn't suffer fools "
+        "for so much as a heartbeat. Loyal to Innis blood above all. "
+        "Dislikes the Aurorym. Dislikes the Richter more. Has good humor "
+        "once you've proved you have teeth. Is watching you now."
+    ),
+    knowledge=(
+        "- House Innis politics: the main line, the hidden settlements, "
+        "the reasons for hiding. The Crow connection, which she will "
+        "neither confirm nor deny.\n"
+        "- Scout routes through the Annwyn that the Richter have not "
+        "mapped and will not.\n"
+        "- Healing herbs of the Annwyn — including three varieties that "
+        "do not exist in Arnesse and are very, very useful.\n"
+        "- The Innis are not fond of the Aurorym. Not one bit. Ask "
+        "about the Godslayers for a stream of quiet, poetic fury.\n"
+        "- She will not speak a word of Branwen Innish in Gateway to "
+        "strangers. Possibly not even to friends."
+    ),
+    quest_hooks=[
+        "Will brew a salve for any wound, in exchange for a favor — "
+        "never coin.",
+        "Knows paths through the forest to Mystvale, Arcton, and "
+        "Tamris that halve the travel time. Will show one, for the "
+        "right kind of word.",
+        "If the player invokes House Innis or the Northern Marches "
+        "with real knowledge, Keena's whole posture changes. Good or "
+        "bad? Depends on the knowledge.",
+    ],
+    scope="annwyn",
+)
+
+
+print("\n=== EXTENDED NPC ROSTER COMPLETE ===")
+
+
 # Hand Old Mae a letter to carry. This is a tiny prop so the hook works:
 _mae = ObjectDB.objects.filter(db_key="Old Mae").first()
 if _mae:
