@@ -2475,6 +2475,173 @@ qm.attributes.add("ai_scope", "gateway")
 
 
 # ===========================================================================
+# SPECIALIST MERCHANTS IN MYSTVALE — contextual to their craft. Each
+# one stocks prototype keys relevant to their discipline, filtered
+# from prototypes.py by craft_source.
+# ===========================================================================
+print("\n=== MYSTVALE SPECIALIST MERCHANTS ===")
+
+
+def get_or_create_merchant(key, location, desc, inventory, shop_text,
+                           ai_personality, ai_knowledge, ai_quest_hooks,
+                           ai_scope="annwyn", aliases=()):
+    """Create or refresh a Merchant NPC with AI-driven dialogue."""
+    existing = ObjectDB.objects.filter(
+        db_key=key, db_location=location.pk,
+        db_typeclass_path="typeclasses.objects.Merchant",
+    ).first()
+    if existing:
+        m = existing
+        print(f"  EXISTS  : {key} (in {location.key})")
+    else:
+        m = _create.create_object(
+            "typeclasses.objects.Merchant", key=key, location=location,
+        )
+        print(f"  CREATED : {key} → {location.key}")
+    m.db.desc = desc
+    m.db.shop_inventory = list(inventory)
+    m.db.shop_text = shop_text
+    m.attributes.add("ai_personality", ai_personality)
+    m.attributes.add("ai_knowledge", ai_knowledge)
+    m.attributes.add("ai_quest_hooks", list(ai_quest_hooks))
+    m.attributes.add("ai_scope", ai_scope)
+    for alias in aliases:
+        m.aliases.add(alias)
+    return m
+
+
+# --- Ser Brand Ironhand — blacksmith at Mystvale Crafter's Quarter -----
+get_or_create_merchant(
+    key="Ser Brand Ironhand",
+    location=crafter_quarter,
+    desc=(
+        "A heavy-set blacksmith in soot-blackened leathers, arms like "
+        "ship-cables, a hammer tucked through his belt and a ledger "
+        "tucked under his arm. Coals glow red-orange behind him in the "
+        "forge. A rack of finished weapons gleams under oiled rags, "
+        "priced in neat chalk on a slate."
+    ),
+    inventory=[
+        # Level 0 — starter iron
+        "IRON_SMALL_WEAPON",
+        "IRON_MEDIUM_WEAPON",
+        "IRON_LARGE_WEAPON",
+        "IRON_SHIELD",
+        "LEATHER_ARMOR",
+        "IRON_CHAIN_SHIRT",
+        "IRON_COAT_OF_PLATES",
+        "IRON_PLATEMAIL",
+        # Level I — hardened iron
+        "HARDENED_IRON_SMALL_WEAPON",
+        "HARDENED_IRON_MEDIUM_WEAPON",
+        "HARDENED_IRON_SHIELD",
+        "HARDENED_LEATHER_ARMOR",
+        "PATCH_KIT",
+    ],
+    shop_text=(
+        "|430Browse|n the racks; |430buy|n what you'll take into the Annwyn; "
+        "|430sell|n broken gear for what it's worth in scrap."
+    ),
+    ai_personality=(
+        "Ser Brand Ironhand, master blacksmith of Mystvale's Crafter's "
+        "Quarter. Broad-shouldered, gruff, honest. Hearthlander accent. "
+        "Knighted in his youth for battlefield repairs; he still wears "
+        "the ser out of pride. Will quote the Eldritch smith-song before "
+        "a hammer-stroke. Respects a customer who knows their steel; "
+        "loses patience with anyone who asks for 'a sword, a nice one.'"
+    ),
+    ai_knowledge=(
+        "- He works blacksmith-line gear: iron and hardened iron weapons "
+        "(small, medium, large), iron shields, and iron-through-plate "
+        "armor. Steel tier is available by commission only (takes a "
+        "tenday).\n"
+        "- Prices are set by the Compact ledger — no haggling, but "
+        "honest prices. Armor repair is included if it breaks while "
+        "the buyer holds warranty.\n"
+        "- Patch Kits temporarily restore armor material value — every "
+        "new bearer should carry one.\n"
+        "- Iron shield breaks on the first Sunder. Hardened iron takes "
+        "two. Steel takes three. Plan accordingly.\n"
+        "- Will not sell Legacy-tier gear. Those are schematic work, "
+        "and the schematic-holder names the price."
+    ),
+    ai_quest_hooks=[
+        "Will commission a specific steel weapon for a buyer — delivery "
+        "in a tenday, price set in advance.",
+        "Needs a trusted courier to fetch a barrel of Richter-quality "
+        "iron ingots from Ironhaven — pays well.",
+        "Knows which Ironhaven smiths are passing off seconds as first-"
+        "line. Would reward proof.",
+    ],
+    aliases=("brand", "blacksmith", "smith", "ironhand"),
+)
+
+
+# --- Mistress Cael the Artificer — kits and clothing at Marketplace ---
+get_or_create_merchant(
+    key="Mistress Cael the Artificer",
+    location=marketplace,
+    desc=(
+        "A precise, middle-aged woman at a wooden stall beneath an "
+        "oiled-linen awning. Her hair is tied up with brass pins; her "
+        "long fingers work calmly at a set of brass dividers while she "
+        "watches the crowd. A tray of kits — apothecary, artificer, "
+        "bowyer, chirurgeon's — sits under a glass cover."
+    ),
+    inventory=[
+        # Artificer Level I — kits and clothing
+        "ARTIFICER_KIT",
+        "APOTHECARY_KIT",
+        "BLACKSMITH_KIT",
+        "BOWYER_KIT",
+        "GUNSMITH_KIT",
+        "AURON_KIT",
+        "CHIRURGEON_KIT",
+        "LIGHT_BOOTS",
+        "STALWART_BOOTS",
+        "FINE_CLOTHING",
+        "HIGHWAYMAN_CLOAK",
+        "DUELIST_GLOVES",
+    ],
+    shop_text=(
+        "|430Browse|n her kits and garments; |430buy|n what fits the life "
+        "you mean to lead; |430sell|n her anything Compact-stamped."
+    ),
+    ai_personality=(
+        "Mistress Cael, master artificer of the Cirque's Mystvale branch. "
+        "Midlands-born, trained in Highcourt before the Day of Mist. "
+        "Speaks in measured clauses, precise as her instruments. Charges "
+        "fair but will not bargain — 'my work is worth what my work is "
+        "worth, bearer.' Warm underneath if you show you understand "
+        "craftsmanship."
+    ),
+    ai_knowledge=(
+        "- She stocks Level I artificer goods: kits for every crafting "
+        "discipline (apothecary, artificer, blacksmith, bowyer, gunsmith, "
+        "auron, chirurgeon), and tier-I clothing/boots/cloaks/gloves.\n"
+        "- Kits are PREREQUISITES — a blacksmith without a Blacksmith "
+        "Kit cannot forge; an apothecary without an Apothecary Kit "
+        "cannot brew. Each kit is good for 10 uses.\n"
+        "- Clothing confers passive benefits at check-in — Highwayman's "
+        "Cloak grants Espionage; Fine Clothing grants silver; Noble's "
+        "Garb grants Influence. A character can only benefit from one "
+        "type at a time.\n"
+        "- Boots: Light Boots resist Stagger/Stun. Stalwart Boots resist "
+        "Cleave. One pair per bearer.\n"
+        "- Duelist's Gloves give a Resist against Disarm or Sunder."
+    ),
+    ai_quest_hooks=[
+        "Will commission a specific kit for a buyer if stock runs low.",
+        "Is quietly looking for an apprentice; patient enough to teach "
+        "a promising artificer.",
+        "Heard that a legacy cloak has surfaced in the Back Alley. "
+        "Would pay to know the truth of it.",
+    ],
+    aliases=("cael", "artificer", "mistress"),
+)
+
+
+# ===========================================================================
 # TRAVELER'S PRIMER — in-world tutorial book placed at the Broken Oar.
 # Explains the essential commands new arrivals need to practice before
 # they cross. Players can `look primer` or `look book` to read it.

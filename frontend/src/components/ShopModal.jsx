@@ -3,15 +3,38 @@ import './ShopModal.css'
 
 function BuyCard({ item, onBuy, playerSilver, buying }) {
   const canAfford = playerSilver >= item.price
+  // Pretty-format the level: 0 becomes "—", 1/2/3 become I/II/III.
+  const levelStr = (() => {
+    const n = Number(item.level)
+    if (!n) return null
+    return ['I', 'II', 'III', 'IV'][n - 1] || String(n)
+  })()
+  const materials = item.materials || {}
+  const matPips = [
+    materials.iron && `${materials.iron} iron`,
+    materials.cloth && `${materials.cloth} cloth`,
+    materials.wood && `${materials.wood} wood`,
+    materials.leather && `${materials.leather} leather`,
+  ].filter(Boolean)
+
   return (
     <div className={`shop-item-card ${canAfford ? '' : 'cant-afford'}`}>
       <div className="shop-item-info">
-        <span className="shop-item-name">{item.name}</span>
+        <div className="shop-item-header-row">
+          <span className="shop-item-name">{item.name}</span>
+          {levelStr && <span className="shop-item-level">Lvl {levelStr}</span>}
+          {item.type && <span className="shop-item-type-tag">{item.type}</span>}
+        </div>
+        {item.effect && <span className="shop-item-effect">{item.effect}</span>}
         {item.desc && <span className="shop-item-desc">{item.desc}</span>}
         <div className="shop-item-stats">
-          {item.damage > 0 && <span className="shop-stat">DMG {item.damage}</span>}
-          {item.materialValue > 0 && <span className="shop-stat">AV +{item.materialValue}</span>}
-          {item.type && <span className="shop-stat">{item.type}</span>}
+          {item.damage > 0 && <span className="shop-stat dmg">DMG {item.damage}</span>}
+          {item.materialValue > 0 && <span className="shop-stat av">AV +{item.materialValue}</span>}
+          {matPips.length > 0 && (
+            <span className="shop-stat materials" title="Material composition">
+              {matPips.join(' · ')}
+            </span>
+          )}
         </div>
       </div>
       <div className="shop-item-price">
