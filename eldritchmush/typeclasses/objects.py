@@ -12,6 +12,7 @@ inheritance.
 """
 from evennia import DefaultObject, utils
 from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet, CrafterCmdSet, ApothecaryWorkbenchCmdSet, ShopCmdSet
+from typeclasses.npc import Npc
 import random
 
 
@@ -560,34 +561,48 @@ class ApothecaryWorkbench(DefaultObject):
 Shop / Merchant Objects
 """
 
-class Merchant(DefaultObject):
+class Merchant(Npc):
     """
-    A merchant NPC-like object that sells items to players.
+    A merchant NPC that sells items to players.
+
+    Inherits from typeclasses.npc.Npc (which extends Character) so the
+    merchant shows up in a room's Characters list (not the You See list)
+    and is naturally talkable via `ask <merchant> <message>` when an
+    `ai_personality` attribute is set. Combat is disabled by default —
+    merchants are peaceful fixtures.
 
     Set up the merchant's inventory by assigning a list of prototype keys:
       merchant.db.shop_inventory = ["IRON_MEDIUM_WEAPON", "IRON_SMALL_WEAPON", ...]
 
     Players interact via the browse, buy, and sell commands which become
-    available in any room that contains a Merchant object.
+    available in any room that contains a Merchant.
 
     Admin setup example:
-      @create General Merchant:typeclasses.objects.Merchant
-      @set General Merchant/shop_inventory = ["IRON_MEDIUM_WEAPON", "IRON_SMALL_WEAPON"]
+      @create/drop Hegga:typeclasses.objects.Merchant
+      @set Hegga/shop_inventory = ["IRON_MEDIUM_WEAPON", "IRON_SMALL_WEAPON"]
     """
 
     def at_object_creation(self):
-        self.locks.add("get:false()")
-        self.db.shop_inventory = []   # list of prototype keys this merchant sells
-        self.db.desc = (
-            "\nA merchant stands here, goods arrayed before them. "
-            "They eye you with professional interest."
+        super().at_object_creation()
+        # Pacify the merchant — they're a fixture, not a combatant.
+        self.db.is_aggressive = False
+        self.db.peaceful = True
+        # Shop state.
+        self.db.shop_inventory = []
+        self.db.shop_text = (
+            "|430Browse their wares with: browse <merchant name>|n"
         )
-        self.db.shop_text = "|430Browse their wares with: browse <merchant name>|n"
+        # Lock down: no picking up, no puppeting, no combat targeting.
+        self.locks.add(
+            "get:false();puppet:false();attack:false()"
+        )
         self.cmdset.add_default(ShopCmdSet, permanent=True)
 
-    def return_appearance(self, looker):
-        string = super().return_appearance(looker)
-        string += f"\n\n{self.db.shop_text}"
+    def return_appearance(self, looker, **kwargs):
+        # Character.return_appearance accepts **kwargs in Evennia 5.x.
+        string = super().return_appearance(looker, **kwargs)
+        if string:
+            string = f"{string}\n\n{self.db.shop_text or ''}"
         return string
 
 
