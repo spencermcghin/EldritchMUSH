@@ -428,7 +428,9 @@ STEEL_SMALL_WEAPON = {
 "material_value": 3,
 "required_skill": "melee_weapons",
 "level": 2,
-"damage": 1
+"damage": 1,
+# Per Schematics CSV: "Gain +1 Stun per day."
+"equip_bonus": {"stun": 1},
 }
 
 STEEL_MEDIUM_WEAPON = {
@@ -447,7 +449,9 @@ STEEL_MEDIUM_WEAPON = {
 "material_value": 3,
 "required_skill": "melee_weapons",
 "level": 2,
-"damage": 1
+"damage": 1,
+# Per Schematics CSV: "Gain +1 Disarm per day."
+"equip_bonus": {"disarm": 1},
 }
 
 STEEL_LARGE_WEAPON = {
@@ -467,7 +471,9 @@ STEEL_LARGE_WEAPON = {
 "required_skill": "melee_weapons",
 "level": 2,
 "damage": 2,
-"twohanded": True
+"twohanded": True,
+# Per Schematics CSV: "Gain +1 Sunder per day."
+"equip_bonus": {"sunder": 1},
 }
 
 STEEL_SHIELD = {
@@ -486,7 +492,9 @@ STEEL_SHIELD = {
 "value_gold": 2.3,
 "material_value": 3,
 "required_skill": "shields",
-"level": 2
+"level": 2,
+# Per Schematics CSV: "Grants +1 Stagger with a shield per day."
+"equip_bonus": {"stagger": 1},
 }
 
 STEEL_CHAIN_SHIRT = {
@@ -1265,7 +1273,9 @@ MASTERWORK_BOW = {
 "required_skill": "archer",
 "level": 3,
 "is_bow": True,
-"twohanded": True
+"twohanded": True,
+# Per Schematics CSV: "Gain +2 Tough per day. Gain +1 Resist per day."
+"equip_bonus": {"tough": 2, "resist": 1},
 }
 
 """
@@ -1791,6 +1801,8 @@ LONGBOW = {
 "required_skill": "archer",
 "level": 2,
 "is_bow": True,
+# Per Schematics CSV: "Gain +1 Tough per day."
+"equip_bonus": {"tough": 1},
 }
 
 # =====================================================================
