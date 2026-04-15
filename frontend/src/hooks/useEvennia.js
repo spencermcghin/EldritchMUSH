@@ -254,6 +254,7 @@ export function useEvennia() {
               name: npc.name,
               dbref: npc.dbref,
               isTavylDealer: !!npc.isTavylDealer,
+              tavylStake: Number(npc.tavylStake) || 1,
               isMerchant: !!npc.isMerchant,
               hasAi: !!npc.hasAi,
               topics: Array.isArray(npc.topics) ? npc.topics : [],

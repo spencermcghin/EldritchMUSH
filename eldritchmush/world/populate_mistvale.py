@@ -1094,12 +1094,19 @@ print("\n=== GATEWAY NPCs ===")
 
 
 def get_or_create_npc(key, location, desc, personality, knowledge,
-                      quest_hooks, scope="gateway"):
+                      quest_hooks, scope="gateway", topics=None):
     """Create or refresh an AI-driven NPC at a fixed location.
 
     `scope` controls how much lore the LLM sees in this NPC's system
     prompt. "gateway" = Arnesse-side, rumor-level Annwyn knowledge only.
     "annwyn" = firsthand Annwyn interior knowledge. See world/ai_lore.py.
+
+    `topics` is an optional list of short player-facing chip labels
+    (2-4 words each). When provided, these are used verbatim both as
+    the inspect-panel topic chips and as the argument to `ask <npc>
+    <topic>`. When omitted, the server heuristically shortens each
+    quest hook — which often produces awkward labels, so prefer
+    explicit topics for any NPC players are likely to click.
     """
     existing = ObjectDB.objects.filter(
         db_key=key, db_location=location.pk,
@@ -1121,6 +1128,12 @@ def get_or_create_npc(key, location, desc, personality, knowledge,
     npc.attributes.add("ai_knowledge", knowledge)
     npc.attributes.add("ai_quest_hooks", quest_hooks)
     npc.attributes.add("ai_scope", scope)
+    if topics:
+        npc.attributes.add("ai_quest_topics", list(topics))
+    else:
+        # Clear any stale explicit topics so we fall back to the
+        # heuristic for NPCs that used to have them.
+        npc.attributes.remove("ai_quest_topics")
     # Block picking them up; they are fixtures.
     npc.locks.add("get:false();puppet:false()")
     return npc
@@ -1617,6 +1630,7 @@ get_or_create_npc(
         "Has a standing offer for an honest courier — carry a "
         "sealed packet of winnings back to her sister in Scrow.",
     ],
+    topics=["gossip", "rigged cards", "her sister"],
     scope="gateway",
 )
 

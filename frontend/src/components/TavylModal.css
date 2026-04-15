@@ -66,6 +66,26 @@
   border-color: var(--blood-bright);
   color: var(--blood-bright);
 }
+.tavyl-rules-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.tavyl-rules-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.tavyl-howto-inline {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(212, 175, 55, 0.04);
+}
 
 /* Empty state */
 .tavyl-empty {

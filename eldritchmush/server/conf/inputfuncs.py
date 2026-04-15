@@ -12,6 +12,59 @@ Railway's broken log capture.
 """
 from evennia.server.inputfuncs import text as _stock_text
 
+import re as _re
+
+_TOPIC_PREFIXES = (
+    "if pressed about ",
+    "if asked about ",
+    "if the player admits to ",
+    "if the player seems ",
+    "if the player has a ",
+    "if the player has ",
+    "if the player ",
+    "has heard ",
+    "will ",
+    "can ",
+    "may ",
+)
+
+
+def _shorten_topic(hook):
+    """Boil a full AI-instruction hook down to a 2-4 word topic label
+    suitable for both the chip and `ask <npc> <topic>`.
+
+    Returns "" when the hook doesn't shorten to anything useful.
+    """
+    s = (str(hook) or "").strip()
+    if not s:
+        return ""
+    low = s.lower()
+    # Strip leading boilerplate instruction prefixes
+    for pre in _TOPIC_PREFIXES:
+        if low.startswith(pre):
+            s = s[len(pre):]
+            low = s.lower()
+            break
+    # If the hook contains "about X", pull X as the topic
+    m = _re.search(r"\babout ([^,.;:]+)", s, _re.IGNORECASE)
+    if m:
+        s = m.group(1).strip()
+    # Drop everything after first comma/period/semicolon
+    s = _re.split(r"[.,;:]", s, 1)[0].strip()
+    # Collapse whitespace, cap to first 4 words
+    words = s.split()
+    # Trim a trailing conjunction/preposition if present
+    while words and words[-1].lower() in {
+        "and", "or", "with", "for", "to", "the", "a", "an", "of", "in", "on", "at",
+    }:
+        words.pop()
+    words = words[:4]
+    label = " ".join(words).strip(" -—.,;:")
+    # Skip trivially useless labels
+    if not label or len(label) < 3:
+        return ""
+    return label[:40]
+
 
 def text(session, *args, **kwargs):
     """
@@ -649,24 +702,25 @@ def text(session, *args, **kwargs):
                                 except Exception:
                                     pass
                                 # Pull quest hooks for player-facing hint
-                                # chips. We summarize each hook into a short
-                                # topic (first 7-9 words) so the inspect panel
-                                # can show "Topics: [her sister] [a copper]"
-                                # rather than full LLM instructions.
-                                hooks = obj.attributes.get("ai_quest_hooks", default=None) or []
-                                topics = []
-                                for h in hooks:
-                                    s = str(h).strip()
-                                    if not s:
-                                        continue
-                                    # Tighten: first sentence-ish, capped at 60 chars
-                                    short = s.split(".")[0][:80]
-                                    topics.append(short)
+                                # chips. If the NPC has an explicit
+                                # ai_quest_topics list, use those verbatim
+                                # as chip labels. Otherwise heuristically
+                                # shorten each hook down to a 2-4 word
+                                # keyword so `ask <npc> <topic>` is a
+                                # sensible query, not a whole sentence.
+                                explicit = obj.attributes.get("ai_quest_topics", default=None) or []
+                                if explicit:
+                                    topics = [str(t).strip() for t in explicit if str(t).strip()]
+                                else:
+                                    hooks = obj.attributes.get("ai_quest_hooks", default=None) or []
+                                    topics = [_shorten_topic(h) for h in hooks]
+                                    topics = [t for t in topics if t]
                                 npcs.append({
                                     "name": obj.key,
                                     "dbref": obj.id,
                                     "aliases": aliases,
                                     "isTavylDealer": bool(obj.attributes.get("tavyl_dealer", default=False)),
+                                    "tavylStake": int(obj.attributes.get("tavyl_stake", default=1) or 1),
                                     "isMerchant": getattr(obj.db, "shop_inventory", None) is not None,
                                     "hasAi": bool(obj.attributes.get("ai_personality", default=None)),
                                     "topics": topics[:4],
