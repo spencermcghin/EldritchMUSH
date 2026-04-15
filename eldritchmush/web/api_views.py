@@ -339,15 +339,21 @@ def admin_delete_character(request):
 # Legacy purge — remove non-admin accounts, their characters, and any
 # legacy NPCs still kicking around.
 # ---------------------------------------------------------------------------
-ADMIN_PERMS = {"Admin", "Builder", "Developer"}
+# Evennia stores permissions lowercased ("admin", "builder", "developer")
+# even when added as "Admin" etc. Keep both in lowercase for comparison.
+ADMIN_PERMS = {"admin", "builder", "developer"}
 
 
 def _is_admin_account(acct):
-    """Account is admin if superuser or has Admin/Builder/Developer perm."""
+    """Account is admin if superuser or has Admin/Builder/Developer perm.
+
+    Case-insensitive compare — Evennia stores perms lowercase regardless
+    of how they were added.
+    """
     try:
         if acct.is_superuser:
             return True
-        perms = set(acct.permissions.all())
+        perms = {str(p).lower() for p in acct.permissions.all()}
     except Exception:
         return False
     return bool(perms & ADMIN_PERMS)

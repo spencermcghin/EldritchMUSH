@@ -444,7 +444,13 @@ function AccountsTab() {
             <span className="admin-detail-label">Roles:</span>
             <div className="admin-role-pills">
               {roles.map(role => {
-                const hasRole = acct.permissions.includes(role)
+                // Evennia lowercases permissions on storage ("admin", "player"),
+                // but availableRoles are capitalized ("Admin", "Player"). Compare
+                // case-insensitively so the active highlight actually fires.
+                const roleLower = role.toLowerCase()
+                const hasRole = acct.permissions.some(
+                  p => String(p).toLowerCase() === roleLower
+                )
                 return (
                   <button
                     key={role}
