@@ -105,6 +105,17 @@ def _build_system_prompt(npc):
         for q in quests:
             parts.append(f"- {q}")
 
+    # Pull in extended canon entries that match the NPC's tags. The
+    # canon module silently no-ops if the package failed to load.
+    try:
+        from world import canon as _canon
+        canon_block = _canon.collect_for_npc(npc)
+        if canon_block:
+            parts.append("")
+            parts.append(canon_block)
+    except Exception:
+        pass
+
     return "\n".join(parts)
 
 
