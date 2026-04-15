@@ -59,6 +59,7 @@ export function useEvennia() {
     deathPoints: null,
     av: 0,
     purse: { silver: 0, gold: 0, copper: 0 },
+    tavylState: null,
     statusFlags: {
       bleeding: false,
       dying: false,
@@ -224,6 +225,13 @@ export function useEvennia() {
           if (kwargs.status) next.statusFlags = { ...prev.statusFlags, ...kwargs.status }
           if (kwargs.equipment) next.equipment = { ...prev.equipment, ...kwargs.equipment }
           if (kwargs.purse) next.purse = { ...prev.purse, ...kwargs.purse }
+          break
+        }
+        case 'tavyl_state': {
+          // Mirror the entire payload onto tavylState so the modal can
+          // re-render. ts is added so React notices the change even if
+          // payload structure is identical between turns.
+          next.tavylState = { ...kwargs, ts: Date.now() }
           break
         }
         case 'combat_start': {

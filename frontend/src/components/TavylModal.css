@@ -1,0 +1,350 @@
+/* ── Tavyl Modal ── */
+
+.tavyl-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 4, 0.92);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.tavyl-modal {
+  background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
+  border: 1px solid var(--accent-gold);
+  width: 980px;
+  max-width: 96vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 70px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(212, 175, 55, 0.18),
+    inset 0 0 50px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+/* Header */
+.tavyl-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.08), transparent);
+}
+.tavyl-title {
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+.tavyl-subtitle {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--text-aged);
+  font-size: 13px;
+}
+.tavyl-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tavyl-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+/* Empty state */
+.tavyl-empty {
+  padding: 60px 40px;
+  text-align: center;
+  color: var(--text-aged);
+}
+.tavyl-empty .cinzel {
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  display: block;
+  margin-bottom: 16px;
+}
+.tavyl-empty p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+.tavyl-empty code {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--accent-gold);
+  padding: 2px 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+}
+
+/* Seats */
+.tavyl-seats {
+  display: flex;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.tavyl-seat {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  background: rgba(10, 8, 7, 0.6);
+}
+.tavyl-seat.is-you {
+  border-color: var(--phosphor);
+  box-shadow: 0 0 8px rgba(0, 229, 160, 0.2);
+}
+.tavyl-seat.is-dealer {
+  border-color: rgba(212, 175, 55, 0.6);
+}
+.tavyl-seat.is-out {
+  opacity: 0.45;
+  border-color: var(--blood-bright);
+}
+.tavyl-seat-name {
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+.tavyl-seat.is-you .tavyl-seat-name { color: var(--phosphor); }
+.tavyl-seat.is-dealer .tavyl-seat-name { color: var(--accent-gold); }
+.tavyl-seat-meta {
+  display: flex;
+  gap: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+}
+.tavyl-seat-cards { color: var(--text-aged); }
+.tavyl-seat-dead {
+  color: var(--blood-bright);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Table state row */
+.tavyl-table-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(ellipse at center, rgba(212,175,55,0.04), transparent 70%);
+}
+.tavyl-pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 18px;
+  border: 1px dashed rgba(212, 175, 55, 0.4);
+  background: rgba(0, 0, 0, 0.3);
+  min-width: 80px;
+}
+.tavyl-pile-name {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-aged);
+}
+.tavyl-pile-count {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px;
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+.tavyl-turn-indicator {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.tavyl-turn-label {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--phosphor);
+  text-shadow: 0 0 8px rgba(0, 229, 160, 0.5);
+}
+.tavyl-turn-label.waiting {
+  color: var(--accent-gold);
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+}
+.tavyl-turn-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--text-aged);
+  font-size: 12px;
+}
+
+/* Action bar */
+.tavyl-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+}
+.tavyl-action {
+  flex: 1;
+  background: rgba(10, 8, 7, 0.6);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tavyl-action:not(:disabled):hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+.tavyl-action.draw:not(:disabled):hover {
+  border-color: var(--phosphor);
+  color: var(--phosphor);
+  background: rgba(0, 229, 160, 0.08);
+}
+.tavyl-action.leave:not(:disabled):hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+  background: rgba(204, 34, 17, 0.08);
+}
+.tavyl-action:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Hand */
+.tavyl-hand-section {
+  flex: 1;
+  padding: 14px 20px;
+  overflow-y: auto;
+}
+.tavyl-hand-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-aged);
+  margin-bottom: 10px;
+}
+.tavyl-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tavyl-empty-hand {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--text-aged);
+  opacity: 0.7;
+  padding: 30px;
+  text-align: center;
+  width: 100%;
+}
+
+.tavyl-card {
+  width: 140px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 10px;
+  background: linear-gradient(180deg, #1f1a13 0%, #15110c 100%);
+  border: 1.5px solid var(--accent-gold);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+  text-align: center;
+}
+.tavyl-card:not(:disabled):hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.6),
+    0 0 14px rgba(212, 175, 55, 0.4);
+}
+.tavyl-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.tavyl-card.card-pestilence {
+  border-color: var(--blood-bright);
+  background: linear-gradient(180deg, #2a0e0a 0%, #150707 100%);
+  box-shadow: 0 0 12px rgba(204, 34, 17, 0.3);
+}
+.tavyl-card.card-pestilence .tavyl-card-name { color: var(--blood-bright); }
+.tavyl-card.card-bonesman {
+  border-color: var(--phosphor);
+  background: linear-gradient(180deg, #07241c 0%, #061410 100%);
+  box-shadow: 0 0 12px rgba(0, 229, 160, 0.3);
+}
+.tavyl-card.card-bonesman .tavyl-card-name { color: var(--phosphor); }
+.tavyl-card.card-action .tavyl-card-name { color: var(--accent-gold); }
+
+.tavyl-card-name {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.tavyl-card-divider {
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  margin: 4px 0 8px;
+}
+.tavyl-card-effect {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-aged);
+  line-height: 1.35;
+  flex: 1;
+}
+
+/* Log */
+.tavyl-log {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  max-height: 110px;
+  overflow-y: auto;
+}
+.tavyl-log-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-aged);
+  margin-bottom: 4px;
+}
+.tavyl-log-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tavyl-log-line {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-aged);
+  opacity: 0.8;
+}
