@@ -16,6 +16,7 @@ import EquipModal from './components/EquipModal'
 import CharSheetModal from './components/CharSheetModal'
 import AdminPanel from './components/AdminPanel'
 import ShopModal from './components/ShopModal'
+import TavylModal from './components/TavylModal'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -94,6 +95,18 @@ function App() {
   const [adminOpen, setAdminOpen] = useState(false)
   // Shop modal
   const [shopOpen, setShopOpen] = useState(false)
+  const [tavylOpen, setTavylOpen] = useState(false)
+  // Auto-open the Tavyl modal whenever a fresh tavyl_state event arrives.
+  // The hook tracks the timestamp inside oobState.tavylState so a NEW state
+  // (different ts) re-opens the modal even if the user closed it earlier.
+  const lastTavylTsRef = useRef(0)
+  useEffect(() => {
+    const ts = oobState.tavylState?.ts
+    if (ts && ts !== lastTavylTsRef.current) {
+      lastTavylTsRef.current = ts
+      setTavylOpen(true)
+    }
+  }, [oobState.tavylState])
 
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
@@ -429,6 +442,16 @@ function App() {
           onClose={() => setShopOpen(false)}
           sendCommand={sendCommand}
           shopData={oobState.shopData}
+        />
+      )}
+
+      {/* Tavyl modal */}
+      {tavylOpen && (
+        <TavylModal
+          open={tavylOpen}
+          onClose={() => setTavylOpen(false)}
+          sendCommand={sendCommand}
+          tavylState={oobState.tavylState}
         />
       )}
 

@@ -110,6 +110,61 @@ def _broadcast(dealer, line):
         dealer.location.msg_contents(f"|c[Tavyl]|n {line}")
 
 
+def push_tavyl_state(player, dealer):
+    """Send a tavyl_state OOB event to the player's session(s).
+
+    Includes the player's hand (with effect text), opponent hand
+    sizes, deck/crypt counts, whose turn, alive list, and recent log.
+    Frontend's TavylModal listens for this event.
+    """
+    if not player or not dealer:
+        return
+    table = dealer.attributes.get("tavyl_table", default=None)
+    if not table:
+        return
+    pid = str(player.id)
+    raw_hand = list(table.get("hands", {}).get(pid, []))
+    hand = []
+    for ct in raw_hand:
+        hand.append({
+            "type": ct,
+            "name": _t.card_display_name(ct),
+            "effect": _t.card_effect_text(ct),
+        })
+    players_payload = []
+    for p_id in table.get("players", []):
+        p_obj = _player_obj(table, p_id)
+        players_payload.append({
+            "id": p_id,
+            "name": p_obj.key if p_obj else p_id,
+            "handSize": len(table.get("hands", {}).get(p_id, [])),
+            "alive": p_id in table.get("alive", []),
+            "isYou": p_id == pid,
+            "isDealer": p_id == str(dealer.id),
+        })
+    payload = {
+        "type": "tavyl_state",
+        "dealer": dealer.key,
+        "stake": table.get("stake", 1),
+        "yourTurn": table.get("current") == pid,
+        "currentPlayer": (
+            _player_obj(table, table["current"]).key if table.get("current") else None
+        ),
+        "fateDeckSize": len(table.get("fate_deck", [])),
+        "cryptSize": len(table.get("crypt", [])),
+        "direction": table.get("direction", 1),
+        "alive": table.get("alive", []),
+        "players": players_payload,
+        "yourHand": hand,
+        "log": list(table.get("log", []))[-10:],
+    }
+    try:
+        for sess in player.sessions.all():
+            sess.msg(event=payload)
+    except Exception:
+        pass
+
+
 def _resolve_pestilence(dealer, table, victim_obj, pestilence_drawer):
     """Caller drew a Pestilence — auto-defend with Bonesman if held, else
     eliminate. Returns True if the victim survived (Bonesman played)."""
@@ -138,6 +193,19 @@ def _player_obj(table, dbref_str):
         return ObjectDB.objects.get(id=int(dbref_str))
     except Exception:
         return None
+
+
+def _push_to_all_humans(dealer):
+    """Call push_tavyl_state for every human player at the dealer's table."""
+    table = dealer.attributes.get("tavyl_table", default=None)
+    if not table:
+        return
+    for pid in table.get("players", []):
+        if pid == str(dealer.id):
+            continue
+        obj = _player_obj(table, pid)
+        if obj and getattr(obj, "db_account_id", None):
+            push_tavyl_state(obj, dealer)
 
 
 # ===========================================================================
@@ -417,9 +485,13 @@ class CmdTavyl(Command):
             f"|wtavyl hand|y to see them.|n"
         )
 
+        # Initial state push so the modal can render immediately.
+        _push_to_all_humans(dealer)
+
         # If dealer goes first, take their turn now
         if table["current"] == str(dealer.id):
             _dealer_take_turn(dealer)
+            _push_to_all_humans(dealer)
 
     # -------- hand --------------------------------------------------------
     def _hand(self):
@@ -516,6 +588,7 @@ class CmdTavyl(Command):
         _materialize_hand(caller, table)
         seat.attributes.add("tavyl_table", table)
 
+        _push_to_all_humans(seat)
         if _t.is_over(table):
             self._finish(seat, table)
             return
@@ -559,6 +632,7 @@ class CmdTavyl(Command):
         _t.next_player(table)
         seat.attributes.add("tavyl_table", table)
         _broadcast(seat, f"It is now {_player_obj(table, table['current']).key}'s turn.")
+        _push_to_all_humans(seat)
         self._maybe_dealer_turn(seat)
 
     # -------- pass --------------------------------------------------------
@@ -577,6 +651,7 @@ class CmdTavyl(Command):
         _t.next_player(table)
         seat.attributes.add("tavyl_table", table)
         _broadcast(seat, f"It is now {_player_obj(table, table['current']).key}'s turn.")
+        _push_to_all_humans(seat)
         self._maybe_dealer_turn(seat)
 
     # -------- status / log / leave ---------------------------------------
@@ -653,6 +728,7 @@ class CmdTavyl(Command):
             return
         if table["current"] == str(seat.id):
             _dealer_take_turn(seat)
+            _push_to_all_humans(seat)
             # After dealer plays, advance to caller again if still in game
             table = seat.attributes.get("tavyl_table", default=None) or {}
             if table and not _t.is_over(table):
