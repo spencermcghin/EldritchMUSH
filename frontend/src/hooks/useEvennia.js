@@ -58,6 +58,7 @@ export function useEvennia() {
     bleedPoints: null,
     deathPoints: null,
     av: 0,
+    purse: { silver: 0, gold: 0, copper: 0 },
     statusFlags: {
       bleeding: false,
       dying: false,
@@ -222,6 +223,7 @@ export function useEvennia() {
           if (typeof kwargs.av === 'number') next.av = kwargs.av
           if (kwargs.status) next.statusFlags = { ...prev.statusFlags, ...kwargs.status }
           if (kwargs.equipment) next.equipment = { ...prev.equipment, ...kwargs.equipment }
+          if (kwargs.purse) next.purse = { ...prev.purse, ...kwargs.purse }
           break
         }
         case 'combat_start': {

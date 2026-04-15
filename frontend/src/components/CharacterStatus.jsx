@@ -38,10 +38,15 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
     bleedPoints,
     deathPoints,
     av,
+    purse,
     statusFlags,
     equipment,
     inCombat,
   } = oobState
+
+  const silver = purse?.silver ?? 0
+  const gold = purse?.gold ?? 0
+  const copper = purse?.copper ?? 0
 
   const isConnected = connectionState === 'connected'
 
@@ -98,6 +103,27 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
         <div className="av-row">
           <span className="av-label cinzel">ARMOR VALUE</span>
           <span className="av-value">{av ?? 0}</span>
+        </div>
+
+        {/* Purse */}
+        <div className="status-section-label cinzel">PURSE</div>
+        <div className="purse-row">
+          {gold > 0 && (
+            <span className="coin coin-gold" title={`${gold} gold`}>
+              <span className="coin-amt">{gold}</span>
+              <span className="coin-label">gold</span>
+            </span>
+          )}
+          <span className="coin coin-silver" title={`${silver} silver`}>
+            <span className="coin-amt">{silver}</span>
+            <span className="coin-label">silver</span>
+          </span>
+          {copper > 0 && (
+            <span className="coin coin-copper" title={`${copper} copper`}>
+              <span className="coin-amt">{copper}</span>
+              <span className="coin-label">copper</span>
+            </span>
+          )}
         </div>
 
         {/* Divider */}
