@@ -200,6 +200,30 @@ def _is_admin(user):
         return False
 
 
+def npc_audit_log(request):
+    """Admin-only: return the last N NPC conversation records as JSON.
+
+    Query params:
+      limit=int (default 200, max 1000)
+
+    Response:
+      {"records": [ {ts, npc, char, account, msg, reply, flags}, ... ]}
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "admin_required"}, status=403)
+    try:
+        limit = min(int(request.GET.get("limit", "200")), 1000)
+    except ValueError:
+        limit = 200
+    try:
+        from world.ai_safety import read_audit_tail
+        records = read_audit_tail(limit=limit)
+    except Exception as exc:
+        return JsonResponse({"error": f"log_read_failed: {exc}"}, status=500)
+    return JsonResponse({"records": records, "count": len(records)})
+
+
 def admin_all_characters(request):
     """
     Admin-only: returns ALL characters across all accounts with metadata

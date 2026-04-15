@@ -225,6 +225,8 @@ def chat(npc, character, message, on_reply):
     the request completes, so it's safe to call Evennia msg/search/etc.
     from within it.
     """
+    from world import ai_safety
+
     # Truncate abusively long messages up front. Long inputs are either
     # typos, pasted junk, or attempts to flood context with injection
     # attempts. Cap and move on.
@@ -233,24 +235,69 @@ def chat(npc, character, message, on_reply):
         _dispatch(on_reply, _fallback_line(npc))
         return
 
+    # Defense layer 1: banned-phrase filter. Synchronous, regex-only,
+    # no API call. Runs BEFORE we spin up the thread to save latency.
+    banned_hit = ai_safety.check_banned(clean_msg)
+    if banned_hit:
+        refusal = ai_safety.canned_refusal(npc)
+        ai_safety.audit_log(
+            npc, character, clean_msg, refusal,
+            flags=["banned_phrase", f"match:{banned_hit[:40]}"]
+        )
+        _dispatch(on_reply, refusal)
+        return
+
+    # Defense layer 2: per-account global rate limit. Stacks on the
+    # per-char-per-NPC limit below.
+    account = getattr(character, "account", None)
+    acct_ok, acct_retry = ai_safety.check_account_rate(account)
+    if not acct_ok:
+        msg = (f"|y({npc.key} looks at you, then the door, then you again. "
+               f"\"You've been jawing the ear off every soul in Gateway today. "
+               f"Come back in about {acct_retry} minutes, bearer.\")|n")
+        ai_safety.audit_log(
+            npc, character, clean_msg, msg, flags=["rate_limited_account"]
+        )
+        _dispatch(on_reply, msg)
+        return
+
     def _run():
         try:
             if not _enabled():
                 reply = _fallback_line(npc)
+                ai_safety.audit_log(
+                    npc, character, clean_msg, reply, flags=["llm_disabled"]
+                )
                 _dispatch(on_reply, reply)
                 return
 
             allowed, retry = _rate_check(npc, character)
             if not allowed:
-                _dispatch(
-                    on_reply,
-                    f"|y({npc.key} has had enough of talk for now. "
-                    f"Try again in about {retry} minute(s).)|n"
+                msg = (f"|y({npc.key} has had enough of talk for now. "
+                       f"Try again in about {retry} minute(s).)|n")
+                ai_safety.audit_log(
+                    npc, character, clean_msg, msg,
+                    flags=["rate_limited_char_npc"]
                 )
+                _dispatch(on_reply, msg)
+                return
+
+            # Defense layer 3: Llama Guard moderation (optional, gated
+            # by NPC_LLM_MODERATE=1). Extra API call but catches hate /
+            # violence / sexual content before the main LLM even sees it.
+            mod_ok, mod_cat = ai_safety.check_moderation(clean_msg)
+            if not mod_ok:
+                refusal = ai_safety.canned_refusal(npc)
+                ai_safety.audit_log(
+                    npc, character, clean_msg, refusal,
+                    flags=["moderated_input", f"category:{mod_cat}"]
+                )
+                _dispatch(on_reply, refusal)
                 return
 
             reply = _call_llm(npc, character, clean_msg)
             _save_history(npc, character, clean_msg, reply)
+            ai_safety.audit_log(npc, character, clean_msg, reply, flags=[])
             _dispatch(on_reply, reply)
         except urllib.error.HTTPError as exc:
             try:
@@ -258,16 +305,26 @@ def chat(npc, character, message, on_reply):
             except Exception:
                 body = ""
             fallback = _fallback_line(npc)
-            _dispatch(
-                on_reply,
-                f"{fallback} |y(LLM HTTP {exc.code}: {body})|n"
-            )
+            msg = f"{fallback} |y(LLM HTTP {exc.code}: {body})|n"
+            try:
+                ai_safety.audit_log(
+                    npc, character, clean_msg, msg,
+                    flags=[f"llm_http_error:{exc.code}"]
+                )
+            except Exception:
+                pass
+            _dispatch(on_reply, msg)
         except Exception as exc:
             fallback = _fallback_line(npc)
-            _dispatch(
-                on_reply,
-                f"{fallback} |y(LLM err: {type(exc).__name__}: {exc})|n"
-            )
+            msg = f"{fallback} |y(LLM err: {type(exc).__name__}: {exc})|n"
+            try:
+                ai_safety.audit_log(
+                    npc, character, clean_msg, msg,
+                    flags=[f"llm_error:{type(exc).__name__}"]
+                )
+            except Exception:
+                pass
+            _dispatch(on_reply, msg)
 
     threading.Thread(target=_run, daemon=True).start()
 

@@ -14,6 +14,7 @@ from web.api_views import (
     webclient_session, account_characters,
     admin_all_characters, admin_delete_character,
     admin_all_accounts, admin_set_role, admin_approve_character,
+    npc_audit_log,
 )
 from web.diag import diag_view
 
@@ -41,6 +42,10 @@ custom_patterns = [
     path("api/admin/accounts/", admin_all_accounts, name="admin_all_accounts"),
     path("api/admin/set-role/", admin_set_role, name="admin_set_role"),
     path("api/admin/approve-character/", admin_approve_character, name="admin_approve_character"),
+    # Admin-only NPC conversation audit log. Shows recent AI NPC turns
+    # with flags for banned-phrase hits, moderation flags, rate limits,
+    # and LLM errors. See world/ai_safety.py for the log format.
+    path("api/admin/npc-audit/", npc_audit_log, name="npc_audit_log"),
     # Diagnostic log viewer — visit /api/diag/ in a browser to read the
     # tail of /data/diag.log. Used to debug Railway log capture issues
     # where Evennia server stdout/server.log isn't being collected.
