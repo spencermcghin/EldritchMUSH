@@ -932,6 +932,25 @@ def text(session, *args, **kwargs):
                         diag_write("EQUIP_UI FAILED", exc=str(exc))
                     return
 
+                # `inventory` / `inv` / `i` — push inventory_list AND emit
+                # an inventory_open signal so the frontend auto-opens the
+                # modal. This is a parallel path to the Equip sidebar
+                # button, giving players a keyboard-driven way in.
+                if lowered in ("inventory", "inv", "i"):
+                    try:
+                        import time as _time
+                        from world.inventory_oob import push_inventory
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            push_inventory(puppet, session=session)
+                            session.msg(event={
+                                "type": "inventory_open",
+                                "_ts": _time.time(),
+                            })
+                    except Exception as exc:
+                        diag_write("INVENTORY CMD FAILED", exc=str(exc))
+                    return
+
                 # ── Equip / Unequip ──
                 # Custom handler that bypasses CmdEquip/CmdUnequip entirely.
                 # Handles auto-swap (equipping replaces existing item in slot)

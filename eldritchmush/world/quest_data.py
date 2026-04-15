@@ -11,10 +11,14 @@ Each quest is a dict with:
   prereqs      - list of quest keys that must be COMPLETED first (default [])
 
 Objective dict:
-  type    - "kill"  | "gather" | "deliver" | "explore"
+  type    - "kill"  | "gather" | "deliver" | "explore" | "duel"
   target  - NPC key / item key / room key depending on type
   qty     - how many (default 1)
   desc    - short human-readable description shown in quest log
+
+  "duel" ticks when the player wins a wagered duel vs. the target NPC
+  (see commands/duel.py). Payout of the wagered stake is handled by
+  the duel command itself — the quest hook only tracks victory.
 
 Reward dict keys (all optional, default 0):
   silver  - silver coins
@@ -214,6 +218,51 @@ QUESTS = {
             "silver": 8,
             "items": [],
             "reagents": {"Bone Ash": 2},
+        },
+        "prereqs": [],
+    },
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GATEWAY — The Broken Oar
+    # Canon: Reboot Event 5 / "The Grizzled Veteran" (John Kozar)
+    # Hamond the Talon — aka Roderick Wolf, bastard of House Laurent, now
+    # head of the Lex Talionis mercenary company — drinks at the tavern.
+    # He'll wager 1 gold at his "Dance of Dragons" duel. Win and he drops
+    # a signed contract proving his betrayal of the Laurents to House Oban.
+    # The entire arc plays out Gateway-side — no Mists crossing required.
+    # ─────────────────────────────────────────────────────────────────────────
+    "grizzled_veteran": {
+        "key": "grizzled_veteran",
+        "title": "The Grizzled Veteran",
+        "giver": "hamond the talon",
+        "description": (
+            "Hamond the Talon — a scarred old soldier with silver rings and "
+            "a Laurent-green surcoat worn pale — holds court at the Broken "
+            "Oar, buying drinks for anyone who'll listen to his war stories. "
+            "He's offering coin at his old dueling game: the |yDance of "
+            "Dragons|n. One gold on the table, first to yield loses all. "
+            "Win and press him — there are whispers that Lex Talionis did "
+            "not fight as contracted when Stag Hall fell, and the old man "
+            "may be carrying proof of it himself."
+        ),
+        "objectives": [
+            {
+                "type": "duel",
+                "target": "hamond the talon",
+                "qty": 1,
+                "desc": "Win the Dance of Dragons against Hamond (0/1)",
+            },
+            {
+                "type": "gather",
+                "target": "signed oban contract",
+                "qty": 1,
+                "desc": "Recover the signed Oban contract (0/1)",
+            },
+        ],
+        "rewards": {
+            "silver": 20,
+            "items": ["MORPHOS_LORE_SCROLL"],
+            "reagents": {},
         },
         "prereqs": [],
     },

@@ -1634,6 +1634,103 @@ get_or_create_npc(
     scope="gateway",
 )
 
+# --- Hamond the Talon — grizzled veteran, Dance of Dragons dealer ----
+# Canon: Reboot Event 5 / "The Grizzled Veteran" (John Kozar)
+# Born Roderick Wolf, a bastard of House Laurent. Fought for King Giles I
+# at the Battle of Lanton in 750. Refused to swear to Giles II, fled into
+# the Northern Marches, founded Lex Talionis. In the reboot canon he
+# betrays the Laurents to House Oban for coin; the evidence lives in the
+# signed contract he carries. He's |wduel_ready|n, stakes 1 gold, and on
+# loss drops the contract + his veteran's coin into the winner's hands.
+hamond = get_or_create_npc(
+    key="Hamond the Talon",
+    location=gateway_tavern,
+    desc=(
+        "A scarred old soldier in faded Laurent-green, silver rings on "
+        "every finger, a shield propped against his stool. Grey at the "
+        "temples, missing most of his left ear. Drinks cider, not ale, "
+        "and watches the door more often than his hand. A purse on his "
+        "belt clinks with the unmistakable weight of gold dragons."
+    ),
+    personality=(
+        "Hamond the Talon, born Roderick Wolf, bastard of House Laurent. "
+        "Late fifties. Professional soldier all his life — fought for "
+        "King Giles I at the Battle of Lanton in 750, refused to swear "
+        "to the new King after, fled into the Northern Marches and "
+        "founded Lex Talionis ('the law of retribution'). Currently in "
+        "Gateway drinking and sizing up the locals. Congenial and "
+        "quick to reminisce about old wars; short-tempered if his "
+        "honor is insulted. Will NOT admit to the Laurent betrayal "
+        "under ordinary conversation — he'll deflect, change the "
+        "subject, or grow cold. Only a wagered duel defeat or hard "
+        "evidence will break him."
+    ),
+    knowledge=(
+        "- The Battle of Lanton, 750 A.S.: King Giles I's forces "
+        "defeated by his son's. Hamond's unit held the vanguard so "
+        "the King could escape; most of them died for it. He still "
+        "carries the veteran's iron coin from that day.\n"
+        "- Lex Talionis: mercenary company he founded in the Northern "
+        "Marches. Did long work against House Richter — the raid on "
+        "Elminsk, where they took crates of quality Richter steel, is "
+        "the one he gets asked about most.\n"
+        "- Dueling: he regards himself as one of the better blades in "
+        "Arnesse, won several tourneys in his day. His rules are "
+        "|wfirst blood|n (first side reduced to bleeding yields), "
+        "|w1 gold dragon|n each on the table, winner takes both. He "
+        "calls it the |yDance of Dragons|n.\n"
+        "- Recruitment: Lex Talionis is hiring. He'll talk terms to "
+        "any competent fighter who isn't already sworn. Pay is good; "
+        "questions about the work are discouraged.\n"
+        "- He dislikes Aurorym preachers, men who don't pay their "
+        "gambling debts, and anyone wearing Richter colors."
+    ),
+    quest_hooks=[
+        "Will take a |wDance of Dragons|n duel from any willing "
+        "challenger — 1 gold each, first to yield loses all.",
+        "Will talk warmly about the Battle of Lanton and King "
+        "Giles I's vanguard if asked.",
+        "Will NOT admit to betraying House Laurent unless defeated "
+        "in a duel — only then does he produce the signed contract.",
+        "Is quietly recruiting for Lex Talionis; a fighter who asks "
+        "will get an offer of trial employment.",
+    ],
+    topics=[
+        "Lanton",
+        "Lex Talionis",
+        "Dance of Dragons",
+        "recruits",
+    ],
+    scope="gateway",
+)
+# Wire the duel mechanics. 1 gold dragon stake (20 silver equivalent)
+# with gold as the coin denomination so the in-game message reads
+# correctly. On defeat Hamond drops the contract + his coin.
+hamond.attributes.add("duel_ready", True)
+hamond.attributes.add("duel_wager", 1)
+hamond.attributes.add("duel_wager_coin", "gold")
+hamond.attributes.add("duel_defeat_drops", [
+    "SIGNED_OBAN_CONTRACT",
+    "LANTON_VETERAN_COIN",
+])
+# He's a veteran duellist, not a brawler — don't initiate combat.
+hamond.db.is_aggressive = False
+# Canonical stats (reboot doc): beefed body pool + martial calls.
+hamond.db.body = 8
+hamond.db.total_body = 8
+hamond.db.bleed_points = 3
+hamond.db.death_points = 3
+hamond.db.master_of_arms = 2
+hamond.db.tough = 2
+hamond.db.stagger = 2
+hamond.db.sunder = 2
+hamond.db.cleave = 2
+hamond.db.disarm = 2
+hamond.db.resist = 2
+hamond.db.melee_weapons = 2
+hamond.db.av = 3
+hamond.db.gold = 3        # he wagers against, doesn't deplete
+
 # --- Rhys of the Thornwood — Thornwood sellsword at the Broken Oar ----
 get_or_create_npc(
     key="Rhys of the Thornwood",

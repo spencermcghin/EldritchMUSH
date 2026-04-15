@@ -2283,3 +2283,64 @@ THIEFS_BOOTS = {
 "level": 3,
 "resist": 3,
 }
+
+
+# =============================================================================
+# QUEST ITEMS — lore props, evidence, letters. No crafting, no trade value.
+# =============================================================================
+
+SIGNED_OBAN_CONTRACT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "signed Oban contract",
+    "aliases": ["signed contract", "contract", "oban contract", "signed oban contract"],
+    "desc": (
+        "A folded sheet of cheap Oban parchment, creased from being "
+        "carried close. On opening, the inner face bears a short "
+        "contract of service in a hurried hand, signed at the foot "
+        "with a bold '|wRoderick Wolf, commander of Lex Talionis|n' "
+        "and the matching blot-seal of the mercenary company. "
+        "A second, smaller seal beside it carries the black-and-gold "
+        "chevron of |WHouse Oban|n. The numbers listed — gold dragons, "
+        "three figures of them — are more than any honest season's "
+        "work. Below the signatures, in a different hand: |540'on the "
+        "night the north gate is opened, payment in full.'|n"
+    ),
+    "is_quest_item": True,
+}
+
+MORPHOS_LORE_SCROLL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "lore of the Harbingers",
+    "aliases": ["lore scroll", "harbingers", "morphos lore", "harbinger scroll"],
+    "desc": (
+        "A battered scroll tied with a length of black butterfly-silk. "
+        "Within: a disjointed account of a figure called |yMorphos|n, "
+        "said to move through the world 'swathed in darkness and a "
+        "cloud of dark butterflies.' The writer — a frightened old "
+        "soldier, by the cadence — names Morphos as a cultist of "
+        "the |wHarbingers of Change|n, and admits under his own hand "
+        "that such a creature paid him to open a gate that should "
+        "never have been opened. He does not say where or for whom, "
+        "only that he felt 'almost powerless to resist.'"
+    ),
+    "is_quest_item": True,
+}
+
+# Veteran's coin: drops alongside the contract on duel defeat — a small
+# flavor prop Hamond wore on a thong around his neck. The Battle of
+# Lanton is the canon event where he lost his unit holding the line for
+# King Giles I. Players can `look` at it for backstory.
+LANTON_VETERAN_COIN = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "veteran's coin of Lanton",
+    "aliases": ["veteran's coin", "lanton coin", "veterans coin"],
+    "desc": (
+        "A plain iron coin, one face struck with the sun-and-stag of "
+        "|WHouse Bannon|n, the other with the year |w747 A.S.|n and "
+        "the word |430LANTON|n. Struck and handed out to the survivors "
+        "of King Giles I's vanguard after the battle. The edge is "
+        "worn smooth from being rubbed between a thumb and a "
+        "forefinger for a long, long time."
+    ),
+    "is_quest_item": True,
+}

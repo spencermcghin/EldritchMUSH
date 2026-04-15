@@ -252,3 +252,20 @@ class Character(DefaultCharacter):
             push_character_stats(self)
         except Exception:
             pass
+
+    def at_post_unpuppet(self, account=None, session=None, **kwargs):
+        """Called when the account leaves this character (logout/disconnect).
+
+        Tavyl cards are session-scoped props — they represent your hand
+        at a live table, not a durable inventory item — so we clear them
+        here. If the character was mid-game at a dealer, the dealer's
+        tavyl_table state still lives on the NPC and will re-materialize
+        the hand next time the player sits.
+        """
+        try:
+            for item in list(self.contents):
+                if item.typeclass_path == "typeclasses.objects.TavylCard":
+                    item.delete()
+        except Exception:
+            pass
+        super().at_post_unpuppet(account=account, session=session, **kwargs)

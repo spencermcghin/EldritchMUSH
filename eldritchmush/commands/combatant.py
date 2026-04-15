@@ -547,6 +547,15 @@ class Combatant:
                                     quest_kill(obj, self.caller.key)
                         except Exception:
                             pass
+                    # Duel resolution: whoever (player or NPC) just hit
+                    # 0 bleed_points yields if they were in a duel. This
+                    # fires BEFORE they're fully disabled so payout +
+                    # drops land cleanly.
+                    try:
+                        from commands.duel import resolve_duel
+                        resolve_duel(self.caller)
+                    except Exception:
+                        pass
 
             if amount > 0 and self.deathPoints() > 0:
                 self.addWeakness()
