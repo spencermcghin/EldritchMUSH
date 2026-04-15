@@ -40,6 +40,7 @@ DEFAULT_TIMEOUT = 20
 HISTORY_TURNS = 8           # retained user+assistant exchanges per character
 RATE_LIMIT_MSGS = 30        # max messages
 RATE_LIMIT_WINDOW = 3600    # per 3600 seconds (1 hour)
+MAX_USER_MESSAGE = 600      # chars — caps prompt-injection / context abuse
 
 CANNED_FALLBACKS = [
     "{name} regards you silently for a long moment, then turns away.",
@@ -224,6 +225,14 @@ def chat(npc, character, message, on_reply):
     the request completes, so it's safe to call Evennia msg/search/etc.
     from within it.
     """
+    # Truncate abusively long messages up front. Long inputs are either
+    # typos, pasted junk, or attempts to flood context with injection
+    # attempts. Cap and move on.
+    clean_msg = str(message or "")[:MAX_USER_MESSAGE].strip()
+    if not clean_msg:
+        _dispatch(on_reply, _fallback_line(npc))
+        return
+
     def _run():
         try:
             if not _enabled():
@@ -240,8 +249,8 @@ def chat(npc, character, message, on_reply):
                 )
                 return
 
-            reply = _call_llm(npc, character, message)
-            _save_history(npc, character, message, reply)
+            reply = _call_llm(npc, character, clean_msg)
+            _save_history(npc, character, clean_msg, reply)
             _dispatch(on_reply, reply)
         except urllib.error.HTTPError as exc:
             try:

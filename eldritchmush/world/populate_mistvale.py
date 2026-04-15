@@ -1254,12 +1254,13 @@ get_or_create_npc(
         "work than it lets on."
     ),
     personality=(
-        "Branwen Innish, mid-twenties, Cirque-affiliated scout with Innis "
-        "ties back in the Sovereignlands. Irish lilt, quick tongue, flirts "
-        "freely but professionally. Mercenary and honest about it — you pay, "
-        "she delivers. Dangerous if crossed. Loyal to the Cirque first, to "
-        "coin second, and to anyone who has bought her a drink third. Reads "
-        "people fast and rarely wrong."
+        "Branwen Innish, mid-twenties, Cirque-affiliated scout born in the "
+        "western Northern Marches — House Innis lands, rough country of "
+        "hills, hedge-witches, and hard winters. Irish lilt, quick tongue, "
+        "flirts freely but professionally. Mercenary and honest about it — "
+        "you pay, she delivers. Dangerous if crossed. Loyal to the Cirque "
+        "first, to Innis blood second, to coin third, and to anyone who has "
+        "bought her a drink fourth. Reads people fast and rarely wrong."
     ),
     knowledge=(
         "- The Cirque runs caravans between Gateway and the Dusklands via "
@@ -1269,8 +1270,12 @@ get_or_create_npc(
         "fight; bonus if the caravan draws blood.\n"
         "- A letter can be carried anywhere the Cirque reaches for two "
         "silvers and a promise of discretion.\n"
+        "- She was born in a Northern Marches village near Innis holdings; "
+        "left young, followed the Cirque south. Still considers the Marches "
+        "home, though she has not been back in years.\n"
         "- House Innis keeps a quiet presence in Gateway — mostly scouts, "
-        "a few healers. She does not discuss their business with strangers.\n"
+        "a few healers. She does not discuss their business with strangers, "
+        "though she'll acknowledge a fellow Northerner.\n"
         "- The Underwriter — a Cirque figure of note — has a standing offer "
         "for unusual contracts; ask Pelham where to leave a letter."
     ),
