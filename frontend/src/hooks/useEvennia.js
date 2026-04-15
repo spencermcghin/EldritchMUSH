@@ -60,6 +60,7 @@ export function useEvennia() {
     av: 0,
     purse: { silver: 0, gold: 0, copper: 0 },
     tavylState: null,
+    primerData: null,
     // Per-room NPC metadata pushed via __room_meta__ event.
     // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
     roomNpcMeta: {},
@@ -235,6 +236,12 @@ export function useEvennia() {
           // re-render. ts is added so React notices the change even if
           // payload structure is identical between turns.
           next.tavylState = { ...kwargs, ts: Date.now() }
+          break
+        }
+        case 'primer_data': {
+          // Traveler's Primer modal payload. Auto-opens via App.jsx
+          // effect that watches primerData.ts.
+          next.primerData = { ...kwargs, ts: Date.now() }
           break
         }
         case 'room_meta': {

@@ -17,6 +17,7 @@ import CharSheetModal from './components/CharSheetModal'
 import AdminPanel from './components/AdminPanel'
 import ShopModal from './components/ShopModal'
 import TavylModal from './components/TavylModal'
+import PrimerModal from './components/PrimerModal'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -96,9 +97,8 @@ function App() {
   // Shop modal
   const [shopOpen, setShopOpen] = useState(false)
   const [tavylOpen, setTavylOpen] = useState(false)
+  const [primerOpen, setPrimerOpen] = useState(false)
   // Auto-open the Tavyl modal whenever a fresh tavyl_state event arrives.
-  // The hook tracks the timestamp inside oobState.tavylState so a NEW state
-  // (different ts) re-opens the modal even if the user closed it earlier.
   const lastTavylTsRef = useRef(0)
   useEffect(() => {
     const ts = oobState.tavylState?.ts
@@ -107,6 +107,15 @@ function App() {
       setTavylOpen(true)
     }
   }, [oobState.tavylState])
+  // Auto-open the Primer modal whenever a fresh primer_data event arrives.
+  const lastPrimerTsRef = useRef(0)
+  useEffect(() => {
+    const ts = oobState.primerData?.ts
+    if (ts && ts !== lastPrimerTsRef.current) {
+      lastPrimerTsRef.current = ts
+      setPrimerOpen(true)
+    }
+  }, [oobState.primerData])
 
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
@@ -461,6 +470,15 @@ function App() {
           onClose={() => setTavylOpen(false)}
           sendCommand={sendCommand}
           tavylState={oobState.tavylState}
+        />
+      )}
+
+      {/* Traveler's Primer modal */}
+      {primerOpen && (
+        <PrimerModal
+          open={primerOpen}
+          onClose={() => setPrimerOpen(false)}
+          primerData={oobState.primerData}
         />
       )}
 

@@ -518,6 +518,101 @@ def text(session, *args, **kwargs):
                         diag_write("MAP_UI FAILED", exc=str(exc), tb=traceback.format_exc())
                     return
 
+                # __primer_ui__ — push the Traveler's Primer content as
+                # a structured OOB event so the frontend renders a
+                # parchment-styled modal instead of (or alongside) the
+                # text return_appearance. Triggered by clicking a
+                # primer item or via the synthetic command.
+                if lowered == "__primer_ui__":
+                    try:
+                        import time as _time
+                        session.msg(event={
+                            "type": "primer_data",
+                            "_ts": _time.time(),
+                            "title": "A Traveler's Primer — Gateway Edition",
+                            "subtitle": (
+                                "Published by the Mistwalker Compact for "
+                                "the use of bearers awaiting passage "
+                                "through the Mists."
+                            ),
+                            "sections": [
+                                {
+                                    "header": "Getting Around",
+                                    "rows": [
+                                        ("look", "describe where you stand"),
+                                        ("look <thing>", "study an object or person"),
+                                        ("north / south / east / west", "walk through an exit"),
+                                        ("out / in / up / down", "other directions"),
+                                    ],
+                                },
+                                {
+                                    "header": "Speaking with Others",
+                                    "rows": [
+                                        ("say <words>", "speak aloud to the room"),
+                                        ("emote <action>", "perform a gesture or action"),
+                                        ("ask <npc> <question>", "ask an NPC a question"),
+                                        ("farewell <npc>", "end a conversation"),
+                                        ("whisper <target>=<msg>", "private speech"),
+                                    ],
+                                },
+                                {
+                                    "header": "Your Things",
+                                    "rows": [
+                                        ("inventory", "list what you carry"),
+                                        ("get <item>", "pick something up"),
+                                        ("drop <item>", "put it down"),
+                                        ("give <item> to <whom>", "hand something over"),
+                                        ("equip <item>", "wear or wield"),
+                                        ("unequip <item>", "take it off"),
+                                    ],
+                                },
+                                {
+                                    "header": "Buying and Selling",
+                                    "rows": [
+                                        ("browse <merchant>", "see wares with prices"),
+                                        ("buy <item> from <merchant>", "purchase for silver"),
+                                        ("sell <item> to <merchant>", "sell for half value"),
+                                    ],
+                                    "note": "Try this at Matron Hegga's stall in Gateway Square.",
+                                },
+                                {
+                                    "header": "Understanding Yourself",
+                                    "rows": [
+                                        ("sheet", "see your character sheet"),
+                                        ("status", "quick health check"),
+                                        ("who", "who's currently playing"),
+                                        ("help <topic>", "game help on any subject"),
+                                    ],
+                                },
+                                {
+                                    "header": "Diversions",
+                                    "rows": [
+                                        ("tavyl sit <dealer>", "join a card game"),
+                                        ("tavyl hand", "see your cards"),
+                                        ("tavyl play <card>", "play a card"),
+                                    ],
+                                    "note": "Mab the Gambler runs a Tavyl table at the Broken Oar.",
+                                },
+                                {
+                                    "header": "When You Cross",
+                                    "rows": [],
+                                    "note": (
+                                        "The Mistwalker Soap guides bearers through at the "
+                                        "Mistwall. Your Writ of Safe Conduct must be lit "
+                                        "before she will let you through — a game master "
+                                        "will approve your passage when they have reviewed "
+                                        "your build. Until then, wander, practice, and prepare."
+                                    ),
+                                },
+                            ],
+                            "signature": (
+                                "Signed, Crane, Registrar of the Gateway Crossing Office"
+                            ),
+                        })
+                    except Exception as exc:
+                        diag_write("PRIMER_UI failed", exc=str(exc))
+                    return
+
                 # __room_meta__ — send per-NPC flags for the current room.
                 # Used by the frontend DetailPanel to decide which contextual
                 # action buttons to show (Play Tavyl for dealers, Browse for

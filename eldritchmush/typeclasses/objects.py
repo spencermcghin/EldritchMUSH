@@ -606,6 +606,43 @@ class Merchant(Npc):
         return string
 
 
+class TravelersPrimer(Object):
+    """The Traveler's Primer book — a contextual help/tutorial item.
+
+    Looking at the primer renders a brief textual hint AND fires the
+    `primer_data` OOB event so the React frontend opens its rich
+    PrimerModal (parchment-styled book view of the same content).
+    """
+
+    def at_object_creation(self):
+        self.locks.add("get:true();drop:true()")
+        self.db.desc = (
+            "A small leather-bound book stamped with the seal of the "
+            "Mistwalker Compact. The cover reads, in faded gilt: |430A "
+            "Traveler's Primer.|n |xLook at it to read.|n"
+        )
+
+    def return_appearance(self, looker, **kwargs):
+        # Fire the OOB event to open the modal on the frontend.
+        try:
+            for sess in looker.sessions.all():
+                sess.execute_cmd("__primer_ui__")
+        except Exception:
+            pass
+        # Fall back to a brief text response so non-React clients (or
+        # log scrollers) get something readable too.
+        return (
+            "\n|430═══════════════════════════════════════════════════|n\n"
+            "|430        A   T R A V E L E R ' S   P R I M E R|n\n"
+            "|430═══════════════════════════════════════════════════|n\n"
+            "|y(The Primer unfolds into a richly-illustrated book — "
+            "look at the screen overlay to read it in full.)|n\n"
+            "|xPublished by the Mistwalker Compact for the use of "
+            "bearers awaiting passage through the Mists.|n\n"
+            "|430───────────────────────────────────────────────────|n\n"
+        )
+
+
 class TavylCard(Object):
     """A single Tavyl card carried in a player's inventory.
 
