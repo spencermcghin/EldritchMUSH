@@ -14,6 +14,7 @@ from web.api_views import (
     webclient_session, account_characters,
     admin_all_characters, admin_delete_character,
     admin_all_accounts, admin_set_role, admin_approve_character,
+    admin_purge_legacy,
     npc_audit_log,
 )
 from web.diag import diag_view
@@ -42,6 +43,9 @@ custom_patterns = [
     path("api/admin/accounts/", admin_all_accounts, name="admin_all_accounts"),
     path("api/admin/set-role/", admin_set_role, name="admin_set_role"),
     path("api/admin/approve-character/", admin_approve_character, name="admin_approve_character"),
+    # Admin-only bulk purge of legacy accounts/characters/NPCs. Preview
+    # mode returns the deletion candidates; execute mode does it.
+    path("api/admin/purge-legacy/", admin_purge_legacy, name="admin_purge_legacy"),
     # Admin-only NPC conversation audit log. Shows recent AI NPC turns
     # with flags for banned-phrase hits, moderation flags, rate limits,
     # and LLM errors. See world/ai_safety.py for the log format.

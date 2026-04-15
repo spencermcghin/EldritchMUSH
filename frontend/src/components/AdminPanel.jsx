@@ -199,6 +199,8 @@ function AccountsTab() {
   const [roles, setRoles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [purgePreview, setPurgePreview] = useState(null)  // null|{accounts,chars,npcs,counts}
+  const [purging, setPurging] = useState(false)
 
   const fetchAccounts = useCallback(async () => {
     setLoading(true)
@@ -217,6 +219,32 @@ function AccountsTab() {
   }, [])
 
   useEffect(() => { fetchAccounts() }, [fetchAccounts])
+
+  const runPurge = useCallback(async (mode) => {
+    setPurging(true)
+    try {
+      const resp = await fetch('/api/admin/purge-legacy/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+        body: JSON.stringify({ mode }),
+      })
+      const data = await resp.json()
+      if (!resp.ok) {
+        setError(data.error || `HTTP ${resp.status}`)
+        return
+      }
+      setPurgePreview(data)
+      if (mode === 'execute') {
+        // After execute, refresh accounts list
+        fetchAccounts()
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setPurging(false)
+    }
+  }, [fetchAccounts])
 
   const handleRoleToggle = useCallback(async (accountId, role, hasRole) => {
     try {
@@ -247,6 +275,125 @@ function AccountsTab() {
   if (error) return <div className="admin-error">{error}</div>
 
   return (
+  <>
+    {/* Legacy purge toolbar */}
+    <div className="admin-purge-bar">
+      <div className="admin-purge-label">
+        <span className="cinzel admin-purge-title">Legacy Cleanup</span>
+        <span className="admin-purge-hint">
+          Removes non-admin accounts, their characters, and any NPCs not
+          part of the scripted Gateway roster. Admin-owned characters
+          and NPCs with AI personality are always preserved.
+        </span>
+      </div>
+      <div className="admin-purge-actions">
+        {!purgePreview && (
+          <button
+            className="admin-btn"
+            onClick={() => runPurge('preview')}
+            disabled={purging}
+          >
+            {purging ? 'Scanning…' : 'Preview Purge'}
+          </button>
+        )}
+        {purgePreview && purgePreview.mode === 'preview' && (
+          <>
+            <button
+              className="admin-btn confirm-no"
+              onClick={() => setPurgePreview(null)}
+              disabled={purging}
+            >
+              Cancel
+            </button>
+            <button
+              className="admin-btn reject-btn"
+              onClick={() => runPurge('execute')}
+              disabled={purging || (
+                purgePreview.counts.accounts === 0 &&
+                purgePreview.counts.characters === 0 &&
+                purgePreview.counts.npcs === 0
+              )}
+            >
+              {purging ? 'Deleting…' : `Delete ${purgePreview.counts.accounts + purgePreview.counts.characters + purgePreview.counts.npcs} items`}
+            </button>
+          </>
+        )}
+        {purgePreview && purgePreview.mode === 'executed' && (
+          <button
+            className="admin-btn"
+            onClick={() => setPurgePreview(null)}
+          >
+            Close ({purgePreview.deleted.accounts} accts, {purgePreview.deleted.characters} chars, {purgePreview.deleted.npcs} npcs deleted)
+          </button>
+        )}
+      </div>
+    </div>
+
+    {/* Purge preview / result detail */}
+    {purgePreview && (
+      <div className="admin-purge-detail">
+        {purgePreview.mode === 'preview' && (
+          <div className="admin-purge-banner warn">
+            Preview only — nothing has been deleted yet.
+            Review below and click <b>Delete</b> to execute, or Cancel to abort.
+          </div>
+        )}
+        {purgePreview.mode === 'executed' && (
+          <div className="admin-purge-banner ok">
+            Purge executed. {purgePreview.deleted.accounts} accounts,
+            {' '}{purgePreview.deleted.characters} characters,
+            {' '}{purgePreview.deleted.npcs} NPCs deleted.
+            {purgePreview.errors && purgePreview.errors.length > 0 && (
+              <div className="admin-purge-errors">
+                Errors: {purgePreview.errors.join(' | ')}
+              </div>
+            )}
+          </div>
+        )}
+        <div className="admin-purge-columns">
+          <div className="admin-purge-column">
+            <div className="audit-section-label">
+              Accounts ({purgePreview.counts.accounts})
+            </div>
+            <div className="admin-purge-list">
+              {purgePreview.accounts.map(a => (
+                <span key={a.id} className="admin-purge-chip">
+                  {a.username} <span className="admin-offender-count">#{a.id}</span>
+                </span>
+              ))}
+              {purgePreview.counts.accounts === 0 && <span className="admin-purge-empty">(none)</span>}
+            </div>
+          </div>
+          <div className="admin-purge-column">
+            <div className="audit-section-label">
+              Characters ({purgePreview.counts.characters})
+            </div>
+            <div className="admin-purge-list">
+              {purgePreview.characters.map(c => (
+                <span key={c.id} className="admin-purge-chip">
+                  {c.name} <span className="admin-offender-count">#{c.id}</span>
+                </span>
+              ))}
+              {purgePreview.counts.characters === 0 && <span className="admin-purge-empty">(none)</span>}
+            </div>
+          </div>
+          <div className="admin-purge-column">
+            <div className="audit-section-label">
+              NPCs ({purgePreview.counts.npcs})
+            </div>
+            <div className="admin-purge-list">
+              {purgePreview.npcs.map(n => (
+                <span key={n.id} className="admin-purge-chip">
+                  {n.name} {n.location && <span className="admin-offender-count">@{n.location}</span>}
+                </span>
+              ))}
+              {purgePreview.counts.npcs === 0 && <span className="admin-purge-empty">(none)</span>}
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
     <div className="admin-accounts-grid">
       {accounts.map(acct => (
         <div key={acct.id} className={`admin-acct-card ${acct.online ? 'is-online' : ''}`}>
@@ -291,6 +438,7 @@ function AccountsTab() {
         </div>
       ))}
     </div>
+  </>
   )
 }
 
