@@ -196,6 +196,11 @@ gateway_square = get_or_create_room(
     "Auron, a pair of Bannon men-at-arms walking a slow circuit. A "
     "knife-grinder works his treadle near the north end. Coin changes "
     "hands constantly, and only the unwary let theirs go willingly.\n\n"
+    "Twice or thrice a moon-cycle, the crowd parts for a Last Walk column: "
+    "shackled prisoners — most from the Dusklander–Northern Marches border "
+    "war — driven westward toward the palisade by Mistguard halberdiers. "
+    "The square goes quiet when they pass. Some pilgrims throw bread; some "
+    "townsfolk look away. The Aurorym does not look away.\n\n"
     "|wSouth|n to the |wtent city|n. |wEast|n to the |wBroken Oar|n. "
     "|wWest|n to the |wpalisade gate|n. |wNorth|n to the |wMistwalker's Tent|n.",
     zone="Gateway",
@@ -229,6 +234,12 @@ mistguard_palisade = get_or_create_room(
     "must show cause; those without a Writ of Passage are turned back or "
     "pressed to the work of the camp. A brazier burns even at noon, its "
     "smoke lost in the mist-haze beyond the gate.\n\n"
+    "On Last Walk days the column gathers here before the gate is opened: "
+    "shackled prisoners in mismatched rags, mostly war captives from the "
+    "Dusklander border conflict, escorted by Mistguard halberdiers with "
+    "drawn blades. There are no guides for them. They are walked to the "
+    "Mistwall, the gate is shut behind them, and what becomes of them on "
+    "the far side is rumor only.\n\n"
     "|wEast|n back to |wGateway Square|n. |wWest|n, the wall of mist rolls "
     "like an ocean against the sky — cross only with a guide, and a Writ.",
     zone="Gateway",
