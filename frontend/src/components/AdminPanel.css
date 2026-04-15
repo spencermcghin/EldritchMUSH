@@ -12,9 +12,9 @@
 }
 
 .admin-panel {
-  width: 800px;
-  max-width: 95vw;
-  max-height: 90vh;
+  width: 1100px;
+  max-width: 96vw;
+  max-height: 92vh;
   background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
   border: 1px solid var(--border-bright);
   display: flex;
@@ -143,21 +143,21 @@
   font-family: 'Share Tech Mono', monospace;
 }
 
-/* Character Grid — single column strips */
+/* Character Grid — vertical stack of 2-row cards */
 .admin-char-grid {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-/* Character Card — horizontal strip */
+/* Character Card — two rows: identity on top, facts + actions below */
 .admin-char-card {
   background: linear-gradient(135deg, rgba(30, 26, 20, 0.7), rgba(20, 18, 16, 0.9));
   border: 1px solid var(--border);
-  padding: 8px 14px;
+  padding: 10px 14px;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
   transition: border-color 0.2s;
 }
 .admin-char-card.is-online {
@@ -165,10 +165,49 @@
 }
 .admin-char-card.is-offline {
   border-left: 3px solid var(--border);
-  opacity: 0.75;
+  opacity: 0.8;
 }
 .admin-char-card:hover {
   border-color: var(--border-bright);
+}
+
+/* Row 1 — identity, dbref, tags */
+.admin-char-row-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-char-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* Row 2 — facts + actions */
+.admin-char-row-bottom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-char-facts {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-fact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .admin-char-header {
@@ -294,11 +333,12 @@
 .admin-detail-value {
   color: var(--text-light);
   font-family: 'Share Tech Mono', monospace;
-  text-align: right;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 120px;
+}
+.admin-detail-value.wide {
+  max-width: none;
 }
 
 /* Actions */
@@ -699,4 +739,133 @@
   color: var(--phosphor);
   font-style: italic;
   opacity: 0.85;
+}
+
+/* ─── Approvals Tab ─── */
+
+/* Tab badge — shows pending count on the Approvals tab button */
+.admin-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 8px;
+  background: var(--blood-bright);
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9px;
+  box-shadow: 0 0 6px rgba(204, 34, 17, 0.45);
+}
+.admin-filter-btn.has-pending {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.admin-approvals-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-approval-card {
+  background: linear-gradient(135deg, rgba(30, 26, 20, 0.8), rgba(18, 14, 10, 0.95));
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-left: 3px solid var(--accent-gold);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.06);
+}
+.admin-approval-card:hover {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.18);
+}
+
+.admin-approval-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-approval-name-block {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.admin-approval-name {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  letter-spacing: 1px;
+}
+
+.admin-approval-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.admin-approval-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-approval-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-approval-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-btn.admin-btn-big {
+  font-size: 11px;
+  padding: 8px 18px;
+  letter-spacing: 1.5px;
+}
+
+.admin-btn.admin-btn-big.approve-btn {
+  background: rgba(0, 229, 160, 0.1);
+  border-color: var(--phosphor);
+  color: var(--phosphor);
+}
+.admin-btn.admin-btn-big.approve-btn:hover {
+  background: rgba(0, 229, 160, 0.2);
+  box-shadow: 0 0 12px rgba(0, 229, 160, 0.3);
+}
+
+.admin-btn.admin-btn-big.reject-btn {
+  background: rgba(204, 34, 17, 0.1);
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+.admin-btn.admin-btn-big.reject-btn:hover {
+  background: rgba(204, 34, 17, 0.2);
+  box-shadow: 0 0 12px rgba(204, 34, 17, 0.3);
+}
+
+.admin-approval-actions .admin-reject-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 12px;
+  font-size: 11px;
 }
