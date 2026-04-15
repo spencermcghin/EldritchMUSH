@@ -175,6 +175,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # player-to-player, but whispering at an AI NPC routes through
         # the LLM and gets a private in-character reply.
         self.add(ai_dialogue.CmdWhisper())
+        # Overrides default say: still broadcasts to the room as
+        # normal, but if an AI NPC's name is mentioned in the message,
+        # that NPC will respond in-character.
+        self.add(ai_dialogue.CmdSay())
 
 #### Special command sets
 
