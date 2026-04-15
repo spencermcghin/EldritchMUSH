@@ -61,6 +61,7 @@ export function useEvennia() {
     purse: { silver: 0, gold: 0, copper: 0 },
     tavylState: null,
     primerData: null,
+    inventoryOpen: null,
     // Per-room NPC metadata pushed via __room_meta__ event.
     // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
     roomNpcMeta: {},
@@ -242,6 +243,12 @@ export function useEvennia() {
           // Traveler's Primer modal payload. Auto-opens via App.jsx
           // effect that watches primerData.ts.
           next.primerData = { ...kwargs, ts: Date.now() }
+          break
+        }
+        case 'inventory_open': {
+          // Signal to auto-open the equip/inventory modal. Fired by
+          // the server when the player types `inv`/`inventory`/`i`.
+          next.inventoryOpen = { ts: Date.now() }
           break
         }
         case 'room_meta': {

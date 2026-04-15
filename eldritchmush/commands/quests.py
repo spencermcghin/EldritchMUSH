@@ -203,6 +203,27 @@ def quest_gather(char, item_name, qty=1):
                     _check_completion(char, key)
 
 
+def quest_duel_win(char, npc_key):
+    """
+    Call this when *char* wins a wagered duel against an NPC with
+    key *npc_key*. Ticks matching 'duel' objectives.
+    """
+    _ensure_quest_db(char)
+    npc_key_lower = npc_key.lower()
+    for key, state in char.db.quests.items():
+        if state["status"] != "active":
+            continue
+        for obj in state["objectives"]:
+            if obj["type"] == "duel" and obj["target"].lower() in npc_key_lower:
+                if obj["current"] < obj["qty"]:
+                    obj["current"] += 1
+                    char.msg(
+                        f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
+                        f"({obj['current']}/{obj['qty']})|n"
+                    )
+                    _check_completion(char, key)
+
+
 def quest_explore(char, room_name):
     """
     Call this when *char* enters a room with the given name.

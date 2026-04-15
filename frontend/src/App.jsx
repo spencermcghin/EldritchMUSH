@@ -116,6 +116,15 @@ function App() {
       setPrimerOpen(true)
     }
   }, [oobState.primerData])
+  // Auto-open the Equip/Inventory modal when the player types `inv`.
+  const lastInventoryOpenTsRef = useRef(0)
+  useEffect(() => {
+    const ts = oobState.inventoryOpen?.ts
+    if (ts && ts !== lastInventoryOpenTsRef.current) {
+      lastInventoryOpenTsRef.current = ts
+      setEquipOpen(true)
+    }
+  }, [oobState.inventoryOpen])
 
   // Fire __room_meta__ on initial puppet & any character change so the
   // contextual buttons and topic chips populate without requiring the

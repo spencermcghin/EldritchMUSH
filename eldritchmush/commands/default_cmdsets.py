@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd, duel as duel_cmd
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -181,6 +181,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(ai_dialogue.CmdSay())
         # Tavyl card game (dealer NPCs run the table).
         self.add(tavyl_cmd.CmdTavyl())
+        # Wagered duels — NPCs can advertise themselves as duel_ready.
+        self.add(duel_cmd.CmdDuel())
 
 #### Special command sets
 
