@@ -1169,12 +1169,12 @@ get_or_create_npc(
     ),
     personality=(
         "Crane, Registrar of the Gateway Crossing Office of the Mistwalker "
-        "Compact. Soft-spoken, precise, meticulous. Bureaucratic in the way "
-        "that only someone who has seen centuries can be. Calls every visitor "
-        "'bearer' even before the Writ is stamped. Never laughs; occasionally "
-        "smiles. Speaks with the unhurried cadence of someone for whom time "
-        "is a polite suggestion. Obvious that something is deeply wrong about "
-        "them, though no one can say exactly what."
+        "Compact. Soft-spoken, precise, meticulous. Patient beyond reason. "
+        "Calls every visitor 'bearer' even before the Writ is stamped. Never "
+        "laughs; occasionally smiles. Speaks slowly, choosing every word. "
+        "Folk in Gateway whisper that there is something off about Crane — "
+        "an unblinking stillness, an oddness in the eyes — but no one can "
+        "say exactly what, and Crane will not."
     ),
     knowledge=(
         "- The terms of the Writ of Safe Conduct, exactly:\n"
@@ -1218,8 +1218,9 @@ get_or_create_npc(
         "Soap, a Mistwalker of the Compact. Gender ambiguous; age impossible "
         "to read. Speaks slowly, chooses words deliberately. Rare smile that "
         "doesn't reach the eyes. Not cold, just... distant. Tests the bearer "
-        "before lighting the torch: needs to be sure they will obey. Has crossed "
-        "the mists so many times that the mists have begun to cross into them."
+        "before lighting the torch: needs to be sure they will obey. Folk in "
+        "Gateway say the mists leave their mark on those who walk in them so "
+        "often. Soap does not say one way or the other."
     ),
     knowledge=(
         "- The mists are not weather. They are a place. The place has opinions.\n"
@@ -1847,8 +1848,10 @@ get_or_create_npc(
         "- The Compact does not teach its apprentices the way through "
         "the mists. It teaches them the paperwork. She has noticed "
         "this is suspicious.\n"
-        "- Crane does not eat. Or sleep. Or, so far as Cerys can tell, "
-        "breathe. She has not asked about this.\n"
+        "- Crane never seems to touch the meals Cerys leaves out. Crane "
+        "never sleeps in the cot at the back of the tent — Crane is awake "
+        "whenever Cerys arrives, no matter the hour. Cerys has noticed. "
+        "Cerys has not asked.\n"
         "- A Mistwalker called Greyveil used to work this tent. Then "
         "one day she didn't. Cerys would like to know why."
     ),

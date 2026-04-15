@@ -63,16 +63,42 @@ _ALIASES = {
 }
 
 
+def _translate_effect(text):
+    """Rewrite tabletop-LARP timing language for the always-on MUSH.
+
+    The CSV is a tabletop reference where benefits proc 'at check-in'
+    (start of an event session) and refresh per event. In our MUSH
+    those map to a real-time daily refresh.
+    """
+    if not text:
+        return text
+    replacements = [
+        ("at check-in", "once per day"),
+        ("Check-in", "Daily refresh"),
+        ("check-in", "daily refresh"),
+        ("per event", "per day"),
+        ("once per refresh", "once per day"),
+        ("per skill refresh", "per day"),
+        ("per refresh", "per day"),
+    ]
+    out = text
+    for old, new in replacements:
+        out = out.replace(old, new)
+    return out
+
+
 def get_effect(name):
     """Return the CSV Item Effect text for a given item name, or "".
 
     Tolerates variant prototype spellings — "Iron Small Weapon" matches
-    "Iron Small and Throwing Weapons", etc.
+    "Iron Small and Throwing Weapons", etc. Tabletop "check-in" /
+    "per event" / "per refresh" timing is rewritten to "per day" for
+    the always-on MUSH.
     """
     norm = _normalize(name)
-    if norm in _EFFECT_BY_NAME:
-        return _EFFECT_BY_NAME[norm]
-    target = _ALIASES.get(norm)
-    if target and target in _EFFECT_BY_NAME:
-        return _EFFECT_BY_NAME[target]
-    return ""
+    raw = _EFFECT_BY_NAME.get(norm)
+    if not raw:
+        target = _ALIASES.get(norm)
+        if target:
+            raw = _EFFECT_BY_NAME.get(target, "")
+    return _translate_effect(raw or "")
