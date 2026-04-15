@@ -1,0 +1,181 @@
+/* ── Traveler's Primer Modal — parchment book aesthetic ── */
+
+.primer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 4, 0.92);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* The book/page itself: aged parchment with wax-stamp gold border */
+.primer-book {
+  position: relative;
+  width: 740px;
+  max-width: 96vw;
+  max-height: 92vh;
+  overflow-y: auto;
+  background:
+    radial-gradient(ellipse at top, rgba(212, 175, 55, 0.04), transparent 60%),
+    linear-gradient(180deg, #2a2017 0%, #1a140d 100%);
+  border: 1px solid var(--accent-gold);
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(212, 175, 55, 0.18),
+    inset 0 0 80px rgba(212, 175, 55, 0.04);
+  padding: 48px 56px;
+}
+
+.primer-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.primer-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.primer-loading {
+  padding: 60px;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--text-aged);
+}
+
+/* Title section */
+.primer-title-block {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.primer-flourish {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 8px;
+  color: var(--accent-gold);
+  opacity: 0.6;
+  margin: 8px 0;
+}
+
+.primer-title {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 12px 0;
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+}
+
+.primer-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-aged);
+  line-height: 1.5;
+  max-width: 520px;
+  margin: 12px auto 0;
+}
+
+/* Sections */
+.primer-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.primer-section {
+  border-left: 2px solid var(--accent-gold);
+  padding-left: 18px;
+}
+
+.primer-section-header {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin: 0 0 12px 0;
+}
+
+.primer-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+}
+
+.primer-table tr {
+  vertical-align: baseline;
+}
+.primer-table tr:nth-child(odd) td {
+  background: rgba(212, 175, 55, 0.025);
+}
+
+.primer-cmd {
+  width: 40%;
+  padding: 5px 10px 5px 0;
+  white-space: nowrap;
+}
+.primer-cmd code {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  padding: 2px 6px;
+}
+
+.primer-desc {
+  padding: 5px 0 5px 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: #e8cf8a;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.primer-note {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-aged);
+  line-height: 1.5;
+  margin: 6px 0 0 0;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 2px solid var(--text-aged);
+}
+
+/* Signature */
+.primer-signature {
+  text-align: center;
+  margin-top: 36px;
+  padding-top: 12px;
+}
+
+.primer-sig-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent-gold);
+  margin: 12px 0 0;
+}

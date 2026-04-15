@@ -2748,10 +2748,20 @@ _primer = ObjectDB.objects.filter(
     db_key="traveler's primer", db_location=gateway_tavern.pk,
 ).first()
 if _primer:
+    # Upgrade the typeclass if the primer was created earlier as a
+    # plain Object — the new TravelersPrimer subclass auto-opens
+    # the React modal on look.
+    target_tc = "typeclasses.objects.TravelersPrimer"
+    if (_primer.db_typeclass_path or "") != target_tc:
+        try:
+            _primer.swap_typeclass(target_tc, run_start_hooks="all")
+            print("  UPGRADED: traveler's primer typeclass → TravelersPrimer")
+        except Exception as exc:
+            print(f"  WARN    : primer typeclass swap failed: {exc}")
     print("  EXISTS  : traveler's primer")
 else:
     _primer = _create.create_object(
-        "typeclasses.objects.Object",
+        "typeclasses.objects.TravelersPrimer",
         key="traveler's primer",
         location=gateway_tavern,
     )
