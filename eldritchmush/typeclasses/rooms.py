@@ -58,6 +58,31 @@ class Room(DefaultRoom):
         self.db.combat_loop = []
 
 
+    def get_display_exits(self, looker, **kwargs):
+        """Format exits as "Destination Name <direction>, ..." instead
+        of the Evennia 5.x default of just "north, south, east".
+
+        The frontend room parser prefers the bracketed form so it can
+        show destination names on the exit buttons (e.g. a "Gateway
+        Square" button labelled with the room you'd arrive at, not
+        with the cardinal direction).
+        """
+        exits = [e for e in self.contents if e.destination]
+        if not exits:
+            return ""
+        parts = []
+        for ex in exits:
+            try:
+                dest_name = ex.destination.get_display_name(looker)
+            except Exception:
+                dest_name = (ex.destination.key if ex.destination else "") or "unknown"
+            # Strip Evennia's appended (#dbref) tag for non-Builder lookers.
+            # get_display_name returns "Name(#id)" for Builders; players
+            # get just the name. Either way the parser is happy.
+            parts.append(f"{dest_name} <{ex.key}>")
+        return "|wExits:|n " + ", ".join(parts)
+
+
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
 
