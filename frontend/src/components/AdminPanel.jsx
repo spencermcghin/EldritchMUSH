@@ -533,6 +533,11 @@ export default function AdminPanel({ onClose }) {
   const [filter, setFilter] = useState('all')
   const [tab, setTab] = useState('characters')
   const [search, setSearch] = useState('')
+  // Batch selection in the Characters tab
+  const [selected, setSelected] = useState(() => new Set())
+  const [bulkConfirm, setBulkConfirm] = useState(false)
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [bulkResult, setBulkResult] = useState(null)  // {count, errors} after execute
 
   const fetchCharacters = useCallback(async () => {
     setLoading(true)
@@ -574,6 +579,60 @@ export default function AdminPanel({ onClose }) {
       setError(err.message)
     }
   }, [fetchCharacters])
+
+  const toggleSelected = useCallback((charId) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(charId)) next.delete(charId)
+      else next.add(charId)
+      return next
+    })
+  }, [])
+
+  const selectAllVisible = useCallback((visibleIds) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      for (const id of visibleIds) next.add(id)
+      return next
+    })
+  }, [])
+
+  const clearSelection = useCallback(() => {
+    setSelected(new Set())
+  }, [])
+
+  const runBulkDelete = useCallback(async () => {
+    if (selected.size === 0) return
+    setBulkBusy(true)
+    try {
+      const resp = await fetch('/api/admin/bulk-delete-characters/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+        body: JSON.stringify({ character_ids: [...selected] }),
+      })
+      const data = await resp.json()
+      if (!resp.ok) {
+        setError(data.error || `HTTP ${resp.status}`)
+        return
+      }
+      // Remove deleted characters from the list and clear selection.
+      const deletedIds = new Set((data.deleted || []).map(d => d.id))
+      setCharacters(prev => prev.filter(c => !deletedIds.has(c.id)))
+      setSelected(new Set())
+      setBulkConfirm(false)
+      setBulkResult({
+        count: data.count || 0,
+        errors: data.errors || [],
+      })
+      // Auto-clear the result banner after 5s
+      setTimeout(() => setBulkResult(null), 5000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBulkBusy(false)
+    }
+  }, [selected])
 
   const handleDelete = useCallback(async (charId, charName) => {
     try {
@@ -767,11 +826,59 @@ export default function AdminPanel({ onClose }) {
           {error && <div className="admin-error">{error}</div>}
 
           {!loading && !error && (
+            <>
+            {/* Bulk selection toolbar — sticks above the list */}
+            <div className="admin-bulk-bar">
+              <span className="admin-bulk-summary">
+                {selected.size > 0
+                  ? <><span className="admin-bulk-count">{selected.size}</span> selected</>
+                  : <span className="admin-bulk-hint">Select characters with the checkboxes to delete them in bulk.</span>}
+              </span>
+              <div className="admin-bulk-actions">
+                <button
+                  className="admin-btn"
+                  onClick={() => selectAllVisible(filtered.map(c => c.id))}
+                  disabled={filtered.length === 0}
+                >
+                  Select Visible ({filtered.length})
+                </button>
+                <button
+                  className="admin-btn"
+                  onClick={clearSelection}
+                  disabled={selected.size === 0}
+                >
+                  Clear
+                </button>
+                <button
+                  className="admin-btn delete-btn"
+                  onClick={() => setBulkConfirm(true)}
+                  disabled={selected.size === 0}
+                >
+                  Delete {selected.size || ''} Selected
+                </button>
+              </div>
+            </div>
+
+            {bulkResult && (
+              <div className={`admin-purge-banner ${bulkResult.errors.length > 0 ? 'warn' : 'ok'}`}>
+                Deleted {bulkResult.count} character(s).
+                {bulkResult.errors.length > 0 && ` ${bulkResult.errors.length} error(s).`}
+              </div>
+            )}
+
             <div className="admin-char-grid">
               {filtered.map(char => (
-                <div key={char.id} className={`admin-char-card ${char.online ? 'is-online' : 'is-offline'}`}>
+                <div key={char.id} className={`admin-char-card ${char.online ? 'is-online' : 'is-offline'} ${selected.has(char.id) ? 'is-selected' : ''}`}>
                   {/* Row 1 — identity + status */}
                   <div className="admin-char-row-top">
+                    <label className="admin-char-checkbox" title="Select for bulk delete">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(char.id)}
+                        onChange={() => toggleSelected(char.id)}
+                      />
+                      <span className="admin-char-checkbox-box" />
+                    </label>
                     <span className={`admin-status-dot ${char.online ? 'online' : 'offline'}`} />
                     <span className="admin-char-name">{char.name}</span>
                     <span className="admin-char-dbref">{char.dbref}</span>
@@ -853,10 +960,68 @@ export default function AdminPanel({ onClose }) {
                 <div className="admin-empty">No characters match this filter.</div>
               )}
             </div>
+            </>
           )}
           </>
           )}
         </div>
+
+        {/* Bulk-delete confirmation modal */}
+        {bulkConfirm && (
+          <div
+            className="admin-confirm-backdrop"
+            onClick={() => !bulkBusy && setBulkConfirm(false)}
+          >
+            <div
+              className="admin-confirm-modal"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="admin-confirm-header cinzel">
+                Delete {selected.size} Character{selected.size === 1 ? '' : 's'}?
+              </div>
+              <div className="admin-confirm-body">
+                This will permanently delete{' '}
+                <span className="admin-confirm-role">{selected.size}</span>{' '}
+                character{selected.size === 1 ? '' : 's'}:
+                <div className="admin-bulk-preview">
+                  {characters
+                    .filter(c => selected.has(c.id))
+                    .slice(0, 12)
+                    .map(c => (
+                      <span key={c.id} className="admin-purge-chip">
+                        {c.name} <span className="admin-offender-count">{c.dbref}</span>
+                      </span>
+                    ))}
+                  {selected.size > 12 && (
+                    <span className="admin-purge-empty">
+                      ...and {selected.size - 12} more
+                    </span>
+                  )}
+                </div>
+                <div className="admin-confirm-note">
+                  Accounts will be preserved — only the characters are deleted.
+                  This cannot be undone.
+                </div>
+              </div>
+              <div className="admin-confirm-actions">
+                <button
+                  className="admin-btn"
+                  onClick={() => setBulkConfirm(false)}
+                  disabled={bulkBusy}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="admin-btn reject-btn"
+                  onClick={runBulkDelete}
+                  disabled={bulkBusy}
+                >
+                  {bulkBusy ? 'Deleting…' : `Delete ${selected.size}`}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="admin-footer">
           <span className="cinzel">✦ ─────── ✦ ─────── ✦</span>

@@ -360,6 +360,62 @@ def _is_admin_account(acct):
 
 
 @require_http_methods(["POST"])
+def admin_bulk_delete_characters(request):
+    """Admin-only: delete multiple characters in one request.
+
+    POST body: {"character_ids": [1, 2, 3]}
+
+    Cleans up _playable_characters references on every account for
+    each deleted character. Returns {deleted: [{id, name}], errors:
+    [{id, error}], count}.
+    """
+    user = request.user
+    if not _is_admin(user):
+        return JsonResponse({"error": "admin_required"}, status=403)
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    ids = data.get("character_ids") or []
+    if not isinstance(ids, list) or not ids:
+        return JsonResponse({"error": "character_ids must be a non-empty list"}, status=400)
+
+    from evennia.accounts.models import AccountDB
+    from evennia.objects.models import ObjectDB
+
+    deleted = []
+    errors = []
+    for char_id in ids:
+        try:
+            char = ObjectDB.objects.get(id=char_id)
+        except ObjectDB.DoesNotExist:
+            errors.append({"id": char_id, "error": "not found"})
+            continue
+        try:
+            # Clean _playable_characters on every account — O(accounts)
+            # per character, but n is small and this keeps the schema
+            # consistent.
+            for acct in AccountDB.objects.all():
+                pcs = acct.db._playable_characters or []
+                new_pcs = [c for c in pcs if c and getattr(c, "pk", None) != char.pk]
+                if len(new_pcs) != len(pcs):
+                    acct.db._playable_characters = new_pcs
+            name = char.key
+            char.delete()
+            deleted.append({"id": char_id, "name": name})
+        except Exception as exc:
+            errors.append({"id": char_id, "error": str(exc)})
+
+    return JsonResponse({
+        "success": True,
+        "deleted": deleted,
+        "errors": errors,
+        "count": len(deleted),
+    })
+
+
+@require_http_methods(["POST"])
 def admin_purge_legacy(request):
     """Admin-only: purge legacy accounts, characters, and NPCs.
 
