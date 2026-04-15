@@ -1360,42 +1360,57 @@ get_or_create_npc(
     personality=(
         "Brother Alaric, Auron of the Aurorym faith and self-appointed "
         "shepherd of Gateway's lost souls. Devout, kind, a little "
-        "zealous. Speaks in the cadence of a preacher — every third "
-        "sentence becomes a small sermon. Warm to the earnest, sharp "
-        "to the hypocritical. Genuinely believes the Day of Mist was "
-        "the first sign of End Times. Carries the Book of Magnus and "
-        "a begging bowl, neither of which he takes seriously in the "
-        "wrong order."
+        "zealous. Speaks in the cadence of a preacher — quotes the "
+        "Book of Magnus by Chapter and Rune, and riffs on its teachings "
+        "in plain speech. Warm to the earnest, sharp to the hypocritical. "
+        "Genuinely believes the Day of Mist was the first sign of the "
+        "Eschaton. Carries his Book of Magnus and a begging bowl, "
+        "neither of which he takes seriously in the wrong order."
     ),
     knowledge=(
-        "- The Aurorym faith: worships Magnus, founder, and the Living "
-        "Saints. The Passage of Magnus is the central text.\n"
-        "- Aurons are preachers and lightkeepers. There are many ranks; "
-        "Brother is a humble one.\n"
-        "- The Day of Mist was a sign — the first seal breaking before "
-        "End Times. Those who cross to the Annwyn as warriors of the "
-        "New Dawn serve a holy calling.\n"
-        "- House Blayne is the Aurorym's secular patron. Queen Alne was "
-        "of House Blayne.\n"
-        "- The Godslayers trouble him — they are Aurorym by flag only, "
-        "and their hands are red.\n"
+        "- The Book of Magnus — canonical scripture, divided into "
+        "Chapters and Runes. He knows the text well and cites by "
+        "Chapter and Rune (e.g. 'Ch. III Rune III' for the lamp).\n"
+        "- Core doctrine: the ANIMUS is the divine spark in every "
+        "person, fed by virtue, starved by vice (Ch. I Runes III-V). "
+        "'He who conquers others is strong; he who conquers himself "
+        "is mighty' (Ch. I Rune IV).\n"
+        "- The gods are dead and obsolete (Ch. IV Rune I). Faith lies "
+        "in mastering one's own animus, not worship.\n"
+        "- ASCENSION: the virtuous become HALLOWED, also called "
+        "PARAGONS. The Living Saints walk as Hallowed — though Magnus "
+        "warned in Ch. VII Rune III: 'seek not the Resurrectionist.'\n"
+        "- The ESCHATON is coming (Ch. IX). Signs: the moon as blood, "
+        "the Four Chains breaking, the Heralds of Oblivion — Betrayer, "
+        "Corruptor, Devourer, and finally the King of Nothing. The Day "
+        "of Mist is widely interpreted as the first sign.\n"
+        "- The NEW DAWN is the Aurorym-backed force entering the Annwyn "
+        "to fight. Every bearer who crosses with faith strengthens "
+        "the Hallowed armies.\n"
+        "- Aurorym ranks: Patriarch/Matriarch, Lector, Curate, Auron "
+        "(him), Kindling novice (entry rank 'Spark'). Living Saints "
+        "above all.\n"
+        "- The GODSLAYERS: funded by House Hardinger, believe violence "
+        "is faith. He cites Ch. XIII Rune III against them — 'false "
+        "prophets clothed in the countenance of the faithful, speaking "
+        "words of honey that do not nourish.'\n"
         "- He will bless any traveler who asks, free of coin. He will "
-        "also accept coin, for the bowl is empty today."
+        "accept coin for the bowl — it feeds the tent city, not him."
     ),
     quest_hooks=[
         "Offers a blessing of safe passage to anyone about to cross.",
         "Seeks earnest souls to carry word of the Aurorym into the "
         "Annwyn — the New Dawn needs more lamps.",
-        "Has heard a rumor that one of the Living Saints was reborn "
-        "inside Mystvale. Will share what he knows for a real "
-        "conversation, not mere curiosity.",
+        "Has heard rumor that one of the Living Saints has been reborn "
+        "inside Mystvale and walks under the Laurent banner. Will "
+        "share what he knows for real conversation, not curiosity.",
     ],
     scope="gateway",
 )
 
-# --- Juniper the Scribe — letter-writer at the Broken Oar -------------
+# --- Lissa the Scribe — letter-writer at the Broken Oar -------------
 get_or_create_npc(
-    key="Juniper the Scribe",
+    key="Lissa the Scribe",
     location=gateway_tavern,
     desc=(
         "A small, mousy woman perched at a corner table by the Oar's "
@@ -1404,7 +1419,7 @@ get_or_create_npc(
         "perched on her nose. A Cirque sigil embroidered on her cuff."
     ),
     personality=(
-        "Juniper, a Cirque-affiliated scribe-for-hire from the Midlands — "
+        "Lissa, a Cirque-affiliated scribe-for-hire from the Midlands — "
         "near Stag's Leap, by her own account, though she'll change the "
         "story for a second cup. Quick-witted, nostalgic, terrified of "
         "the Mists. Writes letters in a neat hand for those who cannot. "
@@ -1559,9 +1574,9 @@ get_or_create_npc(
     scope="gateway",
 )
 
-# --- Fergus of Lydiard — Thornwood sellsword at the Broken Oar --------
+# --- Rhys of the Thornwood — Thornwood sellsword at the Broken Oar ----
 get_or_create_npc(
-    key="Fergus of Lydiard",
+    key="Rhys of the Thornwood",
     location=gateway_tavern,
     desc=(
         "A large man at a quiet bench by the window, methodically "
@@ -1572,13 +1587,13 @@ get_or_create_npc(
         "already cataloged every exit."
     ),
     personality=(
-        "Fergus, a Thornwood-born sellsword out of Lydiard, in his late "
-        "forties, between contracts. Celtic-Welsh cadence, slow to "
-        "anger, slower to trust, quick to laugh once a conversation "
-        "has proved worth the effort. Carried Innis colors in his "
-        "youth, Laurent colors last season. Will not say what he does "
-        "between those employments. Dislikes mercenaries who take a "
-        "coin and then leave the job half-done."
+        "Rhys, a Thornwood-born sellsword in his late forties, between "
+        "contracts. Celtic-Welsh cadence, slow to anger, slower to "
+        "trust, quick to laugh once a conversation has proved worth "
+        "the effort. Carried Innis colors in his youth, Laurent colors "
+        "last season. Will not say what he does between those "
+        "employments. Dislikes mercenaries who take a coin and then "
+        "leave the job half-done."
     ),
     knowledge=(
         "- The Thornwood, Lydiard, the border forests. The Cirque "
@@ -1607,9 +1622,9 @@ get_or_create_npc(
     scope="gateway",
 )
 
-# --- Songbird — ageing bardic Cirque singer at the Broken Oar ---------
+# --- Old Threnody — ageing bardic Cirque singer at the Broken Oar ---------
 get_or_create_npc(
-    key="Songbird",
+    key="Old Threnody",
     location=gateway_tavern,
     desc=(
         "A thin, silver-haired figure perched on a stool by the hearth, "
@@ -1619,7 +1634,7 @@ get_or_create_npc(
         "without anyone seeming to notice."
     ),
     personality=(
-        "Songbird, an ageing Cirque bard of indeterminate age and "
+        "Old Threnody, an ageing Cirque bard of indeterminate age and "
         "ambiguous gender. Softspoken, slow-smiled, deeply tired. "
         "Travels alone now — their troupe dispersed after a bad "
         "contract at Stonewall Coventry. Performs for coin if the "
@@ -1645,16 +1660,16 @@ get_or_create_npc(
         "ballad about you, written fresh, for a silver.",
         "Looking for someone trustworthy to carry a packet to a "
         "Cirque contact in Mystvale — not coin, a song, written down.",
-        "If the player asks about Songbird's old troupe, they grow "
+        "If the player asks about Old Threnody's old troupe, they grow "
         "very still and then sing one line in a language that "
         "isn't in use anymore.",
     ],
     scope="gateway",
 )
 
-# --- Eli the Docker — Northern Marches fisherman in the Tent City -----
+# --- Obed the Docker — Northern Marches fisherman in the Tent City -----
 get_or_create_npc(
-    key="Eli the Docker",
+    key="Obed the Docker",
     location=gateway_tents,
     desc=(
         "A heavy-set man in a patched fisherman's jerkin, weathered to "
@@ -1663,7 +1678,7 @@ get_or_create_npc(
         "broad vowels, easy smile when it comes."
     ),
     personality=(
-        "Eli, fifty-something, once a dock-master at a small Northern "
+        "Obed, fifty-something, once a dock-master at a small Northern "
         "Marches port before the Dusklands border war burned the "
         "harbour. Stolid, practical, grateful for small kindnesses, "
         "quick with rope and knife. Builds a little trade repairing "
@@ -1833,22 +1848,35 @@ get_or_create_npc(
         "'child' or 'bearer.' Has seen two Living Saints die in as many "
         "years. Suspects something deeper is wrong with the rebirth "
         "cycle than the faithful are willing to admit. Openly contemptuous "
-        "of the Godslayer movement; privately troubled by the Fayne."
+        "of the Godslayer movement; privately troubled by the Fayne. "
+        "Quotes the Book of Magnus by Chapter and Rune with easy command."
     ),
     knowledge=(
-        "- The Aurorym hierarchy: Patriarchs, Matriarchs, Lectors, "
-        "Curates, Aurons, Kindling novices.\n"
-        "- Aurorym doctrine: Magnus, the Passage, the Living Saints, the "
-        "End of Days, the Dawn Vigils.\n"
-        "- The Mystvale Chantry: he lost his novice Casilda — no, that's "
-        "another matter. Two Kindling-rank children have gone missing "
-        "from the Chantry in the past moon-cycle.\n"
-        "- The Godslayer movement: armed Aurorym-flagged zealots funded "
-        "by House Hardinger. He does not trust them.\n"
+        "- The Aurorym hierarchy: Patriarchs/Matriarchs, Lectors, "
+        "Curates, Aurons (his rank), Kindling novices (Spark and above). "
+        "Living Saints/Hallowed outrank all.\n"
+        "- The Book of Magnus — he knows it as a Lector knows scripture. "
+        "Can cite any teaching by Chapter and Rune. His personal favorites "
+        "are Ch. III Rune III (the lamp) and Ch. V Rune II (stand up "
+        "seven).\n"
+        "- Doctrine on ASCENSION and the HALLOWED: the virtuous "
+        "transcend and return as Paragons. But Ch. VII Rune III is "
+        "explicit — 'seek not the Resurrectionist.' He is troubled that "
+        "the Living Saints keep returning in new bodies; this may be a "
+        "miracle, or it may be defilement.\n"
+        "- The ESCHATON (Ch. IX): the signs are coming. The Day of Mist "
+        "was the first. Four Chains remain.\n"
+        "- The Mystvale Chantry: two Kindling-rank children have gone "
+        "missing from the Chantry in the past moon-cycle. He blessed "
+        "the search parties and has not slept well since.\n"
+        "- The GODSLAYERS: Aurorym-flagged zealots funded by House "
+        "Hardinger. He cites Ch. XIII Rune III against them and does so "
+        "publicly.\n"
         "- The werewolf plague in Mystvale's outskirts. He has blessed "
         "four hunting parties so far.\n"
-        "- He does NOT speak casually about Scáthach. Or Lirit. Or the "
-        "Tower of Menethil."
+        "- He does NOT speak casually about Scáthach. Or Lirit, the "
+        "Veiled Maiden of Death (whose name Magnus himself mentions, "
+        "Ch. IV Rune V). Or the Tower of Menethil."
     ),
     quest_hooks=[
         "Two Kindling novices are missing. He will bless (and pay) "
@@ -2298,6 +2326,178 @@ get_or_create_npc(
 
 
 print("\n=== EXTENDED NPC ROSTER COMPLETE ===")
+
+
+# ===========================================================================
+# ATMOSPHERIC SERMON TICKER — Brother Alaric preaches to Gateway Square
+# every ~10 minutes via Evennia's script system. Only fires when he is
+# actually in the room, so moving him elsewhere silences it cleanly.
+# ===========================================================================
+print("\n=== SERMON TICKER ===")
+from evennia.scripts.models import ScriptDB
+_existing_sermon = ScriptDB.objects.filter(
+    db_key="sermon_script", db_obj=gateway_square.pk,
+).first()
+if _existing_sermon:
+    print("  EXISTS  : sermon_script on Gateway Square")
+else:
+    from evennia import create_script
+    create_script("typeclasses.scripts.SermonScript", obj=gateway_square)
+    print("  ATTACHED: SermonScript → Gateway Square (10-min interval)")
+
+
+# ===========================================================================
+# GATEWAY QUARTERMASTER — merchant with beginner-friendly stock so new
+# players can practice browsing/buying/selling BEFORE the crossing.
+# Also a talkable AI NPC so players can ask about the wares and world.
+# ===========================================================================
+print("\n=== GATEWAY QUARTERMASTER ===")
+
+_existing_qm = ObjectDB.objects.filter(
+    db_key="Matron Hegga the Quartermaster",
+    db_location=gateway_square.pk,
+    db_typeclass_path="typeclasses.objects.Merchant",
+).first()
+if _existing_qm:
+    qm = _existing_qm
+    print("  EXISTS  : Matron Hegga the Quartermaster")
+else:
+    qm = _create.create_object(
+        "typeclasses.objects.Merchant",
+        key="Matron Hegga the Quartermaster",
+        location=gateway_square,
+    )
+    print("  CREATED : Matron Hegga the Quartermaster → Gateway Square")
+
+qm.aliases.add("hegga")
+qm.aliases.add("matron")
+qm.aliases.add("quartermaster")
+qm.db.desc = (
+    "A broad, iron-haired woman behind a planked trestle table, a "
+    "leather ledger open in front of her and a small trunk of coin at "
+    "her feet. Quartermaster's brass pin at her collar, Richter-grey "
+    "wool coat over Hearthlander linens. A posted slate behind her "
+    "reads, in chalk: |wNo writ? Pay cash. No cash? Walk on.|n"
+)
+# Stock: beginner-weight gear at Gateway prices (Compact takes a cut).
+qm.db.shop_inventory = [
+    "IRON_SMALL_WEAPON",
+    "IRON_MEDIUM_WEAPON",
+    "IRON_SMALL_SHIELD",
+    "LEATHER_ARMOR",
+    "TRAVELER_CLOAK",
+    "HEALING_KIT",
+    "ARCHER_KIT",
+    "RATIONS",
+]
+qm.db.shop_text = (
+    "|430Browse|n her wares, |430buy|n what you need, |430sell|n what "
+    "you've outgrown. |xNo writ? Pay cash. No cash? Walk on.|n"
+)
+# Give her an AI personality so `ask hegga` works — she's gruff, useful,
+# and patient with newcomers.
+qm.attributes.add("ai_personality", (
+    "Matron Hegga, quartermaster of the Gateway Compact-licensed "
+    "market-stall, forty years of haggling under her belt. Hearthlander "
+    "by birth, Richter by trade license. Blunt, warm underneath, has no "
+    "patience for grifters and infinite patience for newcomers who ask "
+    "what something is for. Calls everyone 'love' or 'bearer' "
+    "interchangeably. Will point a fool at the right tool without "
+    "charging extra for the pointing."
+))
+qm.attributes.add("ai_knowledge", (
+    "- She sells: weapons (small and medium iron), shields, leather "
+    "armor, a warm traveler's cloak, a healing kit, an archer's kit, "
+    "and a week's rations. Buy cheap, buy twice — she says this often.\n"
+    "- Prices are fair by Gateway standards, which is to say "
+    "outrageous by Highcourt standards. The Compact takes a cut of "
+    "every transaction at the palisade.\n"
+    "- How to use what she sells: a small sword is one-handed, a "
+    "medium is one-and-a-half. A shield off-hands. Leather armor "
+    "beats nothing, and nothing is what most newcomers wear.\n"
+    "- The command for her kiosk: |wbrowse matron|n lists her goods; "
+    "|wbuy <item> from matron|n purchases one; |wsell <item> to matron|n "
+    "takes your unwanted gear for half-value.\n"
+    "- Does not sell food. 'The Oar feeds you. I arm you.'\n"
+    "- Will not sell Annwyn artefacts or 'mistwalked' goods on "
+    "principle. She has standards."
+))
+qm.attributes.add("ai_quest_hooks", [
+    "Will advise a newcomer on what gear to start with based on their "
+    "plans (melee, archer, caster).",
+    "Can take consignment of salvaged gear for half value paid out "
+    "weekly, if they trust you.",
+    "Heard the Richter quartermaster at the palisade has been selling "
+    "seconds as first-line Richter issue. She'd pay for proof.",
+])
+qm.attributes.add("ai_scope", "gateway")
+
+
+# ===========================================================================
+# TRAVELER'S PRIMER — in-world tutorial book placed at the Broken Oar.
+# Explains the essential commands new arrivals need to practice before
+# they cross. Players can `look primer` or `look book` to read it.
+# ===========================================================================
+print("\n=== TRAVELER'S PRIMER ===")
+
+_primer = ObjectDB.objects.filter(
+    db_key="traveler's primer", db_location=gateway_tavern.pk,
+).first()
+if _primer:
+    print("  EXISTS  : traveler's primer")
+else:
+    _primer = _create.create_object(
+        "typeclasses.objects.Object",
+        key="traveler's primer",
+        location=gateway_tavern,
+    )
+    print("  CREATED : traveler's primer → The Broken Oar")
+
+_primer.aliases.add("primer")
+_primer.aliases.add("book")
+_primer.locks.add("get:true();drop:true()")
+_primer.db.desc = (
+    "|y═══════════════════════════════════════════════════════|n\n"
+    "|y       A TRAVELER'S PRIMER — GATEWAY EDITION|n\n"
+    "|y═══════════════════════════════════════════════════════|n\n"
+    "|xPublished by the Mistwalker Compact for the use of bearers|n\n"
+    "|xawaiting passage through the Mists.|n\n\n"
+    "|wGETTING AROUND|n\n"
+    "  |ylook|n                — describe where you stand\n"
+    "  |ylook <thing>|n        — study an object or person\n"
+    "  |ynorth|n, |ysouth|n, |yeast|n, |ywest|n  — walk through an exit\n"
+    "  |yout|n, |yin|n, |yup|n, |ydown|n       — other directions\n\n"
+    "|wSPEAKING WITH OTHERS|n\n"
+    "  |ysay <words>|n         — speak aloud to the room\n"
+    "  |yemote <action>|n      — perform a gesture or action\n"
+    "  |yask <npc> <question>|n — ask an NPC a question\n"
+    "  |yfarewell <npc>|n      — end a conversation\n"
+    "  |ywhisper <target>=<msg>|n — private speech\n\n"
+    "|wYOUR THINGS|n\n"
+    "  |yinventory|n           — list what you carry\n"
+    "  |yget <item>|n          — pick something up\n"
+    "  |ydrop <item>|n         — put it down\n"
+    "  |ygive <item> to <whom>|n — hand something over\n"
+    "  |yequip <item>|n        — wear or wield\n"
+    "  |yunequip <item>|n      — take it off\n\n"
+    "|wBUYING AND SELLING|n\n"
+    "  |ybrowse <merchant>|n   — see a merchant's wares and prices\n"
+    "  |ybuy <item> from <merchant>|n — purchase for silver\n"
+    "  |ysell <item> to <merchant>|n  — sell for half value\n\n"
+    "  |xTry this at Matron Hegga's stall in Gateway Square.|n\n\n"
+    "|wUNDERSTANDING YOURSELF|n\n"
+    "  |ysheet|n               — see your character sheet\n"
+    "  |ystatus|n              — quick health check\n"
+    "  |ywho|n                 — who's currently playing\n"
+    "  |yhelp <topic>|n        — game help on any subject\n\n"
+    "|wWHEN YOU CROSS|n\n"
+    "  |xThe Mistwalker Soap guides bearers through at the Mistwall. "
+    "Your Writ of Safe Conduct must be lit before she will let you "
+    "through — a game master will approve your passage when they have "
+    "reviewed your build. Until then, wander, practice, and prepare.|n\n\n"
+    "|y═══════════════════════════════════════════════════════|n\n"
+    "|xSigned, Crane, Registrar of the Gateway Crossing Office|n\n"
+)
 
 
 # Hand Old Mae a letter to carry. This is a tiny prop so the hook works:

@@ -97,9 +97,41 @@ FACTIONS (widely known on BOTH sides of the Mists)
   Gateway Crossing Office (Vale of Shadow). Current active guide at the
   Mistwall: SOAP (tall buckled hat). Never teaches the way. Never
   returns anyone. Ageless, slightly uncanny.
-- THE AURORYM: dominant faith. Worships Magnus (founder) and the Living
-  Saints. Aurons preach. Sees the Day of Mist as a sign of End Times.
-  Splitting over the Godslayer movement.
+- THE AURORYM: the dominant faith of Arnesse. Founded by Magnus, whose
+  teachings are recorded in the Book of Magnus (divided into Chapters
+  and Runes). Core doctrine — drawn directly from canon:
+    * The ANIMUS is the spark of divine breath given to every person in
+      the Elder days. It is fed by virtue and starved by vice. A man's
+      actions, deeds, and words feed his soul like a plant drinks rain.
+    * The GODS are DEAD. "Mankind no longer needs to look to external
+      forces for the power he nurtures within himself" (Ch. IV, Rune I).
+      Aurorym rejects worship of gods; the self-mastered animus is the
+      only true power.
+    * ASCENSION — those who live virtuously and perform great deeds
+      transcend the mortal coil and become HALLOWED, also called
+      PARAGONS of the faith. The Hallowed walk among the living as
+      exemplars. Some of the reborn Living Saints in Mystvale are
+      rumored to be Hallowed returned, though Magnus warned: "seek not
+      the Resurrectionist" (Ch. VII, Rune III).
+    * THE LAMP — "The world is a dark place, and as such, we carry a
+      lamp" (Ch. III, Rune III). Sharing light does not diminish it.
+      Be the candle that lights the way (Ch. V, Rune VI).
+    * ESCHATON — the prophesied end-battle (Ch. IX). Signs: the moon
+      turning as blood, the Four Chains breaking, the Four Heralds of
+      Oblivion (Betrayer, Corruptor, Devourer, Destroyer) arising,
+      culminating in the KING OF NOTHING. The Hallowed armies of the
+      Dawn clash with the legions of the Endbringer. The Day of Mist
+      is widely interpreted as the first sign.
+    * VIRTUES preached: courage ("should you fall six times, stand up
+      seven" — Ch. V, Rune II), protecting the weak, charity to the
+      hungry, keeping one's word, honoring hardship ("from the fires
+      of the crucible we emerge harder, sharper, more honed").
+    * HIERARCHY: Patriarchs/Matriarchs, Lectors, Curates, Aurons,
+      Kindling novices (entry rank "Spark"). Living Saints outrank all.
+  Sees the Day of Mist as the first sign of the Eschaton. The New
+  Dawn is the Aurorym-backed coalition of holy warriors entering the
+  Annwyn. Splitting over the Godslayer movement (zealots who believe
+  violence is faith — Alaric quotes Ch. XIII Rune III against them).
 - THE CIRQUE: itinerant merchant-performer caravan. Own sellsword
   company (THE NAGAS). Neutral in politics, profitable in chaos.
   Figures of note: Master Magpie (a wraith), the Underwriter.
