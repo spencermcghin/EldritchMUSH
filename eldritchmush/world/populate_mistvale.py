@@ -115,6 +115,40 @@ for room in ObjectDB.objects.filter(db_typeclass_path__contains="typeclasses.roo
 
 
 # ===========================================================================
+# NPC RENAME MIGRATION — clean up NPCs whose names matched active or
+# archived PCs in the background log. These keys were created by an
+# earlier run of the populate script; the new NPC creation below uses
+# the new keys, so without this cleanup we'd end up with BOTH the old
+# and new NPCs sitting in the same room.
+# ===========================================================================
+print("\n=== NPC RENAME MIGRATION ===")
+_NPC_RENAMES = {
+    "Fergus of Lydiard": "Rhys of the Thornwood",
+    "Juniper the Scribe": "Lissa the Scribe",
+    "Songbird": "Old Threnody",
+    "Eli the Docker": "Obed the Docker",
+}
+for old_key, new_key in _NPC_RENAMES.items():
+    for stale in ObjectDB.objects.filter(
+        db_key=old_key, db_typeclass_path__startswith="typeclasses.npc"
+    ):
+        # If a same-location NPC with the new key already exists (from a
+        # later partial run), just delete the stale one to avoid a
+        # duplicate-key conflict and keep the newer attributes.
+        existing_new = ObjectDB.objects.filter(
+            db_key=new_key, db_location=stale.db_location_id,
+            db_typeclass_path__startswith="typeclasses.npc",
+        ).first()
+        if existing_new:
+            print(f"  DELETE  : stale '{old_key}' (newer '{new_key}' exists at same location)")
+            stale.delete()
+        else:
+            print(f"  RENAME  : '{old_key}' → '{new_key}'")
+            stale.db_key = new_key
+            stale.save()
+
+
+# ===========================================================================
 # GATEWAY ZONE — the Arnesse-side border village on the edge of the Mists
 # ---------------------------------------------------------------------------
 # Per the Event 1 Prologue ("Many Meetings", 7th Moon Cycle 763 A.S.):
