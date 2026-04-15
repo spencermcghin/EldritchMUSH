@@ -10,6 +10,7 @@ sidebar UI's "Whisper" action still works on these NPCs.
 """
 from evennia import Command
 from evennia.commands.default.general import CmdWhisper as _DefaultCmdWhisper
+from evennia.commands.default.general import CmdSay as _DefaultCmdSay
 
 
 class CmdAsk(Command):
@@ -139,6 +140,82 @@ class CmdWhisper(_DefaultCmdWhisper):
 
         # Not an AI NPC — hand off to default whisper behavior.
         return super().func()
+
+
+class CmdSay(_DefaultCmdSay):
+    """
+    Speak aloud to everyone in the room.
+
+    Usage:
+      say <message>
+      "<message>      (shortcut)
+
+    Everyone in the room hears you. If your message names an AI NPC
+    in the room, that NPC will respond — addressing them directly is
+    the natural way to start a conversation with them.
+
+    For a private one-on-one with an NPC, use:
+      ask <npc> <question>      — direct question
+      whisper <npc>=<message>   — private speech
+    """
+    key = "say"
+
+    def func(self):
+        # Run the default say first so the room hears the speech.
+        super().func()
+        # Then check whether any AI NPC in the room was addressed by
+        # name. If so, route the message through the LLM to that NPC.
+        message = (self.args or "").strip().lstrip(":'\"").strip()
+        if not message:
+            return
+        location = self.caller.location
+        if not location:
+            return
+        addressed = []
+        msg_lower = message.lower()
+        for obj in location.contents:
+            if obj == self.caller:
+                continue
+            if not obj.attributes.get("ai_personality", default=None):
+                continue
+            # Match the NPC's key OR any of their aliases against
+            # whole words in the message. "hegga" matches "Hegga,"
+            # but not "Heggard" or "agghegg".
+            candidates = [obj.key.lower()]
+            try:
+                candidates.extend(a.lower() for a in obj.aliases.all())
+            except Exception:
+                pass
+            for cand in candidates:
+                if not cand:
+                    continue
+                # Word-boundary check: the candidate appears in msg
+                # surrounded by spaces, punctuation, or string edges.
+                import re
+                pattern = r"\b" + re.escape(cand) + r"\b"
+                if re.search(pattern, msg_lower):
+                    addressed.append(obj)
+                    break
+        if not addressed:
+            return
+        # Route the message to the first matched NPC (avoid spamming
+        # multiple NPCs from a single say). Subsequent NPCs would need
+        # their own ask / direct address.
+        target = addressed[0]
+        from world import ai_npc
+
+        def _on_reply(reply):
+            if not reply:
+                reply = "..."
+            location.msg_contents(
+                f'|c{target.key}|n says, "{reply}"'
+            )
+
+        location.msg_contents(
+            f"|x({target.key} considers your words...)|n",
+            from_obj=self.caller,
+        )
+        ai_npc.chat(target, self.caller, message, _on_reply)
 
 
 class CmdFarewell(Command):
