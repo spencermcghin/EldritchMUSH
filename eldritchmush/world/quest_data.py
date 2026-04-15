@@ -223,13 +223,14 @@ QUESTS = {
     },
 
     # ─────────────────────────────────────────────────────────────────────────
-    # GATEWAY — The Broken Oar
+    # MISTVALE — The Aentact
     # Canon: Reboot Event 5 / "The Grizzled Veteran" (John Kozar)
     # Hamond the Talon — aka Roderick Wolf, bastard of House Laurent, now
-    # head of the Lex Talionis mercenary company — drinks at the tavern.
-    # He'll wager 1 gold at his "Dance of Dragons" duel. Win and he drops
-    # a signed contract proving his betrayal of the Laurents to House Oban.
-    # The entire arc plays out Gateway-side — no Mists crossing required.
+    # head of the Lex Talionis mercenary company — drinks at the Aentact,
+    # the Mistvale tavern. He'll wager 1 gold at his "Dance of Dragons"
+    # duel. Win and he drops a signed contract proving his betrayal of
+    # the Laurents to House Oban — the betrayal that brought down Stag
+    # Hall at the start of the year. Entire arc plays out Mistvale-side.
     # ─────────────────────────────────────────────────────────────────────────
     "grizzled_veteran": {
         "key": "grizzled_veteran",
@@ -237,8 +238,8 @@ QUESTS = {
         "giver": "hamond the talon",
         "description": (
             "Hamond the Talon — a scarred old soldier with silver rings and "
-            "a Laurent-green surcoat worn pale — holds court at the Broken "
-            "Oar, buying drinks for anyone who'll listen to his war stories. "
+            "a leaf-green Northern Marches cloak — holds court at the Aentact, "
+            "buying drinks for anyone who'll listen to his war stories. "
             "He's offering coin at his old dueling game: the |yDance of "
             "Dragons|n. One gold on the table, first to yield loses all. "
             "Win and press him — there are whispers that Lex Talionis did "

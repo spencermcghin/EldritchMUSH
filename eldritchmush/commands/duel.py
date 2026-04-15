@@ -19,9 +19,8 @@ losing side's bleed_points reaches 0. This file owns `duel <npc>`
 (opens a duel with a willing NPC dealer) and `resolve_duel()` (the
 function combatant.py calls on yield).
 """
-from evennia import Command
+from evennia import Command, spawn
 from evennia.objects.models import ObjectDB
-from evennia.utils.spawner import spawn
 
 
 COIN_TO_SILVER = {"copper": 0.1, "silver": 1, "gold": 20}
@@ -93,7 +92,11 @@ def resolve_duel(loser):
         except Exception:
             pass
 
-    # Defeat drops — NPCs can declare items they surrender on loss
+    # Defeat drops — NPCs can declare items they surrender on loss.
+    # We also fire item_received so the frontend toast confirms the
+    # handoff visually; players should never wonder whether they
+    # actually got the thing the game said they did.
+    from world.npc_gifts import announce_item_drop
     drops = loser.attributes.get("duel_defeat_drops", default=None) or []
     for proto_key in drops:
         try:
@@ -103,6 +106,8 @@ def resolve_duel(loser):
                 opponent.msg(
                     f"|y{loser.key} surrenders |w{items[0].key}|y to you.|n"
                 )
+                if getattr(opponent, "has_account", False):
+                    announce_item_drop(opponent, items[0], from_source_name=loser.key)
         except Exception:
             pass
 

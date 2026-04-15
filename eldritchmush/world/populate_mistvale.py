@@ -1644,13 +1644,14 @@ get_or_create_npc(
 # loss drops the contract + his veteran's coin into the winner's hands.
 hamond = get_or_create_npc(
     key="Hamond the Talon",
-    location=gateway_tavern,
+    location=aentact,
     desc=(
-        "A scarred old soldier in faded Laurent-green, silver rings on "
-        "every finger, a shield propped against his stool. Grey at the "
-        "temples, missing most of his left ear. Drinks cider, not ale, "
-        "and watches the door more often than his hand. A purse on his "
-        "belt clinks with the unmistakable weight of gold dragons."
+        "A scarred old soldier in a leaf-green Northern Marches cloak, "
+        "silver rings on every finger, a shield propped against his "
+        "stool. Grey at the temples, missing most of his left ear. "
+        "Drinks cider, not ale, and watches the door more often than "
+        "his hand. A purse on his belt clinks with the unmistakable "
+        "weight of gold dragons."
     ),
     personality=(
         "Hamond the Talon, born Roderick Wolf, bastard of House Laurent. "

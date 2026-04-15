@@ -137,7 +137,7 @@ def _check_completion(char, key):
 
     for proto_key in rewards.get("items", []):
         try:
-            from evennia.utils.spawner import spawn
+            from evennia import spawn
             items = spawn(proto_key)
             if items:
                 items[0].move_to(char, quiet=True)
