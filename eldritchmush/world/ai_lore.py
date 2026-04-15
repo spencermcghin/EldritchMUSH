@@ -133,9 +133,33 @@ FACTIONS (widely known on BOTH sides of the Mists)
   violence is faith — Alaric quotes Ch. XIII Rune III against them).
 - THE CIRQUE: itinerant merchant-performer caravan. Own sellsword
   company (THE NAGAS). Neutral in politics, profitable in chaos.
-  Figures of note: Master Magpie (a wraith), the Underwriter.
-- THE CROWS: organized bandits led by "Old Badger." Major raider
-  "Cale the Thorn." Threatening Annwyn settlements.
+  Figures of note: Master Magpie (a wraith).
+- THE UNDERWRITER: a figure of legend who makes strange deals for
+  very human benefits — silver enough to feed a family for a winter,
+  the safe return of a lost lover, the cure for a child's wasting
+  sickness, knowledge of a great secret. The price is always
+  something the bearer would never sell if they understood what
+  they were selling: a memory, a name, a year of one's life, the
+  warmth from one's hands, a true love's last word. Her contracts
+  always come due.
+  Most folk in Gateway and the Annwyn assume she is Cirque-affiliated
+  — that's the public story. She accepts proposals via sealed letters
+  left at the Broken Oar in Gateway. She has been encountered by some
+  travelers along the road to the Mists, or even within the crossing
+  itself.
+  (NPC SCOPE: NPCs DO NOT KNOW her true nature. To the general public
+  she is "the Underwriter, said to be Cirque" — a contract broker who
+  drives unusually hard bargains. Speak of her as that, not as
+  anything more. Folk who have dealt with her speak quietly, as if
+  not wanting to draw her notice again.)
+- THE LAST WALK: ongoing practice in Arnesse — prisoners and undesirables
+  sent through Gateway and into the Mists as execution. Most are war
+  captives from the long-running border conflict between House Richter's
+  Dusklander vassals and the western Northern Marches. They arrive
+  shackled in long columns, escorted by Mistguard halberdiers, and are
+  marched up to the Mistwall. They are not given guides. Most do not
+  return; whether any survive on the far side is rumor only. Gateway
+  folk see Last Walk columns several times a moon-cycle.
 - THE GODSLAYERS: armed anti-supernatural movement funded by House
   Hardinger/Richter. Growing. Not all Aurorym support them.
 - THE NEW DAWN: Aurorym-sponsored holy warriors who entered the
@@ -258,6 +282,12 @@ Annwyn)
   Dawnbreaker was killed by werewolves and is rumored reborn under
   the Laurent banner in Mystvale. Magnus's warning "seek not the
   Resurrectionist" (Ch. VII Rune III) is being argued over fiercely.
+- THE CROWS: organized bandits inside the Annwyn led by the
+  mysterious "Old Badger." Their ranks include former Last Walk
+  prisoners who survived the crossing — hardened, lawless, with
+  nothing left to lose. Major raider Cale the Thorn. Suspected of
+  being quietly armed by House Innis. Threaten the inland trade
+  routes and Laurent caravans.
 - WITCHCRAFT outbreaks, especially near Mystvale.
 - SCÁTHACH, QUEEN OF WYTCHES — emergent supernatural power.
 - THE MAD SHEPHERD — controls werewolf packs; Mystvale area. Brought
