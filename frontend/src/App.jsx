@@ -117,6 +117,20 @@ function App() {
     }
   }, [oobState.primerData])
 
+  // Fire __room_meta__ on initial puppet & any character change so the
+  // contextual buttons and topic chips populate without requiring the
+  // player to first walk between rooms.
+  const lastCharNameRef = useRef('')
+  useEffect(() => {
+    if (connectionState !== 'connected') return
+    const charName = oobState.characterName
+    if (charName && charName !== lastCharNameRef.current) {
+      lastCharNameRef.current = charName
+      // Short delay so the character's location is stable on the server.
+      setTimeout(() => sendCommand('__room_meta__'), 300)
+    }
+  }, [oobState.characterName, connectionState, sendCommand])
+
   // Friendly command-input prompt modal
   const [commandPrompt, setCommandPrompt] = useState(null)
   // commandPrompt: { title, label, placeholder, icon, submitLabel, buildCommand } or null
@@ -146,6 +160,12 @@ function App() {
   const handleEntityClick = useCallback((name, type) => {
     setSelectedEntity({ name, type })
     setEntityDescription('')
+    // Refresh per-room NPC metadata whenever an NPC is clicked — cheap
+    // insurance that contextual buttons and topic chips populate even
+    // if the room-change detector missed the last transition.
+    if (type === 'npc' || type === 'character') {
+      sendCommand('__room_meta__')
+    }
     // Mark the current message index — anything new after this is the look response.
     // +1 to skip the echo message that sendCommand adds synchronously.
     lookWatcherRef.current = { entityName: name, fromIndex: messages.length + 1 }
