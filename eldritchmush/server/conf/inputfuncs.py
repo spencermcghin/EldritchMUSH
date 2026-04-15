@@ -223,6 +223,18 @@ def text(session, *args, **kwargs):
                                     except Exception as exc:
                                         diag_write("FINISH_CHARGEN writ spawn failed", exc=str(exc))
 
+                                    # Grant a Compact-issued starter purse so
+                                    # the bearer can practice shopping with
+                                    # Matron Hegga before crossing. 25 silver
+                                    # is enough for a basic weapon + one kit.
+                                    try:
+                                        current_silver = puppet.db.silver or 0
+                                        if current_silver < 25:
+                                            puppet.db.silver = 25
+                                            diag_write("FINISH_CHARGEN starter purse", silver=25)
+                                    except Exception as exc:
+                                        diag_write("FINISH_CHARGEN purse failed", exc=str(exc))
+
                                     # Send approval email to admin
                                     try:
                                         from world.email import send_approval_request
