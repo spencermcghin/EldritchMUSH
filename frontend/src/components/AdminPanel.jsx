@@ -7,6 +7,193 @@ function getCsrfToken() {
   return match ? match[1] : ''
 }
 
+// Flag classification for NPC audit log. Determines which flags are
+// "suspicious" (counted in the summary / filter) vs operational.
+const SUSPICIOUS_FLAGS = new Set(['banned_phrase', 'moderated_input'])
+const NOISY_FLAGS = new Set(['rate_limited_account', 'rate_limited_char_npc'])
+
+function isSuspicious(record) {
+  return (record.flags || []).some(f => {
+    const base = f.split(':')[0]
+    return SUSPICIOUS_FLAGS.has(base)
+  })
+}
+
+function isNoisy(record) {
+  return (record.flags || []).some(f => {
+    const base = f.split(':')[0]
+    return NOISY_FLAGS.has(base)
+  })
+}
+
+function flagBadgeClass(flag) {
+  const base = flag.split(':')[0]
+  if (SUSPICIOUS_FLAGS.has(base)) return 'flag-badge suspicious'
+  if (NOISY_FLAGS.has(base)) return 'flag-badge noisy'
+  if (base.startsWith('llm_error') || base.startsWith('llm_http_error')) return 'flag-badge error'
+  return 'flag-badge neutral'
+}
+
+function formatTimeAgo(ts) {
+  if (!ts) return ''
+  const diff = Math.floor(Date.now() / 1000 - ts)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
+}
+
+function NpcAuditTab() {
+  const [records, setRecords] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [filter, setFilter] = useState('suspicious')  // 'all' | 'suspicious' | 'rate' | 'errors'
+
+  const fetchRecords = useCallback(async () => {
+    setLoading(true)
+    try {
+      const resp = await fetch('/api/admin/npc-audit/?limit=500', { credentials: 'include' })
+      if (!resp.ok) {
+        if (resp.status === 403) throw new Error('Admin access required')
+        throw new Error(`HTTP ${resp.status}`)
+      }
+      const data = await resp.json()
+      setRecords(data.records || [])
+      setError(null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchRecords()
+    const iv = setInterval(fetchRecords, 30000)  // auto-refresh every 30s
+    return () => clearInterval(iv)
+  }, [fetchRecords])
+
+  // Summary stats
+  const suspiciousRecords = records.filter(isSuspicious)
+  const noisyRecords = records.filter(isNoisy)
+  const errorRecords = records.filter(r => (r.flags || []).some(f => f.startsWith('llm_error') || f.startsWith('llm_http_error')))
+
+  // Per-account offender counts (suspicious only)
+  const offenderCounts = {}
+  for (const r of suspiciousRecords) {
+    const k = r.account || '(unknown)'
+    offenderCounts[k] = (offenderCounts[k] || 0) + 1
+  }
+  const repeatOffenders = Object.entries(offenderCounts)
+    .filter(([, n]) => n >= 3)
+    .sort((a, b) => b[1] - a[1])
+
+  // Filter for display
+  let displayed = records
+  if (filter === 'suspicious') displayed = suspiciousRecords
+  else if (filter === 'rate') displayed = noisyRecords
+  else if (filter === 'errors') displayed = errorRecords
+
+  return (
+    <div className="npc-audit">
+      {/* Summary strip */}
+      <div className="audit-summary-strip">
+        <div className={`audit-summary-card ${suspiciousRecords.length > 0 ? 'alert' : ''}`}>
+          <div className="audit-summary-value">{suspiciousRecords.length}</div>
+          <div className="audit-summary-label">Suspicious</div>
+        </div>
+        <div className="audit-summary-card">
+          <div className="audit-summary-value">{noisyRecords.length}</div>
+          <div className="audit-summary-label">Rate-limited</div>
+        </div>
+        <div className="audit-summary-card">
+          <div className="audit-summary-value">{errorRecords.length}</div>
+          <div className="audit-summary-label">LLM errors</div>
+        </div>
+        <div className="audit-summary-card">
+          <div className="audit-summary-value">{records.length}</div>
+          <div className="audit-summary-label">Total (last 500)</div>
+        </div>
+        <div className="audit-summary-spacer" />
+        <button className="audit-refresh-btn" onClick={fetchRecords}>↻ Refresh</button>
+      </div>
+
+      {/* Repeat offenders — only shown if there are any */}
+      {repeatOffenders.length > 0 && (
+        <div className="audit-offenders">
+          <div className="audit-section-label">⚠ Repeat offenders (3+ suspicious attempts)</div>
+          <div className="audit-offender-list">
+            {repeatOffenders.map(([acct, count]) => (
+              <span key={acct} className="audit-offender-chip">
+                {acct} <span className="audit-offender-count">{count}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Filter bar */}
+      <div className="audit-filter-bar">
+        {[
+          { key: 'suspicious', label: `Suspicious (${suspiciousRecords.length})` },
+          { key: 'rate', label: `Rate-limited (${noisyRecords.length})` },
+          { key: 'errors', label: `Errors (${errorRecords.length})` },
+          { key: 'all', label: `All (${records.length})` },
+        ].map(f => (
+          <button
+            key={f.key}
+            className={`admin-filter-btn ${filter === f.key ? 'active' : ''}`}
+            onClick={() => setFilter(f.key)}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Records */}
+      <div className="audit-records">
+        {loading && records.length === 0 && (
+          <div className="admin-loading">Loading audit log...</div>
+        )}
+        {error && <div className="admin-error">{error}</div>}
+        {!loading && !error && displayed.length === 0 && (
+          <div className="admin-empty">
+            {filter === 'suspicious'
+              ? 'No suspicious activity in the last 500 records. ✓'
+              : 'No records match this filter.'}
+          </div>
+        )}
+        {displayed.map((r, i) => (
+          <div key={`${r.ts}-${i}`} className={`audit-record ${isSuspicious(r) ? 'suspicious' : ''}`}>
+            <div className="audit-record-header">
+              <span className="audit-time">{formatTimeAgo(r.ts)}</span>
+              <span className="audit-account">{r.account || '(no account)'}</span>
+              <span className="audit-arrow">→</span>
+              <span className="audit-npc">{r.npc}</span>
+              <span className="audit-char">as {r.char}</span>
+              <div className="audit-flags">
+                {(r.flags || []).map((f, j) => (
+                  <span key={j} className={flagBadgeClass(f)}>{f}</span>
+                ))}
+              </div>
+            </div>
+            <div className="audit-record-body">
+              <div className="audit-turn">
+                <span className="audit-turn-label">Player:</span>
+                <span className="audit-turn-text player">{r.msg}</span>
+              </div>
+              <div className="audit-turn">
+                <span className="audit-turn-label">NPC:</span>
+                <span className="audit-turn-text npc">{r.reply}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function AccountsTab() {
   const [accounts, setAccounts] = useState([])
   const [roles, setRoles] = useState([])
@@ -223,6 +410,12 @@ export default function AdminPanel({ onClose }) {
           >
             Accounts & Roles
           </button>
+          <button
+            className={`admin-filter-btn ${tab === 'audit' ? 'active' : ''}`}
+            onClick={() => setTab('audit')}
+          >
+            NPC Audit
+          </button>
           <div style={{ flex: 1 }} />
           <input
             className="admin-search"
@@ -247,6 +440,8 @@ export default function AdminPanel({ onClose }) {
         <div className="admin-body">
           {tab === 'accounts' ? (
             <AccountsTab />
+          ) : tab === 'audit' ? (
+            <NpcAuditTab />
           ) : (
           <>
           {loading && <div className="admin-loading">Loading characters...</div>}
