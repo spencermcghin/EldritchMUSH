@@ -2414,15 +2414,18 @@ qm.db.desc = (
     "reads, in chalk: |wNo writ? Pay cash. No cash? Walk on.|n"
 )
 # Stock: beginner-weight gear at Gateway prices (Compact takes a cut).
+# All keys verified against world/prototypes.py.
 qm.db.shop_inventory = [
-    "IRON_SMALL_WEAPON",
-    "IRON_MEDIUM_WEAPON",
-    "IRON_SMALL_SHIELD",
-    "LEATHER_ARMOR",
-    "TRAVELER_CLOAK",
-    "HEALING_KIT",
-    "ARCHER_KIT",
-    "RATIONS",
+    "IRON_SMALL_WEAPON",      # short sword / dagger
+    "IRON_MEDIUM_WEAPON",     # arming sword
+    "IRON_SHIELD",            # shield
+    "LEATHER_ARMOR",          # body armor
+    "LIGHT_BOOTS",            # footwear
+    "FINE_CLOTHING",          # under-layer
+    "HIGHWAYMAN_CLOAK",       # cloak slot
+    "PATCH_KIT",              # healing kit for medicine/chirurgery
+    "BOW",                    # ranged option
+    "ARROWS",                 # ammunition
 ]
 qm.db.shop_text = (
     "|430Browse|n her wares, |430buy|n what you need, |430sell|n what "
@@ -2440,18 +2443,22 @@ qm.attributes.add("ai_personality", (
     "charging extra for the pointing."
 ))
 qm.attributes.add("ai_knowledge", (
-    "- She sells: weapons (small and medium iron), shields, leather "
-    "armor, a warm traveler's cloak, a healing kit, an archer's kit, "
-    "and a week's rations. Buy cheap, buy twice — she says this often.\n"
+    "- She sells: small and medium iron weapons, an iron shield, "
+    "leather armor, light boots, fine clothing (an under-layer), a "
+    "highwayman's cloak, a patch kit for healing, a bow and arrows. "
+    "Buy cheap, buy twice — she says this often.\n"
     "- Prices are fair by Gateway standards, which is to say "
     "outrageous by Highcourt standards. The Compact takes a cut of "
     "every transaction at the palisade.\n"
-    "- How to use what she sells: a small sword is one-handed, a "
+    "- How to use what she sells: a small weapon is one-handed, a "
     "medium is one-and-a-half. A shield off-hands. Leather armor "
     "beats nothing, and nothing is what most newcomers wear.\n"
-    "- The command for her kiosk: |wbrowse matron|n lists her goods; "
-    "|wbuy <item> from matron|n purchases one; |wsell <item> to matron|n "
-    "takes your unwanted gear for half-value.\n"
+    "- The command for her kiosk: |wbrowse matron|n lists her goods "
+    "with prices; |wbuy <item> from matron|n purchases one for silver; "
+    "|wsell <item> to matron|n takes your unwanted gear for half-value.\n"
+    "- Currency is silver. Bearers arrive with a Compact-issued "
+    "purse of 25 silver — enough for boots and a knife, or a hunk "
+    "of armor, or a healer's kit. Budget.\n"
     "- Does not sell food. 'The Oar feeds you. I arm you.'\n"
     "- Will not sell Annwyn artefacts or 'mistwalked' goods on "
     "principle. She has standards."
