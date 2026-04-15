@@ -541,15 +541,31 @@ def text(session, *args, **kwargs):
                                             if results:
                                                 proto = results[0]
                                                 price = int(proto.get("value_silver", 0)) or max(1, int(proto.get("value_copper", 0)) // 10)
+                                                proto_name = proto.get("key", proto_key)
+                                                # Enrich with Item Effect text from the
+                                                # Schematics master (CSV), since prototypes
+                                                # don't carry effect descriptions.
+                                                try:
+                                                    from world import items_data
+                                                    effect_text = items_data.get_effect(proto_name)
+                                                except Exception:
+                                                    effect_text = ""
                                                 items.append({
                                                     "key": proto_key,
-                                                    "name": proto.get("key", proto_key),
+                                                    "name": proto_name,
                                                     "desc": proto.get("desc", ""),
+                                                    "effect": effect_text,
                                                     "price": price,
                                                     "damage": proto.get("damage", 0),
                                                     "materialValue": proto.get("material_value", 0),
                                                     "level": proto.get("level", 0),
                                                     "type": proto.get("craft_source", ""),
+                                                    "materials": {
+                                                        "iron": proto.get("iron_ingots", 0),
+                                                        "cloth": proto.get("cloth", 0),
+                                                        "wood": proto.get("refined_wood", 0),
+                                                        "leather": proto.get("leather", 0),
+                                                    },
                                                 })
                                         except Exception:
                                             pass
