@@ -62,6 +62,8 @@ export function useEvennia() {
     tavylState: null,
     primerData: null,
     inventoryOpen: null,
+    questOffers: [],
+    itemReceived: null,
     // Per-room NPC metadata pushed via __room_meta__ event.
     // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
     roomNpcMeta: {},
@@ -249,6 +251,27 @@ export function useEvennia() {
           // Signal to auto-open the equip/inventory modal. Fired by
           // the server when the player types `inv`/`inventory`/`i`.
           next.inventoryOpen = { ts: Date.now() }
+          break
+        }
+        case 'quest_offer': {
+          // Append pending quest offers — App.jsx dequeues them one
+          // at a time into the QuestOfferModal.
+          const incoming = Array.isArray(kwargs.offers) ? kwargs.offers : []
+          const existing = prev.questOffers || []
+          const existingKeys = new Set(existing.map(o => o.key))
+          const additions = incoming.filter(o => !existingKeys.has(o.key))
+          next.questOffers = [...existing, ...additions]
+          break
+        }
+        case 'item_received': {
+          // Transient toast showing that an NPC gave the player
+          // something. `ts` changes per event so App.jsx effect fires.
+          next.itemReceived = {
+            itemName: kwargs.itemName || kwargs.item_name,
+            fromNpc: kwargs.fromNpc || kwargs.from_npc || '',
+            desc: kwargs.desc || '',
+            ts: Date.now(),
+          }
           break
         }
         case 'room_meta': {
@@ -623,6 +646,13 @@ export function useEvennia() {
     setOobState((prev) => ({ ...prev, atCharacterSelect: true, characterName: '' }))
   }, [])
 
+  const dismissQuestOffer = useCallback((questKey) => {
+    setOobState((prev) => ({
+      ...prev,
+      questOffers: (prev.questOffers || []).filter(o => o.key !== questKey),
+    }))
+  }, [])
+
   return {
     connectionState,
     messages,
@@ -635,5 +665,6 @@ export function useEvennia() {
     enterChargen,
     clearLastCharCreate,
     showCharacterSelect,
+    dismissQuestOffer,
   }
 }

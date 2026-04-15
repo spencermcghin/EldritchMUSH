@@ -18,6 +18,8 @@ import AdminPanel from './components/AdminPanel'
 import ShopModal from './components/ShopModal'
 import TavylModal from './components/TavylModal'
 import PrimerModal from './components/PrimerModal'
+import QuestOfferModal from './components/QuestOfferModal'
+import ItemReceivedToast from './components/ItemReceivedToast'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -41,7 +43,7 @@ const EXIT_CONTEXT_ITEMS = (dir) => [
 ]
 
 function App() {
-  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate, showCharacterSelect } =
+  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate, showCharacterSelect, dismissQuestOffer } =
     useEvennia()
 
   const inputRef = useRef(null)
@@ -511,6 +513,25 @@ function App() {
           primerData={oobState.primerData}
         />
       )}
+
+      {/* Quest offer modal — shows pending offers one at a time */}
+      {oobState.questOffers?.length > 0 && (
+        <QuestOfferModal
+          open={true}
+          offer={oobState.questOffers[0]}
+          onAccept={() => {
+            const offer = oobState.questOffers[0]
+            sendCommand(`quest accept ${offer.title}`)
+            dismissQuestOffer(offer.key)
+          }}
+          onDecline={() => dismissQuestOffer(oobState.questOffers[0].key)}
+          onClose={() => dismissQuestOffer(oobState.questOffers[0].key)}
+        />
+      )}
+
+      {/* Item-received toast — NPC gift notification */}
+      <ItemReceivedToast item={oobState.itemReceived} />
+
 
       {/* Admin panel — only for admin users */}
       {adminOpen && (

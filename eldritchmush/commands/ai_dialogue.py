@@ -65,8 +65,12 @@ class CmdAsk(Command):
             return
 
         from world import ai_npc
+        from world.npc_gifts import process_gift_markers
 
         def _on_reply(reply):
+            if not reply:
+                reply = "..."
+            reply = process_gift_markers(reply, target, caller)
             if not reply:
                 reply = "..."
             # Broadcast to the room so other players see the exchange too.
@@ -125,8 +129,12 @@ class CmdWhisper(_DefaultCmdWhisper):
             target = target[0] if target else None
         if target and target.attributes.get("ai_personality", default=None):
             from world import ai_npc
+            from world.npc_gifts import process_gift_markers
 
             def _on_reply(reply):
+                if not reply:
+                    reply = "..."
+                reply = process_gift_markers(reply, target, caller)
                 if not reply:
                     reply = "..."
                 caller.msg(

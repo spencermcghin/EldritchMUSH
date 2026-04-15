@@ -232,6 +232,15 @@ class Character(DefaultCharacter):
         # Push updated available commands to the web UI sidebar after every move.
         push_available_commands(self)
 
+        # Offer any quests whose giver is in the room and whose
+        # prereqs we've met. The UI picks this up via a quest_offer
+        # OOB event and pops a parchment accept/reject modal.
+        try:
+            from world.quest_offers import push_quest_offers_for_room
+            push_quest_offers_for_room(self)
+        except Exception:
+            pass
+
     def at_post_puppet(self, **kwargs):
         """Called when a player puppets this character (login / reconnect)."""
         super().at_post_puppet(**kwargs)
@@ -250,6 +259,12 @@ class Character(DefaultCharacter):
         # Push character vitals so the sidebar panel populates on login.
         try:
             push_character_stats(self)
+        except Exception:
+            pass
+        # Offer any quests whose giver is in our starting room.
+        try:
+            from world.quest_offers import push_quest_offers_for_room
+            push_quest_offers_for_room(self)
         except Exception:
             pass
 

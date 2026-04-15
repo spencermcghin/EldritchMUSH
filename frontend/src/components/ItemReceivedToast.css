@@ -1,0 +1,46 @@
+.item-toast {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  width: 320px;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, #241c10 0%, #120e08 100%);
+  border: 1px solid var(--accent-gold);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(212, 175, 55, 0.25);
+  z-index: 2000;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  pointer-events: none;
+}
+.item-toast-in {
+  transform: translateX(0);
+  opacity: 1;
+}
+.item-toast-out {
+  transform: translateX(400px);
+  opacity: 0;
+}
+.item-toast-eyebrow {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-aged);
+  margin-bottom: 4px;
+}
+.item-toast-name {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+}
+.item-toast-desc {
+  margin-top: 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-light);
+  font-style: italic;
+}

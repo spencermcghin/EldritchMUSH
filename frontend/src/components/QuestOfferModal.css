@@ -1,0 +1,149 @@
+.quest-offer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 4, 0.92);
+  backdrop-filter: blur(4px);
+  z-index: 1150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.quest-offer-modal {
+  background: linear-gradient(180deg, #1f1a10 0%, #110e09 100%);
+  border: 1px solid var(--accent-gold);
+  width: 640px;
+  max-width: 96vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 70px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(212, 175, 55, 0.18),
+    inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+
+.quest-offer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.08), transparent);
+}
+.quest-offer-eyebrow {
+  color: var(--accent-gold);
+  font-size: 12px;
+  letter-spacing: 4px;
+}
+.quest-offer-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quest-offer-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.quest-offer-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+}
+
+.quest-offer-title {
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+  margin-bottom: 4px;
+}
+.quest-offer-giver {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-aged);
+  margin-bottom: 20px;
+}
+.quest-offer-giver-name {
+  color: var(--text-light);
+  font-style: normal;
+}
+
+.quest-offer-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin: 0 0 20px;
+}
+
+.quest-offer-section { margin-top: 16px; }
+.quest-offer-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-aged);
+  margin-bottom: 8px;
+}
+.quest-offer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--text-light);
+  font-size: 14px;
+}
+.quest-offer-list li {
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.12);
+}
+.quest-offer-qty { color: var(--accent-gold); margin-left: 4px; }
+
+.quest-offer-rewards { display: flex; flex-wrap: wrap; gap: 6px; }
+.quest-offer-reward-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  background: rgba(212, 175, 55, 0.06);
+  color: var(--accent-gold);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+}
+
+.quest-offer-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 28px;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+}
+.quest-offer-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  padding: 10px 24px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+}
+.quest-offer-decline:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+.quest-offer-accept {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.quest-offer-accept:hover {
+  background: rgba(212, 175, 55, 0.12);
+}
