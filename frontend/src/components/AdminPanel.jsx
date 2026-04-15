@@ -365,23 +365,33 @@ export default function AdminPanel({ onClose }) {
   }, [])
 
   const searchLower = search.toLowerCase()
-  const filtered = characters
+  // Separate out pending characters — they get their own tab so the
+  // main Characters view isn't cluttered with people awaiting review.
+  const pendingChars = characters.filter(c => c.approvalStatus === 'pending')
+  const activeChars = characters.filter(c => c.approvalStatus !== 'pending')
+
+  const searchMatch = (c) => {
+    if (!searchLower) return true
+    return c.name.toLowerCase().includes(searchLower)
+      || (c.accountName || '').toLowerCase().includes(searchLower)
+      || (c.location || '').toLowerCase().includes(searchLower)
+      || (c.archetype || '').toLowerCase().includes(searchLower)
+  }
+
+  const filtered = activeChars
     .filter(c => {
       if (filter === 'online') return c.online
       if (filter === 'offline') return !c.online
       if (filter === 'chargen') return c.inChargen
       return true
     })
-    .filter(c => {
-      if (!searchLower) return true
-      return c.name.toLowerCase().includes(searchLower)
-        || (c.accountName || '').toLowerCase().includes(searchLower)
-        || (c.location || '').toLowerCase().includes(searchLower)
-        || (c.archetype || '').toLowerCase().includes(searchLower)
-    })
+    .filter(searchMatch)
+
+  const filteredPending = pendingChars.filter(searchMatch)
 
   const onlineCount = characters.filter(c => c.online).length
   const totalCount = characters.length
+  const pendingCount = pendingChars.length
 
   return (
     <div className="admin-backdrop" onClick={onClose}>
@@ -403,6 +413,15 @@ export default function AdminPanel({ onClose }) {
             onClick={() => setTab('characters')}
           >
             Characters
+          </button>
+          <button
+            className={`admin-filter-btn ${tab === 'approvals' ? 'active' : ''} ${pendingCount > 0 ? 'has-pending' : ''}`}
+            onClick={() => setTab('approvals')}
+          >
+            Approvals
+            {pendingCount > 0 && (
+              <span className="admin-tab-badge">{pendingCount}</span>
+            )}
           </button>
           <button
             className={`admin-filter-btn ${tab === 'accounts' ? 'active' : ''}`}
@@ -442,6 +461,75 @@ export default function AdminPanel({ onClose }) {
             <AccountsTab />
           ) : tab === 'audit' ? (
             <NpcAuditTab />
+          ) : tab === 'approvals' ? (
+            <>
+              {loading && <div className="admin-loading">Loading pending characters...</div>}
+              {error && <div className="admin-error">{error}</div>}
+              {!loading && !error && (
+                <div className="admin-approvals-grid">
+                  {filteredPending.length === 0 && (
+                    <div className="admin-empty">
+                      No characters awaiting approval.
+                    </div>
+                  )}
+                  {filteredPending.map(char => (
+                    <div key={char.id} className="admin-approval-card">
+                      <div className="admin-approval-header">
+                        <div className="admin-approval-name-block">
+                          <span className="admin-approval-name">{char.name}</span>
+                          <span className="admin-char-dbref">{char.dbref}</span>
+                        </div>
+                        <div className="admin-approval-meta">
+                          {char.archetype && (
+                            <span className="admin-meta-tag archetype">{char.archetype}</span>
+                          )}
+                          <span className="admin-meta-tag pending">PENDING</span>
+                          {char.online && (
+                            <span className="admin-meta-tag online">ONLINE</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="admin-approval-facts">
+                        <div className="admin-approval-fact">
+                          <span className="admin-detail-label">Account</span>
+                          <span className="admin-detail-value wide">{char.accountName || 'unlinked'}</span>
+                        </div>
+                        <div className="admin-approval-fact">
+                          <span className="admin-detail-label">Location</span>
+                          <span className="admin-detail-value wide">{char.location}</span>
+                        </div>
+                        <div className="admin-approval-fact">
+                          <span className="admin-detail-label">Submitted</span>
+                          <span className="admin-detail-value wide">
+                            {char.created ? new Date(char.created).toLocaleString() : '—'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="admin-approval-actions">
+                        <button
+                          className="admin-btn approve-btn admin-btn-big"
+                          onClick={() => handleApproval(char.id, 'approve')}
+                        >
+                          ✓ Approve Crossing
+                        </button>
+                        <input
+                          className="admin-reject-input"
+                          placeholder="Rejection reason (optional)"
+                          value={rejectInput[char.id] || ''}
+                          onChange={e => setRejectInput(prev => ({ ...prev, [char.id]: e.target.value }))}
+                        />
+                        <button
+                          className="admin-btn reject-btn admin-btn-big"
+                          onClick={() => handleApproval(char.id, 'reject', rejectInput[char.id] || '')}
+                        >
+                          ✕ Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
           <>
           {loading && <div className="admin-loading">Loading characters...</div>}
@@ -451,107 +539,82 @@ export default function AdminPanel({ onClose }) {
             <div className="admin-char-grid">
               {filtered.map(char => (
                 <div key={char.id} className={`admin-char-card ${char.online ? 'is-online' : 'is-offline'}`}>
-                  <div className="admin-char-header">
+                  {/* Row 1 — identity + status */}
+                  <div className="admin-char-row-top">
                     <span className={`admin-status-dot ${char.online ? 'online' : 'offline'}`} />
                     <span className="admin-char-name">{char.name}</span>
                     <span className="admin-char-dbref">{char.dbref}</span>
+                    <div className="admin-char-tags">
+                      {char.archetype && (
+                        <span className="admin-meta-tag archetype">{char.archetype}</span>
+                      )}
+                      {char.inChargen && (
+                        <span className="admin-meta-tag chargen">IN CHARGEN</span>
+                      )}
+                      {char.approvalStatus === 'approved' && (
+                        <span className="admin-meta-tag approved">APPROVED</span>
+                      )}
+                      {char.approvalStatus === 'rejected' && (
+                        <span className="admin-meta-tag rejected">REJECTED</span>
+                      )}
+                      {char.online && (
+                        <span className="admin-meta-tag online">ONLINE</span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="admin-char-meta">
-                    {char.archetype && (
-                      <span className="admin-meta-tag archetype">{char.archetype}</span>
-                    )}
-                    {char.inChargen && (
-                      <span className="admin-meta-tag chargen">IN CHARGEN</span>
-                    )}
-                    {char.approvalStatus === 'pending' && (
-                      <span className="admin-meta-tag pending">PENDING APPROVAL</span>
-                    )}
-                    {char.approvalStatus === 'approved' && (
-                      <span className="admin-meta-tag approved">APPROVED</span>
-                    )}
-                    {char.approvalStatus === 'rejected' && (
-                      <span className="admin-meta-tag rejected">REJECTED</span>
-                    )}
-                    {char.online && (
-                      <span className="admin-meta-tag online">ONLINE</span>
-                    )}
-                  </div>
-
-                  <div className="admin-char-details">
-                    <div className="admin-detail">
-                      <span className="admin-detail-label">Account</span>
-                      <span className="admin-detail-value">{char.accountName || 'unlinked'}</span>
-                    </div>
-                    <div className="admin-detail">
-                      <span className="admin-detail-label">Location</span>
-                      <span className="admin-detail-value">{char.location}</span>
-                    </div>
-                    <div className="admin-detail">
-                      <span className="admin-detail-label">Body</span>
-                      <span className="admin-detail-value">{char.body}/{char.totalBody}</span>
-                    </div>
-                    <div className="admin-detail">
-                      <span className="admin-detail-label">AV</span>
-                      <span className="admin-detail-value">{char.av}</span>
-                    </div>
-                    <div className="admin-detail">
-                      <span className="admin-detail-label">Created</span>
-                      <span className="admin-detail-value">
-                        {char.created ? new Date(char.created).toLocaleDateString() : '—'}
+                  {/* Row 2 — facts + actions */}
+                  <div className="admin-char-row-bottom">
+                    <div className="admin-char-facts">
+                      <span className="admin-fact">
+                        <span className="admin-detail-label">Account:</span>
+                        <span className="admin-detail-value">{char.accountName || 'unlinked'}</span>
+                      </span>
+                      <span className="admin-fact">
+                        <span className="admin-detail-label">Location:</span>
+                        <span className="admin-detail-value">{char.location}</span>
+                      </span>
+                      <span className="admin-fact">
+                        <span className="admin-detail-label">Body:</span>
+                        <span className="admin-detail-value">{char.body}/{char.totalBody}</span>
+                      </span>
+                      <span className="admin-fact">
+                        <span className="admin-detail-label">AV:</span>
+                        <span className="admin-detail-value">{char.av}</span>
+                      </span>
+                      <span className="admin-fact">
+                        <span className="admin-detail-label">Created:</span>
+                        <span className="admin-detail-value">
+                          {char.created ? new Date(char.created).toLocaleDateString() : '—'}
+                        </span>
                       </span>
                     </div>
-                  </div>
-
-                  <div className="admin-char-actions">
-                    {/* Approval actions */}
-                    {(char.approvalStatus === 'pending' || char.approvalStatus === 'submitted') && (
-                      <div className="admin-approval-actions">
+                    <div className="admin-char-actions">
+                      {deleteConfirm === char.id ? (
+                        <div className="admin-delete-confirm">
+                          <span className="admin-delete-warn">Delete {char.name}?</span>
+                          <button
+                            className="admin-btn confirm-yes"
+                            onClick={() => handleDelete(char.id, char.name)}
+                          >
+                            Yes, Delete
+                          </button>
+                          <button
+                            className="admin-btn confirm-no"
+                            onClick={() => setDeleteConfirm(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
                         <button
-                          className="admin-btn approve-btn"
-                          onClick={() => handleApproval(char.id, 'approve')}
+                          className="admin-btn delete-btn"
+                          onClick={() => setDeleteConfirm(char.id)}
                         >
-                          Approve
+                          Delete
                         </button>
-                        <input
-                          className="admin-reject-input"
-                          placeholder="Reason (optional)"
-                          value={rejectInput[char.id] || ''}
-                          onChange={e => setRejectInput(prev => ({ ...prev, [char.id]: e.target.value }))}
-                        />
-                        <button
-                          className="admin-btn reject-btn"
-                          onClick={() => handleApproval(char.id, 'reject', rejectInput[char.id] || '')}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
-                    {/* Delete */}
-                    {deleteConfirm === char.id ? (
-                      <div className="admin-delete-confirm">
-                        <span className="admin-delete-warn">Delete {char.name}?</span>
-                        <button
-                          className="admin-btn confirm-yes"
-                          onClick={() => handleDelete(char.id, char.name)}
-                        >
-                          Yes, Delete
-                        </button>
-                        <button
-                          className="admin-btn confirm-no"
-                          onClick={() => setDeleteConfirm(null)}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="admin-btn delete-btn"
-                        onClick={() => setDeleteConfirm(char.id)}
-                      >
-                        Delete
-                      </button>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
