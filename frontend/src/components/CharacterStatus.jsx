@@ -108,22 +108,18 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
         {/* Purse */}
         <div className="status-section-label cinzel">PURSE</div>
         <div className="purse-row">
-          {gold > 0 && (
-            <span className="coin coin-gold" title={`${gold} gold`}>
-              <span className="coin-amt">{gold}</span>
-              <span className="coin-label">gold</span>
-            </span>
-          )}
+          <span className="coin coin-gold" title={`${gold} gold`}>
+            <span className="coin-amt">{gold}</span>
+            <span className="coin-label">gold</span>
+          </span>
           <span className="coin coin-silver" title={`${silver} silver`}>
             <span className="coin-amt">{silver}</span>
             <span className="coin-label">silver</span>
           </span>
-          {copper > 0 && (
-            <span className="coin coin-copper" title={`${copper} copper`}>
-              <span className="coin-amt">{copper}</span>
-              <span className="coin-label">copper</span>
-            </span>
-          )}
+          <span className="coin coin-copper" title={`${copper} copper`}>
+            <span className="coin-amt">{copper}</span>
+            <span className="coin-label">copper</span>
+          </span>
         </div>
 
         {/* Divider */}

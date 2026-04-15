@@ -70,15 +70,23 @@ function getTypeClass(entityType) {
   }
 }
 
-export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, description, npcMeta }) {
+export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, description, npcMeta, playerSilver = 0 }) {
   // Base actions per entity-type, plus any contextual actions from NPC
   // metadata (Tavyl dealer, merchant) appended at the end.
   const baseActions = getActions(entityType)
   const contextActions = []
   if (npcMeta?.isTavylDealer) {
+    const stake = npcMeta.tavylStake || 1
+    const canAfford = playerSilver >= stake
     contextActions.push({
-      label: 'Play Tavyl', icon: '🎴', kind: 'send',
+      label: canAfford ? `Play Tavyl (${stake}s)` : `Play Tavyl — need ${stake}s`,
+      icon: '🎴',
+      kind: 'send',
       command: (name) => `tavyl sit ${name}`,
+      disabled: !canAfford,
+      tooltip: canAfford
+        ? `Pay ${stake} silver to sit (you have ${playerSilver})`
+        : `You need ${stake} silver to sit. You have ${playerSilver}.`,
     })
   }
   if (npcMeta?.isMerchant) {

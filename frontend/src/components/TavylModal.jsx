@@ -1,5 +1,45 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './TavylModal.css'
+
+function HowToPlay() {
+  return (
+    <div className="tavyl-howto tavyl-howto-inline">
+      <div className="tavyl-howto-section">
+        <div className="tavyl-howto-label cinzel">OBJECT</div>
+        <p>Be the last player to survive the Pestilence.</p>
+      </div>
+      <div className="tavyl-howto-section">
+        <div className="tavyl-howto-label cinzel">EACH TURN</div>
+        <p>
+          Play any number of cards from your hand (each has its
+          own effect), then end your turn by drawing one card from
+          the Fate deck.
+        </p>
+      </div>
+      <div className="tavyl-howto-section">
+        <div className="tavyl-howto-label cinzel">PESTILENCE</div>
+        <p>
+          If you draw The Pestilence, you must play your
+          <span className="hint-cure"> Bonesman </span>
+          to cure it. Without one, you are eliminated. Each
+          player starts with one Bonesman.
+        </p>
+      </div>
+      <div className="tavyl-howto-section">
+        <div className="tavyl-howto-label cinzel">ACTION CARDS</div>
+        <p>
+          Click any card in your hand to play it. Hover for the
+          effect. <em>Seeress</em> peeks the deck; <em>Raven</em> reverses
+          play order; <em>Resurrection</em> recovers a card from the Crypt;
+          <em> Veiled Lady</em> skips your draw; <em>Assassin</em> forces
+          two draws on a foe; <em>Trader</em> steals a card; <em>Knight</em>
+          forces one draw; <em>Merchant</em> takes a card of their choosing;
+          <em> King</em> cancels the last action.
+        </p>
+      </div>
+    </div>
+  )
+}
 
 // Card art tints by type — Pestilence in blood-red, Bonesman in
 // phosphor-green, all others in wax-stamp gold.
@@ -43,6 +83,7 @@ function PlayerSeat({ player }) {
 }
 
 export default function TavylModal({ open, onClose, sendCommand, tavylState }) {
+  const [showRules, setShowRules] = useState(false)
   useEffect(() => {
     if (!open) return
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -65,37 +106,15 @@ export default function TavylModal({ open, onClose, sendCommand, tavylState }) {
               named for a hamlet long since lost to plague — saved at the
               last by a wandering band of magisters."</em>
             </p>
-            <div className="tavyl-howto">
-              <div className="tavyl-howto-section">
-                <div className="tavyl-howto-label cinzel">OBJECT</div>
-                <p>Be the last player to survive the Pestilence.</p>
-              </div>
-              <div className="tavyl-howto-section">
-                <div className="tavyl-howto-label cinzel">EACH TURN</div>
-                <p>
-                  Play any number of cards from your hand (each has its
-                  own effect), then end your turn by drawing one card from
-                  the Fate deck.
-                </p>
-              </div>
-              <div className="tavyl-howto-section">
-                <div className="tavyl-howto-label cinzel">PESTILENCE</div>
-                <p>
-                  If you draw The Pestilence, you must play your
-                  <span className="hint-cure"> Bonesman </span>
-                  to cure it. Without one, you are eliminated. Each
-                  player starts with one Bonesman.
-                </p>
-              </div>
-              <div className="tavyl-howto-section">
-                <div className="tavyl-howto-label cinzel">TO BEGIN</div>
-                <p>
-                  Find a Tavyl dealer — <strong>Mab the Gambler</strong> at
-                  the Broken Oar runs a table. Click her in the room and
-                  hit <strong>Play Tavyl</strong>, or type <code>tavyl sit mab</code>.
-                  You'll need 1 silver to sit. Winner takes the pot.
-                </p>
-              </div>
+            <HowToPlay />
+            <div className="tavyl-howto-section">
+              <div className="tavyl-howto-label cinzel">TO BEGIN</div>
+              <p>
+                Find a Tavyl dealer — <strong>Mab the Gambler</strong> at
+                the Broken Oar runs a table. Click her in the room and
+                hit <strong>Play Tavyl</strong>, or type <code>tavyl sit mab</code>.
+                You'll need 1 silver to sit. Winner takes the pot.
+              </p>
             </div>
             <button className="tavyl-close-btn" onClick={onClose}>Close</button>
           </div>
@@ -133,8 +152,17 @@ export default function TavylModal({ open, onClose, sendCommand, tavylState }) {
         <div className="tavyl-header">
           <span className="cinzel tavyl-title">TAVYL</span>
           <span className="tavyl-subtitle">at {state.dealer}'s table — stake {state.stake} silver</span>
+          <button
+            className="tavyl-rules-btn"
+            onClick={() => setShowRules(s => !s)}
+            title="How to play"
+          >
+            {showRules ? 'Hide Rules' : 'How to Play'}
+          </button>
           <button className="tavyl-close" onClick={onClose}>✕</button>
         </div>
+
+        {showRules && <HowToPlay />}
 
         {/* Seats */}
         <div className="tavyl-seats">

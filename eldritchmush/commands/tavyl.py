@@ -458,7 +458,15 @@ class CmdTavyl(Command):
         existing = dealer.attributes.get("tavyl_table", default=None)
         if existing and existing.get("started") and not _t.is_over(existing):
             if str(caller.id) in existing.get("players", []):
-                caller.msg("You're already at this table.")
+                # Player is already seated — re-sync their hand and re-push
+                # the state so the modal opens (or re-opens) with the live
+                # game instead of rejecting them.
+                caller.msg(
+                    f"|gYou're already at {dealer.key}'s table. "
+                    f"Resuming your hand…|n"
+                )
+                _materialize_hand(caller, existing)
+                push_tavyl_state(caller, dealer)
                 return
             caller.msg(f"{dealer.key}'s table is already in play. Wait for the next round.")
             return

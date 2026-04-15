@@ -418,6 +418,7 @@ function App() {
               onPrompt={openPrompt}
               description={entityDescription}
               npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
+              playerSilver={oobState.purse?.silver || 0}
             />
           ) : (
             <CharacterStatus
