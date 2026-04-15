@@ -12,7 +12,154 @@ just overloads its hooks to have it perform its function.
 
 """
 
+import random
 from evennia import DefaultScript
+
+
+# ---------------------------------------------------------------------------
+# SermonScript — periodic atmospheric broadcast of Aurorym sermon
+# fragments to the room. Attached to Gateway — The Open Square via
+# populate_mistvale.py so Brother Alaric's preaching spills into the
+# ambient text even when players aren't directly conversing with him.
+# ---------------------------------------------------------------------------
+# Sermon fragments drawn from the canonical Book of Magnus. Each is
+# either a direct quotation (with Chapter/Rune citation) or Brother
+# Alaric's riff on a canonical teaching. Chapter/Rune references match
+# the Book of Magnus text held in the Drive.
+AURON_SERMONS = [
+    # Chapter I Rune I — egalitarian opening
+    "Brother Alaric raises his hands to the grey sky: |y\"Hear the First "
+    "Rune of the First Chapter! 'Even the weak can be mighty. The poor "
+    "peasant is as dear to this world as the mighty prince.' Magnus "
+    "wrote that, friends — not I!\"|n",
+
+    # Chapter I Rune IV — interior path
+    "Brother Alaric calls out, voice carrying: |y\"'He who conquers "
+    "others is strong. He who conquers himself is mighty.' Rune Four of "
+    "the First Chapter! The Dawn does not wait at Highcourt's gate; it "
+    "waits within YOU.\"|n",
+
+    # Chapter I Rune V — the animus metaphor
+    "Brother Alaric thumps his Book of Magnus: |y\"The animus is powerful "
+    "but fragile — fed by virtue and valor, it ripens. Fed by malice and "
+    "cowardice, it withers. You are your own orchard, bearer. What fruit "
+    "have you grown this moon-cycle?\"|n",
+
+    # Chapter I Rune VII — the New Dawn call
+    "Brother Alaric intones, eyes half-closed: |y\"'A new Dawn is coming "
+    "to Arnesse and we are its heralds. Take my hand, and do not fear, "
+    "for death holds no horrors for the truly righteous.' The First "
+    "Chapter, closing Rune.\"|n",
+
+    # Chapter II Rune VI — crucible
+    "Brother Alaric speaks low and steady: |y\"'From the fires of the "
+    "crucible we emerge harder, sharper, and more honed to our purpose.' "
+    "The Second Chapter. If the Mists have tested you, bearer, REJOICE. "
+    "You are being forged.\"|n",
+
+    # Chapter III Rune II — death as horizon
+    "Brother Alaric murmurs, half to himself: |y\"'Death is only a "
+    "horizon, and a horizon merely the limits of what one can see.' "
+    "Chapter Three, Rune Two. A good Rune for the Mistwall, that one.\"|n",
+
+    # Chapter III Rune III — the lamp
+    "Brother Alaric lifts his begging bowl and speaks gently: |y\"'The "
+    "world is a dark place, and so we carry a lamp. Our own light is "
+    "not diminished by sharing it with another.' A copper to the bowl, "
+    "then, and the night grows just a little less dark.\"|n",
+
+    # Chapter IV Rune I — the gods are dead
+    "Brother Alaric raises his voice to a passing merchant: |y\"The "
+    "gods are dead and obsolete, friend! Magnus wrote it plain — 'we "
+    "no longer need look to external forces for the power he nurtures "
+    "within himself.' There is no master but your own animus!\"|n",
+
+    # Chapter V Rune II — fall six, stand seven
+    "Brother Alaric catches sight of a beggar and kneels to speak low: "
+    "|y\"'Should you fall six times, stand up seven.' Chapter Five, "
+    "Rune Two. You have not been defeated, sister. You have only been "
+    "defeated YET.\"|n",
+
+    # Chapter V Rune VI — be the candle
+    "Brother Alaric preaches, soft and sure: |y\"'Be the candle that "
+    "lights the way, that others may find the path in the dark.' Fifth "
+    "Chapter, Sixth Rune. If every lamp in Gateway lit one other, the "
+    "whole palisade would burn bright.\"|n",
+
+    # Chapter VII Rune III — warning against the Resurrectionist
+    "Brother Alaric's voice drops, troubled: |y\"Magnus warned us — "
+    "'Seek not the Resurrectionist.' Chapter Seven, Rune Three. I tell "
+    "you, brethren, there are stories from Mystvale I cannot unhear.\"|n",
+
+    # Chapter IX — Eschaton prophecy (condensed)
+    "Brother Alaric's voice hushes, awed: |y\"'The moon shall turn as "
+    "blood and rule above the silence of the waters. The Heralds of "
+    "Oblivion shall take up fel horns, and the King of Nothing shall "
+    "come.' Chapter Nine. The Eschaton is not metaphor, friends. It is "
+    "the road before us.\"|n",
+
+    # Chapter IX Rune XI — closing warning
+    "Brother Alaric cries out, all at once fierce: |y\"'Women and men "
+    "of the Dawn, PREPARE YOURSELVES. They are coming.' The Ninth "
+    "Chapter's final Rune. The Day of Mist was the herald. The Annwyn "
+    "is where the Dawn is kindled — or where the Dark swallows the "
+    "last Hallowed whole!\"|n",
+
+    # Riff — on Paragons and the Hallowed
+    "Brother Alaric gestures toward the palisade: |y\"The Hallowed walk "
+    "among us, bearer. They live as we live and die as we die — but "
+    "their animus Ascends. It is the BIRTHRIGHT of mankind to become "
+    "Paragon unto itself, so Magnus wrote.\"|n",
+
+    # Riff — on the Godslayers (Alaric dissenting)
+    "Brother Alaric frowns at a Godslayer banner across the square: "
+    "|y\"The Third Rune of the Thirteenth Chapter — 'false prophets... "
+    "clothed in the countenance of the faithful, speaking words of honey "
+    "that do not nourish.' Every Kindling novice knows that one. Every "
+    "Godslayer should.\"|n",
+
+    # Riff — on the lamp of Gateway
+    "Brother Alaric accepts a coin from a ragged pilgrim, bows his head: "
+    "|y\"May the lamp you carry today light another's tomorrow. The "
+    "Dawn goes with you, bearer.\"|n",
+]
+
+
+class SermonScript(DefaultScript):
+    """Broadcasts a random Auron sermon fragment to the room the script
+    is attached to, every ~10 minutes.
+
+    Silent if the attached Auron NPC isn't present in the room (e.g.
+    admins moved them elsewhere). This avoids Gateway sermonizing
+    itself when Brother Alaric is somewhere else.
+    """
+
+    def at_script_creation(self):
+        self.key = "sermon_script"
+        self.desc = "Brother Alaric's periodic sermonizing"
+        self.interval = 600       # 10 minutes
+        self.start_delay = True   # don't fire on server start
+        self.persistent = True
+        self.db.auron_key = "Brother Alaric"
+
+    def at_repeat(self):
+        room = self.obj
+        if not room:
+            return
+        auron_key = self.db.auron_key or "Brother Alaric"
+        # Only broadcast if the Auron is actually present.
+        preacher = None
+        for obj in room.contents:
+            if getattr(obj, "key", None) == auron_key:
+                preacher = obj
+                break
+        if not preacher:
+            return
+        line = random.choice(AURON_SERMONS)
+        try:
+            room.msg_contents(line)
+        except Exception:
+            pass
 
 
 class Script(DefaultScript):
