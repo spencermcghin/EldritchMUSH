@@ -25,6 +25,56 @@ class Npc(Character):
         """
         pass
 
+    def at_object_receive(self, moved_obj, source_location, **kwargs):
+        """When an item moves into this NPC, react if it's a player gift.
+
+        For AI-driven NPCs (those with `ai_personality`), trigger an
+        in-character LLM response so the NPC can acknowledge / thank /
+        refuse / comment on what they were handed. The item itself
+        stays in the NPC's inventory; the LLM only generates dialogue,
+        not mechanical state changes.
+
+        We DON'T fire on items moving via internal mechanisms (combat
+        loot, populate scripts, admin @tel, etc.) — only when a
+        Character with an account was the source.
+        """
+        try:
+            super().at_object_receive(moved_obj, source_location, **kwargs)
+        except Exception:
+            pass
+
+        if not self.attributes.get("ai_personality", default=None):
+            return
+        try:
+            if (not source_location
+                or not isinstance(source_location, Character)
+                or not getattr(source_location, "db_account_id", None)):
+                return
+        except Exception:
+            return
+        if moved_obj == self:
+            return
+
+        item_name = getattr(moved_obj, "key", "an item")
+        synthetic = (
+            f"[GAME EVENT: {source_location.key} just handed you "
+            f"{item_name}. Respond in-character — accept, refuse, "
+            f"thank, comment, or barter.]"
+        )
+        try:
+            from world import ai_npc
+
+            def _on_reply(reply):
+                if not reply:
+                    return
+                if self.location:
+                    self.location.msg_contents(
+                        f'|c{self.key}|n says, "{reply}"'
+                    )
+            ai_npc.chat(self, source_location, synthetic, _on_reply)
+        except Exception:
+            pass
+
     def take_combat_turn(self, target):
         """
         Called by the combat loop when it is this NPC's turn.
