@@ -518,6 +518,75 @@ def text(session, *args, **kwargs):
                         diag_write("MAP_UI FAILED", exc=str(exc), tb=traceback.format_exc())
                     return
 
+                # __room_meta__ — send per-NPC flags for the current room.
+                # Used by the frontend DetailPanel to decide which contextual
+                # action buttons to show (Play Tavyl for dealers, Browse for
+                # merchants with shop_inventory, etc.).
+                if lowered == "__room_meta__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet and puppet.location:
+                            import time as _time
+                            npcs = []
+                            for obj in puppet.location.contents:
+                                if obj == puppet:
+                                    continue
+                                # Only include NPCs / merchants — anything that
+                                # isn't a player character. Cheap filter: must
+                                # have a key and not be an exit.
+                                if hasattr(obj, "destination") and obj.destination:
+                                    continue
+                                # Must be a Character subclass (covers Npc and
+                                # Merchant which extends Npc).
+                                tcp = obj.typeclass_path or ""
+                                if not (
+                                    "Npc" in tcp
+                                    or "Merchant" in tcp
+                                    or "Character" in tcp
+                                ):
+                                    continue
+                                # Skip puppeted player characters
+                                if getattr(obj, "db_account_id", None) and getattr(obj, "has_account", False):
+                                    continue
+                                aliases = []
+                                try:
+                                    aliases = [a for a in obj.aliases.all()]
+                                except Exception:
+                                    pass
+                                # Pull quest hooks for player-facing hint
+                                # chips. We summarize each hook into a short
+                                # topic (first 7-9 words) so the inspect panel
+                                # can show "Topics: [her sister] [a copper]"
+                                # rather than full LLM instructions.
+                                hooks = obj.attributes.get("ai_quest_hooks", default=None) or []
+                                topics = []
+                                for h in hooks:
+                                    s = str(h).strip()
+                                    if not s:
+                                        continue
+                                    # Tighten: first sentence-ish, capped at 60 chars
+                                    short = s.split(".")[0][:80]
+                                    topics.append(short)
+                                npcs.append({
+                                    "name": obj.key,
+                                    "dbref": obj.id,
+                                    "aliases": aliases,
+                                    "isTavylDealer": bool(obj.attributes.get("tavyl_dealer", default=False)),
+                                    "isMerchant": getattr(obj.db, "shop_inventory", None) is not None,
+                                    "hasAi": bool(obj.attributes.get("ai_personality", default=None)),
+                                    "topics": topics[:4],
+                                })
+                            session.msg(event={
+                                "type": "room_meta",
+                                "_ts": _time.time(),
+                                "roomKey": puppet.location.key,
+                                "roomId": puppet.location.id,
+                                "npcs": npcs,
+                            })
+                    except Exception as exc:
+                        diag_write("ROOM_META FAILED", exc=str(exc))
+                    return
+
                 # __shop_ui__ — send structured merchant shop data
                 if lowered == "__shop_ui__":
                     try:

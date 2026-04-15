@@ -58,12 +58,46 @@ export default function TavylModal({ open, onClose, sendCommand, tavylState }) {
       <div className="tavyl-backdrop" onClick={onClose}>
         <div className="tavyl-modal" onClick={e => e.stopPropagation()}>
           <div className="tavyl-empty">
-            <span className="cinzel">No active Tavyl game.</span>
-            <p>
-              Find a Tavyl dealer (Mab the Gambler at the Broken Oar)
-              and type <code>tavyl sit mab</code> to deal yourself in.
+            <span className="cinzel">THE GAME OF TAVYL</span>
+            <p className="tavyl-intro">
+              <em>"No one is quite sure where the game of Tavyl originated.
+              Some say it has roots in a much older game called Tavylen,
+              named for a hamlet long since lost to plague — saved at the
+              last by a wandering band of magisters."</em>
             </p>
-            <button className="tavyl-close" onClick={onClose}>Close</button>
+            <div className="tavyl-howto">
+              <div className="tavyl-howto-section">
+                <div className="tavyl-howto-label cinzel">OBJECT</div>
+                <p>Be the last player to survive the Pestilence.</p>
+              </div>
+              <div className="tavyl-howto-section">
+                <div className="tavyl-howto-label cinzel">EACH TURN</div>
+                <p>
+                  Play any number of cards from your hand (each has its
+                  own effect), then end your turn by drawing one card from
+                  the Fate deck.
+                </p>
+              </div>
+              <div className="tavyl-howto-section">
+                <div className="tavyl-howto-label cinzel">PESTILENCE</div>
+                <p>
+                  If you draw The Pestilence, you must play your
+                  <span className="hint-cure"> Bonesman </span>
+                  to cure it. Without one, you are eliminated. Each
+                  player starts with one Bonesman.
+                </p>
+              </div>
+              <div className="tavyl-howto-section">
+                <div className="tavyl-howto-label cinzel">TO BEGIN</div>
+                <p>
+                  Find a Tavyl dealer — <strong>Mab the Gambler</strong> at
+                  the Broken Oar runs a table. Click her in the room and
+                  hit <strong>Play Tavyl</strong>, or type <code>tavyl sit mab</code>.
+                  You'll need 1 silver to sit. Winner takes the pot.
+                </p>
+              </div>
+            </div>
+            <button className="tavyl-close-btn" onClick={onClose}>Close</button>
           </div>
         </div>
       </div>

@@ -348,3 +348,83 @@
   color: var(--text-aged);
   opacity: 0.8;
 }
+
+/* ─── How-to-play intro panel ─── */
+
+.tavyl-intro {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: #e8cf8a;
+  line-height: 1.55;
+  max-width: 580px;
+  margin: 0 auto 24px;
+  padding: 12px 18px;
+  border-left: 2px solid var(--accent-gold);
+  border-right: 2px solid var(--accent-gold);
+  background: rgba(212, 175, 55, 0.04);
+}
+
+.tavyl-howto {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto 24px;
+  text-align: left;
+}
+
+.tavyl-howto-section {
+  padding: 12px 14px;
+  background: rgba(10, 8, 7, 0.5);
+  border: 1px solid var(--border);
+}
+
+.tavyl-howto-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+  margin-bottom: 6px;
+}
+
+.tavyl-howto-section p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.tavyl-howto-section code {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--accent-gold);
+  padding: 1px 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+}
+
+.tavyl-howto-section .hint-cure {
+  color: var(--phosphor);
+  font-weight: 700;
+}
+
+.tavyl-howto-section strong {
+  color: var(--accent-gold);
+}
+
+.tavyl-close-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 8px 24px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.tavyl-close-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}

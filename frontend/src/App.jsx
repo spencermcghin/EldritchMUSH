@@ -254,19 +254,27 @@ function App() {
       return
     }
     // Check new messages for room description markers
+    let sawRoomChange = false
     for (let i = prevMsgCountRef.current; i < messages.length; i++) {
       const msg = messages[i]
       if (!msg || msg.type === 'system') continue
       const raw = (msg.content || '').replace(/<[^>]*>/g, '')
       if (/Exits?:/i.test(raw) && !lookWatcherRef.current) {
-        // New room — close the detail panel
+        // New room — close the detail panel and refresh NPC metadata
+        // (so contextual buttons like Play Tavyl / Browse appear for
+        // dealers / merchants in the new room).
         setSelectedEntity(null)
         setEntityDescription('')
+        sawRoomChange = true
         break
       }
     }
+    if (sawRoomChange) {
+      // Slight delay to let the server finalize move state.
+      setTimeout(() => sendCommand('__room_meta__'), 100)
+    }
     prevMsgCountRef.current = messages.length
-  }, [messages, selectedEntity])
+  }, [messages, selectedEntity, sendCommand])
 
   const isConnected = connectionState === 'connected'
   const isConnecting = connectionState === 'connecting'
@@ -380,6 +388,7 @@ function App() {
               injectCommand={injectCommand}
               onPrompt={openPrompt}
               description={entityDescription}
+              npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
             />
           ) : (
             <CharacterStatus

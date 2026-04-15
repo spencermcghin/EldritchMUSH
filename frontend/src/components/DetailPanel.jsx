@@ -70,8 +70,26 @@ function getTypeClass(entityType) {
   }
 }
 
-export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, description }) {
-  const actions = getActions(entityType)
+export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, description, npcMeta }) {
+  // Base actions per entity-type, plus any contextual actions from NPC
+  // metadata (Tavyl dealer, merchant) appended at the end.
+  const baseActions = getActions(entityType)
+  const contextActions = []
+  if (npcMeta?.isTavylDealer) {
+    contextActions.push({
+      label: 'Play Tavyl', icon: '🎴', kind: 'send',
+      command: (name) => `tavyl sit ${name}`,
+    })
+  }
+  if (npcMeta?.isMerchant) {
+    contextActions.push({
+      label: 'Browse Wares', icon: '🪙', kind: 'send',
+      command: (name) => `browse ${name}`,
+    })
+  }
+  const actions = [...baseActions, ...contextActions]
+  const topics = npcMeta?.topics || []
+
   const typeLabel = getTypeLabel(entityType)
   const typeClass = getTypeClass(entityType)
   // Strip Evennia's -N duplicate suffix (e.g. "bow-1" → "Bow")
@@ -96,6 +114,20 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
       sendCommand(text)
     }
   }, [entityName, sendCommand, injectCommand, onPrompt])
+
+  // When player clicks a topic chip, prompt them with an Ask modal
+  // pre-filled with that topic.
+  const handleTopicClick = useCallback((topic) => {
+    if (!onPrompt) return
+    onPrompt({
+      title: `Ask ${displayName}`,
+      label: `Ask ${displayName} about:`,
+      placeholder: topic,
+      icon: '🗣',
+      submitLabel: 'Ask',
+      buildCommand: (input) => `ask ${entityName} ${input || topic}`,
+    })
+  }, [entityName, displayName, onPrompt])
 
   return (
     <aside className="detail-panel panel panel-decorated">
@@ -131,6 +163,26 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
             </span>
           )}
         </div>
+
+        {/* Topic chips — only shown for NPCs with quest hooks. Each
+            chip is a clickable hint at what to ask about. */}
+        {topics.length > 0 && (
+          <>
+            <div className="status-section-label cinzel">TOPICS</div>
+            <div className="detail-topics">
+              {topics.map((t, i) => (
+                <button
+                  key={i}
+                  className="detail-topic-chip"
+                  onClick={() => handleTopicClick(t)}
+                  title={`Ask ${displayName} about this`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Actions */}
         <div className="detail-actions">

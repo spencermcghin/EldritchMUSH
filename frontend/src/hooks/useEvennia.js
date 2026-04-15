@@ -60,6 +60,9 @@ export function useEvennia() {
     av: 0,
     purse: { silver: 0, gold: 0, copper: 0 },
     tavylState: null,
+    // Per-room NPC metadata pushed via __room_meta__ event.
+    // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
+    roomNpcMeta: {},
     statusFlags: {
       bleeding: false,
       dying: false,
@@ -232,6 +235,28 @@ export function useEvennia() {
           // re-render. ts is added so React notices the change even if
           // payload structure is identical between turns.
           next.tavylState = { ...kwargs, ts: Date.now() }
+          break
+        }
+        case 'room_meta': {
+          // Index NPCs by lowercase name for fast lookup in DetailPanel.
+          // Also include alias keys so e.g. "hegga" matches the
+          // Quartermaster.
+          const meta = {}
+          for (const npc of (kwargs.npcs || [])) {
+            const entry = {
+              name: npc.name,
+              dbref: npc.dbref,
+              isTavylDealer: !!npc.isTavylDealer,
+              isMerchant: !!npc.isMerchant,
+              hasAi: !!npc.hasAi,
+              topics: Array.isArray(npc.topics) ? npc.topics : [],
+            }
+            meta[(npc.name || '').toLowerCase()] = entry
+            for (const a of (npc.aliases || [])) {
+              meta[(a || '').toLowerCase()] = entry
+            }
+          }
+          next.roomNpcMeta = meta
           break
         }
         case 'combat_start': {
