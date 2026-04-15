@@ -32,6 +32,11 @@ def push_character_stats(character):
         "bleed_points": getattr(db, "bleed_points", None),
         "death_points": getattr(db, "death_points", None),
         "av": getattr(db, "av", 0) or 0,
+        "purse": {
+            "silver": getattr(db, "silver", 0) or 0,
+            "gold": getattr(db, "gold", 0) or 0,
+            "copper": getattr(db, "copper", 0) or 0,
+        },
         "status": {
             "bleeding": bool(getattr(db, "bleeding", False)),
             "dying": bool(getattr(db, "dying", False)),
