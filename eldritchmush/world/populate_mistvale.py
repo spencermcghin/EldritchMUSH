@@ -133,14 +133,15 @@ gateway_tents = get_or_create_room(
     "typeclasses.rooms.WeatherRoom",
     "A sprawling, mud-churned tent city pressed against the outer palisade "
     "of Gateway. Weather-beaten canvas, driftwood lean-tos, and rope lines "
-    "strung with laundry make an ugly warren underfoot. Children with "
-    "hollow cheeks fetch water from a common trough. Latrine smoke and "
-    "cookfires braid into the damp coastal air. This is where most "
-    "newcomers to Gateway end up — those who cannot afford Gateway's "
-    "inflated lodgings, or who are quietly waiting for a Mistwalker to "
-    "agree to take them.\n\n"
-    "|wNorth|n into |wGateway Square|n. Watchmen of the Mistguard walk "
-    "the palisade above.",
+    "strung with laundry make an ugly warren underfoot. Latrine smoke and "
+    "cookfires braid into the damp coastal air.\n\n"
+    "Life here does not pause. A widow stirs a thin pot of lentils over "
+    "coals, children with hollow cheeks queue at the common trough, an old "
+    "Tarkathi pilgrim winds his prayer beads in the lee of a lean-to. Two "
+    "Richter porters warm their hands at a brazier without speaking. "
+    "Someone is coughing, somewhere, and has been for days. Watchmen of "
+    "the Mistguard walk the palisade above, bored and cold.\n\n"
+    "|wNorth|n into |wGateway Square|n.",
     zone="Gateway",
 )
 
@@ -154,8 +155,13 @@ gateway_square = get_or_create_room(
     "doubtful origin. Fights start at one end and finish at the other. "
     "The banners of the Mistguard — House Richter's iron tower quartered "
     "with House Bannon's black drake — hang from a central post, water-"
-    "stained and grubby. Coin changes hands constantly, and only the "
-    "unwary let theirs go willingly.\n\n"
+    "stained and grubby.\n\n"
+    "At any given hour the Square runs thick with traffic: hawkers calling "
+    "wares, a Cirque fortune-teller murmuring at a folding table, two "
+    "Aurorym Kindling novices handing out bread under the eye of their "
+    "Auron, a pair of Bannon men-at-arms walking a slow circuit. A "
+    "knife-grinder works his treadle near the north end. Coin changes "
+    "hands constantly, and only the unwary let theirs go willingly.\n\n"
     "|wSouth|n to the |wtent city|n. |wEast|n to the |wBroken Oar|n. "
     "|wWest|n to the |wpalisade gate|n. |wNorth|n to the |wMistwalker's Tent|n.",
     zone="Gateway",
@@ -168,9 +174,13 @@ gateway_tavern = get_or_create_room(
     "black from lamp-smoke. The Broken Oar is Gateway's only lodging worth "
     "the name — which is to say its mattresses have merely most of their "
     "lice. The bar is made from the prow of a wrecked mistwalker ship, the "
-    "name 'Albatross Doom' still faintly visible under the varnish. Sailors, "
-    "grifters, sellswords, and an occasional pale-eyed Mistwalker share the "
-    "benches. This is where contracts are whispered and passage is bought.\n\n"
+    "name 'Albatross Doom' still faintly visible under the varnish.\n\n"
+    "The room is never quiet. Fishermen from the Breakwater crews argue "
+    "over dice by the hearth; a brace of travel-worn pilgrims huddle over "
+    "watered wine in the corner; a drunk Richter corporal has been asleep "
+    "on the same bench for the better part of the afternoon. Somewhere "
+    "under the smoke, someone is singing in an old Cirque tongue, quietly, "
+    "for themselves. A cat walks across the bar as if it owns it.\n\n"
     "Back to the |wSquare|n.",
     zone="Gateway",
 )
@@ -1500,6 +1510,306 @@ get_or_create_npc(
         "Asks if someone crossing might deliver word to a distant "
         "cousin she believes made it to Mystvale. Mira, daughter of "
         "Hanen the vintner. Her cousin, not her sister.",
+    ],
+    scope="gateway",
+)
+
+
+# --- Mab the Gambler — cards and gossip at the Broken Oar ------------
+get_or_create_npc(
+    key="Mab the Gambler",
+    location=gateway_tavern,
+    desc=(
+        "A small, sharp-eyed woman at the corner table, a worn deck of "
+        "painted cards laid out before her. Silver rings on every finger. "
+        "A cheap Cirque hat pushed back on her head, a half-finished mug "
+        "of cider at her elbow, a stack of coppers and silvers growing "
+        "and shrinking in front of her like a tide."
+    ),
+    personality=(
+        "Mab, a professional gambler who works the Broken Oar most "
+        "nights. Fast-spoken, warm, bone-dry wit. Runs an honest card "
+        "game — or at least one where the cheats are limited to the "
+        "house. Remembers every face she's taken coin from. Likes "
+        "travellers; they talk freely and lose freely. Dislikes cheats, "
+        "drunks who don't know their limit, and Aurorym preachers who "
+        "lecture her about 'the devil's pasteboards.'"
+    ),
+    knowledge=(
+        "- Card games: Queen's Folly, Crossmarks, Three Widows. She will "
+        "teach you any of them for the price of your first hand.\n"
+        "- Who in Gateway has lost big lately, and why. This list "
+        "includes a Mistguard captain who should not be gambling on "
+        "duty silver.\n"
+        "- The Cirque runs a travelling card circuit — she's played "
+        "in Highcourt, Ember, Scrow.\n"
+        "- Rumor of a rigged deck being sold out of the Back Alley "
+        "markets; she does not approve of competition she can't see.\n"
+        "- She will swap a good piece of gossip for a stake in her "
+        "game — one silver down and she'll talk while she deals."
+    ),
+    quest_hooks=[
+        "Stake her a silver in Three Widows, win or lose, and she'll "
+        "share a piece of gossip you didn't know.",
+        "Will flag any rigged cards for sale in Gateway if a player "
+        "brings her a sample.",
+        "Has a standing offer for an honest courier — carry a "
+        "sealed packet of winnings back to her sister in Scrow.",
+    ],
+    scope="gateway",
+)
+
+# --- Fergus of Lydiard — Thornwood sellsword at the Broken Oar --------
+get_or_create_npc(
+    key="Fergus of Lydiard",
+    location=gateway_tavern,
+    desc=(
+        "A large man at a quiet bench by the window, methodically "
+        "working through a bowl of stew. A shield propped against his "
+        "knee, a sword-belt on the bench beside him, green Thornwood "
+        "wool under a well-worn jerkin. Greying beard, calm eyes, the "
+        "ease of a man who has been in the room five minutes and "
+        "already cataloged every exit."
+    ),
+    personality=(
+        "Fergus, a Thornwood-born sellsword out of Lydiard, in his late "
+        "forties, between contracts. Celtic-Welsh cadence, slow to "
+        "anger, slower to trust, quick to laugh once a conversation "
+        "has proved worth the effort. Carried Innis colors in his "
+        "youth, Laurent colors last season. Will not say what he does "
+        "between those employments. Dislikes mercenaries who take a "
+        "coin and then leave the job half-done."
+    ),
+    knowledge=(
+        "- The Thornwood, Lydiard, the border forests. The Cirque "
+        "mercenary company known as the Nagas. The going rate for "
+        "shield-work in the Annwyn.\n"
+        "- House Innis and House Laurent both employ sellswords; "
+        "their rates and their reputations are not the same. He has "
+        "worked for both within the same year without saying which he "
+        "prefers.\n"
+        "- Recent Crow raids on Laurent caravans — he has views. He "
+        "does not volunteer them to strangers.\n"
+        "- The Dread Run route to the Sovereignlands: bandits you can "
+        "bribe, bandits you can't, weather that kills you faster than "
+        "either.\n"
+        "- He will not go into the Annwyn without a Writ. He has seen "
+        "what the mists return of those who do."
+    ),
+    quest_hooks=[
+        "Open to new contracts — shield-work for silver, caravan guard "
+        "rates preferred.",
+        "Will teach first-form shieldwork to anyone patient enough to "
+        "buy him a second bowl of stew.",
+        "Knows which sellsword companies are hiring, and which are "
+        "'hiring' in a way that means walking into a debt.",
+    ],
+    scope="gateway",
+)
+
+# --- Songbird — ageing bardic Cirque singer at the Broken Oar ---------
+get_or_create_npc(
+    key="Songbird",
+    location=gateway_tavern,
+    desc=(
+        "A thin, silver-haired figure perched on a stool by the hearth, "
+        "a small gut-strung lute across one knee. Patched Cirque motley "
+        "faded to dust-colors. Eyes like wet ink. Every so often they "
+        "run a hand over the strings and the whole room's volume drops "
+        "without anyone seeming to notice."
+    ),
+    personality=(
+        "Songbird, an ageing Cirque bard of indeterminate age and "
+        "ambiguous gender. Softspoken, slow-smiled, deeply tired. "
+        "Travels alone now — their troupe dispersed after a bad "
+        "contract at Stonewall Coventry. Performs for coin if the "
+        "room wants a tune, for a purpose if the purpose is good. "
+        "Knows every ballad about the Day of Mist, and some that "
+        "haven't been written yet."
+    ),
+    knowledge=(
+        "- Ballads, dirges, coronation-songs, curses in verse. They "
+        "can sing the death of every Saint the Aurorym has ever lost.\n"
+        "- The Cirque's caravan routes, troupes, and which "
+        "sensitivities each troupe-master refuses to play to.\n"
+        "- A specific song about Crane that cannot be sung in Gateway. "
+        "They know it. They will not perform it without a very good "
+        "reason.\n"
+        "- News from the Dusklands and Sovereignlands, two weeks "
+        "stale but sung in true tones.\n"
+        "- The Underwriter once commissioned a lament from them. They "
+        "wrote it. They have not been paid. This is noteworthy."
+    ),
+    quest_hooks=[
+        "Will sing any requested ballad for three coppers. A new "
+        "ballad about you, written fresh, for a silver.",
+        "Looking for someone trustworthy to carry a packet to a "
+        "Cirque contact in Mystvale — not coin, a song, written down.",
+        "If the player asks about Songbird's old troupe, they grow "
+        "very still and then sing one line in a language that "
+        "isn't in use anymore.",
+    ],
+    scope="gateway",
+)
+
+# --- Eli the Docker — Northern Marches fisherman in the Tent City -----
+get_or_create_npc(
+    key="Eli the Docker",
+    location=gateway_tents,
+    desc=(
+        "A heavy-set man in a patched fisherman's jerkin, weathered to "
+        "the color of driftwood. Thick rope-callused hands. A short "
+        "gaffing hook tucked through his belt. Northern Marches accent, "
+        "broad vowels, easy smile when it comes."
+    ),
+    personality=(
+        "Eli, fifty-something, once a dock-master at a small Northern "
+        "Marches port before the Dusklands border war burned the "
+        "harbour. Stolid, practical, grateful for small kindnesses, "
+        "quick with rope and knife. Builds a little trade repairing "
+        "nets and lean-to cordage for the tent city. Does not talk "
+        "about his daughter unless asked — and then only briefly."
+    ),
+    knowledge=(
+        "- The Northern Marches coast: ports, tides, which captains "
+        "used to run the Breakwater Bay route and which of them are "
+        "still alive.\n"
+        "- Rope-work, net-work, basic boat repair, useful knots for "
+        "climbing palisades (he will not volunteer that last one).\n"
+        "- Which tents in the tent city belong to which folk; who's "
+        "new, who's been here too long, who may be trouble.\n"
+        "- His daughter Siomha was last heard of on a ship bound "
+        "somewhere east of Arkham Island. He does not know if she "
+        "lived. He does not want to know, and he does.\n"
+        "- The Richter dock master at Gateway has taken to charging "
+        "refugees a 'standing fee' for palisade access. Eli is "
+        "quietly angry about this."
+    ),
+    quest_hooks=[
+        "Will repair a damaged rope, net, or cordage good-as-new for a "
+        "meal and an honest conversation.",
+        "Would value news — ANY news — of a ship called the Mary "
+        "Greywater that was bound east.",
+        "Knows a palisade blind spot that could get a desperate "
+        "person through without a Writ. Will not share lightly.",
+    ],
+    scope="gateway",
+)
+
+# --- Rin the Barmaid — a working presence at the Broken Oar ----------
+# Quieter AI NPC: short answers, busy, no big quest hooks. She's
+# working a shift, not waiting for a conversation.
+get_or_create_npc(
+    key="Rin",
+    location=gateway_tavern,
+    desc=(
+        "A young woman in a grease-marked apron, moving between the "
+        "taps and the hearth with the efficiency of someone who has "
+        "done this a thousand times and cannot afford to be slow "
+        "tonight. Hair twisted up with a pencil. A bar towel over one "
+        "shoulder, a bruise on the other."
+    ),
+    personality=(
+        "Rin, one of Pelham's barmaids. Busy. Not unfriendly, but she "
+        "has orders to run and a till to keep. Answers in short clips — "
+        "half a sentence, a nod, back to work. Will warm up if someone "
+        "treats her like a person rather than a tap. Knows who's "
+        "drinking where, but is paid to forget by morning. Hearthlander "
+        "accent, plain voice."
+    ),
+    knowledge=(
+        "- Drink prices. She is not negotiating them.\n"
+        "- The Oar's rooms upstairs are full tonight; there's a "
+        "straw-and-blanket corner in the cellar for three coppers.\n"
+        "- Pelham keeps a good stew. The wine is watered. The rum is "
+        "not, which is why people drink it.\n"
+        "- She ended a shift last week to find a Mistwalker sitting at "
+        "her table, not drinking anything. She still thinks about it."
+    ),
+    quest_hooks=[
+        "Will bring an ale, a stew, or a bed for standard prices and "
+        "genuinely appreciates a tip.",
+        "If the player is kind twice, she'll mention the Mistwalker "
+        "who sat at her table without drinking.",
+    ],
+    scope="gateway",
+)
+
+# --- Pip — a tent city urchin, short-worded, wary -------------------
+get_or_create_npc(
+    key="Pip",
+    location=gateway_tents,
+    desc=(
+        "A small child of indeterminate age, somewhere between seven "
+        "and ten, wearing clothes that were an adult's two cuts ago. "
+        "Mud-streaked face, clever eyes, always moving. Watches "
+        "strangers the way cats watch things that have not decided "
+        "whether to be prey."
+    ),
+    personality=(
+        "Pip, a tent city urchin, probably an orphan. Speaks in "
+        "fragments. Short attention unless there's food involved. "
+        "Will dart away if approached too fast. Will linger for kind "
+        "words and longer for bread. Does not explain themselves. "
+        "Hearthlander-ish accent, half-swallowed. Uses 'I' and 'me' "
+        "interchangeably."
+    ),
+    knowledge=(
+        "- Where the good scraps are. Who's soft, who's mean, who gives.\n"
+        "- The rat-runs between tents that an adult can't fit down.\n"
+        "- Has seen things. Does not always know what they were.\n"
+        "- Old Mae feeds me when she has enough. I feed her back when "
+        "I have enough. I don't have enough often."
+    ),
+    quest_hooks=[
+        "A copper or a crust buys goodwill and maybe an errand.",
+        "Knows things about the tent city's night-time comings and "
+        "goings. Would say more for a proper meal.",
+    ],
+    scope="gateway",
+)
+
+# --- Cerys — Crane's apprentice at the Mistwalker's Tent --------------
+get_or_create_npc(
+    key="Cerys",
+    location=mistwalker_tent,
+    desc=(
+        "A thin young woman in novice Mistwalker grey, seated on a "
+        "stool beside Crane's writing-table with a small leather book "
+        "balanced on her knee. Hair like dark fog, eyes that don't "
+        "quite focus on you. Takes careful notes in a tiny, precise "
+        "hand. Has not quite learned to be still the way Crane is."
+    ),
+    personality=(
+        "Cerys, apprentice to Crane these past eleven months. Young — "
+        "maybe twenty — quiet, curious, quietly terrified. Welsh-"
+        "inflected speech. Asks more questions than she answers, but "
+        "only when Crane isn't listening. Believes she understands what "
+        "Crane is. She is beginning to suspect she is wrong. Polite to "
+        "bearers; sympathetic to the frightened ones."
+    ),
+    knowledge=(
+        "- The Writ of Safe Conduct forms and procedures. She could "
+        "register a crossing herself in a pinch, and Crane has let "
+        "her once.\n"
+        "- The names, marks, and personal habits of every Mistwalker "
+        "assigned to Gateway for the past eleven months. She keeps a "
+        "small census in her leather book.\n"
+        "- The Compact does not teach its apprentices the way through "
+        "the mists. It teaches them the paperwork. She has noticed "
+        "this is suspicious.\n"
+        "- Crane does not eat. Or sleep. Or, so far as Cerys can tell, "
+        "breathe. She has not asked about this.\n"
+        "- A Mistwalker called Greyveil used to work this tent. Then "
+        "one day she didn't. Cerys would like to know why."
+    ),
+    quest_hooks=[
+        "Would trade a small kindness for a quietly-asked question "
+        "about her mentor.",
+        "Will register a Writ on Crane's behalf if Crane is 'elsewhere' "
+        "— but only for bearers she judges earnest.",
+        "Has a specific question about Greyveil she does not want "
+        "Crane to hear her ask. Will slip it to a trustworthy player.",
     ],
     scope="gateway",
 )
