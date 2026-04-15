@@ -606,6 +606,57 @@ class Merchant(Npc):
         return string
 
 
+class TavylCard(Object):
+    """A single Tavyl card carried in a player's inventory.
+
+    Created by the dealer NPC's `tavyl deal` action. Stores card_type
+    on db.card_type. Looking at the card shows its name and effect.
+    The card is "consumed" (deleted) when played — the canonical
+    abstraction maps to the game-state Crypt list, not a physical pile.
+    """
+
+    def at_object_creation(self):
+        # Cards are personal; they shouldn't be tradeable to non-Tavyl
+        # players and they vanish at game-end.
+        self.locks.add("get:false();drop:false()")
+        self.db.card_type = "blank"
+
+    def return_appearance(self, looker, **kwargs):
+        from world.tavyl import card_display_name, card_effect_text
+        ct = self.db.card_type or "blank"
+        name = card_display_name(ct)
+        effect = card_effect_text(ct)
+        # Card frame in Cinzel-gold palette (|430 = warm gold).
+        # Pestilence is rendered in blood-red (|r); Bonesman in
+        # phosphor-green (|G) to read as the curative.
+        if ct == "pestilence":
+            color, edge = "|r", "|R"
+        elif ct == "bonesman":
+            color, edge = "|G", "|g"
+        else:
+            color, edge = "|430", "|430"
+        return (
+            f"\n{edge}╔══════════════════════════════════╗|n\n"
+            f"{edge}║|n  {color}{name.upper().center(32)}|n  {edge}║|n\n"
+            f"{edge}╠══════════════════════════════════╣|n\n"
+            f"{edge}║|n  |w{effect[:30].ljust(30)}|n  {edge}║|n\n"
+            + (
+                f"{edge}║|n  |w{effect[30:60].ljust(30)}|n  {edge}║|n\n"
+                if len(effect) > 30 else ""
+            )
+            + (
+                f"{edge}║|n  |w{effect[60:90].ljust(30)}|n  {edge}║|n\n"
+                if len(effect) > 60 else ""
+            )
+            + (
+                f"{edge}║|n  |w{effect[90:120].ljust(30)}|n  {edge}║|n\n"
+                if len(effect) > 90 else ""
+            )
+            + f"{edge}╚══════════════════════════════════╝|n\n"
+            f"|x— A card of Tavyl —|n\n"
+        )
+
+
 class WritOfSafeConduct(Object):
     """
     An in-play document issued by the Mistwalker Compact Gateway Crossing
@@ -647,36 +698,45 @@ class WritOfSafeConduct(Object):
         crossing_date = self.db.crossing_date or "________"
         registrar = self.db.registrar or "________"
 
+        # Color palette aligned with the frontend dark-fantasy theme:
+        # |430 = warm wax-stamp gold (#d4af37-ish)
+        # |y   = parchment text (visible against dark backgrounds)
+        # |W   = bright white for emphasis
+        # |x   = dim grey for stamps/seals/labels
         return (
-            "\n|y=================================================|n\n"
-            "|y         W R I T   of   S A F E   C O N D U C T|n\n"
-            "|y=================================================|n\n"
+            "\n|430═══════════════════════════════════════════════════|n\n"
+            "|430        W R I T   of   S A F E   C O N D U C T|n\n"
+            "|430═══════════════════════════════════════════════════|n\n"
             "|xIssued under seal of the Mistwalker Compact Gateway "
             "Crossing Office — Vale of Shadow|n\n\n"
-            "Know by this writ that the bearer has entered into lawful "
+            "|yKnow by this writ that the bearer has entered into lawful "
             "contract with the Mistwalker Compact for guided passage "
             "through the mists and into the territory known as the "
-            "Annwyn.\n\n"
-            f"Passage is granted for |w{crossings} crossing(s)|n.\n\n"
-            f"The bearer has been assigned to the guide known as |y{guide}|n, "
-            f"who may be identified by {mark}. Approach no other. This "
-            "assignment is binding from the moment of departure. The bearer "
-            "is not to seek alternate passage, deviate from the appointed "
-            "route, or disregard the guide's instruction. |wIn the mists, "
-            "the guide's word is law.|n Those who cannot abide this are "
-            "invited to surrender this writ before the torch is lit.\n\n"
-            "The Compact makes no warranty of safe arrival. It accepts no "
-            "claim for loss of life, property, or sound mind incurred within "
-            "the Mists. Those who have entered the Tangle and become "
-            "separated from their guide are considered lost at their own "
-            "peril. Retrieval, if possible, is billed separately.\n\n"
-            "This writ serves as proof of contracted passage. It is "
+            "Annwyn.|n\n\n"
+            f"|yPassage is granted for |W{crossings} crossing(s)|y.|n\n\n"
+            f"|yThe bearer has been assigned to the guide known as "
+            f"|430{guide}|y, who may be identified by {mark}. Approach "
+            "no other. This assignment is binding from the moment of "
+            "departure. The bearer is not to seek alternate passage, "
+            "deviate from the appointed route, or disregard the guide's "
+            "instruction. |WIn the mists, the guide's word is law.|y "
+            "Those who cannot abide this are invited to surrender this "
+            "writ before the torch is lit.|n\n\n"
+            "|yThe Compact makes no warranty of safe arrival. It accepts "
+            "no claim for loss of life, property, or sound mind incurred "
+            "within the Mists. Those who have entered the Tangle and "
+            "become separated from their guide are considered lost at "
+            "their own peril. Retrieval, if possible, is billed "
+            "separately.|n\n\n"
+            "|yThis writ serves as proof of contracted passage. It is "
             "non-transferable. It expires upon arrival in the Annwyn or "
-            "upon the bearer's confirmed death, whichever the Mists decide.\n\n"
-            "Present this writ to your assigned guide before departure. "
-            "|wNo writ, no crossing.|n\n\n"
-            f"|xBearer         :|n {bearer}\n"
-            f"|xCrossing Date  :|n {crossing_date}\n"
-            f"|xRegistered by  :|n {registrar}\n"
-            "|y=================================================|n\n"
+            "upon the bearer's confirmed death, whichever the Mists "
+            "decide.|n\n\n"
+            "|yPresent this writ to your assigned guide before departure. "
+            "|WNo writ, no crossing.|n\n\n"
+            "|430─────────────────────────────────────────────────|n\n"
+            f"|xBearer         :|n |W{bearer}|n\n"
+            f"|xCrossing Date  :|n |W{crossing_date}|n\n"
+            f"|xRegistered by  :|n |430{registrar}|n\n"
+            "|430═══════════════════════════════════════════════════|n\n"
         )

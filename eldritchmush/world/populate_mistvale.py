@@ -2432,6 +2432,33 @@ print(f"  Tagged {_tagged} NPCs with canon entries.")
 
 
 # ===========================================================================
+# TAVYL DEALER — Mab the Gambler runs the canonical Eldritch tavern game.
+# ===========================================================================
+print("\n=== TAVYL DEALER ===")
+for mab in ObjectDB.objects.filter(db_key="Mab the Gambler"):
+    mab.attributes.add("tavyl_dealer", True)
+    mab.attributes.add("tavyl_stake", 1)  # 1 silver per seat
+    # Augment her AI knowledge so she can talk about the game in character.
+    existing_knowledge = mab.attributes.get("ai_knowledge", default="") or ""
+    if "tavyl" not in existing_knowledge.lower():
+        mab.attributes.add("ai_knowledge", existing_knowledge + (
+            "\n- TAVYL is the canonical tavern card game of Arnesse — born "
+            "from a plague tale of the lost hamlet of Tavylen, where "
+            "magisters cured the dying. The object: be the last alive "
+            "after the Pestilence comes through the Fate deck. Every "
+            "player starts with a Bonesman to defend; play action cards "
+            "(Seeress, Raven, Resurrection, Veiled Lady, Assassin, Trader, "
+            "Knight, Merchant, King) to outmaneuver opponents.\n"
+            "- She runs a table at the Broken Oar. Stake: 1 silver to "
+            "sit. Winner takes the pot.\n"
+            "- Players sit with: |wtavyl sit mab|n. From there: "
+            "|wtavyl hand|n, |wtavyl play <card>|n, |wtavyl draw|n, "
+            "|wtavyl status|n, |wtavyl leave|n."
+        ))
+    print(f"  Tagged {mab.key} as Tavyl dealer.")
+
+
+# ===========================================================================
 # ATMOSPHERIC SERMON TICKER — Brother Alaric preaches to Gateway Square
 # every ~10 minutes via Evennia's script system. Only fires when he is
 # actually in the room, so moving him elsewhere silences it cleanly.
