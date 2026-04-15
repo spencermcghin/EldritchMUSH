@@ -116,7 +116,8 @@ def collect_for_npc(npc) -> str:
 # Side-effect imports populate ENTRIES.
 # Each module is independent — failure to load one does not disable
 # the rest.
-for _mod in ("factions", "houses", "regions", "history", "secrets"):
+for _mod in ("factions", "houses", "regions", "commoners", "history",
+             "laws", "culture", "secrets"):
     try:
         __import__(f"world.canon.{_mod}")
     except Exception as _exc:
