@@ -1,0 +1,423 @@
+/* ── Alchemy Modal ── */
+
+.alchemy-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 4, 0.92);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.alchemy-modal {
+  background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
+  border: 1px solid var(--accent-gold);
+  width: 1020px;
+  max-width: 96vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 0 70px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(212, 175, 55, 0.18),
+    inset 0 0 50px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+/* Header */
+.alchemy-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.08), transparent);
+}
+.alchemy-title {
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+.alchemy-level {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-aged);
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+}
+.alchemy-subtitle {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--text-aged);
+  font-size: 13px;
+}
+.alchemy-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.alchemy-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+/* Body: two-panel layout */
+.alchemy-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Left panel: recipe list */
+.alchemy-recipe-list {
+  width: 320px;
+  min-width: 260px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.alchemy-filter-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+}
+.alchemy-filter-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.alchemy-filter-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+.alchemy-filter-btn.active {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.alchemy-recipes-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.alchemy-level-group {
+  margin-bottom: 4px;
+}
+.alchemy-level-header {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-aged);
+  padding: 6px 14px 4px;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  background: rgba(15, 13, 10, 0.95);
+  z-index: 1;
+}
+
+.alchemy-recipe-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.12s;
+}
+.alchemy-recipe-item:hover {
+  background: rgba(212, 175, 55, 0.06);
+}
+.alchemy-recipe-item.selected {
+  background: rgba(212, 175, 55, 0.1);
+  border-left-color: var(--accent-gold);
+}
+.alchemy-recipe-item.can-brew {
+  /* subtle green left indicator when brewable */
+}
+.alchemy-recipe-item.can-brew .alchemy-recipe-indicator {
+  background: var(--phosphor);
+  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+}
+
+.alchemy-recipe-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.alchemy-recipe-name {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: var(--text-light);
+  line-height: 1.2;
+}
+.alchemy-recipe-type-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+}
+.alchemy-recipe-type-tag.apotheca { border-color: rgba(0, 229, 160, 0.4); color: var(--phosphor); }
+.alchemy-recipe-type-tag.poison { border-color: rgba(139, 0, 0, 0.5); color: var(--blood-bright); }
+.alchemy-recipe-type-tag.drug { border-color: rgba(147, 112, 219, 0.5); color: #9370db; }
+
+/* Right panel: recipe detail */
+.alchemy-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.alchemy-detail-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  opacity: 0.6;
+}
+
+.alchemy-detail-content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alchemy-detail-name {
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+.alchemy-detail-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.alchemy-detail-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+}
+
+.alchemy-detail-effect {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-light);
+  padding: 12px 14px;
+  border-left: 2px solid var(--accent-gold);
+  background: rgba(212, 175, 55, 0.04);
+}
+
+.alchemy-detail-section-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-aged);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.alchemy-reagent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.alchemy-reagent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(10, 8, 7, 0.6);
+  border: 1px solid var(--border);
+}
+.alchemy-reagent-name {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: var(--text-light);
+}
+.alchemy-reagent-qty {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-aged);
+  min-width: 80px;
+  text-align: right;
+}
+.alchemy-reagent-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.alchemy-reagent-status.has-enough {
+  background: var(--phosphor);
+  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+}
+.alchemy-reagent-status.missing {
+  background: var(--blood-bright);
+  box-shadow: 0 0 6px rgba(204, 34, 17, 0.5);
+}
+
+.alchemy-detail-yield {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  color: var(--text-aged);
+  font-style: italic;
+}
+
+/* Brew button */
+.alchemy-brew-bar {
+  padding: 12px 24px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: flex-end;
+}
+.alchemy-brew-btn {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 10px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+}
+.alchemy-brew-btn:not(:disabled):hover {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.3);
+}
+.alchemy-brew-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  color: var(--text-aged);
+  border-color: var(--border);
+  text-shadow: none;
+}
+
+/* Bottom bar: kit + reagent summary */
+.alchemy-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-aged);
+}
+.alchemy-kit-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.alchemy-kit-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.alchemy-kit-dot.has-kit {
+  background: var(--phosphor);
+  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+}
+.alchemy-kit-dot.no-kit {
+  background: var(--blood-bright);
+  box-shadow: 0 0 6px rgba(204, 34, 17, 0.5);
+}
+.alchemy-reagent-summary {
+  flex: 1;
+  color: var(--text-aged);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Brew feedback */
+.alchemy-brew-feedback {
+  padding: 8px 24px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+.alchemy-brew-feedback.success {
+  color: var(--phosphor);
+}
+.alchemy-brew-feedback.error {
+  color: var(--blood-bright);
+}
+
+/* Scrollbar styling */
+.alchemy-recipes-scroll::-webkit-scrollbar,
+.alchemy-detail-content::-webkit-scrollbar {
+  width: 4px;
+}
+.alchemy-recipes-scroll::-webkit-scrollbar-thumb,
+.alchemy-detail-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+.alchemy-recipes-scroll::-webkit-scrollbar-track,
+.alchemy-detail-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alchemy-body {
+    flex-direction: column;
+  }
+  .alchemy-recipe-list {
+    width: 100%;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}

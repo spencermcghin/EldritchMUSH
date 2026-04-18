@@ -909,6 +909,368 @@ def text(session, *args, **kwargs):
                         diag_write("SELL FAILED", exc=str(exc))
                     return
 
+                # __alchemy_ui__ — push structured alchemy data for the
+                # frontend AlchemyModal. Sends known recipes, reagent
+                # inventory, kit status, and per-recipe canBrew flags.
+                if lowered == "__alchemy_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            import time as _time
+                            from world import alchemy_prototypes as _apmod
+                            import inspect as _inspect
+
+                            alchemist_level = getattr(puppet.db, "alchemist", 0) or 0
+                            reagents = puppet.db.reagents or {}
+
+                            # Kit check
+                            kit_slot = getattr(puppet.db, "kit_slot", []) or []
+                            kit = kit_slot[0] if kit_slot else None
+                            has_kit = False
+                            if kit and getattr(kit.db, "type", None) == "apothecary":
+                                has_kit = (getattr(kit.db, "uses", 0) or 0) > 0
+
+                            # Collect all apothecary prototypes from the module
+                            all_protos = {}
+                            for name, obj in _inspect.getmembers(_apmod):
+                                if isinstance(obj, dict) and obj.get("craft_source") == "apothecary":
+                                    proto_key = name.upper()
+                                    all_protos[proto_key] = obj
+
+                            # Get known recipes
+                            known = puppet.db.known_recipes
+                            if not isinstance(known, set):
+                                known = set()
+                            # Superusers see all recipes
+                            is_su = getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)
+                            if is_su:
+                                recipe_keys = set(all_protos.keys())
+                            else:
+                                recipe_keys = set()
+                                for k in known:
+                                    ku = k.upper()
+                                    if ku in all_protos:
+                                        recipe_keys.add(ku)
+                                    else:
+                                        # Try matching by name
+                                        for pk, pv in all_protos.items():
+                                            if pv.get("key", "").lower() == k.lower():
+                                                recipe_keys.add(pk)
+
+                            recipes = []
+                            for proto_key in sorted(recipe_keys):
+                                proto = all_protos.get(proto_key)
+                                if not proto:
+                                    continue
+                                level = proto.get("level", 1)
+                                # Gather reagents
+                                recipe_reagents = []
+                                for i in range(1, 6):
+                                    r_name = proto.get(f"reagent_{i}")
+                                    r_qty = proto.get(f"reagent_{i}_qty", 0) or 0
+                                    if r_name and r_qty > 0:
+                                        have = reagents.get(r_name, 0)
+                                        recipe_reagents.append({
+                                            "name": r_name,
+                                            "qty": r_qty,
+                                            "have": have,
+                                        })
+                                # Check canBrew
+                                can_brew = (
+                                    alchemist_level >= level
+                                    and has_kit
+                                    and all(r["have"] >= r["qty"] for r in recipe_reagents)
+                                )
+                                recipes.append({
+                                    "key": proto_key,
+                                    "name": proto.get("key", proto_key),
+                                    "level": level,
+                                    "type": (proto.get("substance_type") or "").capitalize(),
+                                    "effect": proto.get("effect", ""),
+                                    "qty_produced": proto.get("qty_produced", 1),
+                                    "reagents": recipe_reagents,
+                                    "canBrew": can_brew,
+                                })
+
+                            payload = {
+                                "type": "alchemy_data",
+                                "_ts": _time.time(),
+                                "alchemistLevel": alchemist_level,
+                                "knownRecipes": recipes,
+                                "reagents": {k: v for k, v in reagents.items() if v > 0},
+                                "hasKit": has_kit,
+                            }
+                            session.msg(event=payload)
+                            diag_write("ALCHEMY_UI sent", recipes=len(recipes))
+                    except Exception as exc:
+                        diag_write("ALCHEMY_UI FAILED", exc=str(exc))
+                    return
+
+                # __alchemy_brew__ <RECIPE_KEY> — brew a recipe via OOB,
+                # bypassing the text `brew` command. Validates everything
+                # server-side and pushes updated alchemy_data on success.
+                if lowered.startswith("__alchemy_brew__ "):
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            recipe_key = stripped[len("__alchemy_brew__ "):].strip().upper()
+                            import time as _time
+                            from world import alchemy_prototypes as _apmod
+                            import inspect as _inspect
+                            from evennia import spawn as ev_spawn
+
+                            alchemist_level = getattr(puppet.db, "alchemist", 0) or 0
+                            if not alchemist_level:
+                                session.msg(text="|400You do not have the Alchemist skill.|n")
+                                return
+
+                            # Look up the prototype
+                            all_protos = {}
+                            for name, obj in _inspect.getmembers(_apmod):
+                                if isinstance(obj, dict) and obj.get("craft_source") == "apothecary":
+                                    all_protos[name.upper()] = obj
+
+                            proto = all_protos.get(recipe_key)
+                            if not proto:
+                                session.msg(text=f"|400Unknown recipe: {recipe_key}|n")
+                                return
+
+                            # Recipe known check
+                            is_su = getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)
+                            if not is_su:
+                                known = puppet.db.known_recipes
+                                if not isinstance(known, set):
+                                    known = set()
+                                substance_name = proto.get("key", "")
+                                if recipe_key not in known and substance_name.lower() not in {r.lower() for r in known}:
+                                    session.msg(text=f"|400You don't know this recipe.|n")
+                                    return
+
+                            level = proto.get("level", 1)
+                            substance_name = proto.get("key", recipe_key)
+                            qty_produced = proto.get("qty_produced", 1)
+
+                            # Skill level check
+                            if alchemist_level < level:
+                                session.msg(text=f"|400Your Alchemist skill (level {alchemist_level}) is too low for {substance_name} (level {level}).|n")
+                                return
+
+                            # Kit check
+                            kit_slot = getattr(puppet.db, "kit_slot", []) or []
+                            kit = kit_slot[0] if kit_slot else None
+                            if not kit or getattr(kit.db, "type", None) != "apothecary":
+                                session.msg(text="|430You need an Apothecary Kit equipped.|n")
+                                return
+                            if (getattr(kit.db, "uses", 0) or 0) <= 0:
+                                session.msg(text=f"|400Your {kit.key} is out of uses.|n")
+                                return
+
+                            # Reagent checks
+                            reagents = puppet.db.reagents or {}
+                            required = {}
+                            for i in range(1, 6):
+                                r_name = proto.get(f"reagent_{i}")
+                                r_qty = proto.get(f"reagent_{i}_qty", 0) or 0
+                                if r_name and r_qty > 0:
+                                    required[r_name] = required.get(r_name, 0) + r_qty
+
+                            missing = []
+                            for r_name, r_qty in required.items():
+                                have = reagents.get(r_name, 0)
+                                if have < r_qty:
+                                    missing.append(f"{r_name} (need {r_qty}, have {have})")
+
+                            if missing and not is_su:
+                                session.msg(text="|400Missing reagents: " + ", ".join(missing) + "|n")
+                                return
+
+                            # All checks passed — consume reagents, use kit, spawn
+                            if not is_su:
+                                for r_name, r_qty in required.items():
+                                    reagents[r_name] = reagents.get(r_name, 0) - r_qty
+                                puppet.db.reagents = reagents
+
+                            kit.db.uses -= 1
+
+                            for _ in range(qty_produced):
+                                item = ev_spawn(proto)
+                                item[0].move_to(puppet, quiet=True)
+
+                            dose_word = "dose" if qty_produced == 1 else "doses"
+                            session.msg(text=f"|230You carefully brew {qty_produced} {dose_word} of |430{substance_name}|n|230.|n")
+                            if puppet.location:
+                                puppet.location.msg_contents(
+                                    f"|230{puppet.key} works carefully over their apothecary kit, "
+                                    f"producing a batch of {substance_name}.|n",
+                                    exclude=puppet,
+                                )
+
+                            diag_write("ALCHEMY_BREW done", recipe=recipe_key, qty=qty_produced)
+
+                            # Push updated alchemy data so the modal refreshes
+                            # Re-run the same logic as __alchemy_ui__
+                            try:
+                                reagents = puppet.db.reagents or {}
+                                kit_slot2 = getattr(puppet.db, "kit_slot", []) or []
+                                kit2 = kit_slot2[0] if kit_slot2 else None
+                                has_kit2 = False
+                                if kit2 and getattr(kit2.db, "type", None) == "apothecary":
+                                    has_kit2 = (getattr(kit2.db, "uses", 0) or 0) > 0
+
+                                known2 = puppet.db.known_recipes
+                                if not isinstance(known2, set):
+                                    known2 = set()
+                                if is_su:
+                                    recipe_keys2 = set(all_protos.keys())
+                                else:
+                                    recipe_keys2 = set()
+                                    for k in known2:
+                                        ku = k.upper()
+                                        if ku in all_protos:
+                                            recipe_keys2.add(ku)
+                                        else:
+                                            for pk, pv in all_protos.items():
+                                                if pv.get("key", "").lower() == k.lower():
+                                                    recipe_keys2.add(pk)
+
+                                recipes2 = []
+                                for pk2 in sorted(recipe_keys2):
+                                    p2 = all_protos.get(pk2)
+                                    if not p2:
+                                        continue
+                                    lvl2 = p2.get("level", 1)
+                                    rr2 = []
+                                    for i in range(1, 6):
+                                        rn = p2.get(f"reagent_{i}")
+                                        rq = p2.get(f"reagent_{i}_qty", 0) or 0
+                                        if rn and rq > 0:
+                                            rr2.append({"name": rn, "qty": rq, "have": reagents.get(rn, 0)})
+                                    cb2 = alchemist_level >= lvl2 and has_kit2 and all(r["have"] >= r["qty"] for r in rr2)
+                                    recipes2.append({
+                                        "key": pk2,
+                                        "name": p2.get("key", pk2),
+                                        "level": lvl2,
+                                        "type": (p2.get("substance_type") or "").capitalize(),
+                                        "effect": p2.get("effect", ""),
+                                        "qty_produced": p2.get("qty_produced", 1),
+                                        "reagents": rr2,
+                                        "canBrew": cb2,
+                                    })
+                                session.msg(event={
+                                    "type": "alchemy_data",
+                                    "_ts": _time.time(),
+                                    "alchemistLevel": alchemist_level,
+                                    "knownRecipes": recipes2,
+                                    "reagents": {k: v for k, v in reagents.items() if v > 0},
+                                    "hasKit": has_kit2,
+                                })
+                            except Exception as exc2:
+                                diag_write("ALCHEMY_BREW refresh failed", exc=str(exc2))
+                    except Exception as exc:
+                        import traceback
+                        diag_write("ALCHEMY_BREW FAILED", exc=str(exc), tb=traceback.format_exc())
+                        session.msg(text=f"|400Brew error: {exc}|n")
+                    return
+
+                # `brew` without args — open the alchemy modal
+                if lowered == "brew":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            # Check for workbench in room
+                            has_workbench = False
+                            if puppet.location:
+                                for obj in puppet.location.contents:
+                                    tcp = getattr(obj, "typeclass_path", "") or ""
+                                    if "ApothecaryWorkbench" in tcp or "Apothecary" in tcp:
+                                        has_workbench = True
+                                        break
+                            if has_workbench or (getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)):
+                                # Re-use __alchemy_ui__ by recursing through text handler
+                                session.msg(text="|430Opening the alchemy workbench...|n")
+                                # Inline push of alchemy data (same as __alchemy_ui__)
+                                import time as _time
+                                from world import alchemy_prototypes as _apmod
+                                import inspect as _inspect
+
+                                alchemist_level = getattr(puppet.db, "alchemist", 0) or 0
+                                reagents = puppet.db.reagents or {}
+                                kit_slot = getattr(puppet.db, "kit_slot", []) or []
+                                kit = kit_slot[0] if kit_slot else None
+                                has_kit = False
+                                if kit and getattr(kit.db, "type", None) == "apothecary":
+                                    has_kit = (getattr(kit.db, "uses", 0) or 0) > 0
+
+                                all_protos = {}
+                                for name, obj in _inspect.getmembers(_apmod):
+                                    if isinstance(obj, dict) and obj.get("craft_source") == "apothecary":
+                                        all_protos[name.upper()] = obj
+
+                                known = puppet.db.known_recipes
+                                if not isinstance(known, set):
+                                    known = set()
+                                is_su = getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)
+                                if is_su:
+                                    recipe_keys = set(all_protos.keys())
+                                else:
+                                    recipe_keys = set()
+                                    for k in known:
+                                        ku = k.upper()
+                                        if ku in all_protos:
+                                            recipe_keys.add(ku)
+                                        else:
+                                            for pk, pv in all_protos.items():
+                                                if pv.get("key", "").lower() == k.lower():
+                                                    recipe_keys.add(pk)
+
+                                recipes = []
+                                for proto_key in sorted(recipe_keys):
+                                    proto = all_protos.get(proto_key)
+                                    if not proto:
+                                        continue
+                                    level = proto.get("level", 1)
+                                    recipe_reagents = []
+                                    for i in range(1, 6):
+                                        r_name = proto.get(f"reagent_{i}")
+                                        r_qty = proto.get(f"reagent_{i}_qty", 0) or 0
+                                        if r_name and r_qty > 0:
+                                            recipe_reagents.append({
+                                                "name": r_name,
+                                                "qty": r_qty,
+                                                "have": reagents.get(r_name, 0),
+                                            })
+                                    can_brew = (
+                                        alchemist_level >= level
+                                        and has_kit
+                                        and all(r["have"] >= r["qty"] for r in recipe_reagents)
+                                    )
+                                    recipes.append({
+                                        "key": proto_key,
+                                        "name": proto.get("key", proto_key),
+                                        "level": level,
+                                        "type": (proto.get("substance_type") or "").capitalize(),
+                                        "effect": proto.get("effect", ""),
+                                        "qty_produced": proto.get("qty_produced", 1),
+                                        "reagents": recipe_reagents,
+                                        "canBrew": can_brew,
+                                    })
+
+                                session.msg(event={
+                                    "type": "alchemy_data",
+                                    "_ts": _time.time(),
+                                    "alchemistLevel": alchemist_level,
+                                    "knownRecipes": recipes,
+                                    "reagents": {k: v for k, v in reagents.items() if v > 0},
+                                    "hasKit": has_kit,
+                                })
+                            else:
+                                # No workbench — fall through to stock handler
+                                # which will run CmdBrew (it'll show usage text)
+                                return _stock_text(session, *args, **kwargs)
+                    except Exception as exc:
+                        diag_write("BREW UI FAILED", exc=str(exc))
+                    return
+
                 # __equip_ui__ — the frontend sends this (not a real MUD
                 # command) to request structured inventory data for the
                 # equip modal. We intercept it here and push the OOB event
