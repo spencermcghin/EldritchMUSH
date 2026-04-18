@@ -2344,3 +2344,65 @@ LANTON_VETERAN_COIN = {
     ),
     "is_quest_item": True,
 }
+
+# NPC giftable items — things AI NPCs can hand to players mid-dialogue.
+# These are matched by the [GIVE: KEY] parser in world/npc_gifts.py.
+
+WRIT_OF_SAFE_CONDUCT = {
+    "typeclass": "typeclasses.objects.WritOfSafeConduct",
+    "key": "Writ of Safe Conduct",
+    "aliases": ["writ", "writ of safe conduct"],
+    "is_quest_item": True,
+}
+
+SEALED_WRIT_COPY = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "sealed writ copy",
+    "aliases": ["writ copy", "sealed writ", "writ"],
+    "desc": (
+        "A folded parchment bearing the official seal of the Mystvale "
+        "Town Hall — three stamps of wax in red, blue, and yellow. "
+        "The text inside is a certified copy of some civil record, "
+        "intended for delivery to Stag Hall."
+    ),
+    "is_quest_item": True,
+}
+
+DELIVERY_RECEIPT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "delivery receipt",
+    "aliases": ["receipt"],
+    "desc": (
+        "A narrow strip of parchment with a line for a signet "
+        "impression and a brief description of the document it "
+        "accompanied. Return this to the clerk who issued it once "
+        "the delivery has been acknowledged."
+    ),
+    "is_quest_item": True,
+}
+
+ALE_TOKEN = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "ale token",
+    "aliases": ["token", "drink token"],
+    "desc": (
+        "A small wooden disc stamped with the Broken Oar's mark — "
+        "a snapped oar over a mug. Good for one ale, no questions "
+        "asked. Pelham Faye hands these out to folk he likes."
+    ),
+    "is_quest_item": False,
+}
+
+TOWN_REGISTER_NOTE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "note on the town register",
+    "aliases": ["register note", "town register note"],
+    "desc": (
+        "A hastily scrawled note in Clerk Yevan's cramped hand: "
+        "'The Richter emissary asked for the full town register. "
+        "Why? Lord Hardinger denied it — but someone was seen "
+        "copying pages from the archive after hours. I cannot "
+        "prove it yet. Discretion is required.'"
+    ),
+    "is_quest_item": True,
+}
