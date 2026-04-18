@@ -13,6 +13,61 @@ from evennia.commands.default.general import CmdWhisper as _DefaultCmdWhisper
 from evennia.commands.default.general import CmdSay as _DefaultCmdSay
 
 
+def _parse_target_and_message(caller, args):
+    """Parse '<target> <message>' or '<target> = <message>' where target
+    may be a multi-word NPC name like 'Mab the Gambler'.
+
+    Uses '=' as a reliable delimiter if present. Otherwise tries
+    progressively longer prefixes as the target name, searching in
+    the caller's room, and treats whatever remains as the message.
+
+    Returns (target_obj, message_str) — either may be None on failure.
+    """
+    args = args.strip()
+
+    # ── Explicit delimiter ──────────────────────────────────────────
+    if "=" in args:
+        target_name, _, message = args.partition("=")
+        target_name = target_name.strip().lstrip("@")
+        message = message.strip().rstrip("?.!, ")
+        target = caller.search(target_name, location=caller.location)
+        return target, message
+
+    # ── Strip filler word "about" ───────────────────────────────────
+    # "ask mab the gambler about gossip" → "ask mab the gambler gossip"
+    # Don't strip if "about" IS the entire message.
+    cleaned = args
+    parts_check = args.rsplit(" about ", 1)
+    if len(parts_check) == 2 and parts_check[1].strip():
+        cleaned = parts_check[0] + " " + parts_check[1]
+
+    # ── Progressive match: try longest target name first ────────────
+    words = cleaned.split()
+    if len(words) < 2:
+        # Just a name, no message
+        target = caller.search(cleaned.strip(), location=caller.location, quiet=True)
+        if isinstance(target, list):
+            target = target[0] if target else None
+        return target, ""
+
+    # Try from longest possible target (all-but-last word) down to
+    # shortest (first word only). First successful search wins.
+    for split_at in range(len(words) - 1, 0, -1):
+        candidate = " ".join(words[:split_at]).strip().lstrip("@")
+        remainder = " ".join(words[split_at:]).strip().rstrip("?.!, ")
+        result = caller.search(candidate, location=caller.location, quiet=True)
+        if isinstance(result, list):
+            result = result[0] if result else None
+        if result:
+            return result, remainder
+
+    # Fallback: treat first word as name (may fail), rest as message.
+    target_name = words[0].strip().lstrip("@")
+    message = " ".join(words[1:]).strip().rstrip("?.!, ")
+    target = caller.search(target_name, location=caller.location)
+    return target, message
+
+
 class CmdAsk(Command):
     """
     Speak to an NPC.
@@ -40,23 +95,11 @@ class CmdAsk(Command):
             caller.msg("Ask whom about what?\n  Usage: |wask <npc> <message>|n")
             return
 
-        # Parse: "ask <npc> = <message>" OR "ask <npc> <message>"
-        if "=" in args:
-            target_name, _, message = args.partition("=")
-        else:
-            parts = args.split(None, 1)
-            if len(parts) < 2:
-                caller.msg("What do you want to ask them?")
-                return
-            target_name, message = parts
-        target_name = target_name.strip().lstrip("@")
-        message = message.strip().rstrip("?.!, ")
-        if not target_name or not message:
-            caller.msg("Usage: |wask <npc> <message>|n")
-            return
-
-        target = caller.search(target_name, location=caller.location)
+        target, message = _parse_target_and_message(caller, args)
         if not target:
+            return
+        if not message:
+            caller.msg("What do you want to ask them?")
             return
         if not target.attributes.get("ai_personality", default=None):
             caller.msg(
@@ -110,24 +153,11 @@ class CmdWhisper(_DefaultCmdWhisper):
         if not args:
             return super().func()
 
-        # Parse target + message same way the default command does.
-        if "=" in args:
-            target_name, _, message = args.partition("=")
-        else:
-            parts = args.split(None, 1)
-            if len(parts) < 2:
-                return super().func()
-            target_name, message = parts
-        target_name = target_name.strip()
-        message = message.strip()
-        if not target_name or not message:
+        target, message = _parse_target_and_message(caller, args)
+        if not target or not message:
             return super().func()
 
-        # Try to find a local target first (NPC in same room).
-        target = caller.search(target_name, location=caller.location, quiet=True)
-        if isinstance(target, list):
-            target = target[0] if target else None
-        if target and target.attributes.get("ai_personality", default=None):
+        if target.attributes.get("ai_personality", default=None):
             from world import ai_npc
             from world.npc_gifts import process_gift_markers
 

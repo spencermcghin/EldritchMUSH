@@ -127,7 +127,7 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
   // modal. The topic text is what gets asked verbatim.
   const handleTopicClick = useCallback((topic) => {
     if (!topic) return
-    sendCommand(`ask ${entityName} ${topic}`)
+    sendCommand(`ask ${entityName} = ${topic}`)
   }, [entityName, sendCommand])
 
   return (

@@ -116,6 +116,30 @@ def _build_system_prompt(npc):
     except Exception:
         pass
 
+    # Item handoff instructions — only included if this NPC has an
+    # allow-list of physical items it can hand to a player.
+    giftable = npc.attributes.get("ai_giftable_items", default=None) or []
+    if giftable:
+        parts.append("")
+        parts.append("GIVING PHYSICAL ITEMS:")
+        parts.append(
+            "You have the following items you can hand to the player "
+            "when it is appropriate to do so. To physically give an "
+            "item, include the marker [GIVE: KEY] on its own line in "
+            "your reply. The system will place the item in the player's "
+            "inventory and confirm the transfer. Only use this when "
+            "you are genuinely handing something over as part of the "
+            "conversation — not merely mentioning an item. You may "
+            "give at most one item per reply."
+        )
+        parts.append("Items you can give:")
+        for g in giftable:
+            parts.append(f"  - {g}")
+        parts.append(
+            "Example: 'Here, take this. *slides the bundle across "
+            "the table*\\n[GIVE: WOLF_PELT]'"
+        )
+
     return "\n".join(parts)
 
 

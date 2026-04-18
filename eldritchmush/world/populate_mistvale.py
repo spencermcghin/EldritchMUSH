@@ -1181,7 +1181,7 @@ get_or_create_npc(
 )
 
 # --- Crane — the Registrar of the Gateway Crossing Office --------------
-get_or_create_npc(
+crane = get_or_create_npc(
     key="Crane",
     location=mistwalker_tent,
     desc=(
@@ -1226,6 +1226,8 @@ get_or_create_npc(
         "a calling — Crane notes it in the ledger with quiet approval.",
     ],
 )
+# Crane can issue Writs to bearers who agree to the terms.
+crane.attributes.add("ai_giftable_items", ["WRIT_OF_SAFE_CONDUCT"])
 
 # --- Soap — the Mistwalker guide at the Mistwall ----------------------
 get_or_create_npc(
@@ -1310,7 +1312,7 @@ get_or_create_npc(
         "Is looking for someone trustworthy to carry a small sealed packet "
         "to a friend in Mystvale; silver on delivery.",
     ],
-)
+).attributes.add("ai_giftable_items", ["ALE_TOKEN"])
 
 # --- Branwen Innish — Cirque scout in the Open Square -----------------
 get_or_create_npc(
@@ -2129,7 +2131,11 @@ get_or_create_npc(
         "register. Would reward a discreet investigator.",
     ],
     scope="annwyn",
-)
+).attributes.add("ai_giftable_items", [
+    "SEALED_WRIT_COPY",
+    "DELIVERY_RECEIPT",
+    "TOWN_REGISTER_NOTE",
+])
 
 
 print("\n=== IRONHAVEN NPCs ===")
