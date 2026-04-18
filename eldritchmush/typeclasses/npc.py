@@ -1443,6 +1443,341 @@ class SkeletonArcher(Npc):
         self.execute_cmd(self.command_picker(target))
 
 
+class CrowStriker(Npc):
+    """
+    Crow bandit striker — one-handed melee fighter. Mid-tier threat.
+    Armed with an iron medium weapon; knows stun.
+    """
+
+    def at_object_creation(self):
+        self.db.master_of_arms = 1
+        self.db.armor = 0
+        self.db.armor_specialist = 0
+        self.db.tough = 1
+        self.db.body = 3
+        self.db.total_body = 3
+        self.db.av = 0
+        self.db.resilience = 0
+        self.db.indomitable = 0
+        self.db.perception = 0
+        self.db.tracking = 0
+
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+        self.db.weakness = 0
+        self.db.bleed_points = 3
+        self.db.death_points = 3
+
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 0
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 0
+
+        self.db.resist = 0
+        self.db.disarm = 0
+        self.db.cleave = 0
+        self.db.sunder = 0
+        self.db.stun = 1
+        self.db.stagger = 0
+        self.db.weapon_level = 0
+        self.db.shield_value = 0
+        self.db.vigil = 0
+        self.db.shield = 0
+        self.db.bow = 0
+        self.db.activemartialskill = 1
+        self.db.combat_turn = 1
+        self.db.in_combat = 0
+        self.db.left_slot = []
+        self.db.right_slot = []
+        self.db.body_slot = []
+        self.db.is_aggressive = True
+        self.db.peaceful = False
+        self.db.skip_turn = False
+        self.db.is_staggered = False
+
+        self.db.isLeading = False
+        self.db.leader = []
+        self.db.isFollowing = False
+        self.db.followers = []
+
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
+        self.db.arrows = 0
+
+    def make_equipment(self):
+        from evennia import spawn
+        weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
+        self.db.right_slot = [weapon.key]
+        self.db.weapon_level = 2
+
+    def remove_equipment(self):
+        for item in list(self.contents):
+            if item.db.damage:
+                item.delete()
+        self.db.right_slot = []
+        self.db.left_slot = []
+
+    def command_picker(self, target):
+        amSkills = {"stun": self.db.stun}
+        flat = [c for c, v in amSkills.items() for _ in range(v)]
+        flat.append("strike")
+        chosen = random.choice(flat)
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not target.db.bleed_points:
+            return "disengage"
+        chosen = "strike" if self.db.weakness else chosen
+        return f"{chosen} {target.key}"
+
+    def take_combat_turn(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        self.execute_cmd(self.command_picker(target))
+
+    def at_char_entered(self, character):
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
+            if not self.db.right_slot:
+                self.make_equipment()
+            command = self.command_picker(character)
+            self.execute_cmd(command)
+
+
+class CrowBruiser(Npc):
+    """
+    Crow bandit bruiser — heavy hitter with a two-handed weapon.
+    Tougher than a Striker; knows sunder.
+    """
+
+    def at_object_creation(self):
+        self.db.master_of_arms = 1
+        self.db.armor = 0
+        self.db.armor_specialist = 0
+        self.db.tough = 2
+        self.db.body = 3
+        self.db.total_body = 3
+        self.db.av = 2
+        self.db.resilience = 0
+        self.db.indomitable = 0
+        self.db.perception = 0
+        self.db.tracking = 0
+
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+        self.db.weakness = 0
+        self.db.bleed_points = 3
+        self.db.death_points = 3
+
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 0
+        self.db.melee_weapons = 1
+        self.db.armor_proficiency = 1
+
+        self.db.resist = 0
+        self.db.disarm = 0
+        self.db.cleave = 0
+        self.db.sunder = 1
+        self.db.stun = 0
+        self.db.stagger = 0
+        self.db.weapon_level = 0
+        self.db.shield_value = 0
+        self.db.vigil = 0
+        self.db.shield = 0
+        self.db.bow = 0
+        self.db.activemartialskill = 1
+        self.db.combat_turn = 1
+        self.db.in_combat = 0
+        self.db.left_slot = []
+        self.db.right_slot = []
+        self.db.body_slot = []
+        self.db.is_aggressive = True
+        self.db.peaceful = False
+        self.db.skip_turn = False
+        self.db.is_staggered = False
+
+        self.db.isLeading = False
+        self.db.leader = []
+        self.db.isFollowing = False
+        self.db.followers = []
+
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
+        self.db.arrows = 0
+
+    def make_equipment(self):
+        from evennia import spawn
+        weapon = spawn({"prototype_parent": "IRON_LARGE_WEAPON", "location": self})[0]
+        self.db.right_slot = [weapon.key]
+        self.db.weapon_level = 2
+
+    def remove_equipment(self):
+        for item in list(self.contents):
+            if item.db.damage:
+                item.delete()
+        self.db.right_slot = []
+        self.db.left_slot = []
+
+    def command_picker(self, target):
+        amSkills = {"sunder": self.db.sunder}
+        flat = [c for c, v in amSkills.items() for _ in range(v)]
+        flat.append("strike")
+        chosen = random.choice(flat)
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not target.db.bleed_points:
+            return "disengage"
+        chosen = "strike" if self.db.weakness else chosen
+        return f"{chosen} {target.key}"
+
+    def take_combat_turn(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        self.execute_cmd(self.command_picker(target))
+
+    def at_char_entered(self, character):
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
+            if not self.db.right_slot:
+                self.make_equipment()
+            command = self.command_picker(character)
+            self.execute_cmd(command)
+
+
+class CaleTheThorn(Npc):
+    """
+    Cale the Thorn — Crow lieutenant, boss of the Owl's Roost camp.
+    Dangerous melee fighter with disarm, stagger, and cleave.
+    Armed with a steel medium weapon.
+    """
+
+    def at_object_creation(self):
+        self.db.master_of_arms = 2
+        self.db.armor = 0
+        self.db.armor_specialist = 1
+        self.db.tough = 2
+        self.db.body = 5
+        self.db.total_body = 5
+        self.db.av = 1
+        self.db.resilience = 1
+        self.db.indomitable = 0
+        self.db.perception = 1
+        self.db.tracking = 0
+
+        self.db.targetArray = ["torso", "torso", "right arm", "left arm", "right leg", "left leg"]
+        self.db.right_arm = 1
+        self.db.left_arm = 1
+        self.db.right_leg = 1
+        self.db.left_leg = 1
+        self.db.torso = 1
+
+        self.db.weakness = 0
+        self.db.bleed_points = 3
+        self.db.death_points = 3
+
+        self.db.gunner = 0
+        self.db.archer = 0
+        self.db.shields = 0
+        self.db.melee_weapons = 2
+        self.db.armor_proficiency = 1
+
+        self.db.resist = 0
+        self.db.disarm = 2
+        self.db.cleave = 1
+        self.db.sunder = 0
+        self.db.stun = 0
+        self.db.stagger = 2
+        self.db.weapon_level = 0
+        self.db.shield_value = 0
+        self.db.vigil = 0
+        self.db.shield = 0
+        self.db.bow = 0
+        self.db.activemartialskill = 1
+        self.db.combat_turn = 1
+        self.db.in_combat = 0
+        self.db.left_slot = []
+        self.db.right_slot = []
+        self.db.body_slot = []
+        self.db.is_aggressive = True
+        self.db.peaceful = False
+        self.db.skip_turn = False
+        self.db.is_staggered = False
+
+        self.db.isLeading = False
+        self.db.leader = []
+        self.db.isFollowing = False
+        self.db.followers = []
+
+        self.db.iron_ingots = 0
+        self.db.refined_wood = 0
+        self.db.leather = 0
+        self.db.cloth = 0
+        self.db.gold = 0
+        self.db.silver = 0
+        self.db.copper = 0
+        self.db.arrows = 0
+
+    def make_equipment(self):
+        from evennia import spawn
+        weapon = spawn({"prototype_parent": "STEEL_MEDIUM_WEAPON", "location": self})[0]
+        self.db.right_slot = [weapon.key]
+        self.db.weapon_level = 3
+
+    def remove_equipment(self):
+        for item in list(self.contents):
+            if item.db.damage:
+                item.delete()
+        self.db.right_slot = []
+        self.db.left_slot = []
+
+    def command_picker(self, target):
+        amSkills = {
+            "disarm": self.db.disarm,
+            "stagger": self.db.stagger,
+            "cleave": self.db.cleave,
+        }
+        flat = [c for c, v in amSkills.items() for _ in range(v)]
+        flat.append("strike")
+        chosen = random.choice(flat)
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not target.db.bleed_points:
+            return "disengage"
+        chosen = "strike" if self.db.weakness else chosen
+        return f"{chosen} {target.key}"
+
+    def take_combat_turn(self, target):
+        if not self.db.right_slot:
+            self.make_equipment()
+        self.execute_cmd(self.command_picker(target))
+
+    def at_char_entered(self, character):
+        if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
+            if not self.db.right_slot:
+                self.make_equipment()
+            command = self.command_picker(character)
+            self.execute_cmd(command)
+
+
 class QuestGiverNpc(Npc):
     """
     A non-combatant NPC that offers quests.

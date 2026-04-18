@@ -39,3 +39,35 @@ class Exit(DefaultExit):
         self.locks.add("traverse:attr(in_combat, 0)")
 
         return
+
+
+class QuestGatedExit(Exit):
+    """Exit that requires a specific quest to be active or completed.
+
+    Set `db.required_quest` to the quest key (e.g. "rescue_blacksmith").
+    Set `db.gate_message` to a custom rejection message (optional).
+
+    Players without the quest active/completed see the exit but can't
+    traverse — they get a lore-flavored rejection instead.
+    """
+
+    def at_traverse(self, traversing_object, target_location, **kwargs):
+        quest_key = self.attributes.get("required_quest", default=None)
+        if quest_key and hasattr(traversing_object, "db"):
+            # Admins/builders bypass the gate
+            account = getattr(traversing_object, "account", None)
+            if account and (account.is_superuser or account.check_permstring("Builder")):
+                return super().at_traverse(traversing_object, target_location, **kwargs)
+
+            quests = traversing_object.db.quests or {}
+            state = quests.get(quest_key)
+            if not state or state.get("status") not in ("active", "completed"):
+                msg = self.attributes.get("gate_message", default=None)
+                if not msg:
+                    msg = (
+                        "|400The path is unclear and overgrown. You'd need "
+                        "a reason — and directions — to push through.|n"
+                    )
+                traversing_object.msg(msg)
+                return
+        return super().at_traverse(traversing_object, target_location, **kwargs)

@@ -389,6 +389,23 @@ black_market = get_or_create_room(
     zone="Mystvale",
 )
 
+chirurgeons_guild = get_or_create_room(
+    "The Apotheca Chirurgery",
+    "typeclasses.rooms.Room",
+    "A squat stone building near the Marketplace, its doorframe carved "
+    "with the twin-serpent caduceus of the |wApotheca|n — the scholarly "
+    "order dedicated to medicine, alchemy, and the preservation of "
+    "knowledge. Inside: scrubbed tables, hanging herb-bundles, jars of "
+    "salve, bandage rolls, and the sharp smell of alcohol and comfrey. "
+    "A fire burns low under a copper still, and a shelf of worn "
+    "medical texts lines the back wall. This is where Mystvale's wounded "
+    "come to be mended — soldiers, labourers, and adventurers alike. "
+    "The Magister Chirurgeon accepts silver, not thanks.\n\n"
+    "Type |wtend|n to receive healing (5 silver).\n\n"
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
+)
+
 south_gate = get_or_create_room(
     "Mystvale South Gate",
     "typeclasses.rooms.Room",
@@ -579,6 +596,56 @@ mistgate = get_or_create_room(
 )
 
 # ===========================================================================
+# CROW CAMP ROOMS — Rescue the Crafters quest chain (Event 1)
+# Three bandit camps where Crow raiders hold Mystvale's kidnapped crafters.
+# ===========================================================================
+print("\n=== CROW CAMP ROOMS ===")
+
+crow_camp_blacksmith = get_or_create_room(
+    "Crow Camp — Blacksmith's Prison",
+    "typeclasses.rooms.Room",
+    "A clearing hacked out of the deep forest, littered with the wreckage "
+    "of a supply wagon. Crow banners — ragged strips of black cloth tied "
+    "to sharpened stakes — ring the perimeter. Crates of stolen tools and "
+    "iron stock sit half-covered under oilcloth. A crude cage of lashed "
+    "timber stands near the far treeline, its door hanging open.\n\n"
+    "The air smells of cold ash and unwashed men. Boot-prints churn the "
+    "mud in every direction.\n\n"
+    "|wOut|n, back to the |wForest Road|n.",
+    zone="Tamris",
+)
+
+crow_camp_fox = get_or_create_room(
+    "Crow Camp — Fox Den",
+    "typeclasses.rooms.Room",
+    "A second Crow encampment, better fortified than the first. A ditch "
+    "has been dug around the clearing and filled with sharpened stakes. "
+    "Two lean-tos of rough timber and hide stand on either side of a "
+    "fire-pit. Herb supplies — bundles of dried plants, clay jars, a "
+    "mortar and pestle — lie scattered near an overturned table, as if "
+    "someone had been working before being interrupted.\n\n"
+    "A fox-skull totem hangs from a post at the entrance, daubed with "
+    "red paint.\n\n"
+    "|wOut|n, back to the |wForest Road|n.",
+    zone="Tamris",
+)
+
+crow_camp_owl = get_or_create_room(
+    "Crow Camp — Owl's Roost",
+    "typeclasses.rooms.Room",
+    "The largest of the Crow camps — a fortified clearing deep along "
+    "the Old Road, ringed by a palisade of rough-hewn logs. An owl "
+    "sigil has been branded into the gate-post, wings spread wide. "
+    "Inside: a command tent of oiled canvas, weapon racks, bedrolls "
+    "enough for a dozen fighters. A map of Mystvale and its surrounds "
+    "is pinned to a board with iron nails.\n\n"
+    "This is no bandit hideout — it is a staging ground. Someone with "
+    "military training built this camp.\n\n"
+    "|wOut|n, back to the |wOld Road|n.",
+    zone="The Annwyn",
+)
+
+# ===========================================================================
 # IRONHAVEN ZONE — Richter holding east of Mystvale
 # ===========================================================================
 print("\n=== IRONHAVEN ROOMS ===")
@@ -751,6 +818,7 @@ link(mystvale_square, "crafters",  crafter_quarter,    "out",        None, None)
 link(mystvale_square, "town hall", town_hall,          "out",        "hall", None)
 link(mystvale_square, "garden",    herbalist_garden,   "out",        None, None)
 link(mystvale_square, "chantry",   chantry,            "out",        None, None)
+link(mystvale_square, "chirurgery", chirurgeons_guild, "out",        "heal", "o")
 link(mystvale_square, "north",     manor_row,          "south",      "n",  "s")
 link(mystvale_square, "south",     south_gate,         "north",      "s",  "n")
 link(mystvale_square, "northgate", north_gate,         "south",      None, None)
@@ -796,6 +864,53 @@ link(carran_square, "east", bannon_barracks, "west", "e", "w")
 # North gate → Forest Road → Harrowgate (far north per canonical map)
 link(north_gate, "north", forest_road, "south", "n", "s")
 link(forest_road, "north", harrowgate, "south", "n", "s")
+
+# Crow Camp rooms — Rescue the Crafters quest chain (Event 1)
+# Gated: players must have the corresponding quest active to enter.
+def quest_gated_link(room_a, exit_a, room_b, exit_b, alias_a, alias_b,
+                     required_quest, gate_message=None):
+    """Like link() but the A→B exit requires an active/completed quest."""
+    # A → B: quest-gated
+    if not ObjectDB.objects.filter(db_key=exit_a, db_location=room_a.pk).exists():
+        ex = _create.create_object(
+            "typeclasses.exits.QuestGatedExit",
+            key=exit_a, location=room_a, destination=room_b
+        )
+        if alias_a:
+            ex.aliases.add(alias_a)
+        ex.attributes.add("required_quest", required_quest)
+        if gate_message:
+            ex.attributes.add("gate_message", gate_message)
+    else:
+        # Refresh quest gate on existing exit
+        ex = ObjectDB.objects.filter(db_key=exit_a, db_location=room_a.pk).first()
+        ex.attributes.add("required_quest", required_quest)
+        if gate_message:
+            ex.attributes.add("gate_message", gate_message)
+    # B → A: always open (you can always leave)
+    if not ObjectDB.objects.filter(db_key=exit_b, db_location=room_b.pk).exists():
+        ex2 = _create.create_object(
+            "evennia.objects.objects.DefaultExit",
+            key=exit_b, location=room_b, destination=room_a
+        )
+        if alias_b:
+            ex2.aliases.add(alias_b)
+
+quest_gated_link(
+    forest_road, "camp", crow_camp_blacksmith, "out", "camp", "o",
+    required_quest="rescue_blacksmith",
+    gate_message="|400The forest here is dense and trackless. You'd need someone to point you toward the Crow camp.|n",
+)
+quest_gated_link(
+    forest_road, "fox camp", crow_camp_fox, "out", "fox", "o",
+    required_quest="rescue_alchemist",
+    gate_message="|400You don't know where the Fox Den is. The camp letter from the first raid should tell you.|n",
+)
+quest_gated_link(
+    old_road_south, "owl camp", crow_camp_owl, "out", "owl", "o",
+    required_quest="rescue_artificer",
+    gate_message="|400The Owl's Roost is well-hidden. You'll need directions from someone who's been there.|n",
+)
 
 # Tamris ruins interior (accessed from Carran SW or Ironhaven W)
 link(tamris_approach, "in", tamris_ruins, "out", None, "o")
@@ -2157,6 +2272,52 @@ get_or_create_npc(
 ])
 
 
+# --- Magister Wynn — Apotheca chirurgeon at the Chirurgery ----------------
+wynn = get_or_create_npc(
+    key="Magister Wynn",
+    location=chirurgeons_guild,
+    desc=(
+        "A steady-eyed woman in her forties with close-cropped grey hair "
+        "and hands stained the yellow-brown of iodine. She wears the "
+        "white half-apron of an Apotheca practitioner, a leather roll "
+        "of surgical tools at her belt, and no jewelry at all. A faint "
+        "smell of comfrey and alcohol surrounds her."
+    ),
+    personality=(
+        "Magister Wynn, Apotheca-trained chirurgeon and the closest "
+        "thing Mystvale has to a proper physician. Patient, methodical, "
+        "matter-of-fact. Does not believe in wasted words or wasted "
+        "coin — she charges five silver to tend wounds because herbs "
+        "are expensive and her time is not free. Will not refuse to "
+        "treat the dying regardless of payment, but will pursue the "
+        "debt. Thinks highly of anyone who carries their own medicine "
+        "kit. Does not suffer fools, drunks, or people who pick fights "
+        "they can't win and then complain about the bill."
+    ),
+    knowledge=(
+        "- The Apotheca's medical canon: wound care, splinting, herbal "
+        "antiseptics, tinctures, poultices, fever-treatment. She is "
+        "not an alchemist but knows enough to respect the discipline.\n"
+        "- Mystvale's injury roster — who's come in hurt, how they got "
+        "that way, and who will be back next week for the same reason.\n"
+        "- Battlefield medicine techniques from the Dusklands border "
+        "wars. She served as a field chirurgeon before coming here.\n"
+        "- The Apotheca's stance on nethermancy: it is the corruption "
+        "of the healing art. She will not discuss it further.\n"
+        "- Herb prices, reagent availability, and which 'apothecaries' "
+        "in the marketplace are actually selling snake oil."
+    ),
+    quest_hooks=[
+        "Will tend any wound for five silver. Type `tend` to be healed.",
+        "Is running low on comfrey and boneset — would pay a gatherer.",
+        "Suspects someone in Mystvale is brewing unlicensed poisons. "
+        "Would quietly reward information.",
+    ],
+    topics=["healing", "the Apotheca", "herb supplies"],
+    scope="annwyn",
+)
+wynn.attributes.add("is_healer", True)
+
 print("\n=== IRONHAVEN NPCs ===")
 
 # --- Ser Hartwig Richter — minor Richter knight at Hardinger's Hall ---
@@ -2522,6 +2683,202 @@ print("\n=== EXTENDED NPC ROSTER COMPLETE ===")
 
 
 # ===========================================================================
+# CROW CAMP ENEMY NPCs — Rescue the Crafters quest chain (Event 1)
+# Combat NPCs using dedicated typeclasses with AI combat logic.
+# ===========================================================================
+print("\n=== CROW CAMP ENEMIES ===")
+
+
+def get_or_create_enemies(key, typeclass_path, location, desc, count=1):
+    """Create or preserve *count* hostile combat NPCs with the same key at
+    a given location. Idempotent: if enough already exist, skip creation;
+    if too few, create the remainder; if too many (from manual spawns),
+    leave the extras alone."""
+    existing = list(ObjectDB.objects.filter(
+        db_key=key, db_location=location.pk,
+        db_typeclass_path=typeclass_path,
+    ))
+    # Refresh desc + locks on every existing NPC
+    for npc in existing:
+        npc.db.desc = desc
+        npc.locks.add("get:false();puppet:false()")
+    need = count - len(existing)
+    if need <= 0:
+        print(f"  EXISTS  : {key} x{len(existing)} (in {location.key})")
+        return existing[:count]
+    created = []
+    for _ in range(need):
+        npc = _create.create_object(typeclass_path, key=key, location=location)
+        npc.db.desc = desc
+        npc.locks.add("get:false();puppet:false()")
+        created.append(npc)
+    print(f"  CREATED : {key} x{need} → {location.key} (had {len(existing)})")
+    return existing + created
+
+
+_CROW_STRIKER_DESC = (
+    "A lean, scarred fighter in patchwork leather, a black crow "
+    "feather tied to one arm. Eyes like a cornered dog — vicious "
+    "and calculating. Armed and hostile."
+)
+_CROW_BRUISER_DESC = (
+    "A hulking brute in a battered iron breastplate, broad as a doorframe. "
+    "A heavy two-handed weapon rests on one shoulder. The crow feathers "
+    "braided into his beard are stiff with dried blood."
+)
+
+# --- Crow Camp — Blacksmith's Prison: 3x Striker, 1x Bruiser ---
+get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
+                      crow_camp_blacksmith, _CROW_STRIKER_DESC, count=3)
+get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
+                      crow_camp_blacksmith, _CROW_BRUISER_DESC, count=1)
+
+# --- Crow Camp — Fox Den: 3x Striker, 2x Bruiser ---
+get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
+                      crow_camp_fox, _CROW_STRIKER_DESC, count=3)
+get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
+                      crow_camp_fox, _CROW_BRUISER_DESC, count=2)
+
+# --- Crow Camp — Owl's Roost: 3x Striker, 2x Bruiser, 1x Cale ---
+get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
+                      crow_camp_owl, _CROW_STRIKER_DESC, count=3)
+get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
+                      crow_camp_owl, _CROW_BRUISER_DESC, count=2)
+get_or_create_enemies(
+    "Cale the Thorn", "typeclasses.npc.CaleTheThorn",
+    crow_camp_owl,
+    "A wiry, sharp-featured man in worn but well-fitted leather armor, "
+    "a steel blade at his hip. An owl-feather cloak hangs from his "
+    "shoulders. He moves with the ease of a trained swordsman — every "
+    "step deliberate, every glance appraising. A jagged scar runs from "
+    "his left ear to his jawline. He does not look like a man who loses.",
+    count=1,
+)
+
+
+# ===========================================================================
+# RESCUED CRAFTER NPCs — dialogue NPCs at each camp, quest givers for
+# the subsequent quests in the chain.
+# ===========================================================================
+print("\n=== RESCUED CRAFTER NPCs ===")
+
+get_or_create_npc(
+    key="Torben the Blacksmith",
+    location=crow_camp_blacksmith,
+    desc=(
+        "A broad-shouldered, middle-aged man with soot-stained hands and "
+        "a bruised face. His leather apron is torn, his wrists rubbed raw "
+        "from rope. Despite his injuries, there is iron in his bearing — "
+        "a craftsman who bends metal, not his back."
+    ),
+    personality=(
+        "Torben the Blacksmith, Mystvale's master smith. Stoic, grateful, "
+        "deeply worried about his spouse Marta who was taken to a different "
+        "camp. Speaks in short, earnest sentences. Strong hands, stronger "
+        "will. Calls his rescuer 'friend' from the first word."
+    ),
+    knowledge=(
+        "- Was kidnapped from the Crafter's Quarter by Crow raiders three "
+        "days ago. They wanted him to forge weapons.\n"
+        "- His spouse Marta, an alchemist, was taken to a second camp "
+        "called the Fox Den — he overheard guards talking about it.\n"
+        "- A young artificer named Fenn was taken to a third camp deeper "
+        "along the Old Road.\n"
+        "- The Crows are not ordinary bandits — they have leadership, "
+        "supplies, and inside knowledge of Mystvale's defenses.\n"
+        "- Once rescued, he will set up shop in the Crafter's Quarter "
+        "and forge for the settlement."
+    ),
+    quest_hooks=[
+        "Begs the player to rescue his spouse Marta from the Fox Den.",
+        "Will offer his smithing services for free once he returns to "
+        "Mystvale.",
+        "Knows details about the Crow organization that Ser Ewan Bannon "
+        "would pay for.",
+    ],
+    topics=["the Crows", "the other captives", "crafting"],
+    scope="annwyn",
+)
+
+get_or_create_npc(
+    key="Marta the Alchemist",
+    location=crow_camp_fox,
+    desc=(
+        "A wiry, exhausted woman with herb-stained fingers and dark "
+        "circles under sharp, intelligent eyes. Her apothecary's satchel "
+        "has been emptied and its contents scattered across the camp. "
+        "She sits with the careful stillness of someone conserving every "
+        "ounce of energy."
+    ),
+    personality=(
+        "Marta the Alchemist, Torben's spouse. Quick-minded, dry-humored "
+        "even in captivity, fierce when it comes to her craft and her "
+        "family. Speaks precisely — an herbalist's habit of naming things "
+        "exactly. Relieved beyond words to be rescued."
+    ),
+    knowledge=(
+        "- Was forced to brew poisons for the Crows. Sabotaged what she "
+        "could — diluted doses, substituted inert herbs.\n"
+        "- A young artificer named Fenn is held at the Owl's Roost, the "
+        "biggest camp, run by a Crow lieutenant called Cale the Thorn.\n"
+        "- Cale is dangerous — a trained fighter, not a common thug. He "
+        "answers to someone called 'the Old Badger.'\n"
+        "- Her recipe scroll was taken but not destroyed — it should "
+        "still be in the camp somewhere.\n"
+        "- Once free, she will set up an apothecary in Mystvale."
+    ),
+    quest_hooks=[
+        "Tells the player about Fenn at the Owl's Roost and urges them "
+        "to finish what they started.",
+        "Offers reagents as thanks — Sayge and Blackthorn from her "
+        "personal stores.",
+        "Warns about Cale the Thorn — he is no ordinary bandit leader.",
+    ],
+    topics=["the Crows", "the other captives", "crafting"],
+    scope="annwyn",
+)
+
+get_or_create_npc(
+    key="Fenn the Artificer",
+    location=crow_camp_owl,
+    desc=(
+        "A young, gangly man barely out of his apprenticeship, with "
+        "clever hands and a nervous, darting gaze. His artificer's "
+        "tools have been confiscated but he keeps reaching for his belt "
+        "where they used to hang. A bruise darkens one cheekbone."
+    ),
+    personality=(
+        "Fenn the Artificer, the youngest of Mystvale's three crafters. "
+        "Eager, earnest, talks too fast when excited or frightened — "
+        "which is most of the time right now. Deeply grateful to be "
+        "rescued. Already planning what he'll build first when he gets "
+        "back to the workshop."
+    ),
+    knowledge=(
+        "- Was captured while gathering materials outside Mystvale. The "
+        "Crows wanted him to repair their crossbows.\n"
+        "- Overheard Cale receiving orders — the Crow raids are not "
+        "random, they are targeting Mystvale's ability to arm itself.\n"
+        "- Cale keeps a bundle of intelligence documents in his command "
+        "tent — patrol routes, supply caches, orders from 'the Old "
+        "Badger.'\n"
+        "- Once free, he will open an artificer's workshop in Mystvale "
+        "for kits, locks, and clothing."
+    ),
+    quest_hooks=[
+        "Grateful beyond measure — will craft the player a free kit "
+        "once he returns to Mystvale.",
+        "Has information about the Crow command structure that could "
+        "help Ser Ewan Bannon plan a counteroffensive.",
+        "Knows the 'Old Badger' is not in the Annwyn — the orders "
+        "come from across the Mists.",
+    ],
+    topics=["the Crows", "the other captives", "crafting"],
+    scope="annwyn",
+)
+
+
+# ===========================================================================
 # CANON TAGS — wire each AI NPC to relevant canon files in world/canon/.
 # Tags: house:foo, faction:bar, region:baz. The canon loader matches
 # overlap and includes those entries in the NPC's system prompt.
@@ -2566,6 +2923,11 @@ _NPC_CANON_TAGS = {
     "Tova of the Get":             ["house:hale", "house:coldhill", "region:everfrost"],
     "Ser Ewan Bannon":             ["house:bannon", "house:laurent"],
     "Keena Innis":                 ["house:innis", "region:northern_marches"],
+
+    # Rescued Crafters (Event 1 quest chain)
+    "Torben the Blacksmith":       ["region:annwyn"],
+    "Marta the Alchemist":         ["region:annwyn"],
+    "Fenn the Artificer":          ["region:annwyn"],
 }
 
 _tagged = 0

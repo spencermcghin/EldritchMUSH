@@ -291,4 +291,121 @@ QUESTS = {
         },
         "prereqs": [],
     },
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 1 — Rescue the Crafters (3-part quest chain)
+    # Ser Ewan Bannon → Torben the Blacksmith → Marta the Alchemist
+    # Crow bandits have kidnapped Mystvale's three key crafters and are
+    # holding them at three camps in the forest and along the Old Road.
+    # ─────────────────────────────────────────────────────────────────────────
+    "rescue_blacksmith": {
+        "key": "rescue_blacksmith",
+        "title": "Rescue the Crafters: The Blacksmith",
+        "giver": "ser ewan bannon",
+        "description": (
+            "Crow bandits have kidnapped Mystvale's blacksmith and are "
+            "holding him at a camp in the forest. Ser Ewan Bannon is "
+            "looking for volunteers to raid the camp and bring the "
+            "blacksmith home. The Crows are armed and hostile — expect "
+            "a fight."
+        ),
+        "objectives": [
+            {
+                "type": "kill",
+                "target": "crow striker",
+                "qty": 3,
+                "desc": "Clear the Crow camp of Strikers (0/3)",
+            },
+            {
+                "type": "kill",
+                "target": "crow bruiser",
+                "qty": 1,
+                "desc": "Defeat the Crow Bruiser (0/1)",
+            },
+            {
+                "type": "explore",
+                "target": "Crow Camp — Blacksmith's Prison",
+                "qty": 1,
+                "desc": "Find the Crow camp (0/1)",
+            },
+        ],
+        "rewards": {
+            "silver": 15,
+            "items": ["CROW_CAMP_LETTER"],
+            "reagents": {},
+        },
+        "prereqs": [],
+    },
+
+    "rescue_alchemist": {
+        "key": "rescue_alchemist",
+        "title": "Rescue the Crafters: The Alchemist",
+        "giver": "torben the blacksmith",
+        "description": (
+            "The rescued blacksmith, Torben, begs you to find his spouse "
+            "Marta — an alchemist taken to the Fox Den, a second Crow "
+            "camp deeper in the forest. The camp letter you found "
+            "describes its location. More Crows, and they'll be ready "
+            "for trouble."
+        ),
+        "objectives": [
+            {
+                "type": "kill",
+                "target": "crow striker",
+                "qty": 3,
+                "desc": "Clear the Fox Den of Strikers (0/3)",
+            },
+            {
+                "type": "kill",
+                "target": "crow bruiser",
+                "qty": 2,
+                "desc": "Defeat the Crow Bruisers (0/2)",
+            },
+            {
+                "type": "explore",
+                "target": "Crow Camp — Fox Den",
+                "qty": 1,
+                "desc": "Find the Fox Den camp (0/1)",
+            },
+        ],
+        "rewards": {
+            "silver": 20,
+            "items": ["ALCHEMY_RECIPE_SCROLL"],
+            "reagents": {"Sayge": 5, "Blackthorn": 3},
+        },
+        "prereqs": ["rescue_blacksmith"],
+    },
+
+    "rescue_artificer": {
+        "key": "rescue_artificer",
+        "title": "Rescue the Crafters: The Artificer",
+        "giver": "marta the alchemist",
+        "description": (
+            "Marta tells you of a third captive — Fenn, a young "
+            "artificer, held at the Owl's Roost, the largest Crow camp. "
+            "It's run by a lieutenant called Cale the Thorn. This will "
+            "be the hardest fight yet, but freeing all three crafters "
+            "will establish Mystvale's workshops for good."
+        ),
+        "objectives": [
+            {
+                "type": "kill",
+                "target": "cale the thorn",
+                "qty": 1,
+                "desc": "Defeat Cale the Thorn (0/1)",
+            },
+            {
+                "type": "kill",
+                "target": "crow",
+                "qty": 5,
+                "desc": "Clear the Owl's Roost (0/5)",
+            },
+        ],
+        "rewards": {
+            "silver": 30,
+            "items": ["CROW_INTELLIGENCE_REPORT"],
+            "reagents": {},
+        },
+        "prereqs": ["rescue_alchemist"],
+    },
 }
