@@ -1178,6 +1178,7 @@ get_or_create_npc(
         "Has heard a third Writ was issued to someone matching the player's "
         "description — might be a case of mistaken identity, might not.",
     ],
+    topics=["the Crossing Office", "noble houses", "a third Writ"],
 )
 
 # --- Crane — the Registrar of the Gateway Crossing Office --------------
@@ -1225,6 +1226,7 @@ crane = get_or_create_npc(
         "If the player has a specific reason to cross — a lost kin, a debt, "
         "a calling — Crane notes it in the ledger with quiet approval.",
     ],
+    topics=["register a Writ", "the Mists", "reasons to cross"],
 )
 # Crane can issue Writs to bearers who agree to the terms.
 crane.attributes.add("ai_giftable_items", ["WRIT_OF_SAFE_CONDUCT"])
@@ -1270,6 +1272,7 @@ get_or_create_npc(
         "Occasionally needs a favor done on the Annwyn side — a message "
         "delivered, a token recovered — in exchange for a return crossing.",
     ],
+    topics=["crossing the Mists", "the knotted cord", "a favor"],
 )
 
 # --- Pelham Faye — innkeeper at The Broken Oar ------------------------
@@ -1312,6 +1315,7 @@ get_or_create_npc(
         "Is looking for someone trustworthy to carry a small sealed packet "
         "to a friend in Mystvale; silver on delivery.",
     ],
+    topics=["rumors", "a hot meal", "a delivery job"],
 ).attributes.add("ai_giftable_items", ["ALE_TOKEN"])
 
 # --- Branwen Innish — Cirque scout in the Open Square -----------------
@@ -1356,6 +1360,7 @@ get_or_create_npc(
         "If the player is Innis-affiliated or Cirque-adjacent, offers a "
         "quiet introduction to 'someone who might want to meet you.'",
     ],
+    topics=["caravan work", "carry a letter", "Cirque contacts"],
 )
 
 # --- Old Mae — widow in the Tent City ---------------------------------
@@ -1396,6 +1401,7 @@ get_or_create_npc(
         "Asks if anyone crossing might carry a letter to her sister Ilsa in "
         "Mystvale, in case she herself doesn't make it across.",
     ],
+    topics=["sponsor a Writ", "her sister Ilsa", "the children"],
 )
 
 # ===========================================================================
@@ -1466,6 +1472,7 @@ get_or_create_npc(
         "inside Mystvale and walks under the Laurent banner. Will "
         "share what he knows for real conversation, not curiosity.",
     ],
+    topics=["a blessing", "the New Dawn", "the Living Saints"],
     scope="gateway",
 )
 
@@ -1506,6 +1513,7 @@ get_or_create_npc(
         "Knows someone recently paid a Mistwalker to carry a specific "
         "sealed packet. She wrote the outside. She won't say who.",
     ],
+    topics=["write a letter", "Cirque post", "a sealed packet"],
     scope="gateway",
 )
 
@@ -1547,6 +1555,7 @@ get_or_create_npc(
         "Knows which Mistwalker has been paid to move a specific "
         "crate. Will talk for the right reason.",
     ],
+    topics=["quiet work", "kriegsmesser lessons", "a suspicious crate"],
     scope="gateway",
 )
 
@@ -1587,6 +1596,7 @@ get_or_create_npc(
         "cousin she believes made it to Mystvale. Mira, daughter of "
         "Hanen the vintner. Her cousin, not her sister.",
     ],
+    topics=["healing work", "herb supplies", "a distant cousin"],
     scope="gateway",
 )
 
@@ -1779,6 +1789,7 @@ get_or_create_npc(
         "Knows which sellsword companies are hiring, and which are "
         "'hiring' in a way that means walking into a debt.",
     ],
+    topics=["contracts", "shieldwork lessons", "sellsword companies"],
     scope="gateway",
 )
 
@@ -1824,6 +1835,7 @@ get_or_create_npc(
         "very still and then sing one line in a language that "
         "isn't in use anymore.",
     ],
+    topics=["a ballad", "a Cirque delivery", "the old troupe"],
     scope="gateway",
 )
 
@@ -1868,6 +1880,7 @@ get_or_create_npc(
         "Knows a palisade blind spot that could get a desperate "
         "person through without a Writ. Will not share lightly.",
     ],
+    topics=["rope repair", "the Mary Greywater", "the palisade"],
     scope="gateway",
 )
 
@@ -1907,6 +1920,7 @@ get_or_create_npc(
         "If the player is kind twice, she'll mention the Mistwalker "
         "who sat at her table without drinking.",
     ],
+    topics=["food and lodging", "a Mistwalker's visit"],
     scope="gateway",
 )
 
@@ -1941,6 +1955,7 @@ get_or_create_npc(
         "Knows things about the tent city's night-time comings and "
         "goings. Would say more for a proper meal.",
     ],
+    topics=["an errand", "the tent city at night"],
     scope="gateway",
 )
 
@@ -1988,6 +2003,7 @@ get_or_create_npc(
         "Has a specific question about Greyveil she does not want "
         "Crane to hear her ask. Will slip it to a trustworthy player.",
     ],
+    topics=["her mentor", "register a Writ", "Greyveil"],
     scope="gateway",
 )
 
@@ -2048,6 +2064,7 @@ get_or_create_npc(
         "If the player speaks of the Fayne with familiarity, he grows "
         "very quiet and asks them to stay for tea.",
     ],
+    topics=["missing novices", "consecrated oil", "the Fayne"],
     scope="annwyn",
 )
 
@@ -2089,6 +2106,7 @@ get_or_create_npc(
         "Can introduce you to a Cirque dealer in 'quieter' goods if "
         "you've shown the right manners.",
     ],
+    topics=["a Cirque delivery", "rare herbs", "quieter goods"],
     scope="annwyn",
 )
 
@@ -2130,6 +2148,7 @@ get_or_create_npc(
         "Is quietly trying to figure out who asked for the town "
         "register. Would reward a discreet investigator.",
     ],
+    topics=["Stag Hall delivery", "witnessed documents", "the town register"],
     scope="annwyn",
 ).attributes.add("ai_giftable_items", [
     "SEALED_WRIT_COPY",
@@ -2181,6 +2200,7 @@ get_or_create_npc(
         "If pressed about the Aragon ships: will take you to the "
         "coastal watchtower. Quietly. At dusk.",
     ],
+    topics=["off-ledger work", "audience with Hardinger", "Aragon ships"],
     scope="annwyn",
 )
 
@@ -2220,6 +2240,7 @@ get_or_create_npc(
         "Offers a small knife of her own make to anyone who proves "
         "steady hands on the bellows for an hour.",
     ],
+    topics=["moonstone ore", "silver-shot commission", "test my hands"],
     scope="annwyn",
 )
 
@@ -2266,6 +2287,7 @@ get_or_create_npc(
         "courier is in Aragon's pocket. Would value a second pair of "
         "discreet eyes.",
     ],
+    topics=["a sealed letter", "fencing lessons", "a suspicious courier"],
     scope="annwyn",
 )
 
@@ -2306,6 +2328,7 @@ get_or_create_npc(
         "Suspects one of the missing falcons was taken, not lost. "
         "She is building a list.",
     ],
+    topics=["Branwen the falcon", "message bird", "stolen falcons"],
     scope="annwyn",
 )
 
@@ -2351,6 +2374,7 @@ get_or_create_npc(
         "Knows something about the Oban incursion at Carran that "
         "the Laurents do not know.",
     ],
+    topics=["the tea", "a sealed letter", "the Oban incursion"],
     scope="annwyn",
 )
 
@@ -2397,6 +2421,7 @@ get_or_create_npc(
         "Would carry word south to Mystvale for a traveler going her "
         "way, if their oath rings true.",
     ],
+    topics=["wrestling challenge", "the Great Bear's cub", "carry word south"],
     scope="annwyn",
 )
 
@@ -2441,6 +2466,7 @@ get_or_create_npc(
         "If the player shows knowledge of the Crows' inner circles, "
         "Ewan will pay for ALL of it, and protect the source.",
     ],
+    topics=["Crow hunters", "a family letter", "Crow intelligence"],
     scope="annwyn",
 )
 
@@ -2487,6 +2513,7 @@ get_or_create_npc(
         "with real knowledge, Keena's whole posture changes. Good or "
         "bad? Depends on the knowledge.",
     ],
+    topics=["a healing salve", "forest paths", "House Innis"],
     scope="annwyn",
 )
 

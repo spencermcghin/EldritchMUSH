@@ -701,20 +701,14 @@ def text(session, *args, **kwargs):
                                     aliases = [a for a in obj.aliases.all()]
                                 except Exception:
                                     pass
-                                # Pull quest hooks for player-facing hint
-                                # chips. If the NPC has an explicit
-                                # ai_quest_topics list, use those verbatim
-                                # as chip labels. Otherwise heuristically
-                                # shorten each hook down to a 2-4 word
-                                # keyword so `ask <npc> <topic>` is a
-                                # sensible query, not a whole sentence.
+                                # Topic chips: only show when the NPC has
+                                # explicit ai_quest_topics set. The old
+                                # heuristic that tried to auto-shorten
+                                # quest_hooks produced garbage fragments
+                                # like "Needs a runner to". Curated labels
+                                # only — no label is better than a bad one.
                                 explicit = obj.attributes.get("ai_quest_topics", default=None) or []
-                                if explicit:
-                                    topics = [str(t).strip() for t in explicit if str(t).strip()]
-                                else:
-                                    hooks = obj.attributes.get("ai_quest_hooks", default=None) or []
-                                    topics = [_shorten_topic(h) for h in hooks]
-                                    topics = [t for t in topics if t]
+                                topics = [str(t).strip() for t in explicit if str(t).strip()]
                                 npcs.append({
                                     "name": obj.key,
                                     "dbref": obj.id,
