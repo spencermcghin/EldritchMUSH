@@ -19,6 +19,7 @@ import ShopModal from './components/ShopModal'
 import TavylModal from './components/TavylModal'
 import PrimerModal from './components/PrimerModal'
 import QuestOfferModal from './components/QuestOfferModal'
+import AlchemyModal from './components/AlchemyModal'
 import ItemReceivedToast from './components/ItemReceivedToast'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
@@ -100,6 +101,7 @@ function App() {
   const [shopOpen, setShopOpen] = useState(false)
   const [tavylOpen, setTavylOpen] = useState(false)
   const [primerOpen, setPrimerOpen] = useState(false)
+  const [alchemyOpen, setAlchemyOpen] = useState(false)
   // Auto-open the Tavyl modal whenever a fresh tavyl_state event arrives.
   const lastTavylTsRef = useRef(0)
   useEffect(() => {
@@ -127,6 +129,16 @@ function App() {
       setEquipOpen(true)
     }
   }, [oobState.inventoryOpen])
+
+  // Auto-open the Alchemy modal when alchemy_data arrives.
+  const lastAlchemyTsRef = useRef(0)
+  useEffect(() => {
+    const ts = oobState.alchemyData?.ts
+    if (ts && ts !== lastAlchemyTsRef.current) {
+      lastAlchemyTsRef.current = ts
+      setAlchemyOpen(true)
+    }
+  }, [oobState.alchemyData])
 
   // Fire __room_meta__ on initial puppet & any character change so the
   // contextual buttons and topic chips populate without requiring the
@@ -511,6 +523,15 @@ function App() {
           open={primerOpen}
           onClose={() => setPrimerOpen(false)}
           primerData={oobState.primerData}
+        />
+      )}
+
+      {/* Alchemy modal */}
+      {alchemyOpen && (
+        <AlchemyModal
+          onClose={() => setAlchemyOpen(false)}
+          sendCommand={sendCommand}
+          alchemyData={oobState.alchemyData}
         />
       )}
 
