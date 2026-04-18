@@ -2296,16 +2296,29 @@ wynn = get_or_create_npc(
     ),
     knowledge=(
         "- The Apotheca's medical canon: wound care, splinting, herbal "
-        "antiseptics, tinctures, poultices, fever-treatment. She is "
-        "not an alchemist but knows enough to respect the discipline.\n"
+        "antiseptics, tinctures, poultices, fever-treatment.\n"
+        "- Apotheca healing substances she can prepare or source:\n"
+        "  - Anamnesis Decoction (Apotheca level 1): requires Distilled "
+        "Spirits, Sayge, Widow's Petal, and Harrowdust.\n"
+        "  - Measles Cure (level 1): for common disease.\n"
+        "  - Bridgit's Antidote (level 1): cures Bridgit's Revenge poison.\n"
+        "  - Expert remedies at level 2+: Lilting Plague Cure, "
+        "Graverot Fever Cure, Paralyze cure, Weakness cure.\n"
+        "- Key reagents she uses regularly: Sayge (uncommon, the "
+        "workhorse of healing), Black Salt (common, for antiseptics), "
+        "Celandine (common, purifies poisons and drunkenness), "
+        "Widow's Petal (uncommon, for decoctions), Willow Root "
+        "(common, pain relief), Verbaena (common, strengthening).\n"
+        "- She keeps a stock of Distilled Spirits as a base for most "
+        "preparations. Will sell basic reagents to qualified alchemists.\n"
         "- Mystvale's injury roster — who's come in hurt, how they got "
         "that way, and who will be back next week for the same reason.\n"
         "- Battlefield medicine techniques from the Dusklands border "
         "wars. She served as a field chirurgeon before coming here.\n"
         "- The Apotheca's stance on nethermancy: it is the corruption "
         "of the healing art. She will not discuss it further.\n"
-        "- Herb prices, reagent availability, and which 'apothecaries' "
-        "in the marketplace are actually selling snake oil."
+        "- Herb prices and which 'apothecaries' in the marketplace "
+        "are actually selling snake oil."
     ),
     quest_hooks=[
         "Will tend any wound for five silver. Type `tend` to be healed.",
