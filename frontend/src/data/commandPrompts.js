@@ -46,7 +46,7 @@ export const PROMPTS = {
     placeholder: 'A secret message...',
     icon: '🤫',
     submitLabel: 'Whisper',
-    buildCommand: (input) => `whisper ${targetName}=${input}`,
+    buildCommand: (input) => `whisper ${targetName} = ${input}`,
   }),
 
   tell: (targetName) => ({
@@ -64,7 +64,7 @@ export const PROMPTS = {
     placeholder: 'about your sister, about the Mists...',
     icon: '🗣',
     submitLabel: 'Ask',
-    buildCommand: (input) => `ask ${targetName} ${input}`,
+    buildCommand: (input) => `ask ${targetName} = ${input}`,
   }),
 
   look: {
