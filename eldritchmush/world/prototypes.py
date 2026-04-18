@@ -2406,3 +2406,42 @@ TOWN_REGISTER_NOTE = {
     ),
     "is_quest_item": True,
 }
+
+# --- Rescue the Crafters quest chain items ---
+
+CROW_CAMP_LETTER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Crow camp letter",
+    "aliases": ["crow letter", "letter", "camp letter"],
+    "desc": (
+        "A crumpled letter in Aldrith script, found at the Crow camp. "
+        "It mentions two other camps — Fox Den and Owl's Roost — where "
+        "more captives are being held. The handwriting is hurried and angry."
+    ),
+    "is_quest_item": True,
+}
+
+CROW_INTELLIGENCE_REPORT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Crow intelligence report",
+    "aliases": ["crow report", "intelligence report", "crow intel"],
+    "desc": (
+        "A bundle of notes found on Cale the Thorn — patrol routes, "
+        "supply cache locations, and a terse set of orders from someone "
+        "signing as 'the Old Badger.' The Crows are more organized than "
+        "anyone in Mystvale suspected."
+    ),
+    "is_quest_item": True,
+}
+
+ALCHEMY_RECIPE_SCROLL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "alchemy recipe scroll",
+    "aliases": ["recipe scroll", "alchemy scroll"],
+    "desc": (
+        "A stained scroll of herbal recipes recovered from the Crow camp. "
+        "Marta the Alchemist had been working on these before her capture "
+        "— they describe preparations for healing salves and blade oils."
+    ),
+    "is_quest_item": True,
+}
