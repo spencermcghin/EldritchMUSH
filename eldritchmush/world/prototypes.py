@@ -2445,3 +2445,595 @@ ALCHEMY_RECIPE_SCROLL = {
     ),
     "is_quest_item": True,
 }
+
+# ===========================================================================
+# RECIPE SCROLL PROTOTYPES -- generated from alchemy_prototypes.py
+# Players learn these via: learn <scroll>
+# Sold by Marta the Alchemist and other recipe vendors.
+# ===========================================================================
+
+RECIPE_ANAMNESIS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Anamnesis Decoction",
+    "aliases": ['anamnesis decoction recipe', 'anamnesis decoction schematic'],
+    "desc": "A detailed schematic describing how to brew Anamnesis Decoction (Level 1 Apotheca). Requires: Distilled Spirits x2, Harrowdust x1, Sayge x1, Widow's Petal x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "ANAMNESIS_DECOCTION",
+    "value_silver": 8,
+}
+
+RECIPE_BLADE_OIL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Blade Oil",
+    "aliases": ['blade oil recipe', 'blade oil schematic'],
+    "desc": "A detailed schematic describing how to brew Blade Oil (Level 1 Apotheca). Requires: Distilled Spirits x1, Dragon's Eye x4. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BLADE_OIL",
+    "value_silver": 8,
+}
+
+RECIPE_BLADE_SALVE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Blade Salve",
+    "aliases": ['blade salve recipe', 'blade salve schematic'],
+    "desc": "A detailed schematic describing how to brew Blade Salve (Level 1 Apotheca). Requires: Distilled Spirits x2, Sayge x1, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BLADE_SALVE",
+    "value_silver": 8,
+}
+
+RECIPE_BULLS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Bull's Decoction",
+    "aliases": ["bull's decoction recipe", "bull's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Bull's Decoction (Level 1 Apotheca). Requires: Distilled Spirits x1, Dragon's Eye x2, Gold Lotus x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BULLS_DECOCTION",
+    "value_silver": 8,
+}
+
+RECIPE_CATS_EYES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Cat's Eyes",
+    "aliases": ["cat's eyes recipe", "cat's eyes schematic"],
+    "desc": "A detailed schematic describing how to brew Cat's Eyes (Level 1 Apotheca). Requires: Distilled Spirits x1, Gold Lotus x3, Orgonnian Grapes x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "CATS_EYES",
+    "value_silver": 8,
+}
+
+RECIPE_CATS_PAW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Cat's Paw",
+    "aliases": ["cat's paw recipe", "cat's paw schematic"],
+    "desc": "A detailed schematic describing how to brew Cat's Paw (Level 1 Apotheca). Requires: Distilled Spirits x2, Phosphorous x2, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "CATS_PAW",
+    "value_silver": 8,
+}
+
+RECIPE_CUBS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Cub's Decoction",
+    "aliases": ["cub's decoction recipe", "cub's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Cub's Decoction (Level 1 Apotheca). Requires: Distilled Spirits x2, Phosphorous x1, Sayge x1, Willow Root x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "CUBS_DECOCTION",
+    "value_silver": 8,
+}
+
+RECIPE_DUELISTS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Duelist's Decoction",
+    "aliases": ["duelist's decoction recipe", "duelist's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Duelist's Decoction (Level 1 Apotheca). Requires: Distilled Spirits x1, Dragon's Eye x2, Sayge x1, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "DUELISTS_DECOCTION",
+    "value_silver": 8,
+}
+
+RECIPE_EAGLE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Eagle",
+    "aliases": ['eagle recipe', 'eagle schematic'],
+    "desc": "A detailed schematic describing how to brew Eagle (Level 1 Apotheca). Requires: Distilled Spirits x1, Gold Lotus x2, Orgonnian Grapes x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "EAGLE",
+    "value_silver": 8,
+}
+
+RECIPE_INNISS_SERUM = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Innis's Serum",
+    "aliases": ["innis's serum recipe", "innis's serum schematic"],
+    "desc": "A detailed schematic describing how to brew Innis's Serum (Level 1 Apotheca). Requires: Celandine x1, Distilled Spirits x2, Dragon's Eye x1, Orgonnian Grapes x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "INNISS_SERUM",
+    "value_silver": 8,
+}
+
+RECIPE_LILLYWHITE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Lillywhite",
+    "aliases": ['lillywhite recipe', 'lillywhite schematic'],
+    "desc": "A detailed schematic describing how to brew Lillywhite (Level 1 Apotheca). Requires: Distilled Spirits x1, Dragon's Eye x1, Verbaena x1, Willow Root x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "LILLYWHITE",
+    "value_silver": 8,
+}
+
+RECIPE_MOONBREW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Moonbrew",
+    "aliases": ['moonbrew recipe', 'moonbrew schematic'],
+    "desc": "A detailed schematic describing how to brew Moonbrew (Level 1 Apotheca). Requires: Distilled Spirits x1, Gold Lotus x1, Mandrake x1, Phosphorous x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "MOONBREW",
+    "value_silver": 8,
+}
+
+RECIPE_PIT_FIGHTERS_ELIXIR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Pit Fighter's Elixir",
+    "aliases": ["pit fighter's elixir recipe", "pit fighter's elixir schematic"],
+    "desc": "A detailed schematic describing how to brew Pit Fighter's Elixir (Level 1 Apotheca). Requires: Distilled Spirits x1, Dragon's Eye x1, Phosphorous x1, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "PIT_FIGHTERS_ELIXIR",
+    "value_silver": 8,
+}
+
+RECIPE_PURITY_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Purity Decoction",
+    "aliases": ['purity decoction recipe', 'purity decoction schematic'],
+    "desc": "A detailed schematic describing how to brew Purity Decoction (Level 1 Apotheca). Requires: Celandine x1, Distilled Spirits x2, Luminesce x1, Phosphorous x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "PURITY_DECOCTION",
+    "value_silver": 8,
+}
+
+RECIPE_SPOTTERS_DRAUGHT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Spotter's Draught",
+    "aliases": ["spotter's draught recipe", "spotter's draught schematic"],
+    "desc": "A detailed schematic describing how to brew Spotter's Draught (Level 1 Apotheca). Requires: Distilled Spirits x1, Orgonnian Grapes x2, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SPOTTERS_DRAUGHT",
+    "value_silver": 8,
+}
+
+RECIPE_VERDANT_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Verdant Decoction",
+    "aliases": ['verdant decoction recipe', 'verdant decoction schematic'],
+    "desc": "A detailed schematic describing how to brew Verdant Decoction (Level 1 Apotheca). Requires: Celandine x1, Distilled Spirits x2, Hollyrue x1, Sayge x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "VERDANT_DECOCTION",
+    "value_silver": 8,
+}
+
+RECIPE_WHITE_ROLANDS_SERUM = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: White Roland's Serum",
+    "aliases": ["white roland's serum recipe", "white roland's serum schematic"],
+    "desc": "A detailed schematic describing how to brew White Roland's Serum (Level 1 Apotheca). Requires: Distilled Spirits x1, Merchant's Leaf x1, Phosphorous x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "WHITE_ROLANDS_SERUM",
+    "value_silver": 8,
+}
+
+RECIPE_BRIDGITS_REVENGE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Bridgit's Revenge",
+    "aliases": ["bridgit's revenge recipe", "bridgit's revenge schematic"],
+    "desc": "A detailed schematic describing how to brew Bridgit's Revenge (Level 1 Poison). Requires: Distilled Spirits x1, Thornwood Fern x4. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BRIDGITS_REVENGE",
+    "value_silver": 8,
+}
+
+RECIPE_CUTTER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Cutter",
+    "aliases": ['cutter recipe', 'cutter schematic'],
+    "desc": "A detailed schematic describing how to brew Cutter (Level 1 Drug). Requires: Distilled Spirits x1, Merchant's Leaf x3, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "CUTTER",
+    "value_silver": 8,
+}
+
+RECIPE_SPICE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Spice",
+    "aliases": ['spice recipe', 'spice schematic'],
+    "desc": "A detailed schematic describing how to brew Spice (Level 1 Drug). Requires: Distilled Spirits x1, Gold Lotus x1, Mandrake x1, Sayge x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SPICE",
+    "value_silver": 8,
+}
+
+RECIPE_STARDUST = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Stardust",
+    "aliases": ['stardust recipe', 'stardust schematic'],
+    "desc": "A detailed schematic describing how to brew Stardust (Level 1 Drug). Requires: Distilled Spirits x1, Mandrake x3, Willow Root x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "STARDUST",
+    "value_silver": 8,
+}
+
+RECIPE_BEARS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Bear's Decoction",
+    "aliases": ["bear's decoction recipe", "bear's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Bear's Decoction (Level 2 Apotheca). Requires: Distilled Spirits x3, Phosphorous x2, Verbaena x3, Wintercrown x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BEARS_DECOCTION",
+    "value_silver": 15,
+}
+
+RECIPE_EXPERT_BLADE_OIL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Expert Blade Oil",
+    "aliases": ['expert blade oil recipe', 'expert blade oil schematic'],
+    "desc": "A detailed schematic describing how to brew Expert Blade Oil (Level 2 Apotheca). Requires: Crypt Moss x1, Distilled Spirits x1, Dragon's Eye x1, Willow Root x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "EXPERT_BLADE_OIL",
+    "value_silver": 15,
+}
+
+RECIPE_EXPERT_BLADE_SALVE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Expert Blade Salve",
+    "aliases": ['expert blade salve recipe', 'expert blade salve schematic'],
+    "desc": "A detailed schematic describing how to brew Expert Blade Salve (Level 2 Apotheca). Requires: Distilled Spirits x2, Sayge x2, Verbaena x1, Willow Root x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "EXPERT_BLADE_SALVE",
+    "value_silver": 15,
+}
+
+RECIPE_EXPERT_DUELISTS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Expert Duelist's Decoction",
+    "aliases": ["expert duelist's decoction recipe", "expert duelist's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Expert Duelist's Decoction (Level 2 Apotheca). Requires: Distilled Spirits x2, Dragon's Eye x1, Ergot Seeds x2, Sayge x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "EXPERT_DUELISTS_DECOCTION",
+    "value_silver": 15,
+}
+
+RECIPE_FALCON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Falcon",
+    "aliases": ['falcon recipe', 'falcon schematic'],
+    "desc": "A detailed schematic describing how to brew Falcon (Level 2 Apotheca). Requires: Creeper Moss x1, Distilled Spirits x2, Harrowdust x1, Orgonnian Grapes x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "FALCON",
+    "value_silver": 15,
+}
+
+RECIPE_GORGONS_BREW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Gorgon's Brew",
+    "aliases": ["gorgon's brew recipe", "gorgon's brew schematic"],
+    "desc": "A detailed schematic describing how to brew Gorgon's Brew (Level 2 Apotheca). Requires: Crypt Moss x1, Distilled Spirits x1, Ergot Seeds x2, Gold Lotus x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "GORGONS_BREW",
+    "value_silver": 15,
+}
+
+RECIPE_LASTING_BREATH = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Lasting Breath",
+    "aliases": ['lasting breath recipe', 'lasting breath schematic'],
+    "desc": "A detailed schematic describing how to brew Lasting Breath (Level 2 Apotheca). Requires: Distilled Spirits x2, Phosphorous x1, Thornwood Fern x3, Willow Root x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "LASTING_BREATH",
+    "value_silver": 15,
+}
+
+RECIPE_LOOKOUT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Lookout",
+    "aliases": ['lookout recipe', 'lookout schematic'],
+    "desc": "A detailed schematic describing how to brew Lookout (Level 2 Apotheca). Requires: Distilled Spirits x1, Harrowdust x4, Orgonnian Grapes x1, Tarkathi Poppy x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "LOOKOUT",
+    "value_silver": 15,
+}
+
+RECIPE_MENDER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Mender",
+    "aliases": ['mender recipe', 'mender schematic'],
+    "desc": "A detailed schematic describing how to brew Mender (Level 2 Apotheca). Requires: Black Salt x2, Distilled Spirits x2, Wraith Orchid x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "MENDER",
+    "value_silver": 15,
+}
+
+RECIPE_NYRAS_BALM = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Nyra's Balm",
+    "aliases": ["nyra's balm recipe", "nyra's balm schematic"],
+    "desc": "A detailed schematic describing how to brew Nyra's Balm (Level 2 Apotheca). Requires: Blood Medallion x2, Distilled Spirits x1, Tarkathi Poppy x2, Wintercrown x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "NYRAS_BALM",
+    "value_silver": 15,
+}
+
+RECIPE_PUISSANCE_DRAUGHT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Puissance Draught",
+    "aliases": ['puissance draught recipe', 'puissance draught schematic'],
+    "desc": "A detailed schematic describing how to brew Puissance Draught (Level 2 Apotheca). Requires: Distilled Spirits x2, Duskland Rose x2, Hollyrue x1, Luminesce x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "PUISSANCE_DRAUGHT",
+    "value_silver": 15,
+}
+
+RECIPE_ELIXIR_OF_THE_WANING_MOON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Elixir of the Waning Moon",
+    "aliases": ['elixir of the waning moon recipe', 'elixir of the waning moon schematic'],
+    "desc": "A detailed schematic describing how to brew Elixir of the Waning Moon (Level 2 Apotheca). Requires: Amber Lichen x1, Distilled Spirits x2, Werewolf Tallow x3, Willow Root x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "ELIXIR_OF_THE_WANING_MOON",
+    "value_silver": 15,
+}
+
+RECIPE_RESURGENCE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Resurgence",
+    "aliases": ['resurgence recipe', 'resurgence schematic'],
+    "desc": "A detailed schematic describing how to brew Resurgence (Level 2 Apotheca). Requires: Distilled Spirits x1, Dragon's Eye x1, Grave Blood x1, Thornwood Fern x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "RESURGENCE",
+    "value_silver": 15,
+}
+
+RECIPE_SLAYER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Slayer",
+    "aliases": ['slayer recipe', 'slayer schematic'],
+    "desc": "A detailed schematic describing how to brew Slayer (Level 2 Apotheca). Requires: Crypt Moss x2, Distilled Spirits x1, Dragon's Eye x2, Phosphorous x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SLAYER",
+    "value_silver": 15,
+}
+
+RECIPE_STUNNER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Stunner",
+    "aliases": ['stunner recipe', 'stunner schematic'],
+    "desc": "A detailed schematic describing how to brew Stunner (Level 2 Apotheca). Requires: Distilled Spirits x2, Luminesce x2, Sayge x1, Wintercrown x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "STUNNER",
+    "value_silver": 15,
+}
+
+RECIPE_SUNRISE_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Sunrise Decoction",
+    "aliases": ['sunrise decoction recipe', 'sunrise decoction schematic'],
+    "desc": "A detailed schematic describing how to brew Sunrise Decoction (Level 2 Apotheca). Requires: Black Salt x2, Distilled Spirits x1, Ergot Seeds x2, Wraith Orchid x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SUNRISE_DECOCTION",
+    "value_silver": 15,
+}
+
+RECIPE_SWINDLERS_BREW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Swindler's Brew",
+    "aliases": ["swindler's brew recipe", "swindler's brew schematic"],
+    "desc": "A detailed schematic describing how to brew Swindler's Brew (Level 2 Apotheca). Requires: Amber Lichen x2, Distilled Spirits x2, Duskland Rose x1, Hollyrue x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SWINDLERS_BREW",
+    "value_silver": 15,
+}
+
+RECIPE_URSINS_STRENGTH = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Ursin's Strength",
+    "aliases": ["ursin's strength recipe", "ursin's strength schematic"],
+    "desc": "A detailed schematic describing how to brew Ursin's Strength (Level 2 Apotheca). Requires: Distilled Spirits x4, Red Lotus x1, Wintercrown x2, Wraith Orchid x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "URSINS_STRENGTH",
+    "value_silver": 15,
+}
+
+RECIPE_BROTH_OF_THE_VOLKUN = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Broth of the Volkun",
+    "aliases": ['broth of the volkun recipe', 'broth of the volkun schematic'],
+    "desc": "A detailed schematic describing how to brew Broth of the Volkun (Level 2 Poison). Requires: Creeper Moss x3, Distilled Spirits x5, Mandrake x1, Red Lotus x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BROTH_OF_THE_VOLKUN",
+    "value_silver": 15,
+}
+
+RECIPE_GRAVEDIGGER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Gravedigger",
+    "aliases": ['gravedigger recipe', 'gravedigger schematic'],
+    "desc": "A detailed schematic describing how to brew Gravedigger (Level 2 Poison). Requires: Death's Head Cap x3, Distilled Spirits x1, Mandrake x1, Wraith Orchid x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "GRAVEDIGGER",
+    "value_silver": 15,
+}
+
+RECIPE_QUAGMIRE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Quagmire",
+    "aliases": ['quagmire recipe', 'quagmire schematic'],
+    "desc": "A detailed schematic describing how to brew Quagmire (Level 2 Poison). Requires: Distilled Spirits x3, Mandrake x1, Widow's Petal x4. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "QUAGMIRE",
+    "value_silver": 15,
+}
+
+RECIPE_THE_GLOAMING = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: The Gloaming",
+    "aliases": ['the gloaming recipe', 'the gloaming schematic'],
+    "desc": "A detailed schematic describing how to brew The Gloaming (Level 2 Drug). Requires: Distilled Spirits x1, Essence of the Unhallowed x3, Tarkathi Poppy x2, Widow's Petal x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "THE_GLOAMING",
+    "value_silver": 15,
+}
+
+RECIPE_MASTER_MOONLIGHT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Master Moonlight",
+    "aliases": ['master moonlight recipe', 'master moonlight schematic'],
+    "desc": "A detailed schematic describing how to brew Master Moonlight (Level 2 Drug). Requires: Blood Medallion x1, Distilled Spirits x3, Harrowdust x1, Mandrake x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "MASTER_MOONLIGHT",
+    "value_silver": 15,
+}
+
+RECIPE_MIRAGE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Mirage",
+    "aliases": ['mirage recipe', 'mirage schematic'],
+    "desc": "A detailed schematic describing how to brew Mirage (Level 2 Drug). Requires: Distilled Spirits x2, Harrowdust x2, Widow's Petal x1, Wraith Orchid x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "MIRAGE",
+    "value_silver": 15,
+}
+
+RECIPE_WINGS_OF_CORVUS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Wings of Corvus",
+    "aliases": ['wings of corvus recipe', 'wings of corvus schematic'],
+    "desc": "A detailed schematic describing how to brew Wings of Corvus (Level 2 Drug). Requires: Blood Medallion x1, Distilled Spirits x3, Red Lotus x1, Tarkathi Poppy x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "WINGS_OF_CORVUS",
+    "value_silver": 15,
+}
+
+RECIPE_GRIZZLYS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Grizzly's Decoction",
+    "aliases": ["grizzly's decoction recipe", "grizzly's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Grizzly's Decoction (Level 3 Apotheca). Requires: Distilled Spirits x2, Ergot Seeds x1, Spirit Essence x1, Verbaena x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "GRIZZLYS_DECOCTION",
+    "value_silver": 25,
+}
+
+RECIPE_SERUM_OF_THE_LAST_TOWER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Serum of the Last Tower",
+    "aliases": ['serum of the last tower recipe', 'serum of the last tower schematic'],
+    "desc": "A detailed schematic describing how to brew Serum of the Last Tower (Level 3 Apotheca). Requires: Black Salt x2, Distilled Spirits x3, Duskland Rose x3, Waste Lilly x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SERUM_OF_THE_LAST_TOWER",
+    "value_silver": 25,
+}
+
+RECIPE_BRINK = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Brink",
+    "aliases": ['brink recipe', 'brink schematic'],
+    "desc": "A detailed schematic describing how to brew Brink (Level 3 Apotheca). Requires: Distilled Spirits x3, Ergot Seeds x4, Merchant's Leaf x2, Thornwood Fern x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BRINK",
+    "value_silver": 25,
+}
+
+RECIPE_REAPERS_ELIXIR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Reaper's Elixir",
+    "aliases": ["reaper's elixir recipe", "reaper's elixir schematic"],
+    "desc": "A detailed schematic describing how to brew Reaper's Elixir (Level 3 Apotheca). Requires: Distilled Spirits x2, Grave Blood x1, Hollyrue x1, Wraith Orchid x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "REAPERS_ELIXIR",
+    "value_silver": 25,
+}
+
+RECIPE_AWAKENERS_DRAUGHT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Awakener's Draught",
+    "aliases": ["awakener's draught recipe", "awakener's draught schematic"],
+    "desc": "A detailed schematic describing how to brew Awakener's Draught (Level 3 Apotheca). Requires: Celandine x3, Distilled Spirits x2, Embercap x4, Merchant's Leaf x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "AWAKENERS_DRAUGHT",
+    "value_silver": 25,
+}
+
+RECIPE_STYPTIC_TONIC = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Styptic Tonic",
+    "aliases": ['styptic tonic recipe', 'styptic tonic schematic'],
+    "desc": "A detailed schematic describing how to brew Styptic Tonic (Level 3 Apotheca). Requires: Black Salt x2, Blood Medallion x4, Distilled Spirits x3, Lachrymite Resin x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "STYPTIC_TONIC",
+    "value_silver": 25,
+}
+
+RECIPE_TINCTURE_OF_THE_WHITE_VEIN = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Tincture of the White Vein",
+    "aliases": ['tincture of the white vein recipe', 'tincture of the white vein schematic'],
+    "desc": "A detailed schematic describing how to brew Tincture of the White Vein (Level 3 Apotheca). Requires: Distilled Spirits x1, Grave Blood x3, Hag's Wort x3, Willow Root x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "TINCTURE_OF_THE_WHITE_VEIN",
+    "value_silver": 25,
+}
+
+RECIPE_GERMAINES_CURE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Germaine's Cure",
+    "aliases": ["germaine's cure recipe", "germaine's cure schematic"],
+    "desc": "A detailed schematic describing how to brew Germaine's Cure (Level 3 Apotheca). Requires: Amber Lichen x2, Distilled Spirits x2, Lachrymite Resin x3, Luminesce x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "GERMAINES_CURE",
+    "value_silver": 25,
+}
+
+RECIPE_WEAPONMASTERS_DECOCTION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Weaponmaster's Decoction",
+    "aliases": ["weaponmaster's decoction recipe", "weaponmaster's decoction schematic"],
+    "desc": "A detailed schematic describing how to brew Weaponmaster's Decoction (Level 3 Apotheca). Requires: Distilled Spirits x3, Duskland Rose x2, Entheric Oil x4, Sayge x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "WEAPONMASTERS_DECOCTION",
+    "value_silver": 25,
+}
+
+RECIPE_BREATH_OF_MEDEINA = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Breath of Medeina",
+    "aliases": ['breath of medeina recipe', 'breath of medeina schematic'],
+    "desc": "A detailed schematic describing how to brew Breath of Medeina (Level 3 Apotheca). Requires: Crypt Moss x3, Distilled Spirits x2, Entheric Oil x4, Grave Blood x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "BREATH_OF_MEDEINA",
+    "value_silver": 25,
+}
+
+RECIPE_SILENCE_OF_THE_SERPENT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Silence of the Serpent",
+    "aliases": ['silence of the serpent recipe', 'silence of the serpent schematic'],
+    "desc": "A detailed schematic describing how to brew Silence of the Serpent (Level 3 Apotheca). Requires: Distilled Spirits x3, Embercap x2, Hag's Wort x3, Red Lotus x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SILENCE_OF_THE_SERPENT",
+    "value_silver": 25,
+}
+
+RECIPE_THE_SLEEPER = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: The Sleeper",
+    "aliases": ['the sleeper recipe', 'the sleeper schematic'],
+    "desc": "A detailed schematic describing how to brew The Sleeper (Level 3 Poison). Requires: Death's Head Cap x3, Distilled Spirits x4, Luminesce x1, Tarkathi Poppy x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "THE_SLEEPER",
+    "value_silver": 25,
+}
+
+RECIPE_LEECH = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Leech",
+    "aliases": ['leech recipe', 'leech schematic'],
+    "desc": "A detailed schematic describing how to brew Leech (Level 3 Poison). Requires: Death's Head Cap x1, Distilled Spirits x3, Fulger Powder x2, Ghoul Venom x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "LEECH",
+    "value_silver": 25,
+}
+
+RECIPE_REST_DENIED = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Rest Denied",
+    "aliases": ['rest denied recipe', 'rest denied schematic'],
+    "desc": "A detailed schematic describing how to brew Rest Denied (Level 3 Poison). Requires: Distilled Spirits x1, Essence of the Unhallowed x1, Fulger Powder x1, Ghoul Venom x1. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "REST_DENIED",
+    "value_silver": 25,
+}
+
+RECIPE_LIRITS_KISS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Lirit's Kiss",
+    "aliases": ["lirit's kiss recipe", "lirit's kiss schematic"],
+    "desc": "A detailed schematic describing how to brew Lirit's Kiss (Level 3 Poison). Requires: Basilisk Venom x2, Crypt Moss x4, Distilled Spirits x3, Fulger Powder x3. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "LIRITS_KISS",
+    "value_silver": 25,
+}
+
+RECIPE_SONG_OF_THE_ASP = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Song of the Asp",
+    "aliases": ['song of the asp recipe', 'song of the asp schematic'],
+    "desc": "A detailed schematic describing how to brew Song of the Asp (Level 3 Poison). Requires: Asp Venom x2, Distilled Spirits x3, Red Lotus x3, Wraith Orchid x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "SONG_OF_THE_ASP",
+    "value_silver": 25,
+}
+
+RECIPE_RESET = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Reset",
+    "aliases": ['reset recipe', 'reset schematic'],
+    "desc": "A detailed schematic describing how to brew Reset (Level 3 Drug). Requires: Black Lotus x3, Blood Medallion x1, Distilled Spirits x3, Red Lotus x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "RESET",
+    "value_silver": 25,
+}
+
+RECIPE_STONEFACE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Stoneface",
+    "aliases": ['stoneface recipe', 'stoneface schematic'],
+    "desc": "A detailed schematic describing how to brew Stoneface (Level 3 Drug). Requires: Amber Lichen x1, Creeper Moss x3, Distilled Spirits x3, Waste Lilly x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "STONEFACE",
+    "value_silver": 25,
+}
+
+RECIPE_ELIXIR_OF_REVELATION = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Recipe: Elixir of Revelation",
+    "aliases": ['elixir of revelation recipe', 'elixir of revelation schematic'],
+    "desc": "A detailed schematic describing how to brew Elixir of Revelation (Level 3 Drug). Requires: Black Lotus x1, Distilled Spirits x3, Hag's Wort x2, Harrowdust x2. Use 'learn <scroll>' to memorize it.",
+    "recipe_key": "ELIXIR_OF_REVELATION",
+    "value_silver": 25,
+}
+

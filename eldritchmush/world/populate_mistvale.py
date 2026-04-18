@@ -2692,6 +2692,73 @@ get_or_create_npc(
 )
 
 
+print("\n=== HERBALIST NPC ===")
+
+# --- Thalia the Herbalist — reagent vendor at the Herbalist's Garden -----
+thalia = get_or_create_npc(
+    key="Thalia the Herbalist",
+    location=herbalist_garden,
+    desc=(
+        "A tall, sun-browned woman in an earth-stained apron, dark hair "
+        "swept back under a wide-brimmed hat. Her fingers are perpetually "
+        "green from herb-work and she smells of crushed sage and chamomile. "
+        "A leather satchel at her hip bulges with dried bundles; behind "
+        "her, rows of carefully labeled jars line a wooden shelf."
+    ),
+    personality=(
+        "Thalia the Herbalist, Apotheca-affiliated gatherer and reagent "
+        "seller in the Herbalist's Garden at Mystvale. Patient with "
+        "novices, knowledgeable about every herb in the Annwyn and most "
+        "from Arnesse. Speaks with a warm, unhurried cadence — 'the "
+        "plants have their own time, and so should we.' Refuses to sell "
+        "poisons openly — she will claim ignorance if asked about "
+        "Thornwood Fern or Death's Head Cap. Will discuss medicinal "
+        "properties, growing conditions, and reagent combinations freely."
+    ),
+    knowledge=(
+        "- She sells common and uncommon reagents from her garden stock. "
+        "Players use |wherbs|n to see her wares and |wbuy herb <name>|n "
+        "to purchase.\n"
+        "- Common herbs (3 silver each): Black Salt, Celandine, Distilled "
+        "Spirits, Dragon's Eye, Gold Lotus, Hollyrue, Luminesce, Mandrake, "
+        "Merchant's Leaf, Orgonnian Grapes, Phosphorous, Sayge, Verbaena, "
+        "Willow Root.\n"
+        "- Uncommon herbs (8 silver each): Amber Lichen, Blood Medallion, "
+        "Creeper Moss, Crypt Moss, Duskland Rose, Ergot Seeds, Harrowdust, "
+        "Red Lotus, Tarkathi Poppy, Thornwood Fern, Widow's Petal, "
+        "Wintercrown, Wraith Orchid.\n"
+        "- She is Apotheca-trained and knows the properties of every "
+        "reagent, though she will not discuss poison recipes unprompted.\n"
+        "- The Herbalist's Garden was established by the first settlers "
+        "of Mystvale. The greenhouse protects rare Annwyn species."
+    ),
+    quest_hooks=[
+        "Will explain the alchemy system to newcomers — how to brew, "
+        "what kits you need, where to find a workbench.",
+        "Looking for someone to gather rare herbs from deeper in the "
+        "Annwyn — pays in reagents.",
+        "Knows about Marta the Alchemist's plight with the Crows and "
+        "is anxious for news of her rescue.",
+    ],
+    topics=["herbs", "reagents", "the Apotheca"],
+    scope="annwyn",
+)
+# Set up Thalia's reagent shop inventory
+thalia.attributes.add("reagent_shop", {
+    # Common herbs (3 silver each)
+    "Black Salt": 3, "Celandine": 3, "Distilled Spirits": 3,
+    "Dragon's Eye": 3, "Gold Lotus": 3, "Hollyrue": 3,
+    "Luminesce": 3, "Mandrake": 3, "Merchant's Leaf": 3,
+    "Orgonnian Grapes": 3, "Phosphorous": 3, "Sayge": 3,
+    "Verbaena": 3, "Willow Root": 3,
+    # Uncommon herbs (8 silver each)
+    "Amber Lichen": 8, "Blood Medallion": 8, "Creeper Moss": 8,
+    "Crypt Moss": 8, "Duskland Rose": 8, "Ergot Seeds": 8,
+    "Harrowdust": 8, "Red Lotus": 8, "Tarkathi Poppy": 8,
+    "Thornwood Fern": 8, "Widow's Petal": 8, "Wintercrown": 8,
+    "Wraith Orchid": 8,
+})
+
 print("\n=== EXTENDED NPC ROSTER COMPLETE ===")
 
 
@@ -2813,7 +2880,7 @@ get_or_create_npc(
     scope="annwyn",
 )
 
-get_or_create_npc(
+marta = get_or_create_npc(
     key="Marta the Alchemist",
     location=crow_camp_fox,
     desc=(
@@ -2838,7 +2905,10 @@ get_or_create_npc(
         "answers to someone called 'the Old Badger.'\n"
         "- Her recipe scroll was taken but not destroyed — it should "
         "still be in the camp somewhere.\n"
-        "- Once free, she will set up an apothecary in Mystvale."
+        "- Once free, she will set up an apothecary in Mystvale.\n"
+        "- She sells recipe schematics to alchemists: |wbrowse recipes|n "
+        "to see what she has, |wbuy recipe <name>|n to purchase. She "
+        "also sells a few common reagents: |wherbs|n to see stock."
     ),
     quest_hooks=[
         "Tells the player about Fenn at the Owl's Roost and urges them "
@@ -2850,6 +2920,34 @@ get_or_create_npc(
     topics=["the Crows", "the other captives", "crafting"],
     scope="annwyn",
 )
+# Marta sells a few common reagents
+marta.attributes.add("reagent_shop", {
+    "Sayge": 4, "Distilled Spirits": 4, "Dragon's Eye": 4,
+})
+# Marta sells Level 1 recipe scrolls (all apotheca, poison, drug)
+marta.attributes.add("recipe_shop", {
+    "RECIPE_ANAMNESIS_DECOCTION": 8,
+    "RECIPE_BLADE_OIL": 8,
+    "RECIPE_BLADE_SALVE": 8,
+    "RECIPE_BULLS_DECOCTION": 8,
+    "RECIPE_CATS_EYES": 8,
+    "RECIPE_CATS_PAW": 8,
+    "RECIPE_CUBS_DECOCTION": 8,
+    "RECIPE_DUELISTS_DECOCTION": 8,
+    "RECIPE_EAGLE": 8,
+    "RECIPE_INNISS_SERUM": 8,
+    "RECIPE_LILLYWHITE": 8,
+    "RECIPE_MOONBREW": 8,
+    "RECIPE_PIT_FIGHTERS_ELIXIR": 8,
+    "RECIPE_PURITY_DECOCTION": 8,
+    "RECIPE_SPOTTERS_DRAUGHT": 8,
+    "RECIPE_VERDANT_DECOCTION": 8,
+    "RECIPE_WHITE_ROLANDS_SERUM": 8,
+    "RECIPE_BRIDGITS_REVENGE": 8,
+    "RECIPE_CUTTER": 8,
+    "RECIPE_SPICE": 8,
+    "RECIPE_STARDUST": 8,
+})
 
 get_or_create_npc(
     key="Fenn the Artificer",
@@ -2940,6 +3038,7 @@ _NPC_CANON_TAGS = {
     # Rescued Crafters (Event 1 quest chain)
     "Torben the Blacksmith":       ["region:annwyn"],
     "Marta the Alchemist":         ["region:annwyn"],
+    "Thalia the Herbalist":        ["region:annwyn"],
     "Fenn the Artificer":          ["region:annwyn"],
 }
 
