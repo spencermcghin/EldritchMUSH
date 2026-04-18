@@ -155,6 +155,9 @@ class Character(DefaultCharacter):
         # Alchemy reagent inventory: {reagent_name: quantity}
         self.db.reagents = {}
 
+        # Known alchemy recipes: set of prototype keys (e.g. {"BLADE_OIL"})
+        self.db.known_recipes = set()
+
 
     def return_appearance(self, looker):
         """

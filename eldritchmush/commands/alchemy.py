@@ -79,6 +79,19 @@ class CmdBrew(Command):
 
         substance_name = proto_data.get("key", self.item.title())
         level = proto_data.get("level", 1)
+
+        # Recipe gating — player must know the recipe (superusers bypass)
+        if not caller.is_superuser:
+            proto_key = proto_data.get("prototype_key", "").upper()
+            known = caller.db.known_recipes
+            if not isinstance(known, set):
+                known = set()
+            if proto_key not in known and substance_name.lower() not in {r.lower() for r in known}:
+                caller.msg(
+                    f"|400You don't know the recipe for {substance_name}. "
+                    f"Find or buy the schematic first.|n"
+                )
+                return
         qty_produced = proto_data.get("qty_produced", 1)
 
         # Skill level check
