@@ -1,0 +1,12 @@
+{
+  "name": "eldritchmush-playtest-ui",
+  "private": true,
+  "type": "module",
+  "description": "Playwright-based UI smoke-tests for EldritchMUSH. Used by the playtest skill.",
+  "scripts": {
+    "test": "node playtest-ui.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}

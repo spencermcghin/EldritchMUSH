@@ -2842,7 +2842,7 @@ get_or_create_enemies(
 # ===========================================================================
 print("\n=== RESCUED CRAFTER NPCs ===")
 
-get_or_create_npc(
+torben = get_or_create_npc(
     key="Torben the Blacksmith",
     location=crow_camp_blacksmith,
     desc=(
@@ -2949,7 +2949,7 @@ marta.attributes.add("recipe_shop", {
     "RECIPE_STARDUST": 8,
 })
 
-get_or_create_npc(
+fenn = get_or_create_npc(
     key="Fenn the Artificer",
     location=crow_camp_owl,
     desc=(
@@ -2987,6 +2987,239 @@ get_or_create_npc(
     topics=["the Crows", "the other captives", "crafting"],
     scope="annwyn",
 )
+
+# ===========================================================================
+# CRAFTER SCHEMATIC SHOPS — rescued crafters sell their trade's schematics
+# once they're back in Mystvale. The recipe_shop attribute is what
+# `browse recipes` / `buy recipe` look for.
+# ===========================================================================
+
+# Torben the Blacksmith — sells all Blacksmith schematics
+torben.attributes.add("recipe_shop", {
+    "SCHEMATIC_IRON_SMALL_WEAPON": 9,
+    "SCHEMATIC_IRON_MEDIUM_WEAPON": 9,
+    "SCHEMATIC_IRON_LARGE_WEAPON": 9,
+    "SCHEMATIC_IRON_SHIELD": 9,
+    "SCHEMATIC_IRON_CHAIN_SHIRT": 9,
+    "SCHEMATIC_IRON_COAT_OF_PLATES": 9,
+    "SCHEMATIC_IRON_PLATEMAIL": 9,
+    "SCHEMATIC_LEATHER_ARMOR": 9,
+    "SCHEMATIC_HARDENED_IRON_SMALL_WEAPON": 15,
+    "SCHEMATIC_HARDENED_IRON_MEDIUM_WEAPON": 15,
+    "SCHEMATIC_HARDENED_IRON_LARGE_WEAPON": 15,
+    "SCHEMATIC_HARDENED_IRON_SHIELD": 15,
+    "SCHEMATIC_HARDENED_IRON_CHAIN_SHIRT": 15,
+    "SCHEMATIC_HARDENED_IRON_COAT_OF_PLATES": 15,
+    "SCHEMATIC_HARDENED_IRON_PLATE_ARMOR": 15,
+    "SCHEMATIC_HARDENED_LEATHER_ARMOR": 15,
+    "SCHEMATIC_IMPROVED_LEATHER_ARMOR": 24,
+    "SCHEMATIC_STEEL_SMALL_WEAPON": 24,
+    "SCHEMATIC_STEEL_MEDIUM_WEAPON": 24,
+    "SCHEMATIC_STEEL_LARGE_WEAPON": 24,
+    "SCHEMATIC_STEEL_SHIELD": 24,
+    "SCHEMATIC_STEEL_CHAIN_SHIRT": 24,
+    "SCHEMATIC_STEEL_COAT_OF_PLATES": 24,
+    "SCHEMATIC_STEEL_PLATE_ARMOR": 24,
+    "SCHEMATIC_MASTERWORK_STEEL_SMALL_WEAPON": 36,
+    "SCHEMATIC_MASTERWORK_STEEL_MEDIUM_WEAPON": 36,
+    "SCHEMATIC_MASTERWORK_STEEL_LARGE_WEAPON": 36,
+    "SCHEMATIC_MASTERWORK_STEEL_SHIELD": 36,
+    "SCHEMATIC_MASTERWORK_STEEL_CHAIN_SHIRT": 36,
+    "SCHEMATIC_MASTERWORK_STEEL_COAT_OF_PLATES": 36,
+    "SCHEMATIC_MASTERWORK_STEEL_PLATE_MAIL": 36,
+    "SCHEMATIC_MASTERWORK_LEATHER_ARMOR": 36,
+    "SCHEMATIC_PATCH_KIT": 15,
+    "SCHEMATIC_REVIVICATOR": 15,
+})
+
+# Fenn the Artificer — sells all Artificer schematics
+fenn.attributes.add("recipe_shop", {
+    # Kits (Level I)
+    "SCHEMATIC_APOTHECARY_KIT": 15,
+    "SCHEMATIC_ARTIFICER_KIT": 15,
+    "SCHEMATIC_BLACKSMITH_KIT": 15,
+    "SCHEMATIC_BOWYER_KIT": 15,
+    "SCHEMATIC_CHIRURGEON_KIT": 15,
+    "SCHEMATIC_GUNSMITH_KIT": 15,
+    "SCHEMATIC_LOCKPICKING_KIT": 15,
+    "SCHEMATIC_RESURRECTIONISTS_KIT": 15,
+    # Clothing & garb (Level I)
+    "SCHEMATIC_CLOTH_GAMBESON": 15,
+    "SCHEMATIC_FINE_CLOTHING": 15,
+    "SCHEMATIC_PEASANTS_GARB": 15,
+    "SCHEMATIC_NOBLES_GARB": 15,
+    "SCHEMATIC_HIGHWAYMAN_CLOAK": 15,
+    "SCHEMATIC_DUELIST_GLOVES": 15,
+    "SCHEMATIC_LIGHT_BOOTS": 15,
+    "SCHEMATIC_STALWART_BOOTS": 15,
+    "SCHEMATIC_CRAFTSMANSHIP_TOOLS": 15,
+    "SCHEMATIC_BASIC_LOCK": 15,
+    # Level II
+    "SCHEMATIC_FINE_DUELISTS_GLOVES": 24,
+    "SCHEMATIC_HUNTERS_BOOTS": 24,
+    "SCHEMATIC_LORDLY_CLOTHING": 24,
+    "SCHEMATIC_MAGNIFICENT_CLOTHING": 24,
+    "SCHEMATIC_PLAGUISTS_CASQUE": 24,
+    "SCHEMATIC_QUALITY_LOCK": 24,
+    "SCHEMATIC_SHADOW_MANTLE": 24,
+    "SCHEMATIC_SWORDDANCERS_BOOTS": 24,
+    "SCHEMATIC_TRADESMENS_GARMENTS": 24,
+    # Level III
+    "SCHEMATIC_DARK_SILK_CLOAK": 36,
+    "SCHEMATIC_EXQUISITE_CLOTHING": 36,
+    "SCHEMATIC_KNIGHTS_BOOTS": 36,
+    "SCHEMATIC_MASTER_DUELISTS_GLOVES": 36,
+    "SCHEMATIC_MASTERWORK_LOCK": 36,
+    "SCHEMATIC_PROFESSIONALS_VESTMENTS": 36,
+    "SCHEMATIC_RAIMENT_OF_HIGH_LORD": 36,
+    "SCHEMATIC_THIEFS_BOOTS": 36,
+})
+
+# ---------------------------------------------------------------------------
+# Laszlo the Bowyer — a Cirque-trained fletcher who took up residence in
+# the Crafter's Quarter after the rescue, filling the gap Mystvale has
+# always had. Sells all four Bowyer schematics.
+# ---------------------------------------------------------------------------
+laszlo = get_or_create_npc(
+    key="Laszlo the Bowyer",
+    location=crafter_quarter,
+    desc=(
+        "A lean man past his prime with knotted forearms and fingers "
+        "yellowed by pine-pitch. A quiver of half-made shafts rides his "
+        "hip; shavings cling to his leather vest. He squints like a man "
+        "who has spent his life measuring angles."
+    ),
+    personality=(
+        "Laszlo, a Cirque-trained fletcher who drifted into Mystvale "
+        "after the rescue and decided the Crafter's Quarter needed a "
+        "bow-maker. Patient, precise, sparing of words. Proud of his "
+        "work, skeptical of archers who cannot describe the grain of "
+        "their own bow."
+    ),
+    knowledge=(
+        "- Yew, ash, and hornbeam: when to cure, when to glue, when to "
+        "abandon the stave and start again.\n"
+        "- Arrows by the ten: hunting broadheads, war bodkins, blunts "
+        "for children's practice. He stocks schematics for all of it.\n"
+        "- Sells bow and arrow schematics to anyone with coin and the "
+        "Bowyer trade: |wbrowse recipes|n to view, |wbuy recipe "
+        "<name>|n to purchase.\n"
+        "- Will repair a warped stave for five silver if the fletcher "
+        "who made it does not take it personally."
+    ),
+    quest_hooks=[
+        "Looking for a source of Thornwood yew — the Crows burned his "
+        "last stockpile.",
+        "Will appraise any bow a player brings him.",
+    ],
+    topics=["bows", "arrows", "crafting", "schematics"],
+    scope="annwyn",
+)
+laszlo.attributes.add("recipe_shop", {
+    "SCHEMATIC_BOW": 15,
+    "SCHEMATIC_ARROWS": 15,
+    "SCHEMATIC_LONGBOW": 24,
+    "SCHEMATIC_MASTERWORK_BOW": 36,
+})
+
+# ---------------------------------------------------------------------------
+# Kriegsmeister Holst — Ironhaven's Richter gunsmith, the Annwyn's only
+# legitimate source of firearm schematics. Sells at list price. Visits to
+# his forge are logged; the Hardingers notice who buys what.
+# ---------------------------------------------------------------------------
+holst = get_or_create_npc(
+    key="Kriegsmeister Holst",
+    location=ironhaven_forge,
+    desc=(
+        "A short, barrel-chested Richter in a powder-stained apron, his "
+        "beard singed black at the tip. An oiled pistol hangs in a "
+        "custom holster at his chest — not for show; he built it. One "
+        "eye is clouded white and does not blink when he fixes you with "
+        "the other."
+    ),
+    personality=(
+        "Holst, master gunsmith of House Richter and the Hardingers' "
+        "preferred hand for anything that goes bang. Gruff, proud of "
+        "his craft, deeply loyal to the House. Courteous to paying "
+        "customers; brisk with tire-kickers. Suspicious of Mystvale "
+        "accents after the Crows' last raid."
+    ),
+    knowledge=(
+        "- Under House Richter writ, the Ironhaven Forge is the only "
+        "legal source of firearms and firearm schematics in the "
+        "Annwyn. Sales are logged.\n"
+        "- Sells the full Gunsmith schematic line: crude pistols up "
+        "through masterwork. |wbrowse recipes|n to view, |wbuy recipe "
+        "<name>|n to purchase.\n"
+        "- Has opinions about the Rourkes that he will not share with "
+        "strangers — he knows powder is moving along the coast without "
+        "Hardinger seals.\n"
+        "- Teaches by hand; pay for the schematic, come back for the "
+        "lesson when you have the skill."
+    ),
+    quest_hooks=[
+        "Will pay for information on unlicensed gunrunners operating "
+        "near Mystvale.",
+        "Needs a courier to deliver a sealed shipment to Hardinger's "
+        "Hall.",
+    ],
+    topics=["firearms", "schematics", "House Richter", "the Rourkes"],
+    scope="annwyn",
+)
+holst.attributes.add("recipe_shop", {
+    "SCHEMATIC_CRUDE_PISTOL": 24,
+    "SCHEMATIC_BASIC_PISTOL": 24,
+    "SCHEMATIC_BULLETS": 15,
+    "SCHEMATIC_MASTERWORK_PISTOL": 36,
+})
+
+# ---------------------------------------------------------------------------
+# Magpie — a Rourke smuggler who fences the same gunsmith schematics out
+# of the Back Alley at a steep discount. No paperwork, no questions, no
+# guarantee the Hardingers won't hear about it later.
+# ---------------------------------------------------------------------------
+magpie = get_or_create_npc(
+    key="Magpie",
+    location=black_market,
+    desc=(
+        "A wiry figure in a patched oilskin, hood always up even "
+        "indoors. A silver ring glints on one thumb; the other hand "
+        "stays out of sight. Smells of salt, gun oil, and something "
+        "sweeter — dreamsmoke, maybe. Smiles like it costs nothing."
+    ),
+    personality=(
+        "Magpie, a Rourke fence who runs powder and paper out of the "
+        "Back Alley. Cheerful, quick-tongued, lethal if the conversation "
+        "turns. Treats every transaction like a joke whose punchline "
+        "only they know. Will call the buyer 'friend' until the coin "
+        "lands."
+    ),
+    knowledge=(
+        "- The Rourkes move firearms the Hardingers would rather stay "
+        "in Ironhaven. Magpie fences the schematics on consignment.\n"
+        "- Sells the Gunsmith line at a discount off Kriegsmeister "
+        "Holst's list price: |wbrowse recipes|n to view, |wbuy recipe "
+        "<name>|n to deal. No receipts, no questions.\n"
+        "- Hears things at the docks nobody else does — what ships "
+        "came in under whose flag, what didn't get inspected.\n"
+        "- Would rather not meet the Kriegsmeister face to face. Not "
+        "out of fear — out of mutual understanding."
+    ),
+    quest_hooks=[
+        "Has schematics the Ironhaven Forge won't sell to outsiders, "
+        "at a price.",
+        "Looking for a runner to move a sealed crate north without "
+        "attracting Richter attention.",
+    ],
+    topics=["firearms", "smuggling", "the Rourkes", "the docks"],
+    scope="annwyn",
+)
+magpie.attributes.add("recipe_shop", {
+    "SCHEMATIC_CRUDE_PISTOL": 18,
+    "SCHEMATIC_BASIC_PISTOL": 18,
+    "SCHEMATIC_BULLETS": 11,
+    "SCHEMATIC_MASTERWORK_PISTOL": 27,
+})
 
 
 # ===========================================================================
@@ -3040,6 +3273,11 @@ _NPC_CANON_TAGS = {
     "Marta the Alchemist":         ["region:annwyn"],
     "Thalia the Herbalist":        ["region:annwyn"],
     "Fenn the Artificer":          ["region:annwyn"],
+
+    # Schematic vendors
+    "Laszlo the Bowyer":           ["region:annwyn", "cirque"],
+    "Kriegsmeister Holst":         ["house:richter", "house:hardinger", "region:annwyn"],
+    "Magpie":                      ["house:rourke", "region:annwyn"],
 }
 
 _tagged = 0
