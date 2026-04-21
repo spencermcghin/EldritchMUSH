@@ -49,7 +49,21 @@ from evennia.settings_default import *
 ######################################################################
 
 # This is the name of your game. Make it catchy!
-SERVERNAME = "eldritchmush"
+import os as _os_early
+
+# Deploy environment identifier. Railway sets RAILWAY_ENVIRONMENT_NAME
+# automatically (prod, uat). Local dev defaults to "local".
+DEPLOY_ENV = _os_early.environ.get(
+    "RAILWAY_ENVIRONMENT_NAME",
+    _os_early.environ.get("DEPLOY_ENV", "local"),
+).lower()
+
+# Server identity — env-overridable so uat shows up distinctly in logs,
+# the Evennia server headers, and the welcome screen.
+SERVERNAME = _os_early.environ.get(
+    "SERVERNAME",
+    "eldritchmush" + ("" if DEPLOY_ENV in ("prod", "production", "local") else f"-{DEPLOY_ENV}"),
+)
 
 # Use the standard Django admin instead of Evennia's custom override.
 # The custom override at /admin/ requires the evennia_admin.html template,
@@ -66,14 +80,19 @@ MULTISESSION_MODE = 2
 AUTO_PUPPET_ON_LOGIN = False
 MAX_NR_CHARACTERS = 5
 
-# Allowed hosts for Django — Railway internal + custom domain
-ALLOWED_HOSTS = [
+# Allowed hosts for Django. Comma-separated ALLOWED_HOSTS env var is
+# merged with the per-env defaults below so adding a new domain in the
+# Railway UI doesn't require a code change. Always includes localhost
+# so the local dev server works without any env setup.
+_default_hosts = [
     "eldritchmush-production.up.railway.app",
     "eldritchmush.com",
     "www.eldritchmush.com",
     "localhost",
     "127.0.0.1",
 ]
+_env_hosts = [h.strip() for h in _os_early.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
+ALLOWED_HOSTS = sorted(set(_default_hosts + _env_hosts))
 
 # Reverse-proxy / CSRF settings.
 # Django runs behind nginx (which is behind Railway's edge proxy), so it
@@ -81,13 +100,17 @@ ALLOWED_HOSTS = [
 # settings, CSRF verification fails on every POST (admin login,
 # allauth flows, etc.) because Django thinks the request origin is
 # 127.0.0.1 but the form came from the public HTTPS URL.
-CSRF_TRUSTED_ORIGINS = [
+_default_csrf_origins = [
     "https://eldritchmush-production.up.railway.app",
     "https://eldritchmush.com",
     "https://www.eldritchmush.com",
     "http://eldritchmush.com",
     "http://www.eldritchmush.com",
+    "http://localhost:3000",
+    "http://localhost:4001",
 ]
+_env_csrf = [o.strip() for o in _os_early.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
+CSRF_TRUSTED_ORIGINS = sorted(set(_default_csrf_origins + _env_csrf))
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 
@@ -255,3 +278,13 @@ try:
     from server.conf.secret_settings import *
 except ImportError:
     print("secret_settings.py file not found or failed to import.")
+
+######################################################################
+# Env-var override for the Django SECRET_KEY. This takes precedence
+# over any value set in secret_settings.py so that Railway (and any
+# other container deploy where secret_settings.py isn't present) can
+# supply the key via DJANGO_SECRET_KEY without a code change.
+######################################################################
+_env_secret_key = _os_early.environ.get("DJANGO_SECRET_KEY")
+if _env_secret_key:
+    SECRET_KEY = _env_secret_key
