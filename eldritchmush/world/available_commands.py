@@ -277,15 +277,30 @@ def build_available_commands(character):
             ))
 
     # --- Crafting (location-dependent) ---
-    if _room_has_forge(character) and character.db.blacksmith:
-        commands.append(_cmd("forge", "Forge", "<item>", "Crafting"))
-    if _room_has_workbench(character):
-        if character.db.artificer or character.db.bowyer or character.db.gunsmith:
-            commands.append(_cmd("craft", "Craft", "<item>", "Crafting"))
-        if character.db.blacksmith:
+    # One unified "Crafting" entry. The frontend opens the multi-tab
+    # CraftingModal; the server's __crafting_ui__ OOB handler enumerates
+    # per-skill tabs. Show the entry if the player has any crafting skill
+    # AND is standing at a matching station — that way the button only
+    # appears in contexts where at least one tab will be usable.
+    at_forge = _room_has_forge(character)
+    at_workbench = _room_has_workbench(character)
+    at_apoth = _room_has_apothecary_workbench(character)
+    has_any_craft_skill = any(
+        getattr(character.db, s, 0)
+        for s in ("blacksmith", "bowyer", "artificer", "gunsmith", "alchemist")
+    )
+    if has_any_craft_skill and (at_forge or at_workbench or at_apoth):
+        commands.append(_cmd(
+            "__crafting_ui__", "Crafting", "", "Crafting"
+        ))
+
+    # Repair stays text-based — it's a single targeted action, not a menu.
+    if at_workbench or at_forge:
+        if character.db.blacksmith or character.db.artificer or character.db.bowyer or character.db.gunsmith:
             commands.append(_cmd("repair", "Repair", "<item>", "Crafting"))
-    if _room_has_apothecary_workbench(character) and character.db.alchemist:
-        commands.append(_cmd("brew", "Brew", "<substance>", "Alchemy"))
+
+    # Reagents list is a text dump, not part of the modal.
+    if at_apoth and character.db.alchemist:
         commands.append(_cmd("reagents", "Reagents", "", "Alchemy"))
 
     # --- Shop (location-dependent) ---
