@@ -2,3 +2,4 @@ node_modules/
 screenshots/
 package-lock.json
 auth-state.json
+auth-*.json

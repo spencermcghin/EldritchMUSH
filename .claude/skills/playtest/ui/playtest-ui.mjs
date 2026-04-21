@@ -1,24 +1,19 @@
 /**
- * playtest-ui.mjs — Playwright-driven UI smoke-test for EldritchMUSH.
+ * playtest-ui.mjs — Playwright UI smoke-test for EldritchMUSH.
  *
- * Drives the real web client (Google OAuth or username/password) through
- * a scripted sequence and saves screenshots to ./screenshots/ for visual
- * verification.
+ * Targets deployed environments only (no local). Auth is via Google OAuth,
+ * saved per-target to auth-<target>.json after a one-time interactive setup.
  *
- * Because Google OAuth cannot be automated, auth is a one-time step:
+ * Usage:
+ *   node playtest-ui.mjs setup-auth --target=uat       # one-time, visible browser
+ *   node playtest-ui.mjs <scenario>  --target=uat      # headless
+ *   node playtest-ui.mjs <scenario>  --target=prod     # read-only scenarios only
  *
- *   node playtest-ui.mjs setup-auth     # opens a visible browser; you
- *                                       # sign in with Google once, then
- *                                       # we save cookies to auth-state.json
- *
- *   node playtest-ui.mjs crafting-modal # headless, reuses saved cookies
- *
- * For local username/password accounts you can skip OAuth and pass:
- *   export PLAYTEST_USER=...
- *   export PLAYTEST_PASS=...
- *
- * Override frontend URL (defaults: vite 5173, then evennia 4001):
- *   export PLAYTEST_URL=http://localhost:5173
+ * Env overrides:
+ *   PLAYTEST_TARGET=uat|prod            (default: uat)
+ *   PLAYTEST_CHARACTER=<name>           (default: Aethel; auto-created if missing)
+ *   PLAYTEST_AUTH_STATE=<path>          (override saved auth location — CI uses this)
+ *   PLAYTEST_VERBOSE=1                  (dump console + WS frames)
  */
 
 import { chromium } from 'playwright'
@@ -28,241 +23,141 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const SHOT_DIR = path.join(__dirname, 'screenshots')
-const AUTH_STATE = path.join(__dirname, 'auth-state.json')
 
-const USER = process.env.PLAYTEST_USER
-const PASS = process.env.PLAYTEST_PASS
+const TARGETS = {
+  uat:  { url: 'https://uat.eldritchmush.com', authFile: 'auth-uat.json' },
+  prod: { url: 'https://eldritchmush.com',     authFile: 'auth-prod.json' },
+}
 
-// Candidate frontends to try in order. Vite dev first (this project
-// configures it to port 3000; default vite is 5173); falls back to the
-// Evennia-served production build on 4001 if nothing is running on the
-// dev port.
-const CANDIDATE_URLS = process.env.PLAYTEST_URL
-  ? [process.env.PLAYTEST_URL]
-  : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:4001']
+function parseArgs(argv) {
+  const positional = []
+  const flags = {}
+  for (const a of argv.slice(2)) {
+    const m = a.match(/^--([^=]+)=(.*)$/)
+    if (m) flags[m[1]] = m[2]
+    else positional.push(a)
+  }
+  return { positional, flags }
+}
 
-const SCENARIO = process.argv[2] || 'crafting-modal'
+const { positional, flags } = parseArgs(process.argv)
+const SCENARIO = positional[0] || 'crafting-modal'
+const TARGET_NAME = (flags.target || process.env.PLAYTEST_TARGET || 'uat').toLowerCase()
+const TARGET = TARGETS[TARGET_NAME]
+if (!TARGET) {
+  console.error(`Unknown target '${TARGET_NAME}'. Known: ${Object.keys(TARGETS).join(', ')}`)
+  process.exit(2)
+}
+
+const AUTH_STATE = process.env.PLAYTEST_AUTH_STATE
+  || path.join(__dirname, TARGET.authFile)
+const CHAR_NAME = process.env.PLAYTEST_CHARACTER || 'Aethel'
+
+// Scenarios flagged as read-only are the only ones allowed against prod.
+const READ_ONLY = new Set(['login', 'crafting-modal', 'crafting-ironhaven', 'crafting-docks'])
 
 // --- helpers ---------------------------------------------------------------
 
-async function pickReachableUrl() {
-  for (const url of CANDIDATE_URLS) {
-    try {
-      const res = await fetch(url, { method: 'GET' })
-      if (res.ok || res.status < 500) return url
-    } catch {}
-  }
-  throw new Error(
-    `No frontend reachable. Tried: ${CANDIDATE_URLS.join(', ')}. ` +
-    `Start the dev server: cd frontend && npm run dev`
-  )
-}
-
 async function snap(page, name) {
   await fs.mkdir(SHOT_DIR, { recursive: true })
-  const p = path.join(SHOT_DIR, `${SCENARIO}-${name}.png`)
+  const p = path.join(SHOT_DIR, `${TARGET_NAME}-${SCENARIO}-${name}.png`)
   await page.screenshot({ path: p, fullPage: false })
   console.log(`  📸 ${path.relative(process.cwd(), p)}`)
   return p
 }
 
 async function typeCommand(page, cmd) {
-  // The command input is always present while connected. Find it and
-  // submit the command via keyboard Enter.
   const input = page.locator('input, textarea').first()
   await input.fill(cmd)
   await input.press('Enter')
-  // Small settle — server round-trip + render
   await page.waitForTimeout(500)
 }
 
-async function clickSidebarButton(page, label) {
-  // Sidebar entries are .cmd-entry with a .cmd-key span.
-  const entry = page.locator('.cmd-entry', { hasText: label }).first()
-  try {
-    await entry.waitFor({ state: 'visible', timeout: 5000 })
-  } catch (err) {
-    // Dump the sidebar so we know what's there
-    const sidebar = await page.locator('.cmd-sidebar').textContent().catch(() => '(no sidebar)')
-    throw new Error(`Sidebar button '${label}' not found. Sidebar contents:\n${sidebar}`)
-  }
-  await entry.click()
-  await page.waitForTimeout(400)
-}
-
 async function authStateExists() {
-  try {
-    await fs.access(AUTH_STATE)
-    return true
-  } catch {
-    return false
-  }
+  try { await fs.access(AUTH_STATE); return true } catch { return false }
 }
 
-// When using username/password (no Google OAuth), we need a *Django*
-// session so fetch('/api/account/characters/') works. The WebSocket
-// `connect <user> <pass>` login only auths the MUD session, not Django.
-// POST to /admin/login/ first to establish the Django session cookie.
-async function djangoLoginFallback(context, baseUrl) {
-  const loginUrl = new URL('/admin/login/', baseUrl).toString()
-  // First GET to obtain CSRF
-  const getResp = await context.request.get(loginUrl)
-  const getBody = await getResp.text()
-  const m = getBody.match(/name="csrfmiddlewaretoken"\s+value="([^"]+)"/)
-  if (!m) throw new Error('Could not extract CSRF token from /admin/login/')
-  const csrf = m[1]
-
-  const postResp = await context.request.post(loginUrl, {
-    form: {
-      csrfmiddlewaretoken: csrf,
-      username: USER,
-      password: PASS,
-      next: '/admin/',
-    },
-    headers: {
-      referer: loginUrl,
-    },
-  })
-  // Django redirects to /admin/ on success; a 200 with the login form
-  // again means bad creds.
-  if (postResp.status() >= 400) {
-    throw new Error(`Django /admin/login/ returned ${postResp.status()}`)
-  }
-  const finalBody = await postResp.text()
-  if (finalBody.includes('name="password"') && finalBody.includes('action="/admin/login/"')) {
-    throw new Error('Django /admin/login/ rejected credentials')
-  }
-}
-
-async function login(page, url) {
-  console.log(`→ ${url}`)
-
-  // If we have username/password, establish a Django session first so
-  // the REST endpoints the React app calls (characters list, etc.)
-  // return authenticated data.
-  if (USER && PASS) {
-    try {
-      await djangoLoginFallback(page.context(), url)
-      console.log('  ✓ Django session established via /admin/login/')
-    } catch (err) {
-      console.warn(`  ⚠ Django /admin/login/ pre-step failed: ${err.message}`)
-    }
-  }
-
-  await page.goto(url, { waitUntil: 'domcontentloaded' })
-
-  // Wait up to 20s for ANY of: game UI visible (auth succeeded from
-  // Django session / saved cookies) OR login form visible (need to
-  // type credentials). Whichever wins tells us what to do next.
-  const gameSel = '.cmd-sidebar, .charsel-screen'
-  const formSel = 'input[autocomplete="username"]'
-  const winner = await Promise.race([
-    page.locator(gameSel).first().waitFor({ state: 'visible', timeout: 20000 })
+async function waitForGameOrCharsel(page, timeout = 20000) {
+  return Promise.race([
+    page.locator('.cmd-sidebar').first().waitFor({ state: 'visible', timeout })
       .then(() => 'game').catch(() => null),
-    page.locator(formSel).first().waitFor({ state: 'visible', timeout: 20000 })
-      .then(() => 'form').catch(() => null),
+    page.locator('.charsel-screen').first().waitFor({ state: 'visible', timeout })
+      .then(() => 'charsel').catch(() => null),
   ])
+}
 
-  if (winner === 'game') {
-    await page.waitForTimeout(600)
-    await snap(page, '02-post-login-restored')
+async function ensureCharacter(page, name) {
+  const charSelect = page.locator('.charsel-screen')
+  if (await charSelect.count() === 0) return  // already puppeted
+
+  // Wait for WS connection; card click sends `ic` via WS.
+  await page.locator('.status-label.connected').first()
+    .waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
+  await page.waitForTimeout(400)
+
+  // Look for existing character card with matching name.
+  const existing = page
+    .locator('.charsel-screen .charsel-card', { hasText: name })
+    .filter({ hasNot: page.locator('.charsel-card-create') })
+    .first()
+  if (await existing.count()) {
+    console.log(`  → puppeting existing character '${name}'`)
+    await existing.click()
+    await page.waitForSelector('.cmd-sidebar', { timeout: 15000 })
+    await page.waitForTimeout(1000)
     return
   }
 
-  if (winner !== 'form') {
-    throw new Error('Neither game UI nor login form appeared within 20s.')
-  }
+  // Not found — create.
+  console.log(`  → no character '${name}' yet; creating`)
+  await snap(page, '02a-charsel-empty')
+  await page.locator('.charsel-card-create').click()
+  await page.locator('.charsel-modal-input').fill(name)
+  await snap(page, '02b-charcreate-modal')
+  await page.locator('.charsel-modal-submit').click()
 
-  // Need credentials.
-  if (!USER || !PASS) {
-    throw new Error(
-      'Not authenticated and no PLAYTEST_USER/PLAYTEST_PASS set. ' +
-      'Run `node playtest-ui.mjs setup-auth` once to log in via Google, ' +
-      'or export PLAYTEST_USER/PASS for username login.'
-    )
-  }
-
-  const toggle = page.locator('button.login-fallback-toggle')
-  if (await toggle.count()) {
-    const text = await toggle.textContent()
-    if (text && text.includes('sign in with username')) {
-      await toggle.click()
-    }
-  }
-  await page.locator(formSel).fill(USER)
-  await page.locator('input[autocomplete="current-password"]').fill(PASS)
-  await snap(page, '01-login-form')
-  await page.locator('button.login-btn[type="submit"]').click()
-
-  await page.locator(gameSel).first().waitFor({ state: 'visible', timeout: 15000 })
-  await page.waitForTimeout(800)
-  await snap(page, '02-post-login')
+  // Wait for the new card to appear, then click it.
+  const newCard = page
+    .locator('.charsel-screen .charsel-card', { hasText: name })
+    .filter({ hasNot: page.locator('.charsel-card-create') })
+    .first()
+  await newCard.waitFor({ state: 'visible', timeout: 15000 })
+  await page.waitForTimeout(600)
+  await newCard.click()
+  await page.waitForSelector('.cmd-sidebar', { timeout: 15000 })
+  await page.waitForTimeout(1000)
 }
 
-async function pickCharacterIfNeeded(page, preferredName = null) {
-  // If CharacterSelect is showing, click the named character (or first).
-  const charSelect = page.locator('.charsel-screen')
-  if (await charSelect.count() === 0) return
+async function login(page) {
+  console.log(`→ ${TARGET.url}  [target=${TARGET_NAME}]`)
+  await page.goto(TARGET.url, { waitUntil: 'domcontentloaded' })
 
-  // Find the card labeled with the preferred character name. Skip
-  // "Create New Character" cards.
-  let target = null
-  if (preferredName) {
-    const candidate = page
-      .locator('.charsel-screen .charsel-card', { hasText: preferredName })
-      .first()
-    if (await candidate.count()) target = candidate
+  const winner = await waitForGameOrCharsel(page, 25000)
+  if (!winner) {
+    throw new Error(
+      `Neither game UI nor CharacterSelect appeared within 25s. ` +
+      `Auth may have expired — re-run: node playtest-ui.mjs setup-auth --target=${TARGET_NAME}`
+    )
   }
-  if (!target) {
-    const cards = page.locator('.charsel-screen .charsel-card')
-    const n = await cards.count()
-    for (let i = 0; i < n; i++) {
-      const text = (await cards.nth(i).textContent()) || ''
-      if (!text.toLowerCase().includes('create new')) {
-        target = cards.nth(i)
-        break
-      }
-    }
-  }
-  if (target && (await target.count())) {
-    // Wait for the WebSocket to finish connecting before clicking — the
-    // card's handler sends `ic <name>` via the WS, which is a no-op if
-    // we click while still in the `connecting` state.
-    await page
-      .locator('.status-label.connected')
-      .first()
-      .waitFor({ state: 'visible', timeout: 15000 })
-      .catch(() => {})
-    await page.waitForTimeout(400)
-
-    // The whole card is a <button>. Clicking it fires the puppet flow
-    // (`ooc` then `ic <name>`).
-    await target.click()
-    await page.waitForSelector('.cmd-sidebar', { timeout: 15000 })
-    await page.waitForTimeout(1000)
-  }
+  await page.waitForTimeout(600)
+  await snap(page, '01-post-load')
 }
 
 // --- scenarios -------------------------------------------------------------
 
 const SCENARIOS = {
   login: async (page) => {
-    // Login + post-login already captured by login(). Nothing extra.
+    // login() + ensureCharacter() already ran; no extra steps.
   },
 
   'crafting-modal': async (page) => {
-    await typeCommand(page, "@tel #2054")  // The Crafter's Quarter
+    await typeCommand(page, '@tel #2054')  // The Crafter's Quarter
     await page.waitForTimeout(1500)
     await snap(page, '03-crafter-quarter')
-
-    // Opening the modal via direct OOB is more robust than waiting for
-    // the sidebar push to land. Both paths exercise the same backend.
     await typeCommand(page, '__crafting_ui__')
     await page.waitForSelector('.alchemy-modal', { timeout: 8000 })
-    await page.waitForTimeout(400)
     await snap(page, '04-modal-open')
 
-    // Try each tab and snap
     const tabs = page.locator('.crafting-tab')
     const n = await tabs.count()
     console.log(`  found ${n} crafting tab(s)`)
@@ -273,7 +168,6 @@ const SCENARIOS = {
       await page.waitForTimeout(250)
       await snap(page, `05-tab-${i}-${label.toLowerCase().replace(/[^a-z]+/g, '')}`)
 
-      // Click the first recipe if any
       const firstRecipe = page.locator('.alchemy-recipe-item').first()
       if (await firstRecipe.count()) {
         await firstRecipe.click()
@@ -284,7 +178,7 @@ const SCENARIOS = {
   },
 
   'crafting-ironhaven': async (page) => {
-    await typeCommand(page, '@tel #2078')  // Ironhaven Forge
+    await typeCommand(page, '@tel #2078')
     await page.waitForTimeout(1500)
     await snap(page, '03-ironhaven-forge')
     await typeCommand(page, '__crafting_ui__')
@@ -293,54 +187,41 @@ const SCENARIOS = {
   },
 
   'crafting-docks': async (page) => {
-    await typeCommand(page, '@tel #2058')  // The Back Alley
+    await typeCommand(page, '@tel #2058')
     await page.waitForTimeout(1500)
     await snap(page, '03-back-alley')
-    // The Back Alley has no crafting station; modal should still open
-    // in superuser mode but with all tabs reporting "no station".
     await typeCommand(page, '__crafting_ui__')
     await page.waitForSelector('.alchemy-modal', { timeout: 8000 })
     await snap(page, '04-modal-at-alley')
   },
 }
 
-// --- main ------------------------------------------------------------------
+// --- setup-auth ------------------------------------------------------------
 
-// setup-auth: launch a visible browser so the user can click through
-// Google OAuth manually. When they land back on the game UI we save
-// the cookies + localStorage to AUTH_STATE for future headless runs.
 async function runSetupAuth() {
-  const url = await pickReachableUrl()
   console.log('Opening a visible browser for first-time sign-in.')
-  console.log('Click the Google button, finish OAuth in the window, and')
-  console.log('wait until the game UI loads. The session will be saved.')
-  console.log(`Target: ${url}`)
+  console.log('Click the Google button, finish OAuth, wait for the game UI.')
+  console.log(`Target: ${TARGET.url}   Saving auth to: ${AUTH_STATE}`)
 
   const browser = await chromium.launch({ headless: false })
-  const context = await browser.newContext({
-    viewport: { width: 1400, height: 900 },
-  })
+  const context = await browser.newContext({ viewport: { width: 1400, height: 900 } })
   const page = await context.newPage()
-  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await page.goto(TARGET.url, { waitUntil: 'domcontentloaded' })
 
-  // Wait up to 3 minutes for the game UI to appear (after OAuth returns).
   try {
-    await page
-      .locator('.cmd-sidebar, .charsel-screen')
-      .first()
-      .waitFor({ state: 'visible', timeout: 180000 })
+    await waitForGameOrCharsel(page, 300000)  // 5 min
   } catch {
-    console.error('Timed out waiting for game UI. Nothing saved.')
+    console.error('Timed out. Nothing saved.')
     await browser.close()
     process.exit(1)
   }
-
   await page.waitForTimeout(1500)
   await context.storageState({ path: AUTH_STATE })
-  console.log(`\n✅ Saved auth state to ${path.relative(process.cwd(), AUTH_STATE)}`)
-  console.log('Future runs will reuse this session headlessly.')
+  console.log(`\n✅ Saved auth state to ${AUTH_STATE}`)
   await browser.close()
 }
+
+// --- main ------------------------------------------------------------------
 
 async function main() {
   if (SCENARIO === 'setup-auth') {
@@ -355,61 +236,59 @@ async function main() {
     process.exit(2)
   }
 
-  const url = await pickReachableUrl()
-  const browser = await chromium.launch({ headless: true })
-
-  const contextOpts = { viewport: { width: 1400, height: 900 } }
-  if (await authStateExists()) {
-    contextOpts.storageState = AUTH_STATE
+  if (TARGET_NAME === 'prod' && !READ_ONLY.has(SCENARIO)) {
+    console.error(`Scenario '${SCENARIO}' is not read-only; refusing to run against prod.`)
+    console.error(`Read-only scenarios: ${[...READ_ONLY].join(', ')}`)
+    process.exit(2)
   }
-  const context = await browser.newContext(contextOpts)
+
+  if (!(await authStateExists())) {
+    console.error(
+      `No saved auth at ${AUTH_STATE}. ` +
+      `Run: node playtest-ui.mjs setup-auth --target=${TARGET_NAME}`
+    )
+    process.exit(2)
+  }
+
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({
+    viewport: { width: 1400, height: 900 },
+    storageState: AUTH_STATE,
+  })
   const page = await context.newPage()
 
-  // Capture console errors + all console output for the report
   const consoleErrors = []
   const consoleAll = []
   page.on('pageerror', (err) => consoleErrors.push(`pageerror: ${err.message}`))
   page.on('console', (msg) => {
     consoleAll.push(`[${msg.type()}] ${msg.text()}`)
-    if (msg.type() === 'error') {
-      consoleErrors.push(`console.error: ${msg.text()}`)
-    }
+    if (msg.type() === 'error') consoleErrors.push(`console.error: ${msg.text()}`)
   })
-  // Capture network failures
   page.on('requestfailed', (req) =>
-    consoleErrors.push(`requestfailed: ${req.url()} — ${req.failure()?.errorText}`)
-  )
+    consoleErrors.push(`requestfailed: ${req.url()} — ${req.failure()?.errorText}`))
   page.on('websocket', (ws) => {
     console.log(`  ws opened: ${ws.url()}`)
-    ws.on('close', () => console.log(`  ws closed: ${ws.url()}`))
-    ws.on('framereceived', (data) => {
-      const s = typeof data.payload === 'string'
-        ? data.payload.slice(0, 120)
-        : '(binary)'
+    ws.on('framereceived', (d) => {
+      const s = typeof d.payload === 'string' ? d.payload.slice(0, 120) : '(binary)'
       if (consoleAll.length < 50) consoleAll.push(`[ws<<] ${s}`)
     })
-    ws.on('framesent', (data) => {
-      const s = typeof data.payload === 'string'
-        ? data.payload.slice(0, 120)
-        : '(binary)'
+    ws.on('framesent', (d) => {
+      const s = typeof d.payload === 'string' ? d.payload.slice(0, 120) : '(binary)'
       if (consoleAll.length < 50) consoleAll.push(`[ws>>] ${s}`)
     })
-    ws.on('socketerror', (e) => consoleErrors.push(`ws socketerror: ${e}`))
   })
 
   let ok = true
   try {
-    console.log(`=== Scenario: ${SCENARIO} ===`)
-    await login(page, url)
-    await pickCharacterIfNeeded(page, process.env.PLAYTEST_CHARACTER || 'Aethel')
+    console.log(`=== Scenario: ${SCENARIO}  [target=${TARGET_NAME}] ===`)
+    await login(page)
+    await ensureCharacter(page, CHAR_NAME)
     await scenario(page)
     console.log('\n=== PASS ===')
   } catch (err) {
     ok = false
     console.error(`\n=== FAIL: ${err.message} ===`)
-    try {
-      await snap(page, '99-failure')
-    } catch {}
+    try { await snap(page, '99-failure') } catch {}
   } finally {
     if (consoleErrors.length) {
       console.log('\nBrowser console errors:')
@@ -424,7 +303,4 @@ async function main() {
   process.exit(ok ? 0 : 1)
 }
 
-main().catch((e) => {
-  console.error(e)
-  process.exit(1)
-})
+main().catch((e) => { console.error(e); process.exit(1) })
