@@ -280,6 +280,7 @@ class Harness:
                 r = search_object(step[1])
                 if r:
                     self.char.move_to(r[0], quiet=True)
+                    broke = False
                     print(f"  goto {step[1]}")
                 else:
                     broke = True
@@ -326,7 +327,7 @@ def _summary(result):
 
 SCENARIOS = {
     "crafting-modal": [
-        ("goto",   "Crafter's Quarter"),
+        ("goto",   "The Crafter's Quarter"),
         ("oob",    "__crafting_ui__"),
         # Superuser sees all tabs; event should contain a tabs array.
     ],
@@ -335,11 +336,11 @@ SCENARIOS = {
         ("oob",    "__crafting_ui__"),
     ],
     "schematic-shop-torben": [
-        ("goto",   "Crafter's Quarter"),
+        ("goto",   "The Crafter's Quarter"),
         ("assert", "browse recipes", "Schematic"),
     ],
     "alchemy-roundtrip": [
-        ("goto",   "Crafter's Quarter"),
+        ("goto",   "The Crafter's Quarter"),
         ("oob",    "__crafting_ui__"),
         ("cmd",    "reagents"),
     ],
