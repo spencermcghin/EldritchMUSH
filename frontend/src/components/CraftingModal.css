@@ -1,4 +1,9 @@
-/* ── Alchemy Modal ── */
+/* ── Crafting Modal ──
+   Unified crafting UI with tabs per craft source (blacksmith, bowyer,
+   artificer, gunsmith, alchemy). The .alchemy-* class names below are
+   legacy from the original alchemy-only modal and are reused so the
+   visual design survives unchanged. Tab-specific classes are at the
+   bottom of this file. */
 
 .alchemy-backdrop {
   position: fixed;
@@ -420,4 +425,93 @@
     border-right: none;
     border-bottom: 1px solid var(--border);
   }
+}
+
+/* ── Crafting tab bar ── */
+.crafting-tabs {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.35);
+}
+.crafting-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s;
+  position: relative;
+}
+.crafting-tab:last-child {
+  border-right: none;
+}
+.crafting-tab:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.06);
+  color: var(--accent-gold);
+}
+.crafting-tab.active {
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--accent-gold);
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+}
+.crafting-tab.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent-gold);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+.crafting-tab:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.crafting-tab-meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+.crafting-tab-status {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 8px;
+}
+.crafting-tab-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.crafting-tab-status-dot.ok {
+  background: var(--phosphor);
+  box-shadow: 0 0 4px rgba(0, 229, 160, 0.5);
+}
+.crafting-tab-status-dot.missing {
+  background: var(--blood-bright);
+  box-shadow: 0 0 4px rgba(204, 34, 17, 0.5);
+}
+
+/* Reason strip below the tab bar when tab is blocked (no station/kit) */
+.crafting-reason {
+  padding: 6px 14px;
+  background: rgba(139, 0, 0, 0.08);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--blood-bright);
+  letter-spacing: 1px;
 }
