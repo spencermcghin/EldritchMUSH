@@ -25,15 +25,14 @@ const COMBAT_COMMANDS = [
   { key: 'disengage', label: 'Disengage', args_hint: '', category: 'Combat' },
 ]
 
-// Skill-gated commands — only shown if character has the relevant skill
+// Skill-gated commands — only shown if character has the relevant skill.
+// Crafting (forge/craft/brew) is no longer here: it's a single contextual
+// "Crafting" button wired up via the onCrafting prop, driven by the
+// server's available_commands OOB event (only shown at a matching
+// station). Repair / reagents likewise come from the server.
 const SKILL_COMMANDS = [
   { key: 'medicine', label: 'Medicine', args_hint: '<target>', category: 'Healing', requireSkill: 'medicine' },
   { key: 'chirurgery', label: 'Chirurgery', args_hint: '<target>', category: 'Healing', requireSkill: 'chirurgeon' },
-  { key: 'brew', label: 'Brew', args_hint: '<substance>', category: 'Alchemy', requireSkill: 'alchemist' },
-  { key: 'reagents', label: 'Reagents', args_hint: '', category: 'Alchemy', requireSkill: 'alchemist' },
-  { key: 'forge', label: 'Forge', args_hint: '<recipe>', category: 'Crafting', requireSkill: 'blacksmith' },
-  { key: 'craft', label: 'Craft', args_hint: '<recipe>', category: 'Crafting', requireAny: ['artificer', 'bowyer', 'gunsmith'] },
-  { key: 'repair', label: 'Repair', args_hint: '<item>', category: 'Crafting', requireAny: ['blacksmith', 'artificer'] },
 ]
 
 // Shop commands — only shown when the server's available_commands OOB
@@ -114,8 +113,17 @@ function CommandEntry({ cmd, onClick, onPrompt, sendCommand }) {
   )
 }
 
-export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, onShop, characterSkills = {} }) {
+export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, onShop, onCrafting, characterSkills = {} }) {
   const commands = buildCommandList(inCombat, characterSkills)
+
+  // Merge server-pushed contextual commands (repair, reagents, etc.) into
+  // the list. The "__crafting_ui__" descriptor is consumed by App.jsx to
+  // toggle the onCrafting callback, so we skip it here.
+  const serverCmds = (availableCommands || []).filter(c =>
+    c.key && c.key !== '__crafting_ui__' && !commands.some(x => x.key === c.key)
+  )
+  commands.push(...serverCmds)
+
   const groups = groupCommands(commands)
 
   return (
@@ -144,6 +152,12 @@ export default function CommandSidebar({ availableCommands, inCombat, myTurn, on
                 <div className="cmd-entry cmd-enabled" onClick={onShop}>
                   <span className="cmd-arrow">›</span>
                   <span className="cmd-key">Shop / Trade</span>
+                </div>
+              )}
+              {onCrafting && (
+                <div className="cmd-entry cmd-enabled" onClick={onCrafting}>
+                  <span className="cmd-arrow">›</span>
+                  <span className="cmd-key">Crafting</span>
                 </div>
               )}
             </div>

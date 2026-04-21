@@ -1172,6 +1172,95 @@ def text(session, *args, **kwargs):
                         session.msg(text=f"|400Brew error: {exc}|n")
                     return
 
+                # __crafting_ui__ — unified crafting modal. Pushes one
+                # crafting_data OOB with a tab per craft_source the player
+                # has the skill for (blacksmith/artificer/bowyer/gunsmith/
+                # alchemy). Station and kit readiness are reported per tab.
+                if lowered == "__crafting_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            from world.crafting_ui import build_payload as _cui_build
+                            payload = _cui_build(puppet)
+                            session.msg(event=payload)
+                            diag_write(
+                                "CRAFTING_UI sent",
+                                tabs=[t["id"] for t in payload.get("tabs", [])],
+                            )
+                    except Exception as exc:
+                        import traceback as _tb
+                        diag_write(
+                            "CRAFTING_UI FAILED",
+                            exc=str(exc),
+                            tb=_tb.format_exc(),
+                        )
+                    return
+
+                # __craft_item__ <PROTO_KEY> — execute a chosen recipe.
+                # Re-pushes crafting_data on success so the modal refreshes.
+                if lowered.startswith("__craft_item__ "):
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            recipe_key = stripped[len("__craft_item__ "):].strip()
+                            from world.crafting_ui import (
+                                craft_item as _cui_craft,
+                                build_payload as _cui_build,
+                            )
+                            ok, msg, bcast = _cui_craft(puppet, recipe_key)
+                            if msg:
+                                session.msg(text=msg)
+                            if ok and bcast and puppet.location:
+                                puppet.location.msg_contents(bcast, exclude=puppet)
+                            # Always refresh the modal so counts update
+                            # whether success or failure.
+                            session.msg(event=_cui_build(puppet))
+                            diag_write("CRAFT_ITEM", recipe=recipe_key, ok=ok)
+                    except Exception as exc:
+                        import traceback as _tb
+                        diag_write(
+                            "CRAFT_ITEM FAILED",
+                            exc=str(exc),
+                            tb=_tb.format_exc(),
+                        )
+                        session.msg(text=f"|400Craft error: {exc}|n")
+                    return
+
+                # `brew`, `forge`, `craft` with no args — open the unified
+                # crafting modal if the player is at a matching station.
+                # With args, fall through to the stock text command.
+                if lowered in ("brew", "forge", "craft"):
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            from world.crafting_ui import (
+                                build_payload as _cui_build,
+                                CRAFT_SOURCES as _CS,
+                            )
+                            is_su = bool(
+                                getattr(puppet, "account", None)
+                                and getattr(puppet.account, "is_superuser", False)
+                            )
+                            # Check that any matching station exists.
+                            # meta[2] is a tuple of typeclass class names.
+                            _station_names = set()
+                            for meta in _CS.values():
+                                _station_names.update(meta[2])
+                            has_any = is_su or (
+                                puppet.location is not None
+                                and any(
+                                    (getattr(o, "typeclass_path", "") or "").rsplit(".", 1)[-1] in _station_names
+                                    for o in puppet.location.contents
+                                )
+                            )
+                            if has_any:
+                                session.msg(event=_cui_build(puppet))
+                                return
+                            # No station — fall through to stock handler
+                    except Exception as exc:
+                        diag_write("UNIFIED CRAFT OPEN FAILED", exc=str(exc))
+                    # Fall through to legacy per-command handling below.
+
                 # `brew` without args — open the alchemy modal
                 if lowered == "brew":
                     try:
@@ -1522,6 +1611,81 @@ def text(session, *args, **kwargs):
                         import traceback
                         diag_write(f"EQUIP/UNEQUIP FAILED", exc=str(exc), tb=traceback.format_exc())
                         session.msg(text=f"|400Error: {exc}|n")
+                    return
+
+                # Direct-dispatch workaround for `ic <name>` and bare
+                # `ooc`, same pattern as the charcreate workaround below.
+                # Evennia's cmdhandler doesn't route to the account-level
+                # CmdIC/CmdOOC funcs for our WS sessions, so we do it
+                # ourselves via account.puppet_object / unpuppet_object.
+                if (lowered == "ic" or lowered.startswith("ic ")) and account is not None:
+                    try:
+                        from evennia.objects.models import ObjectDB
+                        arg = stripped[2:].strip() if len(stripped) > 2 else ""
+                        target = None
+                        playable = account.db._playable_characters or []
+                        if arg:
+                            for pc in playable:
+                                if pc and pc.key.lower() == arg.lower():
+                                    target = pc
+                                    break
+                            if target is None:
+                                # Fallback: global lookup (superuser convenience)
+                                hits = ObjectDB.objects.filter(
+                                    db_key__iexact=arg,
+                                    db_typeclass_path__endswith=".Character",
+                                )
+                                if hits.count() == 1:
+                                    target = hits.first()
+                        else:
+                            # Bare `ic` — puppet the latest controlled
+                            last = account.db._last_puppet
+                            if last and last in playable:
+                                target = last
+                            elif playable:
+                                target = playable[0]
+                        if target is None:
+                            session.msg(text="|400No such character to puppet.|n")
+                            return
+                        try:
+                            account.puppet_object(session, target)
+                            account.db._last_puppet = target
+                            diag_write("DIRECT DISPATCH ic DONE", target=target.key)
+                        except Exception as exc:
+                            import traceback
+                            diag_write(
+                                "DIRECT DISPATCH ic FAILED",
+                                target=repr(target),
+                                exc=str(exc),
+                                tb=traceback.format_exc(),
+                            )
+                            session.msg(text=f"|400Puppet failed: {exc}|n")
+                    except Exception as exc:
+                        import traceback
+                        diag_write(
+                            "DIRECT DISPATCH ic ERROR",
+                            exc=str(exc),
+                            tb=traceback.format_exc(),
+                        )
+                    return
+
+                if lowered == "ooc" and account is not None:
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            account.db._last_puppet = puppet
+                            account.unpuppet_object(session)
+                        # Re-show the OOC look so the client lands on the
+                        # character-select screen.
+                        session.msg(text="You go OOC.")
+                        diag_write("DIRECT DISPATCH ooc DONE")
+                    except Exception as exc:
+                        import traceback
+                        diag_write(
+                            "DIRECT DISPATCH ooc FAILED",
+                            exc=str(exc),
+                            tb=traceback.format_exc(),
+                        )
                     return
 
                 if lowered == "charcreate" or lowered.startswith("charcreate "):
