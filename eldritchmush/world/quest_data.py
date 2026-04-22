@@ -223,11 +223,11 @@ QUESTS = {
     },
 
     # ─────────────────────────────────────────────────────────────────────────
-    # MISTVALE — The Aentact
+    # MISTVALE — Songbird's Rest
     # Canon: Reboot Event 5 / "The Grizzled Veteran" (John Kozar)
     # Hamond the Talon — aka Roderick Wolf, bastard of House Laurent, now
-    # head of the Lex Talionis mercenary company — drinks at the Aentact,
-    # the Mistvale tavern. He'll wager 1 gold at his "Dance of Dragons"
+    # head of the Lex Talionis mercenary company — drinks at Songbird's
+    # Rest, the Mistvale tavern. He'll wager 1 gold at his "Dance of Dragons"
     # duel. Win and he drops a signed contract proving his betrayal of
     # the Laurents to House Oban — the betrayal that brought down Stag
     # Hall at the start of the year. Entire arc plays out Mistvale-side.
@@ -238,7 +238,7 @@ QUESTS = {
         "giver": "hamond the talon",
         "description": (
             "Hamond the Talon — a scarred old soldier with silver rings and "
-            "a leaf-green Northern Marches cloak — holds court at the Aentact, "
+            "a leaf-green Northern Marches cloak — holds court at Songbird's Rest, "
             "buying drinks for anyone who'll listen to his war stories. "
             "He's offering coin at his old dueling game: the |yDance of "
             "Dragons|n. One gold on the table, first to yield loses all. "
