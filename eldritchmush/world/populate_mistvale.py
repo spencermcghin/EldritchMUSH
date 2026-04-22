@@ -289,16 +289,16 @@ mystvale_square = get_or_create_room(
     "Laurent's Stag Hall fly alongside the colors of the Burgomaster's office. "
     "Merchants hawk their wares near the marketplace, while the smell of the "
     "forge drifts in from the Crafter's Quarter.\n\n"
-    "Exits lead to |wThe Aentact|n, the |wMarketplace|n, the |wCrafter's Quarter|n, "
+    "Exits lead to |wSongbird's Rest|n, the |wMarketplace|n, the |wCrafter's Quarter|n, "
     "the |wTown Hall|n, |wManor Row|n to the north, the |wsouth gate|n, and the "
     "|wnorth gate|n.",
     zone="Mystvale",
 )
 
 aentact = get_or_create_room(
-    "The Aentact",
+    "Songbird's Rest",
     "typeclasses.rooms.Room",
-    "The Aentact is Mystvale's tavern, council chamber, and beating heart. "
+    "Songbird's Rest is Mystvale's tavern, council chamber, and beating heart. "
     "A long hearth roars against the north wall, its smoke curling up past "
     "beams hung with antlers, tattered banners, and the Crow Favor tokens of "
     "guests past. Rough tables crowd the flagstone floor. A rumor board near "

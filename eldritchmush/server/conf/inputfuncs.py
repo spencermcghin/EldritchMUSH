@@ -477,7 +477,7 @@ def text(session, *args, **kwargs):
                                     return "Gateway"
                                 # Mystvale and its sub-locations (Stag Hall is inside Mystvale)
                                 if any(w in name for w in [
-                                    "mystvale", "mistvale", "aentact", "tavern", "raven", "marketplace",
+                                    "mystvale", "mistvale", "aentact", "songbird", "tavern", "raven", "marketplace",
                                     "crafter", "maker", "forge", "workbench", "hollow",
                                     "stag hall", "hart hall", "manor row", "chantry",
                                     "herbalist", "town hall", "back alley",
