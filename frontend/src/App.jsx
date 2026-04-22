@@ -19,7 +19,7 @@ import ShopModal from './components/ShopModal'
 import TavylModal from './components/TavylModal'
 import PrimerModal from './components/PrimerModal'
 import QuestOfferModal from './components/QuestOfferModal'
-import AlchemyModal from './components/AlchemyModal'
+import CraftingModal from './components/CraftingModal'
 import ItemReceivedToast from './components/ItemReceivedToast'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
@@ -101,7 +101,7 @@ function App() {
   const [shopOpen, setShopOpen] = useState(false)
   const [tavylOpen, setTavylOpen] = useState(false)
   const [primerOpen, setPrimerOpen] = useState(false)
-  const [alchemyOpen, setAlchemyOpen] = useState(false)
+  const [craftingOpen, setCraftingOpen] = useState(false)
   // Auto-open the Tavyl modal whenever a fresh tavyl_state event arrives.
   const lastTavylTsRef = useRef(0)
   useEffect(() => {
@@ -130,15 +130,15 @@ function App() {
     }
   }, [oobState.inventoryOpen])
 
-  // Auto-open the Alchemy modal when alchemy_data arrives.
-  const lastAlchemyTsRef = useRef(0)
+  // Auto-open the Crafting modal when crafting_data arrives.
+  const lastCraftingTsRef = useRef(0)
   useEffect(() => {
-    const ts = oobState.alchemyData?.ts
-    if (ts && ts !== lastAlchemyTsRef.current) {
-      lastAlchemyTsRef.current = ts
-      setAlchemyOpen(true)
+    const ts = oobState.craftingData?.ts
+    if (ts && ts !== lastCraftingTsRef.current) {
+      lastCraftingTsRef.current = ts
+      setCraftingOpen(true)
     }
-  }, [oobState.alchemyData])
+  }, [oobState.craftingData])
 
   // Fire __room_meta__ on initial puppet & any character change so the
   // contextual buttons and topic chips populate without requiring the
@@ -407,6 +407,11 @@ function App() {
                 ? () => setShopOpen(true)
                 : undefined
             }
+            onCrafting={
+              oobState.availableCommands?.some(c => c.key === '__crafting_ui__')
+                ? () => sendCommand('__crafting_ui__')
+                : undefined
+            }
           />
 
           {/* Center: room view on top, log + input on bottom */}
@@ -526,12 +531,13 @@ function App() {
         />
       )}
 
-      {/* Alchemy modal */}
-      {alchemyOpen && (
-        <AlchemyModal
-          onClose={() => setAlchemyOpen(false)}
+      {/* Unified Crafting modal (blacksmith / bowyer / artificer /
+          gunsmith / alchemy tabs). */}
+      {craftingOpen && (
+        <CraftingModal
+          onClose={() => setCraftingOpen(false)}
           sendCommand={sendCommand}
-          alchemyData={oobState.alchemyData}
+          craftingData={oobState.craftingData}
         />
       )}
 
