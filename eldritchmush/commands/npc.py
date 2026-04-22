@@ -12,7 +12,11 @@ class CmdCreateNPC(Command):
     """
     key = "createnpc"
     aliases = ["createNPC", "+createnpc", "+createNPC"]
-    locks = "call:not perm(nonpcs)"
+    # `call:` only gates whether another object can invoke this command.
+    # `cmd:` is the one that gates a player's ability to run it.
+    # Without the cmd: lock any authenticated account could spam-create
+    # Character rows, so require Builder (staff) perm here.
+    locks = "cmd:perm(Builder);call:not perm(nonpcs)"
     help_category = "mush"
 
     def func(self):
@@ -58,7 +62,10 @@ class CmdEditNPC(Command):
     """
     key = "editnpc"
     aliases = ["editNPC"]
-    locks = "cmd:not perm(nonpcs)"
+    # Builder-gated — object-level access check is still enforced in
+    # func() via `npc.access(caller, "edit")`, but we require Builder
+    # at the command level for defense-in-depth.
+    locks = "cmd:perm(Builder);call:not perm(nonpcs)"
     help_category = "mush"
 
     def parse(self):
@@ -162,7 +169,10 @@ class CmdNPC(Command):
     with its own permissions and accesses.
     """
     key = "npc"
-    locks = "call:not perm(nonpcs)"
+    # Runs commands AS the NPC (with its perms). Staff-only; `cmd:`
+    # gates the player running it, object-level edit check in func()
+    # enforces ownership.
+    locks = "cmd:perm(Builder);call:not perm(nonpcs)"
     help_category = "mush"
 
     def parse(self):

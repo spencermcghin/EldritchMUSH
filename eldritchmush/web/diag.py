@@ -91,20 +91,19 @@ def diag_write(msg, **fields):
 def diag_view(request):
     """HTTP endpoint that returns the last N lines of the diag log.
 
-    Admin-only. Plain text response so it's easy to read in a browser.
+    Superuser-only. The diag log captures raw player commands, ask /
+    whisper text, and stack traces — treat it as PII-bearing. Builders
+    and Admins are explicitly excluded so the audit trail cannot be
+    siphoned by content-moderation staff.
+
+    Plain text response so it's easy to read in a browser.
     Visit /api/diag/ — optionally append ?lines=N to control how much.
     """
     user = request.user
     if not user.is_authenticated:
         return HttpResponse("Authentication required", status=401, content_type="text/plain")
-    is_admin = user.is_superuser
-    if not is_admin:
-        try:
-            is_admin = user.check_permstring("Admin") or user.check_permstring("Builder")
-        except Exception:
-            pass
-    if not is_admin:
-        return HttpResponse("Admin access required", status=403, content_type="text/plain")
+    if not user.is_superuser:
+        return HttpResponse("Superuser access required", status=403, content_type="text/plain")
     try:
         n = int(request.GET.get("lines", "200"))
     except ValueError:
