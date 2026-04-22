@@ -51,7 +51,7 @@ if (!TARGET) {
 
 const AUTH_STATE = process.env.PLAYTEST_AUTH_STATE
   || path.join(__dirname, TARGET.authFile)
-const CHAR_NAME = process.env.PLAYTEST_CHARACTER || 'Aethel'
+const CHAR_NAME = process.env.PLAYTEST_CHARACTER || 'UAT Bot'
 
 // Scenarios flagged as read-only are the only ones allowed against prod.
 const READ_ONLY = new Set(['login', 'crafting-modal', 'crafting-ironhaven', 'crafting-docks'])
@@ -116,12 +116,29 @@ async function ensureCharacter(page, name) {
   await snap(page, '02b-charcreate-modal')
   await page.locator('.charsel-modal-submit').click()
 
-  // Wait for the new card to appear, then click it.
+  // After charcreate, two possible UIs: (a) CharacterSelect re-renders
+  // with the new card (user must click to puppet), or (b) server
+  // auto-puppets straight into the chargen room (sidebar appears, no
+  // card click needed). Wait for whichever lands first.
+  const winner = await Promise.race([
+    page.locator('.cmd-sidebar').first()
+      .waitFor({ state: 'visible', timeout: 20000 })
+      .then(() => 'game').catch(() => null),
+    page.locator('.charsel-screen .charsel-card:not(.charsel-card-create)', { hasText: name }).first()
+      .waitFor({ state: 'visible', timeout: 20000 })
+      .then(() => 'card').catch(() => null),
+  ])
+
+  if (winner === 'game') {
+    await page.waitForTimeout(1000)
+    return
+  }
+  if (winner !== 'card') {
+    throw new Error(`After charcreate, neither sidebar nor character card appeared within 20s`)
+  }
   const newCard = page
-    .locator('.charsel-screen .charsel-card', { hasText: name })
-    .filter({ hasNot: page.locator('.charsel-card-create') })
+    .locator('.charsel-screen .charsel-card:not(.charsel-card-create)', { hasText: name })
     .first()
-  await newCard.waitFor({ state: 'visible', timeout: 15000 })
   await page.waitForTimeout(600)
   await newCard.click()
   await page.waitForSelector('.cmd-sidebar', { timeout: 15000 })
@@ -203,9 +220,25 @@ async function runSetupAuth() {
   console.log('Click the Google button, finish OAuth, wait for the game UI.')
   console.log(`Target: ${TARGET.url}   Saving auth to: ${AUTH_STATE}`)
 
-  const browser = await chromium.launch({ headless: false })
-  const context = await browser.newContext({ viewport: { width: 1400, height: 900 } })
+  // Google blocks OAuth in automation-flagged browsers. Use real Chrome
+  // (channel: 'chrome') and strip automation flags. Headless scenarios
+  // reuse the saved session so they never hit Google's checks.
+  const browser = await chromium.launch({
+    headless: false,
+    channel: 'chrome',
+    args: ['--disable-blink-features=AutomationControlled'],
+    ignoreDefaultArgs: ['--enable-automation'],
+  })
+  const context = await browser.newContext({
+    viewport: { width: 1400, height: 900 },
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 ' +
+      '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  })
   const page = await context.newPage()
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined })
+  })
   await page.goto(TARGET.url, { waitUntil: 'domcontentloaded' })
 
   try {
