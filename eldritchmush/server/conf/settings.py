@@ -288,3 +288,15 @@ except ImportError:
 _env_secret_key = _os_early.environ.get("DJANGO_SECRET_KEY")
 if _env_secret_key:
     SECRET_KEY = _env_secret_key
+
+# Boot-time assertion: the placeholder value that once lived in
+# secret_settings.py is known-compromised (committed to a public repo
+# before 2026-04-22). Refuse to boot if it ever resurfaces.
+_LEAKED_SECRET_KEY = 'G~RcW6"H?pmqB=#9<,_lZ+5Ji%gsAh1LbF8z(!yN'
+if globals().get("SECRET_KEY") == _LEAKED_SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY matches the value that was committed to the public "
+        "EldritchMUSH repo prior to 2026-04-22. Rotate via the "
+        "DJANGO_SECRET_KEY env var (Railway > Variables) or set a fresh "
+        "value in a local-only secret_settings.py. Refusing to boot."
+    )

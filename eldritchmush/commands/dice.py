@@ -18,9 +18,30 @@ at_cmdset_creation():
    self.add(dice.CmdDice())
 After a reload the dice (or roll) command will be available in-game.
 """
+import operator as _op
 import re
 from random import randint
 from evennia import default_cmds, CmdSet
+
+
+# Dispatch tables used to replace the legacy eval()-based modifier /
+# conditional application. Keyed by operator symbol → callable. Both
+# are fully closed sets; anything else raises TypeError in the caller.
+_MOD_OPS = {
+    "+": _op.add,
+    "-": _op.sub,
+    "*": _op.mul,
+    # Integer division matches the original eval behaviour on pure ints.
+    "/": _op.floordiv,
+}
+_COND_OPS = {
+    ">": _op.gt,
+    "<": _op.lt,
+    ">=": _op.ge,
+    "<=": _op.le,
+    "!=": _op.ne,
+    "==": _op.eq,
+}
 
 
 def roll_dice(dicenum, dicetype, modifier=None, conditional=None, return_tuple=False):
@@ -76,20 +97,19 @@ def roll_dice(dicenum, dicetype, modifier=None, conditional=None, return_tuple=F
     result = sum(rolls)
 
     if modifier:
-        # make sure to check types well before eval
         mod, modvalue = modifier
-        if mod not in ("+", "-", "*", "/"):
+        fn = _MOD_OPS.get(mod)
+        if fn is None:
             raise TypeError("Non-supported dice modifier: %s" % mod)
-        modvalue = int(modvalue)  # for safety
-        result = eval("%s %s %s" % (result, mod, modvalue))
+        result = fn(result, int(modvalue))
     outcome, diff = None, None
     if conditional:
-        # make sure to check types well before eval
         cond, condvalue = conditional
-        if cond not in (">", "<", ">=", "<=", "!=", "=="):
+        fn = _COND_OPS.get(cond)
+        if fn is None:
             raise TypeError("Non-supported dice result conditional: %s" % conditional)
-        condvalue = int(condvalue)  # for safety
-        outcome = eval("%s %s %s" % (result, cond, condvalue))  # True/False
+        condvalue = int(condvalue)
+        outcome = fn(result, condvalue)
         diff = abs(result - condvalue)
     if return_tuple:
         return result, outcome, diff, rolls

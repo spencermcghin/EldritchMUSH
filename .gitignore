@@ -1,6 +1,5 @@
 # Custom
 *.db3
-!eldritchmush/server/evennia.db3
 *.log
 *.pid
 __pycache__
@@ -13,8 +12,11 @@ localevenv
 .venv/
 .idea/
 
-# OAuth / API secrets — never commit
+# Secrets / local config — never commit. The project DB is also gitignored
+# (see *.db3 above) — it contained real password hashes and PII before,
+# so never re-add a whitelist exception for it.
 eldritchmush/server/conf/oauth_secrets.py
+eldritchmush/server/conf/secret_settings.py
 .env
 .env.local
 

@@ -124,24 +124,40 @@ evennia migrate --no-input || true
 # check_database() in evennia_launcher.py does AccountDB.objects.get(id=1) and
 # if not found, recursively calls create_superuser() which crashes in non-TTY.
 # We must pre-create the account so check_database() passes immediately.
+#
+# Refuse to boot if ADMIN_PASSWORD is unset when the account does not
+# already exist — a hard-coded default would leave the initial superuser
+# with a guessable password.
 echo "=== Pre-creating Account #1 ==="
 python3 -c "
-import os, django
+import os, sys, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
 django.setup()
 from evennia.accounts.models import AccountDB
 from django.contrib.auth.hashers import make_password
-username = os.environ.get('ADMIN_USERNAME', 'admin')
-password = os.environ.get('ADMIN_PASSWORD', 'changeme123!')
-email = os.environ.get('ADMIN_EMAIL', 'admin@eldritchmush.com')
-if not AccountDB.objects.filter(id=1).exists():
+if AccountDB.objects.filter(id=1).exists():
+    print('Account #1 already exists')
+else:
+    password = os.environ.get('ADMIN_PASSWORD')
+    if not password:
+        sys.stderr.write(
+            'REFUSING TO BOOT: Account #1 does not exist and ADMIN_PASSWORD '
+            'is not set. Set ADMIN_PASSWORD (and optionally ADMIN_USERNAME, '
+            'ADMIN_EMAIL) on the environment and redeploy.\n'
+        )
+        sys.exit(1)
+    if len(password) < 12:
+        sys.stderr.write(
+            'REFUSING TO BOOT: ADMIN_PASSWORD must be at least 12 characters.\n'
+        )
+        sys.exit(1)
+    username = os.environ.get('ADMIN_USERNAME', 'admin')
+    email = os.environ.get('ADMIN_EMAIL', 'admin@eldritchmush.com')
     acct = AccountDB(id=1, username=username, email=email, is_superuser=True, is_staff=True)
     acct.password = make_password(password)
     acct.save()
     print(f'Account #1 created: {username}')
-else:
-    print('Account #1 already exists')
-" || echo "Warning: could not pre-create Account #1"
+" || exit 1
 
 # Update the django.contrib.sites Site object so allauth uses the
 # correct domain when generating OAuth callback URLs. Override
@@ -162,37 +178,51 @@ action = 'created' if created else 'updated'
 print(f'Site #1 {action}: domain={site.domain} name={site.name}')
 " || echo "Warning: could not configure Site"
 
-# Grant superuser to spencer_admin if the account exists
-echo "=== Granting superuser to spencer_admin ==="
+# Grant elevated perms to configured accounts. Config-driven, comma-
+# separated:
+#   SUPERUSER_USERNAMES=name1,name2     (promoted to is_superuser)
+#   ADMIN_USERNAMES=name1,name2         (granted Admin permstring)
+# Empty env var = no promotions at boot. Registering a username you
+# know is listed in these vars before the legit operator does is
+# therefore not a takeover vector — but it's still on the operator to
+# run those with known-real usernames only.
+echo "=== Granting configured admin roles ==="
 python3 -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
 django.setup()
 from evennia.accounts.models import AccountDB
-try:
-    acct = AccountDB.objects.get(username='spencer_admin')
+
+def _split(env):
+    return [x.strip() for x in (os.environ.get(env, '') or '').split(',') if x.strip()]
+
+for uname in _split('SUPERUSER_USERNAMES'):
+    try:
+        acct = AccountDB.objects.get(username=uname)
+    except AccountDB.DoesNotExist:
+        print(f'{uname}: account not found yet')
+        continue
     if not acct.is_superuser:
         acct.is_superuser = True
         acct.is_staff = True
         acct.save()
-        print('spencer_admin granted superuser')
+        print(f'{uname}: granted superuser')
     else:
-        print('spencer_admin already superuser')
-except AccountDB.DoesNotExist:
-    print('spencer_admin account not found yet')
+        print(f'{uname}: already superuser')
 
-# Grant Admin role to spencer2 (OAuth account)
-try:
-    acct = AccountDB.objects.get(username='spencer2')
+for uname in _split('ADMIN_USERNAMES'):
+    try:
+        acct = AccountDB.objects.get(username=uname)
+    except AccountDB.DoesNotExist:
+        print(f'{uname}: account not found yet')
+        continue
     perms = list(acct.permissions.all())
     if 'Admin' not in perms:
         acct.permissions.add('Admin')
-        print('spencer2 granted Admin role')
+        print(f'{uname}: granted Admin role')
     else:
-        print('spencer2 already has Admin role')
-except AccountDB.DoesNotExist:
-    print('spencer2 account not found yet')
-" || echo "Warning: could not grant superuser"
+        print(f'{uname}: already has Admin role')
+" || echo "Warning: could not grant admin roles"
 
 # Repair AccountDB rows whose db_typeclass_path was never set to the
 # proper typeclass. This happens when allauth creates accounts via a
