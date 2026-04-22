@@ -7,8 +7,11 @@
 #   make stop        — stop everything
 #   make migrate     — apply Django migrations
 #   make seed        — idempotent world build (populate_mistvale.py)
-#   make playtest    — run Python smoke harness
-#   make playtest-ui — run Playwright UI harness (crafting-modal scenario)
+#   make playtest       — run Python smoke harness (ephemeral, no deploy needed)
+#   make playtest-uat   — run Playwright UI harness against uat.eldritchmush.com
+#   make playtest-prod  — run Playwright UI harness against eldritchmush.com (read-only)
+#   make playtest-auth-uat  — one-time OAuth setup for UAT (visible browser)
+#   make playtest-auth-prod — one-time OAuth setup for prod (visible browser)
 #   make logs        — tail Evennia + portal logs
 #   make clean       — remove venv, node_modules (nuclear)
 #
@@ -22,7 +25,7 @@ FRONTEND    := frontend
 UI_HARNESS  := .claude/skills/playtest/ui
 PYTHON_BIN  := /opt/homebrew/opt/python@3.11/bin/python3.11
 
-.PHONY: dev server frontend reload stop migrate seed playtest playtest-ui logs clean help
+.PHONY: dev server frontend reload stop migrate seed playtest playtest-uat playtest-prod playtest-auth-uat playtest-auth-prod logs clean help
 
 help:
 	@awk 'BEGIN{FS=" — "} /^# +make / {print $$0}' Makefile | sed 's/^# *//'
@@ -81,9 +84,19 @@ h = Harness(); \
 h.run_scenario('crafting-modal'); \
 h.teardown()"
 
-playtest-ui:
-	@if [ -z "$$PLAYTEST_USER" ]; then echo "export PLAYTEST_USER and PLAYTEST_PASS first"; exit 1; fi
-	cd $(UI_HARNESS) && node playtest-ui.mjs crafting-modal
+SCENARIO ?= crafting-modal
+
+playtest-uat:
+	cd $(UI_HARNESS) && node playtest-ui.mjs $(SCENARIO) --target=uat
+
+playtest-prod:
+	cd $(UI_HARNESS) && node playtest-ui.mjs $(SCENARIO) --target=prod
+
+playtest-auth-uat:
+	cd $(UI_HARNESS) && node playtest-ui.mjs setup-auth --target=uat
+
+playtest-auth-prod:
+	cd $(UI_HARNESS) && node playtest-ui.mjs setup-auth --target=prod
 
 logs:
 	tail -F $(GAME_DIR)/server/logs/server.log $(GAME_DIR)/server/logs/portal.log
