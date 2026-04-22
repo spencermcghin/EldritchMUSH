@@ -3,3 +3,8 @@ screenshots/
 package-lock.json
 auth-state.json
 auth-*.json
+
+# Playtest run archives: keep the textual run.md summaries committed so
+# past runs stay reviewable, but ignore per-run PNG screenshots (they're
+# reproducible by re-running and would bloat the repo).
+runs/**/*.png
