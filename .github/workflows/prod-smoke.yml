@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 15
     env:
       PLAYTEST_TARGET: prod
-      PLAYTEST_CHARACTER: UAT Bot
+      PLAYTEST_CHARACTER: Prod Bot
       PLAYTEST_AUTH_STATE: ${{ github.workspace }}/.claude/skills/playtest/ui/auth-prod.json
 
     steps:
