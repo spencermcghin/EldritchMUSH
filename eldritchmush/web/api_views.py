@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
 
+@require_http_methods(["GET"])
 def webclient_session(request):
     """
     Returns the Django session key and authenticated username for the
@@ -26,6 +27,14 @@ def webclient_session(request):
     session stays unauthenticated, lands in UnloggedinCmdSet, and
     `charcreate` (and every other Account-level command) is silently
     dropped because UnloggedinCmdSet doesn't define them.
+
+    Note: this is a GET with session-mutation side effects (writes
+    the nonce on first call / on uid change). SameSite=Lax cookies
+    block cross-site GETs from triggering it, and the write is
+    guarded by `existing_uid != user.id`. A full POST + CSRF
+    conversion is a deferred followup — it requires changing the
+    frontend to POST with the CSRF token and is tracked in the
+    security audit as M2.
     """
     import random
     from web.diag import diag_write
@@ -188,8 +197,14 @@ def _strip_ansi(text):
     return re.sub(r'\|[a-zA-Z]|\|\d{3}|\|\[?\d+', '', text or '').strip()
 
 
-def _is_admin(user):
-    """Check if the Django user is a game admin (superuser, Admin, or Builder)."""
+def _is_staff(user):
+    """Read-only staff check: superuser, Admin, or Builder.
+
+    Use this ONLY for endpoints that disclose data but do not mutate
+    state. Any endpoint that can change permissions, delete entities,
+    or bulk-mutate must use `_is_admin_or_super()` instead — Builders
+    are content-moderation staff, not privileged operators.
+    """
     if not user.is_authenticated:
         return False
     if user.is_superuser:
@@ -200,17 +215,46 @@ def _is_admin(user):
         return False
 
 
+def _is_admin_or_super(user):
+    """Strict check: superuser or Admin permission only.
+
+    Builder is explicitly excluded — Builders moderate content but
+    cannot grant roles, delete accounts/characters, or run destructive
+    admin operations. Use this for any mutation endpoint.
+    """
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    try:
+        return user.check_permstring("Admin")
+    except Exception:
+        return False
+
+
+# Legacy alias kept for any caller we might have missed in this pass.
+# New code should pick `_is_staff` (read) or `_is_admin_or_super`
+# (mutation) explicitly.
+_is_admin = _is_staff
+
+
 def npc_audit_log(request):
-    """Admin-only: return the last N NPC conversation records as JSON.
+    """Superuser/Admin only: return the last N NPC conversation records
+    as JSON. Builders are excluded — this log contains raw player
+    messages, which are PII.
 
     Query params:
       limit=int (default 200, max 1000)
 
     Response:
       {"records": [ {ts, npc, char, account, msg, reply, flags}, ... ]}
+
+    The `msg` and `reply` fields are truncated server-side to 120
+    characters before being returned, so accidental disclosure via
+    the moderation UI is bounded even if a future perm-check regresses.
     """
     user = request.user
-    if not _is_admin(user):
+    if not _is_admin_or_super(user):
         return JsonResponse({"error": "admin_required"}, status=403)
     try:
         limit = min(int(request.GET.get("limit", "200")), 1000)
@@ -219,9 +263,35 @@ def npc_audit_log(request):
     try:
         from world.ai_safety import read_audit_tail
         records = read_audit_tail(limit=limit)
-    except Exception as exc:
-        return JsonResponse({"error": f"log_read_failed: {exc}"}, status=500)
-    return JsonResponse({"records": records, "count": len(records)})
+    except Exception:
+        # Don't leak paths / stack info to the client.
+        try:
+            from web.diag import diag_write
+            import traceback
+            diag_write("npc_audit_log read failed", tb=traceback.format_exc())
+        except Exception:
+            pass
+        return JsonResponse({"error": "log_read_failed"}, status=500)
+
+    # Truncate msg/reply to cap the damage if a record contains very
+    # long text (prompt-injection attempts, long rants, etc.). The full
+    # log file is still readable on disk for superusers via the diag
+    # view plus SSH, so this is a defense-in-depth trim, not a secret.
+    def _clip(s, n=120):
+        if not isinstance(s, str):
+            return s
+        return s if len(s) <= n else s[:n] + "…"
+
+    clipped = []
+    for rec in records:
+        if isinstance(rec, dict):
+            rec = dict(rec)  # copy — don't mutate the source
+            if "msg" in rec:
+                rec["msg"] = _clip(rec["msg"])
+            if "reply" in rec:
+                rec["reply"] = _clip(rec["reply"])
+        clipped.append(rec)
+    return JsonResponse({"records": clipped, "count": len(clipped)})
 
 
 def admin_all_characters(request):
@@ -298,7 +368,7 @@ def admin_delete_character(request):
     POST body: {"character_id": 123}
     """
     user = request.user
-    if not _is_admin(user):
+    if not _is_admin_or_super(user):
         return JsonResponse({"error": "Admin access required"}, status=403)
 
     try:
@@ -370,7 +440,7 @@ def admin_bulk_delete_characters(request):
     [{id, error}], count}.
     """
     user = request.user
-    if not _is_admin(user):
+    if not _is_admin_or_super(user):
         return JsonResponse({"error": "admin_required"}, status=403)
     try:
         data = json.loads(request.body or "{}")
@@ -443,7 +513,7 @@ def admin_purge_legacy(request):
       }
     """
     user = request.user
-    if not _is_admin(user):
+    if not _is_admin_or_super(user):
         return JsonResponse({"error": "admin_required"}, status=403)
 
     try:
@@ -524,7 +594,46 @@ def admin_purge_legacy(request):
     }
 
     if mode == "preview":
+        # Include a hint that execute mode needs confirm_token so the
+        # React UI can render the correct two-step flow without a
+        # dedicated probe endpoint.
+        payload["confirm_token_required"] = True
         return JsonResponse(payload)
+
+    # Defense-in-depth: refuse to delete any account that holds an
+    # admin permstring (Admin / Builder / Developer) even if the
+    # _is_admin_account() check somehow missed it. Catches case-skew
+    # or partial-data regressions that would otherwise drop a staff
+    # account into `doomed_accounts`.
+    for acct in list(doomed_accounts):
+        try:
+            if _is_admin_account(acct):
+                return JsonResponse(
+                    {
+                        "error": "refuse_admin_in_doomed",
+                        "blocked_account": {"id": acct.id, "username": acct.username},
+                    },
+                    status=400,
+                )
+        except Exception:
+            # If we can't verify, refuse rather than proceed.
+            return JsonResponse(
+                {"error": "perm_check_failed", "account_id": getattr(acct, "id", None)},
+                status=500,
+            )
+
+    # Require a confirm_token round-trip from the preview response.
+    # The token value itself is irrelevant — the point is that the
+    # caller must do preview first, read the counts, and opt in by
+    # echoing any non-empty string back. Prevents a single-shot
+    # execute call from ever being generated by accident.
+    confirm_token = data.get("confirm_token")
+    if not confirm_token or not isinstance(confirm_token, str):
+        return JsonResponse(
+            {"error": "confirm_token_required",
+             "hint": "Call with mode=preview first, then include a non-empty confirm_token string."},
+            status=400,
+        )
 
     # Execute — actually delete.
     deleted = {"accounts": 0, "characters": 0, "npcs": 0}
@@ -610,11 +719,18 @@ def admin_all_accounts(request):
 @require_http_methods(["POST"])
 def admin_set_role(request):
     """
-    Admin-only: add or remove a permission/role on an account.
-    POST body: {"account_id": 123, "role": "Builder", "action": "add"|"remove"}
+    Superuser / Admin only: add or remove a permission/role on an
+    account. POST body: {"account_id": 123, "role": "Builder",
+    "action": "add"|"remove"}
+
+    Rules:
+      - Only superusers can grant or revoke Admin or Developer. Admin
+        users can only manage Builder/Player.
+      - The caller cannot mutate their own role — self-escalation and
+        self-demotion both return 400.
     """
     user = request.user
-    if not _is_admin(user):
+    if not _is_admin_or_super(user):
         return JsonResponse({"error": "Admin access required"}, status=403)
 
     try:
@@ -631,6 +747,22 @@ def admin_set_role(request):
     valid_roles = ["Player", "Builder", "Admin", "Developer"]
     if role not in valid_roles:
         return JsonResponse({"error": f"Invalid role. Must be one of: {valid_roles}"}, status=400)
+
+    # Block self-targeting. Without this, a compromised or overzealous
+    # Admin could demote themselves by mistake, and any future logic
+    # that accepts the role directly without the full _is_admin_or_super
+    # check would risk letting Builder self-promote.
+    if int(account_id) == getattr(user, "id", None):
+        return JsonResponse(
+            {"error": "Cannot change your own role"}, status=400
+        )
+
+    # Admin/Developer may only be granted or revoked by a superuser.
+    if role in ("Admin", "Developer") and not user.is_superuser:
+        return JsonResponse(
+            {"error": "Only superusers can grant or revoke Admin/Developer"},
+            status=403,
+        )
 
     from evennia.accounts.models import AccountDB
     try:

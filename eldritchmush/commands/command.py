@@ -950,7 +950,7 @@ class SetAlchemist(Command):
         except ValueError:
             self.caller.msg(errmsg)
             return
-        if not (0 <= alchemist <= 5):
+        if not (0 <= alchemist <= 3):
             self.caller.msg(errmsg)
             return
         # at this point the argument is tested as valid. Let's set it.
