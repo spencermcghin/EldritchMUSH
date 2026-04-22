@@ -66,9 +66,9 @@ def create_obj(key, typeclass_path, location, desc):
 print("\n=== ROOMS ===")
 
 tavern = get_or_create_room(
-    "The Raven's Rest Tavern",
+    "Songbird's Rest",
     "typeclasses.rooms.Room",
-    "The Raven's Rest is a low-ceilinged hall smelling of tallow smoke, stale ale, "
+    "Songbird's Rest is a low-ceilinged hall smelling of tallow smoke, stale ale, "
     "and old blood. Rough-hewn tables bear the scars of a hundred brawls. A great "
     "hearth crackles in the west wall, casting iron-red shadows across faces better "
     "left unlit. The barkeep watches everything and says nothing.\n\n"
@@ -197,7 +197,7 @@ link(north_field, "north", graveyard,   "south", "n", "s")
 limbo = ObjectDB.objects.filter(id=2).first()
 if limbo:
     limbo.db.desc = (
-        "A featureless void between worlds. The Raven's Rest Tavern lies |wsouth|n."
+        "A featureless void between worlds. Songbird's Rest lies |wsouth|n."
     )
     if not ObjectDB.objects.filter(db_key="south", db_location=limbo.pk).exists():
         evennia.create_object(
@@ -352,7 +352,7 @@ def create_quest_giver(key, location, desc):
 create_quest_giver(
     "elara",
     tavern,
-    "The innkeeper of the Raven & Candle. Dark circles under her eyes and hands "
+    "The innkeeper of Songbird's Rest. Dark circles under her eyes and hands "
     "that won't stay still. Something is wrong and she clearly needs help.",
 )
 

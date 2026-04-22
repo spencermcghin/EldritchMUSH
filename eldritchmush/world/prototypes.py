@@ -3037,3 +3037,779 @@ RECIPE_ELIXIR_OF_REVELATION = {
     "value_silver": 25,
 }
 
+
+# ===========================================================================
+# CRAFTING SCHEMATIC SCROLLS (auto-generated from world/schematics_master.csv)
+# Players learn these via:  learn <scroll>
+# Sold by appropriate guild/vendor NPCs.
+# ===========================================================================
+
+SCHEMATIC_LOCKPICKING_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Lockpicking Kit',
+    "aliases": ['lockpicking kit schematic', 'lockpicking kit recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Lockpicking Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'LOCKPICKING_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_APOTHECARY_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Apothecary Kit',
+    "aliases": ['apothecary kit schematic', 'apothecary kit recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Apothecary Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'APOTHECARY_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_ARTIFICER_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Artificer Kit',
+    "aliases": ['artificer kit schematic', 'artificer kit recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Artificer Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'ARTIFICER_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_BLACKSMITH_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Blacksmith Kit',
+    "aliases": ['blacksmith kit schematic', 'blacksmith kit recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Blacksmith Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'BLACKSMITH_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_CLOTH_GAMBESON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Cloth Gambeson',
+    "aliases": ['cloth gambeson schematic', 'cloth gambeson recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Cloth Gambeson (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'CLOTH_GAMBESON',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_BOWYER_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Bowyer Kit',
+    "aliases": ['bowyer kit schematic', 'bowyer kit recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Bowyer Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'BOWYER_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_GUNSMITH_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Gunsmith Kit',
+    "aliases": ['gunsmith kit schematic', 'gunsmith kit recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Gunsmith Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'GUNSMITH_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_RESURRECTIONISTS_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Resurrectionist's Kit",
+    "aliases": ["resurrectionist's kit schematic", "resurrectionist's kit recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Resurrectionist's Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'RESURRECTIONISTS_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_CHIRURGEON_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Chirurgeon's Kit",
+    "aliases": ["chirurgeon's kit schematic", "chirurgeon's kit recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Chirurgeon's Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'CHIRURGEON_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_CRAFTSMANSHIP_TOOLS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Craftsmanship Tools',
+    "aliases": ['craftsmanship tools schematic', 'craftsmanship tools recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Craftsmanship Tools (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'CRAFTSMANSHIP_TOOLS',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_HIGHWAYMAN_CLOAK = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Highwayman's Cloak",
+    "aliases": ["highwayman's cloak schematic", "highwayman's cloak recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Highwayman's Cloak (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HIGHWAYMAN_CLOAK',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_FINE_CLOTHING = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Fine Clothing',
+    "aliases": ['fine clothing schematic', 'fine clothing recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Fine Clothing (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'FINE_CLOTHING',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_PEASANTS_GARB = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Peasant's Garb",
+    "aliases": ["peasant's garb schematic", "peasant's garb recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Peasant's Garb (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'PEASANTS_GARB',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_NOBLES_GARB = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Noble's Garb",
+    "aliases": ["noble's garb schematic", "noble's garb recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Noble's Garb (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'NOBLES_GARB',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_DUELIST_GLOVES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Duelist's Gloves",
+    "aliases": ["duelist's gloves schematic", "duelist's gloves recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Duelist's Gloves (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'DUELIST_GLOVES',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_BASIC_LOCK = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Basic Lock',
+    "aliases": ['basic lock schematic', 'basic lock recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Basic Lock (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'BASIC_LOCK',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_STALWART_BOOTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Stalwart Boots',
+    "aliases": ['stalwart boots schematic', 'stalwart boots recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Stalwart Boots (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STALWART_BOOTS',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_LIGHT_BOOTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Light Boots',
+    "aliases": ['light boots schematic', 'light boots recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Light Boots (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'LIGHT_BOOTS',
+    "value_silver": 15,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_PLAGUISTS_CASQUE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Plaguist's Casque",
+    "aliases": ["plaguist's casque schematic", "plaguist's casque recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Plaguist's Casque (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'PLAGUISTS_CASQUE',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_SHADOW_MANTLE = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Shadow Mantle',
+    "aliases": ['shadow mantle schematic', 'shadow mantle recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Shadow Mantle (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'SHADOW_MANTLE',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_MAGNIFICENT_CLOTHING = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Magnificent Clothing',
+    "aliases": ['magnificent clothing schematic', 'magnificent clothing recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Magnificent Clothing (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MAGNIFICENT_CLOTHING',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_TRADESMENS_GARMENTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Tradesmen's Garments",
+    "aliases": ["tradesmen's garments schematic", "tradesmen's garments recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Tradesmen's Garments (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'TRADESMENS_GARMENTS',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_LORDLY_CLOTHING = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Lordly Clothing',
+    "aliases": ['lordly clothing schematic', 'lordly clothing recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Lordly Clothing (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'LORDLY_CLOTHING',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_FINE_DUELISTS_GLOVES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Fine Duelist's Gloves",
+    "aliases": ["fine duelist's gloves schematic", "fine duelist's gloves recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Fine Duelist's Gloves (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'FINE_DUELISTS_GLOVES',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_QUALITY_LOCK = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Quality Lock',
+    "aliases": ['quality lock schematic', 'quality lock recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Quality Lock (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'QUALITY_LOCK',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_HUNTERS_BOOTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Hunter's Boots",
+    "aliases": ["hunter's boots schematic", "hunter's boots recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Hunter's Boots (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HUNTERS_BOOTS',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_SWORDDANCERS_BOOTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Sworddancer's Boots",
+    "aliases": ["sworddancer's boots schematic", "sworddancer's boots recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Sworddancer's Boots (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'SWORDDANCERS_BOOTS',
+    "value_silver": 24,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_DARK_SILK_CLOAK = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Dark Silk Cloak',
+    "aliases": ['dark silk cloak schematic', 'dark silk cloak recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Dark Silk Cloak (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'DARK_SILK_CLOAK',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_EXQUISITE_CLOTHING = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Exquisite Clothing',
+    "aliases": ['exquisite clothing schematic', 'exquisite clothing recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Exquisite Clothing (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'EXQUISITE_CLOTHING',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_PROFESSIONALS_VESTMENTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Professional's Vestments",
+    "aliases": ["professional's vestments schematic", "professional's vestments recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Professional's Vestments (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'PROFESSIONALS_VESTMENTS',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_RAIMENT_OF_HIGH_LORD = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Raiment of the High Lord',
+    "aliases": ['raiment of the high lord schematic', 'raiment of the high lord recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Raiment of the High Lord (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'RAIMENT_OF_HIGH_LORD',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_MASTER_DUELISTS_GLOVES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Master Duelist's Gloves",
+    "aliases": ["master duelist's gloves schematic", "master duelist's gloves recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Master Duelist's Gloves (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTER_DUELISTS_GLOVES',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_MASTERWORK_LOCK = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Lock',
+    "aliases": ['masterwork lock schematic', 'masterwork lock recipe'],
+    "desc": "A detailed artificer schematic describing how to craft Masterwork Lock (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_LOCK',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_KNIGHTS_BOOTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Knight's Boots",
+    "aliases": ["knight's boots schematic", "knight's boots recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Knight's Boots (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'KNIGHTS_BOOTS',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_THIEFS_BOOTS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": "Schematic: Thief's Boots",
+    "aliases": ["thief's boots schematic", "thief's boots recipe"],
+    "desc": "A detailed artificer schematic describing how to craft Thief's Boots (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'THIEFS_BOOTS',
+    "value_silver": 36,
+    "schematic_craft_type": 'Artificer',
+}
+
+SCHEMATIC_IRON_SHIELD = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Shield',
+    "aliases": ['iron shield schematic', 'iron shield recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Shield (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_SHIELD',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_LEATHER_ARMOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Leather Armor',
+    "aliases": ['leather armor schematic', 'leather armor recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Leather Armor (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'LEATHER_ARMOR',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IRON_CHAIN_SHIRT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Chain Shirt',
+    "aliases": ['iron chain shirt schematic', 'iron chain shirt recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Chain Shirt (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_CHAIN_SHIRT',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IRON_COAT_OF_PLATES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Scalemail/Coat of Plates',
+    "aliases": ['iron scalemail/coat of plates schematic', 'iron scalemail/coat of plates recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Scalemail/Coat of Plates (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_COAT_OF_PLATES',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IRON_PLATEMAIL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Platemail',
+    "aliases": ['iron platemail schematic', 'iron platemail recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Platemail (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_PLATEMAIL',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IRON_SMALL_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Small and Throwing Weapons',
+    "aliases": ['iron small and throwing weapons schematic', 'iron small and throwing weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Small and Throwing Weapons (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_SMALL_WEAPON',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IRON_MEDIUM_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Medium Weapons',
+    "aliases": ['iron medium weapons schematic', 'iron medium weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Medium Weapons (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_MEDIUM_WEAPON',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IRON_LARGE_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Iron Large Weapons',
+    "aliases": ['iron large weapons schematic', 'iron large weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Iron Large Weapons (Level 0). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IRON_LARGE_WEAPON',
+    "value_silver": 9,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_PATCH_KIT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Patch Kit',
+    "aliases": ['patch kit schematic', 'patch kit recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Patch Kit (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'PATCH_KIT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_SHIELD = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Shield',
+    "aliases": ['hardened iron shield schematic', 'hardened iron shield recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Shield (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_SHIELD',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_LEATHER_ARMOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Leather Armor',
+    "aliases": ['hardened leather armor schematic', 'hardened leather armor recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Leather Armor (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_LEATHER_ARMOR',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_CHAIN_SHIRT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Chain Shirt',
+    "aliases": ['hardened iron chain shirt schematic', 'hardened iron chain shirt recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Chain Shirt (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_CHAIN_SHIRT',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_COAT_OF_PLATES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Scalemail/Coat of Plates',
+    "aliases": ['hardened iron scalemail/coat of plates schematic', 'hardened iron scalemail/coat of plates recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Scalemail/Coat of Plates (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_COAT_OF_PLATES',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_PLATE_ARMOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Plate Armor',
+    "aliases": ['hardened iron plate armor schematic', 'hardened iron plate armor recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Plate Armor (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_PLATE_ARMOR',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_SMALL_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Small and Throwing Weapons',
+    "aliases": ['hardened iron small and throwing weapons schematic', 'hardened iron small and throwing weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Small and Throwing Weapons (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_SMALL_WEAPON',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_MEDIUM_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Medium Weapons',
+    "aliases": ['hardened iron medium weapons schematic', 'hardened iron medium weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Medium Weapons (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_MEDIUM_WEAPON',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_HARDENED_IRON_LARGE_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Hardened Iron Large Weapons',
+    "aliases": ['hardened iron large weapons schematic', 'hardened iron large weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Hardened Iron Large Weapons (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'HARDENED_IRON_LARGE_WEAPON',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_REVIVICATOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Revivicator',
+    "aliases": ['revivicator schematic', 'revivicator recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Revivicator (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'REVIVICATOR',
+    "value_silver": 15,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_SHIELD = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Shield',
+    "aliases": ['steel shield schematic', 'steel shield recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Shield (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_SHIELD',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_IMPROVED_LEATHER_ARMOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Improved Leather Armor',
+    "aliases": ['improved leather armor schematic', 'improved leather armor recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Improved Leather Armor (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'IMPROVED_LEATHER_ARMOR',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_CHAIN_SHIRT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Chain Shirt',
+    "aliases": ['steel chain shirt schematic', 'steel chain shirt recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Chain Shirt (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_CHAIN_SHIRT',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_COAT_OF_PLATES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Coat of Plates',
+    "aliases": ['steel coat of plates schematic', 'steel coat of plates recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Coat of Plates (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_COAT_OF_PLATES',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_PLATE_ARMOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Plate Armor',
+    "aliases": ['steel plate armor schematic', 'steel plate armor recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Plate Armor (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_PLATE_ARMOR',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_SMALL_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Small Weapon',
+    "aliases": ['steel small weapon schematic', 'steel small weapon recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Small Weapon (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_SMALL_WEAPON',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_MEDIUM_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Medium Weapons',
+    "aliases": ['steel medium weapons schematic', 'steel medium weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Medium Weapons (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_MEDIUM_WEAPON',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_STEEL_LARGE_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Steel Large Weapons',
+    "aliases": ['steel large weapons schematic', 'steel large weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Steel Large Weapons (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'STEEL_LARGE_WEAPON',
+    "value_silver": 24,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_SHIELD = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Shield',
+    "aliases": ['masterwork steel shield schematic', 'masterwork steel shield recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Shield (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_SHIELD',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_LEATHER_ARMOR = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Leather Armor',
+    "aliases": ['masterwork leather armor schematic', 'masterwork leather armor recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Leather Armor (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_LEATHER_ARMOR',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_CHAIN_SHIRT = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Chain Shirt',
+    "aliases": ['masterwork steel chain shirt schematic', 'masterwork steel chain shirt recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Chain Shirt (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_CHAIN_SHIRT',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_COAT_OF_PLATES = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Coat of Plates',
+    "aliases": ['masterwork steel coat of plates schematic', 'masterwork steel coat of plates recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Coat of Plates (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_COAT_OF_PLATES',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_PLATE_MAIL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Plate Mail',
+    "aliases": ['masterwork steel plate mail schematic', 'masterwork steel plate mail recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Plate Mail (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_PLATE_MAIL',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_SMALL_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Small or Thrown Weapons',
+    "aliases": ['masterwork steel small or thrown weapons schematic', 'masterwork steel small or thrown weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Small or Thrown Weapons (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_SMALL_WEAPON',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_MEDIUM_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Medium Weapons',
+    "aliases": ['masterwork steel medium weapons schematic', 'masterwork steel medium weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Medium Weapons (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_MEDIUM_WEAPON',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_MASTERWORK_STEEL_LARGE_WEAPON = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Steel Large Weapons',
+    "aliases": ['masterwork steel large weapons schematic', 'masterwork steel large weapons recipe'],
+    "desc": "A detailed blacksmith schematic describing how to craft Masterwork Steel Large Weapons (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_STEEL_LARGE_WEAPON',
+    "value_silver": 36,
+    "schematic_craft_type": 'Blacksmith',
+}
+
+SCHEMATIC_ARROWS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Arrows (10)',
+    "aliases": ['arrows (10) schematic', 'arrows (10) recipe'],
+    "desc": "A detailed bowyer schematic describing how to craft Arrows (10) (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'ARROWS',
+    "value_silver": 15,
+    "schematic_craft_type": 'Bowyer',
+}
+
+SCHEMATIC_BOW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Bow',
+    "aliases": ['bow schematic', 'bow recipe'],
+    "desc": "A detailed bowyer schematic describing how to craft Bow (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'BOW',
+    "value_silver": 15,
+    "schematic_craft_type": 'Bowyer',
+}
+
+SCHEMATIC_LONGBOW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Longbow',
+    "aliases": ['longbow schematic', 'longbow recipe'],
+    "desc": "A detailed bowyer schematic describing how to craft Longbow (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'LONGBOW',
+    "value_silver": 24,
+    "schematic_craft_type": 'Bowyer',
+}
+
+SCHEMATIC_MASTERWORK_BOW = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Bow',
+    "aliases": ['masterwork bow schematic', 'masterwork bow recipe'],
+    "desc": "A detailed bowyer schematic describing how to craft Masterwork Bow (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_BOW',
+    "value_silver": 36,
+    "schematic_craft_type": 'Bowyer',
+}
+
+SCHEMATIC_BULLETS = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Bullets (3)',
+    "aliases": ['bullets (3) schematic', 'bullets (3) recipe'],
+    "desc": "A detailed gunsmith schematic describing how to craft Bullets (3) (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'BULLETS',
+    "value_silver": 15,
+    "schematic_craft_type": 'Gunsmith',
+}
+
+SCHEMATIC_CRUDE_PISTOL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Crude Pistol',
+    "aliases": ['crude pistol schematic', 'crude pistol recipe'],
+    "desc": "A detailed gunsmith schematic describing how to craft Crude Pistol (Level I). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'CRUDE_PISTOL',
+    "value_silver": 24,
+    "schematic_craft_type": 'Gunsmith',
+}
+
+SCHEMATIC_BASIC_PISTOL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Basic Pistol',
+    "aliases": ['basic pistol schematic', 'basic pistol recipe'],
+    "desc": "A detailed gunsmith schematic describing how to craft Basic Pistol (Level II). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'BASIC_PISTOL',
+    "value_silver": 24,
+    "schematic_craft_type": 'Gunsmith',
+}
+
+SCHEMATIC_MASTERWORK_PISTOL = {
+    "typeclass": "typeclasses.objects.Object",
+    "key": 'Schematic: Masterwork Pistol',
+    "aliases": ['masterwork pistol schematic', 'masterwork pistol recipe'],
+    "desc": "A detailed gunsmith schematic describing how to craft Masterwork Pistol (Level III). Use 'learn <scroll>' to memorize.",
+    "recipe_key": 'MASTERWORK_PISTOL',
+    "value_silver": 36,
+    "schematic_craft_type": 'Gunsmith',
+}
