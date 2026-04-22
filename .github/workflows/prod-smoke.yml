@@ -1,0 +1,88 @@
+name: Prod smoke (post-deploy)
+
+# Runs the Playwright UI harness against eldritchmush.com after a push
+# to `master`. Only read-only scenarios (login + crafting modal opens)
+# run against prod — the harness itself refuses anything that would
+# mutate prod state.
+#
+# Required secrets:
+#   PLAYTEST_AUTH_PROD — contents of auth-prod.json (generated locally
+#                        via `make playtest-auth-prod` and pasted in)
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Scenario name (must be in the READ_ONLY set)'
+        required: false
+        default: 'login'
+
+concurrency:
+  group: prod-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Prod Playwright smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYTEST_TARGET: prod
+      PLAYTEST_CHARACTER: UAT Bot
+      PLAYTEST_AUTH_STATE: ${{ github.workspace }}/.claude/skills/playtest/ui/auth-prod.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install harness deps
+        working-directory: .claude/skills/playtest/ui
+        run: npm install
+
+      - name: Install Playwright browsers
+        working-directory: .claude/skills/playtest/ui
+        run: npx playwright install --with-deps chromium
+
+      - name: Write auth state from secret
+        env:
+          AUTH_JSON: ${{ secrets.PLAYTEST_AUTH_PROD }}
+        run: |
+          if [ -z "$AUTH_JSON" ]; then
+            echo "::error::PLAYTEST_AUTH_PROD secret is not set. Run 'make playtest-auth-prod' locally and paste auth-prod.json into the secret."
+            exit 1
+          fi
+          printf '%s' "$AUTH_JSON" > "$PLAYTEST_AUTH_STATE"
+
+      - name: Wait for Railway deploy to settle
+        run: |
+          echo "Waiting for eldritchmush.com to be healthy..."
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" https://eldritchmush.com/health || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "✅ Health check passed on attempt $i"
+              exit 0
+            fi
+            echo "  attempt $i: $code"
+            sleep 10
+          done
+          echo "::error::Prod did not become healthy within 10 minutes"
+          exit 1
+
+      - name: Run smoke scenarios (read-only only)
+        working-directory: .claude/skills/playtest/ui
+        run: |
+          SCENARIO="${{ github.event.inputs.scenario || 'login' }}"
+          node playtest-ui.mjs "$SCENARIO" --target=prod
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-smoke-screenshots
+          path: .claude/skills/playtest/ui/screenshots/
+          retention-days: 14
