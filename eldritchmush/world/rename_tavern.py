@@ -19,18 +19,28 @@ def _sub(text, pairs):
 
 
 PAIRS = [
+    # Local-dev tavern (populate.py)
     ("The Raven's Rest is", "Songbird's Rest is"),
     ("The Raven's Rest Tavern", "Songbird's Rest"),
     ("Raven's Rest Tavern", "Songbird's Rest"),
     ("Raven & Candle", "Songbird's Rest"),
+    # Mystvale tavern (populate_mistvale.py)
+    ("The Aentact is", "Songbird's Rest is"),
+    ("The Aentact", "Songbird's Rest"),
+    ("the Aentact", "Songbird's Rest"),
+    ("Aentact", "Songbird's Rest"),
 ]
 
-# Rename the tavern room itself.
-for r in evennia.search_object("The Raven's Rest Tavern"):
-    r.key = "Songbird's Rest"
-    if r.db.desc:
-        r.db.desc = _sub(r.db.desc, PAIRS)
-    print(f"  renamed room → {r.key} (#{r.id})")
+# Rename both taverns: local-dev "The Raven's Rest Tavern" and the Mystvale
+# "The Aentact". Graveyard stays as "Raven's Rest Graveyard" because the
+# PAIRS target tavern-specific phrases ("Raven's Rest *Tavern*" etc.), not
+# the bare "Raven's Rest" substring.
+for old_key in ("The Raven's Rest Tavern", "The Aentact"):
+    for r in evennia.search_object(old_key):
+        r.key = "Songbird's Rest"
+        if r.db.desc:
+            r.db.desc = _sub(r.db.desc, PAIRS)
+        print(f"  renamed room → {r.key} (#{r.id})")
 
 # Patch descriptions on every room / NPC that mentions the old tavern
 # names. Graveyard stays as "Raven's Rest Graveyard" — PAIRS only targets

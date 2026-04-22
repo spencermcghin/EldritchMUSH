@@ -237,25 +237,44 @@ const SCENARIOS = {
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
   // description. Idempotent. Runs `world/rename_tavern.py` via @py exec.
+  // Diagnostic: list all rooms whose key mentions "tavern", "raven",
+  // "inn", or "songbird" — so we know what the target DB actually
+  // has before running a rename migration.
+  'diag-taverns': async (page) => {
+    await typeCommand(page,
+      `@py import evennia; rs = list(evennia.search_object("", exact=False)) if False else []; ` +
+      `from evennia.objects.models import ObjectDB; ` +
+      `rooms = [o for o in ObjectDB.objects.all() if o.db_typeclass_path.endswith('rooms.Room') or 'Room' in o.db_typeclass_path]; ` +
+      `matches = [r for r in rooms if any(w in (r.db_key or '').lower() for w in ['tavern','raven','inn','songbird','aentact'])]; ` +
+      `me.msg(f"[diag] tavern-ish rooms: {[(r.id, r.db_key) for r in matches]}")`)
+    await page.waitForTimeout(1500)
+    await snap(page, '01-diag')
+  },
+
   'migrate-rename-tavern': async (page) => {
     // Base64-encoded rename migration so the payload is deploy-independent
     // (we don't need the branch merged to UAT to run it). Source lives in
     // eldritchmush/world/rename_tavern.py; regenerate the b64 with the
     // helper in that file when the migration changes.
     const MIGRATION_B64 =
-      'aW1wb3J0IGV2ZW5uaWEKUEFJUlMgPSBbKCJUaGUgUmF2ZW4ncyBSZXN0IGlzIiwgIlNvbmdiaXJ' +
-      'kJ3MgUmVzdCBpcyIpLAogICAgICAgICAoIlRoZSBSYXZlbidzIFJlc3QgVGF2ZXJuIiwgIlNvbm' +
-      'diaXJkJ3MgUmVzdCIpLAogICAgICAgICAoIlJhdmVuJ3MgUmVzdCBUYXZlcm4iLCAiU29uZ2Jpc' +
-      'mQncyBSZXN0IiksCiAgICAgICAgICgiUmF2ZW4gJiBDYW5kbGUiLCAiU29uZ2JpcmQncyBSZXN0' +
-      'IildCmRlZiBzdWIocyk6CiAgICBpZiBub3QgczogcmV0dXJuIHMKICAgIGZvciBvLCBuIGluIFB' +
-      'BSVJTOgogICAgICAgIHMgPSBzLnJlcGxhY2UobywgbikKICAgIHJldHVybiBzCnJlbmFtZWQgPS' +
-      'AwCnRvdWNoZWQgPSAwCmZvciByIGluIGV2ZW5uaWEuc2VhcmNoX29iamVjdCgiVGhlIFJhdmVuJ' +
-      '3MgUmVzdCBUYXZlcm4iKToKICAgIHIua2V5ID0gIlNvbmdiaXJkJ3MgUmVzdCIKICAgIHIuZGIu' +
-      'ZGVzYyA9IHN1YihyLmRiLmRlc2MpCiAgICByZW5hbWVkICs9IDEKZm9yIG8gaW4gZXZlbm5pYS5' +
-      'zZWFyY2hfb2JqZWN0KCIiKToKICAgIGQgPSBvLmRiLmRlc2MKICAgIGlmIGQgYW5kIHN1YihkKS' +
-      'AhPSBkOgogICAgICAgIG8uZGIuZGVzYyA9IHN1YihkKQogICAgICAgIHRvdWNoZWQgKz0gMQptZ' +
-      'S5tc2coZiJbbWlncmF0ZV0gcmVuYW1lZCB7cmVuYW1lZH0gdGF2ZXJuIHJvb20ocyk7IHBhdGNo' +
-      'ZWQge3RvdWNoZWR9IGRlc2MocykiKQo='
+      'aW1wb3J0IGV2ZW5uaWEKUEFJUlMgPSBbKCJUaGUgUmF2ZW4ncyBSZXN0IGlzIiwgIlNvbmdi' +
+      'aXJkJ3MgUmVzdCBpcyIpLAogICAgICAgICAoIlRoZSBSYXZlbidzIFJlc3QgVGF2ZXJuIiwg' +
+      'IlNvbmdiaXJkJ3MgUmVzdCIpLAogICAgICAgICAoIlJhdmVuJ3MgUmVzdCBUYXZlcm4iLCAi' +
+      'U29uZ2JpcmQncyBSZXN0IiksCiAgICAgICAgICgiUmF2ZW4gJiBDYW5kbGUiLCAiU29uZ2Jp' +
+      'cmQncyBSZXN0IiksCiAgICAgICAgICgiVGhlIEFlbnRhY3QgaXMiLCAiU29uZ2JpcmQncyBS' +
+      'ZXN0IGlzIiksCiAgICAgICAgICgiVGhlIEFlbnRhY3QiLCAiU29uZ2JpcmQncyBSZXN0Iiks' +
+      'CiAgICAgICAgICgidGhlIEFlbnRhY3QiLCAiU29uZ2JpcmQncyBSZXN0IiksCiAgICAgICAg' +
+      'ICgiQWVudGFjdCIsICJTb25nYmlyZCdzIFJlc3QiKV0KZGVmIHN1YihzKToKICAgIGlmIG5v' +
+      'dCBzOiByZXR1cm4gcwogICAgZm9yIG8sIG4gaW4gUEFJUlM6CiAgICAgICAgcyA9IHMucmVw' +
+      'bGFjZShvLCBuKQogICAgcmV0dXJuIHMKcmVuYW1lZCA9IDAKdG91Y2hlZCA9IDAKZm9yIG9s' +
+      'ZCBpbiAoIlRoZSBSYXZlbidzIFJlc3QgVGF2ZXJuIiwgIlRoZSBBZW50YWN0Iik6CiAgICBm' +
+      'b3IgciBpbiBldmVubmlhLnNlYXJjaF9vYmplY3Qob2xkKToKICAgICAgICByLmtleSA9ICJT' +
+      'b25nYmlyZCdzIFJlc3QiCiAgICAgICAgci5kYi5kZXNjID0gc3ViKHIuZGIuZGVzYykKICAg' +
+      'ICAgICByZW5hbWVkICs9IDEKZm9yIG8gaW4gZXZlbm5pYS5zZWFyY2hfb2JqZWN0KCIiKToK' +
+      'ICAgIGQgPSBvLmRiLmRlc2MKICAgIGlmIGQgYW5kIHN1YihkKSAhPSBkOgogICAgICAgIG8u' +
+      'ZGIuZGVzYyA9IHN1YihkKQogICAgICAgIHRvdWNoZWQgKz0gMQptZS5tc2coZiJbbWlncmF0' +
+      'ZV0gcmVuYW1lZCB7cmVuYW1lZH0gdGF2ZXJuIHJvb20ocyk7IHBhdGNoZWQge3RvdWNoZWR9' +
+      'IGRlc2MocykiKQo='
     await typeCommand(page,
       `@py import base64 as _b; exec(_b.b64decode("${MIGRATION_B64}").decode())`)
     await page.waitForTimeout(2000)
@@ -411,7 +430,7 @@ const SPEC_GRIZZLED_VETERAN = {
   // via the real drop path so the newly-added _fire_item_received →
   // quest_gather tick path is exercised end-to-end.
   key: 'grizzled_veteran', title: 'The Grizzled Veteran',
-  room: "The Aentact",
+  room: "Songbird's Rest",
   label: 'q08-grizzled-veteran',
   tick:
     `from commands.quests import quest_duel_win; ` +
@@ -572,7 +591,7 @@ async function main() {
       if (consoleAll.length < 500) consoleAll.push(`[ws<<] ${raw.slice(0, 240)}`)
       // Capture lines starting with [qtest] or [test] from server game feed.
       // Evennia wraps output frames in a Telnet/JSON envelope — cheap grep.
-      for (const tag of ['[qtest]', '[test]']) {
+      for (const tag of ['[qtest]', '[test]', '[migrate]', '[diag]']) {
         if (raw.includes(tag)) {
           const idx = raw.indexOf(tag)
           gameText.push(raw.slice(Math.max(0, idx - 10), idx + 400))
