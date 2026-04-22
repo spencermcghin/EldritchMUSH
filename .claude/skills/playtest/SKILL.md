@@ -110,88 +110,59 @@ Write scenarios that **cover the path a player would take**, not just the handle
 
 ## UI harness (Playwright + headless Chromium)
 
-The UI harness lives at `.claude/skills/playtest/ui/`. It launches a
-real headless browser, logs in through the live frontend, drives the
-React UI, and dumps screenshots you can `Read` back.
+The UI harness lives at `.claude/skills/playtest/ui/`. It targets the
+**deployed** UAT or prod environment — no local dev server. Auth is via
+Google OAuth, saved per-target after a one-time interactive setup.
 
-### One-time setup (already done on this machine)
+### Targets
 
-- `brew install node` + `brew install --cask google-chrome`
-- `python3.11 -m venv .venv && .venv/bin/pip install -r eldritchmush/requirements.txt`
-- `.venv/bin/evennia migrate`
-- Playtester account created (see credentials below), character puppeted,
-  skills/materials/recipes granted
-- `cd frontend && npm install`
-- `cd .claude/skills/playtest/ui && npm install && npx playwright install chromium`
+| Target | URL | Auth file | Allowed scenarios |
+|--------|-----|-----------|-------------------|
+| `uat`  | https://uat.eldritchmush.com | `auth-uat.json` | all |
+| `prod` | https://eldritchmush.com     | `auth-prod.json` | read-only only |
 
-### Known quirks patched in this repo
+Prod refuses any scenario not listed in the `READ_ONLY` set in
+`playtest-ui.mjs`. Keep destructive/mutating work on UAT.
 
-- `server/conf/inputfuncs.py` — direct-dispatch workaround for `ic` and
-  `ooc` (same pattern as the `charcreate` workaround). Without this,
-  the account-level cmdhandler never routes to `CmdIC.func()` and
-  puppet clicks silently fail.
-- `frontend/vite.config.js` — proxies `/api`, `/accounts`, `/admin`,
-  and `/websocket` through to Evennia on :4001/:4002 so Django session
-  cookies ride along with REST + WS.
-
-### Authentication
-
-Two paths depending on how the user signs in:
-
-**Google OAuth (default for this project):**
-OAuth cannot be automated headlessly. Run a one-time interactive setup:
+### One-time auth setup (per target, per machine)
 
 ```bash
-cd .claude/skills/playtest/ui
-node playtest-ui.mjs setup-auth
+make playtest-auth-uat       # visible browser, sign in with Google, auto-saves
+make playtest-auth-prod
 ```
 
-A visible Chrome window opens. User clicks the Google button, completes
-sign-in, and waits for the game UI to load. Cookies + localStorage are
-saved to `auth-state.json` (gitignored). All future runs reuse that
-session headlessly.
+If the saved session expires, re-run the same command.
 
-If the saved session expires (Google session cookies eventually die),
-re-run `setup-auth`. The script detects auth failure on the next run
-and prints a clear error.
+### Run a scenario
 
-**Username/password fallback (for local/dev accounts):**
 ```bash
-export PLAYTEST_USER='<name>'
-export PLAYTEST_PASS='<password>'
+make playtest-uat                         # default scenario (crafting-modal)
+make playtest-uat SCENARIO=crafting-ironhaven
+make playtest-prod SCENARIO=login         # must be read-only
 ```
 
-**Other env vars:**
+Under the hood: `node playtest-ui.mjs <scenario> --target=<uat|prod>`.
+
+**Auto-charcreate:** if `PLAYTEST_CHARACTER` (default `Aethel`) doesn't
+exist on the account, the harness clicks "Create New Character", fills
+the name, submits, then puppets the new card. Subsequent runs reuse it.
+
+### Env var overrides
+
 ```bash
-# optional — which character to puppet on the select screen (default: Aethel)
-export PLAYTEST_CHARACTER='Aethel'
-# optional override — defaults auto-detect vite 5173 then evennia 4001
-export PLAYTEST_URL='http://localhost:5173'
+PLAYTEST_TARGET=uat|prod        # default: uat
+PLAYTEST_CHARACTER=<name>       # default: Aethel
+PLAYTEST_AUTH_STATE=<path>      # CI sets this from a GitHub secret
+PLAYTEST_VERBOSE=1              # dump console + WS frames on exit
 ```
 
-### Prereqs before a run
-
-1. Venv activated (it's at repo root): `source .venv/bin/activate`
-2. Game server up: `cd eldritchmush && evennia start` (or `evennia reload`)
-3. Frontend up: `cd frontend && npm run dev` (vite @ :3000, proxies `/api`, `/admin`, `/accounts`, `/websocket` through to Evennia)
-
-The `Playtester` character is pre-provisioned with Developer perms, all
-crafting skills at level 3, all materials stocked, and a handful of
-known recipes. It lives in `The Crafter's Quarter`. Teleport via
-`@tel #<dbref>` in scenarios — room dbrefs after populate:
+### Room dbrefs (post-populate)
 
 | Room | dbref |
 |------|-------|
 | The Crafter's Quarter | #2054 |
 | Ironhaven Forge | #2078 |
 | The Back Alley | #2058 |
-
-### Run a scenario
-
-```bash
-cd .claude/skills/playtest/ui
-node playtest-ui.mjs crafting-modal
-```
 
 Screenshots land in `.claude/skills/playtest/ui/screenshots/` as
 `<scenario>-<step>.png`. Read them with the `Read` tool to actually see

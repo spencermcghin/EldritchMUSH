@@ -1,0 +1,91 @@
+name: UAT smoke (post-deploy)
+
+# Runs the Playwright UI harness against the deployed UAT environment
+# after a push to `uat` (Railway auto-deploys on the same event). We sleep
+# briefly to let Railway finish the deploy, then smoke-test the live URL.
+#
+# Required secrets:
+#   PLAYTEST_AUTH_UAT — contents of auth-uat.json (generated locally via
+#                       `make playtest-auth-uat` and pasted into the secret)
+#
+# This job gates the uat → master PR: a failing UAT smoke means prod is
+# blocked until someone either fixes the issue or marks the check as
+# non-required.
+
+on:
+  push:
+    branches: [uat]
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Scenario name'
+        required: false
+        default: 'crafting-modal'
+
+concurrency:
+  group: uat-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: UAT Playwright smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYTEST_TARGET: uat
+      PLAYTEST_CHARACTER: Aethel
+      PLAYTEST_AUTH_STATE: ${{ github.workspace }}/.claude/skills/playtest/ui/auth-uat.json
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install harness deps
+        working-directory: .claude/skills/playtest/ui
+        run: npm install
+
+      - name: Install Playwright browsers
+        working-directory: .claude/skills/playtest/ui
+        run: npx playwright install --with-deps chromium
+
+      - name: Write auth state from secret
+        env:
+          AUTH_JSON: ${{ secrets.PLAYTEST_AUTH_UAT }}
+        run: |
+          if [ -z "$AUTH_JSON" ]; then
+            echo "::error::PLAYTEST_AUTH_UAT secret is not set. Run 'make playtest-auth-uat' locally and paste auth-uat.json into the secret."
+            exit 1
+          fi
+          printf '%s' "$AUTH_JSON" > "$PLAYTEST_AUTH_STATE"
+
+      - name: Wait for Railway deploy to settle
+        run: |
+          echo "Waiting for uat.eldritchmush.com to be healthy..."
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" https://uat.eldritchmush.com/health || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "✅ Health check passed on attempt $i"
+              exit 0
+            fi
+            echo "  attempt $i: $code"
+            sleep 10
+          done
+          echo "::error::UAT did not become healthy within 10 minutes"
+          exit 1
+
+      - name: Run smoke scenarios
+        working-directory: .claude/skills/playtest/ui
+        run: |
+          SCENARIO="${{ github.event.inputs.scenario || 'crafting-modal' }}"
+          node playtest-ui.mjs "$SCENARIO" --target=uat
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: uat-smoke-screenshots
+          path: .claude/skills/playtest/ui/screenshots/
+          retention-days: 14
