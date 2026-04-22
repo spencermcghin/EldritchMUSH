@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 15
     env:
       PLAYTEST_TARGET: uat
-      PLAYTEST_CHARACTER: Aethel
+      PLAYTEST_CHARACTER: UAT Bot
       PLAYTEST_AUTH_STATE: ${{ github.workspace }}/.claude/skills/playtest/ui/auth-uat.json
 
     steps:
