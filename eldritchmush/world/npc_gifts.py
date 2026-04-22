@@ -30,7 +30,16 @@ _GIFT_RE = re.compile(r"\[GIVE:\s*([A-Za-z0-9_ \-]+?)\s*\]", re.IGNORECASE)
 
 
 def _fire_item_received(recipient, npc, item):
-    """Send an item_received OOB event to the recipient's session(s)."""
+    """Send an item_received OOB event to the recipient's session(s),
+    and tick any matching 'gather' quest objectives. Every scripted
+    item handoff (duel drops, LLM gifts, future reward flows) routes
+    through here, so this is the natural chokepoint to advance quests
+    that require receiving a named item."""
+    try:
+        from commands.quests import quest_gather
+        quest_gather(recipient, item.key, qty=1)
+    except Exception:
+        pass
     try:
         import time as _time
         payload = {
