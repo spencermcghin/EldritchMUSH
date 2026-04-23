@@ -974,6 +974,190 @@ QUESTS = {
         "prereqs": [],
     },
 
+    # ─── Event 2 Saturday anchor chain ───────────────────────────────────
+    "the_pilgrimage": {
+        "key": "the_pilgrimage",
+        "title": "The Pilgrimage",
+        "giver": "elder symund the pilgrim",
+        "description": (
+            "Elder Symund leads a small band of pilgrims from Stag Hall "
+            "north to the Shrine of Lirit, a bone-and-birch reliquary "
+            "deep in the Thornwood. The road isn't safe. Escort them "
+            "to the shrine and collect payment at the other end."
+        ),
+        "outcomes": {
+            "escort_safely": {
+                "label": "Escort the pilgrims safely to the shrine",
+                "description": (
+                    "Get Elder Symund and his pilgrims to the Shrine of "
+                    "Lirit alive. The Aurorym will remember."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Shrine of Lirit", "qty": 1,
+                     "desc": "Reach the Shrine of Lirit (0/1)"},
+                    {"type": "deliver", "target": "elder symund the pilgrim",
+                     "qty": 1, "desc": "Deliver the pilgrims safely (0/1)"},
+                ],
+                "rewards": {"silver": 20, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 1, "cirque": 0},
+            },
+            "betray_to_witches": {
+                "label": "Hand the pilgrims to the witches",
+                "description": (
+                    "The witches of the Thornwood pay well for warm "
+                    "bodies. Lead the elder to the shrine — then slip "
+                    "aside and let the forest take them."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Shrine of Lirit", "qty": 1,
+                     "desc": "Reach the Shrine of Lirit (0/1)"},
+                    {"type": "gather", "target": "witch's braid", "qty": 1,
+                     "desc": "Take a witch's braid as receipt (0/1)"},
+                ],
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -3, "outlaws": 2},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "the_heist": {
+        "key": "the_heist",
+        "title": "The Heist",
+        "giver": "quill the fixer",
+        "description": (
+            "Quill has a job: during the chaos of the Pilgrimage, someone "
+            "needs to lift a sealed Laurent strongbox from Stag Hall's "
+            "treasury. Take the job clean for the underworld — or flip "
+            "to the watch for a cleaner conscience."
+        ),
+        "outcomes": {
+            "pull_the_job": {
+                "label": "Pull the heist for the underworld",
+                "description": (
+                    "Take the strongbox, deliver it to Quill. Stag "
+                    "Watch gets smaller; your pocket gets bigger."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "laurent strongbox", "qty": 1,
+                     "desc": "Lift the Laurent strongbox (0/1)"},
+                    {"type": "deliver", "target": "quill the fixer", "qty": 1,
+                     "desc": "Deliver the strongbox to Quill (0/1)"},
+                ],
+                "rewards": {"silver": 50, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -3, "outlaws": 3, "crows": 1},
+            },
+            "flip_to_watch": {
+                "label": "Flip Quill to the watch",
+                "description": (
+                    "Meet with Quill, get the details, then turn it all "
+                    "over to Captain Thelmer. The underworld will hear "
+                    "your name — you'll want allies after this."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "laurent strongbox", "qty": 1,
+                     "desc": "Accept the strongbox as cover (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Turn Quill over to Captain Thelmer (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 4, "outlaws": -4},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "second_expedition": {
+        "key": "second_expedition",
+        "title": "The Second Expedition",
+        "giver": "curate godrick",
+        "description": (
+            "Curate Godrick has no word from the First Expedition and "
+            "will not wait any longer. He asks you to march north through "
+            "the Thornwood, find Captain Aethelflaed's camp, and bring "
+            "back Auron Magda — dead or alive. She is carrying a journal "
+            "that he wants preserved at all costs."
+        ),
+        "objectives": [
+            {"type": "explore", "target": "First Expedition Camp", "qty": 1,
+             "desc": "Reach the First Expedition Camp (0/1)"},
+            {"type": "gather", "target": "magda's journal", "qty": 1,
+             "desc": "Recover Magda's journal (0/1)"},
+            {"type": "deliver", "target": "curate godrick", "qty": 1,
+             "desc": "Return the journal to Curate Godrick (0/1)"},
+        ],
+        "rewards": {"silver": 35, "items": [], "reagents": {}},
+        "prereqs": [],
+    },
+
+    "witch_interlopers": {
+        "key": "witch_interlopers",
+        "title": "Witch Interlopers",
+        "giver": "captain aethelflaed",
+        "description": (
+            "The Thornwood witches have found the First Expedition Camp. "
+            "Captain Aethelflaed's people have little fight left. Clear "
+            "the witches — or make a deal with them. The forest is going "
+            "to speak either way."
+        ),
+        "outcomes": {
+            "clear_by_blade": {
+                "label": "Kill the witches",
+                "description": (
+                    "Put them down. Aethelflaed keeps her camp. The "
+                    "Thornwood remembers faces."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "thornwood witch", "qty": 3,
+                     "desc": "Kill the Thornwood witches (0/3)"},
+                    {"type": "deliver", "target": "captain aethelflaed", "qty": 1,
+                     "desc": "Report to Captain Aethelflaed (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "outlaws": -2},
+            },
+            "make_the_bargain": {
+                "label": "Bargain with the witches",
+                "description": (
+                    "The witches want the camp. You offer them something "
+                    "else — Aethelflaed's expedition paperwork. Crown "
+                    "furious; outlaws curious."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "expedition paperwork", "qty": 1,
+                     "desc": "Take the expedition paperwork from the camp (0/1)"},
+                    {"type": "gather", "target": "witch's braid", "qty": 1,
+                     "desc": "Receive a witch's braid as the bargain's seal (0/1)"},
+                ],
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -4, "outlaws": 2, "crows": 1},
+            },
+        },
+        "prereqs": ["second_expedition"],
+    },
+
+    "the_butcher": {
+        "key": "the_butcher",
+        "title": "The Butcher",
+        "giver": "captain aethelflaed",
+        "description": (
+            "Something took the rest of the expedition. Aethelflaed "
+            "only heard the cleaver. His hovel is further north — and "
+            "he is not a man, not anymore. Bring back his cleaver as "
+            "proof of the kill."
+        ),
+        "objectives": [
+            {"type": "kill", "target": "the butcher", "qty": 1,
+             "desc": "Kill the Butcher (0/1)"},
+            {"type": "gather", "target": "butcher's cleaver", "qty": 1,
+             "desc": "Recover the Butcher's cleaver (0/1)"},
+            {"type": "deliver", "target": "captain aethelflaed", "qty": 1,
+             "desc": "Return to Captain Aethelflaed with proof (0/1)"},
+        ],
+        "rewards": {"silver": 60, "items": [], "reagents": {}},
+        "prereqs": ["second_expedition"],
+    },
+
     "man_on_the_run": {
         "key": "man_on_the_run",
         "title": "Man on the Run",
