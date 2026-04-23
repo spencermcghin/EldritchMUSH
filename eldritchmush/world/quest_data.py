@@ -907,6 +907,137 @@ QUESTS = {
         ],
     },
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 2 — THE WRATH (Friday Night anchor quests)
+    # Source: Drive / Reboot / Event 2. Full arc spans ~20 encounters;
+    # these four cover the Friday Night opening. Saturday content will
+    # be added in a later pass.
+    # ─────────────────────────────────────────────────────────────────────────
+    "festival_of_lights": {
+        "key": "festival_of_lights",
+        "title": "The Festival of Lights",
+        "giver": "branwyn the festival herald",
+        "description": (
+            "House Laurent's yearly Festival of Lights opens at Stag Hall "
+            "tonight. Branwyn the herald is recruiting willing hands to "
+            "hang the last lanterns in the courtyard before dusk — the "
+            "fort has been tense of late and the ritual matters more than "
+            "usual. A simple task; the Laurents remember those who show up."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "paper lantern", "qty": 2,
+             "desc": "Gather paper lanterns from the courtyard (0/2)"},
+            {"type": "deliver", "target": "branwyn the festival herald",
+             "qty": 1, "desc": "Return to Branwyn with the lanterns hung (0/1)"},
+        ],
+        "rewards": {"silver": 10, "items": [], "reagents": {}},
+        "prereqs": [],
+    },
+
+    "signs_of_fair_folk": {
+        "key": "signs_of_fair_folk",
+        "title": "Signs of the Fair Folk",
+        "giver": "captain thelmer of the stag watch",
+        "description": (
+            "Captain Thelmer's patrols keep finding small stick-and-bone "
+            "shrines around the fort, the forest road, and the Old Road "
+            "south. He wants four of them collected and brought to him — "
+            "whatever they are, he wants them OFF his land."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "stick-and-bone shrine", "qty": 4,
+             "desc": "Gather stick-and-bone shrines (0/4)"},
+            {"type": "deliver", "target": "captain thelmer of the stag watch",
+             "qty": 1, "desc": "Deliver the shrines to Captain Thelmer (0/1)"},
+        ],
+        "rewards": {"silver": 15, "items": [], "reagents": {}},
+        "prereqs": [],
+    },
+
+    "caravan_attack": {
+        "key": "caravan_attack",
+        "title": "Caravan Attack",
+        "giver": "captain thelmer of the stag watch",
+        "description": (
+            "A Laurent supply caravan has come under attack on the Old "
+            "Road. The raiders are wearing stolen Laurent tabards — worse, "
+            "they know the watch's patrol schedule. Thelmer wants them "
+            "put down before the survivors reach the Thornwood."
+        ),
+        "objectives": [
+            {"type": "kill", "target": "caravan raider", "qty": 3,
+             "desc": "Put down the caravan raiders (0/3)"},
+            {"type": "deliver", "target": "captain thelmer of the stag watch",
+             "qty": 1, "desc": "Report the ambush cleared (0/1)"},
+        ],
+        "rewards": {"silver": 25, "items": [], "reagents": {}},
+        "prereqs": [],
+    },
+
+    "man_on_the_run": {
+        "key": "man_on_the_run",
+        "title": "Man on the Run",
+        "giver": "captain thelmer of the stag watch",
+        "description": (
+            "Lynden, a convicted murderer awaiting the rope, broke out of "
+            "the Stag Watch's stocks during the festival and fled into "
+            "the Thornwood. The fort wants him back — dead or alive — "
+            "before he disappears into the woods for good."
+        ),
+        "outcomes": {
+            "bring_him_dead": {
+                "label": "Kill Lynden and bring proof",
+                "description": (
+                    "Put Lynden down and recover his confession as proof. "
+                    "The Crown and the Stag Watch reward decisiveness."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "lynden the murderer", "qty": 1,
+                     "desc": "Kill Lynden the Murderer (0/1)"},
+                    {"type": "gather", "target": "lynden's confession", "qty": 1,
+                     "desc": "Recover Lynden's confession (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Return to Captain Thelmer (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "outlaws": -1},
+            },
+            "take_him_alive": {
+                "label": "Take Lynden alive for trial",
+                "description": (
+                    "Bring Lynden back so the fort can hang him properly. "
+                    "Extra coin, the Aurorym's quiet approval, but the "
+                    "harder path."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Thornwood Edge", "qty": 1,
+                     "desc": "Track Lynden to the Thornwood Edge (0/1)"},
+                    {"type": "gather", "target": "lynden's confession", "qty": 1,
+                     "desc": "Confiscate Lynden's confession (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Hand over the confession for the trial (0/1)"},
+                ],
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 4},
+            },
+            "let_him_run": {
+                "label": "Let Lynden disappear into the woods",
+                "description": (
+                    "The Thornwood will handle him one way or another. "
+                    "Walk away. No Crown coin, but the outlaw network "
+                    "remembers names."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Thornwood Edge", "qty": 1,
+                     "desc": "Follow Lynden to the Thornwood Edge (0/1)"},
+                ],
+                "rewards": {"silver": 0, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -2, "outlaws": 2},
+            },
+        },
+        "prereqs": [],
+    },
+
     "tale_to_remember": {
         "key": "tale_to_remember",
         "title": "A Tale to Remember",
