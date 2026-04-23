@@ -257,6 +257,15 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  // Event 2 Friday-night anchor quests — festival + Fair Folk signs +
+  // caravan defence + Lynden pursuit. Future sessions will add the
+  // Saturday arc (pilgrimage, expedition, murder most foul, etc.).
+  'quest-event2-friday': async (page) => {
+    await resetQuestState(page)
+    for (const spec of EVENT2_FRIDAY_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -651,6 +660,53 @@ const EVENT1_SATURDAY_QUESTS = [
   SPEC_RESCUE_BLACKSMITH_BLADE,
   SPEC_RESCUE_ALCHEMIST_BLADE,
   SPEC_RESCUE_ARTIFICER_BLADE,
+]
+
+// --- Event 2 Friday Night anchors -----------------------------------------
+const SPEC_FESTIVAL_OF_LIGHTS = {
+  key: 'festival_of_lights', title: 'The Festival of Lights',
+  room: 'Stag Hall Courtyard',
+  label: 'e2a-festival-of-lights',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `${rep(2, 'quest_gather(me, "paper lantern")')}; ` +
+    `quest_deliver(me, "paper lantern", "Branwyn the Festival Herald")`,
+}
+const SPEC_SIGNS_OF_FAIR_FOLK = {
+  key: 'signs_of_fair_folk', title: 'Signs of the Fair Folk',
+  room: 'Stag Hall — The Gate',
+  label: 'e2b-signs-of-fair-folk',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `${rep(4, 'quest_gather(me, "stick-and-bone shrine")')}; ` +
+    `quest_deliver(me, "stick-and-bone shrine", "Captain Thelmer of the Stag Watch")`,
+}
+const SPEC_CARAVAN_ATTACK = {
+  key: 'caravan_attack', title: 'Caravan Attack',
+  room: 'Stag Hall — The Gate',
+  label: 'e2c-caravan-attack',
+  tick:
+    `from commands.quests import quest_kill, quest_deliver; ` +
+    `${rep(3, 'quest_kill(me, "caravan raider")')}; ` +
+    `quest_deliver(me, "sealed report", "Captain Thelmer of the Stag Watch")`,
+}
+const SPEC_MAN_ON_THE_RUN = {
+  key: 'man_on_the_run', title: 'Man on the Run',
+  outcome: 'take_him_alive',
+  room: 'Stag Hall — The Gate',
+  label: 'e2d-man-on-the-run',
+  tick:
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "The Thornwood Edge"); ` +
+    `quest_gather(me, "lynden's confession"); ` +
+    `quest_deliver(me, "lynden's confession", "Captain Thelmer of the Stag Watch")`,
+}
+
+const EVENT2_FRIDAY_QUESTS = [
+  SPEC_FESTIVAL_OF_LIGHTS,
+  SPEC_SIGNS_OF_FAIR_FOLK,
+  SPEC_CARAVAN_ATTACK,
+  SPEC_MAN_ON_THE_RUN,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat

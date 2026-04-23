@@ -323,6 +323,18 @@ mistwall = get_or_create_room(
 # ===========================================================================
 print("\n=== MYSTVALE ROOMS ===")
 
+thornwood_edge = get_or_create_room(
+    "The Thornwood Edge",
+    "typeclasses.rooms.Room",
+    "The Old Road peters out into a hedge of pine and briar where the "
+    "Thornwood begins. A few sticks have been lashed together at the "
+    "tree line — tied with sinew and tufts of hair, crowned with a "
+    "bird's skull. The wind is wrong here, and it smells of rain "
+    "even when the sky is clear.\n\n"
+    "Back to |wThe Old Road — South|n.",
+    zone="Annwyn",
+)
+
 mystvale_training_yard = get_or_create_room(
     "Mystvale Training Yard",
     "typeclasses.rooms.Room",
@@ -903,6 +915,7 @@ link(old_road_south, "south", mistgate, "north", "s", "n")
 link(old_road_south, "south",     carran_square, "north", None, None)
 link(old_road_south, "southwest", ironhaven_square, "northeast", "sw", "ne")
 link(old_road_south, "east",      arcton_camp, "west", "e", "w")
+link(old_road_south, "thornwood",  thornwood_edge, "out", "thorn", "o")
 
 # Carran south continues to Tamris ruins (far southwestern coast)
 link(carran_square, "southwest", tamris_approach, "northeast", "sw", "ne")
@@ -4332,6 +4345,163 @@ _ensure_walkin_item(
 
 # --- Sparring ring posts for Combat Training (flavour props) ---
 # (No mechanic — just decorate the yard.)
+
+
+# ===========================================================================
+# EVENT 2 — THE WRATH (Friday Night anchor quests)
+#
+# Seeds NPCs + items for four opening Event 2 quests:
+#   - festival_of_lights     (Stag Hall Courtyard, lantern tutorial)
+#   - signs_of_fair_folk     (gather stick-and-bone shrines near the fort)
+#   - caravan_attack         (defend the Old Road caravan)
+#   - man_on_the_run         (chase Lynden the Murderer into the Thornwood)
+#
+# Saturday content (pilgrimage, expedition, butcher, darkest night, etc.)
+# will land in a later session — see the Event 2 Drive folders for the
+# broader 20-encounter arc.
+# ===========================================================================
+print("\n=== EVENT 2 FRIDAY NIGHT ===")
+
+festival_herald = _ensure_walkin_npc(
+    "Branwyn the Festival Herald", hart_hall_courtyard,
+    desc=(
+        "A Laurent herald in silver and deep green, a pole of hanging "
+        "paper lanterns balanced on her shoulder. She calls out for "
+        "volunteers to hang the last of the lanterns before dusk."
+    ),
+    aliases=("herald", "branwyn", "festival herald"),
+    aggressive=False,
+    ai_personality=(
+        "Branwyn of House Laurent, festival herald at Stag Hall. Warm, "
+        "efficient, a little too cheerful for the unease thickening the "
+        "air. Will hand a lantern to anyone who looks able-bodied."
+    ),
+    ai_knowledge=(
+        "- The Festival of Lights opens Stag Hall's yearly rites. She "
+        "wants newcomers to help hang lanterns around the courtyard.\n"
+        "- Accept |wThe Festival of Lights|n to participate. Tipping "
+        "her Bannon-coin for the Chapel poor-box is encouraged."
+    ),
+)
+
+capt_guard = _ensure_walkin_npc(
+    "Captain Thelmer of the Stag Watch", hart_hall_gate,
+    desc=(
+        "A grizzled Laurent captain in the silver-trimmed deep-green of "
+        "the Stag Watch, a hand-axe at his hip and a half-drunk cup "
+        "cooling on the gate-table. He reads patrol reports faster "
+        "than most men read their own names."
+    ),
+    aliases=("thelmer", "captain thelmer", "stag captain"),
+    aggressive=False,
+    ai_personality=(
+        "Captain Thelmer of House Laurent's Stag Watch, a veteran of the "
+        "Thornwood patrols. Pragmatic, unsentimental, short-tempered with "
+        "superstition but increasingly unable to dismiss what his scouts "
+        "are bringing back."
+    ),
+    ai_knowledge=(
+        "- Offers |wSigns of the Fair Folk|n: patrols keep finding "
+        "stick-and-bone shrines near the fort; he wants them gathered "
+        "and brought to him.\n"
+        "- Offers |wCaravan Attack|n: a Laurent supply caravan on the "
+        "Old Road is under siege — the watch needs every blade.\n"
+        "- Also has a warrant out on |wLynden|n, an escaped murderer who "
+        "fled into the Thornwood. Dead or alive, the fort wants him."
+    ),
+)
+
+curate_godrick = _ensure_walkin_npc(
+    "Curate Godrick", hart_hall_courtyard,
+    desc=(
+        "A tall, gaunt Aurorym curate in a grey cassock, a silver sun-"
+        "disc at his throat. Sleepless shadows under his eyes. He "
+        "carries a lantern even by day, as if he daren't let it go out."
+    ),
+    aliases=("godrick", "curate", "curate godrick"),
+    aggressive=False,
+    ai_personality=(
+        "Curate Godrick, Keeper of Light and Soldier of the Flame, "
+        "Aurorym chantry at Stag Hall. Fervent, exhausted, grieving. "
+        "His partner Magda left with Captain Aethelflaed's expedition "
+        "some days ago; no word has returned."
+    ),
+    ai_knowledge=(
+        "- His partner Magda joined Captain Aethelflaed's expeditionary "
+        "company into the Thornwood. Has not heard from her since.\n"
+        "- Believes the stick-and-bone shrines are a warning from "
+        "something hostile in the old forest.\n"
+        "- Will have a quest to offer on Saturday, once survivors "
+        "from the expedition return — or don't."
+    ),
+)
+
+# Stick-and-bone shrines — gather targets scattered near the fort and
+# on the road. Each is a small grisly object a player can pick up.
+for loc in (hart_hall_gate, forest_road, old_road_south, thornwood_edge):
+    _ensure_walkin_item(
+        "stick-and-bone shrine", loc,
+        desc=(
+            "A small totem of lashed sticks and finger-bones, a scrap "
+            "of cloth or tuft of hair tied at its base. It feels colder "
+            "than it ought to."
+        ),
+        aliases=("shrine", "totem", "stick shrine"),
+    )
+
+# Caravan raiders on the Old Road — aggressive NPCs for caravan_attack.
+caravan_raider = _ensure_walkin_npc(
+    "caravan raider", old_road_south,
+    desc=(
+        "A rangy fighter in pitched leathers, a blackened spear in one "
+        "hand and a stolen Laurent tabard tied round his arm."
+    ),
+    aliases=("raider",),
+    aggressive=True,
+    count=3,
+)
+for r in ObjectDB.objects.filter(db_key="caravan raider", db_location=old_road_south.pk):
+    r.db.body = 4
+    r.db.total_body = 4
+    r.db.av = 1
+
+# Lynden the Murderer — kill/capture target at the Thornwood Edge.
+lynden = _ensure_walkin_npc(
+    "Lynden the Murderer", thornwood_edge,
+    desc=(
+        "A dirty, wild-eyed man in a torn noble's coat, wrists still "
+        "ringed in manacle scars. A knife is strapped to his thigh. "
+        "He hasn't slept in days and his gaze keeps sliding past you."
+    ),
+    aliases=("lynden", "murderer"),
+    aggressive=True,
+)
+lynden.db.body = 5
+lynden.db.total_body = 5
+lynden.db.av = 1
+
+_ensure_walkin_item(
+    "lynden's confession", thornwood_edge,
+    desc=(
+        "A bloodied oilcloth packet containing Lynden's scrawled "
+        "confession — names, dates, the pattern of his crimes. Enough "
+        "to convict him without the body."
+    ),
+    aliases=("confession", "lynden's confession"),
+)
+
+# A festival lantern item, a tip-jar prop, lantern-poles — flavour for
+# the festival of lights. Just visible props, not quest-gating.
+for hart_room in (hart_hall_courtyard, hart_hall_great_hall):
+    _ensure_walkin_item(
+        "paper lantern", hart_room,
+        desc=(
+            "A slender frame of bent reed wrapped in waxed paper, a "
+            "stub of candle set in its base. Light it and hang it "
+            "from the courtyard poles."
+        ),
+        aliases=("lantern",),
+    )
 
 
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
