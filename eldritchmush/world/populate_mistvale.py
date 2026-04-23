@@ -149,6 +149,49 @@ for old_key, new_key in _NPC_RENAMES.items():
 
 
 # ===========================================================================
+# CANON LOCATION MIGRATION — Event 1 Rescue the Crafters
+# Per source plot: Marta the Alchemist is held at Owl's Roost; Fenn the
+# Artificer (and Cale the Thorn) are held at Fox Den. Earlier builds had
+# this swapped. Move any existing NPCs to their canon-correct rooms so
+# live DBs converge without spawning duplicates.
+# ===========================================================================
+print("\n=== CRAFTER LOCATION MIGRATION ===")
+_CRAFTER_CANON_ROOMS = {
+    "Marta the Alchemist": "Crow Camp — Owl's Roost",
+    "Fenn the Artificer":  "Crow Camp — Fox Den",
+    "Cale the Thorn":      "Crow Camp — Fox Den",
+}
+for npc_key, correct_room_key in _CRAFTER_CANON_ROOMS.items():
+    correct_room = ObjectDB.objects.filter(
+        db_key=correct_room_key,
+        db_typeclass_path__contains="rooms",
+    ).first()
+    if not correct_room:
+        print(f"  SKIP    : '{npc_key}' — target room '{correct_room_key}' not found yet")
+        continue
+    for npc in ObjectDB.objects.filter(
+        db_key=npc_key, db_typeclass_path__startswith="typeclasses.npc",
+    ):
+        if npc.db_location_id == correct_room.pk:
+            continue
+        old_room = npc.db_location
+        old_key = old_room.db_key if old_room else "<nowhere>"
+        # If a duplicate already exists at the correct room (prior partial
+        # migration run), delete this stale copy.
+        dup = ObjectDB.objects.filter(
+            db_key=npc_key, db_location=correct_room.pk,
+            db_typeclass_path__startswith="typeclasses.npc",
+        ).exclude(id=npc.id).first()
+        if dup:
+            print(f"  DELETE  : stale '{npc_key}' at '{old_key}' (canon copy exists at '{correct_room_key}')")
+            npc.delete()
+        else:
+            print(f"  MOVE    : '{npc_key}'  '{old_key}' → '{correct_room_key}'")
+            npc.db_location = correct_room
+            npc.save()
+
+
+# ===========================================================================
 # GATEWAY ZONE — the Arnesse-side border village on the edge of the Mists
 # ---------------------------------------------------------------------------
 # Per the Event 1 Prologue ("Many Meetings", 7th Moon Cycle 763 A.S.):
@@ -902,14 +945,18 @@ quest_gated_link(
     gate_message="|400The forest here is dense and trackless. You'd need someone to point you toward the Crow camp.|n",
 )
 quest_gated_link(
-    forest_road, "fox camp", crow_camp_fox, "out", "fox", "o",
+    # Canon: Marta the Alchemist is held at the Owl's Roost;
+    # unlocked by accepting rescue_alchemist.
+    old_road_south, "owl camp", crow_camp_owl, "out", "owl", "o",
     required_quest="rescue_alchemist",
-    gate_message="|400You don't know where the Fox Den is. The camp letter from the first raid should tell you.|n",
+    gate_message="|400You don't know where the Owl's Roost is. The camp letter from the first raid should tell you.|n",
 )
 quest_gated_link(
-    old_road_south, "owl camp", crow_camp_owl, "out", "owl", "o",
+    # Canon: Fenn the Artificer (and Cale the Thorn) are held at the
+    # Fox Den; unlocked by accepting rescue_artificer.
+    forest_road, "fox camp", crow_camp_fox, "out", "fox", "o",
     required_quest="rescue_artificer",
-    gate_message="|400The Owl's Roost is well-hidden. You'll need directions from someone who's been there.|n",
+    gate_message="|400The Fox Den is well-hidden, run by the Crow lieutenant Cale the Thorn. You'll need directions from someone who's been there.|n",
 )
 
 # Tamris ruins interior (accessed from Carran SW or Ironhaven W)
@@ -2813,25 +2860,25 @@ get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
 get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
                       crow_camp_blacksmith, _CROW_BRUISER_DESC, count=1)
 
-# --- Crow Camp — Fox Den: 3x Striker, 2x Bruiser ---
-get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
-                      crow_camp_fox, _CROW_STRIKER_DESC, count=3)
-get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
-                      crow_camp_fox, _CROW_BRUISER_DESC, count=2)
-
-# --- Crow Camp — Owl's Roost: 3x Striker, 2x Bruiser, 1x Cale ---
+# --- Crow Camp — Owl's Roost (rescue_alchemist): 3x Striker, 2x Bruiser ---
 get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
                       crow_camp_owl, _CROW_STRIKER_DESC, count=3)
 get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
                       crow_camp_owl, _CROW_BRUISER_DESC, count=2)
+
+# --- Crow Camp — Fox Den (rescue_artificer): 3x Striker, 2x Bruiser, 1x Cale ---
+get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
+                      crow_camp_fox, _CROW_STRIKER_DESC, count=3)
+get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
+                      crow_camp_fox, _CROW_BRUISER_DESC, count=2)
 get_or_create_enemies(
     "Cale the Thorn", "typeclasses.npc.CaleTheThorn",
-    crow_camp_owl,
+    crow_camp_fox,
     "A wiry, sharp-featured man in worn but well-fitted leather armor, "
-    "a steel blade at his hip. An owl-feather cloak hangs from his "
-    "shoulders. He moves with the ease of a trained swordsman — every "
-    "step deliberate, every glance appraising. A jagged scar runs from "
-    "his left ear to his jawline. He does not look like a man who loses.",
+    "a steel blade at his hip. A fox-fur cloak hangs from his shoulders. "
+    "He moves with the ease of a trained swordsman — every step "
+    "deliberate, every glance appraising. A jagged scar runs from his "
+    "left ear to his jawline. He does not look like a man who loses.",
     count=1,
 )
 
@@ -2861,7 +2908,7 @@ torben = get_or_create_npc(
         "- Was kidnapped from the Crafter's Quarter by Crow raiders three "
         "days ago. They wanted him to forge weapons.\n"
         "- His spouse Marta, an alchemist, was taken to a second camp "
-        "called the Fox Den — he overheard guards talking about it.\n"
+        "called the Owl's Roost — he overheard guards talking about it.\n"
         "- A young artificer named Fenn was taken to a third camp deeper "
         "along the Old Road.\n"
         "- The Crows are not ordinary bandits — they have leadership, "
@@ -2870,7 +2917,7 @@ torben = get_or_create_npc(
         "and forge for the settlement."
     ),
     quest_hooks=[
-        "Begs the player to rescue his spouse Marta from the Fox Den.",
+        "Begs the player to rescue his spouse Marta from the Owl's Roost.",
         "Will offer his smithing services for free once he returns to "
         "Mystvale.",
         "Knows details about the Crow organization that Ser Ewan Bannon "
@@ -2882,7 +2929,7 @@ torben = get_or_create_npc(
 
 marta = get_or_create_npc(
     key="Marta the Alchemist",
-    location=crow_camp_fox,
+    location=crow_camp_owl,
     desc=(
         "A wiry, exhausted woman with herb-stained fingers and dark "
         "circles under sharp, intelligent eyes. Her apothecary's satchel "
@@ -2899,7 +2946,7 @@ marta = get_or_create_npc(
     knowledge=(
         "- Was forced to brew poisons for the Crows. Sabotaged what she "
         "could — diluted doses, substituted inert herbs.\n"
-        "- A young artificer named Fenn is held at the Owl's Roost, the "
+        "- A young artificer named Fenn is held at the Fox Den, the "
         "biggest camp, run by a Crow lieutenant called Cale the Thorn.\n"
         "- Cale is dangerous — a trained fighter, not a common thug. He "
         "answers to someone called 'the Old Badger.'\n"
@@ -2911,7 +2958,7 @@ marta = get_or_create_npc(
         "also sells a few common reagents: |wherbs|n to see stock."
     ),
     quest_hooks=[
-        "Tells the player about Fenn at the Owl's Roost and urges them "
+        "Tells the player about Fenn at the Fox Den and urges them "
         "to finish what they started.",
         "Offers reagents as thanks — Sayge and Blackthorn from her "
         "personal stores.",
@@ -2951,7 +2998,7 @@ marta.attributes.add("recipe_shop", {
 
 fenn = get_or_create_npc(
     key="Fenn the Artificer",
-    location=crow_camp_owl,
+    location=crow_camp_fox,
     desc=(
         "A young, gangly man barely out of his apprenticeship, with "
         "clever hands and a nervous, darting gaze. His artificer's "
