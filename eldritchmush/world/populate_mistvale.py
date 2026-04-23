@@ -323,6 +323,42 @@ mistwall = get_or_create_room(
 # ===========================================================================
 print("\n=== MYSTVALE ROOMS ===")
 
+shrine_of_lirit = get_or_create_room(
+    "The Shrine of Lirit",
+    "typeclasses.rooms.Room",
+    "A glade of pale birch rings a low, mossed cairn of bone and river-"
+    "stone — the Shrine of Lirit, older than any chantry in the Vale. "
+    "Pilgrims have tied ribbons to the lower branches, their prayers "
+    "written on strips of birch-bark. The air hums, and the ribbons "
+    "move when there is no wind. Further into the Thornwood through "
+    "the narrow deer-path north.\n\n"
+    "Back |wsouth|n to the Thornwood Edge.",
+    zone="Annwyn",
+)
+
+first_expedition_camp = get_or_create_room(
+    "First Expedition Camp",
+    "typeclasses.rooms.Room",
+    "A ring of leather tents half-collapsed under moss. Cold fire-pits, "
+    "scattered Laurent colors, and a single standing banner of House "
+    "Laurent — the stag rampant — still flying above the ruin. Bodies "
+    "have been moved. Whoever's left is hiding or worse. "
+    "Deep in the Thornwood — no safe way out save back the way you came.\n\n"
+    "Back |wsouth|n to the Shrine of Lirit.",
+    zone="Annwyn",
+)
+
+the_butchers_hovel = get_or_create_room(
+    "The Butcher's Hovel",
+    "typeclasses.rooms.Room",
+    "A sagging wooden hut hidden deeper in the Thornwood, roof thatched "
+    "with something that is not straw. Hooks hang from the rafters. A "
+    "cold firepit at the center shows bones picked clean. Something "
+    "big waits in the back room.\n\n"
+    "Back |wsouth|n to First Expedition Camp.",
+    zone="Annwyn",
+)
+
 thornwood_edge = get_or_create_room(
     "The Thornwood Edge",
     "typeclasses.rooms.Room",
@@ -916,6 +952,11 @@ link(old_road_south, "south",     carran_square, "north", None, None)
 link(old_road_south, "southwest", ironhaven_square, "northeast", "sw", "ne")
 link(old_road_south, "east",      arcton_camp, "west", "e", "w")
 link(old_road_south, "thornwood",  thornwood_edge, "out", "thorn", "o")
+# Event 2 Thornwood chain — Thornwood Edge leads deeper in:
+#   Thornwood Edge → Shrine of Lirit → First Expedition Camp → Butcher's Hovel
+link(thornwood_edge, "north",       shrine_of_lirit, "south", "n", "s")
+link(shrine_of_lirit, "north",      first_expedition_camp, "south", "n", "s")
+link(first_expedition_camp, "north", the_butchers_hovel, "south", "n", "s")
 
 # Carran south continues to Tamris ruins (far southwestern coast)
 link(carran_square, "southwest", tamris_approach, "northeast", "sw", "ne")
@@ -4502,6 +4543,204 @@ for hart_room in (hart_hall_courtyard, hart_hall_great_hall):
         ),
         aliases=("lantern",),
     )
+
+
+# ===========================================================================
+# EVENT 2 — THE WRATH (Saturday anchor quests)
+#
+# Seeds the NPCs + items for five Saturday quests that follow the
+# Magda/Aethelflaed/Thornwood thread:
+#   - the_pilgrimage       (escort pilgrims north to Shrine of Lirit)
+#   - the_heist            (underworld job; betray-or-commit branching)
+#   - second_expedition    (find Magda + Capt Aethelflaed's lost camp)
+#   - witch_interlopers    (witches attack the camp; branching)
+#   - the_butcher          (boss at the end of the Thornwood chain)
+# ===========================================================================
+print("\n=== EVENT 2 SATURDAY ===")
+
+# --- The Pilgrimage ---
+pilgrim_elder = _ensure_walkin_npc(
+    "Elder Symund the Pilgrim", hart_hall_courtyard,
+    desc=(
+        "A bent old man in a travel-worn grey cassock, a staff of twisted "
+        "hawthorn in one hand, a rosary of carved bones at his belt. He "
+        "gathers his small band of pilgrims around him in the courtyard."
+    ),
+    aliases=("symund", "elder", "pilgrim elder"),
+    aggressive=False,
+    ai_personality=(
+        "Elder Symund, pilgrim elder bound for the Shrine of Lirit. "
+        "Patient, devout, a little naive about how violent the Thornwood "
+        "has become. Will pay for an escort."
+    ),
+    ai_knowledge=(
+        "- Leads a pilgrimage to the Shrine of Lirit deep in the Thornwood.\n"
+        "- Offers |wThe Pilgrimage|n: escort him and his pilgrims to the "
+        "shrine safely."
+    ),
+)
+
+_ensure_walkin_npc(
+    "frightened pilgrim", hart_hall_courtyard,
+    desc="A young pilgrim clutching a wooden icon, eyes wide at every "
+         "shadow. Clearly regretting the journey before it's begun.",
+    aliases=("pilgrim",),
+    aggressive=False,
+    count=2,
+)
+
+# --- The Heist ---
+underworld_fixer = _ensure_walkin_npc(
+    "Quill the Fixer", black_market,
+    desc=(
+        "A short, smiling woman with ink-stained fingers and a ledger "
+        "chained to her belt. Dresses for the weather, never for the "
+        "room. Has a price written down somewhere for everything."
+    ),
+    aliases=("quill", "fixer"),
+    aggressive=False,
+    ai_personality=(
+        "Quill, the Back Alley fixer. Professional, precise, discreet. "
+        "Runs heists through the underworld network — and remembers "
+        "who kept their end of the bargain and who didn't."
+    ),
+    ai_knowledge=(
+        "- Has a job: lift a sealed Laurent strongbox from the festival "
+        "treasury during the chaos of the Pilgrimage.\n"
+        "- Offers |wThe Heist|n with two paths: pull it clean for the "
+        "underworld, or flip to the watch for Crown coin."
+    ),
+)
+
+_ensure_walkin_item(
+    "laurent strongbox", hart_hall_great_hall,
+    desc=(
+        "A brass-bound iron strongbox with the Laurent stag stamped into "
+        "its lid. Heavy. Locked. The seal is House Laurent's."
+    ),
+    aliases=("strongbox", "laurent strongbox"),
+)
+
+# --- Second Expedition (finds Magda + Aethelflaed at the lost camp) ---
+aethelflaed = _ensure_walkin_npc(
+    "Captain Aethelflaed", first_expedition_camp,
+    desc=(
+        "A tall, iron-haired Laurent captain in dented plate, a bandage "
+        "around her sword-arm and a longbow across her back. She's the "
+        "only one of the expedition still standing, and she's been "
+        "standing a long time."
+    ),
+    aliases=("aethelflaed", "captain aethelflaed"),
+    aggressive=False,
+    ai_personality=(
+        "Captain Aethelflaed of House Laurent, commander of the First "
+        "Expedition. Exhausted, grim, the last officer alive. Knows she "
+        "was sent to die — and she still wants to bring her people home."
+    ),
+    ai_knowledge=(
+        "- Most of her expedition is dead. A handful, including Auron "
+        "Magda, are hiding in the trees further in.\n"
+        "- The Thornwood answered. Shrines, witches, 'fair folk' — "
+        "whatever the canon calls them, they wanted this forest back.\n"
+        "- Will tell the survivors' story to anyone bearing Curate "
+        "Godrick's sun-disc."
+    ),
+)
+
+magda = _ensure_walkin_npc(
+    "Auron Magda", first_expedition_camp,
+    desc=(
+        "A small woman in a mud-stained grey cassock, a silver sun-disc "
+        "at her throat. Her eyes are hollow. She still carries the "
+        "candle-lantern Godrick gave her."
+    ),
+    aliases=("magda", "auron magda"),
+    aggressive=False,
+    ai_personality=(
+        "Auron Magda, Aurorym priest and partner of Curate Godrick. "
+        "Bears witness to the Thornwood's horrors. Writes everything "
+        "down. Wants to go home."
+    ),
+    ai_knowledge=(
+        "- Has been keeping a journal throughout the expedition. Gives "
+        "it willingly to anyone sent by Godrick.\n"
+        "- Saw the Butcher take the others. Will not speak of him "
+        "unless directly asked."
+    ),
+)
+
+_ensure_walkin_item(
+    "magda's journal", first_expedition_camp,
+    desc=(
+        "A leather-bound journal in a woman's careful hand. Scrawled "
+        "on the inside flap: |wJournal of the Auron Magda|n. Filled "
+        "with accounts of Stag Hall's strange terrors, the expedition "
+        "into the old forest, and the growing dread among her company."
+    ),
+    aliases=("magda's journal", "journal", "magda journal"),
+)
+
+_ensure_walkin_item(
+    "expedition paperwork", first_expedition_camp,
+    desc=(
+        "A mud-smeared bundle of Laurent expedition orders, muster "
+        "rolls, and requisition forms. House Laurent will pay to see "
+        "these back in a clerk's hands."
+    ),
+    aliases=("paperwork", "expedition paperwork", "orders"),
+)
+
+# --- Witch Interlopers ---
+for _ in range(3):
+    witch = _ensure_walkin_npc(
+        "thornwood witch", first_expedition_camp,
+        desc=(
+            "A woman in tattered green and bone, eyes the wrong color, "
+            "a bent iron blade in one hand and a braid of hair in the "
+            "other. The air around her tastes of copper."
+        ),
+        aliases=("witch",),
+        aggressive=True,
+    )
+    witch.db.body = 5
+    witch.db.total_body = 5
+    witch.db.av = 1
+
+_ensure_walkin_item(
+    "witch's braid", first_expedition_camp,
+    desc=(
+        "A braid of dark hair bound with sinew — a witch's focus, "
+        "used to track people through the forest. Proof, if proof "
+        "is needed, that the witches are behind the expedition's fall."
+    ),
+    aliases=("braid", "witch's braid"),
+)
+
+# --- The Butcher ---
+the_butcher = _ensure_walkin_npc(
+    "The Butcher", the_butchers_hovel,
+    desc=(
+        "A massive figure in a stitched apron of cured skins, a "
+        "cleaver the size of a shield resting on one shoulder. Where "
+        "a face should be there is a mask of bone and sinew. It speaks "
+        "once, and the words are not a language anyone knows."
+    ),
+    aliases=("butcher", "the butcher"),
+    aggressive=True,
+)
+the_butcher.db.body = 10
+the_butcher.db.total_body = 10
+the_butcher.db.av = 3
+
+_ensure_walkin_item(
+    "butcher's cleaver", the_butchers_hovel,
+    desc=(
+        "A cleaver the length of a man's forearm, its edge notched and "
+        "rust-black with old blood. Heavy enough that you can't quite "
+        "swing it one-handed. Proof of the kill."
+    ),
+    aliases=("cleaver", "butcher's cleaver"),
+)
 
 
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

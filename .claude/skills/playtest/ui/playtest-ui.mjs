@@ -266,6 +266,12 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  'quest-event2-saturday': async (page) => {
+    await resetQuestState(page)
+    for (const spec of EVENT2_SATURDAY_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -707,6 +713,64 @@ const EVENT2_FRIDAY_QUESTS = [
   SPEC_SIGNS_OF_FAIR_FOLK,
   SPEC_CARAVAN_ATTACK,
   SPEC_MAN_ON_THE_RUN,
+]
+
+// --- Event 2 Saturday anchor chain ----------------------------------------
+const SPEC_THE_PILGRIMAGE = {
+  key: 'the_pilgrimage', title: 'The Pilgrimage',
+  outcome: 'escort_safely',
+  room: 'Stag Hall Courtyard',
+  label: 'e2sat-a-pilgrimage',
+  tick:
+    `from commands.quests import quest_explore, quest_deliver; ` +
+    `quest_explore(me, "The Shrine of Lirit"); ` +
+    `quest_deliver(me, "pilgrim token", "Elder Symund the Pilgrim")`,
+}
+const SPEC_THE_HEIST = {
+  key: 'the_heist', title: 'The Heist',
+  outcome: 'pull_the_job',
+  room: 'The Back Alley',
+  label: 'e2sat-b-heist',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "laurent strongbox"); ` +
+    `quest_deliver(me, "laurent strongbox", "Quill the Fixer")`,
+}
+const SPEC_SECOND_EXPEDITION = {
+  key: 'second_expedition', title: 'The Second Expedition',
+  room: 'Stag Hall Courtyard',
+  label: 'e2sat-c-expedition',
+  tick:
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "First Expedition Camp"); ` +
+    `quest_gather(me, "magda's journal"); ` +
+    `quest_deliver(me, "magda's journal", "Curate Godrick")`,
+}
+const SPEC_WITCH_INTERLOPERS = {
+  key: 'witch_interlopers', title: 'Witch Interlopers',
+  outcome: 'clear_by_blade',
+  room: null, label: 'e2sat-d-witches',  // injected — giver is deep in Thornwood
+  tick:
+    `from commands.quests import quest_kill, quest_deliver; ` +
+    `${rep(3, 'quest_kill(me, "thornwood witch")')}; ` +
+    `quest_deliver(me, "witch's braid", "Captain Aethelflaed")`,
+}
+const SPEC_THE_BUTCHER = {
+  key: 'the_butcher', title: 'The Butcher',
+  room: null, label: 'e2sat-e-butcher',  // giver deep in Thornwood
+  tick:
+    `from commands.quests import quest_kill, quest_gather, quest_deliver; ` +
+    `quest_kill(me, "the butcher"); ` +
+    `quest_gather(me, "butcher's cleaver"); ` +
+    `quest_deliver(me, "butcher's cleaver", "Captain Aethelflaed")`,
+}
+
+const EVENT2_SATURDAY_QUESTS = [
+  SPEC_THE_PILGRIMAGE,
+  SPEC_THE_HEIST,
+  SPEC_SECOND_EXPEDITION,
+  SPEC_WITCH_INTERLOPERS,
+  SPEC_THE_BUTCHER,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat
