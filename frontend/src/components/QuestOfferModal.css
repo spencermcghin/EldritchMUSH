@@ -147,3 +147,53 @@
 .quest-offer-accept:hover {
   background: rgba(212, 175, 55, 0.12);
 }
+
+/* --- Branching outcomes picker ------------------------------------------- */
+.quest-offer-outcomes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.quest-offer-outcome {
+  text-align: left;
+  padding: 12px 14px;
+  background: rgba(212, 175, 55, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quest-offer-outcome:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: var(--accent-gold);
+}
+.quest-offer-outcome-label {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+  margin-bottom: 4px;
+}
+.quest-offer-outcome-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-light);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+.quest-offer-outcome-objectives {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text-aged);
+}
+.quest-offer-outcome-objectives li {
+  padding: 2px 0;
+}
+.quest-offer-outcome-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

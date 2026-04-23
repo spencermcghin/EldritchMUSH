@@ -206,6 +206,13 @@ def _check_completion(char, key):
                 items[0].move_to(char, quiet=True)
                 items_spawned.append(items[0])
                 char.msg(f"|yReward: |w{items[0].key}|n added to inventory.")
+                # Fire item_received so the ItemReceivedToast slides in.
+                try:
+                    from world.npc_gifts import announce_item_drop
+                    announce_item_drop(char, items[0],
+                                       from_source_name="Quest Reward")
+                except Exception:
+                    pass
         except Exception:
             pass
 
@@ -245,6 +252,32 @@ def _check_completion(char, key):
             sign = "|g+" if delta >= 0 else "|r"
             char.msg(f"|540Reputation: {sign}{delta}|n |w{faction.title()}|n "
                      f"|540(now {after})|n")
+
+    # Fire a quest_completed OOB event so the frontend can toast the
+    # full summary (title, outcome label, rewards line, rep deltas).
+    # Item rewards already fired item_received above for per-item toasts.
+    try:
+        import time as _time
+        outcome_label = None
+        if outcome_key:
+            odef = _quest_outcome_def(qdef, outcome_key) or {}
+            outcome_label = odef.get("label", outcome_key)
+        payload = {
+            "type": "quest_completed",
+            "_ts": _time.time(),
+            "key": key,
+            "title": qdef["title"],
+            "outcome": outcome_key,
+            "outcomeLabel": outcome_label,
+            "silver": silver or 0,
+            "items": [it.key for it in items_spawned],
+            "reagents": dict(rewards.get("reagents") or {}),
+            "factionRep": dict(rep_deltas or {}),
+        }
+        for sess in char.sessions.all():
+            sess.msg(event=payload)
+    except Exception:
+        pass
 
     return True
 
@@ -620,13 +653,33 @@ class CmdQuest(Command):
         caller.db.quests[qdef["key"]] = state
 
         caller.msg(f"\n|g✦ Quest Accepted: |w{qdef['title']}|n")
+        outcome_label = None
         if outcome_key:
             odef = _quest_outcome_def(qdef, outcome_key)
-            caller.msg(f"|540Path: |w{odef.get('label', outcome_key)}|n")
+            outcome_label = odef.get("label", outcome_key) if odef else outcome_key
+            caller.msg(f"|540Path: |w{outcome_label}|n")
             caller.msg(f"|540{odef.get('description', '')}|n")
         else:
             caller.msg("|540" + qdef["description"] + "|n")
         caller.msg(f"\n|540Type |wquest {qdef['title']}|540 to track progress.|n")
+
+        # Fire OOB event so the frontend can toast the acceptance —
+        # keeps the confirmation out of the raw chat scrollback.
+        try:
+            import time as _time
+            payload = {
+                "type": "quest_accepted",
+                "_ts": _time.time(),
+                "key": qdef["key"],
+                "title": qdef["title"],
+                "giver": qdef.get("giver", ""),
+                "outcome": outcome_key,
+                "outcomeLabel": outcome_label,
+            }
+            for sess in caller.sessions.all():
+                sess.msg(event=payload)
+        except Exception:
+            pass
 
     def _abandon_quest(self, caller, title):
         search_lower = title.lower()
