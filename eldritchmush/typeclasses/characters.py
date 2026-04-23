@@ -170,6 +170,13 @@ class Character(DefaultCharacter):
             "outsider": 0,
         }
 
+        # Per-NPC personal reputation: {npc_key_lower: {"rep": int,
+        #   "memories": [tag_str, ...], "last_interacted": iso_ts}}
+        # Driven by quest outcomes (npc_rep_deltas / npc_memories on an
+        # outcome dict). Consumed by AI NPC system prompt, the `rep`
+        # command, and eventually merchant pricing + aggression flips.
+        self.db.npc_rep = {}
+
 
     def return_appearance(self, looker):
         """

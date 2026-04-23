@@ -65,7 +65,7 @@ def _fallback_line(npc):
     return random.choice(CANNED_FALLBACKS).format(name=npc.key)
 
 
-def _build_system_prompt(npc):
+def _build_system_prompt(npc, character=None):
     """Compose the NPC's system prompt from:
        1) the shared canonical world bible (world/ai_lore.py), which ALL
           NPCs share, so no one hallucinates house/faction/geography.
@@ -73,6 +73,9 @@ def _build_system_prompt(npc):
        3) the NPC's personal `ai_knowledge` — what THIS person knows
           beyond the shared canon (secrets, opinions, local facts).
        4) optional quest hooks.
+       5) if `character` is supplied, the NPC's memory of THAT player
+          (rep score + memory tags from char.db.npc_rep), so the LLM
+          can greet known faces differently from strangers.
     """
     from world import ai_lore
 
@@ -115,6 +118,34 @@ def _build_system_prompt(npc):
             parts.append(canon_block)
     except Exception:
         pass
+
+    # Personal memory of THIS player — read from char.db.npc_rep by
+    # this NPC's lowercase key. Gives the LLM grounding for how to
+    # greet known characters.
+    if character is not None:
+        try:
+            npc_rep = getattr(character.db, "npc_rep", None) or {}
+            entry = npc_rep.get((npc.key or "").lower())
+            if entry:
+                score = int(entry.get("rep", 0) or 0)
+                mems = [m for m in (entry.get("memories") or []) if m]
+                parts.append("")
+                parts.append(f"WHAT YOU REMEMBER OF {character.key}:")
+                parts.append(
+                    f"  Personal regard: {score:+d} "
+                    f"({'friend' if score > 0 else 'enemy' if score < 0 else 'known'})."
+                )
+                if mems:
+                    parts.append("  Specific memories:")
+                    for m in mems[-5:]:
+                        parts.append(f"    - {m}")
+                parts.append(
+                    "  Speak to this person with that history in mind — warmth, "
+                    "coolness, or suspicion as fits. Do NOT explicitly quote a "
+                    "rep number; just let it colour your tone."
+                )
+        except Exception:
+            pass
 
     # Item handoff instructions — only included if this NPC has an
     # allow-list of physical items it can hand to a player.
@@ -210,7 +241,7 @@ def _rate_check(npc, character):
 
 def _call_llm(npc, character, message):
     """Synchronous LLM call. Returns the reply text or raises."""
-    system_prompt = _build_system_prompt(npc)
+    system_prompt = _build_system_prompt(npc, character=character)
     history = _get_history(npc, character)
 
     messages = [{"role": "system", "content": system_prompt}]
