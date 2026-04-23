@@ -158,6 +158,18 @@ class Character(DefaultCharacter):
         # Known alchemy recipes: set of prototype keys (e.g. {"BLADE_OIL"})
         self.db.known_recipes = set()
 
+        # Faction reputation: {faction_name: int_delta}
+        # Adjusted by branching quest outcomes. No thresholds are enforced yet;
+        # Event 2+ quests will key off these values for gated content.
+        self.db.faction_rep = {
+            "crown": 0,
+            "cirque": 0,
+            "rangers": 0,
+            "crows": 0,
+            "outlaws": 0,
+            "outsider": 0,
+        }
+
 
     def return_appearance(self, looker):
         """

@@ -6,9 +6,20 @@ Each quest is a dict with:
   title        - display name
   giver        - NPC key who offers/completes it (matched against NPC .key)
   description  - flavour paragraph shown on quest accept
-  objectives   - list of objective dicts (see below)
-  rewards      - dict of rewards granted on completion
-  prereqs      - list of quest keys that must be COMPLETED first (default [])
+  prereqs      - list of prereq entries (see below; default [])
+
+  Single-outcome quests also have:
+    objectives - list of objective dicts
+    rewards    - dict of rewards granted on completion
+
+  Branching (multi-outcome) quests have instead:
+    outcomes   - dict of {outcome_key: outcome_dict}
+    Each outcome_dict is:
+      label       - short name shown at accept time (e.g. "Bloody break")
+      description - one-paragraph flavour of this path
+      objectives  - list of objective dicts for this path
+      rewards     - dict (same shape as above)
+      faction_rep - dict of {faction_name: delta_int}, applied on completion
 
 Objective dict:
   type    - "kill"  | "gather" | "deliver" | "explore" | "duel"
@@ -16,18 +27,355 @@ Objective dict:
   qty     - how many (default 1)
   desc    - short human-readable description shown in quest log
 
-  "duel" ticks when the player wins a wagered duel vs. the target NPC
-  (see commands/duel.py). Payout of the wagered stake is handled by
-  the duel command itself — the quest hook only tracks victory.
+  "duel" ticks when the player wins a wagered duel vs. the target NPC.
 
 Reward dict keys (all optional, default 0):
   silver  - silver coins
-  xp      - experience points (future use)
   items   - list of prototype keys to spawn into inventory
   reagents - dict of {reagent_name: qty}
+
+Prereq entry can be either:
+  "quest_key"  (str) — requires that quest to be completed (any outcome),
+  or {"quest": "...", "outcome": "..."} — requires a specific outcome.
+
+Faction keys (convention): crown, cirque, rangers, crows, outlaws, outsider.
 """
 
 QUESTS = {
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 1 — WALK-INS: HOW YOU EMERGED FROM THE MISTS INTO MYSTVALE
+    #
+    # Five arrival paths, each a branching quest. The Herald at the Mystvale
+    # Gates offers all five to a newly-arrived character. Only one can be
+    # accepted at a time, but the others remain available (useful for alts
+    # or replay). Each quest's chosen outcome applies faction_rep deltas
+    # that later Event 1+ content can key off.
+    # ─────────────────────────────────────────────────────────────────────────
+    "walkin_ship": {
+        "key": "walkin_ship",
+        "title": "From the Mists: Ship",
+        "giver": "herald at the gates",
+        "description": (
+            "You remember the deck of the ship, the horizon bending the "
+            "wrong way, stars that were not the stars you knew. You remember "
+            "the captain's last whispered name for what was under the hull. "
+            "Everything after that is salt and fog — until you woke on the "
+            "Mystvale shore, the wreck still bleeding timber into the tide. "
+            "The harbormaster will want to hear about the cargo. Others will "
+            "want to hear less."
+        ),
+        "outcomes": {
+            "salvage_for_crown": {
+                "label": "Report to the harbormaster",
+                "description": (
+                    "Deliver the wreck's manifest to the Mystvale harbormaster. "
+                    "A legitimate path — and the Crown takes a cut."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "wreck manifest",
+                     "qty": 1, "desc": "Recover the wreck manifest (0/1)"},
+                    {"type": "deliver", "target": "mystvale harbormaster",
+                     "qty": 1, "desc": "Deliver the manifest to the harbormaster (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "outsider": 1},
+            },
+            "pocket_it": {
+                "label": "Pocket the salvage",
+                "description": (
+                    "Strip the wreck for yourself before the authorities arrive. "
+                    "More coin, quieter life — if you don't get caught."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "wreck salvage",
+                     "qty": 3, "desc": "Strip salvage from the wreck (0/3)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -1, "outlaws": 1, "outsider": 1},
+            },
+            "burn_it": {
+                "label": "Burn what the captain told you to burn",
+                "description": (
+                    "The captain's dying request: destroy the hold before "
+                    "anyone opens it. You won't be thanked, but the thing "
+                    "under the hull will stay under."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "captain's seal",
+                     "qty": 1, "desc": "Recover the captain's seal from the wreck (0/1)"},
+                ],
+                "rewards": {"silver": 10, "items": ["MORPHOS_LORE_SCROLL"],
+                            "reagents": {}},
+                "faction_rep": {"outsider": 3},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "walkin_cirque": {
+        "key": "walkin_cirque",
+        "title": "From the Mists: Cirque",
+        "giver": "herald at the gates",
+        "description": (
+            "You travelled with the Grand Cirque Obscura through fog that "
+            "swallowed miles. When the caravan stopped at the Mystvale gates, "
+            "one of the troupe was missing — Eldreth, the fortune-teller. "
+            "The ringmaster is not the kind of man who reports such things "
+            "to the watch. He is, however, the kind of man who rewards "
+            "discretion."
+        ),
+        "outcomes": {
+            "return_alive": {
+                "label": "Find Eldreth and bring her back",
+                "description": (
+                    "Track Eldreth into the forest and return her to the caravan. "
+                    "Clean. The Cirque remembers."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Old Road",
+                     "qty": 1, "desc": "Search the road south (0/1)"},
+                    {"type": "gather", "target": "eldreth's pendant",
+                     "qty": 1, "desc": "Find Eldreth's pendant (0/1)"},
+                    {"type": "deliver", "target": "the ringmaster",
+                     "qty": 1, "desc": "Return to the ringmaster (0/1)"},
+                ],
+                "rewards": {"silver": 20, "items": [], "reagents": {}},
+                "faction_rep": {"cirque": 3},
+            },
+            "cover_up": {
+                "label": "Help the Cirque cover her disappearance",
+                "description": (
+                    "Whatever Eldreth was hiding, the Cirque wants it stay hidden. "
+                    "Silence the witness. The troupe will owe you."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "nosy farmhand",
+                     "qty": 1, "desc": "Silence the witness (0/1)"},
+                    {"type": "gather", "target": "eldreth's pendant",
+                     "qty": 1, "desc": "Recover the pendant (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"cirque": 2, "crown": -2, "outlaws": 1},
+            },
+            "turn_in": {
+                "label": "Turn the Cirque over to Mystvale's watch",
+                "description": (
+                    "Walk to the watch and tell them exactly what the Cirque "
+                    "was hiding. You'll be paid in Crown coin, not Cirque coin — "
+                    "and the Cirque doesn't forget."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "eldreth's pendant",
+                     "qty": 1, "desc": "Find evidence (0/1)"},
+                    {"type": "deliver", "target": "mystvale captain of the watch",
+                     "qty": 1, "desc": "Report to the watch captain (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "cirque": -3},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "walkin_noble": {
+        "key": "walkin_noble",
+        "title": "From the Mists: Noble",
+        "giver": "herald at the gates",
+        "description": (
+            "You rode in the retinue of a minor noble house — or you rode "
+            "as one, depending on how you tell it. The Mists parted onto "
+            "the road to Mystvale, and with you came a sealed letter bound "
+            "for a contact in the upper city. Bandits know these roads. "
+            "So do crueler things."
+        ),
+        "outcomes": {
+            "delivered_sealed": {
+                "label": "Deliver the letter, seal intact",
+                "description": (
+                    "Reach the contact, seal unbroken. The court will note "
+                    "your reliability."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "road bandit",
+                     "qty": 2, "desc": "Survive the ambush (0/2)"},
+                    {"type": "deliver", "target": "lady ysolde of the crescent",
+                     "qty": 1, "desc": "Deliver the letter unopened (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3},
+            },
+            "read_it_first": {
+                "label": "Read the letter before delivering",
+                "description": (
+                    "Break the seal. Read it. Re-seal it with wax and hope. "
+                    "What you learn is worth more than the delivery fee — "
+                    "if you survive knowing it."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "road bandit",
+                     "qty": 2, "desc": "Survive the ambush (0/2)"},
+                    {"type": "gather", "target": "unsealed letter",
+                     "qty": 1, "desc": "Break the seal and read (0/1)"},
+                    {"type": "deliver", "target": "lady ysolde of the crescent",
+                     "qty": 1, "desc": "Deliver the letter (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": ["MORPHOS_LORE_SCROLL"],
+                            "reagents": {}},
+                "faction_rep": {"crown": 1, "outsider": 2},
+            },
+            "sell_to_crows": {
+                "label": "Sell the letter to the Crows",
+                "description": (
+                    "The Crows pay well for Crown correspondence. The Crown "
+                    "pays less well for traitors. You'll have to pick a side."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Old Road",
+                     "qty": 1, "desc": "Meet the Crow agent on the road (0/1)"},
+                    {"type": "deliver", "target": "crow agent",
+                     "qty": 1, "desc": "Hand over the letter (0/1)"},
+                ],
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -4, "crows": 4},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "walkin_scout": {
+        "key": "walkin_scout",
+        "title": "From the Mists: Scout",
+        "giver": "herald at the gates",
+        "description": (
+            "You came through the wilderness — the long way, the quiet way. "
+            "Somewhere in the pine shadow you saw Crow sign: fresh tracks, "
+            "a felled messenger bird, a waymark cut into bark. The watch "
+            "should hear of it. Or they shouldn't. Your call."
+        ),
+        "outcomes": {
+            "warn_watch": {
+                "label": "Warn the Mystvale watch",
+                "description": (
+                    "Report what you saw. Honest work. The watch remembers "
+                    "faces that help them."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "crow waymark",
+                     "qty": 1, "desc": "Recover the waymark (0/1)"},
+                    {"type": "deliver", "target": "mystvale captain of the watch",
+                     "qty": 1, "desc": "Warn the watch captain (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "rangers": 2},
+            },
+            "sell_intel_crows": {
+                "label": "Sell the intel back to the Crows",
+                "description": (
+                    "They'd rather know that you saw than have you warn anyone. "
+                    "The price is good. The cost is your reputation."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "crow waymark",
+                     "qty": 1, "desc": "Recover the waymark (0/1)"},
+                    {"type": "deliver", "target": "crow agent",
+                     "qty": 1, "desc": "Return the waymark to the Crows (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -2, "rangers": -1, "crows": 3},
+            },
+            "stay_silent": {
+                "label": "Say nothing",
+                "description": (
+                    "The forest keeps its secrets. You keep yours. You arrived "
+                    "in Mystvale. The rest is nobody's business."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Slip into Mystvale quietly (0/1)"},
+                ],
+                "rewards": {"silver": 5, "items": [], "reagents": {}},
+                "faction_rep": {"rangers": 1, "outsider": 1},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "walkin_chain_gang": {
+        "key": "walkin_chain_gang",
+        "title": "From the Mists: Chain Gang",
+        "giver": "herald at the gates",
+        "description": (
+            "You do not remember the crime. You remember the chains. The "
+            "jailers marched the gang through the Mists for a day and a "
+            "night, and when the fog thinned, the Mystvale Gates were ahead "
+            "and an opportunity was behind. Break free, plead your case, or "
+            "sell out the others. Choose before the cart rolls on."
+        ),
+        "outcomes": {
+            "bloody_break": {
+                "label": "Kill the jailers, free the gang",
+                "description": (
+                    "Violence and freedom. The Crown hates you. Some of the "
+                    "freed prisoners won't forget you."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "mystvale jailer",
+                     "qty": 2, "desc": "Put down the jailers (0/2)"},
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Escape into the city (0/1)"},
+                ],
+                "rewards": {"silver": 10, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -4, "crows": 2, "outlaws": 3},
+            },
+            "quiet_slip": {
+                "label": "Slip your chains alone",
+                "description": (
+                    "Slide out while no one's looking. No blood, no friends, "
+                    "no enemies — just you, free, in Mystvale."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Disappear into the crowd (0/1)"},
+                ],
+                "rewards": {"silver": 5, "items": [], "reagents": {}},
+                "faction_rep": {"outsider": 2},
+            },
+            "legal_appeal": {
+                "label": "Surrender and plead your case",
+                "description": (
+                    "Walk up to the watch captain and argue for a hearing. "
+                    "If you can prove the charge was bogus, you arrive in "
+                    "Mystvale a free citizen with a debt owed to no one."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "forged warrant",
+                     "qty": 1, "desc": "Find evidence the warrant was forged (0/1)"},
+                    {"type": "deliver", "target": "mystvale captain of the watch",
+                     "qty": 1, "desc": "Present your case (0/1)"},
+                ],
+                "rewards": {"silver": 20, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "outlaws": -1},
+            },
+            "turncoat": {
+                "label": "Sell out the gang for your own freedom",
+                "description": (
+                    "Hand over the ringleader in exchange for a pardon. "
+                    "The Crown files your name as a useful man. The outlaw "
+                    "network files your name in ink."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "chain gang ringleader",
+                     "qty": 1, "desc": "Subdue the ringleader (0/1)"},
+                    {"type": "deliver", "target": "mystvale captain of the watch",
+                     "qty": 1, "desc": "Turn the ringleader in (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "outlaws": -4, "crows": -2},
+            },
+        },
+        "prereqs": [],
+    },
+
     # ─────────────────────────────────────────────────────────────────────────
     # CHAPTER 1 — Getting Your Bearings
     # ─────────────────────────────────────────────────────────────────────────

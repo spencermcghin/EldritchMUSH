@@ -3716,4 +3716,336 @@ if not existing_writ:
     print(f"  CREATED : {writ_key} → Crane's Tent (demo)")
 
 
+# ===========================================================================
+# EVENT 1 WALK-IN HERALD
+#
+# A non-merchant NPC at Gateway Square who offers the five walk-in quests
+# (walkin_ship / cirque / noble / scout / chain_gang). Each walk-in is a
+# branching quest — see world/quest_data.py for outcome definitions.
+#
+# Intentionally simple for now: the Herald is the giver for all five. Later
+# passes will seed the supporting NPCs (watch captain, harbormaster, etc.)
+# that complete each walk-in's objectives.
+# ===========================================================================
+print("\n=== EVENT 1 WALK-IN HERALD ===")
+
+herald_key = "Herald at the Gates"
+_existing_herald = ObjectDB.objects.filter(
+    db_key=herald_key,
+    db_location=gateway_square.pk,
+).first()
+if _existing_herald:
+    herald = _existing_herald
+    print(f"  EXISTS  : {herald_key}")
+else:
+    herald = _create.create_object(
+        "typeclasses.npc.Npc",
+        key=herald_key,
+        location=gateway_square,
+    )
+    print(f"  CREATED : {herald_key} → Gateway Square")
+
+herald.aliases.add("herald")
+herald.aliases.add("gates")
+herald.db.desc = (
+    "A weathered crier in Compact colours stands atop a stump by the "
+    "gates, voice hoarse from shouting for newcomers. A leather satchel "
+    "at her hip bulges with letters of introduction, writs, bills of "
+    "lading and dogeared contracts. A brass bell hangs from her belt. "
+    "She looks you up and down the moment you approach, already asking "
+    "— without asking — how you got here."
+)
+herald.db.is_npc = True
+herald.db.is_aggressive = False
+# AI personality for `ask herald` dialogue
+herald.attributes.add("ai_personality", (
+    "A Compact herald posted at the Gateway Square to greet newcomers "
+    "emerging from the Mists. Busy, observant, practical. Believes every "
+    "arrival has a story worth logging — and that the story shapes what "
+    "Mystvale owes them. Will offer one of five walk-in quests based on "
+    "how a newcomer says they arrived."
+))
+herald.attributes.add("ai_knowledge", (
+    "- Offers five walk-in quests depending on arrival flavor: Ship, "
+    "Cirque, Noble, Scout, or Chain Gang. Each has multiple paths to "
+    "completion with different reputation outcomes.\n"
+    "- Use |wquest|n to see available walk-ins; |wquest accept <title> "
+    "/ <path>|n to commit to a specific branching outcome.\n"
+    "- She does not take sides — she logs arrivals. What a newcomer "
+    "does after is their business."
+))
+
+# Offer all five walk-ins by default — but make the listing gentler by
+# having the NPC mention only the quests the player hasn't yet attempted.
+herald.attributes.add("ai_quest_hooks", [
+    "Offers the five walk-in quests (walkin_ship, walkin_cirque, "
+    "walkin_noble, walkin_scout, walkin_chain_gang) to any newcomer who "
+    "hasn't picked one yet."
+])
+
+
+# ===========================================================================
+# EVENT 1 WALK-IN SUPPORTING NPCs + ITEMS
+#
+# Everything downstream of the Herald that the walk-in quests need:
+#   - Quest-giver/receiver NPCs (harbormaster, ringmaster, watch captain,
+#     Lady Ysolde, crow agent)
+#   - Kill-target NPCs (road bandits, nosy farmhand, jailers, ringleader)
+#   - Gather items (wreck manifest, salvage, captain's seal, pendant,
+#     sealed/unsealed letter, crow waymark, forged warrant)
+#
+# Placement is quest-logic-driven; each walk-in has a clear completion
+# path without needing to visit more than 2-3 rooms.
+# ===========================================================================
+print("\n=== EVENT 1 WALK-IN SUPPORTING NPCs ===")
+
+
+def _ensure_walkin_npc(key, location, desc, aliases=(), aggressive=False,
+                       ai_personality=None, ai_knowledge=None,
+                       typeclass="typeclasses.npc.Npc"):
+    """Idempotent create-or-refresh for a walk-in NPC."""
+    existing = ObjectDB.objects.filter(
+        db_key=key, db_location=location.pk,
+    ).first()
+    if existing:
+        npc = existing
+        print(f"  EXISTS  : {key}")
+    else:
+        npc = _create.create_object(typeclass, key=key, location=location)
+        print(f"  CREATED : {key} → {location.key}")
+    for a in aliases:
+        npc.aliases.add(a)
+    npc.db.desc = desc
+    npc.db.is_npc = True
+    npc.db.is_aggressive = aggressive
+    if ai_personality:
+        npc.attributes.add("ai_personality", ai_personality)
+    if ai_knowledge:
+        npc.attributes.add("ai_knowledge", ai_knowledge)
+    return npc
+
+
+def _ensure_walkin_item(key, location, desc, aliases=(),
+                        typeclass="typeclasses.objects.Object"):
+    """Idempotent create-or-refresh for a gettable quest item."""
+    existing = ObjectDB.objects.filter(
+        db_key=key, db_location=location.pk,
+    ).first()
+    if existing:
+        obj = existing
+        print(f"  EXISTS  : item {key}")
+    else:
+        obj = _create.create_object(typeclass, key=key, location=location)
+        print(f"  CREATED : item {key} → {location.key}")
+    for a in aliases:
+        obj.aliases.add(a)
+    obj.db.desc = desc
+    obj.locks.add("get:all()")
+    return obj
+
+
+# ── Ship walk-in ────────────────────────────────────────────────────────────
+harbormaster = _ensure_walkin_npc(
+    "Mystvale Harbormaster", tamris_harbor,
+    desc=(
+        "A stout man in a salt-stained wool coat, brass harbour-seal on a "
+        "chain around his neck, ledger tucked under one arm. He watches "
+        "the water more than he watches you."
+    ),
+    aliases=("harbormaster", "mystvale harbormaster"),
+    aggressive=False,
+    ai_personality=(
+        "The Mystvale harbormaster. Practical, unimpressed, professional. "
+        "Logs wreck salvage for Crown tax. Takes reports from "
+        "shipwreck survivors if they can produce a manifest."
+    ),
+)
+
+_ensure_walkin_item(
+    "wreck manifest", tamris_harbor,
+    desc="A water-warped ship's manifest, bleeding ink but still legible.",
+    aliases=("manifest",),
+)
+for i in range(1, 4):
+    _ensure_walkin_item(
+        "wreck salvage", tamris_harbor,
+        desc="A splintered crate of half-ruined cargo from the wrecked ship.",
+        aliases=("salvage", "crate"),
+    )
+_ensure_walkin_item(
+    "captain's seal", tamris_harbor,
+    desc=(
+        "A heavy brass seal, warm to the touch, showing a sigil you cannot "
+        "quite focus on. The captain wanted this burned."
+    ),
+    aliases=("seal", "captain seal"),
+)
+
+
+# ── Cirque walk-in ──────────────────────────────────────────────────────────
+ringmaster = _ensure_walkin_npc(
+    "The Ringmaster", marketplace,
+    desc=(
+        "A tall, grey-eyed man in a stained scarlet coat, one hand resting "
+        "on the head of a walking-cane topped with a silver jackdaw. The "
+        "smell of lamp oil and greasepaint comes off him in waves."
+    ),
+    aliases=("ringmaster", "the ringmaster"),
+    aggressive=False,
+    ai_personality=(
+        "The Ringmaster of the Grand Cirque Obscura — outwardly warm, "
+        "privately ruthless. Values the Cirque's reputation above any "
+        "single performer."
+    ),
+)
+
+nosy_farmhand = _ensure_walkin_npc(
+    "Nosy Farmhand", old_road_south,
+    desc=(
+        "A wiry man in patched homespun, a hay-hook tucked in his belt. "
+        "He's been watching the Cirque caravan more than his cattle, and "
+        "he saw something he probably shouldn't have."
+    ),
+    aliases=("farmhand", "nosy farmhand"),
+    aggressive=True,
+)
+nosy_farmhand.db.body = 3
+nosy_farmhand.db.total_body = 3
+nosy_farmhand.db.av = 0
+
+_ensure_walkin_item(
+    "eldreth's pendant", old_road_south,
+    desc=(
+        "A tin-and-enamel pendant in the shape of a jackdaw, its chain "
+        "snapped. It smells faintly of lamp oil."
+    ),
+    aliases=("pendant", "jackdaw pendant", "eldreth pendant"),
+)
+
+
+# ── Noble walk-in ───────────────────────────────────────────────────────────
+lady_ysolde = _ensure_walkin_npc(
+    "Lady Ysolde of the Crescent", town_hall,
+    desc=(
+        "A tall woman in court black, silver crescent-moon pin at her "
+        "throat. She stands at ease behind a writing-desk stacked with "
+        "sealed correspondence. Her eyes miss nothing."
+    ),
+    aliases=("ysolde", "lady ysolde", "lady"),
+    aggressive=False,
+    ai_personality=(
+        "Lady Ysolde of the Crescent, a minor Crown functionary running a "
+        "clearing-house of correspondence out of Mystvale Town Hall. "
+        "Courteous, clipped, meticulous about seals and provenance."
+    ),
+)
+
+for i in range(2):
+    bandit = _ensure_walkin_npc(
+        "road bandit", old_road_south,
+        desc=(
+            "A wiry man in mismatched leathers, a crude cudgel in one hand "
+            "and a dirty scarf hiding the lower half of his face."
+        ),
+        aliases=("bandit",),
+        aggressive=True,
+    )
+    bandit.db.body = 4
+    bandit.db.total_body = 4
+    bandit.db.av = 1
+
+_ensure_walkin_item(
+    "unsealed letter", old_road_south,
+    desc=(
+        "A nobleman's letter, wax seal cracked open. You shouldn't have "
+        "read it. You did. You know what's inside now."
+    ),
+    aliases=("unsealed letter", "letter"),
+)
+
+
+# ── Scout walk-in ───────────────────────────────────────────────────────────
+watch_captain = _ensure_walkin_npc(
+    "Mystvale Captain of the Watch", bannon_barracks,
+    desc=(
+        "A gaunt veteran in watch-grey, beard iron-shot, a scar bisecting "
+        "one eyebrow. A half-drunk cup of tea cools on the map-table in "
+        "front of him."
+    ),
+    aliases=("watch captain", "captain of the watch", "captain"),
+    aggressive=False,
+    ai_personality=(
+        "Captain of the Mystvale watch. Pragmatic, tired, more interested "
+        "in useful intel than politeness. Takes bribes of information "
+        "rather than coin."
+    ),
+)
+
+_ensure_walkin_item(
+    "crow waymark", old_road_south,
+    desc=(
+        "A crude waymark cut into a shingle of pine bark — three "
+        "intersecting lines and a dot. Crow sign, fresh."
+    ),
+    aliases=("waymark", "crow waymark"),
+)
+
+crow_agent = _ensure_walkin_npc(
+    "Crow Agent", old_road_south,
+    desc=(
+        "A thin figure in a hooded cloak the colour of wet slate, leaning "
+        "against a gnarled pine. A raven's-feather pin glints at the "
+        "throat."
+    ),
+    aliases=("crow agent", "agent"),
+    aggressive=False,
+    ai_personality=(
+        "A Crow-faction agent on the Old Road south of Mystvale. Buys "
+        "intercepted correspondence, warns of patrols, pays in silver — "
+        "and remembers faces, good and bad."
+    ),
+)
+
+
+# ── Chain Gang walk-in ──────────────────────────────────────────────────────
+# Placed at the Mistwall (the mist-edge where chain gangs are marched in).
+for i in range(2):
+    jailer = _ensure_walkin_npc(
+        "Mystvale Jailer", mistwall,
+        desc=(
+            "A thickset man in boiled leather with a chain-driver's whip "
+            "looped at his belt. He smells of sweat and old iron."
+        ),
+        aliases=("jailer",),
+        aggressive=True,
+    )
+    jailer.db.body = 5
+    jailer.db.total_body = 5
+    jailer.db.av = 2
+
+ringleader = _ensure_walkin_npc(
+    "Chain Gang Ringleader", mistwall,
+    desc=(
+        "A grey-bearded prisoner, wrists still chained, eyes bright with "
+        "plans. He hisses at every guard who passes and watches the newer "
+        "captives like a man counting fighters."
+    ),
+    aliases=("ringleader", "chain gang ringleader"),
+    aggressive=True,
+)
+ringleader.db.body = 6
+ringleader.db.total_body = 6
+ringleader.db.av = 1
+
+_ensure_walkin_item(
+    "forged warrant", mistwall,
+    desc=(
+        "A thick parchment warrant bearing your name — and, beneath the "
+        "wax, the smudge of a seal that was re-pressed while still warm. "
+        "Not a genuine Crown seal. Proof, if a court will hear you."
+    ),
+    aliases=("forged warrant", "warrant"),
+)
+
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

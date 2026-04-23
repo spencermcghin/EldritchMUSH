@@ -17,9 +17,21 @@ Data model (stored on character db)
               {"type": ..., "target": ..., "qty": N, "current": 0, "desc": "..."},
               ...
           ],
+          "outcome": "<outcome_key>",  # present only for branching quests
       },
       ...
   }
+
+Branching quests
+----------------
+A quest may have an `outcomes` dict in its definition instead of
+top-level `objectives` + `rewards`. The player picks one outcome when
+accepting the quest (e.g. `quest accept Ship / pocket_it`). Only that
+outcome's objectives are tracked; only that outcome's rewards + faction_rep
+apply on completion.
+
+Faction rep lives at `self.db.faction_rep` and is a dict of int deltas
+(e.g. {"crown": 3, "cirque": -2}).
 
 Quest logic integration
 -----------------------
@@ -48,7 +60,41 @@ def _get_quest_state(char, key):
     return char.db.quests.get(key)
 
 
-def _fresh_objectives(quest_def):
+def _has_outcomes(quest_def):
+    """True if quest uses branching outcomes."""
+    return bool(quest_def.get("outcomes"))
+
+
+def _quest_outcome_def(quest_def, outcome_key):
+    """Return the outcome dict for outcome_key, or None."""
+    return (quest_def.get("outcomes") or {}).get(outcome_key)
+
+
+def _effective_objectives_src(quest_def, outcome_key=None):
+    """Return the objectives list for the (quest, outcome) pair."""
+    if _has_outcomes(quest_def):
+        outcome = _quest_outcome_def(quest_def, outcome_key)
+        return (outcome or {}).get("objectives", [])
+    return quest_def.get("objectives", [])
+
+
+def _effective_rewards(quest_def, outcome_key=None):
+    """Return the rewards dict for the (quest, outcome) pair."""
+    if _has_outcomes(quest_def):
+        outcome = _quest_outcome_def(quest_def, outcome_key)
+        return (outcome or {}).get("rewards", {})
+    return quest_def.get("rewards", {})
+
+
+def _effective_faction_rep(quest_def, outcome_key=None):
+    """Faction rep deltas to apply on completion. Only defined for outcomes."""
+    if _has_outcomes(quest_def):
+        outcome = _quest_outcome_def(quest_def, outcome_key)
+        return (outcome or {}).get("faction_rep", {})
+    return {}
+
+
+def _fresh_objectives(quest_def, outcome_key=None):
     """Return a deep-copied list of objective dicts with current=0."""
     return [
         {
@@ -58,17 +104,28 @@ def _fresh_objectives(quest_def):
             "current": 0,
             "desc": obj["desc"],
         }
-        for obj in quest_def["objectives"]
+        for obj in _effective_objectives_src(quest_def, outcome_key)
     ]
 
 
 def _prerequisites_met(char, quest_def):
-    """Return True if all prereq quests are completed."""
+    """Return True if all prereqs are met. Prereqs may be strings (quest keys)
+    or dicts of form {"quest": key, "outcome": outcome_key} to require a
+    specific outcome."""
     _ensure_quest_db(char)
-    for prereq_key in quest_def.get("prereqs", []):
-        state = char.db.quests.get(prereq_key)
-        if not state or state["status"] != "completed":
-            return False
+    for prereq in quest_def.get("prereqs", []):
+        if isinstance(prereq, dict):
+            q_key = prereq["quest"]
+            want_outcome = prereq.get("outcome")
+            state = char.db.quests.get(q_key)
+            if not state or state["status"] != "completed":
+                return False
+            if want_outcome and state.get("outcome") != want_outcome:
+                return False
+        else:
+            state = char.db.quests.get(prereq)
+            if not state or state["status"] != "completed":
+                return False
     return True
 
 
@@ -125,11 +182,15 @@ def _check_completion(char, key):
     state["status"] = "completed"
     char.db.quests[key] = state
 
+    outcome_key = state.get("outcome")
     char.msg(f"\n|y✦ Quest Complete: |w{qdef['title']}|n")
-    char.msg("|540Returning to the quest giver will confirm your reward.|n")
+    if outcome_key:
+        outcome_def = _quest_outcome_def(qdef, outcome_key) or {}
+        outcome_label = outcome_def.get("label", outcome_key)
+        char.msg(f"|540Outcome: |w{outcome_label}|n")
 
-    # Grant rewards immediately
-    rewards = qdef.get("rewards", {})
+    # Grant rewards (per-outcome if branching)
+    rewards = _effective_rewards(qdef, outcome_key)
     silver = rewards.get("silver", 0)
     if silver:
         char.db.silver = (char.db.silver or 0) + silver
@@ -150,6 +211,19 @@ def _check_completion(char, key):
             char.db.reagents = {}
         char.db.reagents[reagent] = char.db.reagents.get(reagent, 0) + qty
         char.msg(f"|yReward: |w+{qty} {reagent}|n (reagent)")
+
+    # Apply faction rep deltas (only defined for branching outcomes)
+    rep_deltas = _effective_faction_rep(qdef, outcome_key)
+    if rep_deltas:
+        if not char.db.faction_rep:
+            char.db.faction_rep = {}
+        for faction, delta in rep_deltas.items():
+            before = char.db.faction_rep.get(faction, 0)
+            after = before + delta
+            char.db.faction_rep[faction] = after
+            sign = "|g+" if delta >= 0 else "|r"
+            char.msg(f"|540Reputation: {sign}{delta}|n |w{faction.title()}|n "
+                     f"|540(now {after})|n")
 
     return True
 
@@ -217,6 +291,29 @@ def quest_duel_win(char, npc_key):
             if obj["type"] == "duel" and obj["target"].lower() in npc_key_lower:
                 if obj["current"] < obj["qty"]:
                     obj["current"] += 1
+                    char.msg(
+                        f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
+                        f"({obj['current']}/{obj['qty']})|n"
+                    )
+                    _check_completion(char, key)
+
+
+def quest_deliver(char, item_name, npc_key):
+    """
+    Call this when *char* gives *item_name* to an NPC with key *npc_key*.
+    Ticks matching 'deliver' objectives.  A deliver objective's `target` is
+    the NPC key; the item is implicit (the player must have been carrying it
+    to give it). Completes immediately (deliver is binary).
+    """
+    _ensure_quest_db(char)
+    npc_key_lower = npc_key.lower()
+    for key, state in char.db.quests.items():
+        if state["status"] != "active":
+            continue
+        for obj in state["objectives"]:
+            if obj["type"] == "deliver" and obj["target"].lower() in npc_key_lower:
+                if obj["current"] < obj["qty"]:
+                    obj["current"] = obj["qty"]
                     char.msg(
                         f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
                         f"({obj['current']}/{obj['qty']})|n"
@@ -381,8 +478,13 @@ class CmdQuest(Command):
         lines.append(qdef["description"])
         lines.append("")
 
+        outcome_key = state.get("outcome") if state else None
+
         if state:
             lines.append(f"|540Status:|n |w{state['status'].title()}|n")
+            if outcome_key:
+                odef = _quest_outcome_def(qdef, outcome_key) or {}
+                lines.append(f"|540Path:|n |w{odef.get('label', outcome_key)}|n")
             lines.append("|540Objectives:|n")
             for obj in state["objectives"]:
                 tick = "|g✓|n" if obj["current"] >= obj["qty"] else "|r•|n"
@@ -390,13 +492,23 @@ class CmdQuest(Command):
                     f"  {tick} {obj['desc'].split('(')[0].strip()} "
                     f"({obj['current']}/{obj['qty']})"
                 )
+        elif _has_outcomes(qdef):
+            lines.append("|540Paths available:|n")
+            for okey, odef in qdef["outcomes"].items():
+                lines.append(f"  |y•|n |w{odef.get('label', okey)}|n "
+                             f"|540[{okey}]|n")
+                lines.append(f"      |540{odef.get('description', '')}|n")
+                for obj in odef.get("objectives", []):
+                    lines.append(
+                        f"      |r•|n {obj['desc'].split('(')[0].strip()} (0/{obj['qty']})"
+                    )
         else:
             lines.append("|540Objectives:|n")
             for obj in qdef["objectives"]:
                 lines.append(f"  |r•|n {obj['desc'].split('(')[0].strip()} (0/{obj['qty']})")
 
-        # Rewards
-        rewards = qdef.get("rewards", {})
+        # Rewards (current outcome if active, or branch-summary if branching + no state)
+        rewards = _effective_rewards(qdef, outcome_key)
         reward_parts = []
         if rewards.get("silver"):
             reward_parts.append(f"|w{rewards['silver']} silver|n")
@@ -408,13 +520,27 @@ class CmdQuest(Command):
             lines.append(f"|540Reward:|n {', '.join(reward_parts)}")
 
         if not state:
-            lines.append(f"\n|gType |wquest accept {qdef['title']}|g to begin.|n")
+            if _has_outcomes(qdef):
+                first_outcome = next(iter(qdef["outcomes"]))
+                lines.append(
+                    f"\n|gType |wquest accept {qdef['title']} / <path>|g "
+                    f"to commit (e.g. |w/{first_outcome}|g).|n"
+                )
+            else:
+                lines.append(f"\n|gType |wquest accept {qdef['title']}|g to begin.|n")
 
         caller.msg("\n".join(lines))
 
     # ── Accept / abandon ─────────────────────────────────────────────────────
 
     def _accept_quest(self, caller, title):
+        # Parse optional "/outcome_key" suffix, e.g. "Chain Gang / bloody_break"
+        outcome_key = None
+        if "/" in title:
+            title, outcome_tail = title.rsplit("/", 1)
+            outcome_key = outcome_tail.strip().lower().replace(" ", "_")
+            title = title.strip()
+
         search_lower = title.lower()
         qdef = None
         for key, q in QUESTS.items():
@@ -448,12 +574,37 @@ class CmdQuest(Command):
             )
             return
 
-        caller.db.quests[qdef["key"]] = {
+        # Branching quest — must pick an outcome
+        if _has_outcomes(qdef):
+            outcomes = qdef["outcomes"]
+            if not outcome_key or outcome_key not in outcomes:
+                caller.msg(f"\n|w{qdef['title']}|n requires you to choose a path:")
+                for okey, odef in outcomes.items():
+                    caller.msg(f"  |y•|n |w{odef.get('label', okey)}|n "
+                               f"|540[{okey}]|n")
+                    caller.msg(f"    |540{odef.get('description', '')}|n")
+                caller.msg(
+                    f"\n|540Type |wquest accept {qdef['title']} / <path>|n |540"
+                    f"to commit (e.g. |wquest accept {qdef['title']} / "
+                    f"{next(iter(outcomes))}|540).|n"
+                )
+                return
+
+        state = {
             "status": "active",
-            "objectives": _fresh_objectives(qdef),
+            "objectives": _fresh_objectives(qdef, outcome_key),
         }
+        if outcome_key:
+            state["outcome"] = outcome_key
+        caller.db.quests[qdef["key"]] = state
+
         caller.msg(f"\n|g✦ Quest Accepted: |w{qdef['title']}|n")
-        caller.msg("|540" + qdef["description"] + "|n")
+        if outcome_key:
+            odef = _quest_outcome_def(qdef, outcome_key)
+            caller.msg(f"|540Path: |w{odef.get('label', outcome_key)}|n")
+            caller.msg(f"|540{odef.get('description', '')}|n")
+        else:
+            caller.msg("|540" + qdef["description"] + "|n")
         caller.msg(f"\n|540Type |wquest {qdef['title']}|540 to track progress.|n")
 
     def _abandon_quest(self, caller, title):
