@@ -691,8 +691,8 @@ QUESTS = {
         "giver": "torben the blacksmith",
         "description": (
             "The rescued blacksmith, Torben, begs you to find his spouse "
-            "Marta — an alchemist taken to the Fox Den, a second Crow "
-            "camp deeper in the forest. The camp letter you found "
+            "Marta — an alchemist taken to the Owl's Roost, a second "
+            "Crow camp deeper in the forest. The camp letter you found "
             "describes its location. More Crows, and they'll be ready "
             "for trouble."
         ),
@@ -701,7 +701,7 @@ QUESTS = {
                 "type": "kill",
                 "target": "crow striker",
                 "qty": 3,
-                "desc": "Clear the Fox Den of Strikers (0/3)",
+                "desc": "Clear the Owl's Roost of Strikers (0/3)",
             },
             {
                 "type": "kill",
@@ -711,9 +711,9 @@ QUESTS = {
             },
             {
                 "type": "explore",
-                "target": "Crow Camp — Fox Den",
+                "target": "Crow Camp — Owl's Roost",
                 "qty": 1,
-                "desc": "Find the Fox Den camp (0/1)",
+                "desc": "Find the Owl's Roost camp (0/1)",
             },
         ],
         "rewards": {
@@ -730,7 +730,7 @@ QUESTS = {
         "giver": "marta the alchemist",
         "description": (
             "Marta tells you of a third captive — Fenn, a young "
-            "artificer, held at the Owl's Roost, the largest Crow camp. "
+            "artificer, held at the Fox Den, the largest Crow camp. "
             "It's run by a lieutenant called Cale the Thorn. This will "
             "be the hardest fight yet, but freeing all three crafters "
             "will establish Mystvale's workshops for good."
@@ -746,7 +746,7 @@ QUESTS = {
                 "type": "kill",
                 "target": "crow",
                 "qty": 5,
-                "desc": "Clear the Owl's Roost (0/5)",
+                "desc": "Clear the Fox Den (0/5)",
             },
         ],
         "rewards": {
