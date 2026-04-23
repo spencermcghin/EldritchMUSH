@@ -233,6 +233,30 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  // All 5 walk-in origin quests — happy-path outcome for each. Exercises the
+  // new branching quest engine (accept with /outcome, per-outcome objectives,
+  // faction_rep deltas on completion).
+  'quest-walkins': async (page) => {
+    await resetQuestState(page)
+    for (const spec of WALKIN_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
+  // Event 1 Saturday arc — tutorials + new investigative quest + branching
+  // rescue chain (clear-by-blade path). Injects walkin_cirque completion
+  // via @py so the Business Opportunity prereq is met.
+  'quest-event1': async (page) => {
+    await resetQuestState(page)
+    // Pre-complete walkin_cirque so business_opportunity unlocks.
+    await typeCommand(page,
+      `@py me.db.quests["walkin_cirque"] = {"status": "completed", ` +
+      `"outcome": "return_alive", "objectives": []}; ` +
+      `me.msg("[qtest] walkin_cirque pre-completed for business_opportunity gating")`)
+    await page.waitForTimeout(400)
+    for (const spec of EVENT1_SATURDAY_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -348,7 +372,10 @@ async function runQuest(page, spec) {
     await typeCommand(page, `@tel ${spec.room}`)
     await page.waitForTimeout(1200)
     await snap(page, `${pre}-room`)
-    await typeCommand(page, `quest accept ${spec.title}`)
+    const acceptCmd = spec.outcome
+      ? `quest accept ${spec.title} / ${spec.outcome}`
+      : `quest accept ${spec.title}`
+    await typeCommand(page, acceptCmd)
   } else {
     // No safe room for the giver — inject the active state directly.
     await typeCommand(page,
@@ -478,6 +505,152 @@ const SPEC_RESCUE_ARTIFICER = {
 
 const CROWS_QUESTS = [
   SPEC_RESCUE_BLACKSMITH, SPEC_RESCUE_ALCHEMIST, SPEC_RESCUE_ARTIFICER,
+]
+
+// --- walk-in specs (Event 1 — From the Mists into Mystvale) ----------------
+// Each walk-in is a branching quest. Happy-path tests pick one "default" outcome
+// per walk-in that exercises a mix of objective types (kill/gather/deliver/explore).
+// All givers live at Gateway Square (the Herald). Objective NPCs/items are seeded
+// by populate_mistvale.py EVENT 1 WALK-IN SUPPORTING NPCs section.
+const SPEC_WALKIN_SHIP = {
+  key: 'walkin_ship', title: 'From the Mists: Ship',
+  outcome: 'salvage_for_crown',
+  room: 'Gateway — The Open Square',
+  label: 'w1-ship-salvage',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "wreck manifest"); ` +
+    `quest_deliver(me, "wreck manifest", "Mystvale Harbormaster")`,
+}
+const SPEC_WALKIN_CIRQUE = {
+  key: 'walkin_cirque', title: 'From the Mists: Cirque',
+  outcome: 'return_alive',
+  room: 'Gateway — The Open Square',
+  label: 'w2-cirque-return',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver, quest_explore; ` +
+    `quest_explore(me, "The Old Road"); ` +
+    `quest_gather(me, "eldreth's pendant"); ` +
+    `quest_deliver(me, "eldreth's pendant", "The Ringmaster")`,
+}
+const SPEC_WALKIN_NOBLE = {
+  key: 'walkin_noble', title: 'From the Mists: Noble',
+  outcome: 'delivered_sealed',
+  room: 'Gateway — The Open Square',
+  label: 'w3-noble-sealed',
+  tick:
+    `from commands.quests import quest_kill, quest_deliver; ` +
+    `${rep(2, 'quest_kill(me, "road bandit")')}; ` +
+    `quest_deliver(me, "sealed letter", "Lady Ysolde of the Crescent")`,
+}
+const SPEC_WALKIN_SCOUT = {
+  key: 'walkin_scout', title: 'From the Mists: Scout',
+  outcome: 'warn_watch',
+  room: 'Gateway — The Open Square',
+  label: 'w4-scout-warn',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "crow waymark"); ` +
+    `quest_deliver(me, "crow waymark", "Mystvale Captain of the Watch")`,
+}
+const SPEC_WALKIN_CHAIN = {
+  key: 'walkin_chain_gang', title: 'From the Mists: Chain Gang',
+  outcome: 'legal_appeal',
+  room: 'Gateway — The Open Square',
+  label: 'w5-chain-legal',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "forged warrant"); ` +
+    `quest_deliver(me, "forged warrant", "Mystvale Captain of the Watch")`,
+}
+
+const WALKIN_QUESTS = [
+  SPEC_WALKIN_SHIP, SPEC_WALKIN_CIRQUE, SPEC_WALKIN_NOBLE,
+  SPEC_WALKIN_SCOUT, SPEC_WALKIN_CHAIN,
+]
+
+// --- Event 1 Saturday arc specs -------------------------------------------
+const SPEC_COMBAT_TRAINING = {
+  key: 'combat_training', title: 'Combat Training',
+  room: 'Mystvale Training Yard',
+  label: 'e1a-combat-training',
+  tick:
+    `from commands.quests import quest_kill; ` +
+    `${rep(3, 'quest_kill(me, "training dummy")')}; ` +
+    `${rep(2, 'quest_kill(me, "archery target")')}`,
+}
+const SPEC_ALCHEMY_TRAINING = {
+  key: 'alchemy_training', title: 'Alchemy Training',
+  room: 'The Apotheca Chirurgery',
+  label: 'e1b-alchemy-training',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "Sayge"); ` +
+    `quest_deliver(me, "Sayge", "Sister Ivy")`,
+}
+const SPEC_TALE_TO_REMEMBER = {
+  key: 'tale_to_remember', title: 'A Tale to Remember',
+  room: "Songbird's Rest",
+  label: 'e1c-tale-to-remember',
+  tick:
+    `from commands.quests import quest_explore, quest_deliver; ` +
+    `quest_explore(me, "Songbird's Rest"); ` +
+    `quest_deliver(me, "silver", "Kestren the Bard")`,
+}
+// Business Opportunity requires walkin_cirque completed first — the
+// harness injects that state before running the event1 scenario.
+const SPEC_BUSINESS_OPPORTUNITY = {
+  key: 'business_opportunity', title: 'A Business Opportunity',
+  outcome: 'report_to_watch',
+  room: 'The Mystvale Marketplace',
+  label: 'e1d-business-opportunity',
+  tick:
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "The Old Road"); ` +
+    `quest_gather(me, "yan's testimony"); ` +
+    `quest_deliver(me, "yan's testimony", "Mystvale Captain of the Watch")`,
+}
+
+// Rescue chain revisited with branching — happy path for each.
+const SPEC_RESCUE_BLACKSMITH_BLADE = {
+  key: 'rescue_blacksmith', title: 'Rescue the Crafters: The Blacksmith',
+  outcome: 'clear_by_blade',
+  room: 'The Bannon Barracks',
+  label: 'e1e-rescue-blacksmith-blade',
+  tick:
+    `from commands.quests import quest_kill, quest_explore; ` +
+    `${rep(3, 'quest_kill(me, "crow striker")')}; ` +
+    `quest_kill(me, "crow bruiser"); ` +
+    `quest_explore(me, "Crow Camp — Blacksmith's Prison")`,
+}
+const SPEC_RESCUE_ALCHEMIST_BLADE = {
+  key: 'rescue_alchemist', title: 'Rescue the Crafters: The Alchemist',
+  outcome: 'clear_by_blade',
+  room: null, label: 'e1f-rescue-alchemist-blade',
+  tick:
+    `from commands.quests import quest_kill, quest_explore; ` +
+    `${rep(3, 'quest_kill(me, "crow striker")')}; ` +
+    `${rep(2, 'quest_kill(me, "crow bruiser")')}; ` +
+    `quest_explore(me, "Crow Camp — Owl's Roost")`,
+}
+const SPEC_RESCUE_ARTIFICER_BLADE = {
+  key: 'rescue_artificer', title: 'Rescue the Crafters: The Artificer',
+  outcome: 'clear_by_blade',
+  room: null, label: 'e1g-rescue-artificer-blade',
+  tick:
+    `from commands.quests import quest_kill; ` +
+    `quest_kill(me, "cale the thorn"); ` +
+    `${rep(5, 'quest_kill(me, "crow")')}`,
+}
+
+const EVENT1_SATURDAY_QUESTS = [
+  SPEC_COMBAT_TRAINING,
+  SPEC_ALCHEMY_TRAINING,
+  SPEC_TALE_TO_REMEMBER,
+  SPEC_BUSINESS_OPPORTUNITY,   // requires walkin_cirque pre-injection
+  SPEC_RESCUE_BLACKSMITH_BLADE,
+  SPEC_RESCUE_ALCHEMIST_BLADE,
+  SPEC_RESCUE_ARTIFICER_BLADE,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat

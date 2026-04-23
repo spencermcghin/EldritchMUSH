@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import './QuestOfferModal.css'
 
-export default function QuestOfferModal({ open, offer, onAccept, onDecline, onClose }) {
+// Branching quests expose an `outcomes` array; non-branching use the
+// flat `objectives` + `rewards` fields. Both paths render here.
+export default function QuestOfferModal({ open, offer, onAccept, onAcceptOutcome, onDecline, onClose }) {
   useEffect(() => {
     if (!open) return
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -10,6 +12,8 @@ export default function QuestOfferModal({ open, offer, onAccept, onDecline, onCl
   }, [open, onClose])
 
   if (!open || !offer) return null
+
+  const isBranching = Array.isArray(offer.outcomes) && offer.outcomes.length > 0
 
   return (
     <div className="quest-offer-backdrop" onClick={onClose}>
@@ -27,26 +31,64 @@ export default function QuestOfferModal({ open, offer, onAccept, onDecline, onCl
 
           <p className="quest-offer-desc">{offer.description}</p>
 
-          {offer.objectives?.length > 0 && (
+          {isBranching ? (
             <div className="quest-offer-section">
-              <div className="quest-offer-label cinzel">OBJECTIVES</div>
-              <ul className="quest-offer-list">
-                {offer.objectives.map((o, i) => (
-                  <li key={i}>{o.desc} {o.qty > 1 && <span className="quest-offer-qty">({o.qty})</span>}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {offer.rewards?.length > 0 && (
-            <div className="quest-offer-section">
-              <div className="quest-offer-label cinzel">REWARD</div>
-              <div className="quest-offer-rewards">
-                {offer.rewards.map((r, i) => (
-                  <span key={i} className="quest-offer-reward-chip">{r}</span>
+              <div className="quest-offer-label cinzel">CHOOSE YOUR PATH</div>
+              <div className="quest-offer-outcomes">
+                {offer.outcomes.map((o) => (
+                  <button
+                    key={o.key}
+                    className="quest-offer-outcome"
+                    onClick={() => onAcceptOutcome && onAcceptOutcome(o.key)}
+                  >
+                    <div className="quest-offer-outcome-label cinzel">{o.label}</div>
+                    {o.description && (
+                      <div className="quest-offer-outcome-desc">{o.description}</div>
+                    )}
+                    {o.objectives?.length > 0 && (
+                      <ul className="quest-offer-outcome-objectives">
+                        {o.objectives.map((ob, i) => (
+                          <li key={i}>
+                            {ob.desc}{ob.qty > 1 && <span className="quest-offer-qty"> ({ob.qty})</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {o.rewards?.length > 0 && (
+                      <div className="quest-offer-outcome-rewards">
+                        {o.rewards.map((r, i) => (
+                          <span key={i} className="quest-offer-reward-chip">{r}</span>
+                        ))}
+                      </div>
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
+          ) : (
+            <>
+              {offer.objectives?.length > 0 && (
+                <div className="quest-offer-section">
+                  <div className="quest-offer-label cinzel">OBJECTIVES</div>
+                  <ul className="quest-offer-list">
+                    {offer.objectives.map((o, i) => (
+                      <li key={i}>{o.desc} {o.qty > 1 && <span className="quest-offer-qty">({o.qty})</span>}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {offer.rewards?.length > 0 && (
+                <div className="quest-offer-section">
+                  <div className="quest-offer-label cinzel">REWARD</div>
+                  <div className="quest-offer-rewards">
+                    {offer.rewards.map((r, i) => (
+                      <span key={i} className="quest-offer-reward-chip">{r}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -54,9 +96,11 @@ export default function QuestOfferModal({ open, offer, onAccept, onDecline, onCl
           <button className="quest-offer-btn quest-offer-decline" onClick={onDecline}>
             Not now
           </button>
-          <button className="quest-offer-btn quest-offer-accept" onClick={onAccept}>
-            Accept
-          </button>
+          {!isBranching && (
+            <button className="quest-offer-btn quest-offer-accept" onClick={onAccept}>
+              Accept
+            </button>
+          )}
         </div>
       </div>
     </div>

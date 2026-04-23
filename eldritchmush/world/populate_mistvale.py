@@ -149,6 +149,49 @@ for old_key, new_key in _NPC_RENAMES.items():
 
 
 # ===========================================================================
+# CANON LOCATION MIGRATION — Event 1 Rescue the Crafters
+# Per source plot: Marta the Alchemist is held at Owl's Roost; Fenn the
+# Artificer (and Cale the Thorn) are held at Fox Den. Earlier builds had
+# this swapped. Move any existing NPCs to their canon-correct rooms so
+# live DBs converge without spawning duplicates.
+# ===========================================================================
+print("\n=== CRAFTER LOCATION MIGRATION ===")
+_CRAFTER_CANON_ROOMS = {
+    "Marta the Alchemist": "Crow Camp — Owl's Roost",
+    "Fenn the Artificer":  "Crow Camp — Fox Den",
+    "Cale the Thorn":      "Crow Camp — Fox Den",
+}
+for npc_key, correct_room_key in _CRAFTER_CANON_ROOMS.items():
+    correct_room = ObjectDB.objects.filter(
+        db_key=correct_room_key,
+        db_typeclass_path__contains="rooms",
+    ).first()
+    if not correct_room:
+        print(f"  SKIP    : '{npc_key}' — target room '{correct_room_key}' not found yet")
+        continue
+    for npc in ObjectDB.objects.filter(
+        db_key=npc_key, db_typeclass_path__startswith="typeclasses.npc",
+    ):
+        if npc.db_location_id == correct_room.pk:
+            continue
+        old_room = npc.db_location
+        old_key = old_room.db_key if old_room else "<nowhere>"
+        # If a duplicate already exists at the correct room (prior partial
+        # migration run), delete this stale copy.
+        dup = ObjectDB.objects.filter(
+            db_key=npc_key, db_location=correct_room.pk,
+            db_typeclass_path__startswith="typeclasses.npc",
+        ).exclude(id=npc.id).first()
+        if dup:
+            print(f"  DELETE  : stale '{npc_key}' at '{old_key}' (canon copy exists at '{correct_room_key}')")
+            npc.delete()
+        else:
+            print(f"  MOVE    : '{npc_key}'  '{old_key}' → '{correct_room_key}'")
+            npc.db_location = correct_room
+            npc.save()
+
+
+# ===========================================================================
 # GATEWAY ZONE — the Arnesse-side border village on the edge of the Mists
 # ---------------------------------------------------------------------------
 # Per the Event 1 Prologue ("Many Meetings", 7th Moon Cycle 763 A.S.):
@@ -279,6 +322,20 @@ mistwall = get_or_create_room(
 # MYSTVALE ZONE — the central hub town
 # ===========================================================================
 print("\n=== MYSTVALE ROOMS ===")
+
+mystvale_training_yard = get_or_create_room(
+    "Mystvale Training Yard",
+    "typeclasses.rooms.Room",
+    "A hard-packed yard hedged in by a timber palisade. Straw-stuffed "
+    "training dummies stand in a ragged row, and at the far end a line "
+    "of archery targets catches the wind. The yard is named for the "
+    "fencing master Meyer, whose strike-diagrams are chalked on a "
+    "weathered board under the eave. The drillmaster stands near the "
+    "board with an expectant eye — this is where newcomers prove they "
+    "know which end of a weapon to hold.\n\n"
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
+)
 
 mystvale_square = get_or_create_room(
     "Mystvale Square",
@@ -819,6 +876,7 @@ link(mystvale_square, "town hall", town_hall,          "out",        "hall", Non
 link(mystvale_square, "garden",    herbalist_garden,   "out",        None, None)
 link(mystvale_square, "chantry",   chantry,            "out",        None, None)
 link(mystvale_square, "chirurgery", chirurgeons_guild, "out",        "heal", "o")
+link(mystvale_square, "training",  mystvale_training_yard, "out",   "train", "o")
 link(mystvale_square, "north",     manor_row,          "south",      "n",  "s")
 link(mystvale_square, "south",     south_gate,         "north",      "s",  "n")
 link(mystvale_square, "northgate", north_gate,         "south",      None, None)
@@ -902,14 +960,18 @@ quest_gated_link(
     gate_message="|400The forest here is dense and trackless. You'd need someone to point you toward the Crow camp.|n",
 )
 quest_gated_link(
-    forest_road, "fox camp", crow_camp_fox, "out", "fox", "o",
+    # Canon: Marta the Alchemist is held at the Owl's Roost;
+    # unlocked by accepting rescue_alchemist.
+    old_road_south, "owl camp", crow_camp_owl, "out", "owl", "o",
     required_quest="rescue_alchemist",
-    gate_message="|400You don't know where the Fox Den is. The camp letter from the first raid should tell you.|n",
+    gate_message="|400You don't know where the Owl's Roost is. The camp letter from the first raid should tell you.|n",
 )
 quest_gated_link(
-    old_road_south, "owl camp", crow_camp_owl, "out", "owl", "o",
+    # Canon: Fenn the Artificer (and Cale the Thorn) are held at the
+    # Fox Den; unlocked by accepting rescue_artificer.
+    forest_road, "fox camp", crow_camp_fox, "out", "fox", "o",
     required_quest="rescue_artificer",
-    gate_message="|400The Owl's Roost is well-hidden. You'll need directions from someone who's been there.|n",
+    gate_message="|400The Fox Den is well-hidden, run by the Crow lieutenant Cale the Thorn. You'll need directions from someone who's been there.|n",
 )
 
 # Tamris ruins interior (accessed from Carran SW or Ironhaven W)
@@ -2813,25 +2875,25 @@ get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
 get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
                       crow_camp_blacksmith, _CROW_BRUISER_DESC, count=1)
 
-# --- Crow Camp — Fox Den: 3x Striker, 2x Bruiser ---
-get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
-                      crow_camp_fox, _CROW_STRIKER_DESC, count=3)
-get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
-                      crow_camp_fox, _CROW_BRUISER_DESC, count=2)
-
-# --- Crow Camp — Owl's Roost: 3x Striker, 2x Bruiser, 1x Cale ---
+# --- Crow Camp — Owl's Roost (rescue_alchemist): 3x Striker, 2x Bruiser ---
 get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
                       crow_camp_owl, _CROW_STRIKER_DESC, count=3)
 get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
                       crow_camp_owl, _CROW_BRUISER_DESC, count=2)
+
+# --- Crow Camp — Fox Den (rescue_artificer): 3x Striker, 2x Bruiser, 1x Cale ---
+get_or_create_enemies("Crow Striker", "typeclasses.npc.CrowStriker",
+                      crow_camp_fox, _CROW_STRIKER_DESC, count=3)
+get_or_create_enemies("Crow Bruiser", "typeclasses.npc.CrowBruiser",
+                      crow_camp_fox, _CROW_BRUISER_DESC, count=2)
 get_or_create_enemies(
     "Cale the Thorn", "typeclasses.npc.CaleTheThorn",
-    crow_camp_owl,
+    crow_camp_fox,
     "A wiry, sharp-featured man in worn but well-fitted leather armor, "
-    "a steel blade at his hip. An owl-feather cloak hangs from his "
-    "shoulders. He moves with the ease of a trained swordsman — every "
-    "step deliberate, every glance appraising. A jagged scar runs from "
-    "his left ear to his jawline. He does not look like a man who loses.",
+    "a steel blade at his hip. A fox-fur cloak hangs from his shoulders. "
+    "He moves with the ease of a trained swordsman — every step "
+    "deliberate, every glance appraising. A jagged scar runs from his "
+    "left ear to his jawline. He does not look like a man who loses.",
     count=1,
 )
 
@@ -2861,7 +2923,7 @@ torben = get_or_create_npc(
         "- Was kidnapped from the Crafter's Quarter by Crow raiders three "
         "days ago. They wanted him to forge weapons.\n"
         "- His spouse Marta, an alchemist, was taken to a second camp "
-        "called the Fox Den — he overheard guards talking about it.\n"
+        "called the Owl's Roost — he overheard guards talking about it.\n"
         "- A young artificer named Fenn was taken to a third camp deeper "
         "along the Old Road.\n"
         "- The Crows are not ordinary bandits — they have leadership, "
@@ -2870,7 +2932,7 @@ torben = get_or_create_npc(
         "and forge for the settlement."
     ),
     quest_hooks=[
-        "Begs the player to rescue his spouse Marta from the Fox Den.",
+        "Begs the player to rescue his spouse Marta from the Owl's Roost.",
         "Will offer his smithing services for free once he returns to "
         "Mystvale.",
         "Knows details about the Crow organization that Ser Ewan Bannon "
@@ -2882,7 +2944,7 @@ torben = get_or_create_npc(
 
 marta = get_or_create_npc(
     key="Marta the Alchemist",
-    location=crow_camp_fox,
+    location=crow_camp_owl,
     desc=(
         "A wiry, exhausted woman with herb-stained fingers and dark "
         "circles under sharp, intelligent eyes. Her apothecary's satchel "
@@ -2899,7 +2961,7 @@ marta = get_or_create_npc(
     knowledge=(
         "- Was forced to brew poisons for the Crows. Sabotaged what she "
         "could — diluted doses, substituted inert herbs.\n"
-        "- A young artificer named Fenn is held at the Owl's Roost, the "
+        "- A young artificer named Fenn is held at the Fox Den, the "
         "biggest camp, run by a Crow lieutenant called Cale the Thorn.\n"
         "- Cale is dangerous — a trained fighter, not a common thug. He "
         "answers to someone called 'the Old Badger.'\n"
@@ -2911,7 +2973,7 @@ marta = get_or_create_npc(
         "also sells a few common reagents: |wherbs|n to see stock."
     ),
     quest_hooks=[
-        "Tells the player about Fenn at the Owl's Roost and urges them "
+        "Tells the player about Fenn at the Fox Den and urges them "
         "to finish what they started.",
         "Offers reagents as thanks — Sayge and Blackthorn from her "
         "personal stores.",
@@ -2951,7 +3013,7 @@ marta.attributes.add("recipe_shop", {
 
 fenn = get_or_create_npc(
     key="Fenn the Artificer",
-    location=crow_camp_owl,
+    location=crow_camp_fox,
     desc=(
         "A young, gangly man barely out of his apprenticeship, with "
         "clever hands and a nervous, darting gaze. His artificer's "
@@ -3714,6 +3776,562 @@ if not existing_writ:
     writ.db.bearer = ""  # blank so players see "________________"
     writ.locks.add("get:perm(Builder)")  # demo copy — admins only can pocket it
     print(f"  CREATED : {writ_key} → Crane's Tent (demo)")
+
+
+# ===========================================================================
+# EVENT 1 WALK-IN HERALD
+#
+# A non-merchant NPC at Gateway Square who offers the five walk-in quests
+# (walkin_ship / cirque / noble / scout / chain_gang). Each walk-in is a
+# branching quest — see world/quest_data.py for outcome definitions.
+#
+# Intentionally simple for now: the Herald is the giver for all five. Later
+# passes will seed the supporting NPCs (watch captain, harbormaster, etc.)
+# that complete each walk-in's objectives.
+# ===========================================================================
+print("\n=== EVENT 1 WALK-IN HERALD ===")
+
+herald_key = "Herald at the Gates"
+_existing_herald = ObjectDB.objects.filter(
+    db_key=herald_key,
+    db_location=gateway_square.pk,
+).first()
+if _existing_herald:
+    herald = _existing_herald
+    print(f"  EXISTS  : {herald_key}")
+else:
+    herald = _create.create_object(
+        "typeclasses.npc.Npc",
+        key=herald_key,
+        location=gateway_square,
+    )
+    print(f"  CREATED : {herald_key} → Gateway Square")
+
+herald.aliases.add("herald")
+herald.aliases.add("gates")
+herald.db.desc = (
+    "A weathered crier in Compact colours stands atop a stump by the "
+    "gates, voice hoarse from shouting for newcomers. A leather satchel "
+    "at her hip bulges with letters of introduction, writs, bills of "
+    "lading and dogeared contracts. A brass bell hangs from her belt. "
+    "She looks you up and down the moment you approach, already asking "
+    "— without asking — how you got here."
+)
+herald.db.is_npc = True
+herald.db.is_aggressive = False
+# AI personality for `ask herald` dialogue
+herald.attributes.add("ai_personality", (
+    "A Compact herald posted at the Gateway Square to greet newcomers "
+    "emerging from the Mists. Busy, observant, practical. Believes every "
+    "arrival has a story worth logging — and that the story shapes what "
+    "Mystvale owes them. Will offer one of five walk-in quests based on "
+    "how a newcomer says they arrived."
+))
+herald.attributes.add("ai_knowledge", (
+    "- Offers five walk-in quests depending on arrival flavor: Ship, "
+    "Cirque, Noble, Scout, or Chain Gang. Each has multiple paths to "
+    "completion with different reputation outcomes.\n"
+    "- Use |wquest|n to see available walk-ins; |wquest accept <title> "
+    "/ <path>|n to commit to a specific branching outcome.\n"
+    "- She does not take sides — she logs arrivals. What a newcomer "
+    "does after is their business."
+))
+
+# Offer all five walk-ins by default — but make the listing gentler by
+# having the NPC mention only the quests the player hasn't yet attempted.
+herald.attributes.add("ai_quest_hooks", [
+    "Offers the five walk-in quests (walkin_ship, walkin_cirque, "
+    "walkin_noble, walkin_scout, walkin_chain_gang) to any newcomer who "
+    "hasn't picked one yet."
+])
+
+
+# ===========================================================================
+# EVENT 1 WALK-IN SUPPORTING NPCs + ITEMS
+#
+# Everything downstream of the Herald that the walk-in quests need:
+#   - Quest-giver/receiver NPCs (harbormaster, ringmaster, watch captain,
+#     Lady Ysolde, crow agent)
+#   - Kill-target NPCs (road bandits, nosy farmhand, jailers, ringleader)
+#   - Gather items (wreck manifest, salvage, captain's seal, pendant,
+#     sealed/unsealed letter, crow waymark, forged warrant)
+#
+# Placement is quest-logic-driven; each walk-in has a clear completion
+# path without needing to visit more than 2-3 rooms.
+# ===========================================================================
+print("\n=== EVENT 1 WALK-IN SUPPORTING NPCs ===")
+
+
+def _ensure_walkin_npc(key, location, desc, aliases=(), aggressive=False,
+                       ai_personality=None, ai_knowledge=None,
+                       typeclass="typeclasses.npc.Npc", count=1):
+    """Idempotent create-or-refresh for walk-in NPC(s).
+
+    If `count` > 1, ensures at least `count` NPCs with the same key exist
+    at `location`; creates missing ones to reach the target. Returns the
+    first instance (most callers only use one)."""
+    existing = list(ObjectDB.objects.filter(
+        db_key=key, db_location=location.pk,
+    ))
+    made = 0
+    while len(existing) < count:
+        new = _create.create_object(typeclass, key=key, location=location)
+        existing.append(new)
+        made += 1
+    if made:
+        print(f"  CREATED : {key} × {made} → {location.key}")
+    else:
+        suffix = f" (×{count})" if count > 1 else ""
+        print(f"  EXISTS  : {key}{suffix}")
+    first = existing[0]
+    for npc in existing:
+        for a in aliases:
+            npc.aliases.add(a)
+        npc.db.desc = desc
+        npc.db.is_npc = True
+        npc.db.is_aggressive = aggressive
+        if ai_personality:
+            npc.attributes.add("ai_personality", ai_personality)
+        if ai_knowledge:
+            npc.attributes.add("ai_knowledge", ai_knowledge)
+    return first
+
+
+def _ensure_walkin_item(key, location, desc, aliases=(),
+                        typeclass="typeclasses.objects.Object", count=1):
+    """Idempotent create-or-refresh for gettable quest item(s).
+
+    `count` lets you seed multiple identical copies (e.g. wreck salvage × 3)."""
+    existing = list(ObjectDB.objects.filter(
+        db_key=key, db_location=location.pk,
+    ))
+    made = 0
+    while len(existing) < count:
+        new = _create.create_object(typeclass, key=key, location=location)
+        existing.append(new)
+        made += 1
+    if made:
+        print(f"  CREATED : item {key} × {made} → {location.key}")
+    else:
+        suffix = f" (×{count})" if count > 1 else ""
+        print(f"  EXISTS  : item {key}{suffix}")
+    first = existing[0]
+    for obj in existing:
+        for a in aliases:
+            obj.aliases.add(a)
+        obj.db.desc = desc
+        obj.locks.add("get:all()")
+    return first
+
+
+# ── Ship walk-in ────────────────────────────────────────────────────────────
+harbormaster = _ensure_walkin_npc(
+    "Mystvale Harbormaster", tamris_harbor,
+    desc=(
+        "A stout man in a salt-stained wool coat, brass harbour-seal on a "
+        "chain around his neck, ledger tucked under one arm. He watches "
+        "the water more than he watches you."
+    ),
+    aliases=("harbormaster", "mystvale harbormaster"),
+    aggressive=False,
+    ai_personality=(
+        "The Mystvale harbormaster. Practical, unimpressed, professional. "
+        "Logs wreck salvage for Crown tax. Takes reports from "
+        "shipwreck survivors if they can produce a manifest."
+    ),
+)
+
+_ensure_walkin_item(
+    "wreck manifest", tamris_harbor,
+    desc="A water-warped ship's manifest, bleeding ink but still legible.",
+    aliases=("manifest",),
+)
+_ensure_walkin_item(
+    "wreck salvage", tamris_harbor,
+    desc="A splintered crate of half-ruined cargo from the wrecked ship.",
+    aliases=("salvage", "crate"),
+    count=3,
+)
+_ensure_walkin_item(
+    "captain's seal", tamris_harbor,
+    desc=(
+        "A heavy brass seal, warm to the touch, showing a sigil you cannot "
+        "quite focus on. The captain wanted this burned."
+    ),
+    aliases=("seal", "captain seal"),
+)
+
+
+# ── Cirque walk-in ──────────────────────────────────────────────────────────
+ringmaster = _ensure_walkin_npc(
+    "The Ringmaster", marketplace,
+    desc=(
+        "A tall, grey-eyed man in a stained scarlet coat, one hand resting "
+        "on the head of a walking-cane topped with a silver jackdaw. The "
+        "smell of lamp oil and greasepaint comes off him in waves."
+    ),
+    aliases=("ringmaster", "the ringmaster"),
+    aggressive=False,
+    ai_personality=(
+        "The Ringmaster of the Grand Cirque Obscura — outwardly warm, "
+        "privately ruthless. Values the Cirque's reputation above any "
+        "single performer."
+    ),
+)
+
+nosy_farmhand = _ensure_walkin_npc(
+    "Nosy Farmhand", old_road_south,
+    desc=(
+        "A wiry man in patched homespun, a hay-hook tucked in his belt. "
+        "He's been watching the Cirque caravan more than his cattle, and "
+        "he saw something he probably shouldn't have."
+    ),
+    aliases=("farmhand", "nosy farmhand"),
+    aggressive=True,
+)
+nosy_farmhand.db.body = 3
+nosy_farmhand.db.total_body = 3
+nosy_farmhand.db.av = 0
+
+_ensure_walkin_item(
+    "eldreth's pendant", old_road_south,
+    desc=(
+        "A tin-and-enamel pendant in the shape of a jackdaw, its chain "
+        "snapped. It smells faintly of lamp oil."
+    ),
+    aliases=("pendant", "jackdaw pendant", "eldreth pendant"),
+)
+
+
+# ── Noble walk-in ───────────────────────────────────────────────────────────
+lady_ysolde = _ensure_walkin_npc(
+    "Lady Ysolde of the Crescent", town_hall,
+    desc=(
+        "A tall woman in court black, silver crescent-moon pin at her "
+        "throat. She stands at ease behind a writing-desk stacked with "
+        "sealed correspondence. Her eyes miss nothing."
+    ),
+    aliases=("ysolde", "lady ysolde", "lady"),
+    aggressive=False,
+    ai_personality=(
+        "Lady Ysolde of the Crescent, a minor Crown functionary running a "
+        "clearing-house of correspondence out of Mystvale Town Hall. "
+        "Courteous, clipped, meticulous about seals and provenance."
+    ),
+)
+
+bandit = _ensure_walkin_npc(
+    "road bandit", old_road_south,
+    desc=(
+        "A wiry man in mismatched leathers, a crude cudgel in one hand "
+        "and a dirty scarf hiding the lower half of his face."
+    ),
+    aliases=("bandit",),
+    aggressive=True,
+    count=2,
+)
+# Apply stats to every instance in the room.
+for b in ObjectDB.objects.filter(db_key="road bandit", db_location=old_road_south.pk):
+    b.db.body = 4
+    b.db.total_body = 4
+    b.db.av = 1
+
+_ensure_walkin_item(
+    "unsealed letter", old_road_south,
+    desc=(
+        "A nobleman's letter, wax seal cracked open. You shouldn't have "
+        "read it. You did. You know what's inside now."
+    ),
+    aliases=("unsealed letter", "letter"),
+)
+
+
+# ── Scout walk-in ───────────────────────────────────────────────────────────
+watch_captain = _ensure_walkin_npc(
+    "Mystvale Captain of the Watch", bannon_barracks,
+    desc=(
+        "A gaunt veteran in watch-grey, beard iron-shot, a scar bisecting "
+        "one eyebrow. A half-drunk cup of tea cools on the map-table in "
+        "front of him."
+    ),
+    aliases=("watch captain", "captain of the watch", "captain"),
+    aggressive=False,
+    ai_personality=(
+        "Captain of the Mystvale watch. Pragmatic, tired, more interested "
+        "in useful intel than politeness. Takes bribes of information "
+        "rather than coin."
+    ),
+)
+
+_ensure_walkin_item(
+    "crow waymark", old_road_south,
+    desc=(
+        "A crude waymark cut into a shingle of pine bark — three "
+        "intersecting lines and a dot. Crow sign, fresh."
+    ),
+    aliases=("waymark", "crow waymark"),
+)
+
+crow_agent = _ensure_walkin_npc(
+    "Crow Agent", old_road_south,
+    desc=(
+        "A thin figure in a hooded cloak the colour of wet slate, leaning "
+        "against a gnarled pine. A raven's-feather pin glints at the "
+        "throat."
+    ),
+    aliases=("crow agent", "agent"),
+    aggressive=False,
+    ai_personality=(
+        "A Crow-faction agent on the Old Road south of Mystvale. Buys "
+        "intercepted correspondence, warns of patrols, pays in silver — "
+        "and remembers faces, good and bad."
+    ),
+)
+
+
+# ── Chain Gang walk-in ──────────────────────────────────────────────────────
+# Placed at the Mistwall (the mist-edge where chain gangs are marched in).
+jailer = _ensure_walkin_npc(
+    "Mystvale Jailer", mistwall,
+    desc=(
+        "A thickset man in boiled leather with a chain-driver's whip "
+        "looped at his belt. He smells of sweat and old iron."
+    ),
+    aliases=("jailer",),
+    aggressive=True,
+    count=2,
+)
+for j in ObjectDB.objects.filter(db_key="Mystvale Jailer", db_location=mistwall.pk):
+    j.db.body = 5
+    j.db.total_body = 5
+    j.db.av = 2
+
+ringleader = _ensure_walkin_npc(
+    "Chain Gang Ringleader", mistwall,
+    desc=(
+        "A grey-bearded prisoner, wrists still chained, eyes bright with "
+        "plans. He hisses at every guard who passes and watches the newer "
+        "captives like a man counting fighters."
+    ),
+    aliases=("ringleader", "chain gang ringleader"),
+    aggressive=True,
+)
+ringleader.db.body = 6
+ringleader.db.total_body = 6
+ringleader.db.av = 1
+
+_ensure_walkin_item(
+    "forged warrant", mistwall,
+    desc=(
+        "A thick parchment warrant bearing your name — and, beneath the "
+        "wax, the smudge of a seal that was re-pressed while still warm. "
+        "Not a genuine Crown seal. Proof, if a court will hear you."
+    ),
+    aliases=("forged warrant", "warrant"),
+)
+
+
+# ===========================================================================
+# EVENT 1 — SATURDAY CONTENT
+#
+# Adds NPCs, items, and rooms for the four new Saturday-arc quests
+# defined in world/quest_data.py:
+#   - combat_training    (Mystvale Training Yard)
+#   - alchemy_training   (The Crafter's Quarter / Apotheca Chirurgery)
+#   - business_opportunity (gated on walkin_cirque; Mystvale Marketplace)
+#   - tale_to_remember   (Songbird's Rest at night)
+#
+# Also seeds Rowyna's Diary of Exile at the Crow Camp Blacksmith's Prison
+# so it can be found during/after rescue_blacksmith.
+# ===========================================================================
+print("\n=== EVENT 1 SATURDAY CONTENT ===")
+
+# --- Combat Training (Mystvale Training Yard) ---
+drillmaster = _ensure_walkin_npc(
+    "Drillmaster Aglent", mystvale_training_yard,
+    desc=(
+        "A stocky Crown drillmaster in dented breastplate and a slashed "
+        "gambeson, an oak practice-sword tucked under one arm. Grey "
+        "beard, iron-grey eyes, a smile you wouldn't trust on a cliff."
+    ),
+    aliases=("drillmaster", "aglent"),
+    aggressive=False,
+    ai_personality=(
+        "Drillmaster Aglent, Mystvale's combat instructor. Trained half "
+        "the Bannon rangers, retired to teach newcomers. Blunt, humorous, "
+        "refuses to let a student injure themselves through ignorance."
+    ),
+    ai_knowledge=(
+        "- Teaches basic strike and shoot mechanics on training dummies and "
+        "archery targets. The dummies don't fight back, but they count.\n"
+        "- Accept |wCombat Training|n to practice; the drillmaster logs "
+        "each successful strike or shot.\n"
+        "- Meyer's diagram on the wall is the old northern school. Aglent "
+        "swears by it."
+    ),
+)
+
+# Training dummies and targets — low HP, not aggressive. Using the NPC
+# typeclass is fine because `strike` / `shoot` work on any combatant.
+_ensure_walkin_npc(
+    "training dummy", mystvale_training_yard,
+    desc="A straw-stuffed dummy pinned to a post. Swing hard.",
+    aliases=("dummy",),
+    aggressive=False,
+    count=3,
+)
+for dummy in ObjectDB.objects.filter(db_key="training dummy", db_location=mystvale_training_yard.pk):
+    dummy.db.body = 1
+    dummy.db.total_body = 10       # high body so kill doesn't delete the dummy
+    dummy.db.av = 0
+    dummy.db.is_practice = True    # hook for a future skill-use bypass
+
+_ensure_walkin_npc(
+    "archery target", mystvale_training_yard,
+    desc="A padded target on a tripod, its painted rings faded by rain.",
+    aliases=("target",),
+    aggressive=False,
+    count=2,
+)
+for tgt in ObjectDB.objects.filter(db_key="archery target", db_location=mystvale_training_yard.pk):
+    tgt.db.body = 1
+    tgt.db.total_body = 10
+    tgt.db.av = 0
+    tgt.db.is_practice = True
+
+# --- Alchemy Training (Crafter's Quarter — Apotheca Chirurgery) ---
+sister_ivy = _ensure_walkin_npc(
+    "Sister Ivy", chirurgeons_guild,
+    desc=(
+        "A slight, sharp-eyed alchemist in dun robes, her fingers "
+        "perpetually stained with bluish pigment. Glass vials clink on a "
+        "belt-apothecary; a mortar and pestle wait on the table behind her."
+    ),
+    aliases=("ivy", "sister ivy"),
+    aggressive=False,
+    ai_personality=(
+        "Sister Ivy, an Aurorym-trained apothecary running a teaching "
+        "chirurgery in Mystvale. Patient with first-time brewers, "
+        "merciless about clean reagents."
+    ),
+    ai_knowledge=(
+        "- Teaches Alchemy basics: equip an Apothecary Kit, gather a Sayge "
+        "reagent, and bring it here so she can walk you through a brew.\n"
+        "- Accept |wAlchemy Training|n to start the tutorial. Reward is a "
+        "starter kit of common reagents."
+    ),
+)
+
+# Sayge reagent as a gather item next to Sister Ivy for the tutorial
+_ensure_walkin_item(
+    "Sayge", chirurgeons_guild,
+    desc=(
+        "A small bundle of Sayge — pale, aromatic, the foundational "
+        "reagent of every novice alchemist's first recipe."
+    ),
+    aliases=("sayge bundle", "herb"),
+    count=2,
+)
+
+# --- Business Opportunity (Mystvale Marketplace) ---
+# Eldreth is the Cirque fortune-teller mentioned in walkin_cirque; this
+# quest gates on that walk-in being completed so she's "known" to the
+# player before offering the follow-up hook.
+eldreth = _ensure_walkin_npc(
+    "Eldreth of the Cirque", marketplace,
+    desc=(
+        "The Cirque fortune-teller, still wrapped in her caravan's black "
+        "and saffron shawl. A jackdaw pendant hangs at her throat; her "
+        "eyes never quite track the same speaker twice."
+    ),
+    aliases=("eldreth",),
+    aggressive=False,
+    ai_personality=(
+        "Eldreth the Cirque fortune-teller. Speaks in fragments. Half "
+        "scam, half prophecy, all self-interest. Acts like she already "
+        "knows what the listener wants."
+    ),
+    ai_knowledge=(
+        "- Offers the |wBusiness Opportunity|n quest ONLY to characters "
+        "who've completed a |wFrom the Mists: Cirque|n walk-in (any outcome).\n"
+        "- A body was found on the Old Road south; something about it has "
+        "the Cirque nervous. She'll pay someone to go look."
+    ),
+)
+
+yan = _ensure_walkin_npc(
+    "Yan the Woodsman", old_road_south,
+    desc=(
+        "A wiry man in a pine-pitched cloak, an axe-haft peeking from his "
+        "pack. He glances over his shoulder between sentences."
+    ),
+    aliases=("yan", "woodsman"),
+    aggressive=False,
+    ai_personality=(
+        "Yan the Woodsman, a local trapper with a nose for things the "
+        "authorities want kept quiet. Knows where bodies are buried — "
+        "literally. Trades information for coin or favors."
+    ),
+    ai_knowledge=(
+        "- Saw something on the Old Road a night ago that the Cirque "
+        "wouldn't want known. Will confirm it to anyone bearing Eldreth's "
+        "mark."
+    ),
+)
+
+_ensure_walkin_item(
+    "yan's testimony", old_road_south,
+    desc=(
+        "A folded scrap of oilcloth bearing Yan's wax-smear mark and a "
+        "terse account of what he saw on the Old Road."
+    ),
+    aliases=("testimony", "oilcloth",),
+)
+
+# --- Tale to Remember (Songbird's Rest) ---
+# Reuse a new bard NPC so Hamond stays exclusively the duel-giver.
+threnody_bard = _ensure_walkin_npc(
+    "Kestren the Bard", aentact,
+    desc=(
+        "A lean, weathered woman in a mist-grey cloak, a lap-harp across "
+        "her knee. Silver streaks at her temples. She keeps her hood up "
+        "until the tavern settles into its evening hush."
+    ),
+    aliases=("kestren", "bard"),
+    aggressive=False,
+    ai_personality=(
+        "Kestren, a travelling bard whose repertoire runs to the old "
+        "Arnessian mythology — the First Hunt, the Constellations, the "
+        "fall of Dun Siarach. Sings for coin, more for silence."
+    ),
+    ai_knowledge=(
+        "- Offers |wA Tale to Remember|n; listen to her ballad at the "
+        "Songbird's Rest and tip well for the written fragment.\n"
+        "- Rewards a lore scroll on the First Hunt (Mythology) and a "
+        "stargazer's guide to the Arnessian sky (Vale)."
+    ),
+)
+
+# --- Rowyna's Diary (Crow Camp — Blacksmith's Prison) ---
+# Canon lore item referenced in the Drive source. Contains fragmentary
+# account of Rowyna of Oldwarren, survivor of Ser Tairn Oban's company
+# at the Battle of Elminsk — ties into Hamond the Talon's duel quest.
+_ensure_walkin_item(
+    "rowyna's diary of exile", crow_camp_blacksmith,
+    desc=(
+        "A battered journal bound in oiled calfskin, the last pages "
+        "torn away. The writer is one Rowyna of Oldwarren, a survivor "
+        "of Ser Tairn Oban's company at the Battle of Elminsk — taken "
+        "by Richter and Bannon raiders and carted through the Mists to "
+        "a soldier's camp she could not place. She names Ser Tairn, "
+        "Lady Onora, and the ruin of Dun Siarach. Her hand runs out "
+        "mid-sentence."
+    ),
+    aliases=("diary", "rowyna's diary", "exile's diary", "journal"),
+)
+
+# --- Sparring ring posts for Combat Training (flavour props) ---
+# (No mechanic — just decorate the yard.)
 
 
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
