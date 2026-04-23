@@ -158,6 +158,55 @@ def _effective_faction_rep(quest_def, outcome_key=None):
     return {}
 
 
+def _effective_npc_rep(quest_def, outcome_key=None):
+    """Per-NPC rep deltas + memory tags to apply on completion.
+
+    Returns a (deltas, memories) tuple where deltas is {npc_key: int}
+    and memories is {npc_key: tag_str}. Outcomes can define either or
+    both. Non-branching quests can also define them at the top level.
+    """
+    if _has_outcomes(quest_def):
+        outcome = _quest_outcome_def(quest_def, outcome_key) or {}
+        return (
+            outcome.get("npc_rep_deltas", {}) or {},
+            outcome.get("npc_memories", {}) or {},
+        )
+    return (
+        quest_def.get("npc_rep_deltas", {}) or {},
+        quest_def.get("npc_memories", {}) or {},
+    )
+
+
+def _apply_npc_rep(char, deltas, memories):
+    """Update char.db.npc_rep with the given deltas + memory tags.
+    Returns a list of (npc_key, delta, new_rep) tuples for display."""
+    import time as _time
+    changed = []
+    if not char.db.npc_rep:
+        char.db.npc_rep = {}
+    now_iso = _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime())
+    # Collect every NPC that needs an update (rep or memory).
+    keys = set((deltas or {}).keys()) | set((memories or {}).keys())
+    for npc_key in keys:
+        npc_key_l = npc_key.lower()
+        entry = dict(char.db.npc_rep.get(npc_key_l) or {})
+        entry.setdefault("rep", 0)
+        entry.setdefault("memories", [])
+        delta = (deltas or {}).get(npc_key, 0)
+        if delta:
+            entry["rep"] = int(entry["rep"]) + int(delta)
+        memory_tag = (memories or {}).get(npc_key)
+        if memory_tag:
+            mems = list(entry.get("memories") or [])
+            if memory_tag not in mems:
+                mems.append(memory_tag)
+            entry["memories"] = mems
+        entry["last_interacted"] = now_iso
+        char.db.npc_rep[npc_key_l] = entry
+        changed.append((npc_key, delta, entry["rep"]))
+    return changed
+
+
 def _fresh_objectives(quest_def, outcome_key=None):
     """Return a deep-copied list of objective dicts with current=0."""
     return [
@@ -318,6 +367,16 @@ def _check_completion(char, key):
                 f"|540Reputation: {sign}{delta}|n |w{faction.title()}|n "
                 f"|540(now {after})|n")
 
+    # Apply per-NPC personal rep + memory tags (new in #15).
+    npc_deltas, npc_memories = _effective_npc_rep(qdef, outcome_key)
+    npc_changed = _apply_npc_rep(char, npc_deltas, npc_memories)
+    for npc_key, delta, new_rep in npc_changed:
+        if delta:
+            sign = "|g+" if delta >= 0 else "|r"
+            _msg_text_only(char,
+                f"|540{npc_key.title()} remembers you: {sign}{delta}|n "
+                f"|540(rep {new_rep})|n")
+
     # Fire a quest_completed OOB event so the frontend can toast the
     # full summary (title, outcome label, rewards line, rep deltas).
     # Item rewards already fired item_received above for per-item toasts.
@@ -338,6 +397,7 @@ def _check_completion(char, key):
             "items": [it.key for it in items_spawned],
             "reagents": dict(rewards.get("reagents") or {}),
             "factionRep": dict(rep_deltas or {}),
+            "npcRep": {k: d for k, d, _ in npc_changed if d},
         }
         for sess in char.sessions.all():
             sess.msg(event=payload)

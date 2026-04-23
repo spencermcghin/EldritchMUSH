@@ -674,6 +674,14 @@ QUESTS = {
                 ],
                 "rewards": {"silver": 15, "items": ["CROW_CAMP_LETTER"], "reagents": {}},
                 "faction_rep": {"crown": 1, "crows": -3},
+                "npc_rep_deltas": {
+                    "torben the blacksmith": 8,
+                    "ser ewan bannon": 4,
+                },
+                "npc_memories": {
+                    "torben the blacksmith": "rescued me from the Crow camp by blade",
+                    "ser ewan bannon": "cleared the camp cleanly",
+                },
             },
             "clear_by_parley": {
                 "label": "Persuade the Crows to let him go",
@@ -689,6 +697,14 @@ QUESTS = {
                 ],
                 "rewards": {"silver": 10, "items": ["CROW_CAMP_LETTER"], "reagents": {}},
                 "faction_rep": {"crows": 2, "crown": -1},
+                "npc_rep_deltas": {
+                    "torben the blacksmith": 5,
+                    "ser ewan bannon": -2,
+                },
+                "npc_memories": {
+                    "torben the blacksmith": "spared blood to bring me home",
+                    "ser ewan bannon": "took the quiet way; crown business unfinished",
+                },
             },
         },
         "prereqs": [],
