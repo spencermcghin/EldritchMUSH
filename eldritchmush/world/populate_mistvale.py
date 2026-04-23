@@ -323,6 +323,20 @@ mistwall = get_or_create_room(
 # ===========================================================================
 print("\n=== MYSTVALE ROOMS ===")
 
+mystvale_training_yard = get_or_create_room(
+    "Mystvale Training Yard",
+    "typeclasses.rooms.Room",
+    "A hard-packed yard hedged in by a timber palisade. Straw-stuffed "
+    "training dummies stand in a ragged row, and at the far end a line "
+    "of archery targets catches the wind. The yard is named for the "
+    "fencing master Meyer, whose strike-diagrams are chalked on a "
+    "weathered board under the eave. The drillmaster stands near the "
+    "board with an expectant eye — this is where newcomers prove they "
+    "know which end of a weapon to hold.\n\n"
+    "Back to |wMystvale Square|n.",
+    zone="Mystvale",
+)
+
 mystvale_square = get_or_create_room(
     "Mystvale Square",
     "typeclasses.rooms.Room",
@@ -862,6 +876,7 @@ link(mystvale_square, "town hall", town_hall,          "out",        "hall", Non
 link(mystvale_square, "garden",    herbalist_garden,   "out",        None, None)
 link(mystvale_square, "chantry",   chantry,            "out",        None, None)
 link(mystvale_square, "chirurgery", chirurgeons_guild, "out",        "heal", "o")
+link(mystvale_square, "training",  mystvale_training_yard, "out",   "train", "o")
 link(mystvale_square, "north",     manor_row,          "south",      "n",  "s")
 link(mystvale_square, "south",     south_gate,         "north",      "s",  "n")
 link(mystvale_square, "northgate", north_gate,         "south",      None, None)
@@ -4114,6 +4129,209 @@ _ensure_walkin_item(
     ),
     aliases=("forged warrant", "warrant"),
 )
+
+
+# ===========================================================================
+# EVENT 1 — SATURDAY CONTENT
+#
+# Adds NPCs, items, and rooms for the four new Saturday-arc quests
+# defined in world/quest_data.py:
+#   - combat_training    (Mystvale Training Yard)
+#   - alchemy_training   (The Crafter's Quarter / Apotheca Chirurgery)
+#   - business_opportunity (gated on walkin_cirque; Mystvale Marketplace)
+#   - tale_to_remember   (Songbird's Rest at night)
+#
+# Also seeds Rowyna's Diary of Exile at the Crow Camp Blacksmith's Prison
+# so it can be found during/after rescue_blacksmith.
+# ===========================================================================
+print("\n=== EVENT 1 SATURDAY CONTENT ===")
+
+# --- Combat Training (Mystvale Training Yard) ---
+drillmaster = _ensure_walkin_npc(
+    "Drillmaster Aglent", mystvale_training_yard,
+    desc=(
+        "A stocky Crown drillmaster in dented breastplate and a slashed "
+        "gambeson, an oak practice-sword tucked under one arm. Grey "
+        "beard, iron-grey eyes, a smile you wouldn't trust on a cliff."
+    ),
+    aliases=("drillmaster", "aglent"),
+    aggressive=False,
+    ai_personality=(
+        "Drillmaster Aglent, Mystvale's combat instructor. Trained half "
+        "the Bannon rangers, retired to teach newcomers. Blunt, humorous, "
+        "refuses to let a student injure themselves through ignorance."
+    ),
+    ai_knowledge=(
+        "- Teaches basic strike and shoot mechanics on training dummies and "
+        "archery targets. The dummies don't fight back, but they count.\n"
+        "- Accept |wCombat Training|n to practice; the drillmaster logs "
+        "each successful strike or shot.\n"
+        "- Meyer's diagram on the wall is the old northern school. Aglent "
+        "swears by it."
+    ),
+)
+
+# Training dummies and targets — low HP, not aggressive. Using the NPC
+# typeclass is fine because `strike` / `shoot` work on any combatant.
+_ensure_walkin_npc(
+    "training dummy", mystvale_training_yard,
+    desc="A straw-stuffed dummy pinned to a post. Swing hard.",
+    aliases=("dummy",),
+    aggressive=False,
+    count=3,
+)
+for dummy in ObjectDB.objects.filter(db_key="training dummy", db_location=mystvale_training_yard.pk):
+    dummy.db.body = 1
+    dummy.db.total_body = 10       # high body so kill doesn't delete the dummy
+    dummy.db.av = 0
+    dummy.db.is_practice = True    # hook for a future skill-use bypass
+
+_ensure_walkin_npc(
+    "archery target", mystvale_training_yard,
+    desc="A padded target on a tripod, its painted rings faded by rain.",
+    aliases=("target",),
+    aggressive=False,
+    count=2,
+)
+for tgt in ObjectDB.objects.filter(db_key="archery target", db_location=mystvale_training_yard.pk):
+    tgt.db.body = 1
+    tgt.db.total_body = 10
+    tgt.db.av = 0
+    tgt.db.is_practice = True
+
+# --- Alchemy Training (Crafter's Quarter — Apotheca Chirurgery) ---
+sister_ivy = _ensure_walkin_npc(
+    "Sister Ivy", chirurgeons_guild,
+    desc=(
+        "A slight, sharp-eyed alchemist in dun robes, her fingers "
+        "perpetually stained with bluish pigment. Glass vials clink on a "
+        "belt-apothecary; a mortar and pestle wait on the table behind her."
+    ),
+    aliases=("ivy", "sister ivy"),
+    aggressive=False,
+    ai_personality=(
+        "Sister Ivy, an Aurorym-trained apothecary running a teaching "
+        "chirurgery in Mystvale. Patient with first-time brewers, "
+        "merciless about clean reagents."
+    ),
+    ai_knowledge=(
+        "- Teaches Alchemy basics: equip an Apothecary Kit, gather a Sayge "
+        "reagent, and bring it here so she can walk you through a brew.\n"
+        "- Accept |wAlchemy Training|n to start the tutorial. Reward is a "
+        "starter kit of common reagents."
+    ),
+)
+
+# Sayge reagent as a gather item next to Sister Ivy for the tutorial
+_ensure_walkin_item(
+    "Sayge", chirurgeons_guild,
+    desc=(
+        "A small bundle of Sayge — pale, aromatic, the foundational "
+        "reagent of every novice alchemist's first recipe."
+    ),
+    aliases=("sayge bundle", "herb"),
+    count=2,
+)
+
+# --- Business Opportunity (Mystvale Marketplace) ---
+# Eldreth is the Cirque fortune-teller mentioned in walkin_cirque; this
+# quest gates on that walk-in being completed so she's "known" to the
+# player before offering the follow-up hook.
+eldreth = _ensure_walkin_npc(
+    "Eldreth of the Cirque", marketplace,
+    desc=(
+        "The Cirque fortune-teller, still wrapped in her caravan's black "
+        "and saffron shawl. A jackdaw pendant hangs at her throat; her "
+        "eyes never quite track the same speaker twice."
+    ),
+    aliases=("eldreth",),
+    aggressive=False,
+    ai_personality=(
+        "Eldreth the Cirque fortune-teller. Speaks in fragments. Half "
+        "scam, half prophecy, all self-interest. Acts like she already "
+        "knows what the listener wants."
+    ),
+    ai_knowledge=(
+        "- Offers the |wBusiness Opportunity|n quest ONLY to characters "
+        "who've completed a |wFrom the Mists: Cirque|n walk-in (any outcome).\n"
+        "- A body was found on the Old Road south; something about it has "
+        "the Cirque nervous. She'll pay someone to go look."
+    ),
+)
+
+yan = _ensure_walkin_npc(
+    "Yan the Woodsman", old_road_south,
+    desc=(
+        "A wiry man in a pine-pitched cloak, an axe-haft peeking from his "
+        "pack. He glances over his shoulder between sentences."
+    ),
+    aliases=("yan", "woodsman"),
+    aggressive=False,
+    ai_personality=(
+        "Yan the Woodsman, a local trapper with a nose for things the "
+        "authorities want kept quiet. Knows where bodies are buried — "
+        "literally. Trades information for coin or favors."
+    ),
+    ai_knowledge=(
+        "- Saw something on the Old Road a night ago that the Cirque "
+        "wouldn't want known. Will confirm it to anyone bearing Eldreth's "
+        "mark."
+    ),
+)
+
+_ensure_walkin_item(
+    "yan's testimony", old_road_south,
+    desc=(
+        "A folded scrap of oilcloth bearing Yan's wax-smear mark and a "
+        "terse account of what he saw on the Old Road."
+    ),
+    aliases=("testimony", "oilcloth",),
+)
+
+# --- Tale to Remember (Songbird's Rest) ---
+# Reuse a new bard NPC so Hamond stays exclusively the duel-giver.
+threnody_bard = _ensure_walkin_npc(
+    "Kestren the Bard", aentact,
+    desc=(
+        "A lean, weathered woman in a mist-grey cloak, a lap-harp across "
+        "her knee. Silver streaks at her temples. She keeps her hood up "
+        "until the tavern settles into its evening hush."
+    ),
+    aliases=("kestren", "bard"),
+    aggressive=False,
+    ai_personality=(
+        "Kestren, a travelling bard whose repertoire runs to the old "
+        "Arnessian mythology — the First Hunt, the Constellations, the "
+        "fall of Dun Siarach. Sings for coin, more for silence."
+    ),
+    ai_knowledge=(
+        "- Offers |wA Tale to Remember|n; listen to her ballad at the "
+        "Songbird's Rest and tip well for the written fragment.\n"
+        "- Rewards a lore scroll on the First Hunt (Mythology) and a "
+        "stargazer's guide to the Arnessian sky (Vale)."
+    ),
+)
+
+# --- Rowyna's Diary (Crow Camp — Blacksmith's Prison) ---
+# Canon lore item referenced in the Drive source. Contains fragmentary
+# account of Rowyna of Oldwarren, survivor of Ser Tairn Oban's company
+# at the Battle of Elminsk — ties into Hamond the Talon's duel quest.
+_ensure_walkin_item(
+    "rowyna's diary of exile", crow_camp_blacksmith,
+    desc=(
+        "A battered journal bound in oiled calfskin, the last pages "
+        "torn away. The writer is one Rowyna of Oldwarren, a survivor "
+        "of Ser Tairn Oban's company at the Battle of Elminsk — taken "
+        "by Richter and Bannon raiders and carted through the Mists to "
+        "a soldier's camp she could not place. She names Ser Tairn, "
+        "Lady Onora, and the ruin of Dun Siarach. Her hand runs out "
+        "mid-sentence."
+    ),
+    aliases=("diary", "rowyna's diary", "exile's diary", "journal"),
+)
+
+# --- Sparring ring posts for Combat Training (flavour props) ---
+# (No mechanic — just decorate the yard.)
 
 
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

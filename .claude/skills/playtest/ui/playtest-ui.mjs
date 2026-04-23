@@ -242,6 +242,21 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  // Event 1 Saturday arc — tutorials + new investigative quest + branching
+  // rescue chain (clear-by-blade path). Injects walkin_cirque completion
+  // via @py so the Business Opportunity prereq is met.
+  'quest-event1': async (page) => {
+    await resetQuestState(page)
+    // Pre-complete walkin_cirque so business_opportunity unlocks.
+    await typeCommand(page,
+      `@py me.db.quests["walkin_cirque"] = {"status": "completed", ` +
+      `"outcome": "return_alive", "objectives": []}; ` +
+      `me.msg("[qtest] walkin_cirque pre-completed for business_opportunity gating")`)
+    await page.waitForTimeout(400)
+    for (const spec of EVENT1_SATURDAY_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -552,6 +567,90 @@ const SPEC_WALKIN_CHAIN = {
 const WALKIN_QUESTS = [
   SPEC_WALKIN_SHIP, SPEC_WALKIN_CIRQUE, SPEC_WALKIN_NOBLE,
   SPEC_WALKIN_SCOUT, SPEC_WALKIN_CHAIN,
+]
+
+// --- Event 1 Saturday arc specs -------------------------------------------
+const SPEC_COMBAT_TRAINING = {
+  key: 'combat_training', title: 'Combat Training',
+  room: 'Mystvale Training Yard',
+  label: 'e1a-combat-training',
+  tick:
+    `from commands.quests import quest_kill; ` +
+    `${rep(3, 'quest_kill(me, "training dummy")')}; ` +
+    `${rep(2, 'quest_kill(me, "archery target")')}`,
+}
+const SPEC_ALCHEMY_TRAINING = {
+  key: 'alchemy_training', title: 'Alchemy Training',
+  room: 'The Apotheca Chirurgery',
+  label: 'e1b-alchemy-training',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "Sayge"); ` +
+    `quest_deliver(me, "Sayge", "Sister Ivy")`,
+}
+const SPEC_TALE_TO_REMEMBER = {
+  key: 'tale_to_remember', title: 'A Tale to Remember',
+  room: "Songbird's Rest",
+  label: 'e1c-tale-to-remember',
+  tick:
+    `from commands.quests import quest_explore, quest_deliver; ` +
+    `quest_explore(me, "Songbird's Rest"); ` +
+    `quest_deliver(me, "silver", "Kestren the Bard")`,
+}
+// Business Opportunity requires walkin_cirque completed first — the
+// harness injects that state before running the event1 scenario.
+const SPEC_BUSINESS_OPPORTUNITY = {
+  key: 'business_opportunity', title: 'A Business Opportunity',
+  outcome: 'report_to_watch',
+  room: 'The Mystvale Marketplace',
+  label: 'e1d-business-opportunity',
+  tick:
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "The Old Road"); ` +
+    `quest_gather(me, "yan's testimony"); ` +
+    `quest_deliver(me, "yan's testimony", "Mystvale Captain of the Watch")`,
+}
+
+// Rescue chain revisited with branching — happy path for each.
+const SPEC_RESCUE_BLACKSMITH_BLADE = {
+  key: 'rescue_blacksmith', title: 'Rescue the Crafters: The Blacksmith',
+  outcome: 'clear_by_blade',
+  room: 'The Bannon Barracks',
+  label: 'e1e-rescue-blacksmith-blade',
+  tick:
+    `from commands.quests import quest_kill, quest_explore; ` +
+    `${rep(3, 'quest_kill(me, "crow striker")')}; ` +
+    `quest_kill(me, "crow bruiser"); ` +
+    `quest_explore(me, "Crow Camp — Blacksmith's Prison")`,
+}
+const SPEC_RESCUE_ALCHEMIST_BLADE = {
+  key: 'rescue_alchemist', title: 'Rescue the Crafters: The Alchemist',
+  outcome: 'clear_by_blade',
+  room: null, label: 'e1f-rescue-alchemist-blade',
+  tick:
+    `from commands.quests import quest_kill, quest_explore; ` +
+    `${rep(3, 'quest_kill(me, "crow striker")')}; ` +
+    `${rep(2, 'quest_kill(me, "crow bruiser")')}; ` +
+    `quest_explore(me, "Crow Camp — Owl's Roost")`,
+}
+const SPEC_RESCUE_ARTIFICER_BLADE = {
+  key: 'rescue_artificer', title: 'Rescue the Crafters: The Artificer',
+  outcome: 'clear_by_blade',
+  room: null, label: 'e1g-rescue-artificer-blade',
+  tick:
+    `from commands.quests import quest_kill; ` +
+    `quest_kill(me, "cale the thorn"); ` +
+    `${rep(5, 'quest_kill(me, "crow")')}`,
+}
+
+const EVENT1_SATURDAY_QUESTS = [
+  SPEC_COMBAT_TRAINING,
+  SPEC_ALCHEMY_TRAINING,
+  SPEC_TALE_TO_REMEMBER,
+  SPEC_BUSINESS_OPPORTUNITY,   // requires walkin_cirque pre-injection
+  SPEC_RESCUE_BLACKSMITH_BLADE,
+  SPEC_RESCUE_ALCHEMIST_BLADE,
+  SPEC_RESCUE_ARTIFICER_BLADE,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat
