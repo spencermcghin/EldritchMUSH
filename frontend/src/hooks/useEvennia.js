@@ -64,6 +64,8 @@ export function useEvennia() {
     inventoryOpen: null,
     questOffers: [],
     itemReceived: null,
+    questAccepted: null,
+    questCompleted: null,
     // Per-room NPC metadata pushed via __room_meta__ event.
     // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
     roomNpcMeta: {},
@@ -278,6 +280,31 @@ export function useEvennia() {
             itemName: kwargs.itemName || kwargs.item_name,
             fromNpc: kwargs.fromNpc || kwargs.from_npc || '',
             desc: kwargs.desc || '',
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'quest_accepted': {
+          // Confirmation toast after `quest accept` succeeds. Brief —
+          // just enough to confirm the commit without spamming chat.
+          next.questAccepted = {
+            title: kwargs.title || '',
+            giver: kwargs.giver || '',
+            outcomeLabel: kwargs.outcomeLabel || kwargs.outcome_label || '',
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'quest_completed': {
+          // Celebratory summary toast when a quest finishes — shows
+          // outcome label, silver, items, faction rep deltas.
+          next.questCompleted = {
+            title: kwargs.title || '',
+            outcomeLabel: kwargs.outcomeLabel || kwargs.outcome_label || '',
+            silver: kwargs.silver || 0,
+            items: Array.isArray(kwargs.items) ? kwargs.items : [],
+            reagents: kwargs.reagents || {},
+            factionRep: kwargs.factionRep || kwargs.faction_rep || {},
             ts: Date.now(),
           }
           break

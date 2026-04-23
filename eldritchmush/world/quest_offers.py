@@ -13,14 +13,24 @@ from world.quest_data import QUESTS
 def _prereqs_met(char, qdef):
     quests = char.db.quests or {}
     for prereq in qdef.get("prereqs", []):
-        st = quests.get(prereq)
-        if not st or st.get("status") != "completed":
-            return False
+        if isinstance(prereq, dict):
+            q_key = prereq["quest"]
+            want_outcome = prereq.get("outcome")
+            st = quests.get(q_key)
+            if not st or st.get("status") != "completed":
+                return False
+            if want_outcome and st.get("outcome") != want_outcome:
+                return False
+        else:
+            st = quests.get(prereq)
+            if not st or st.get("status") != "completed":
+                return False
     return True
 
 
-def _format_reward_parts(qdef):
-    rewards = qdef.get("rewards", {}) or {}
+def _format_reward_parts(rewards):
+    """Format a rewards dict into a list of short human-readable strings."""
+    rewards = rewards or {}
     parts = []
     if rewards.get("silver"):
         parts.append(f"{rewards['silver']} silver")
@@ -29,6 +39,13 @@ def _format_reward_parts(qdef):
     for reagent, qty in (rewards.get("reagents", {}) or {}).items():
         parts.append(f"{qty}x {reagent}")
     return parts
+
+
+def _format_objectives(objectives):
+    return [
+        {"desc": o["desc"].split("(")[0].strip(), "qty": o["qty"]}
+        for o in (objectives or [])
+    ]
 
 
 def push_quest_offers_for_room(char):
@@ -60,17 +77,32 @@ def push_quest_offers_for_room(char):
             continue
         if not _prereqs_met(char, qdef):
             continue
-        offers.append({
+
+        offer = {
             "key": qdef["key"],
             "title": qdef["title"],
             "giver": qdef["giver"],
             "description": qdef["description"],
-            "objectives": [
-                {"desc": o["desc"].split("(")[0].strip(), "qty": o["qty"]}
-                for o in qdef["objectives"]
-            ],
-            "rewards": _format_reward_parts(qdef),
-        })
+        }
+        if qdef.get("outcomes"):
+            # Branching quest — surface each outcome so the modal can
+            # render picker buttons. The modal sends
+            # `quest accept <title> / <outcome_key>` when one is chosen.
+            offer["outcomes"] = [
+                {
+                    "key": okey,
+                    "label": odef.get("label", okey),
+                    "description": odef.get("description", ""),
+                    "objectives": _format_objectives(odef.get("objectives", [])),
+                    "rewards": _format_reward_parts(odef.get("rewards", {})),
+                    "factionRep": odef.get("faction_rep", {}),
+                }
+                for okey, odef in qdef["outcomes"].items()
+            ]
+        else:
+            offer["objectives"] = _format_objectives(qdef.get("objectives", []))
+            offer["rewards"] = _format_reward_parts(qdef.get("rewards", {}))
+        offers.append(offer)
     if not offers:
         return
 

@@ -21,6 +21,8 @@ import PrimerModal from './components/PrimerModal'
 import QuestOfferModal from './components/QuestOfferModal'
 import CraftingModal from './components/CraftingModal'
 import ItemReceivedToast from './components/ItemReceivedToast'
+import QuestAcceptedToast from './components/QuestAcceptedToast'
+import QuestCompletedToast from './components/QuestCompletedToast'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -541,7 +543,10 @@ function App() {
         />
       )}
 
-      {/* Quest offer modal — shows pending offers one at a time */}
+      {/* Quest offer modal — shows pending offers one at a time.
+          Branching quests (offer.outcomes) use onAcceptOutcome which
+          sends `quest accept <title> / <outcome_key>`. Non-branching
+          quests use the single Accept button. */}
       {oobState.questOffers?.length > 0 && (
         <QuestOfferModal
           open={true}
@@ -551,6 +556,11 @@ function App() {
             sendCommand(`quest accept ${offer.title}`)
             dismissQuestOffer(offer.key)
           }}
+          onAcceptOutcome={(outcomeKey) => {
+            const offer = oobState.questOffers[0]
+            sendCommand(`quest accept ${offer.title} / ${outcomeKey}`)
+            dismissQuestOffer(offer.key)
+          }}
           onDecline={() => dismissQuestOffer(oobState.questOffers[0].key)}
           onClose={() => dismissQuestOffer(oobState.questOffers[0].key)}
         />
@@ -558,6 +568,10 @@ function App() {
 
       {/* Item-received toast — NPC gift notification */}
       <ItemReceivedToast item={oobState.itemReceived} />
+
+      {/* Quest accepted / completed confirmation toasts */}
+      <QuestAcceptedToast quest={oobState.questAccepted} />
+      <QuestCompletedToast quest={oobState.questCompleted} />
 
 
       {/* Admin panel — only for admin users */}
