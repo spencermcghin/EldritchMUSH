@@ -457,6 +457,12 @@ class CmdGive(Command):
             target.msg("%s gives you %s." % (self.caller.key, to_give.key))
             # Call the object script's at_give() method.
             to_give.at_give(self.caller, target)
+            # Tick any quest "deliver" objectives tracking this item→NPC pair.
+            try:
+                from commands.quests import quest_deliver
+                quest_deliver(self.caller, to_give.key, target.key)
+            except Exception:
+                pass
 
 
 class CmdEquip(Command):
