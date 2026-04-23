@@ -1,0 +1,135 @@
+/* Side panel for the current NPC dialogue exchange. Sits on the
+   right edge, below the header. Dims the rest of the screen with a
+   soft backdrop but does not block input. */
+
+.npc-dialogue-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 4, 0.35);
+  backdrop-filter: blur(1px);
+  z-index: 1180;
+}
+
+.npc-dialogue-panel {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  width: 380px;
+  max-height: calc(100vh - 140px);
+  background: linear-gradient(180deg, #1f1a10 0%, #110e09 100%);
+  border: 1px solid var(--accent-gold);
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.7),
+    0 0 24px rgba(212, 175, 55, 0.2),
+    inset 0 0 30px rgba(0, 0, 0, 0.4);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(430px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.npc-dialogue-panel-in {
+  transform: translateX(0);
+  opacity: 1;
+}
+.npc-dialogue-panel-out {
+  transform: translateX(430px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.npc-dialogue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.08), transparent);
+}
+.npc-dialogue-eyebrow {
+  color: var(--accent-gold);
+  font-size: 11px;
+  letter-spacing: 4px;
+}
+.npc-dialogue-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 12px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+.npc-dialogue-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.npc-dialogue-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+}
+.npc-dialogue-name {
+  font-size: 17px;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+  margin-bottom: 8px;
+}
+.npc-dialogue-question {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  color: var(--text-aged);
+  margin-bottom: 10px;
+}
+.npc-dialogue-label {
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+.npc-dialogue-question-text {
+  font-style: italic;
+}
+.npc-dialogue-reply {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-light);
+  font-style: italic;
+  padding: 10px 12px;
+  border-left: 2px solid var(--accent-gold);
+  background: rgba(212, 175, 55, 0.04);
+}
+
+.npc-dialogue-topics {
+  margin-top: 14px;
+}
+.npc-dialogue-topics-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-aged);
+  margin-bottom: 6px;
+}
+.npc-dialogue-topics-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.npc-dialogue-topic-chip {
+  padding: 5px 11px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.npc-dialogue-topic-chip:hover {
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
