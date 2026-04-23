@@ -67,6 +67,7 @@ export function useEvennia() {
     questAccepted: null,
     questCompleted: null,
     questProgress: null,
+    npcDialogue: null,
     // Per-room NPC metadata pushed via __room_meta__ event.
     // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
     roomNpcMeta: {},
@@ -318,6 +319,22 @@ export function useEvennia() {
             current: Number(kwargs.current) || 0,
             qty: Number(kwargs.qty) || 0,
             done: !!kwargs.done,
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'npc_dialogue': {
+          // Rich NPC reply — opens a dialogue modal with topic chips.
+          // Successive replies replace/append. `channel` distinguishes
+          // ask (public), whisper (private), say (public).
+          next.npcDialogue = {
+            channel: kwargs.channel || 'ask',
+            npc: kwargs.npc || '',
+            npcDbref: kwargs.npcDbref || kwargs.npc_dbref || '',
+            npcDesc: kwargs.npcDesc || kwargs.npc_desc || '',
+            question: kwargs.question || '',
+            reply: kwargs.reply || '',
+            topics: Array.isArray(kwargs.topics) ? kwargs.topics : [],
             ts: Date.now(),
           }
           break

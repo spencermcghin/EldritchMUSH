@@ -13,6 +13,41 @@ from evennia.commands.default.general import CmdWhisper as _DefaultCmdWhisper
 from evennia.commands.default.general import CmdSay as _DefaultCmdSay
 
 
+def _fire_npc_dialogue(caller, target, question, reply, channel="ask"):
+    """Emit an `npc_dialogue` OOB event to the caller's web-client
+    sessions so the frontend can render a dialogue modal with topic
+    chips. Additive — the chat stream is unchanged for backward compat
+    and for bystanders in the room.
+
+    channel = "ask" | "whisper" | "say" so the modal can distinguish
+    public vs private conversations.
+    """
+    try:
+        topics_raw = target.attributes.get("ai_quest_topics", default=None)
+        if not topics_raw:
+            # Fall back to quest-hook summaries if explicit topics missing
+            hooks = target.attributes.get("ai_quest_hooks", default=None) or []
+            topics_raw = [h[:40].strip() for h in hooks[:4]]
+        topics = [t for t in (topics_raw or []) if t]
+        import time as _time
+        payload = {
+            "type": "npc_dialogue",
+            "_ts": _time.time(),
+            "channel": channel,
+            "npc": target.key,
+            "npcDbref": getattr(target, "dbref", ""),
+            "npcDesc": (target.db.desc or "")[:240],
+            "question": question,
+            "reply": reply,
+            "topics": topics,
+        }
+        for sess in caller.sessions.all():
+            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                sess.msg(event=payload)
+    except Exception:
+        pass
+
+
 def _parse_target_and_message(caller, args):
     """Parse '<target> <message>' or '<target> = <message>' where target
     may be a multi-word NPC name like 'Mab the Gambler'.
@@ -123,6 +158,10 @@ class CmdAsk(Command):
                 )
             else:
                 caller.msg(f'|c{target.key}|n says, "{reply}"')
+            # Rich OOB dialogue event — web client shows a modal with
+            # the reply + the NPC's available topics. Telnet clients
+            # already have the chat line above; OOB is additive.
+            _fire_npc_dialogue(caller, target, message, reply)
 
         # Announce the question so the room sees it too.
         if caller.location:
@@ -170,6 +209,7 @@ class CmdWhisper(_DefaultCmdWhisper):
                 caller.msg(
                     f'|c{target.key}|n whispers to you, "{reply}"'
                 )
+                _fire_npc_dialogue(caller, target, message, reply, channel="whisper")
 
             caller.msg(f"|gYou whisper to {target.key}, \"{message}\"|n")
             caller.msg(f"|x({target.key} leans in to listen...)|n")
@@ -248,6 +288,7 @@ class CmdSay(_DefaultCmdSay):
             location.msg_contents(
                 f'|c{target.key}|n says, "{reply}"'
             )
+            _fire_npc_dialogue(self.caller, target, message, reply, channel="say")
 
         location.msg_contents(
             f"|x({target.key} considers your words...)|n",

@@ -24,6 +24,7 @@ import ItemReceivedToast from './components/ItemReceivedToast'
 import QuestAcceptedToast from './components/QuestAcceptedToast'
 import QuestCompletedToast from './components/QuestCompletedToast'
 import QuestProgressToast from './components/QuestProgressToast'
+import NpcDialoguePanel from './components/NpcDialoguePanel'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
@@ -574,6 +575,9 @@ function App() {
       <QuestAcceptedToast quest={oobState.questAccepted} />
       <QuestCompletedToast quest={oobState.questCompleted} />
       <QuestProgressToast progress={oobState.questProgress} />
+
+      {/* NPC dialogue panel — rich reply + topic chips */}
+      <NpcDialoguePanel dialogue={oobState.npcDialogue} sendCommand={sendCommand} />
 
 
       {/* Admin panel — only for admin users */}
