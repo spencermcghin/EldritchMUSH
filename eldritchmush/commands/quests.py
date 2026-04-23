@@ -192,6 +192,8 @@ def _check_completion(char, key):
     # Grant rewards (per-outcome if branching)
     rewards = _effective_rewards(qdef, outcome_key)
     silver = rewards.get("silver", 0)
+    items_spawned = []
+    reagents_granted = False
     if silver:
         char.db.silver = (char.db.silver or 0) + silver
         char.msg(f"|yReward: |w+{silver} silver|n")
@@ -202,6 +204,7 @@ def _check_completion(char, key):
             items = spawn(proto_key)
             if items:
                 items[0].move_to(char, quiet=True)
+                items_spawned.append(items[0])
                 char.msg(f"|yReward: |w{items[0].key}|n added to inventory.")
         except Exception:
             pass
@@ -210,7 +213,25 @@ def _check_completion(char, key):
         if not char.db.reagents:
             char.db.reagents = {}
         char.db.reagents[reagent] = char.db.reagents.get(reagent, 0) + qty
+        reagents_granted = True
         char.msg(f"|yReward: |w+{qty} {reagent}|n (reagent)")
+
+    # Refresh the web UI sidebar — silver updates the purse display,
+    # spawned items update the inventory panel. Without these, the
+    # player sees the chat confirmations but the stat/inventory widgets
+    # stay stale until the next unrelated refresh.
+    if silver or reagents_granted:
+        try:
+            from world.character_stats import push_character_stats
+            push_character_stats(char)
+        except Exception:
+            pass
+    if items_spawned:
+        try:
+            from world.inventory_oob import push_inventory
+            push_inventory(char)
+        except Exception:
+            pass
 
     # Apply faction rep deltas (only defined for branching outcomes)
     rep_deltas = _effective_faction_rep(qdef, outcome_key)
