@@ -654,33 +654,42 @@ QUESTS = {
             "Crow bandits have kidnapped Mystvale's blacksmith and are "
             "holding him at a camp in the forest. Ser Ewan Bannon is "
             "looking for volunteers to raid the camp and bring the "
-            "blacksmith home. The Crows are armed and hostile — expect "
-            "a fight."
+            "blacksmith home. The Crows will fight anyone they think "
+            "is Bannon-affiliated — or they may be talked down."
         ),
-        "objectives": [
-            {
-                "type": "kill",
-                "target": "crow striker",
-                "qty": 3,
-                "desc": "Clear the Crow camp of Strikers (0/3)",
+        "outcomes": {
+            "clear_by_blade": {
+                "label": "Take the camp by force",
+                "description": (
+                    "Kill the Crows, recover the blacksmith, seize the "
+                    "camp's lockbox. The loud way."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "crow striker", "qty": 3,
+                     "desc": "Clear the camp of Strikers (0/3)"},
+                    {"type": "kill", "target": "crow bruiser", "qty": 1,
+                     "desc": "Defeat the Crow Bruiser (0/1)"},
+                    {"type": "explore", "target": "Crow Camp — Blacksmith's Prison",
+                     "qty": 1, "desc": "Find the Crow camp (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": ["CROW_CAMP_LETTER"], "reagents": {}},
+                "faction_rep": {"crown": 1, "crows": -3},
             },
-            {
-                "type": "kill",
-                "target": "crow bruiser",
-                "qty": 1,
-                "desc": "Defeat the Crow Bruiser (0/1)",
+            "clear_by_parley": {
+                "label": "Persuade the Crows to let him go",
+                "description": (
+                    "The Crows will parley if convinced you're not Bannon. "
+                    "Quieter, fewer graves, no Crown reward."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "Crow Camp — Blacksmith's Prison",
+                     "qty": 1, "desc": "Find the Crow camp (0/1)"},
+                    {"type": "gather", "target": "rowyna's diary of exile",
+                     "qty": 1, "desc": "Find evidence of the Crows' plight (0/1)"},
+                ],
+                "rewards": {"silver": 10, "items": ["CROW_CAMP_LETTER"], "reagents": {}},
+                "faction_rep": {"crows": 2, "crown": -1},
             },
-            {
-                "type": "explore",
-                "target": "Crow Camp — Blacksmith's Prison",
-                "qty": 1,
-                "desc": "Find the Crow camp (0/1)",
-            },
-        ],
-        "rewards": {
-            "silver": 15,
-            "items": ["CROW_CAMP_LETTER"],
-            "reagents": {},
         },
         "prereqs": [],
     },
@@ -692,34 +701,50 @@ QUESTS = {
         "description": (
             "The rescued blacksmith, Torben, begs you to find his spouse "
             "Marta — an alchemist taken to the Owl's Roost, a second "
-            "Crow camp deeper in the forest. The camp letter you found "
-            "describes its location. More Crows, and they'll be ready "
-            "for trouble."
+            "Crow camp deeper in the forest. More Crows, and they'll be "
+            "ready for trouble — or ready to talk, depending on your "
+            "approach."
         ),
-        "objectives": [
-            {
-                "type": "kill",
-                "target": "crow striker",
-                "qty": 3,
-                "desc": "Clear the Owl's Roost of Strikers (0/3)",
+        "outcomes": {
+            "clear_by_blade": {
+                "label": "Take the Roost by force",
+                "description": (
+                    "Kill the Crows at the Owl's Roost, recover Marta's "
+                    "recipe scroll. The direct way."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "crow striker", "qty": 3,
+                     "desc": "Clear the Owl's Roost of Strikers (0/3)"},
+                    {"type": "kill", "target": "crow bruiser", "qty": 2,
+                     "desc": "Defeat the Crow Bruisers (0/2)"},
+                    {"type": "explore", "target": "Crow Camp — Owl's Roost",
+                     "qty": 1, "desc": "Find the Owl's Roost (0/1)"},
+                ],
+                "rewards": {
+                    "silver": 20, "items": ["ALCHEMY_RECIPE_SCROLL"],
+                    "reagents": {"Sayge": 5, "Blackthorn": 3},
+                },
+                "faction_rep": {"crown": 1, "crows": -3},
             },
-            {
-                "type": "kill",
-                "target": "crow bruiser",
-                "qty": 2,
-                "desc": "Defeat the Crow Bruisers (0/2)",
+            "clear_by_parley": {
+                "label": "Negotiate Marta's release",
+                "description": (
+                    "Show the Crows they're not fighting Bannons and "
+                    "bargain for Marta's freedom. Lower reward, higher "
+                    "standing with the outlaw network."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "Crow Camp — Owl's Roost",
+                     "qty": 1, "desc": "Find the Owl's Roost (0/1)"},
+                    {"type": "deliver", "target": "marta the alchemist",
+                     "qty": 1, "desc": "Hand Marta the camp letter (0/1)"},
+                ],
+                "rewards": {
+                    "silver": 15, "items": ["ALCHEMY_RECIPE_SCROLL"],
+                    "reagents": {"Sayge": 3},
+                },
+                "faction_rep": {"crows": 2, "outlaws": 1, "crown": -1},
             },
-            {
-                "type": "explore",
-                "target": "Crow Camp — Owl's Roost",
-                "qty": 1,
-                "desc": "Find the Owl's Roost camp (0/1)",
-            },
-        ],
-        "rewards": {
-            "silver": 20,
-            "items": ["ALCHEMY_RECIPE_SCROLL"],
-            "reagents": {"Sayge": 5, "Blackthorn": 3},
         },
         "prereqs": ["rescue_blacksmith"],
     },
@@ -731,29 +756,179 @@ QUESTS = {
         "description": (
             "Marta tells you of a third captive — Fenn, a young "
             "artificer, held at the Fox Den, the largest Crow camp. "
-            "It's run by a lieutenant called Cale the Thorn. This will "
-            "be the hardest fight yet, but freeing all three crafters "
-            "will establish Mystvale's workshops for good."
+            "It's run by a lieutenant called Cale the Thorn. Cale is "
+            "a trained swordsman with a reputation — but every man has "
+            "a price, and every camp has its limits."
         ),
-        "objectives": [
-            {
-                "type": "kill",
-                "target": "cale the thorn",
-                "qty": 1,
-                "desc": "Defeat Cale the Thorn (0/1)",
+        "outcomes": {
+            "clear_by_blade": {
+                "label": "Kill Cale and clear the Fox Den",
+                "description": (
+                    "End the Crow lieutenant. Free Fenn. The Crows won't "
+                    "forgive this, but the Crown will."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "cale the thorn", "qty": 1,
+                     "desc": "Defeat Cale the Thorn (0/1)"},
+                    {"type": "kill", "target": "crow", "qty": 5,
+                     "desc": "Clear the Fox Den (0/5)"},
+                ],
+                "rewards": {
+                    "silver": 30, "items": ["CROW_INTELLIGENCE_REPORT"],
+                    "reagents": {},
+                },
+                "faction_rep": {"crown": 3, "crows": -5},
             },
-            {
-                "type": "kill",
-                "target": "crow",
-                "qty": 5,
-                "desc": "Clear the Fox Den (0/5)",
+            "pay_the_ransom": {
+                "label": "Pay Cale's ransom for Fenn",
+                "description": (
+                    "Cale values coin over blood today. Buy Fenn's "
+                    "freedom and leave the Fox Den standing."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "Crow Camp — Fox Den",
+                     "qty": 1, "desc": "Reach the Fox Den (0/1)"},
+                    {"type": "deliver", "target": "cale the thorn", "qty": 1,
+                     "desc": "Hand Cale the ransom (0/1)"},
+                ],
+                "rewards": {
+                    "silver": 10, "items": ["CROW_INTELLIGENCE_REPORT"],
+                    "reagents": {},
+                },
+                "faction_rep": {"crows": 3, "crown": -2},
             },
-        ],
-        "rewards": {
-            "silver": 30,
-            "items": ["CROW_INTELLIGENCE_REPORT"],
-            "reagents": {},
         },
         "prereqs": ["rescue_alchemist"],
+    },
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 1 — SATURDAY ARC
+    # Tutorial + investigative quests layered on top of the Friday walk-ins
+    # and the Saturday rescue chain. Source: Drive / Reboot / Event 1 /
+    # Saturday Morning, Afternoon, Night.
+    # ─────────────────────────────────────────────────────────────────────────
+    "combat_training": {
+        "key": "combat_training",
+        "title": "Combat Training",
+        "giver": "drillmaster aglent",
+        "description": (
+            "Drillmaster Aglent — named for Meyer's old strike diagrams "
+            "on the yard wall — offers to put you through the paces. "
+            "Strike the training dummies and loose shafts at the archery "
+            "targets until he's satisfied you won't embarrass the town."
+        ),
+        "objectives": [
+            {"type": "kill", "target": "training dummy", "qty": 3,
+             "desc": "Strike the training dummies (0/3)"},
+            {"type": "kill", "target": "archery target", "qty": 2,
+             "desc": "Loose shafts at the archery targets (0/2)"},
+        ],
+        "rewards": {"silver": 10, "items": [], "reagents": {}},
+        "prereqs": [],
+    },
+
+    "alchemy_training": {
+        "key": "alchemy_training",
+        "title": "Alchemy Training",
+        "giver": "sister ivy",
+        "description": (
+            "Sister Ivy at the Apotheca Chirurgery will teach any "
+            "apprentice willing to keep a clean mortar. Gather a bundle "
+            "of Sayge from her stores and bring it back so she can walk "
+            "you through the fundamentals of the brew."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "Sayge", "qty": 1,
+             "desc": "Gather a bundle of Sayge (0/1)"},
+            {"type": "deliver", "target": "sister ivy", "qty": 1,
+             "desc": "Return to Sister Ivy with the reagent (0/1)"},
+        ],
+        "rewards": {
+            "silver": 5,
+            "items": [],
+            "reagents": {"Sayge": 3, "Distilled Spirits": 2},
+        },
+        "prereqs": [],
+    },
+
+    "business_opportunity": {
+        "key": "business_opportunity",
+        "title": "A Business Opportunity",
+        "giver": "eldreth of the cirque",
+        "description": (
+            "Eldreth of the Cirque has paid work for a discreet hand. "
+            "A body was found on the Old Road south of Mystvale, and "
+            "something about it has the troupe spooked. She wants you "
+            "to find Yan the Woodsman — he knows what's out there — "
+            "and bring back his account. The Cirque will want to shape "
+            "the story before the watch does."
+        ),
+        "outcomes": {
+            "help_cirque_cover": {
+                "label": "Give the testimony to Eldreth",
+                "description": (
+                    "Return Yan's account to the Cirque first. They'll "
+                    "shape the story; you'll share in the silence money."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Old Road",
+                     "qty": 1, "desc": "Walk the Old Road south (0/1)"},
+                    {"type": "gather", "target": "yan's testimony",
+                     "qty": 1, "desc": "Collect Yan's testimony (0/1)"},
+                    {"type": "deliver", "target": "eldreth of the cirque",
+                     "qty": 1, "desc": "Deliver the testimony to Eldreth (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"cirque": 3, "crown": -1},
+            },
+            "report_to_watch": {
+                "label": "Report the testimony to the watch",
+                "description": (
+                    "Skip the Cirque and take Yan's account straight to "
+                    "the Mystvale watch. Clean conscience, Crown coin, "
+                    "and an enemy in the caravan."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Old Road",
+                     "qty": 1, "desc": "Walk the Old Road south (0/1)"},
+                    {"type": "gather", "target": "yan's testimony",
+                     "qty": 1, "desc": "Collect Yan's testimony (0/1)"},
+                    {"type": "deliver", "target": "mystvale captain of the watch",
+                     "qty": 1, "desc": "Report to the watch captain (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "cirque": -3},
+            },
+        },
+        "prereqs": [
+            # Gated on any outcome of walkin_cirque — Eldreth will only
+            # approach characters who came through the Cirque walk-in.
+            "walkin_cirque",
+        ],
+    },
+
+    "tale_to_remember": {
+        "key": "tale_to_remember",
+        "title": "A Tale to Remember",
+        "giver": "kestren the bard",
+        "description": (
+            "Kestren the bard sings old Arnessian mythology at the "
+            "Songbird's Rest — the First Hunt, the Constellations, the "
+            "fall of Dun Siarach. Listen to her tale and tip well; she "
+            "keeps written fragments of the oldest stories for the patrons "
+            "who reward her properly."
+        ),
+        "objectives": [
+            {"type": "explore", "target": "Songbird's Rest",
+             "qty": 1, "desc": "Listen to Kestren's tale at the tavern (0/1)"},
+            {"type": "deliver", "target": "kestren the bard", "qty": 1,
+             "desc": "Tip Kestren with anything from your pack (0/1)"},
+        ],
+        "rewards": {
+            "silver": 0,
+            "items": ["MORPHOS_LORE_SCROLL"],
+            "reagents": {},
+        },
+        "prereqs": [],
     },
 }
