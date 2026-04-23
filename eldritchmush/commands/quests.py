@@ -54,6 +54,70 @@ def _ensure_quest_db(char):
         char.db.quests = {}
 
 
+def _any_webclient(char):
+    """True if this character has at least one web-client session.
+
+    Used to suppress verbose quest chat (reward lines, objective ticks,
+    accept/complete text) when the rich toast/modal UI is carrying the
+    same info. Telnet/SSH clients still see the full text fallback.
+    """
+    try:
+        for sess in char.sessions.all():
+            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def _msg_text_only(char, text):
+    """Send `text` only to non-webclient sessions. Webclient users get
+    the OOB-driven toast/modal instead."""
+    try:
+        for sess in char.sessions.all():
+            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                continue
+            sess.msg(text=text)
+    except Exception:
+        # Fallback: if session iteration fails, always deliver.
+        try:
+            char.msg(text)
+        except Exception:
+            pass
+
+
+def _announce_progress(char, quest_key, obj):
+    """Notify the player of a quest objective tick.
+
+    Web clients get a `quest_progress` OOB event (picked up as a subtle
+    active-quests panel pulse). Telnet/SSH users get the classic
+    `[Quest] desc (n/qty)` chat line. Both never fire together.
+    """
+    desc_short = obj["desc"].split("(")[0].strip()
+    # Text for telnet / SSH
+    _msg_text_only(
+        char,
+        f"|540[Quest] {desc_short} ({obj['current']}/{obj['qty']})|n",
+    )
+    # OOB for webclient
+    try:
+        import time as _time
+        payload = {
+            "type": "quest_progress",
+            "_ts": _time.time(),
+            "key": quest_key,
+            "desc": desc_short,
+            "current": obj["current"],
+            "qty": obj["qty"],
+            "done": obj["current"] >= obj["qty"],
+        }
+        for sess in char.sessions.all():
+            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                sess.msg(event=payload)
+    except Exception:
+        pass
+
+
 def _get_quest_state(char, key):
     """Return the character's quest state dict for *key*, or None."""
     _ensure_quest_db(char)
@@ -183,11 +247,11 @@ def _check_completion(char, key):
     char.db.quests[key] = state
 
     outcome_key = state.get("outcome")
-    char.msg(f"\n|y✦ Quest Complete: |w{qdef['title']}|n")
+    _msg_text_only(char, f"\n|y✦ Quest Complete: |w{qdef['title']}|n")
     if outcome_key:
         outcome_def = _quest_outcome_def(qdef, outcome_key) or {}
         outcome_label = outcome_def.get("label", outcome_key)
-        char.msg(f"|540Outcome: |w{outcome_label}|n")
+        _msg_text_only(char, f"|540Outcome: |w{outcome_label}|n")
 
     # Grant rewards (per-outcome if branching)
     rewards = _effective_rewards(qdef, outcome_key)
@@ -196,7 +260,7 @@ def _check_completion(char, key):
     reagents_granted = False
     if silver:
         char.db.silver = (char.db.silver or 0) + silver
-        char.msg(f"|yReward: |w+{silver} silver|n")
+        _msg_text_only(char, f"|yReward: |w+{silver} silver|n")
 
     for proto_key in rewards.get("items", []):
         try:
@@ -205,7 +269,7 @@ def _check_completion(char, key):
             if items:
                 items[0].move_to(char, quiet=True)
                 items_spawned.append(items[0])
-                char.msg(f"|yReward: |w{items[0].key}|n added to inventory.")
+                _msg_text_only(char, f"|yReward: |w{items[0].key}|n added to inventory.")
                 # Fire item_received so the ItemReceivedToast slides in.
                 try:
                     from world.npc_gifts import announce_item_drop
@@ -221,7 +285,7 @@ def _check_completion(char, key):
             char.db.reagents = {}
         char.db.reagents[reagent] = char.db.reagents.get(reagent, 0) + qty
         reagents_granted = True
-        char.msg(f"|yReward: |w+{qty} {reagent}|n (reagent)")
+        _msg_text_only(char, f"|yReward: |w+{qty} {reagent}|n (reagent)")
 
     # Refresh the web UI sidebar — silver updates the purse display,
     # spawned items update the inventory panel. Without these, the
@@ -250,8 +314,9 @@ def _check_completion(char, key):
             after = before + delta
             char.db.faction_rep[faction] = after
             sign = "|g+" if delta >= 0 else "|r"
-            char.msg(f"|540Reputation: {sign}{delta}|n |w{faction.title()}|n "
-                     f"|540(now {after})|n")
+            _msg_text_only(char,
+                f"|540Reputation: {sign}{delta}|n |w{faction.title()}|n "
+                f"|540(now {after})|n")
 
     # Fire a quest_completed OOB event so the frontend can toast the
     # full summary (title, outcome label, rewards line, rep deltas).
@@ -301,10 +366,7 @@ def quest_kill(char, npc_key):
                 if obj["current"] < obj["qty"]:
                     obj["current"] += 1
                     remaining = obj["qty"] - obj["current"]
-                    char.msg(
-                        f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
-                        f"({obj['current']}/{obj['qty']})|n"
-                    )
+                    _announce_progress(char, key, obj)
                     _check_completion(char, key)
 
 
@@ -324,10 +386,7 @@ def quest_gather(char, item_name, qty=1):
                 obj["current"] = min(obj["current"] + qty, obj["qty"])
                 gained = obj["current"] - before
                 if gained > 0:
-                    char.msg(
-                        f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
-                        f"({obj['current']}/{obj['qty']})|n"
-                    )
+                    _announce_progress(char, key, obj)
                     _check_completion(char, key)
 
 
@@ -345,10 +404,7 @@ def quest_duel_win(char, npc_key):
             if obj["type"] == "duel" and obj["target"].lower() in npc_key_lower:
                 if obj["current"] < obj["qty"]:
                     obj["current"] += 1
-                    char.msg(
-                        f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
-                        f"({obj['current']}/{obj['qty']})|n"
-                    )
+                    _announce_progress(char, key, obj)
                     _check_completion(char, key)
 
 
@@ -368,10 +424,7 @@ def quest_deliver(char, item_name, npc_key):
             if obj["type"] == "deliver" and obj["target"].lower() in npc_key_lower:
                 if obj["current"] < obj["qty"]:
                     obj["current"] = obj["qty"]
-                    char.msg(
-                        f"|540[Quest] {obj['desc'].split('(')[0].strip()} "
-                        f"({obj['current']}/{obj['qty']})|n"
-                    )
+                    _announce_progress(char, key, obj)
                     _check_completion(char, key)
 
 
@@ -389,7 +442,7 @@ def quest_explore(char, room_name):
             if obj["type"] == "explore" and obj["target"].lower() in room_lower:
                 if obj["current"] < obj["qty"]:
                     obj["current"] = obj["qty"]  # explore is binary
-                    char.msg(f"|540[Quest] Discovered: {obj['target']}|n")
+                    _announce_progress(char, key, obj)
                     _check_completion(char, key)
 
 
@@ -652,16 +705,20 @@ class CmdQuest(Command):
             state["outcome"] = outcome_key
         caller.db.quests[qdef["key"]] = state
 
-        caller.msg(f"\n|g✦ Quest Accepted: |w{qdef['title']}|n")
         outcome_label = None
         if outcome_key:
             odef = _quest_outcome_def(qdef, outcome_key)
             outcome_label = odef.get("label", outcome_key) if odef else outcome_key
-            caller.msg(f"|540Path: |w{outcome_label}|n")
-            caller.msg(f"|540{odef.get('description', '')}|n")
+
+        # Text-only fallback for telnet/SSH — webclient users get the
+        # quest_accepted toast + modal instead.
+        _msg_text_only(caller, f"\n|g✦ Quest Accepted: |w{qdef['title']}|n")
+        if outcome_key and odef:
+            _msg_text_only(caller, f"|540Path: |w{outcome_label}|n")
+            _msg_text_only(caller, f"|540{odef.get('description', '')}|n")
         else:
-            caller.msg("|540" + qdef["description"] + "|n")
-        caller.msg(f"\n|540Type |wquest {qdef['title']}|540 to track progress.|n")
+            _msg_text_only(caller, "|540" + qdef["description"] + "|n")
+        _msg_text_only(caller, f"\n|540Type |wquest {qdef['title']}|540 to track progress.|n")
 
         # Fire OOB event so the frontend can toast the acceptance —
         # keeps the confirmation out of the raw chat scrollback.

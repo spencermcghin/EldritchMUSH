@@ -24,6 +24,35 @@
 /* If an accepted + completed ever overlap, the completed one wins by z-index */
 .quest-toast-completed { z-index: 2010; }
 
+/* Progress toast is smaller + lower — doesn't step on the big ones */
+.quest-toast-progress {
+  top: 310px;
+  width: 280px;
+  padding: 8px 14px;
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 10px rgba(212, 175, 55, 0.12);
+}
+.quest-toast-progress-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  color: var(--text-light);
+}
+.quest-toast-progress-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quest-toast-progress-count {
+  color: var(--accent-gold);
+  font-variant-numeric: tabular-nums;
+}
+
 .quest-toast-in {
   transform: translateX(0);
   opacity: 1;
