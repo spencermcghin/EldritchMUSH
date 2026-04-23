@@ -3802,46 +3802,64 @@ print("\n=== EVENT 1 WALK-IN SUPPORTING NPCs ===")
 
 def _ensure_walkin_npc(key, location, desc, aliases=(), aggressive=False,
                        ai_personality=None, ai_knowledge=None,
-                       typeclass="typeclasses.npc.Npc"):
-    """Idempotent create-or-refresh for a walk-in NPC."""
-    existing = ObjectDB.objects.filter(
+                       typeclass="typeclasses.npc.Npc", count=1):
+    """Idempotent create-or-refresh for walk-in NPC(s).
+
+    If `count` > 1, ensures at least `count` NPCs with the same key exist
+    at `location`; creates missing ones to reach the target. Returns the
+    first instance (most callers only use one)."""
+    existing = list(ObjectDB.objects.filter(
         db_key=key, db_location=location.pk,
-    ).first()
-    if existing:
-        npc = existing
-        print(f"  EXISTS  : {key}")
+    ))
+    made = 0
+    while len(existing) < count:
+        new = _create.create_object(typeclass, key=key, location=location)
+        existing.append(new)
+        made += 1
+    if made:
+        print(f"  CREATED : {key} × {made} → {location.key}")
     else:
-        npc = _create.create_object(typeclass, key=key, location=location)
-        print(f"  CREATED : {key} → {location.key}")
-    for a in aliases:
-        npc.aliases.add(a)
-    npc.db.desc = desc
-    npc.db.is_npc = True
-    npc.db.is_aggressive = aggressive
-    if ai_personality:
-        npc.attributes.add("ai_personality", ai_personality)
-    if ai_knowledge:
-        npc.attributes.add("ai_knowledge", ai_knowledge)
-    return npc
+        suffix = f" (×{count})" if count > 1 else ""
+        print(f"  EXISTS  : {key}{suffix}")
+    first = existing[0]
+    for npc in existing:
+        for a in aliases:
+            npc.aliases.add(a)
+        npc.db.desc = desc
+        npc.db.is_npc = True
+        npc.db.is_aggressive = aggressive
+        if ai_personality:
+            npc.attributes.add("ai_personality", ai_personality)
+        if ai_knowledge:
+            npc.attributes.add("ai_knowledge", ai_knowledge)
+    return first
 
 
 def _ensure_walkin_item(key, location, desc, aliases=(),
-                        typeclass="typeclasses.objects.Object"):
-    """Idempotent create-or-refresh for a gettable quest item."""
-    existing = ObjectDB.objects.filter(
+                        typeclass="typeclasses.objects.Object", count=1):
+    """Idempotent create-or-refresh for gettable quest item(s).
+
+    `count` lets you seed multiple identical copies (e.g. wreck salvage × 3)."""
+    existing = list(ObjectDB.objects.filter(
         db_key=key, db_location=location.pk,
-    ).first()
-    if existing:
-        obj = existing
-        print(f"  EXISTS  : item {key}")
+    ))
+    made = 0
+    while len(existing) < count:
+        new = _create.create_object(typeclass, key=key, location=location)
+        existing.append(new)
+        made += 1
+    if made:
+        print(f"  CREATED : item {key} × {made} → {location.key}")
     else:
-        obj = _create.create_object(typeclass, key=key, location=location)
-        print(f"  CREATED : item {key} → {location.key}")
-    for a in aliases:
-        obj.aliases.add(a)
-    obj.db.desc = desc
-    obj.locks.add("get:all()")
-    return obj
+        suffix = f" (×{count})" if count > 1 else ""
+        print(f"  EXISTS  : item {key}{suffix}")
+    first = existing[0]
+    for obj in existing:
+        for a in aliases:
+            obj.aliases.add(a)
+        obj.db.desc = desc
+        obj.locks.add("get:all()")
+    return first
 
 
 # ── Ship walk-in ────────────────────────────────────────────────────────────
@@ -3866,12 +3884,12 @@ _ensure_walkin_item(
     desc="A water-warped ship's manifest, bleeding ink but still legible.",
     aliases=("manifest",),
 )
-for i in range(1, 4):
-    _ensure_walkin_item(
-        "wreck salvage", tamris_harbor,
-        desc="A splintered crate of half-ruined cargo from the wrecked ship.",
-        aliases=("salvage", "crate"),
-    )
+_ensure_walkin_item(
+    "wreck salvage", tamris_harbor,
+    desc="A splintered crate of half-ruined cargo from the wrecked ship.",
+    aliases=("salvage", "crate"),
+    count=3,
+)
 _ensure_walkin_item(
     "captain's seal", tamris_harbor,
     desc=(
@@ -3940,19 +3958,21 @@ lady_ysolde = _ensure_walkin_npc(
     ),
 )
 
-for i in range(2):
-    bandit = _ensure_walkin_npc(
-        "road bandit", old_road_south,
-        desc=(
-            "A wiry man in mismatched leathers, a crude cudgel in one hand "
-            "and a dirty scarf hiding the lower half of his face."
-        ),
-        aliases=("bandit",),
-        aggressive=True,
-    )
-    bandit.db.body = 4
-    bandit.db.total_body = 4
-    bandit.db.av = 1
+bandit = _ensure_walkin_npc(
+    "road bandit", old_road_south,
+    desc=(
+        "A wiry man in mismatched leathers, a crude cudgel in one hand "
+        "and a dirty scarf hiding the lower half of his face."
+    ),
+    aliases=("bandit",),
+    aggressive=True,
+    count=2,
+)
+# Apply stats to every instance in the room.
+for b in ObjectDB.objects.filter(db_key="road bandit", db_location=old_road_south.pk):
+    b.db.body = 4
+    b.db.total_body = 4
+    b.db.av = 1
 
 _ensure_walkin_item(
     "unsealed letter", old_road_south,
@@ -4009,19 +4029,20 @@ crow_agent = _ensure_walkin_npc(
 
 # ── Chain Gang walk-in ──────────────────────────────────────────────────────
 # Placed at the Mistwall (the mist-edge where chain gangs are marched in).
-for i in range(2):
-    jailer = _ensure_walkin_npc(
-        "Mystvale Jailer", mistwall,
-        desc=(
-            "A thickset man in boiled leather with a chain-driver's whip "
-            "looped at his belt. He smells of sweat and old iron."
-        ),
-        aliases=("jailer",),
-        aggressive=True,
-    )
-    jailer.db.body = 5
-    jailer.db.total_body = 5
-    jailer.db.av = 2
+jailer = _ensure_walkin_npc(
+    "Mystvale Jailer", mistwall,
+    desc=(
+        "A thickset man in boiled leather with a chain-driver's whip "
+        "looped at his belt. He smells of sweat and old iron."
+    ),
+    aliases=("jailer",),
+    aggressive=True,
+    count=2,
+)
+for j in ObjectDB.objects.filter(db_key="Mystvale Jailer", db_location=mistwall.pk):
+    j.db.body = 5
+    j.db.total_body = 5
+    j.db.av = 2
 
 ringleader = _ensure_walkin_npc(
     "Chain Gang Ringleader", mistwall,
