@@ -272,6 +272,19 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  // Event 2 backlog — pre-completes the prereq quests so murder_pt2 and
+  // heist_pt2 unlock cleanly without running the whole prior chain first.
+  'quest-event2-backlog': async (page) => {
+    await resetQuestState(page)
+    await typeCommand(page,
+      `@py for k in ("man_on_the_run", "the_heist"): ` +
+      `me.db.quests[k] = {"status": "completed", "outcome": "take_him_alive" if k == "man_on_the_run" else "pull_the_job", "objectives": []}; ` +
+      `me.msg("[qtest] pre-completed prereqs for backlog quests")`)
+    await page.waitForTimeout(400)
+    for (const spec of EVENT2_BACKLOG_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -771,6 +784,78 @@ const EVENT2_SATURDAY_QUESTS = [
   SPEC_SECOND_EXPEDITION,
   SPEC_WITCH_INTERLOPERS,
   SPEC_THE_BUTCHER,
+]
+
+// --- Event 2 backlog ------------------------------------------------------
+const SPEC_INTO_THE_WOODS = {
+  key: 'into_the_woods', title: 'Into the Woods',
+  room: 'Stag Hall — The Gate',
+  label: 'e2bk-a-into-the-woods',
+  tick:
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "The Thornwood Edge"); ` +
+    `quest_gather(me, "crow signal-fire"); ` +
+    `quest_gather(me, "scattered tracks"); ` +
+    `quest_deliver(me, "scattered tracks", "Captain Thelmer of the Stag Watch")`,
+}
+const SPEC_MURDER_PT1 = {
+  key: 'murder_most_foul_pt1', title: 'Murder Most Foul',
+  room: 'Stag Hall — The Gate',
+  label: 'e2bk-b-murder-pt1',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "victim's body"); ` +
+    `quest_gather(me, "bloodstained letter"); ` +
+    `quest_deliver(me, "bloodstained letter", "Old Inga")`,
+}
+const SPEC_MURDER_PT2 = {
+  key: 'murder_most_foul_pt2', title: 'Murder Most Foul: The Reckoning',
+  outcome: 'drag_back_for_trial',
+  // Prereq for this is murder_pt1 + man_on_the_run; harness pre-completes them.
+  room: null, label: 'e2bk-c-murder-pt2',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "lynden's confession"); ` +
+    `quest_deliver(me, "lynden's confession", "Captain Thelmer of the Stag Watch")`,
+}
+const SPEC_HEIST_PT2 = {
+  key: 'the_heist_pt2', title: 'The Heist: False Bottom',
+  outcome: 'split_with_quill',
+  room: 'The Back Alley',
+  label: 'e2bk-d-heist-pt2',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "false-bottom papers"); ` +
+    `quest_deliver(me, "false-bottom papers", "Quill the Fixer")`,
+}
+const SPEC_RISE_UNDERWORLD = {
+  key: 'rise_of_the_underworld', title: 'Rise of the Underworld',
+  outcome: 'back_quill',
+  room: 'The Back Alley',
+  label: 'e2bk-e-rise-underworld',
+  tick:
+    `from commands.quests import quest_kill, quest_deliver; ` +
+    `quest_kill(me, "knuckles the bruiser"); ` +
+    `quest_deliver(me, "knuckles's knuckle-dusters", "Quill the Fixer")`,
+}
+const SPEC_COLD_WINTER = {
+  key: 'a_colds_winters_tale', title: "A Cold Winter's Tale",
+  room: 'The Broken Oar',
+  label: 'e2bk-f-cold-winter',
+  tick:
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "The Broken Oar"); ` +
+    `quest_deliver(me, "silver", "Old Threnody"); ` +
+    `quest_gather(me, "volgan winter-tale fragment")`,
+}
+
+const EVENT2_BACKLOG_QUESTS = [
+  SPEC_INTO_THE_WOODS,
+  SPEC_MURDER_PT1,
+  SPEC_MURDER_PT2,
+  SPEC_HEIST_PT2,
+  SPEC_RISE_UNDERWORLD,
+  SPEC_COLD_WINTER,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat
