@@ -323,6 +323,18 @@ mistwall = get_or_create_room(
 # ===========================================================================
 print("\n=== MYSTVALE ROOMS ===")
 
+dawnhaven = get_or_create_room(
+    "Dawnhaven",
+    "typeclasses.rooms.Room",
+    "An Aurorym war camp ten miles north of Mystvale — Vellatora knights "
+    "in white tabards, banks of canvas tents, and a circle of stone where "
+    "a sacred flame burns day and night. The camp is still half-built, "
+    "and winter is closing in. Sister Mariel leads the morning rites; "
+    "the rest of the faithful pray, drill, and dig.\n\n"
+    "Back |wsouth|n to Mystvale North Gate.",
+    zone="Annwyn",
+)
+
 shrine_of_lirit = get_or_create_room(
     "The Shrine of Lirit",
     "typeclasses.rooms.Room",
@@ -975,6 +987,8 @@ link(carran_square, "east", bannon_barracks, "west", "e", "w")
 
 # North gate → Forest Road → Harrowgate (far north per canonical map)
 link(north_gate, "north", forest_road, "south", "n", "s")
+# Aurorym pilgrim camp ten miles north of Mystvale (Event 3).
+link(north_gate, "dawnhaven", dawnhaven, "south", "dawn", "s")
 link(forest_road, "north", harrowgate, "south", "n", "s")
 
 # Crow Camp rooms — Rescue the Crafters quest chain (Event 1)
@@ -4740,6 +4754,304 @@ _ensure_walkin_item(
         "swing it one-handed. Proof of the kill."
     ),
     aliases=("cleaver", "butcher's cleaver"),
+)
+
+
+# ===========================================================================
+# EVENT 2 — THE WRATH (backlog encounters: into_the_woods, murder_most_foul,
+# the_heist_pt2, rise_of_the_underworld, a_colds_winters_tale)
+# ===========================================================================
+print("\n=== EVENT 2 BACKLOG ===")
+
+# --- Into the Woods (Friday Night patrol) ---
+# Reuses existing thornwood_edge + caravan_attack NPCs. New items:
+# crow signal-fire, scattered tracks. No new NPC.
+_ensure_walkin_item(
+    "crow signal-fire", thornwood_edge,
+    desc=(
+        "A small banked fire ringed in greasy stones. Three arrows "
+        "broken across the coals — the Crow signal for 'no quarter.'"
+    ),
+    aliases=("signal-fire", "signal fire"),
+)
+_ensure_walkin_item(
+    "scattered tracks", thornwood_edge,
+    desc=(
+        "Boot prints, cloven hoof-marks, and something that walks on "
+        "two legs but is not a man. The tracks lead deeper into the "
+        "Thornwood — and back toward Stag Hall."
+    ),
+    aliases=("tracks", "scattered tracks"),
+)
+
+# --- Murder Most Foul (body at Stag Hall, witness, evidence) ---
+_ensure_walkin_item(
+    "victim's body", hart_hall_courtyard,
+    desc=(
+        "A pilgrim's body face-down on the cobbles, half hidden under a "
+        "wagon tarp. Throat opened with a single clean cut. The blood "
+        "has dried in patterns that suggest the killing happened slowly."
+    ),
+    aliases=("body", "victim", "corpse", "victim's body"),
+)
+_ensure_walkin_item(
+    "bloodstained letter", hart_hall_courtyard,
+    desc=(
+        "A folded letter found in the victim's coat, edges brown with "
+        "old blood. Names, dates, a route through the Thornwood — and "
+        "a hand-drawn sigil that matches one of Lynden's known marks."
+    ),
+    aliases=("letter", "bloodstained letter"),
+)
+murder_witness = _ensure_walkin_npc(
+    "Old Inga", hart_hall_courtyard,
+    desc=(
+        "A grey-haired washerwoman stooping over a basket of rags. She "
+        "watches the courtyard more than she works. Her hands shake "
+        "less when she's holding silver."
+    ),
+    aliases=("inga", "old inga", "washerwoman"),
+    aggressive=False,
+    ai_personality=(
+        "Old Inga, Stag Hall washerwoman. Watches everything, talks to "
+        "no one — unless they pay. Saw who killed the pilgrim but "
+        "won't volunteer it."
+    ),
+    ai_knowledge=(
+        "- Saw the killing in the courtyard last night.\n"
+        "- Will testify only after a generous tip OR after the player "
+        "shows her the bloodstained letter as proof of evidence work.\n"
+        "- Names Lynden. The man's confession (already on file with "
+        "Captain Thelmer for the man_on_the_run quest) lines up with "
+        "what she saw."
+    ),
+)
+
+# --- The Heist Pt 2 (false bottom in the strongbox) ---
+_ensure_walkin_item(
+    "false-bottom papers", black_market,
+    desc=(
+        "Pried out from the strongbox's false bottom: Laurent ledger "
+        "pages, a list of names with sums next to them, and a sealed "
+        "letter of credit drawn on the Crown treasury. Either "
+        "evidence enough to topple a House or pure money in your hand."
+    ),
+    aliases=("ledger", "papers", "false-bottom papers"),
+)
+
+# --- Rise of the Underworld (Quill vs Knuckles) ---
+knuckles = _ensure_walkin_npc(
+    "Knuckles the Bruiser", black_market,
+    desc=(
+        "A wide, scarred man in a heavy oilcloth coat, knuckle-dusters "
+        "looped through his belt, a slow grin missing two teeth. The "
+        "kind of man who came up swinging and never stopped."
+    ),
+    aliases=("knuckles", "bruiser"),
+    aggressive=False,
+    ai_personality=(
+        "Knuckles, Quill's rival in the Back Alley underworld. Loud, "
+        "bullying, ambitious. Wants Quill's network for himself."
+    ),
+    ai_knowledge=(
+        "- Believes Quill is going soft. Recruiting muscle.\n"
+        "- Will fight rather than concede the territory if pushed.\n"
+        "- Counts heads before he counts coin — pay matters less than "
+        "loyalty he thinks he can buy."
+    ),
+)
+knuckles.db.body = 7
+knuckles.db.total_body = 7
+knuckles.db.av = 2
+
+# --- A Cold Winter's Tale (Old Threnody at the Broken Oar — Gateway) ---
+# Old Threnody already exists at the Broken Oar — reuse her. Drop the
+# tale fragment in the same room so it can be picked up after she sings.
+_ensure_walkin_item(
+    "volgan winter-tale fragment", gateway_tavern,
+    desc=(
+        "A few weather-warped pages bound with sinew, written in a "
+        "cramped hand. Old Threnody's recollection of a Volgan witch-"
+        "tale — older than the Aurorym, older than the Houses, the "
+        "kind of story whispered around fires that should not go out."
+    ),
+    aliases=("winter tale", "tale fragment", "volgan tale"),
+)
+
+
+# ===========================================================================
+# EVENT 3 — THE AWAKENING (anchor quests)
+#
+# Source: Drive / Reboot / Event 3 / "Chapter III — The Awakening" (Prologue).
+# Anchors the three Decisive Moments paths plus a Mistguard combat encounter.
+# ===========================================================================
+print("\n=== EVENT 3 ANCHORS ===")
+
+# --- Sister Mariel of the Aurorym (Dawnhaven) ---
+sister_mariel = _ensure_walkin_npc(
+    "Sister Mariel", dawnhaven,
+    desc=(
+        "A tall, hollow-cheeked auron in a battered white surcoat, the "
+        "Vellatora's sun-and-flame stitched at her shoulder. Her hands "
+        "are calloused from prayer-rope and shovel both. Frost in her "
+        "hair though it's only autumn."
+    ),
+    aliases=("mariel", "sister mariel"),
+    aggressive=False,
+    ai_personality=(
+        "Sister Mariel of the Fervent Order of the Vellatora, leading "
+        "the Dawnhaven pilgrim camp. Devout, exhausted, organized. "
+        "Speaks little; means every word. Believes the Annwyn is the "
+        "battleground prophesied in the Book of Magnus."
+    ),
+    ai_knowledge=(
+        "- Leads about a thousand Aurorym faithful at Dawnhaven, ten "
+        "miles north of Mystvale.\n"
+        "- Camp is short on lumber, food, and medicine. Winter is close.\n"
+        "- Crow raids are striking supply caravans — every lost wagon "
+        "is one less week of food.\n"
+        "- Offers |wDawnhaven Aid|n (gather supplies, fight Crows, or "
+        "preach to Mistvale converts).\n"
+        "- Knows Curate Godrick — they served at the same chantry "
+        "before he came south."
+    ),
+)
+
+_ensure_walkin_item(
+    "dawnhaven supply chest", dawnhaven,
+    desc=(
+        "A reinforced timber chest stamped with the Vellatora flame. "
+        "Empty, awaiting filling: blankets, salt fish, tallow candles, "
+        "anything that will keep a pilgrim alive through a hard winter."
+    ),
+    aliases=("supply chest", "chest"),
+)
+
+# --- Burgomaster Domitille of the Apotheca (Mystvale Town Hall) ---
+domitille = _ensure_walkin_npc(
+    "Burgomaster Domitille", town_hall,
+    desc=(
+        "A short, stout woman in apothecary's robes worn under a chain "
+        "of office, ink-stains on her fingers, a bronze amulet of the "
+        "Apotheca at her throat. She reads three reports at once and "
+        "still notices when you walk in."
+    ),
+    aliases=("domitille", "burgomaster"),
+    aggressive=False,
+    ai_personality=(
+        "Burgomaster Domitille of Mystvale, drawn from the Apotheca "
+        "rather than the noble houses. Practical, fast-talking, "
+        "skeptical of grand schemes and grand faiths in equal measure."
+    ),
+    ai_knowledge=(
+        "- Mystvale is being inundated with refugees from Carran, "
+        "Arcton, and Ironhaven who've fled the witchcraft plague.\n"
+        "- The town's resources are stretched thin. She wants "
+        "volunteers to settle the new arrivals or turn them away.\n"
+        "- Offers |wMistvale Refuge|n (shelter / charge-fee / turn-away "
+        "branching outcomes).\n"
+        "- Privately suspects Mistvale's strange immunity from the "
+        "plague is bought, not earned."
+    ),
+)
+
+_ensure_walkin_item(
+    "refugee elder's letter", south_gate,
+    desc=(
+        "A folded letter from the spokesperson of a band of refugees "
+        "from Carran, asking shelter in Mistvale. It lists fifty-three "
+        "names, half of them children."
+    ),
+    aliases=("refugee letter", "letter"),
+)
+
+# --- The Masked Stranger (Wytch Cult emissary) ---
+masked_stranger = _ensure_walkin_npc(
+    "the masked stranger", thornwood_edge,
+    desc=(
+        "A figure in a hooded cloak the colour of bog-water, face "
+        "covered by a mask of bleached deer-skull. Speaks softly, "
+        "with the cadence of someone who counts each word."
+    ),
+    aliases=("masked stranger", "stranger", "cultist"),
+    aggressive=False,
+    ai_personality=(
+        "Emissary of one of the Wytch Cults that have begun spreading "
+        "through the Annwyn. Believes the witches will spare those who "
+        "kneel. Recruiting; never threatening — at least not yet."
+    ),
+    ai_knowledge=(
+        "- Offers |wWytch Cult Invitation|n: accept a bone token (and "
+        "the cult's protection), refuse and walk away, or report to the "
+        "watch.\n"
+        "- Will not fight. Vanishes if attacked.\n"
+        "- Knows the witches are the only force in the Annwyn the "
+        "Crows fear."
+    ),
+)
+
+_ensure_walkin_item(
+    "bone token", thornwood_edge,
+    desc=(
+        "A small bone disc carved with a spiral and four notches. "
+        "Cool to the touch even on a warm day. Offered as proof of "
+        "alliance with whatever the Wytch Cults serve."
+    ),
+    aliases=("token", "bone token"),
+)
+
+# --- Mistguard Captain Vance (Mistwall) — Gateway under siege ---
+vance = _ensure_walkin_npc(
+    "Captain Vance of the Mistguard", mistwall,
+    desc=(
+        "A hard-faced Mistguard captain in iron-grey Richter livery — "
+        "the irony of which he is acutely aware now that the Iron Guard "
+        "is marching for his gate. A drawn sword across his back, "
+        "shield braced against a barrel."
+    ),
+    aliases=("vance", "captain vance"),
+    aggressive=False,
+    ai_personality=(
+        "Captain Vance, Mistguard captain at the Mistwall. "
+        "Pragmatic, embittered. Sees the Richter Iron Guard's advance "
+        "as a betrayal he should have predicted. Hopes the Bannons "
+        "will hold the line; suspects they won't."
+    ),
+    ai_knowledge=(
+        "- Ten thousand Iron Guard are marching on Gateway. Mistguard "
+        "is two hundred at most.\n"
+        "- Offers |wGateway Under Siege|n: hold the line in a forward "
+        "skirmish (combat), negotiate with a Richter herald, or desert "
+        "the post and slip into the Annwyn.\n"
+        "- Knows House Hawthorne is mustering but their force pales "
+        "next to the Iron Guard's."
+    ),
+)
+
+# Iron Guard scout — kill target for hold_the_line outcome
+for _ in range(3):
+    iron_scout = _ensure_walkin_npc(
+        "iron guard scout", mistwall,
+        desc=(
+            "A Richter Iron Guard scout in matte-black plate, a heavy "
+            "crossbow slung across his back, the seven-spoked wheel of "
+            "House Richter painted on his shield."
+        ),
+        aliases=("iron scout", "scout", "iron guard"),
+        aggressive=True,
+    )
+    iron_scout.db.body = 5
+    iron_scout.db.total_body = 5
+    iron_scout.db.av = 2
+
+_ensure_walkin_item(
+    "richter herald's writ", mistwall,
+    desc=(
+        "A scrolled writ sealed with the seven-spoked wheel of House "
+        "Richter — terms of surrender for the Mistguard, written in a "
+        "clerk's neat hand. Damning either way you turn it in."
+    ),
+    aliases=("herald's writ", "writ", "richter writ"),
 )
 
 
