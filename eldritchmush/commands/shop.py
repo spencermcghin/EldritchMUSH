@@ -32,8 +32,8 @@ def _get_proto(key):
     return None
 
 
-def _buy_price(proto):
-    """Return buy price in silver from a prototype dict."""
+def _base_buy_price(proto):
+    """Return base buy price in silver from a prototype dict (no rep modifier)."""
     if proto.get("value_silver"):
         return int(proto["value_silver"])
     if proto.get("value_copper"):
@@ -41,12 +41,83 @@ def _buy_price(proto):
     return 1
 
 
-def _sell_price(item):
-    """Return sell price in silver (50% of value) from a spawned item object."""
+def _base_sell_price(item):
+    """Return base sell price (50% of value) from a spawned item object."""
     val = item.db.value_silver or 0
     if not val:
         val = (item.db.value_copper or 0) // 10
     return max(1, int(val) // 2)
+
+
+def _rep_with(char, merchant):
+    """Lookup char.db.npc_rep[merchant.key.lower()][rep] (default 0)."""
+    try:
+        rep_db = char.db.npc_rep or {}
+        entry = rep_db.get((merchant.key or "").lower())
+        if entry:
+            return int(entry.get("rep", 0) or 0)
+    except Exception:
+        pass
+    return 0
+
+
+def _buy_multiplier(rep):
+    """Markup/discount on a merchant's BUY price (what the player pays)
+    based on the player's npc_rep with that merchant. Returns None to
+    refuse the sale entirely (rep is too low — won't deal with you)."""
+    if rep <= -10:
+        return None
+    if rep <= -5:
+        return 1.25
+    if rep < 0:
+        return 1.10
+    if rep < 5:
+        return 1.00
+    if rep < 10:
+        return 0.92
+    return 0.85
+
+
+def _sell_multiplier(rep):
+    """Multiplier on a player's SELL value (what the merchant pays out).
+    Returns None if rep too low — merchant won't take their goods."""
+    if rep <= -10:
+        return None
+    if rep <= -5:
+        return 0.30
+    if rep < 0:
+        return 0.40
+    if rep < 5:
+        return 0.50  # legacy default
+    if rep < 10:
+        return 0.55
+    return 0.60
+
+
+def _buy_price(proto, char=None, merchant=None):
+    """Final buy price after rep modifier. Returns None if the merchant
+    refuses (rep ≤ -10)."""
+    base = _base_buy_price(proto)
+    if char is None or merchant is None:
+        return base
+    mult = _buy_multiplier(_rep_with(char, merchant))
+    if mult is None:
+        return None
+    return max(1, int(round(base * mult)))
+
+
+def _sell_price(item, char=None, merchant=None):
+    """Final sell payout after rep modifier. Returns None if the
+    merchant refuses to buy from this character (rep ≤ -10)."""
+    val = item.db.value_silver or 0
+    if not val:
+        val = (item.db.value_copper or 0) // 10
+    if char is None or merchant is None:
+        return _base_sell_price(item)
+    mult = _sell_multiplier(_rep_with(char, merchant))
+    if mult is None:
+        return None
+    return max(1, int(round(int(val) * mult)))
 
 
 def _find_merchant(caller, merchant_name):
@@ -118,11 +189,16 @@ class CmdBrowse(Command):
             if not proto:
                 continue
             name = proto.get("key", proto_key)
-            price = _buy_price(proto)
+            price = _buy_price(proto, char=caller, merchant=merchant)
+            if price is None:
+                # Merchant refuses to deal with this character.
+                price_str = "|r—|n"
+            else:
+                price_str = f"{price} silver"
             desc = proto.get("desc", "")
             if desc and len(desc) > 50:
                 desc = desc[:47] + "..."
-            lines.append(f"|w{name:<35}|n |g{price} silver|n")
+            lines.append(f"|w{name:<35}|n |g{price_str}|n")
             if desc:
                 lines.append(f"  |x{desc}|n")
 
@@ -200,8 +276,15 @@ class CmdBuy(Command):
             return
 
         proto = _get_proto(matched_key)
-        price = _buy_price(proto)
+        price = _buy_price(proto, char=caller, merchant=merchant)
         item_name = proto.get("key", matched_key)
+
+        if price is None:
+            caller.msg(
+                f"|430{merchant.key} eyes you coldly and refuses to sell. "
+                f"Mend your standing first.|n"
+            )
+            return
 
         # Check funds
         silver = caller.db.silver or 0
@@ -282,9 +365,15 @@ class CmdSell(Command):
             return
 
         merchant = merchants[0]
-        price = _sell_price(item)
+        price = _sell_price(item, char=caller, merchant=merchant)
         item_name = item.key
 
+        if price is None:
+            caller.msg(
+                f"|430{merchant.key} won't take a thing from your hand. "
+                f"You've worn out your welcome here.|n"
+            )
+            return
         if price == 0:
             caller.msg(f"|430{merchant.key} has no interest in {item_name}.|n")
             return

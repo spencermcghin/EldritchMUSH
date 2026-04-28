@@ -177,6 +177,56 @@ def _effective_npc_rep(quest_def, outcome_key=None):
     )
 
 
+def _adjust_npc_rep(char, npc_key, delta, memory_tag=None):
+    """Public-API single-NPC rep adjustment for non-quest hooks
+    (combat kills, gifts, future combat-rescue events). Returns the
+    new rep score after the delta is applied."""
+    if not npc_key or not delta and not memory_tag:
+        return None
+    deltas = {npc_key: delta} if delta else {}
+    memories = {npc_key: memory_tag} if memory_tag else {}
+    changed = _apply_npc_rep(char, deltas, memories)
+    if changed:
+        # changed is [(npc_key, delta, new_rep), ...]
+        return changed[0][2]
+    return None
+
+
+def npc_rep_on_kill(char, npc):
+    """Register that *char* killed *npc*. Drops rep with that NPC
+    sharply and tags the memory. Other NPCs that should care about
+    the kill (kin, faction-mates) can be wired by future allies-graph
+    work; v2 only registers the direct relationship.
+    """
+    try:
+        npc_key = (getattr(npc, "key", "") or "").lower()
+        if not npc_key:
+            return
+        # Skip practice dummies and training targets.
+        if getattr(npc.db, "is_practice", False):
+            return
+        _adjust_npc_rep(char, npc_key, -10, memory_tag="killed by your hand")
+    except Exception:
+        pass
+
+
+def npc_rep_on_gift(char, npc, item):
+    """Register that *char* gifted *item* to *npc*. Modest +rep with
+    a tagged memory of what was given.
+    """
+    try:
+        npc_key = (getattr(npc, "key", "") or "").lower()
+        item_key = (getattr(item, "key", "") or "").lower()
+        if not npc_key or not item_key:
+            return
+        _adjust_npc_rep(
+            char, npc_key, 1,
+            memory_tag=f"accepted a gift: {item_key}",
+        )
+    except Exception:
+        pass
+
+
 def _apply_npc_rep(char, deltas, memories):
     """Update char.db.npc_rep with the given deltas + memory tags.
     Returns a list of (npc_key, delta, new_rep) tuples for display."""

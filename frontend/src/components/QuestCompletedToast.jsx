@@ -28,6 +28,7 @@ export default function QuestCompletedToast({ quest }) {
   for (const [k, qty] of Object.entries(current.reagents || {})) rewardParts.push(`${qty}× ${k}`)
 
   const repEntries = Object.entries(current.factionRep || {}).filter(([, d]) => d)
+  const npcRepEntries = Object.entries(current.npcRep || {}).filter(([, d]) => d)
 
   return (
     <div className={`quest-toast quest-toast-completed ${visible ? 'quest-toast-in' : 'quest-toast-out'}`}>
@@ -48,6 +49,15 @@ export default function QuestCompletedToast({ quest }) {
           {repEntries.map(([k, d]) => (
             <span key={k} className={`quest-toast-rep-chip ${d >= 0 ? 'pos' : 'neg'}`}>
               {d >= 0 ? '+' : ''}{d} {k}
+            </span>
+          ))}
+        </div>
+      )}
+      {npcRepEntries.length > 0 && (
+        <div className="quest-toast-rep quest-toast-npc-rep">
+          {npcRepEntries.map(([k, d]) => (
+            <span key={k} className={`quest-toast-rep-chip npc ${d >= 0 ? 'pos' : 'neg'}`} title="Personal reputation with this NPC">
+              {d >= 0 ? '+' : ''}{d} <span className="quest-toast-npc-name">{k.replace(/(^|\s)\S/g, c => c.toUpperCase())}</span>
             </span>
           ))}
         </div>

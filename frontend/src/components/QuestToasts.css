@@ -118,3 +118,19 @@
   color: #e8a5a5;
   border-color: rgba(139, 0, 0, 0.4);
 }
+
+/* Per-NPC rep chips render slightly tighter so longer names (e.g.
+   "Torben The Blacksmith") still fit alongside faction chips. */
+.quest-toast-npc-rep {
+  margin-top: 6px;
+}
+.quest-toast-rep-chip.npc {
+  font-size: 10px;
+  padding: 2px 8px;
+  letter-spacing: 0.3px;
+}
+.quest-toast-npc-name {
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.2px;
+}
