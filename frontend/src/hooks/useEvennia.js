@@ -299,7 +299,8 @@ export function useEvennia() {
         }
         case 'quest_completed': {
           // Celebratory summary toast when a quest finishes — shows
-          // outcome label, silver, items, faction rep deltas.
+          // outcome label, silver, items, faction rep deltas, and any
+          // per-NPC rep deltas (NPC memory v2).
           next.questCompleted = {
             title: kwargs.title || '',
             outcomeLabel: kwargs.outcomeLabel || kwargs.outcome_label || '',
@@ -307,6 +308,7 @@ export function useEvennia() {
             items: Array.isArray(kwargs.items) ? kwargs.items : [],
             reagents: kwargs.reagents || {},
             factionRep: kwargs.factionRep || kwargs.faction_rep || {},
+            npcRep: kwargs.npcRep || kwargs.npc_rep || {},
             ts: Date.now(),
           }
           break
