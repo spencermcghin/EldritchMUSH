@@ -285,6 +285,12 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  'quest-event3': async (page) => {
+    await resetQuestState(page)
+    for (const spec of EVENT3_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -856,6 +862,55 @@ const EVENT2_BACKLOG_QUESTS = [
   SPEC_HEIST_PT2,
   SPEC_RISE_UNDERWORLD,
   SPEC_COLD_WINTER,
+]
+
+// --- Event 3 — The Awakening ---------------------------------------------
+const SPEC_DAWNHAVEN_AID = {
+  key: 'dawnhaven_aid', title: 'Dawnhaven Aid',
+  outcome: 'gather_supplies',
+  room: 'Dawnhaven',
+  label: 'e3-a-dawnhaven',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "dawnhaven supply chest"); ` +
+    `quest_deliver(me, "dawnhaven supply chest", "Sister Mariel")`,
+}
+const SPEC_WITCH_CULT = {
+  key: 'witch_cult_invitation', title: "The Wytch Cult's Invitation",
+  outcome: 'report_to_watch',
+  room: 'The Thornwood Edge',
+  label: 'e3-b-witch-cult',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "bone token"); ` +
+    `quest_deliver(me, "bone token", "Captain Vance of the Mistguard")`,
+}
+const SPEC_MISTVALE_REFUGE = {
+  key: 'mistvale_refuge', title: 'Mistvale Refuge',
+  outcome: 'shelter_them',
+  room: 'The Town Hall',
+  label: 'e3-c-mistvale-refuge',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "refugee elder's letter"); ` +
+    `quest_deliver(me, "refugee elder's letter", "Burgomaster Domitille")`,
+}
+const SPEC_GATEWAY_SIEGE = {
+  key: 'gateway_under_siege', title: 'Gateway Under Siege',
+  outcome: 'hold_the_line',
+  room: 'The Mistwall',
+  label: 'e3-d-gateway-siege',
+  tick:
+    `from commands.quests import quest_kill, quest_deliver; ` +
+    `${rep(3, 'quest_kill(me, "iron guard scout")')}; ` +
+    `quest_deliver(me, "report", "Captain Vance of the Mistguard")`,
+}
+
+const EVENT3_QUESTS = [
+  SPEC_DAWNHAVEN_AID,
+  SPEC_WITCH_CULT,
+  SPEC_MISTVALE_REFUGE,
+  SPEC_GATEWAY_SIEGE,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat

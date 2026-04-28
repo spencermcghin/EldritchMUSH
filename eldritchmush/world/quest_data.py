@@ -1238,6 +1238,275 @@ QUESTS = {
         "prereqs": [],
     },
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 3 — THE AWAKENING (anchor quests)
+    # Source: Drive / Reboot / Event 3 / "Chapter III — The Awakening".
+    # Maps to the three Decisive Moments + a Mistguard combat anchor.
+    # ─────────────────────────────────────────────────────────────────────────
+    "dawnhaven_aid": {
+        "key": "dawnhaven_aid",
+        "title": "Dawnhaven Aid",
+        "giver": "sister mariel",
+        "description": (
+            "Sister Mariel leads the Aurorym pilgrim camp at Dawnhaven, "
+            "ten miles north of Mystvale. The camp is short on food, "
+            "lumber, and medicine — and Crow raiders are picking off "
+            "every supply caravan that approaches. She'll take help in "
+            "any form a willing hand can offer."
+        ),
+        "outcomes": {
+            "gather_supplies": {
+                "label": "Bring supplies up from Mystvale",
+                "description": (
+                    "Fill the Dawnhaven supply chest from Mystvale's "
+                    "stores. Honest work; Aurorym remembers."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "dawnhaven supply chest", "qty": 1,
+                     "desc": "Take the supply chest (0/1)"},
+                    {"type": "deliver", "target": "sister mariel", "qty": 1,
+                     "desc": "Return the filled chest to Sister Mariel (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "outsider": 1},
+                "npc_rep_deltas": {"sister mariel": 5, "curate godrick": 2},
+                "npc_memories": {
+                    "sister mariel": "kept the camp alive through Winter's edge",
+                    "curate godrick": "did right by the faithful",
+                },
+            },
+            "fight_crows": {
+                "label": "Hunt Crow raiders threatening the camp",
+                "description": (
+                    "Take the fight to the Crows preying on Dawnhaven's "
+                    "supply lines. Bloodier path; the Aurorym remembers "
+                    "harder."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "caravan raider", "qty": 3,
+                     "desc": "Drive off Crow raiders (0/3)"},
+                    {"type": "deliver", "target": "sister mariel", "qty": 1,
+                     "desc": "Report back to Sister Mariel (0/1)"},
+                ],
+                "rewards": {"silver": 35, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "crows": -3},
+                "npc_rep_deltas": {"sister mariel": 6, "curate godrick": 3},
+                "npc_memories": {
+                    "sister mariel": "spilled blood for the faithful",
+                    "curate godrick": "took the war to the Crows",
+                },
+            },
+        },
+        "prereqs": [],
+    },
+
+    "witch_cult_invitation": {
+        "key": "witch_cult_invitation",
+        "title": "The Wytch Cult's Invitation",
+        "giver": "the masked stranger",
+        "description": (
+            "A figure in a deer-skull mask waits at the edge of the "
+            "Thornwood. The cult is recruiting; the protection they "
+            "offer comes with a bone token and a price you may not "
+            "yet understand."
+        ),
+        "outcomes": {
+            "accept_token": {
+                "label": "Accept the bone token",
+                "description": (
+                    "Take the cult's mark. The witches mean their "
+                    "protection. The Aurorym mean their condemnation."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Thornwood Edge", "qty": 1,
+                     "desc": "Meet the masked stranger (0/1)"},
+                    {"type": "gather", "target": "bone token", "qty": 1,
+                     "desc": "Accept the bone token (0/1)"},
+                ],
+                "rewards": {"silver": 0, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -3, "outlaws": 2, "outsider": 3},
+                "npc_rep_deltas": {"the masked stranger": 5, "sister mariel": -5},
+                "npc_memories": {
+                    "the masked stranger": "knelt and was spared",
+                    "sister mariel": "took the cult's mark",
+                },
+            },
+            "refuse_walk_away": {
+                "label": "Refuse and walk away",
+                "description": (
+                    "No alliance, no warning to the watch — just turn "
+                    "and leave. Neutral ground, but the witches notice."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Thornwood Edge", "qty": 1,
+                     "desc": "Meet the masked stranger (0/1)"},
+                    {"type": "explore", "target": "The Mystvale Marketplace", "qty": 1,
+                     "desc": "Walk back to Mystvale without speaking (0/1)"},
+                ],
+                "rewards": {"silver": 0, "items": [], "reagents": {}},
+                "faction_rep": {"outsider": 1},
+                "npc_rep_deltas": {"the masked stranger": -1},
+                "npc_memories": {"the masked stranger": "refused the offer"},
+            },
+            "report_to_watch": {
+                "label": "Report the cult emissary to the watch",
+                "description": (
+                    "Take the bone token as evidence. The Mistguard pays "
+                    "in coin and the Aurorym pays in approval."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "bone token", "qty": 1,
+                     "desc": "Pocket the bone token as evidence (0/1)"},
+                    {"type": "deliver", "target": "captain vance of the mistguard",
+                     "qty": 1, "desc": "Hand the token to Captain Vance (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 4, "outlaws": -2},
+                "npc_rep_deltas": {
+                    "captain vance of the mistguard": 4,
+                    "sister mariel": 3,
+                    "the masked stranger": -10,
+                },
+                "npc_memories": {
+                    "captain vance of the mistguard": "brought a Wytch Cult emissary in",
+                    "sister mariel": "stood with the faithful against the witches",
+                    "the masked stranger": "betrayed the offering",
+                },
+            },
+        },
+        "prereqs": [],
+    },
+
+    "mistvale_refuge": {
+        "key": "mistvale_refuge",
+        "title": "Mistvale Refuge",
+        "giver": "burgomaster domitille",
+        "description": (
+            "Refugees from Carran, Arcton, and Ironhaven are flooding "
+            "Mystvale's south gate, fleeing the witchcraft plague. "
+            "Burgomaster Domitille needs help — but how the help is "
+            "rendered will mark Mystvale for the rest of Winter."
+        ),
+        "outcomes": {
+            "shelter_them": {
+                "label": "Shelter the refugees freely",
+                "description": (
+                    "Open Mystvale's doors to the refugees. The Crown "
+                    "approves; the town's resources thin."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "refugee elder's letter", "qty": 1,
+                     "desc": "Take the refugee elder's letter (0/1)"},
+                    {"type": "deliver", "target": "burgomaster domitille", "qty": 1,
+                     "desc": "Argue for shelter to Burgomaster Domitille (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "cirque": 1, "outsider": 2},
+                "npc_rep_deltas": {"burgomaster domitille": 4},
+                "npc_memories": {"burgomaster domitille": "argued for the refugees"},
+            },
+            "charge_a_fee": {
+                "label": "Charge a settlement fee",
+                "description": (
+                    "Refugees stay only if they pay. Some town coffers "
+                    "fattened, some refugees turned to the woods."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "refugee elder's letter", "qty": 1,
+                     "desc": "Take the refugee elder's letter (0/1)"},
+                    {"type": "deliver", "target": "burgomaster domitille", "qty": 1,
+                     "desc": "Propose the fee to Burgomaster Domitille (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 1, "outlaws": 1, "outsider": -2},
+                "npc_rep_deltas": {"burgomaster domitille": 1},
+                "npc_memories": {"burgomaster domitille": "found a profit in the suffering"},
+            },
+            "turn_them_away": {
+                "label": "Turn the refugees away",
+                "description": (
+                    "Mystvale's resources are too thin; tell them to "
+                    "walk on. Cold pragmatism — and a long memory in "
+                    "the people you turned away."
+                ),
+                "objectives": [
+                    {"type": "deliver", "target": "burgomaster domitille", "qty": 1,
+                     "desc": "Convince Burgomaster Domitille to refuse (0/1)"},
+                ],
+                "rewards": {"silver": 5, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -1, "outsider": -4},
+                "npc_rep_deltas": {"burgomaster domitille": -2},
+                "npc_memories": {"burgomaster domitille": "shut Mystvale's gate to the desperate"},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "gateway_under_siege": {
+        "key": "gateway_under_siege",
+        "title": "Gateway Under Siege",
+        "giver": "captain vance of the mistguard",
+        "description": (
+            "Ten thousand Richter Iron Guard are marching on Gateway. "
+            "The Mistguard is two hundred. Captain Vance offers three "
+            "ways to act on it — none of them clean."
+        ),
+        "outcomes": {
+            "hold_the_line": {
+                "label": "Hold the line — kill the Iron Guard scouts",
+                "description": (
+                    "Take the fight forward. Kill the Iron Guard scouts "
+                    "before they map the Mistwall's defences."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "iron guard scout", "qty": 3,
+                     "desc": "Cut down the Iron Guard scouts (0/3)"},
+                    {"type": "deliver", "target": "captain vance of the mistguard",
+                     "qty": 1, "desc": "Report back to Captain Vance (0/1)"},
+                ],
+                "rewards": {"silver": 50, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 4, "crows": 1},
+                "npc_rep_deltas": {"captain vance of the mistguard": 7},
+                "npc_memories": {"captain vance of the mistguard": "stood the line at the Mistwall"},
+            },
+            "negotiate": {
+                "label": "Carry the herald's writ to Vance unopened",
+                "description": (
+                    "Recover the Richter herald's surrender writ and "
+                    "give it to Vance to consider. Soft path — the "
+                    "Crown thinks less of you, but lives are saved."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "richter herald's writ", "qty": 1,
+                     "desc": "Take the Richter herald's writ (0/1)"},
+                    {"type": "deliver", "target": "captain vance of the mistguard",
+                     "qty": 1, "desc": "Hand the writ to Captain Vance unopened (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -1, "outsider": 2},
+                "npc_rep_deltas": {"captain vance of the mistguard": 2},
+                "npc_memories": {"captain vance of the mistguard": "brought terms instead of bodies"},
+            },
+            "desert": {
+                "label": "Desert and slip into the Annwyn",
+                "description": (
+                    "Walk away from the Mistwall. Iron Guard or no, "
+                    "this is not your fight. The Mistguard won't forget "
+                    "the empty post."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Mystvale Marketplace", "qty": 1,
+                     "desc": "Slip back to Mystvale unnoticed (0/1)"},
+                ],
+                "rewards": {"silver": 0, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -4, "outsider": 3, "outlaws": 1},
+                "npc_rep_deltas": {"captain vance of the mistguard": -8},
+                "npc_memories": {"captain vance of the mistguard": "abandoned the wall"},
+            },
+        },
+        "prereqs": [],
+    },
+
     # ─── Event 2 backlog encounters (after the Friday + Saturday anchors) ──
     "into_the_woods": {
         "key": "into_the_woods",
