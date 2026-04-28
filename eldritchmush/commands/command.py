@@ -457,10 +457,15 @@ class CmdGive(Command):
             target.msg("%s gives you %s." % (self.caller.key, to_give.key))
             # Call the object script's at_give() method.
             to_give.at_give(self.caller, target)
-            # Tick any quest "deliver" objectives tracking this item→NPC pair.
+            # Tick any quest "deliver" objectives tracking this item→NPC pair,
+            # and bump npc_rep for the recipient (a small +1 with a memory tag
+            # of what was gifted). NPCs that are not real fixtures (other
+            # players, items) are filtered by the npc_rep_on_gift hook.
             try:
-                from commands.quests import quest_deliver
+                from commands.quests import quest_deliver, npc_rep_on_gift
                 quest_deliver(self.caller, to_give.key, target.key)
+                if getattr(target.db, "is_npc", False):
+                    npc_rep_on_gift(self.caller, target, to_give)
             except Exception:
                 pass
 

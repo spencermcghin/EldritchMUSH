@@ -536,15 +536,21 @@ class Combatant:
                     f"|025{self.name} is bleeding profusely from many wounds and will soon lose consciousness.|n")
                 emit(self.caller.location, "character_bleed", {"character": self.name})
                 push_available_commands(self.caller)
-                # Quest kill hook: fire when an NPC drops to 0 bleed_points
+                # Quest + NPC-memory hooks: fire when an NPC drops to
+                # 0 bleed_points. Every player in the room gets a quest_kill
+                # tick, AND if the deceased was a named/persistent NPC the
+                # killer's npc_rep with that NPC drops sharply (with a
+                # "killed by your hand" memory tag) so future revivals or
+                # kin-NPCs can react.
                 if not self.bleedPoints():
                     from typeclasses.npc import Npc
                     if ev_utils.inherits_from(self.caller, Npc):
                         try:
-                            from commands.quests import quest_kill
+                            from commands.quests import quest_kill, npc_rep_on_kill
                             for obj in self.caller.location.contents:
                                 if getattr(obj, "has_account", False) and obj.has_account:
                                     quest_kill(obj, self.caller.key)
+                                    npc_rep_on_kill(obj, self.caller)
                         except Exception:
                             pass
                     # Duel resolution: whoever (player or NPC) just hit
