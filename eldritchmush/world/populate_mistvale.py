@@ -4743,4 +4743,126 @@ _ensure_walkin_item(
 )
 
 
+# ===========================================================================
+# EVENT 2 — THE WRATH (backlog encounters: into_the_woods, murder_most_foul,
+# the_heist_pt2, rise_of_the_underworld, a_colds_winters_tale)
+# ===========================================================================
+print("\n=== EVENT 2 BACKLOG ===")
+
+# --- Into the Woods (Friday Night patrol) ---
+# Reuses existing thornwood_edge + caravan_attack NPCs. New items:
+# crow signal-fire, scattered tracks. No new NPC.
+_ensure_walkin_item(
+    "crow signal-fire", thornwood_edge,
+    desc=(
+        "A small banked fire ringed in greasy stones. Three arrows "
+        "broken across the coals — the Crow signal for 'no quarter.'"
+    ),
+    aliases=("signal-fire", "signal fire"),
+)
+_ensure_walkin_item(
+    "scattered tracks", thornwood_edge,
+    desc=(
+        "Boot prints, cloven hoof-marks, and something that walks on "
+        "two legs but is not a man. The tracks lead deeper into the "
+        "Thornwood — and back toward Stag Hall."
+    ),
+    aliases=("tracks", "scattered tracks"),
+)
+
+# --- Murder Most Foul (body at Stag Hall, witness, evidence) ---
+_ensure_walkin_item(
+    "victim's body", hart_hall_courtyard,
+    desc=(
+        "A pilgrim's body face-down on the cobbles, half hidden under a "
+        "wagon tarp. Throat opened with a single clean cut. The blood "
+        "has dried in patterns that suggest the killing happened slowly."
+    ),
+    aliases=("body", "victim", "corpse", "victim's body"),
+)
+_ensure_walkin_item(
+    "bloodstained letter", hart_hall_courtyard,
+    desc=(
+        "A folded letter found in the victim's coat, edges brown with "
+        "old blood. Names, dates, a route through the Thornwood — and "
+        "a hand-drawn sigil that matches one of Lynden's known marks."
+    ),
+    aliases=("letter", "bloodstained letter"),
+)
+murder_witness = _ensure_walkin_npc(
+    "Old Inga", hart_hall_courtyard,
+    desc=(
+        "A grey-haired washerwoman stooping over a basket of rags. She "
+        "watches the courtyard more than she works. Her hands shake "
+        "less when she's holding silver."
+    ),
+    aliases=("inga", "old inga", "washerwoman"),
+    aggressive=False,
+    ai_personality=(
+        "Old Inga, Stag Hall washerwoman. Watches everything, talks to "
+        "no one — unless they pay. Saw who killed the pilgrim but "
+        "won't volunteer it."
+    ),
+    ai_knowledge=(
+        "- Saw the killing in the courtyard last night.\n"
+        "- Will testify only after a generous tip OR after the player "
+        "shows her the bloodstained letter as proof of evidence work.\n"
+        "- Names Lynden. The man's confession (already on file with "
+        "Captain Thelmer for the man_on_the_run quest) lines up with "
+        "what she saw."
+    ),
+)
+
+# --- The Heist Pt 2 (false bottom in the strongbox) ---
+_ensure_walkin_item(
+    "false-bottom papers", black_market,
+    desc=(
+        "Pried out from the strongbox's false bottom: Laurent ledger "
+        "pages, a list of names with sums next to them, and a sealed "
+        "letter of credit drawn on the Crown treasury. Either "
+        "evidence enough to topple a House or pure money in your hand."
+    ),
+    aliases=("ledger", "papers", "false-bottom papers"),
+)
+
+# --- Rise of the Underworld (Quill vs Knuckles) ---
+knuckles = _ensure_walkin_npc(
+    "Knuckles the Bruiser", black_market,
+    desc=(
+        "A wide, scarred man in a heavy oilcloth coat, knuckle-dusters "
+        "looped through his belt, a slow grin missing two teeth. The "
+        "kind of man who came up swinging and never stopped."
+    ),
+    aliases=("knuckles", "bruiser"),
+    aggressive=False,
+    ai_personality=(
+        "Knuckles, Quill's rival in the Back Alley underworld. Loud, "
+        "bullying, ambitious. Wants Quill's network for himself."
+    ),
+    ai_knowledge=(
+        "- Believes Quill is going soft. Recruiting muscle.\n"
+        "- Will fight rather than concede the territory if pushed.\n"
+        "- Counts heads before he counts coin — pay matters less than "
+        "loyalty he thinks he can buy."
+    ),
+)
+knuckles.db.body = 7
+knuckles.db.total_body = 7
+knuckles.db.av = 2
+
+# --- A Cold Winter's Tale (Old Threnody at the Broken Oar — Gateway) ---
+# Old Threnody already exists at the Broken Oar — reuse her. Drop the
+# tale fragment in the same room so it can be picked up after she sings.
+_ensure_walkin_item(
+    "volgan winter-tale fragment", gateway_tavern,
+    desc=(
+        "A few weather-warped pages bound with sinew, written in a "
+        "cramped hand. Old Threnody's recollection of a Volgan witch-"
+        "tale — older than the Aurorym, older than the Houses, the "
+        "kind of story whispered around fires that should not go out."
+    ),
+    aliases=("winter tale", "tale fragment", "volgan tale"),
+)
+
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
