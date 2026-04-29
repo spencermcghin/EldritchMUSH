@@ -33,39 +33,31 @@ jobs:
         working-directory: eldritchmush
         run: evennia migrate --no-input
 
-      - name: Initial Evennia setup (boot + stop)
+      - name: Initial Evennia setup (Account #1 + Limbo via evennia shell)
         # `evennia migrate` creates the Django schema but does NOT create
         # Account #1 / Limbo (#2) — those are normally made by Evennia's
         # at_initial_setup the first time the server boots. Calling
-        # initial_setup.create_objects() directly hits Evennia's lazy-
-        # loading machinery (DefaultAccount imports return None until
-        # the launcher has fully booted), so the cleanest path is just
-        # to start the server briefly and stop it. The first-start hook
-        # creates the superuser + Limbo + channels, then we shut down.
+        # initial_setup helpers from a raw `python -c` hits Evennia's
+        # lazy-loading (DefaultAccount imports return None until the
+        # launcher has fully booted). `evennia shell --command` boots
+        # Evennia properly, which is the same context the playtest job
+        # below already runs in successfully.
         working-directory: eldritchmush
-        env:
-          DJANGO_SETTINGS_MODULE: server.conf.settings
-          ADMIN_USERNAME: ci_admin
-          ADMIN_PASSWORD: ci-throwaway-password-12chars
-          ADMIN_EMAIL: ci@eldritchmush.test
         run: |
-          # Boot the server (initial setup fires automatically), wait
-          # for both portal+server to be running, then stop cleanly.
-          evennia start
-          for i in $(seq 1 30); do
-            if evennia status 2>&1 | grep -q "Server: Running"; then
-              echo "[ci] Evennia booted after ${i}s"
-              break
-            fi
-            sleep 2
-          done
-          evennia stop
-          # Verify Limbo exists.
-          python -u -c "
-          import django; django.setup()
+          evennia shell --command "
+          from evennia.accounts.models import AccountDB
+          from django.contrib.auth.hashers import make_password
+          if not AccountDB.objects.filter(id=1).exists():
+              acct = AccountDB(id=1, username='ci_admin', email='ci@eldritchmush.test',
+                               is_superuser=True, is_staff=True)
+              acct.password = make_password('ci-throwaway-password-12chars')
+              acct.save()
+              print('[ci] Created AccountDB(id=1) ci_admin')
+          from evennia.server.initial_setup import create_objects
+          create_objects()
           from evennia.objects.models import ObjectDB
           assert ObjectDB.objects.filter(id=2).exists(), 'Limbo (#2) was not created'
-          print('[ci] Limbo verified')
+          print('[ci] Limbo (#2) bootstrapped')
           "
 
       - name: Seed world (idempotent)
