@@ -33,15 +33,18 @@ jobs:
         working-directory: eldritchmush
         run: evennia migrate --no-input
 
-      - name: Initial Evennia setup (Limbo)
+      - name: Initial Evennia setup (superuser + Limbo)
         # `evennia migrate` creates the Django schema but does NOT create
         # Account #1 / Limbo (#2) — those are normally made by Evennia's
         # at_initial_setup the first time the server boots. Without #2
         # our get_or_create_room falls back to a missing DEFAULT_HOME
-        # and dies. Call create_objects() directly so populate has
-        # Limbo to anchor against. (create_channels is omitted — it's
-        # not exposed in every Evennia release and the populate script
-        # doesn't need channels to succeed.)
+        # and dies. Steps:
+        #   1. Pre-create AccountDB(id=1) — create_objects() requires
+        #      a superuser to anchor Limbo's permissions to.
+        #   2. Call create_objects() to make Limbo.
+        # We skip create_channels (not exposed in every Evennia release;
+        # populate doesn't need channels) and reset_server (needs a
+        # portal we don't have in CI).
         working-directory: eldritchmush
         env:
           DJANGO_SETTINGS_MODULE: server.conf.settings
@@ -49,6 +52,13 @@ jobs:
           python -u -c "
           import django
           django.setup()
+          from evennia.accounts.models import AccountDB
+          from django.contrib.auth.hashers import make_password
+          if not AccountDB.objects.filter(id=1).exists():
+              acct = AccountDB(id=1, username='ci_admin', email='ci@eldritchmush.test', is_superuser=True, is_staff=True)
+              acct.password = make_password('ci-throwaway-password')
+              acct.save()
+              print('[ci] Created AccountDB(id=1) ci_admin')
           from evennia.server.initial_setup import create_objects
           create_objects()
           print('[ci] Limbo bootstrapped')
