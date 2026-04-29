@@ -33,6 +33,26 @@ jobs:
         working-directory: eldritchmush
         run: evennia migrate --no-input
 
+      - name: Initial Evennia setup (Limbo + channels)
+        # `evennia migrate` creates the Django schema but does NOT create
+        # Account #1 / Limbo (#2) / system channels — those are normally
+        # made by Evennia's at_initial_setup the first time the server
+        # boots. Without #2 our get_or_create_room falls back to a
+        # missing DEFAULT_HOME and dies. Call the two safe init steps
+        # directly so populate has Limbo to anchor against.
+        working-directory: eldritchmush
+        env:
+          DJANGO_SETTINGS_MODULE: server.conf.settings
+        run: |
+          python -u -c "
+          import django
+          django.setup()
+          from evennia.server.initial_setup import create_objects, create_channels
+          create_objects()
+          create_channels()
+          print('[ci] Limbo + default channels bootstrapped')
+          "
+
       - name: Seed world (idempotent)
         working-directory: eldritchmush
         env:
