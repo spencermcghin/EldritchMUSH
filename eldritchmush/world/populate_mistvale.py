@@ -1288,12 +1288,17 @@ if old_merchant:
     move_to(old_merchant, marketplace)
 
 # ===========================================================================
-# REDIRECT THE CHARGEN ROOM TO GATEWAY (the staging town on the
-# Arnesse side). The walk-in quest is the journey through the Mists
-# to Mystvale — players must START in Gateway, meet the Herald,
-# pick a walk-in flavor, then travel to Mystvale as part of the
-# narrative. Dropping them at Mystvale South Gate skips the Herald
-# entirely and breaks the new-player onboarding.
+# REDIRECT THE CHARGEN ROOM TO GATEWAY SQUARE (where the Herald
+# at the Gates is standing with offers in hand). The Herald's
+# walk-in quests fire automatically as a quest_offer OOB event the
+# moment a new puppet's at_after_move hook runs in this room — so
+# the player's first frame post-chargen is the parchment Quest
+# Offer modal asking "From the Mists, you arrived... how?". This
+# is the only moment when the new-player onboarding is implicit
+# rather than requiring the player to guess where to go next.
+#
+# Gateway Tents stays one step south (atmospheric refugee camp);
+# players who want to wander there can do so freely.
 # ===========================================================================
 print("\n=== CHARGEN ROOM EXIT ===")
 
@@ -1306,7 +1311,7 @@ if chargen_room:
         if hasattr(ex, "destination") and ex.destination:
             print(f"  REMOVE  : old exit '{ex.key}' from ChargenRoom")
             ex.delete()
-    # New exit: chargen → Gateway Tents (newcomers' camp)
+    # New exit: chargen → Gateway Square (Herald's location).
     if not ObjectDB.objects.filter(
         db_key="in character", db_location=chargen_room.pk
     ).exists():
@@ -1314,18 +1319,19 @@ if chargen_room:
             "evennia.objects.objects.DefaultExit",
             key="in character",
             location=chargen_room,
-            destination=gateway_tents,
+            destination=gateway_square,
         )
         ex.aliases.add("ic")
         ex.aliases.add("gateway")
-        print(f"  CREATED : ChargenRoom → Gateway Tents exit")
+        print(f"  CREATED : ChargenRoom → Gateway Square exit")
 
-# Also ensure limbo (#2) points at Gateway Tents
+# Also ensure limbo (#2) points at Gateway Square — same logic;
+# OOC fallback should land somewhere with a clear next-action.
 limbo = ObjectDB.objects.filter(id=2).first()
 if limbo:
     limbo.db.desc = (
         "A featureless void between worlds. The Mistgate lies to the "
-        "|wnorth|n, and beyond it, the tents of Gateway."
+        "|wnorth|n, and beyond it, Gateway Square."
     )
     for ex in limbo.contents:
         if hasattr(ex, "destination") and ex.destination:
@@ -1333,9 +1339,9 @@ if limbo:
     if not ObjectDB.objects.filter(db_key="north", db_location=limbo.pk).exists():
         _create.create_object(
             "evennia.objects.objects.DefaultExit",
-            key="north", location=limbo, destination=gateway_tents,
+            key="north", location=limbo, destination=gateway_square,
         )
-        print("  CREATED : Limbo → Gateway Tents")
+        print("  CREATED : Limbo → Gateway Square")
 
 
 # ===========================================================================
