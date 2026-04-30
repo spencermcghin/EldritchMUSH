@@ -64,19 +64,19 @@ class WalkInMistsExit(Exit):
     # populate that move rooms don't break this.
     WALKIN_ROUTES = {
         "walkin_ship": {
-            "dest_key": "Tamris Harbor — The Broken Pier",
+            "dest_key": "The Cargo Hold of the Doomed Ship",
             "arrival": (
-                "|cThe stars are not the stars you knew.|n\n\n"
-                "The deck pitches under your feet — the |wdoomed captain|n's "
-                "last words still in your ear: \"Burn the seal. Burn the "
-                "hold. Whatever you do, do not let them open it.\" "
-                "Wood splinters. Saltwater floods the hull. Then black, "
-                "then mist, then a long sound like a great bell tolled "
-                "underwater.\n\n"
-                "You wake on a beach of grey shingle. The wreck still "
-                "bleeds timber into the tide. The smell of brine and "
-                "rot is thick on the wind. Tamris Harbor lies above the "
-                "tideline, lamps already lit against the fog."
+                "|cThe Mists thicken into the smell of brine and tar.|n\n\n"
+                "The mist becomes weight. The weight becomes wood under "
+                "your back, a ship's hammock swaying with a sea you "
+                "cannot see. A storm hammers the hull from outside. "
+                "Distantly, somewhere above, the |wcaptain|n is shouting. "
+                "The cabin door has been locked from the other side. "
+                "Other passengers are huddled around you — strangers, "
+                "all bound for the Annwyn, all trying not to look "
+                "afraid. The ship lurches.\n\n"
+                "You are not in the Mists anymore. You are on the ship "
+                "they were always going to put you on."
             ),
         },
         "walkin_cirque": {
@@ -170,6 +170,41 @@ class WalkInMistsExit(Exit):
                 return super().at_traverse(traversing_object, target, **kwargs)
         # No active walk-in (or the room lookup failed) — default behavior.
         return super().at_traverse(traversing_object, target_location, **kwargs)
+
+
+class WalkInJourneyExit(Exit):
+    """Exit used inside walk-in transit scenes (the Cargo Hold → Deck →
+    Tamris Beach sequence for the Ship walk-in, etc.). When the
+    traversing player moves through, any NPC in the source room
+    tagged `db.is_walkin_companion = True` follows them through.
+
+    This is what makes companion NPCs (First Mate Nosaj, Yan, etc.)
+    feel like they're actually travelling with the player rather than
+    being stranded one room behind. The companion sees a quiet
+    follow-message; everyone else in the destination room sees them
+    arrive.
+    """
+
+    def at_traverse(self, traversing_object, target_location, **kwargs):
+        source = traversing_object.location
+        companions = []
+        if source:
+            for obj in list(source.contents):
+                if obj is traversing_object:
+                    continue
+                if obj.attributes.get("is_walkin_companion", default=False):
+                    companions.append(obj)
+        super().at_traverse(traversing_object, target_location, **kwargs)
+        # Only drag companions along if the player actually moved.
+        if traversing_object.location is target_location:
+            for comp in companions:
+                try:
+                    comp.move_to(target_location, quiet=True)
+                    traversing_object.msg(
+                        f"|c{comp.key}|n follows you through."
+                    )
+                except Exception:
+                    pass
 
 
 class QuestGatedExit(Exit):

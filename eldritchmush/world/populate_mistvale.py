@@ -4028,7 +4028,183 @@ def _ensure_walkin_item(key, location, desc, aliases=(),
     return first
 
 
-# ── Ship walk-in ────────────────────────────────────────────────────────────
+# ── Ship walk-in transit scene (Stars Aren't Right) ─────────────────────────
+# Two-room transit scene the ship walk-in plays through before washing
+# ashore at Tamris Harbor. Source: the original Event 1 LARP encounter
+# "The Stars Aren't Right" by Spencer McGhin — passenger trapped in
+# the cargo hold of a doomed vessel; deck where the stars are wrong
+# and the crew has vanished. First Mate Nosaj travels with the player
+# from the cargo hold all the way to the wreck on the beach.
+ship_cargo_hold = get_or_create_room(
+    "The Cargo Hold of the Doomed Ship",
+    "typeclasses.rooms.Room",
+    "A cramped passenger cabin in the belly of a merchant ship — "
+    "hammocks slung between rough beams, crates lashed to iron rings, "
+    "a few guttering lanterns. The air is thick with tar, salt, and "
+    "the sour breath of frightened strangers. Beyond the planks of "
+    "the hull, a storm is screaming. Above, you can hear sailors "
+    "shouting orders — sometimes. Not always.\n\n"
+    "The cabin door is locked from the outside. The captain has the "
+    "key. The captain is not down here.\n\n"
+    "|540You are passengers, all bound for the Annwyn. You paid "
+    "someone for this passage. You are starting to wonder what you "
+    "paid for.|n\n\n"
+    "|wUp|n the rope ladder, onto the |wdeck|n.",
+    zone="The Mists",
+)
+ship_deck = get_or_create_room(
+    "The Doomed Ship's Deck",
+    "typeclasses.rooms.Room",
+    "Open deck under a sky that is almost — almost — the sky you "
+    "remember. The constellations hang in the wrong places. Some of "
+    "the stars are colours that have no name. A fog machine of a fog "
+    "rolls thick along the rail; the |wship's wheel|n turns slowly on "
+    "its own, unattended. There are signs the crew was here moments "
+    "ago — a pipe still warm, a half-played hand of Tavyl, a cup of "
+    "wine spilled — but the crew is gone. All of them.\n\n"
+    "|540The ship is making for the Annwyn. The Annwyn is not where "
+    "the captain thought it would be.|n\n\n"
+    "|wDown|n into the |wcargo hold|n. |wAshore|n, when the wreck "
+    "comes — and it is coming.",
+    zone="The Mists",
+)
+
+# Connect the two transit rooms.
+link(ship_cargo_hold, "deck", ship_deck, "down", "u", "d")
+# Use WalkInJourneyExit so Nosaj follows the player through both legs.
+for _ex in ship_cargo_hold.contents:
+    if getattr(_ex, "destination", None) == ship_deck:
+        if _ex.typeclass_path != "typeclasses.exits.WalkInJourneyExit":
+            _ex.swap_typeclass(
+                "typeclasses.exits.WalkInJourneyExit", clean_attributes=False
+            )
+for _ex in ship_deck.contents:
+    if getattr(_ex, "destination", None) == ship_cargo_hold:
+        if _ex.typeclass_path != "typeclasses.exits.WalkInJourneyExit":
+            _ex.swap_typeclass(
+                "typeclasses.exits.WalkInJourneyExit", clean_attributes=False
+            )
+
+# Ashore exit from deck → Tamris Harbor (the wreck on the beach).
+# This is the journey's end — Nosaj follows ashore as a survivor too.
+_ashore_exit = ObjectDB.objects.filter(
+    db_key="ashore", db_location=ship_deck.pk
+).first()
+if not _ashore_exit:
+    _ashore_exit = _create.create_object(
+        "typeclasses.exits.WalkInJourneyExit",
+        key="ashore", location=ship_deck, destination=tamris_harbor,
+    )
+    _ashore_exit.aliases.add("beach")
+    _ashore_exit.aliases.add("shore")
+    print("  CREATED : Ship Deck → Tamris Harbor (wreck)")
+
+# First Mate Nosaj — companion NPC. Hides in a crate at first, follows
+# the player out once roused. Source brief: tattered crew costume,
+# survived by hiding when the screaming started.
+nosaj = _ensure_walkin_npc(
+    "First Mate Nosaj", ship_cargo_hold,
+    desc=(
+        "A wiry man in a tattered ship's crew uniform, hair plastered "
+        "to his forehead with sweat and something darker. His name "
+        "tag reads NOSAJ. He keeps one hand on the splintered crate "
+        "he climbed out of, as if it might hold the only safety left "
+        "in the world."
+    ),
+    aliases=("nosaj", "first mate", "mate"),
+    aggressive=False,
+    ai_personality=(
+        "First Mate Nosaj of the merchant vessel that brought you "
+        "into the Mists. Survived the crew's vanishing by hiding in "
+        "an empty crate during a smoke break. Twitchy, superstitious, "
+        "guilt-ridden — he should have fought, not hidden. Now he "
+        "trails the bearer (the player) because he cannot face being "
+        "alone again. Speaks in clipped, half-haunted sentences. Known "
+        "Eldritch lore: the captain locked them down here on purpose, "
+        "the constellations changed mid-voyage, the screams stopped "
+        "all at once. Knows the ship was meant to get to the Annwyn "
+        "— and instead got somewhere else."
+    ),
+    ai_knowledge=(
+        "- Crew was last heard at 9 PM, then everything went silent.\n"
+        "- Captain had the only key to the passenger hold; captain is "
+        "now missing.\n"
+        "- The constellations on the deck are the wrong ones — Annwyn "
+        "stars, not Arnesse stars.\n"
+        "- Recommends finding the navigator (whoever they were); the "
+        "ship is lost without a chart correction.\n"
+        "- Nosaj will follow the bearer because he refuses to be "
+        "alone on this ship."
+    ),
+)
+nosaj.attributes.add("is_walkin_companion", True)
+nosaj.db.body = 3
+nosaj.db.total_body = 3
+nosaj.db.av = 0
+
+# Cargo Hold flavor items (lore + atmosphere).
+_ensure_walkin_item(
+    "captain's logs", ship_cargo_hold,
+    desc=(
+        "A bound ship's logbook, the leather still salty. The last "
+        "entry, written in a shaking hand, reads: 'The stars are "
+        "wrong. We are not where the chart says. Tell the passengers "
+        "nothing. Whatever knocks at the hull, do not open.'"
+    ),
+    aliases=("captain log", "log", "logs", "logbook"),
+)
+_ensure_walkin_item(
+    "lookout's small chest", ship_cargo_hold,
+    desc=(
+        "A small wooden chest belonging to the lookout, jammed under "
+        "a hammock. A note tucked inside: 'Got drunk. Hid the door "
+        "key somewhere I'll regret. Wine spilled, blood spilled. "
+        "Forgive me.' The chest is unlocked."
+    ),
+    aliases=("lookout chest", "small chest", "chest"),
+)
+_ensure_walkin_item(
+    "wine cup", ship_cargo_hold,
+    desc=(
+        "A pewter wine cup, half-overturned in the bedding. Old wine "
+        "stains and old blood stains share the same boards."
+    ),
+    aliases=("wine", "cup"),
+)
+
+# Ship's Deck flavor items.
+_ensure_walkin_item(
+    "ship's wheel", ship_deck,
+    desc=(
+        "The ship's great wheel, abandoned, turning slowly on its own "
+        "as if invisible hands were correcting course. There are "
+        "fingernail-scratches gouged into the spokes."
+    ),
+    aliases=("wheel", "ship wheel", "ship's wheel"),
+)
+_ensure_walkin_item(
+    "tavyl deck", ship_deck,
+    desc=(
+        "A half-played hand of Tavyl cards, fanned out on a sea-chest. "
+        "The hands are dealt to four players. Three of those seats "
+        "are empty. The cup beside one is still warm."
+    ),
+    aliases=("cards", "tavyl", "tavyl cards"),
+)
+_ensure_walkin_item(
+    "constellation chart", ship_deck,
+    desc=(
+        "The ship's navigational chart of the night sky, half-rolled "
+        "on the navigation table. Half the marked constellations "
+        "have been crossed out and re-drawn in a hurried hand. The "
+        "newer ones make no sense — they correspond to no Arnesse "
+        "sky. The captain's last note in the margin: 'These are not "
+        "the stars he sailed under.'"
+    ),
+    aliases=("chart", "constellation chart", "stars"),
+)
+
+
 harbormaster = _ensure_walkin_npc(
     "Mystvale Harbormaster", tamris_harbor,
     desc=(
