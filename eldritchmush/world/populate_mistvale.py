@@ -5055,4 +5055,152 @@ _ensure_walkin_item(
 )
 
 
+# ===========================================================================
+# EVENT 4 — THE SACRIFICE (anchor quests)
+# Source: Drive / Reboot / Event 4 / "Prologue: The Sacrifice".
+# Spring 765. Decisive Moments are faction-allegiance choices; Cale rises
+# among the Crows; Eldreth's murderer remains at large; Aurorym zealotry
+# grows at Dawnhaven; Silver Company patrols Mistvale.
+# ===========================================================================
+print("\n=== EVENT 4 ANCHORS ===")
+
+# --- Lord Silas Laurent (Stag Hall — Great Hall) ---
+silas = _ensure_walkin_npc(
+    "Lord Silas Laurent", hart_hall_great_hall,
+    desc=(
+        "A young Laurent in his late twenties, mourning-cloak over a "
+        "stag-emblazoned doublet, his mother Ludmilla's chain of office "
+        "heavy on his shoulders. Tired eyes, a forced smile. He looks "
+        "younger than his years and older than he should."
+    ),
+    aliases=("silas", "lord silas", "lord silas laurent"),
+    aggressive=False,
+    ai_personality=(
+        "Lord Silas Laurent, Lord Pro Tempore at Stag Hall after his "
+        "mother Ludmilla fell to wasting illness. Earnest, untrained, "
+        "drowning in a job he did not choose. Quietly desperate for "
+        "loyal allies — and quietly afraid of who his real enemies are."
+    ),
+    ai_knowledge=(
+        "- House Laurent's hold on the Annwyn is slipping — Ludmilla "
+        "dying, Carran starving, Crow raids relentless.\n"
+        "- Offers |wBack House Laurent|n: choose to support him publicly, "
+        "undermine him for a rival house, or stay clear of the politics.\n"
+        "- Knows about the doppelganger Henri trial; suspects someone "
+        "in his own court of corruption."
+    ),
+)
+
+# --- Rook of the Ironbloods (Mystvale Marketplace) ---
+rook = _ensure_walkin_npc(
+    "Rook of the Ironbloods", marketplace,
+    desc=(
+        "A wiry Cirque investigator in raven-feathered greys, twin "
+        "stilettos crossed at her belt, the Ironbloods' iron-cuff "
+        "tattoo dark against her wrist. She watches every face that "
+        "passes the marketplace — and remembers them."
+    ),
+    aliases=("rook", "ironblood"),
+    aggressive=False,
+    ai_personality=(
+        "Rook of the Ironbloods, Cirque investigator hunting Eldreth's "
+        "killer. Methodical, patient, not above paying for what the "
+        "watch won't deliver."
+    ),
+    ai_knowledge=(
+        "- Cirque sent her to see Eldreth's murderer answer for the "
+        "killing — the town judge let both Henris walk and the case is "
+        "still open.\n"
+        "- Offers |wThe Doppelganger|n: gather evidence, hand the real "
+        "Henri to the Cirque, the Watch, or shield the innocent twin.\n"
+        "- Pays better than the Crown for the right outcome."
+    ),
+)
+
+# Henri + his doppelganger as gettable evidence + suspect NPCs.
+# We seed two NPCs both called "Henri" so the trial canon makes sense
+# (the player can confront either; only one is the real killer).
+for _ in range(2):
+    henri = _ensure_walkin_npc(
+        "Henri", town_hall,
+        desc=(
+            "A pale, narrow-shouldered man in a moth-eaten coat. Eyes "
+            "down. His twin stands across the room — same coat, same "
+            "stance, same nervous tic. Only one of them is the killer."
+        ),
+        aliases=("henri",),
+        aggressive=False,
+    )
+    henri.db.body = 4
+    henri.db.total_body = 4
+    henri.db.av = 0
+
+_ensure_walkin_item(
+    "henri's confession", town_hall,
+    desc=(
+        "A folded confession in a hand the Cirque can authenticate — "
+        "Henri's, signed in his own blood. Identifies which twin "
+        "actually killed Eldreth."
+    ),
+    aliases=("confession", "henri's confession", "henri confession"),
+)
+
+# --- Sergeant Marrow of the Silver Company (Mystvale Square) ---
+marrow = _ensure_walkin_npc(
+    "Sergeant Marrow of the Silver Company", mystvale_square,
+    desc=(
+        "A scarred mercenary captain in dented half-plate stamped with "
+        "the Silver Company's crossed-saber crest. Clean-shaven, "
+        "slate-grey eyes, a coiled whip at his belt. Pays his coin "
+        "and expects the same back."
+    ),
+    aliases=("marrow", "sergeant marrow", "silver company"),
+    aggressive=False,
+    ai_personality=(
+        "Sergeant Marrow, Silver Company mercenary contracted to "
+        "patrol Mistvale's roads. Professional, blunt, unimpressed by "
+        "noble intrigue but careful with the contracts that pay the "
+        "company."
+    ),
+    ai_knowledge=(
+        "- Offers |wSilver Company Patrol|n: run the patrol with him, "
+        "deal with Cale the Thorn however you see fit (kill, capture, "
+        "or look the other way).\n"
+        "- Knows the Crow leadership has shifted — Cale is now the "
+        "loud one, but the Old Badger is still pulling strings."
+    ),
+)
+
+# Crow ambushers spawned on the Old Road for Silver Company patrol.
+# Reuses caravan_raider stat block — same kind of fighter.
+for _ in range(2):
+    cb = _ensure_walkin_npc(
+        "crow ambusher", old_road_south,
+        desc=(
+            "A wiry Crow in pitched leathers, a notched longsword on "
+            "his hip, a kerchief soaked in something acrid pulled up "
+            "to his eyes."
+        ),
+        aliases=("crow ambusher", "ambusher"),
+        aggressive=True,
+    )
+    cb.db.body = 5
+    cb.db.total_body = 5
+    cb.db.av = 1
+
+# --- Aurorym zealotry (uses existing Sister Mariel + Dawnhaven) ---
+# A new gettable item: a heated branding iron the zealots have been
+# using. Players can take it or leave it.
+_ensure_walkin_item(
+    "vellatora branding iron", dawnhaven,
+    desc=(
+        "A glowing iron in the shape of the Vellatora's flame. Hot to "
+        "the touch even when set down. The faithful press it to their "
+        "own forearms in proof of devotion. The Order has not blessed "
+        "the practice; the Order has not stopped it either."
+    ),
+    aliases=("branding iron", "iron", "vellatora iron"),
+)
+
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
