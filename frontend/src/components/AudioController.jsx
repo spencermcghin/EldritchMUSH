@@ -41,7 +41,12 @@ const AudioController = forwardRef(function AudioController(
 ) {
   const audioRef = useRef(null)
   const prefs = loadPrefs() || {}
-  const [enabled, setEnabled] = useState(!!prefs.enabled)
+  // Default enabled = true so the player auto-hears music as soon as a
+  // gesture clears autoplay (login click, character-select transition).
+  // Previous setting wins if they've explicitly muted before.
+  const [enabled, setEnabled] = useState(
+    typeof prefs.enabled === 'boolean' ? prefs.enabled : true,
+  )
   const [volume, setVolume] = useState(
     typeof prefs.volume === 'number' ? prefs.volume : 35,
   )
@@ -68,6 +73,10 @@ const AudioController = forwardRef(function AudioController(
 
   // Swap track src when the resolution changes (title↔game or skip).
   // Always loop the title track; the game playlist advances on `ended`.
+  // Note: this useEffect re-fires when `atTitleScreen` flips, which
+  // happens right after a login click — a fresh user gesture, so the
+  // play() attempt below is allowed by browser autoplay rules even if
+  // a prior attempt at page load was blocked.
   useEffect(() => {
     const track = resolveTrack()
     setCurrentTrack(track)
@@ -80,7 +89,8 @@ const AudioController = forwardRef(function AudioController(
     if (enabled) {
       el.play().catch(() => {
         // Autoplay blocked — user hasn't interacted yet. We'll retry
-        // on the next toggle/state change. Don't surface an error.
+        // on the next state change (typically login click, which
+        // counts as a gesture). Don't surface an error.
       })
     } else {
       el.pause()
