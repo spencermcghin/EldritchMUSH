@@ -46,9 +46,6 @@ function ExitButtons({ exits, onCommand }) {
 // Apply lightweight markdown-ish prettification:
 //   *action* → italic dim-gold "(action)" feel — used heavily by AI NPC
 //              replies to indicate gestures: *Pauses, hands clasped*.
-//   "speech" → keep as-is (Evennia color codes already highlight the
-//              speaker name; the quotes themselves are visual cues).
-//   `> command` echo lines → muted prefix.
 // Run BEFORE DOMPurify so the inserted spans aren't stripped.
 function prettify(html) {
   if (!html) return html
