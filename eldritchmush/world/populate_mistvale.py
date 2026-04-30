@@ -1282,7 +1282,12 @@ if old_merchant:
     move_to(old_merchant, marketplace)
 
 # ===========================================================================
-# REDIRECT THE CHARGEN ROOM TO MYSTVALE SOUTH GATE
+# REDIRECT THE CHARGEN ROOM TO GATEWAY (the staging town on the
+# Arnesse side). The walk-in quest is the journey through the Mists
+# to Mystvale — players must START in Gateway, meet the Herald,
+# pick a walk-in flavor, then travel to Mystvale as part of the
+# narrative. Dropping them at Mystvale South Gate skips the Herald
+# entirely and breaks the new-player onboarding.
 # ===========================================================================
 print("\n=== CHARGEN ROOM EXIT ===")
 
@@ -1295,7 +1300,7 @@ if chargen_room:
         if hasattr(ex, "destination") and ex.destination:
             print(f"  REMOVE  : old exit '{ex.key}' from ChargenRoom")
             ex.delete()
-    # New exit: chargen → Mystvale South Gate
+    # New exit: chargen → Gateway Tents (newcomers' camp)
     if not ObjectDB.objects.filter(
         db_key="in character", db_location=chargen_room.pk
     ).exists():
@@ -1303,28 +1308,28 @@ if chargen_room:
             "evennia.objects.objects.DefaultExit",
             key="in character",
             location=chargen_room,
-            destination=south_gate,
+            destination=gateway_tents,
         )
         ex.aliases.add("ic")
-        ex.aliases.add("mystvale")
-        print(f"  CREATED : ChargenRoom → Mystvale South Gate exit")
+        ex.aliases.add("gateway")
+        print(f"  CREATED : ChargenRoom → Gateway Tents exit")
 
-# Also ensure limbo (#2) points at Mystvale South Gate
+# Also ensure limbo (#2) points at Gateway Tents
 limbo = ObjectDB.objects.filter(id=2).first()
 if limbo:
     limbo.db.desc = (
-        "A featureless void between worlds. The Mistgate lies to the |wsouth|n, "
-        "and beyond it, the road to Mystvale."
+        "A featureless void between worlds. The Mistgate lies to the "
+        "|wnorth|n, and beyond it, the tents of Gateway."
     )
     for ex in limbo.contents:
         if hasattr(ex, "destination") and ex.destination:
             ex.delete()
-    if not ObjectDB.objects.filter(db_key="south", db_location=limbo.pk).exists():
+    if not ObjectDB.objects.filter(db_key="north", db_location=limbo.pk).exists():
         _create.create_object(
             "evennia.objects.objects.DefaultExit",
-            key="south", location=limbo, destination=south_gate,
+            key="north", location=limbo, destination=gateway_tents,
         )
-        print("  CREATED : Limbo → Mystvale South Gate")
+        print("  CREATED : Limbo → Gateway Tents")
 
 
 # ===========================================================================
@@ -3860,13 +3865,18 @@ if not existing_writ:
 print("\n=== EVENT 1 WALK-IN HERALD ===")
 
 herald_key = "Herald at the Gates"
-_existing_herald = ObjectDB.objects.filter(
-    db_key=herald_key,
-    db_location=gateway_square.pk,
-).first()
+# The herald greets newcomers at Gateway Square — Gateway is the
+# Arnesse-side border town where new players arrive before their
+# walk-in journey through the Mists takes them to Mystvale. If an
+# old deployment had the herald elsewhere, relocate them.
+_existing_herald = ObjectDB.objects.filter(db_key=herald_key).first()
 if _existing_herald:
     herald = _existing_herald
-    print(f"  EXISTS  : {herald_key}")
+    if herald.location != gateway_square:
+        herald.move_to(gateway_square, quiet=True)
+        print(f"  MOVED   : {herald_key} → Gateway Square")
+    else:
+        print(f"  EXISTS  : {herald_key}")
 else:
     herald = _create.create_object(
         "typeclasses.npc.Npc",
