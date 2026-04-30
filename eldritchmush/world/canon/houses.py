@@ -10,9 +10,9 @@ ENTRIES.extend([
             "Ghalon. The Bannon line claims descent from Giles I, first "
             "king of the unified realm, and the Aurorym blessing has been "
             "central to their legitimacy ever since. Their sigil is the "
-            "BLACK DRAKE; their motto, 'For the Realm.' Royal Welsh-Celtic "
-            "naming runs in the line — Giles, Charles, Eldric, Cyrus, "
-            "Symeon (the traitor)."
+            "GOLD TOWER ON A CRIMSON FIELD; their motto, 'For the Realm.' "
+            "Royal Welsh-Celtic naming runs in the line — Giles, Charles, "
+            "Eldric, Cyrus, Symeon (the traitor)."
         ),
         houses={"house:bannon", "bannon"},
     ),
@@ -36,8 +36,8 @@ ENTRIES.extend([
             "third son a knight, every second a man-at-arms. The Annwyn "
             "garrison at Carran under Arch Magistrat Symon Bannon trains "
             "knights for the Crown; Ser Ewan Bannon serves as his "
-            "lieutenant. The Bannon black drake is sewn to every "
-            "halberdier's surcoat in the realm."
+            "lieutenant. The Bannon gold tower on crimson is sewn to "
+            "every halberdier's surcoat in the realm."
         ),
         houses={"house:bannon", "bannon"},
     ),
@@ -49,10 +49,12 @@ ENTRIES.extend([
             "House Richter rules from the DEEPHOLD in the dark stone "
             "reaches of the Dusklands. Smiths and warriors both, the "
             "Richters forge steel and will alike through generations of "
-            "hardship. Sigil: the IRON TOWER on grey. Motto: 'Cinder and "
-            "Steel.' Naming register is Germanic — Hawken, Yelena, "
-            "Volkan, Wilhelm. Lord Hawken Richter, the Primmhammer, "
-            "currently bears the weight of the line."
+            "hardship. Sigil: the IRON HAMMER on grey (the great hammer "
+            "of the smith-warrior; some Richter knights also bear the "
+            "iron tower as an alternate device for their hold-keeps). "
+            "Motto: 'Cinder and Steel.' Naming register is Germanic — "
+            "Hawken, Yelena, Volkan, Wilhelm. Lord Hawken Richter, the "
+            "Primmhammer, currently bears the weight of the line."
         ),
         houses={"house:richter", "richter"},
     ),
@@ -63,7 +65,7 @@ ENTRIES.extend([
             "in armor unmatched in the realm. Richter soldiers are known "
             "for grim patience, relentless pressure, and willingness to "
             "absorb punishment that would break lesser warriors. Half the "
-            "Mistguard's halberdiers wear the iron tower; Richter holds "
+            "Mistguard's halberdiers wear the iron hammer; Richter holds "
             "Gateway since Corveaux and Innis were driven out."
         ),
         houses={"house:richter", "richter"},
@@ -75,7 +77,7 @@ ENTRIES.extend([
             "passes, mining operations, and Annwyn-side garrison at "
             "Ironhaven. Lord Wilhelm Hardinger commands. The Hardingers "
             "are the primary funders of the Godslayer movement, a fact "
-            "that has tarnished the Iron Tower's name among more "
+            "that has tarnished the Iron Hammer's name among more "
             "circumspect Richter."
         ),
         houses={"house:richter", "house:hardinger", "richter", "hardinger"},

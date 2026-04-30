@@ -70,9 +70,10 @@ ARNESSE GEOGRAPHY (the known kingdom)
 
 GREAT HOUSES (naming register matters — stay in register)
 - HOUSE BANNON (royal, Celtic-Welsh names): Giles (dec.), Charles,
-  Eldric, Cyrus, Symeon (traitor). Sigil: black drake.
+  Eldric, Cyrus, Symeon (traitor). Sigil: gold tower on a crimson field.
 - HOUSE RICHTER (Germanic): Hawken, Yelena, Volkan, Wilhelm Hardinger
-  (cadet). Sigil: iron tower on grey. Now holds Gateway.
+  (cadet). Sigil: iron hammer on grey (some Richter knights also use
+  the iron tower as alt device for their hold-keeps). Now holds Gateway.
 - HOUSE CORVEAUX (French): Desmond, Marien, Anne. Cadet House Falconer
   (Ella). Sigil: grey falcon on sky blue.
 - HOUSE LAURENT (French, Bannon vassal): Ludmilla (founder), Silas,

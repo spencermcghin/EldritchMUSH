@@ -215,7 +215,7 @@ gateway_tents = get_or_create_room(
     "Life here does not pause. A widow stirs a thin pot of lentils over "
     "coals, children with hollow cheeks queue at the common trough, an old "
     "Tarkathi pilgrim winds his prayer beads in the lee of a lean-to. Two "
-    "Richter porters warm their hands at a brazier without speaking. "
+    "Dusklander porters warm their hands at a brazier without speaking. "
     "Someone is coughing, somewhere, and has been for days. Watchmen of "
     "the Mistguard walk the palisade above, bored and cold.\n\n"
     "|wNorth|n into |wGateway Square|n.",
@@ -230,8 +230,9 @@ gateway_square = get_or_create_room(
     "ringed by the wooden bulk of Gateway's buildings. Open-air stalls "
     "peddle everything from spoiled bread to Annwyn 'relics' of highly "
     "doubtful origin. Fights start at one end and finish at the other. "
-    "The banners of the Mistguard — House Richter's iron tower quartered "
-    "with House Bannon's black drake — hang from a central post, water-"
+    "The banners of the Mistguard — House Richter's iron hammer "
+    "quartered with House Bannon's gold tower on crimson — hang from "
+    "a central post, water-"
     "stained and grubby.\n\n"
     "At any given hour the Square runs thick with traffic: hawkers calling "
     "wares, a Cirque fortune-teller murmuring at a folding table, two "
@@ -1399,7 +1400,7 @@ get_or_create_npc(
     location=mistguard_palisade,
     desc=(
         "A weather-beaten Mistguard sergeant in iron-grey Richter livery, "
-        "the black drake armband of House Bannon sewn on his shoulder to "
+        "the gold-tower-on-crimson armband of House Bannon sewn on his shoulder to "
         "mark the joint command. Salt-and-pepper beard, scar across one "
         "brow, halberd planted beside him like a third leg. He has seen "
         "everything twice and is not impressed the second time."
@@ -1777,16 +1778,17 @@ get_or_create_npc(
     location=mistguard_palisade,
     desc=(
         "A broad-shouldered soldier in Richter grey over Dusklander wool, "
-        "a black drake band on his off-shoulder for his seconded service "
-        "to the Bannons. Greying beard, missing two fingers on his left "
-        "hand, carries a heavy-bladed Dusklander kriegsmesser at his hip."
+        "a gold-tower-on-crimson band on his off-shoulder for his "
+        "seconded service to the Bannons. Greying beard, missing two "
+        "fingers on his left hand, carries a heavy-bladed Dusklander "
+        "kriegsmesser at his hip."
     ),
     personality=(
         "Volkan, late fifties, a Varga-born Dusklander now serving out "
         "his years with the Mistguard. Stoic, clipped Germanic speech. "
         "Came up through Varga's household guard, followed silver west "
         "when the Dusklands went quiet. Loyal to coin, then to comrades, "
-        "then to the Iron Tower. Dry humor that surfaces once he's sure "
+        "then to the Iron Hammer. Dry humor that surfaces once he's sure "
         "you won't waste his time. Calls everyone 'bearer' in mockery of "
         "the Compact."
     ),
@@ -2478,14 +2480,14 @@ get_or_create_npc(
     location=hardinger_hall,
     desc=(
         "A tall, iron-haired knight in the grey of House Richter, the "
-        "iron tower sigil worked into the chest of his surcoat. Scarred "
+        "iron hammer sigil worked into the chest of his surcoat. Scarred "
         "across the brow, hands broad and callused. Addresses servants "
         "by name. Watches every visitor like a sentry."
     ),
     personality=(
         "Ser Hartwig Richter, third son of a minor Richter line, sworn "
         "to Lord Wilhelm Hardinger's hall. Stern, blunt, Germanic-formal. "
-        "Loyal to the Iron Tower above all. Quietly convinced Hardinger "
+        "Loyal to the Iron Hammer above all. Quietly convinced Hardinger "
         "is the wrong man for Ironhaven's command — the Godslayer "
         "funding has made Hardinger look corrupt, and a Richter should "
         "not look corrupt. Has no patience for flattery and none at all "
@@ -2493,7 +2495,7 @@ get_or_create_npc(
     ),
     knowledge=(
         "- House Richter politics: the senior Deephold line, the "
-        "Hardinger cadet branch, the cousins at Gateway. The iron tower "
+        "Hardinger cadet branch, the cousins at Gateway. The iron hammer "
         "on grey.\n"
         "- Ironhaven's mining operations, garrison strength, coastal "
         "defense against Aragon ships.\n"
@@ -2746,8 +2748,8 @@ get_or_create_npc(
     key="Ser Ewan Bannon",
     location=bannon_barracks,
     desc=(
-        "A broad-shouldered knight in Bannon black, the drake sigil on "
-        "his chest, short-cropped hair going silver at the temples. "
+        "A broad-shouldered knight in Bannon crimson, the gold-tower "
+        "sigil on his chest, short-cropped hair going silver at the temples. "
         "Carries a training blunt rather than a live blade — he's just "
         "come off the drill yard. Commanding voice, used sparingly."
     ),
