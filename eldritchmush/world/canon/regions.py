@@ -41,7 +41,7 @@ ENTRIES.extend([
     _E(
         title="Sovereignlands: Common Folk and the Wolf-Touch",
         text=(
-            "Bannon peasants rise before dawn for plots wrested from forest "
+            "Sovereignlanders rise before dawn for plots wrested from forest "
             "or moor; food runs scarce in winter despite careful storage. "
             "Community is tight by necessity, and craftwork fills the long "
             "evenings around hearth fires. The Bannon madness — the "
@@ -426,7 +426,7 @@ ENTRIES.extend([
             "about who is rising and who has fallen. Loyalty is "
             "transactional — merchants and artisans are free folk who move "
             "between masters in search of better terms — but once an oath "
-            "is sworn, Corveaux folk honor it with strict adherence. The "
+            "is sworn, Midlanders honor it with strict adherence. The "
             "Midlands runs on contracts, not blood-bonds."
         ),
         regions={"region:midlands", "midlands"},

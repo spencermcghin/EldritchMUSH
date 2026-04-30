@@ -2,7 +2,6 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
 import CharacterSelect from './components/CharacterSelect'
-import GameOutput from './components/GameOutput'
 import CombatTracker from './components/CombatTracker'
 import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
@@ -502,7 +501,13 @@ function App() {
             }
           />
 
-          {/* Center: room view on top, log + input on bottom */}
+          {/* Center: room view on top, command input at bottom.
+              The legacy chat-scrollback console (GameOutput) was
+              removed in favor of dedicated UI surfaces — NPC speech
+              shows in NpcDialoguePanel, quest events show in toasts,
+              combat shows in CombatTracker, and room state shows in
+              RoomView. The CommandInput stays so players can still
+              type any command (including `ask <npc>` follow-ups). */}
           <div className="app-main">
             <RoomView
               messages={messages}
@@ -513,7 +518,6 @@ function App() {
             />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
             <div className="app-log-area">
-              <GameOutput messages={messages} onCommand={sendCommand} />
               <CommandInput
                 ref={inputRef}
                 onSend={sendCommand}

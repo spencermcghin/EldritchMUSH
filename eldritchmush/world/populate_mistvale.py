@@ -786,9 +786,10 @@ ironhaven_square = get_or_create_room(
 ironhaven_forge = get_or_create_room(
     "Ironhaven Forge",
     "typeclasses.rooms.Room",
-    "A vast open-fronted forge where the Richter smiths work day and night. "
-    "Great bellows pump at the main hearth; lesser forges line the walls. "
-    "The heat is oppressive. Richter smiths move in practiced silence, "
+    "A vast open-fronted forge where Dusklander smiths in Richter livery "
+    "work day and night. Great bellows pump at the main hearth; lesser "
+    "forges line the walls. The heat is oppressive. The smiths move in "
+    "practiced silence, "
     "their leather aprons scarred by years of spark. Weapon racks and armor "
     "stands display their wares. This is the secondary crafting hub of the "
     "Annwyn, should Mystvale fall.\n\n"
