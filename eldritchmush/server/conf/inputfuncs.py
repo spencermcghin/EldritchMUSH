@@ -427,6 +427,28 @@ def text(session, *args, **kwargs):
                         diag_write("CHARSHEET_UI FAILED", exc=str(exc))
                     return
 
+                # __quest_ui__ — push structured quest journal data
+                if lowered == "__quest_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            from world.quest_journal_oob import push_quest_journal
+                            push_quest_journal(puppet, session=session)
+                    except Exception as exc:
+                        diag_write("QUEST_UI FAILED", exc=str(exc))
+                    return
+
+                # __rep_ui__ — push faction + per-NPC reputation data
+                if lowered == "__rep_ui__":
+                    try:
+                        puppet = getattr(session, "puppet", None)
+                        if puppet:
+                            from world.reputation_oob import push_reputation
+                            push_reputation(puppet, session=session)
+                    except Exception as exc:
+                        diag_write("REP_UI FAILED", exc=str(exc))
+                    return
+
                 # __map_ui__ — send the room graph for the interactive map
                 if lowered == "__map_ui__":
                     try:

@@ -1,0 +1,243 @@
+/* ── Reputation Modal ── */
+
+.rep-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.rep-modal {
+  width: 600px;
+  max-width: 95vw;
+  max-height: 85vh;
+  background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
+  border: 1px solid var(--border-bright);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(212, 175, 55, 0.1),
+    inset 0 1px 0 rgba(212, 175, 55, 0.08);
+}
+
+.rep-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(180deg, rgba(30, 26, 20, 0.9), rgba(20, 18, 16, 0.95));
+}
+.rep-modal-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+}
+.rep-modal-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.rep-modal-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+.rep-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+}
+
+.rep-empty,
+.rep-loading {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.rep-section { margin-bottom: 18px; }
+.rep-section-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+  margin: 4px 0 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+/* Faction bar */
+.rep-faction {
+  margin-bottom: 14px;
+}
+.rep-faction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.rep-faction-name {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
+  color: var(--text-light);
+}
+.rep-faction-score {
+  font-family: monospace;
+  font-size: 11px;
+}
+.rep-faction-score em {
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+  margin-left: 4px;
+  opacity: 0.85;
+}
+.rep-faction-track {
+  position: relative;
+  height: 8px;
+  background: rgba(15, 13, 10, 0.7);
+  border: 1px solid var(--border);
+}
+.rep-faction-axis {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(212, 175, 55, 0.5);
+}
+.rep-faction-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+.rep-faction-fill-pos {
+  background: linear-gradient(90deg, rgba(95, 179, 95, 0.3), rgba(95, 179, 95, 0.7));
+}
+.rep-faction-fill-neg {
+  background: linear-gradient(90deg, rgba(170, 48, 48, 0.7), rgba(170, 48, 48, 0.3));
+}
+.rep-faction-blurb {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-aged);
+  margin-top: 4px;
+}
+
+/* NPC list */
+.rep-filter {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  background: rgba(15, 13, 10, 0.7);
+  color: var(--text-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+}
+.rep-filter:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+}
+
+.rep-npc {
+  border: 1px solid var(--border);
+  margin-bottom: 6px;
+  background: rgba(25, 22, 18, 0.6);
+}
+.rep-npc-head {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-light);
+}
+.rep-npc-head:hover { background: rgba(212, 175, 55, 0.05); }
+.rep-npc-name {
+  flex: 1;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: capitalize;
+}
+.rep-npc-score {
+  font-family: monospace;
+  font-size: 11px;
+}
+.rep-npc-score em {
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+  margin-left: 4px;
+  opacity: 0.85;
+}
+.rep-npc-toggle {
+  width: 16px;
+  text-align: center;
+  color: var(--accent-gold);
+  font-size: 14px;
+}
+.rep-npc-body {
+  padding: 8px 14px 12px;
+  border-top: 1px dashed var(--border);
+}
+.rep-npc-meta {
+  font-size: 11px;
+  color: var(--text-aged);
+  font-style: italic;
+  margin-bottom: 4px;
+}
+.rep-npc-memories {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rep-npc-memories li {
+  font-size: 12px;
+  color: var(--text-light);
+  padding: 3px 0 3px 14px;
+  position: relative;
+  line-height: 1.4;
+}
+.rep-npc-memories li::before {
+  content: '•';
+  position: absolute;
+  left: 2px;
+  color: var(--accent-gold);
+}
+.rep-npc-empty {
+  font-size: 12px;
+  color: var(--text-aged);
+  font-style: italic;
+}
+
+.rep-modal-footer {
+  border-top: 1px solid var(--border);
+  padding: 10px;
+  text-align: center;
+  color: var(--accent-gold);
+  font-size: 11px;
+  letter-spacing: 2px;
+}

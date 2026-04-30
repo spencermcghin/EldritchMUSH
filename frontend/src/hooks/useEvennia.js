@@ -100,6 +100,17 @@ export function useEvennia() {
     // Multi-tab payload for the unified CraftingModal (blacksmith, bowyer,
     // artificer, gunsmith, alchemy).
     craftingData: null,
+    // Quest journal payload from the server's quest_log OOB event.
+    // Drives QuestJournalModal.
+    questLog: null,
+    // Reputation payload from the server's reputation_data OOB event.
+    // Drives ReputationModal.
+    reputationData: null,
+    // Open-signals — the server emits these when the player types
+    // `quest` / `rep` in chat so the modal auto-pops, matching the
+    // existing inventoryOpen pattern.
+    questJournalOpen: null,
+    reputationOpen: null,
     // True when we're authenticated but haven't yet puppeted a character.
     // Drives the CharacterSelect screen.
     atCharacterSelect: false,
@@ -232,6 +243,33 @@ export function useEvennia() {
         }
         case 'crafting_data': {
           next.craftingData = { ...kwargs, ts: Date.now() }
+          break
+        }
+        case 'quest_log': {
+          next.questLog = {
+            active: Array.isArray(kwargs.active) ? kwargs.active : [],
+            availableHere: Array.isArray(kwargs.availableHere)
+              ? kwargs.availableHere
+              : (Array.isArray(kwargs.available_here) ? kwargs.available_here : []),
+            completed: Array.isArray(kwargs.completed) ? kwargs.completed : [],
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'reputation_data': {
+          next.reputationData = {
+            factions: Array.isArray(kwargs.factions) ? kwargs.factions : [],
+            npcs: Array.isArray(kwargs.npcs) ? kwargs.npcs : [],
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'quest_journal_open': {
+          next.questJournalOpen = { ts: Date.now() }
+          break
+        }
+        case 'reputation_open': {
+          next.reputationOpen = { ts: Date.now() }
           break
         }
         case 'character_stats': {

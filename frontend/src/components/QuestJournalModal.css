@@ -1,0 +1,272 @@
+/* ── Quest Journal Modal ── */
+
+.qj-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.qj-modal {
+  width: 640px;
+  max-width: 95vw;
+  max-height: 85vh;
+  background: linear-gradient(180deg, #1a1610 0%, #0f0d0a 100%);
+  border: 1px solid var(--border-bright);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(212, 175, 55, 0.1),
+    inset 0 1px 0 rgba(212, 175, 55, 0.08);
+}
+
+.qj-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border-bright);
+  background: linear-gradient(180deg, rgba(30, 26, 20, 0.9), rgba(20, 18, 16, 0.95));
+}
+.qj-modal-title {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+}
+.qj-modal-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s;
+}
+.qj-modal-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}
+
+/* Tabs */
+.qj-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: rgba(20, 18, 14, 0.6);
+}
+.qj-tab {
+  flex: 1;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text-aged);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.qj-tab:last-child { border-right: none; }
+.qj-tab:hover { color: var(--text-light); }
+.qj-tab.active {
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.06);
+  box-shadow: inset 0 -2px 0 var(--accent-gold);
+}
+.qj-tab-count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 10px;
+  background: rgba(212, 175, 55, 0.12);
+  border-radius: 10px;
+  color: var(--accent-gold);
+}
+
+.qj-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+}
+
+.qj-empty,
+.qj-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.qj-card {
+  border: 1px solid var(--border);
+  background: rgba(25, 22, 18, 0.7);
+  padding: 12px 14px 10px;
+  margin-bottom: 10px;
+}
+.qj-card-active {
+  border-left: 3px solid var(--accent-gold);
+}
+.qj-card-available {
+  border-left: 3px solid #6d8a4d;
+}
+
+.qj-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.qj-card-title {
+  font-family: 'Cinzel', serif;
+  color: var(--text-light);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.qj-card-progress {
+  color: var(--accent-gold);
+  font-size: 11px;
+  font-family: monospace;
+}
+.qj-bang {
+  color: #b8d77a;
+  margin-right: 4px;
+  font-weight: bold;
+}
+.qj-card-outcome,
+.qj-card-giver {
+  font-size: 11px;
+  color: var(--text-aged);
+  font-style: italic;
+  margin-bottom: 2px;
+}
+.qj-card-desc {
+  font-size: 12px;
+  color: var(--text-aged);
+  margin: 6px 0 8px;
+  line-height: 1.45;
+}
+
+/* Objectives */
+.qj-obj-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 8px;
+}
+.qj-obj {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-light);
+  padding: 2px 0;
+}
+.qj-obj-tick {
+  width: 12px;
+  text-align: center;
+  color: #aa3030;
+}
+.qj-obj.done .qj-obj-tick {
+  color: #5fb35f;
+}
+.qj-obj.done .qj-obj-desc {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.qj-obj-desc { flex: 1; }
+.qj-obj-count {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--accent-gold);
+}
+
+.qj-reward {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-aged);
+}
+.qj-reward-label {
+  color: var(--accent-gold);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: 'Cinzel', serif;
+}
+.qj-reward-text {
+  color: var(--text-light);
+}
+
+.qj-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.qj-btn {
+  border: 1px solid var(--border);
+  background: rgba(20, 18, 14, 0.85);
+  color: var(--text-light);
+  padding: 6px 14px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.qj-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.qj-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.qj-btn-accept {
+  border-color: #6d8a4d;
+  color: #b8d77a;
+}
+.qj-btn-accept:hover {
+  background: rgba(109, 138, 77, 0.15);
+}
+.qj-btn-abandon {
+  border-color: #5a3030;
+  color: #c08080;
+}
+.qj-btn-abandon:hover {
+  background: rgba(120, 50, 50, 0.15);
+  color: var(--blood-bright);
+}
+
+/* Completed */
+.qj-completed-list { display: flex; flex-direction: column; gap: 4px; }
+.qj-completed-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(30, 28, 22, 0.4);
+  border-left: 2px solid #5fb35f;
+  font-size: 12px;
+}
+.qj-completed-tick { color: #5fb35f; }
+.qj-completed-title { color: var(--text-light); flex: 1; }
+.qj-completed-outcome {
+  color: var(--text-aged);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.qj-modal-footer {
+  border-top: 1px solid var(--border);
+  padding: 10px;
+  text-align: center;
+  color: var(--accent-gold);
+  font-size: 11px;
+  letter-spacing: 2px;
+}

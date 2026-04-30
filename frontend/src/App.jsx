@@ -20,6 +20,12 @@ import TavylModal from './components/TavylModal'
 import PrimerModal from './components/PrimerModal'
 import QuestOfferModal from './components/QuestOfferModal'
 import CraftingModal from './components/CraftingModal'
+import QuestJournalModal from './components/QuestJournalModal'
+import ReputationModal from './components/ReputationModal'
+import ItemPickerModal from './components/ItemPickerModal'
+import NpcPickerModal from './components/NpcPickerModal'
+import AudioController from './components/AudioController'
+import AudioToggle from './components/AudioToggle'
 import ItemReceivedToast from './components/ItemReceivedToast'
 import QuestAcceptedToast from './components/QuestAcceptedToast'
 import QuestCompletedToast from './components/QuestCompletedToast'
@@ -52,6 +58,9 @@ function App() {
     useEvennia()
 
   const inputRef = useRef(null)
+  // Imperative ref into AudioController so AudioToggle in the header
+  // can drive playback without prop-drilling through the whole tree.
+  const audioRef = useRef(null)
 
   // Auto-connect after OAuth redirect: when the page loads, ask the
   // backend whether we already have a Django session. If so, skip the
@@ -106,6 +115,17 @@ function App() {
   const [tavylOpen, setTavylOpen] = useState(false)
   const [primerOpen, setPrimerOpen] = useState(false)
   const [craftingOpen, setCraftingOpen] = useState(false)
+  const [questJournalOpen, setQuestJournalOpen] = useState(false)
+  const [reputationOpen, setReputationOpen] = useState(false)
+  // Generic item picker (for Give-to-NPC flow). When set, ItemPickerModal
+  // opens; clicking an item runs onPick(item) and closes the picker.
+  const [itemPicker, setItemPicker] = useState(null)
+  // itemPicker: { title, subtitle, onPick: (item) => void } or null
+
+  // NPC picker — pops a list of NPCs in the current room. Used by the
+  // EquipModal "Give" flow: pick item first, then pick recipient.
+  const [npcPicker, setNpcPicker] = useState(null)
+  // npcPicker: { title, subtitle, onPick: (npcName) => void } or null
   // Auto-open the Tavyl modal whenever a fresh tavyl_state event arrives.
   const lastTavylTsRef = useRef(0)
   useEffect(() => {
@@ -143,6 +163,25 @@ function App() {
       setCraftingOpen(true)
     }
   }, [oobState.craftingData])
+
+  // Auto-open Quest Journal / Reputation when the player types
+  // `quest` / `rep` in chat. Matches the inventoryOpen pattern.
+  const lastQuestOpenTsRef = useRef(0)
+  useEffect(() => {
+    const ts = oobState.questJournalOpen?.ts
+    if (ts && ts !== lastQuestOpenTsRef.current) {
+      lastQuestOpenTsRef.current = ts
+      setQuestJournalOpen(true)
+    }
+  }, [oobState.questJournalOpen])
+  const lastRepOpenTsRef = useRef(0)
+  useEffect(() => {
+    const ts = oobState.reputationOpen?.ts
+    if (ts && ts !== lastRepOpenTsRef.current) {
+      lastRepOpenTsRef.current = ts
+      setReputationOpen(true)
+    }
+  }, [oobState.reputationOpen])
 
   // Fire __room_meta__ on initial puppet & any character change so the
   // contextual buttons and topic chips populate without requiring the
@@ -291,6 +330,37 @@ function App() {
     setContextMenu(null)
   }, [])
 
+  // EquipModal give flow: item is already chosen, ask for the recipient.
+  // We open the NpcPickerModal scoped to the current room. Selecting
+  // an NPC fires `give <item> = <npc>` and re-fetches inventory so the
+  // EquipModal updates without needing to be reopened.
+  const handleGiveFromEquipModal = useCallback((item) => {
+    setNpcPicker({
+      title: `GIVE ${item.name.toUpperCase()} TO...`,
+      subtitle: 'Pick a recipient in this room.',
+      onPick: (npcName) => {
+        sendCommand(`give ${item.name} = ${npcName}`)
+        setNpcPicker(null)
+        setTimeout(() => sendCommand('__equip_ui__'), 600)
+      },
+    })
+  }, [sendCommand])
+
+  // Give flow: open ItemPicker with the NPC name baked into the title.
+  // Selecting an item fires `give <item> = <npc>`. The server's existing
+  // CmdGive routes through quest_deliver + npc_rep_on_gift hooks, so
+  // quest progress and rep all kick in automatically.
+  const handleGiveToNpc = useCallback((npcName) => {
+    setItemPicker({
+      title: `GIVE TO ${npcName.toUpperCase()}`,
+      subtitle: 'Pick an item from your pack to hand over.',
+      onPick: (item) => {
+        sendCommand(`give ${item.name} = ${npcName}`)
+        setItemPicker(null)
+      },
+    })
+  }, [sendCommand])
+
   const handleDetailPanelClose = useCallback(() => {
     setSelectedEntity(null)
     setEntityDescription('')
@@ -337,8 +407,21 @@ function App() {
 
   const statusLabel = { connected: 'CONNECTED', connecting: 'CONNECTING', disconnected: 'OFFLINE' }[connectionState]
 
+  // "Title screen" = pre-puppet. The Forsaken Gate loops here; once
+  // the player ic's into a character, the in-game playlist takes over.
+  const atTitleScreen =
+    !isConnected ||
+    oobState.atCharacterSelect ||
+    oobState.inChargen ||
+    !oobState.characterName
+
   return (
     <div className="app-container">
+
+      {/* Background music — single global <audio>, controlled by the
+          header toggle via audioRef. Mounted at the app level so a
+          full re-render doesn't restart the track. */}
+      <AudioController ref={audioRef} atTitleScreen={atTitleScreen} />
 
       {/* ── Header ── */}
       <header className="app-header">
@@ -352,6 +435,7 @@ function App() {
           {latency !== null && isConnected && (
             <span className="status-latency">{latency}ms</span>
           )}
+          <AudioToggle audioRef={audioRef} atTitleScreen={atTitleScreen} />
           {isConnected && (
             <button className="header-disconnect-btn" onClick={disconnect} title="Disconnect">✕</button>
           )}
@@ -448,6 +532,7 @@ function App() {
               sendCommand={sendCommand}
               injectCommand={injectCommand}
               onPrompt={openPrompt}
+              onGive={handleGiveToNpc}
               description={entityDescription}
               npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
               playerSilver={oobState.purse?.silver || 0}
@@ -460,6 +545,8 @@ function App() {
               onChargen={enterChargen}
               onWorldMap={() => setWorldMapOpen(true)}
               onCharSheet={() => setCharSheetOpen(true)}
+              onQuestJournal={() => setQuestJournalOpen(true)}
+              onReputation={() => setReputationOpen(true)}
               onAdmin={oobState.isAdmin ? () => setAdminOpen(true) : undefined}
               onSwitchCharacter={() => {
                 sendCommand('ooc')
@@ -495,6 +582,7 @@ function App() {
           onClose={() => setEquipOpen(false)}
           sendCommand={sendCommand}
           inventoryData={oobState.inventoryData}
+          onGiveRequest={handleGiveFromEquipModal}
         />
       )}
 
@@ -542,6 +630,51 @@ function App() {
           onClose={() => setCraftingOpen(false)}
           sendCommand={sendCommand}
           craftingData={oobState.craftingData}
+        />
+      )}
+
+      {/* Quest journal — active / available-here / completed with
+          per-quest accept/abandon buttons. Opens via CharacterStatus. */}
+      {questJournalOpen && (
+        <QuestJournalModal
+          onClose={() => setQuestJournalOpen(false)}
+          sendCommand={sendCommand}
+          questLog={oobState.questLog}
+        />
+      )}
+
+      {/* Reputation viewer — faction standing + per-NPC memories. */}
+      {reputationOpen && (
+        <ReputationModal
+          onClose={() => setReputationOpen(false)}
+          sendCommand={sendCommand}
+          reputationData={oobState.reputationData}
+        />
+      )}
+
+      {/* Item picker — generic inventory chooser. Powers the
+          DetailPanel "Give" flow (NPC chosen first, then item). */}
+      {itemPicker && (
+        <ItemPickerModal
+          title={itemPicker.title}
+          subtitle={itemPicker.subtitle}
+          onPick={itemPicker.onPick}
+          onClose={() => setItemPicker(null)}
+          inventoryData={oobState.inventoryData}
+          sendCommand={sendCommand}
+        />
+      )}
+
+      {/* NPC picker — recipient chooser. Powers the EquipModal "Give"
+          flow (item chosen first, then NPC). Reads roomNpcMeta for
+          the in-room recipient list. */}
+      {npcPicker && (
+        <NpcPickerModal
+          title={npcPicker.title}
+          subtitle={npcPicker.subtitle}
+          roomNpcMeta={oobState.roomNpcMeta}
+          onPick={npcPicker.onPick}
+          onClose={() => setNpcPicker(null)}
         />
       )}
 

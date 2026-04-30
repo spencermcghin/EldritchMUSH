@@ -33,7 +33,7 @@ const TYPE_LABELS = {
   misc: 'Item',
 }
 
-function ItemCard({ item, onEquip, onUnequip, onDrop, feedback }) {
+function ItemCard({ item, onEquip, onUnequip, onDrop, onGive, onInspect, feedback }) {
   const icon = TYPE_ICONS[item.type] || '◆'
   const typeLabel = TYPE_LABELS[item.type] || 'Item'
 
@@ -108,6 +108,26 @@ function ItemCard({ item, onEquip, onUnequip, onDrop, feedback }) {
             >
               Drop
             </button>
+            {onGive && (
+              <button
+                className="equip-action-btn give"
+                onClick={() => onGive(item)}
+                disabled={feedback}
+                title="Give to someone in this room"
+              >
+                Give
+              </button>
+            )}
+            {item.type === 'consumable' && onInspect && (
+              <button
+                className="equip-action-btn inspect"
+                onClick={() => onInspect(item.name)}
+                disabled={feedback}
+                title="Inspect this consumable's effect"
+              >
+                Inspect
+              </button>
+            )}
           </>
         )}
       </div>
@@ -134,7 +154,7 @@ function SlotDisplay({ slots }) {
   )
 }
 
-export default function EquipModal({ onClose, sendCommand, inventoryData }) {
+export default function EquipModal({ onClose, sendCommand, inventoryData, onGiveRequest }) {
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(!inventoryData)
 
@@ -177,6 +197,21 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
       setActionFeedback(null)
     }, 800)
   }, [sendCommand])
+
+  // "Inspect" runs `look <item>` so the player sees Effect/Type/Level
+  // for consumables (the only details surfaced on look today). It's
+  // a stand-in for a real `use` command — until we wire the apply/coat
+  // mechanics, this is what a player can do with a brewed substance.
+  const handleInspect = useCallback((name) => {
+    sendCommand(`look ${name}`)
+  }, [sendCommand])
+
+  // Give: ask App.jsx to open the NpcPickerModal scoped to this item.
+  // App.jsx already knows the room NPC list (roomNpcMeta), so we lift
+  // the picker flow up rather than duplicating it here.
+  const handleGive = useCallback((item) => {
+    if (onGiveRequest) onGiveRequest(item)
+  }, [onGiveRequest])
 
   const items = inventoryData?.items || []
   const slots = inventoryData?.slots || {}
@@ -242,7 +277,16 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
                   <div className="equip-section-label cinzel">EQUIPPED</div>
                   <div className="equip-item-grid">
                     {equippedItems.map(item => (
-                      <ItemCard key={item.id} item={item} onEquip={handleEquip} onUnequip={handleUnequip} onDrop={handleDrop} feedback={actionFeedback && actionFeedback.name === item.name} />
+                      <ItemCard
+                        key={item.id}
+                        item={item}
+                        onEquip={handleEquip}
+                        onUnequip={handleUnequip}
+                        onDrop={handleDrop}
+                        onGive={handleGive}
+                        onInspect={handleInspect}
+                        feedback={actionFeedback && actionFeedback.name === item.name}
+                      />
                     ))}
                   </div>
                 </div>
@@ -252,7 +296,16 @@ export default function EquipModal({ onClose, sendCommand, inventoryData }) {
                   <div className="equip-section-label cinzel">INVENTORY</div>
                   <div className="equip-item-grid">
                     {unequippedItems.map(item => (
-                      <ItemCard key={item.id} item={item} onEquip={handleEquip} onUnequip={handleUnequip} onDrop={handleDrop} feedback={actionFeedback && actionFeedback.name === item.name} />
+                      <ItemCard
+                        key={item.id}
+                        item={item}
+                        onEquip={handleEquip}
+                        onUnequip={handleUnequip}
+                        onDrop={handleDrop}
+                        onGive={handleGive}
+                        onInspect={handleInspect}
+                        feedback={actionFeedback && actionFeedback.name === item.name}
+                      />
                     ))}
                   </div>
                 </div>
