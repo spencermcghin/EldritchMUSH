@@ -1057,9 +1057,11 @@ link(mistwalker_tent,    "west",  mistwall,           "east",        "w",  "e")
 # Canon: "once the Annwyn has you, only she can let you go" — so the
 # return path is intentionally not a simple walk.
 #
-# Traversal is gated on the character's approval_status attribute. Pending
-# or rejected bearers are blocked by Soap with a themed message. Admins
-# (Builder+) can always cross.
+# Traversal is open to anyone who finished chargen — the chargen
+# approval flow is the only gate we need. The walk-in quest IS the
+# journey through the mists, so blocking it here makes the new-player
+# flow feel broken. Older deploys had a `traverse: approval_status`
+# lock; we strip it on every seed pass so re-runs converge.
 _mists_exit = ObjectDB.objects.filter(
     db_key="through the mists", db_location=mistwall.pk
 ).first()
@@ -1072,18 +1074,11 @@ if not _mists_exit:
     _mists_exit.aliases.add("cross")
     print("  CREATED : Mistwall → Mistgate (one-way crossing)")
 
-# Always refresh the lock + err_traverse so re-runs keep the gate current.
-_mists_exit.locks.add(
-    "traverse:attr(approval_status, approved) or perm(Builder)"
-)
-_mists_exit.db.err_traverse = (
-    "|ySoap raises a black-gloved hand, barring your way. The brim of the "
-    "tall hat throws their face into shadow.|n\n"
-    "|y\"Your Writ has not yet been lit, bearer. The Compact has not yet "
-    "judged your passage. Return to Crane when the mark burns blue — or "
-    "wait here. The mists are patient.\"|n"
-)
-print("  GATED   : Mistwall → Mistgate (requires approved Writ)")
+# Strip the legacy approval_status lock so every chargen-finished
+# player can cross. Reset to a fresh permissive traverse rule.
+_mists_exit.locks.add("traverse:all()")
+_mists_exit.db.err_traverse = ""
+print("  OPEN    : Mistwall → Mistgate (no approval gate)")
 
 # ===========================================================================
 # LEGACY CLEANUP — whitelist purge.
@@ -3909,10 +3904,32 @@ herald.attributes.add("ai_knowledge", (
     "- Offers five walk-in quests depending on arrival flavor: Ship, "
     "Cirque, Noble, Scout, or Chain Gang. Each has multiple paths to "
     "completion with different reputation outcomes.\n"
-    "- Use |wquest|n to see available walk-ins; |wquest accept <title> "
-    "/ <path>|n to commit to a specific branching outcome.\n"
+    "- Players accept by clicking the quest offer modal, or typing "
+    "|wquest accept <title> / <path>|n.\n"
     "- She does not take sides — she logs arrivals. What a newcomer "
-    "does after is their business."
+    "does after is their business.\n"
+    "\n"
+    "WALK-IN ROUTES (give specific directions when a player asks "
+    "where to go, what to do, or what's next):\n"
+    "- General: from here (Gateway Square), go north to Mistwalker "
+    "Tent, then west to the Mistwall, then 'through the mists' to "
+    "the Mistgate. From the Mistgate, follow the Old Road north "
+    "through Mystvale's south gate into Mystvale proper.\n"
+    "- SHIP: cross to Mystvale, then take the road east toward "
+    "Tamris. The wreck — manifest, salvage, captain's seal — and "
+    "the Mystvale Harbormaster are all at Tamris Harbor.\n"
+    "- CIRQUE: cross to Mystvale and find the Ringmaster at the "
+    "Mystvale Marketplace. Eldreth's pendant and the nosy farmhand "
+    "are on the Old Road south, between the Mistgate and Mystvale.\n"
+    "- NOBLE: cross to Mystvale and report to Lady Ysolde of the "
+    "Crescent at the Mystvale Town Hall. The road bandits who "
+    "took the letter are on the Old Road south.\n"
+    "- SCOUT: the crow waymark and the Crow Agent are on the Old "
+    "Road south. To warn the watch, find the Mystvale Captain of "
+    "the Watch at the barracks in Carran (east of Carran Square).\n"
+    "- CHAIN GANG: everything happens at the Mistwall before the "
+    "crossing — jailers, the ringleader, and the forged warrant. "
+    "The Mistgate to Mystvale lies beyond, once things are settled."
 ))
 
 # Offer all five walk-ins by default — but make the listing gentler by

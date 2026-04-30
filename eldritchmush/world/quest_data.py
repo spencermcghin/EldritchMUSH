@@ -73,9 +73,9 @@ QUESTS = {
                 ),
                 "objectives": [
                     {"type": "gather", "target": "wreck manifest",
-                     "qty": 1, "desc": "Recover the wreck manifest (0/1)"},
+                     "qty": 1, "desc": "Recover the wreck manifest at Tamris Harbor (0/1)"},
                     {"type": "deliver", "target": "mystvale harbormaster",
-                     "qty": 1, "desc": "Deliver the manifest to the harbormaster (0/1)"},
+                     "qty": 1, "desc": "Deliver the manifest to the Mystvale Harbormaster at Tamris Harbor (0/1)"},
                 ],
                 "rewards": {"silver": 15, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 2, "outsider": 1},
@@ -84,11 +84,12 @@ QUESTS = {
                 "label": "Pocket the salvage",
                 "description": (
                     "Strip the wreck for yourself before the authorities arrive. "
-                    "More coin, quieter life — if you don't get caught."
+                    "More coin, quieter life — if you don't get caught. "
+                    "The wreck is at Tamris Harbor — east through Mystvale."
                 ),
                 "objectives": [
                     {"type": "gather", "target": "wreck salvage",
-                     "qty": 3, "desc": "Strip salvage from the wreck (0/3)"},
+                     "qty": 3, "desc": "Strip salvage from the wreck at Tamris Harbor (0/3)"},
                 ],
                 "rewards": {"silver": 25, "items": [], "reagents": {}},
                 "faction_rep": {"crown": -1, "outlaws": 1, "outsider": 1},
@@ -98,11 +99,12 @@ QUESTS = {
                 "description": (
                     "The captain's dying request: destroy the hold before "
                     "anyone opens it. You won't be thanked, but the thing "
-                    "under the hull will stay under."
+                    "under the hull will stay under. The seal is at the "
+                    "wreck on Tamris Harbor."
                 ),
                 "objectives": [
                     {"type": "gather", "target": "captain's seal",
-                     "qty": 1, "desc": "Recover the captain's seal from the wreck (0/1)"},
+                     "qty": 1, "desc": "Recover the captain's seal from the wreck at Tamris Harbor (0/1)"},
                 ],
                 "rewards": {"silver": 10, "items": ["MORPHOS_LORE_SCROLL"],
                             "reagents": {}},
@@ -133,11 +135,11 @@ QUESTS = {
                 ),
                 "objectives": [
                     {"type": "explore", "target": "The Old Road",
-                     "qty": 1, "desc": "Search the road south (0/1)"},
+                     "qty": 1, "desc": "Search the Old Road south of Mystvale (0/1)"},
                     {"type": "gather", "target": "eldreth's pendant",
-                     "qty": 1, "desc": "Find Eldreth's pendant (0/1)"},
+                     "qty": 1, "desc": "Find Eldreth's pendant on the Old Road south (0/1)"},
                     {"type": "deliver", "target": "the ringmaster",
-                     "qty": 1, "desc": "Return to the ringmaster (0/1)"},
+                     "qty": 1, "desc": "Return to the Ringmaster at the Mystvale Marketplace (0/1)"},
                 ],
                 "rewards": {"silver": 20, "items": [], "reagents": {}},
                 "faction_rep": {"cirque": 3},
@@ -146,13 +148,14 @@ QUESTS = {
                 "label": "Help the Cirque cover her disappearance",
                 "description": (
                     "Whatever Eldreth was hiding, the Cirque wants it stay hidden. "
-                    "Silence the witness. The troupe will owe you."
+                    "Silence the witness on the Old Road south, then bring "
+                    "the pendant back. The troupe will owe you."
                 ),
                 "objectives": [
                     {"type": "kill", "target": "nosy farmhand",
-                     "qty": 1, "desc": "Silence the witness (0/1)"},
+                     "qty": 1, "desc": "Silence the nosy farmhand on the Old Road south (0/1)"},
                     {"type": "gather", "target": "eldreth's pendant",
-                     "qty": 1, "desc": "Recover the pendant (0/1)"},
+                     "qty": 1, "desc": "Recover Eldreth's pendant on the Old Road south (0/1)"},
                 ],
                 "rewards": {"silver": 30, "items": [], "reagents": {}},
                 "faction_rep": {"cirque": 2, "crown": -2, "outlaws": 1},
@@ -162,13 +165,14 @@ QUESTS = {
                 "description": (
                     "Walk to the watch and tell them exactly what the Cirque "
                     "was hiding. You'll be paid in Crown coin, not Cirque coin — "
-                    "and the Cirque doesn't forget."
+                    "and the Cirque doesn't forget. Find the Captain of the "
+                    "Watch at the barracks in Carran."
                 ),
                 "objectives": [
                     {"type": "gather", "target": "eldreth's pendant",
-                     "qty": 1, "desc": "Find evidence (0/1)"},
+                     "qty": 1, "desc": "Find evidence on the Old Road south (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Report to the watch captain (0/1)"},
+                     "qty": 1, "desc": "Report to the watch captain at Carran Barracks (0/1)"},
                 ],
                 "rewards": {"silver": 25, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 3, "cirque": -3},
@@ -192,14 +196,15 @@ QUESTS = {
             "delivered_sealed": {
                 "label": "Deliver the letter, seal intact",
                 "description": (
-                    "Reach the contact, seal unbroken. The court will note "
-                    "your reliability."
+                    "Reach Lady Ysolde at the Mystvale Town Hall, seal "
+                    "unbroken. The court will note your reliability. "
+                    "Bandits hunt the Old Road south — go through them first."
                 ),
                 "objectives": [
                     {"type": "kill", "target": "road bandit",
-                     "qty": 2, "desc": "Survive the ambush (0/2)"},
+                     "qty": 2, "desc": "Survive the bandit ambush on the Old Road south (0/2)"},
                     {"type": "deliver", "target": "lady ysolde of the crescent",
-                     "qty": 1, "desc": "Deliver the letter unopened (0/1)"},
+                     "qty": 1, "desc": "Deliver the letter unopened to Lady Ysolde at the Mystvale Town Hall (0/1)"},
                 ],
                 "rewards": {"silver": 25, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 3},
@@ -207,17 +212,18 @@ QUESTS = {
             "read_it_first": {
                 "label": "Read the letter before delivering",
                 "description": (
-                    "Break the seal. Read it. Re-seal it with wax and hope. "
-                    "What you learn is worth more than the delivery fee — "
-                    "if you survive knowing it."
+                    "Break the seal on the road. Read it. Re-seal it with "
+                    "wax and hope. What you learn is worth more than the "
+                    "delivery fee — if you survive knowing it. Then deliver "
+                    "to Lady Ysolde at the Mystvale Town Hall."
                 ),
                 "objectives": [
                     {"type": "kill", "target": "road bandit",
-                     "qty": 2, "desc": "Survive the ambush (0/2)"},
+                     "qty": 2, "desc": "Survive the bandit ambush on the Old Road south (0/2)"},
                     {"type": "gather", "target": "unsealed letter",
-                     "qty": 1, "desc": "Break the seal and read (0/1)"},
+                     "qty": 1, "desc": "Break the seal and read on the Old Road south (0/1)"},
                     {"type": "deliver", "target": "lady ysolde of the crescent",
-                     "qty": 1, "desc": "Deliver the letter (0/1)"},
+                     "qty": 1, "desc": "Deliver the letter to Lady Ysolde at the Mystvale Town Hall (0/1)"},
                 ],
                 "rewards": {"silver": 15, "items": ["MORPHOS_LORE_SCROLL"],
                             "reagents": {}},
@@ -227,13 +233,14 @@ QUESTS = {
                 "label": "Sell the letter to the Crows",
                 "description": (
                     "The Crows pay well for Crown correspondence. The Crown "
-                    "pays less well for traitors. You'll have to pick a side."
+                    "pays less well for traitors. You'll have to pick a side. "
+                    "The Crow agent waits on the Old Road south."
                 ),
                 "objectives": [
                     {"type": "explore", "target": "The Old Road",
-                     "qty": 1, "desc": "Meet the Crow agent on the road (0/1)"},
+                     "qty": 1, "desc": "Meet the Crow agent on the Old Road south (0/1)"},
                     {"type": "deliver", "target": "crow agent",
-                     "qty": 1, "desc": "Hand over the letter (0/1)"},
+                     "qty": 1, "desc": "Hand the letter to the Crow Agent on the Old Road south (0/1)"},
                 ],
                 "rewards": {"silver": 40, "items": [], "reagents": {}},
                 "faction_rep": {"crown": -4, "crows": 4},
@@ -256,14 +263,16 @@ QUESTS = {
             "warn_watch": {
                 "label": "Warn the Mystvale watch",
                 "description": (
-                    "Report what you saw. Honest work. The watch remembers "
+                    "Pick up the waymark on the Old Road south, then report "
+                    "what you saw to the Captain of the Watch at the "
+                    "Carran Barracks. Honest work — the watch remembers "
                     "faces that help them."
                 ),
                 "objectives": [
                     {"type": "gather", "target": "crow waymark",
-                     "qty": 1, "desc": "Recover the waymark (0/1)"},
+                     "qty": 1, "desc": "Recover the waymark on the Old Road south (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Warn the watch captain (0/1)"},
+                     "qty": 1, "desc": "Warn the watch captain at Carran Barracks (0/1)"},
                 ],
                 "rewards": {"silver": 15, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 2, "rangers": 2},
@@ -272,13 +281,14 @@ QUESTS = {
                 "label": "Sell the intel back to the Crows",
                 "description": (
                     "They'd rather know that you saw than have you warn anyone. "
-                    "The price is good. The cost is your reputation."
+                    "The price is good. The cost is your reputation. Find "
+                    "the Crow Agent on the Old Road south."
                 ),
                 "objectives": [
                     {"type": "gather", "target": "crow waymark",
-                     "qty": 1, "desc": "Recover the waymark (0/1)"},
+                     "qty": 1, "desc": "Recover the waymark on the Old Road south (0/1)"},
                     {"type": "deliver", "target": "crow agent",
-                     "qty": 1, "desc": "Return the waymark to the Crows (0/1)"},
+                     "qty": 1, "desc": "Return the waymark to the Crow Agent on the Old Road south (0/1)"},
                 ],
                 "rewards": {"silver": 30, "items": [], "reagents": {}},
                 "faction_rep": {"crown": -2, "rangers": -1, "crows": 3},
@@ -286,12 +296,13 @@ QUESTS = {
             "stay_silent": {
                 "label": "Say nothing",
                 "description": (
-                    "The forest keeps its secrets. You keep yours. You arrived "
-                    "in Mystvale. The rest is nobody's business."
+                    "The forest keeps its secrets. You keep yours. Slip into "
+                    "the Mystvale Marketplace and disappear — nobody's "
+                    "business but yours."
                 ),
                 "objectives": [
                     {"type": "explore", "target": "The Mystvale Marketplace",
-                     "qty": 1, "desc": "Slip into Mystvale quietly (0/1)"},
+                     "qty": 1, "desc": "Slip into the Mystvale Marketplace quietly (0/1)"},
                 ],
                 "rewards": {"silver": 5, "items": [], "reagents": {}},
                 "faction_rep": {"rangers": 1, "outsider": 1},
@@ -315,14 +326,15 @@ QUESTS = {
             "bloody_break": {
                 "label": "Kill the jailers, free the gang",
                 "description": (
-                    "Violence and freedom. The Crown hates you. Some of the "
-                    "freed prisoners won't forget you."
+                    "Violence and freedom. The jailers stand at the Mistwall — "
+                    "drop them, then run for the Mystvale Marketplace before "
+                    "anyone else arrives. The Crown will hate you for it."
                 ),
                 "objectives": [
                     {"type": "kill", "target": "mystvale jailer",
-                     "qty": 2, "desc": "Put down the jailers (0/2)"},
+                     "qty": 2, "desc": "Put down the jailers at the Mistwall (0/2)"},
                     {"type": "explore", "target": "The Mystvale Marketplace",
-                     "qty": 1, "desc": "Escape into the city (0/1)"},
+                     "qty": 1, "desc": "Escape to the Mystvale Marketplace (0/1)"},
                 ],
                 "rewards": {"silver": 10, "items": [], "reagents": {}},
                 "faction_rep": {"crown": -4, "crows": 2, "outlaws": 3},
@@ -330,12 +342,13 @@ QUESTS = {
             "quiet_slip": {
                 "label": "Slip your chains alone",
                 "description": (
-                    "Slide out while no one's looking. No blood, no friends, "
-                    "no enemies — just you, free, in Mystvale."
+                    "Slide out at the Mistwall while no one's looking, then "
+                    "lose yourself in the Mystvale Marketplace. No blood, no "
+                    "friends, no enemies — just you, free, in Mystvale."
                 ),
                 "objectives": [
                     {"type": "explore", "target": "The Mystvale Marketplace",
-                     "qty": 1, "desc": "Disappear into the crowd (0/1)"},
+                     "qty": 1, "desc": "Disappear into the crowd at the Mystvale Marketplace (0/1)"},
                 ],
                 "rewards": {"silver": 5, "items": [], "reagents": {}},
                 "faction_rep": {"outsider": 2},
@@ -343,15 +356,16 @@ QUESTS = {
             "legal_appeal": {
                 "label": "Surrender and plead your case",
                 "description": (
-                    "Walk up to the watch captain and argue for a hearing. "
-                    "If you can prove the charge was bogus, you arrive in "
-                    "Mystvale a free citizen with a debt owed to no one."
+                    "Find the forged warrant at the Mistwall to prove the "
+                    "charge was bogus, then take it to the Captain of the "
+                    "Watch at the Carran Barracks. If the case holds, you "
+                    "arrive in Mystvale a free citizen with no debts owed."
                 ),
                 "objectives": [
                     {"type": "gather", "target": "forged warrant",
-                     "qty": 1, "desc": "Find evidence the warrant was forged (0/1)"},
+                     "qty": 1, "desc": "Find the forged warrant at the Mistwall (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Present your case (0/1)"},
+                     "qty": 1, "desc": "Present your case to the watch captain at Carran Barracks (0/1)"},
                 ],
                 "rewards": {"silver": 20, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 3, "outlaws": -1},
@@ -359,15 +373,16 @@ QUESTS = {
             "turncoat": {
                 "label": "Sell out the gang for your own freedom",
                 "description": (
-                    "Hand over the ringleader in exchange for a pardon. "
-                    "The Crown files your name as a useful man. The outlaw "
+                    "Subdue the ringleader at the Mistwall, then turn him in "
+                    "to the Captain of the Watch at the Carran Barracks. The "
+                    "Crown files your name as a useful man. The outlaw "
                     "network files your name in ink."
                 ),
                 "objectives": [
                     {"type": "kill", "target": "chain gang ringleader",
-                     "qty": 1, "desc": "Subdue the ringleader (0/1)"},
+                     "qty": 1, "desc": "Subdue the ringleader at the Mistwall (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Turn the ringleader in (0/1)"},
+                     "qty": 1, "desc": "Turn the ringleader in to the watch captain at Carran Barracks (0/1)"},
                 ],
                 "rewards": {"silver": 30, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 3, "outlaws": -4, "crows": -2},
