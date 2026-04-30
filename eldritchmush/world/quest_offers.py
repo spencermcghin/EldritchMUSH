@@ -12,6 +12,17 @@ from world.quest_data import QUESTS
 
 def _prereqs_met(char, qdef):
     quests = char.db.quests or {}
+    # mutex_group exclusivity — once one walk-in is taken, the
+    # others are unavailable forever for this character.
+    mg = qdef.get("mutex_group")
+    if mg:
+        own_key = qdef.get("key")
+        for other_key in quests.keys():
+            if other_key == own_key:
+                continue
+            other = QUESTS.get(other_key)
+            if other and other.get("mutex_group") == mg:
+                return False
     for prereq in qdef.get("prereqs", []):
         if isinstance(prereq, dict):
             q_key = prereq["quest"]

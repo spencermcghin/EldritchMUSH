@@ -271,11 +271,38 @@ def _fresh_objectives(quest_def, outcome_key=None):
     ]
 
 
+def _mutex_clear(char, quest_def):
+    """Return True if no other quest in the same `mutex_group` has
+    already been started/completed by this character. Used by the
+    walk-ins so picking "Ship" locks out "Cirque" / "Noble" / etc.
+    — your origin is your origin.
+    """
+    mg = quest_def.get("mutex_group")
+    if not mg:
+        return True
+    _ensure_quest_db(char)
+    own_key = quest_def.get("key")
+    for other_key, other_state in (char.db.quests or {}).items():
+        if other_key == own_key:
+            continue
+        other = QUESTS.get(other_key)
+        if other and other.get("mutex_group") == mg:
+            return False
+    return True
+
+
 def _prerequisites_met(char, quest_def):
     """Return True if all prereqs are met. Prereqs may be strings (quest keys)
     or dicts of form {"quest": key, "outcome": outcome_key} to require a
-    specific outcome."""
+    specific outcome.
+
+    Also enforces `mutex_group` exclusivity so quests in a shared
+    group (e.g. the five walk-ins) lock each other out once one is
+    chosen.
+    """
     _ensure_quest_db(char)
+    if not _mutex_clear(char, quest_def):
+        return False
     for prereq in quest_def.get("prereqs", []):
         if isinstance(prereq, dict):
             q_key = prereq["quest"]

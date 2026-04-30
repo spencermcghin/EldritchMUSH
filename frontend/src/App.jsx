@@ -360,6 +360,20 @@ function App() {
     })
   }, [sendCommand])
 
+  // When a walk-in is accepted, the four other walk-in offers stop
+  // being valid (your origin is your origin). Strip every queued
+  // walk-in offer alongside the one we just accepted so we don't pop
+  // a Cirque modal right after the player picked Ship.
+  const dismissOnAccept = useCallback((offer) => {
+    if (offer.key && offer.key.startsWith('walkin_')) {
+      ;(oobState.questOffers || [])
+        .filter(o => o.key && o.key.startsWith('walkin_'))
+        .forEach(o => dismissQuestOffer(o.key))
+    } else {
+      dismissQuestOffer(offer.key)
+    }
+  }, [oobState.questOffers, dismissQuestOffer])
+
   const handleDetailPanelClose = useCallback(() => {
     setSelectedEntity(null)
     setEntityDescription('')
@@ -690,12 +704,12 @@ function App() {
           onAccept={() => {
             const offer = oobState.questOffers[0]
             sendCommand(`quest accept ${offer.title}`)
-            dismissQuestOffer(offer.key)
+            dismissOnAccept(offer)
           }}
           onAcceptOutcome={(outcomeKey) => {
             const offer = oobState.questOffers[0]
             sendCommand(`quest accept ${offer.title} / ${outcomeKey}`)
-            dismissQuestOffer(offer.key)
+            dismissOnAccept(offer)
           }}
           onDecline={() => dismissQuestOffer(oobState.questOffers[0].key)}
           onClose={() => dismissQuestOffer(oobState.questOffers[0].key)}

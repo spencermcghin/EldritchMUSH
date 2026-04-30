@@ -112,6 +112,7 @@ QUESTS = {
             },
         },
         "prereqs": [],
+        "mutex_group": "walkin",
     },
 
     "walkin_cirque": {
@@ -179,6 +180,7 @@ QUESTS = {
             },
         },
         "prereqs": [],
+        "mutex_group": "walkin",
     },
 
     "walkin_noble": {
@@ -247,6 +249,7 @@ QUESTS = {
             },
         },
         "prereqs": [],
+        "mutex_group": "walkin",
     },
 
     "walkin_scout": {
@@ -309,6 +312,7 @@ QUESTS = {
             },
         },
         "prereqs": [],
+        "mutex_group": "walkin",
     },
 
     "walkin_chain_gang": {
@@ -389,6 +393,7 @@ QUESTS = {
             },
         },
         "prereqs": [],
+        "mutex_group": "walkin",
     },
 
     # ─────────────────────────────────────────────────────────────────────────
