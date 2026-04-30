@@ -2,7 +2,6 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
 import CharacterSelect from './components/CharacterSelect'
-import GameOutput from './components/GameOutput'
 import CombatTracker from './components/CombatTracker'
 import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
@@ -502,17 +501,10 @@ function App() {
             }
           />
 
-          {/* Center column:
-                - RoomView (top, flex: 1)
-                - CombatTracker (when in combat)
-                - Scene Log (compact GameOutput; styled to match the
-                  parchment aesthetic — italic for *actions*, color-
-                  coded by message type)
-                - CommandInput (bottom)
-
-              Rich UI surfaces (NpcDialoguePanel, QuestOfferModal,
-              toasts) handle the dramatic moments; the Scene Log
-              keeps history scrollable for "what just happened?". */}
+          {/* Center column: RoomView (flex: 1) + CombatTracker (when
+              in combat) + CommandInput (auto-height bottom bar).
+              The Scene Log was rolled back temporarily — bring it
+              back once we've diagnosed the page-reload regression. */}
           <div className="app-main">
             <RoomView
               messages={messages}
@@ -522,11 +514,6 @@ function App() {
               onExitContextMenu={handleExitContextMenu}
             />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
-            <GameOutput
-              messages={messages}
-              inCombat={oobState.inCombat}
-              onCommand={sendCommand}
-            />
             <div className="app-log-area">
               <CommandInput
                 ref={inputRef}
