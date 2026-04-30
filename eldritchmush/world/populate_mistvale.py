@@ -1067,18 +1067,27 @@ _mists_exit = ObjectDB.objects.filter(
 ).first()
 if not _mists_exit:
     _mists_exit = _create.create_object(
-        "evennia.objects.objects.DefaultExit",
+        "typeclasses.exits.WalkInMistsExit",
         key="through the mists", location=mistwall, destination=mistgate,
     )
     _mists_exit.aliases.add("mists")
     _mists_exit.aliases.add("cross")
-    print("  CREATED : Mistwall → Mistgate (one-way crossing)")
+    print("  CREATED : Mistwall → Mistgate (walk-in routed crossing)")
+else:
+    # Re-runs: ensure the existing exit uses the walk-in-aware class so
+    # at_traverse routes by chosen flavor instead of always landing
+    # at Mistgate.
+    if _mists_exit.typeclass_path != "typeclasses.exits.WalkInMistsExit":
+        _mists_exit.swap_typeclass(
+            "typeclasses.exits.WalkInMistsExit", clean_attributes=False
+        )
+        print("  RETYPED : Mistwall crossing → WalkInMistsExit")
 
 # Strip the legacy approval_status lock so every chargen-finished
 # player can cross. Reset to a fresh permissive traverse rule.
 _mists_exit.locks.add("traverse:all()")
 _mists_exit.db.err_traverse = ""
-print("  OPEN    : Mistwall → Mistgate (no approval gate)")
+print("  OPEN    : Mistwall crossing (no approval gate; walk-in routed)")
 
 # ===========================================================================
 # LEGACY CLEANUP — whitelist purge.
