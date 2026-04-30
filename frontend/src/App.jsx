@@ -24,6 +24,8 @@ import QuestJournalModal from './components/QuestJournalModal'
 import ReputationModal from './components/ReputationModal'
 import ItemPickerModal from './components/ItemPickerModal'
 import NpcPickerModal from './components/NpcPickerModal'
+import AudioController from './components/AudioController'
+import AudioToggle from './components/AudioToggle'
 import ItemReceivedToast from './components/ItemReceivedToast'
 import QuestAcceptedToast from './components/QuestAcceptedToast'
 import QuestCompletedToast from './components/QuestCompletedToast'
@@ -56,6 +58,9 @@ function App() {
     useEvennia()
 
   const inputRef = useRef(null)
+  // Imperative ref into AudioController so AudioToggle in the header
+  // can drive playback without prop-drilling through the whole tree.
+  const audioRef = useRef(null)
 
   // Auto-connect after OAuth redirect: when the page loads, ask the
   // backend whether we already have a Django session. If so, skip the
@@ -402,8 +407,21 @@ function App() {
 
   const statusLabel = { connected: 'CONNECTED', connecting: 'CONNECTING', disconnected: 'OFFLINE' }[connectionState]
 
+  // "Title screen" = pre-puppet. The Forsaken Gate loops here; once
+  // the player ic's into a character, the in-game playlist takes over.
+  const atTitleScreen =
+    !isConnected ||
+    oobState.atCharacterSelect ||
+    oobState.inChargen ||
+    !oobState.characterName
+
   return (
     <div className="app-container">
+
+      {/* Background music — single global <audio>, controlled by the
+          header toggle via audioRef. Mounted at the app level so a
+          full re-render doesn't restart the track. */}
+      <AudioController ref={audioRef} atTitleScreen={atTitleScreen} />
 
       {/* ── Header ── */}
       <header className="app-header">
@@ -417,6 +435,7 @@ function App() {
           {latency !== null && isConnected && (
             <span className="status-latency">{latency}ms</span>
           )}
+          <AudioToggle audioRef={audioRef} atTitleScreen={atTitleScreen} />
           {isConnected && (
             <button className="header-disconnect-btn" onClick={disconnect} title="Disconnect">✕</button>
           )}
