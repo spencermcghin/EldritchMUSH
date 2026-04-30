@@ -124,9 +124,17 @@ export default function CommandSidebar({ availableCommands, inCombat, myTurn, on
   // Merge server-pushed contextual commands (repair, reagents, etc.) into
   // the list. The "__crafting_ui__" descriptor is consumed by App.jsx to
   // toggle the onCrafting callback, so we skip it here.
-  const serverCmds = (availableCommands || []).filter(c =>
-    c.key && c.key !== '__crafting_ui__' && !commands.some(x => x.key === c.key)
-  )
+  //
+  // Defensive filter: Combat-category commands only appear when actually
+  // in combat. The server already gates this in world/available_commands.py
+  // but we double-check on the frontend so any stale loop state on the
+  // server can't surface combat options outside of fights.
+  const serverCmds = (availableCommands || []).filter(c => {
+    if (!c.key || c.key === '__crafting_ui__') return false
+    if (commands.some(x => x.key === c.key)) return false
+    if (!inCombat && (c.category || '').toLowerCase() === 'combat') return false
+    return true
+  })
   commands.push(...serverCmds)
 
   const groups = groupCommands(commands)
