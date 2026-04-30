@@ -43,8 +43,24 @@ function ExitButtons({ exits, onCommand }) {
   )
 }
 
+// Apply lightweight markdown-ish prettification:
+//   *action* → italic dim-gold "(action)" feel — used heavily by AI NPC
+//              replies to indicate gestures: *Pauses, hands clasped*.
+//   "speech" → keep as-is (Evennia color codes already highlight the
+//              speaker name; the quotes themselves are visual cues).
+//   `> command` echo lines → muted prefix.
+// Run BEFORE DOMPurify so the inserted spans aren't stripped.
+function prettify(html) {
+  if (!html) return html
+  return html.replace(
+    /\*([^*\n]{1,200}?)\*/g,
+    '<em class="msg-action">$1</em>'
+  )
+}
+
 function MessageLine({ msg, index, onCommand }) {
-  const html = msg.content || ''
+  const raw = msg.content || ''
+  const html = prettify(raw)
   const exits = parseExits(html)
 
   // If this message contains exits, render them as buttons
@@ -57,7 +73,7 @@ function MessageLine({ msg, index, onCommand }) {
           <div
             className={`msg msg-${msg.type}`}
             data-time={formatTime(msg.timestamp)}
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(beforeExits || '&nbsp;') }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(beforeExits || '&nbsp;', { ADD_TAGS: ['em'], ADD_ATTR: ['class'] }) }}
           />
         )}
         <ExitButtons exits={exits} onCommand={onCommand} />
@@ -70,7 +86,7 @@ function MessageLine({ msg, index, onCommand }) {
       className={`msg msg-${msg.type}`}
       data-time={formatTime(msg.timestamp)}
       style={{ animationDelay: `${Math.min(index * 0.01, 0.1)}s` }}
-      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html || '&nbsp;') }}
+      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html || '&nbsp;', { ADD_TAGS: ['em'], ADD_ATTR: ['class'] }) }}
     />
   )
 }

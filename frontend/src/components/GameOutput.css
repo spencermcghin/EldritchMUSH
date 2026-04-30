@@ -1,43 +1,36 @@
+/* ── Scene Log ── */
+/* The chronological scrollback of room speech, combat, and system
+   echoes. Sits between the RoomView and the CommandInput as a
+   bordered parchment panel. Compact (~200px), scrollable. The CRT
+   phosphor glow / scanline overlay from the old design fought the
+   dark-fantasy aesthetic and has been removed — this is parchment,
+   not a terminal. */
+
 .game-output-wrap {
-  flex: 1;
+  flex: 0 0 auto;
+  height: 200px;
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #1a1610 0%, #14110d 100%);
 }
 
 .game-output {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 16px 16px 16px;
-  background: var(--parchment);
+  padding: 10px 16px 12px 16px;
   min-height: 0;
   position: relative;
   z-index: 1;
   scroll-behavior: smooth;
 }
 
-/* CRT scanline overlay */
-.crt-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.04) 2px,
-    rgba(0,0,0,0.04) 4px
-  );
-}
-
-/* Subtle phosphor glow on all text in game output */
-.game-output * {
-  text-shadow: 0 0 3px rgba(0,229,160,0.06);
-}
+/* CRT overlay neutralised but kept so we can re-enable cheaply */
+.crt-overlay { display: none; }
 
 /* Empty state */
 .game-output-empty {
@@ -47,22 +40,26 @@
   height: 100%;
   color: var(--text-aged);
   font-family: 'Cinzel', serif;
-  font-size: 13px;
-  opacity: 0.5;
-  letter-spacing: 1px;
+  font-size: 12px;
+  opacity: 0.45;
+  letter-spacing: 2px;
+  font-style: italic;
 }
 
-/* Base message */
+/* Base message — Cormorant Garamond for body, parchment cream */
 .msg {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  padding: 1px 0;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 3px 0 3px 10px;
+  margin: 2px 0;
   color: var(--text-light);
   word-break: break-word;
   white-space: pre-wrap;
   animation: fade-in 0.15s ease-out both;
   position: relative;
+  border-left: 2px solid transparent;
+  transition: border-color 0.15s;
 }
 
 .msg:hover::after {
@@ -79,32 +76,42 @@
   padding: 0 4px;
 }
 
-/* System messages */
+/* System echoes — `> command` lines, connect/disconnect chrome */
 .msg-system {
-  color: var(--accent-gold);
+  color: var(--text-aged);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
   font-style: italic;
-  opacity: 0.85;
+  opacity: 0.7;
+  border-left-color: rgba(212,175,55,0.18);
 }
 
-/* Combat messages */
+/* Combat narration — sword's edge red */
 .msg-combat {
-  color: #d44040;
-  border-left: 2px solid rgba(139,0,0,0.5);
-  padding-left: 8px;
+  color: #e08585;
+  border-left-color: rgba(139,0,0,0.55);
 }
 
-/* Error messages */
+/* Error / refusal */
 .msg-error {
-  color: var(--neon-warn);
-  background: rgba(201,255,0,0.03);
-  padding-left: 4px;
-  border-left: 2px solid rgba(201,255,0,0.3);
+  color: var(--blood-bright, #cc2211);
+  background: rgba(204,34,17,0.05);
+  border-left-color: var(--blood-bright, #cc2211);
 }
 
-/* Game messages */
+/* Default game text — parchment cream */
 .msg-game {
   color: var(--text-light);
 }
+
+/* In-line action markers e.g. *Pauses, hands clasped together*. */
+em.msg-action {
+  font-style: italic;
+  color: var(--text-aged);
+  opacity: 0.85;
+}
+em.msg-action::before { content: ''; }
+em.msg-action::after { content: ''; }
 
 /* Empty message spacer */
 .msg-empty {

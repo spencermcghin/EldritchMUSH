@@ -2,6 +2,7 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
 import CharacterSelect from './components/CharacterSelect'
+import GameOutput from './components/GameOutput'
 import CombatTracker from './components/CombatTracker'
 import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
@@ -501,13 +502,17 @@ function App() {
             }
           />
 
-          {/* Center: room view on top, command input at bottom.
-              The legacy chat-scrollback console (GameOutput) was
-              removed in favor of dedicated UI surfaces — NPC speech
-              shows in NpcDialoguePanel, quest events show in toasts,
-              combat shows in CombatTracker, and room state shows in
-              RoomView. The CommandInput stays so players can still
-              type any command (including `ask <npc>` follow-ups). */}
+          {/* Center column:
+                - RoomView (top, flex: 1)
+                - CombatTracker (when in combat)
+                - Scene Log (compact GameOutput; styled to match the
+                  parchment aesthetic — italic for *actions*, color-
+                  coded by message type)
+                - CommandInput (bottom)
+
+              Rich UI surfaces (NpcDialoguePanel, QuestOfferModal,
+              toasts) handle the dramatic moments; the Scene Log
+              keeps history scrollable for "what just happened?". */}
           <div className="app-main">
             <RoomView
               messages={messages}
@@ -517,6 +522,11 @@ function App() {
               onExitContextMenu={handleExitContextMenu}
             />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
+            <GameOutput
+              messages={messages}
+              inCombat={oobState.inCombat}
+              onCommand={sendCommand}
+            />
             <div className="app-log-area">
               <CommandInput
                 ref={inputRef}
