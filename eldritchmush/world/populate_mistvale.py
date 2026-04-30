@@ -5055,4 +5055,265 @@ _ensure_walkin_item(
 )
 
 
+# ===========================================================================
+# EVENT 4 — THE SACRIFICE (anchor quests)
+# Source: Drive / Reboot / Event 4 / "Prologue: The Sacrifice".
+# Spring 765. Decisive Moments are faction-allegiance choices; Cale rises
+# among the Crows; Eldreth's murderer remains at large; Aurorym zealotry
+# grows at Dawnhaven; Silver Company patrols Mistvale.
+# ===========================================================================
+print("\n=== EVENT 4 ANCHORS ===")
+
+# --- Lord Silas Laurent (Stag Hall — Great Hall) ---
+silas = _ensure_walkin_npc(
+    "Lord Silas Laurent", hart_hall_great_hall,
+    desc=(
+        "A young Laurent in his late twenties, mourning-cloak over a "
+        "stag-emblazoned doublet, his mother Ludmilla's chain of office "
+        "heavy on his shoulders. Tired eyes, a forced smile. He looks "
+        "younger than his years and older than he should."
+    ),
+    aliases=("silas", "lord silas", "lord silas laurent"),
+    aggressive=False,
+    ai_personality=(
+        "Lord Silas Laurent, Lord Pro Tempore at Stag Hall after his "
+        "mother Ludmilla fell to wasting illness. Earnest, untrained, "
+        "drowning in a job he did not choose. Quietly desperate for "
+        "loyal allies — and quietly afraid of who his real enemies are."
+    ),
+    ai_knowledge=(
+        "- House Laurent's hold on the Annwyn is slipping — Ludmilla "
+        "dying, Carran starving, Crow raids relentless.\n"
+        "- Offers |wBack House Laurent|n: choose to support him publicly, "
+        "undermine him for a rival house, or stay clear of the politics.\n"
+        "- Knows about the doppelganger Henri trial; suspects someone "
+        "in his own court of corruption."
+    ),
+)
+
+# --- Rook of the Ironbloods (Mystvale Marketplace) ---
+rook = _ensure_walkin_npc(
+    "Rook of the Ironbloods", marketplace,
+    desc=(
+        "A wiry Cirque investigator in raven-feathered greys, twin "
+        "stilettos crossed at her belt, the Ironbloods' iron-cuff "
+        "tattoo dark against her wrist. She watches every face that "
+        "passes the marketplace — and remembers them."
+    ),
+    aliases=("rook", "ironblood"),
+    aggressive=False,
+    ai_personality=(
+        "Rook of the Ironbloods, Cirque investigator hunting Eldreth's "
+        "killer. Methodical, patient, not above paying for what the "
+        "watch won't deliver."
+    ),
+    ai_knowledge=(
+        "- Cirque sent her to see Eldreth's murderer answer for the "
+        "killing — the town judge let both Henris walk and the case is "
+        "still open.\n"
+        "- Offers |wThe Doppelganger|n: gather evidence, hand the real "
+        "Henri to the Cirque, the Watch, or shield the innocent twin.\n"
+        "- Pays better than the Crown for the right outcome."
+    ),
+)
+
+# Henri + his doppelganger as gettable evidence + suspect NPCs.
+# We seed two NPCs both called "Henri" so the trial canon makes sense
+# (the player can confront either; only one is the real killer).
+for _ in range(2):
+    henri = _ensure_walkin_npc(
+        "Henri", town_hall,
+        desc=(
+            "A pale, narrow-shouldered man in a moth-eaten coat. Eyes "
+            "down. His twin stands across the room — same coat, same "
+            "stance, same nervous tic. Only one of them is the killer."
+        ),
+        aliases=("henri",),
+        aggressive=False,
+    )
+    henri.db.body = 4
+    henri.db.total_body = 4
+    henri.db.av = 0
+
+_ensure_walkin_item(
+    "henri's confession", town_hall,
+    desc=(
+        "A folded confession in a hand the Cirque can authenticate — "
+        "Henri's, signed in his own blood. Identifies which twin "
+        "actually killed Eldreth."
+    ),
+    aliases=("confession", "henri's confession", "henri confession"),
+)
+
+# --- Sergeant Marrow of the Silver Company (Mystvale Square) ---
+marrow = _ensure_walkin_npc(
+    "Sergeant Marrow of the Silver Company", mystvale_square,
+    desc=(
+        "A scarred mercenary captain in dented half-plate stamped with "
+        "the Silver Company's crossed-saber crest. Clean-shaven, "
+        "slate-grey eyes, a coiled whip at his belt. Pays his coin "
+        "and expects the same back."
+    ),
+    aliases=("marrow", "sergeant marrow", "silver company"),
+    aggressive=False,
+    ai_personality=(
+        "Sergeant Marrow, Silver Company mercenary contracted to "
+        "patrol Mistvale's roads. Professional, blunt, unimpressed by "
+        "noble intrigue but careful with the contracts that pay the "
+        "company."
+    ),
+    ai_knowledge=(
+        "- Offers |wSilver Company Patrol|n: run the patrol with him, "
+        "deal with Cale the Thorn however you see fit (kill, capture, "
+        "or look the other way).\n"
+        "- Knows the Crow leadership has shifted — Cale is now the "
+        "loud one, but the Old Badger is still pulling strings."
+    ),
+)
+
+# Crow ambushers spawned on the Old Road for Silver Company patrol.
+# Reuses caravan_raider stat block — same kind of fighter.
+for _ in range(2):
+    cb = _ensure_walkin_npc(
+        "crow ambusher", old_road_south,
+        desc=(
+            "A wiry Crow in pitched leathers, a notched longsword on "
+            "his hip, a kerchief soaked in something acrid pulled up "
+            "to his eyes."
+        ),
+        aliases=("crow ambusher", "ambusher"),
+        aggressive=True,
+    )
+    cb.db.body = 5
+    cb.db.total_body = 5
+    cb.db.av = 1
+
+# --- Aurorym zealotry (uses existing Sister Mariel + Dawnhaven) ---
+# A new gettable item: a heated branding iron the zealots have been
+# using. Players can take it or leave it.
+_ensure_walkin_item(
+    "vellatora branding iron", dawnhaven,
+    desc=(
+        "A glowing iron in the shape of the Vellatora's flame. Hot to "
+        "the touch even when set down. The faithful press it to their "
+        "own forearms in proof of devotion. The Order has not blessed "
+        "the practice; the Order has not stopped it either."
+    ),
+    aliases=("branding iron", "iron", "vellatora iron"),
+)
+
+
+# ===========================================================================
+# EVENT 5 — THE TRIAL (anchor quests)
+# Source: Drive / Reboot / Event 5 / "Prologue: The Trial".
+# 10th Moon Cycle 765. House Laurent has fallen. Oban dominates.
+# Plague spreading. Nethermancer escaped with the fel tome. Cale dead
+# (per Event 4 canon). Aurorym faith crumbling.
+# ===========================================================================
+print("\n=== EVENT 5 ANCHORS ===")
+
+# --- Bannon remnant (Stag Hall ruins use hart_hall_courtyard) ---
+ser_branwen = _ensure_walkin_npc(
+    "Ser Branwen of Lex Talionis", hart_hall_courtyard,
+    desc=(
+        "A grim Bannon-loyalist knight in stained Lex Talionis grey, "
+        "her tabard half-burned at the hem. A handful of survivors "
+        "huddle around a barrel-fire behind her. The Stag Hall banner "
+        "is gone from the wall."
+    ),
+    aliases=("branwen", "ser branwen", "lex talionis"),
+    aggressive=False,
+    ai_personality=(
+        "Ser Branwen, captain of the last Lex Talionis company loyal "
+        "to House Bannon. Survived the poisoning at the Spring feast "
+        "and the Oban raid. Hard, exhausted, looking for fighters who "
+        "remember what the King's Will means."
+    ),
+    ai_knowledge=(
+        "- House Laurent is broken. The Obans took Carran and Stag Hall.\n"
+        "- Offers |wBannon Remnant|n: rebuild with the survivors, hand "
+        "the company over to House Oban for clemency, or walk away.\n"
+        "- Knows Lady Ludmilla is captive at an Oban camp. Recovery "
+        "would be a separate quest."
+    ),
+)
+
+# --- Oban-pardoned Crow at Carran ---
+korr_pardon = _ensure_walkin_npc(
+    "Korr the Pardoned", carran_square,
+    desc=(
+        "A scarred ex-Crow in Innis livery, the wolf-and-thorn of "
+        "House Oban embroidered crookedly over his old Crow tattoo. "
+        "He carries himself like a man uncertain whether his new "
+        "uniform will protect him or get him killed."
+    ),
+    aliases=("korr", "pardoned", "korr the pardoned"),
+    aggressive=False,
+    ai_personality=(
+        "Korr, formerly of the Crows, pardoned by Lord Niall Oban "
+        "and conscripted into the Innis army. Cynical, ambitious, "
+        "willing to trade information for silver if it keeps him "
+        "out of the front line."
+    ),
+    ai_knowledge=(
+        "- Knows Crow leadership and Oban patrol schedules.\n"
+        "- Offers |wOban Pardon|n: he'll trade intel about an Oban "
+        "supply route. Trust him and act on it; kill him as a Crow "
+        "informant; or hand him to House Falconer.\n"
+        "- The Oban supply manifest is secured in his footlocker."
+    ),
+)
+
+_ensure_walkin_item(
+    "oban supply manifest", carran_square,
+    desc=(
+        "A folded muster-list from Korr's footlocker — wagon counts, "
+        "patrol times, and the personal seal of Niall Oban. Worth "
+        "real coin in the right hands."
+    ),
+    aliases=("manifest", "oban manifest", "supply manifest"),
+)
+
+# --- The nethermancer (escaped with the fel tome) ---
+nethermancer = _ensure_walkin_npc(
+    "the nethermancer", first_expedition_camp,
+    desc=(
+        "A figure cloaked in shadow that the candle does not reach, "
+        "a leather-bound tome chained to its left wrist, the right "
+        "hand bare and ringed with bone. Where its face should be "
+        "there is only a darker patch of shadow."
+    ),
+    aliases=("nethermancer",),
+    aggressive=True,
+)
+nethermancer.db.body = 12
+nethermancer.db.total_body = 12
+nethermancer.db.av = 4
+
+_ensure_walkin_item(
+    "fel tome", first_expedition_camp,
+    desc=(
+        "A heavy black tome, its cover stitched in something that is "
+        "not leather. The lock has bitten more than one curious hand. "
+        "Auron Calico died to keep it from being opened; it is open "
+        "now."
+    ),
+    aliases=("tome", "fel tome", "black tome"),
+)
+
+# --- Magister Wynn — plague samples (existing NPC at Apotheca) ---
+# Magister Wynn already exists at chirurgeons_guild — just add the
+# samples item players need to gather.
+_ensure_walkin_item(
+    "plague sample vial", chirurgeons_guild,
+    desc=(
+        "A stoppered glass vial of cloudy fluid — symptoms of one of "
+        "the new strange illnesses Magister Wynn is racing to "
+        "categorize. Handle gently."
+    ),
+    aliases=("vial", "plague sample", "sample"),
+    count=3,
+)
+
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

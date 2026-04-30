@@ -291,6 +291,18 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  'quest-event4': async (page) => {
+    await resetQuestState(page)
+    for (const spec of EVENT4_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
+  'quest-event5': async (page) => {
+    await resetQuestState(page)
+    for (const spec of EVENT5_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -911,6 +923,105 @@ const EVENT3_QUESTS = [
   SPEC_WITCH_CULT,
   SPEC_MISTVALE_REFUGE,
   SPEC_GATEWAY_SIEGE,
+]
+
+// --- Event 4 — The Sacrifice ---------------------------------------------
+const SPEC_BACK_LAURENT = {
+  key: 'back_house_laurent', title: 'Back House Laurent',
+  outcome: 'support_silas',
+  room: 'Stag Hall — The Great Hall',
+  label: 'e4-a-back-laurent',
+  tick:
+    `from commands.quests import quest_deliver; ` +
+    `quest_deliver(me, "fealty", "Lord Silas Laurent")`,
+}
+const SPEC_DOPPELGANGER = {
+  key: 'the_doppelganger', title: 'The Doppelganger',
+  outcome: 'deliver_to_cirque',
+  room: 'The Mystvale Marketplace',
+  label: 'e4-b-doppelganger',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "henri's confession"); ` +
+    `quest_deliver(me, "henri's confession", "Rook of the Ironbloods")`,
+}
+const SPEC_SILVER_PATROL = {
+  key: 'silver_company_patrol', title: 'Silver Company Patrol',
+  outcome: 'crush_cale',
+  room: 'Mystvale Square',
+  label: 'e4-c-silver-patrol',
+  tick:
+    `from commands.quests import quest_kill, quest_deliver; ` +
+    `${rep(2, 'quest_kill(me, "crow ambusher")')}; ` +
+    `quest_kill(me, "cale the thorn"); ` +
+    `quest_deliver(me, "report", "Sergeant Marrow of the Silver Company")`,
+}
+const SPEC_AURORYM_ZEAL = {
+  key: 'aurorym_zealotry', title: 'The Branded',
+  outcome: 'report_excesses',
+  room: 'Dawnhaven',
+  label: 'e4-d-aurorym-zealotry',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "vellatora branding iron"); ` +
+    `quest_deliver(me, "vellatora branding iron", "Burgomaster Domitille")`,
+}
+
+const EVENT4_QUESTS = [
+  SPEC_BACK_LAURENT,
+  SPEC_DOPPELGANGER,
+  SPEC_SILVER_PATROL,
+  SPEC_AURORYM_ZEAL,
+]
+
+// --- Event 5 — The Trial -------------------------------------------------
+const SPEC_BANNON_REMNANT = {
+  key: 'bannon_remnant', title: 'Bannon Remnant',
+  outcome: 'rebuild_with_them',
+  room: 'Stag Hall Courtyard',
+  label: 'e5-a-bannon-remnant',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "dawnhaven supply chest"); ` +
+    `quest_deliver(me, "dawnhaven supply chest", "Ser Branwen of Lex Talionis")`,
+}
+const SPEC_OBAN_PARDON = {
+  key: 'oban_pardon', title: 'The Oban Pardon',
+  outcome: 'report_to_falconer',
+  room: 'Carran — The Village Square',
+  label: 'e5-b-oban-pardon',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "oban supply manifest"); ` +
+    `quest_deliver(me, "oban supply manifest", "Marta Falconer")`,
+}
+const SPEC_NETHERMANCER = {
+  key: 'hunt_the_nethermancer', title: 'Hunt the Nethermancer',
+  outcome: 'destroy_tome',
+  room: 'The Apotheca Chirurgery',
+  label: 'e5-c-nethermancer',
+  tick:
+    `from commands.quests import quest_kill, quest_gather, quest_deliver; ` +
+    `quest_kill(me, "the nethermancer"); ` +
+    `quest_gather(me, "fel tome"); ` +
+    `quest_deliver(me, "fel tome", "Magister Wynn")`,
+}
+const SPEC_PLAGUE = {
+  key: 'stop_the_plague', title: 'Stop the Plague',
+  outcome: 'deliver_to_apotheca',
+  room: 'The Apotheca Chirurgery',
+  label: 'e5-d-plague',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `${rep(3, 'quest_gather(me, "plague sample vial")')}; ` +
+    `quest_deliver(me, "plague sample vial", "Magister Wynn")`,
+}
+
+const EVENT5_QUESTS = [
+  SPEC_BANNON_REMNANT,
+  SPEC_OBAN_PARDON,
+  SPEC_NETHERMANCER,
+  SPEC_PLAGUE,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat
