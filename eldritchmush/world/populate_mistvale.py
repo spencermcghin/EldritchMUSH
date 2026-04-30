@@ -5203,4 +5203,117 @@ _ensure_walkin_item(
 )
 
 
+# ===========================================================================
+# EVENT 5 — THE TRIAL (anchor quests)
+# Source: Drive / Reboot / Event 5 / "Prologue: The Trial".
+# 10th Moon Cycle 765. House Laurent has fallen. Oban dominates.
+# Plague spreading. Nethermancer escaped with the fel tome. Cale dead
+# (per Event 4 canon). Aurorym faith crumbling.
+# ===========================================================================
+print("\n=== EVENT 5 ANCHORS ===")
+
+# --- Bannon remnant (Stag Hall ruins use hart_hall_courtyard) ---
+ser_branwen = _ensure_walkin_npc(
+    "Ser Branwen of Lex Talionis", hart_hall_courtyard,
+    desc=(
+        "A grim Bannon-loyalist knight in stained Lex Talionis grey, "
+        "her tabard half-burned at the hem. A handful of survivors "
+        "huddle around a barrel-fire behind her. The Stag Hall banner "
+        "is gone from the wall."
+    ),
+    aliases=("branwen", "ser branwen", "lex talionis"),
+    aggressive=False,
+    ai_personality=(
+        "Ser Branwen, captain of the last Lex Talionis company loyal "
+        "to House Bannon. Survived the poisoning at the Spring feast "
+        "and the Oban raid. Hard, exhausted, looking for fighters who "
+        "remember what the King's Will means."
+    ),
+    ai_knowledge=(
+        "- House Laurent is broken. The Obans took Carran and Stag Hall.\n"
+        "- Offers |wBannon Remnant|n: rebuild with the survivors, hand "
+        "the company over to House Oban for clemency, or walk away.\n"
+        "- Knows Lady Ludmilla is captive at an Oban camp. Recovery "
+        "would be a separate quest."
+    ),
+)
+
+# --- Oban-pardoned Crow at Carran ---
+korr_pardon = _ensure_walkin_npc(
+    "Korr the Pardoned", carran_square,
+    desc=(
+        "A scarred ex-Crow in Innis livery, the wolf-and-thorn of "
+        "House Oban embroidered crookedly over his old Crow tattoo. "
+        "He carries himself like a man uncertain whether his new "
+        "uniform will protect him or get him killed."
+    ),
+    aliases=("korr", "pardoned", "korr the pardoned"),
+    aggressive=False,
+    ai_personality=(
+        "Korr, formerly of the Crows, pardoned by Lord Niall Oban "
+        "and conscripted into the Innis army. Cynical, ambitious, "
+        "willing to trade information for silver if it keeps him "
+        "out of the front line."
+    ),
+    ai_knowledge=(
+        "- Knows Crow leadership and Oban patrol schedules.\n"
+        "- Offers |wOban Pardon|n: he'll trade intel about an Oban "
+        "supply route. Trust him and act on it; kill him as a Crow "
+        "informant; or hand him to House Falconer.\n"
+        "- The Oban supply manifest is secured in his footlocker."
+    ),
+)
+
+_ensure_walkin_item(
+    "oban supply manifest", carran_square,
+    desc=(
+        "A folded muster-list from Korr's footlocker — wagon counts, "
+        "patrol times, and the personal seal of Niall Oban. Worth "
+        "real coin in the right hands."
+    ),
+    aliases=("manifest", "oban manifest", "supply manifest"),
+)
+
+# --- The nethermancer (escaped with the fel tome) ---
+nethermancer = _ensure_walkin_npc(
+    "the nethermancer", first_expedition_camp,
+    desc=(
+        "A figure cloaked in shadow that the candle does not reach, "
+        "a leather-bound tome chained to its left wrist, the right "
+        "hand bare and ringed with bone. Where its face should be "
+        "there is only a darker patch of shadow."
+    ),
+    aliases=("nethermancer",),
+    aggressive=True,
+)
+nethermancer.db.body = 12
+nethermancer.db.total_body = 12
+nethermancer.db.av = 4
+
+_ensure_walkin_item(
+    "fel tome", first_expedition_camp,
+    desc=(
+        "A heavy black tome, its cover stitched in something that is "
+        "not leather. The lock has bitten more than one curious hand. "
+        "Auron Calico died to keep it from being opened; it is open "
+        "now."
+    ),
+    aliases=("tome", "fel tome", "black tome"),
+)
+
+# --- Magister Wynn — plague samples (existing NPC at Apotheca) ---
+# Magister Wynn already exists at chirurgeons_guild — just add the
+# samples item players need to gather.
+_ensure_walkin_item(
+    "plague sample vial", chirurgeons_guild,
+    desc=(
+        "A stoppered glass vial of cloudy fluid — symptoms of one of "
+        "the new strange illnesses Magister Wynn is racing to "
+        "categorize. Handle gently."
+    ),
+    aliases=("vial", "plague sample", "sample"),
+    count=3,
+)
+
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

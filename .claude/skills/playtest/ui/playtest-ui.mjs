@@ -297,6 +297,12 @@ const SCENARIOS = {
     await finalReport(page)
   },
 
+  'quest-event5': async (page) => {
+    await resetQuestState(page)
+    for (const spec of EVENT5_QUESTS) await runQuest(page, spec)
+    await finalReport(page)
+  },
+
   // One-shot migration: rename the local-dev tavern from
   // "The Raven's Rest Tavern" / "Raven & Candle" to "Songbird's Rest"
   // on the target DB, and rewrite tavern-name phrases in every room/NPC
@@ -966,6 +972,56 @@ const EVENT4_QUESTS = [
   SPEC_DOPPELGANGER,
   SPEC_SILVER_PATROL,
   SPEC_AURORYM_ZEAL,
+]
+
+// --- Event 5 — The Trial -------------------------------------------------
+const SPEC_BANNON_REMNANT = {
+  key: 'bannon_remnant', title: 'Bannon Remnant',
+  outcome: 'rebuild_with_them',
+  room: 'Stag Hall Courtyard',
+  label: 'e5-a-bannon-remnant',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "dawnhaven supply chest"); ` +
+    `quest_deliver(me, "dawnhaven supply chest", "Ser Branwen of Lex Talionis")`,
+}
+const SPEC_OBAN_PARDON = {
+  key: 'oban_pardon', title: 'The Oban Pardon',
+  outcome: 'report_to_falconer',
+  room: 'Carran — The Village Square',
+  label: 'e5-b-oban-pardon',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `quest_gather(me, "oban supply manifest"); ` +
+    `quest_deliver(me, "oban supply manifest", "Marta Falconer")`,
+}
+const SPEC_NETHERMANCER = {
+  key: 'hunt_the_nethermancer', title: 'Hunt the Nethermancer',
+  outcome: 'destroy_tome',
+  room: 'The Apotheca Chirurgery',
+  label: 'e5-c-nethermancer',
+  tick:
+    `from commands.quests import quest_kill, quest_gather, quest_deliver; ` +
+    `quest_kill(me, "the nethermancer"); ` +
+    `quest_gather(me, "fel tome"); ` +
+    `quest_deliver(me, "fel tome", "Magister Wynn")`,
+}
+const SPEC_PLAGUE = {
+  key: 'stop_the_plague', title: 'Stop the Plague',
+  outcome: 'deliver_to_apotheca',
+  room: 'The Apotheca Chirurgery',
+  label: 'e5-d-plague',
+  tick:
+    `from commands.quests import quest_gather, quest_deliver; ` +
+    `${rep(3, 'quest_gather(me, "plague sample vial")')}; ` +
+    `quest_deliver(me, "plague sample vial", "Magister Wynn")`,
+}
+
+const EVENT5_QUESTS = [
+  SPEC_BANNON_REMNANT,
+  SPEC_OBAN_PARDON,
+  SPEC_NETHERMANCER,
+  SPEC_PLAGUE,
 ]
 
 // Order respects prereqs: road_clear before undead_patrol, bandit_threat
