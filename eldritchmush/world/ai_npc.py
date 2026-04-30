@@ -33,7 +33,7 @@ import urllib.request
 
 
 DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
-DEFAULT_MODEL = "moonshotai/kimi-k2-instruct"
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
 DEFAULT_MAX_TOKENS = 320          # enough for lore-heavy answers w/o runaway
 DEFAULT_TIMEOUT = 20
 
