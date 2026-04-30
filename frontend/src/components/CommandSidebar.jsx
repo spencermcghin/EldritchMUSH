@@ -1,15 +1,20 @@
 import { getPromptForCommand } from '../data/commandPrompts'
 import './CommandSidebar.css'
 
-// Always-available commands (no skill required)
+// Always-available commands (no skill required).
+// Note: `charsheet` and `inventory` (`equip`) are intentionally NOT
+// listed here because the right-hand CharacterStatus panel already
+// has dedicated buttons for them — listing them on the left would
+// duplicate that surface.
 const ALWAYS_COMMANDS = [
   { key: 'look', label: 'Look', args_hint: '', category: 'Exploration' },
-  { key: 'inventory', label: 'Inventory', args_hint: '', category: 'General' },
-  { key: 'charsheet', label: 'Char Sheet', args_hint: '', category: 'General' },
   { key: 'say', label: 'Say', args_hint: '<message>', category: 'Social' },
   { key: 'emote', label: 'Emote', args_hint: '<action>', category: 'Social' },
   { key: 'who', label: 'Who', args_hint: '', category: 'General' },
-  { key: 'help', label: 'Help', args_hint: '[<topic>]', category: 'General' },
+  // Help: leave args_hint blank so a click fires `help` directly
+  // (the bare command lists topics). To browse a specific topic, the
+  // player can still type `help <topic>` in the input bar.
+  { key: 'help', label: 'Help', args_hint: '', category: 'General' },
 ]
 
 // Combat commands — only shown when in combat

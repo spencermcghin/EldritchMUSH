@@ -176,6 +176,26 @@ export const PROMPTS = {
   },
 }
 
+// Combat / healing prompts — generic "pick a target" modal so the
+// CommandSidebar clicks don't silently inject into the input box.
+const _targetPrompt = (verb, label, icon = '⚔') => ({
+  title: verb.charAt(0).toUpperCase() + verb.slice(1),
+  label,
+  placeholder: 'a creature or character',
+  icon,
+  submitLabel: verb.charAt(0).toUpperCase() + verb.slice(1),
+  buildCommand: (input) => `${verb} ${input}`,
+})
+
+PROMPTS.strike = _targetPrompt('strike', 'Who do you want to strike?')
+PROMPTS.shoot = _targetPrompt('shoot', 'Who do you want to shoot?', '🏹')
+PROMPTS.disarm = _targetPrompt('disarm', 'Disarm whom?')
+PROMPTS.stagger = _targetPrompt('stagger', 'Stagger whom?')
+PROMPTS.stun = _targetPrompt('stun', 'Stun whom?')
+PROMPTS.sunder = _targetPrompt('sunder', 'Sunder whose weapon or armor?')
+PROMPTS.medicine = _targetPrompt('medicine', 'Apply medicine to whom?', '🩹')
+PROMPTS.chirurgery = _targetPrompt('chirurgery', 'Perform chirurgery on whom?', '🩹')
+
 // Map command keys (from CommandSidebar) to prompt definitions.
 // Returns null if the command doesn't need a prompt.
 export function getPromptForCommand(commandKey) {
