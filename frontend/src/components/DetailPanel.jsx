@@ -11,6 +11,7 @@ const NPC_ACTIONS = [
   { label: 'Look', icon: '👁', kind: 'send', command: (name) => `look ${name}` },
   { label: 'Ask', icon: '🗣', kind: 'prompt', promptKey: 'ask' },
   { label: 'Whisper', icon: '💬', kind: 'prompt', promptKey: 'whisper' },
+  { label: 'Give', icon: '🎁', kind: 'give' },
   { label: 'Attack', icon: '⚔', kind: 'send', command: (name) => `strike ${name}` },
   { label: 'Follow', icon: '🚶', kind: 'send', command: (name) => `follow ${name}` },
 ]
@@ -70,7 +71,7 @@ function getTypeClass(entityType) {
   }
 }
 
-export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, description, npcMeta, playerSilver = 0 }) {
+export default function DetailPanel({ entityName, entityType, onClose, sendCommand, injectCommand, onPrompt, onGive, description, npcMeta, playerSilver = 0 }) {
   // Base actions per entity-type, plus any contextual actions from NPC
   // metadata (Tavyl dealer, merchant) appended at the end.
   const baseActions = getActions(entityType)
@@ -115,13 +116,17 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
         return
       }
     }
+    if (action.kind === 'give' && onGive) {
+      onGive(entityName)
+      return
+    }
     const text = action.command ? action.command(entityName) : ''
     if (action.kind === 'inject' && injectCommand) {
       injectCommand(text)
     } else if (text) {
       sendCommand(text)
     }
-  }, [entityName, sendCommand, injectCommand, onPrompt])
+  }, [entityName, sendCommand, injectCommand, onPrompt, onGive])
 
   // Clicking a topic chip sends the ask directly — no intermediate
   // modal. The topic text is what gets asked verbatim.

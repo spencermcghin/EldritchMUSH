@@ -30,7 +30,7 @@ const EQUIP_SLOTS = [
   { key: 'body', label: 'Armor', icon: '◈' },
 ]
 
-export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap, onCharSheet, onSwitchCharacter, onAdmin }) {
+export default function CharacterStatus({ oobState, connectionState, onChargen, sendCommand, onWorldMap, onCharSheet, onSwitchCharacter, onAdmin, onQuestJournal, onReputation }) {
   const {
     characterName,
     body,
@@ -167,6 +167,16 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
             <button className="char-action-btn" onClick={onCharSheet || (() => sendCommand('charsheet'))}>
               View Charsheet
             </button>
+            {onQuestJournal && (
+              <button className="char-action-btn" onClick={onQuestJournal}>
+                Quest Journal
+              </button>
+            )}
+            {onReputation && (
+              <button className="char-action-btn" onClick={onReputation}>
+                Reputation
+              </button>
+            )}
             <button className="char-action-btn chargen-btn-link" onClick={onChargen}>
               Character Builder
             </button>

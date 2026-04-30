@@ -16,6 +16,17 @@ from evennia import Command
 _FACTION_ORDER = ["crown", "cirque", "rangers", "crows", "outlaws", "outsider"]
 
 
+def _any_webclient(char):
+    """True if the character has at least one web-client session."""
+    try:
+        for sess in char.sessions.all():
+            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                return True
+    except Exception:
+        pass
+    return False
+
+
 def _rep_label(score):
     """Short adjective for a rep score — purely for display colour."""
     if score >= 10:
@@ -56,6 +67,20 @@ class CmdReputation(Command):
         args = (self.args or "").strip()
         if args:
             self._show_npc_detail(caller, args)
+            return
+        # Web clients see the rich Reputation modal via OOB; telnet
+        # users keep the text summary.
+        if _any_webclient(caller):
+            try:
+                from world.reputation_oob import push_reputation
+                push_reputation(caller)
+                import time as _time
+                payload = {"type": "reputation_open", "_ts": _time.time()}
+                for sess in caller.sessions.all():
+                    if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                        sess.msg(event=payload)
+            except Exception:
+                pass
             return
         self._show_summary(caller)
 

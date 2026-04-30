@@ -591,7 +591,26 @@ class CmdQuest(Command):
         args = self.args.strip()
 
         if not args:
-            self._show_journal(caller)
+            # Web clients get the rich modal via OOB (and a sentinel
+            # "open" event so the modal auto-pops on `quest`); telnet
+            # users see the text journal as before. We never send the
+            # text wall to web clients so chat stays clean.
+            if _any_webclient(caller):
+                try:
+                    from world.quest_journal_oob import push_quest_journal
+                    push_quest_journal(caller)
+                    import time as _time
+                    payload = {
+                        "type": "quest_journal_open",
+                        "_ts": _time.time(),
+                    }
+                    for sess in caller.sessions.all():
+                        if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                            sess.msg(event=payload)
+                except Exception:
+                    pass
+            else:
+                self._show_journal(caller)
             return
 
         # "quest accept <title>"

@@ -353,6 +353,25 @@
   border-color: var(--blood-bright);
 }
 
+.equip-action-btn.give {
+  color: #b8d77a;
+  border-color: rgba(109, 138, 77, 0.4);
+}
+.equip-action-btn.give:hover:not(:disabled) {
+  background: rgba(109, 138, 77, 0.15);
+  border-color: #b8d77a;
+}
+
+.equip-action-btn.inspect {
+  color: var(--text-aged);
+  border-color: var(--border);
+}
+.equip-action-btn.inspect:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
 /* Equipped slot badge */
 .equip-item-slot-badge {
   position: absolute;
