@@ -162,6 +162,17 @@ class CmdAsk(Command):
             # the reply + the NPC's available topics. Telnet clients
             # already have the chat line above; OOB is additive.
             _fire_npc_dialogue(caller, target, message, reply)
+            # Engaging an NPC in conversation surfaces any quest offers
+            # they hold. The QuestOfferModal pops in addition to the
+            # dialogue panel — quest-giver NPCs (the Herald, Ringmaster,
+            # etc.) put their work in front of the player at the moment
+            # the player chooses to engage rather than the moment they
+            # walk into the room.
+            try:
+                from world.quest_offers import push_quest_offers_for_npc
+                push_quest_offers_for_npc(caller, target)
+            except Exception:
+                pass
 
         # Announce the question so the room sees it too.
         if caller.location:
