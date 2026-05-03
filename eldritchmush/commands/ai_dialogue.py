@@ -166,33 +166,43 @@ class CmdAsk(Command):
         from world.npc_gifts import process_gift_markers
 
         def _on_reply(reply):
-            if not reply:
-                reply = "..."
-            reply = process_gift_markers(reply, target, caller)
-            if not reply:
-                reply = "..."
-            # Broadcast to the room so other players see the exchange too.
-            if caller.location:
-                caller.location.msg_contents(
-                    f'|c{target.key}|n says, "{reply}"'
-                )
-            else:
-                caller.msg(f'|c{target.key}|n says, "{reply}"')
-            # Rich OOB dialogue event — web client shows a modal with
-            # the reply + the NPC's available topics. Telnet clients
-            # already have the chat line above; OOB is additive.
-            _fire_npc_dialogue(caller, target, message, reply)
-            # Engaging an NPC in conversation surfaces any quest offers
-            # they hold. The QuestOfferModal pops in addition to the
-            # dialogue panel — quest-giver NPCs (the Herald, Ringmaster,
-            # etc.) put their work in front of the player at the moment
-            # the player chooses to engage rather than the moment they
-            # walk into the room.
             try:
-                from world.quest_offers import push_quest_offers_for_npc
-                push_quest_offers_for_npc(caller, target)
-            except Exception:
-                pass
+                if not reply:
+                    reply = "..."
+                # Gift markers are a nice-to-have but failure here
+                # shouldn't block the modal update.
+                try:
+                    reply = process_gift_markers(reply, target, caller)
+                except Exception as exc:
+                    print(f"[CmdAsk._on_reply] gift_markers failed: {exc!r}", flush=True)
+                if not reply:
+                    reply = "..."
+                # Fire the OOB dialogue event FIRST so the modal updates
+                # regardless of whether the room broadcast succeeds.
+                # Telnet bystanders + the room narration come after.
+                _fire_npc_dialogue(caller, target, message, reply)
+                # Quest offer surfacing — non-fatal if it errors.
+                try:
+                    from world.quest_offers import push_quest_offers_for_npc
+                    push_quest_offers_for_npc(caller, target)
+                except Exception as exc:
+                    print(f"[CmdAsk._on_reply] quest_offers failed: {exc!r}", flush=True)
+                # Broadcast to the room so other players see the exchange too.
+                try:
+                    if caller.location:
+                        caller.location.msg_contents(
+                            f'|c{target.key}|n says, "{reply}"'
+                        )
+                    else:
+                        caller.msg(f'|c{target.key}|n says, "{reply}"')
+                except Exception as exc:
+                    print(f"[CmdAsk._on_reply] room broadcast failed: {exc!r}", flush=True)
+            except Exception as exc:
+                # Outer safety net — never let _on_reply die silently
+                # without surfacing a stack trace in the railway logs.
+                import traceback
+                print(f"[CmdAsk._on_reply] FATAL: {exc!r}", flush=True)
+                traceback.print_exc()
 
         # Announce the question so the room sees it too.
         if caller.location:
