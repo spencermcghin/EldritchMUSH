@@ -68,6 +68,9 @@ export function useEvennia() {
     questCompleted: null,
     questProgress: null,
     npcDialogue: null,
+    // Most recent reputation change — drives a toast.
+    // { scope: 'npc' | 'faction', key, delta, newTotal, ts }
+    repChange: null,
     // Per-room NPC metadata pushed via __room_meta__ event.
     // Keyed by lowercase NPC name → { dbref, isTavylDealer, isMerchant, hasAi }
     roomNpcMeta: {},
@@ -359,6 +362,16 @@ export function useEvennia() {
             current: Number(kwargs.current) || 0,
             qty: Number(kwargs.qty) || 0,
             done: !!kwargs.done,
+            ts: Date.now(),
+          }
+          break
+        }
+        case 'rep_change': {
+          next.repChange = {
+            scope: kwargs.scope || 'npc',
+            key: kwargs.key || '',
+            delta: Number(kwargs.delta) || 0,
+            newTotal: Number(kwargs.newTotal) || 0,
             ts: Date.now(),
           }
           break

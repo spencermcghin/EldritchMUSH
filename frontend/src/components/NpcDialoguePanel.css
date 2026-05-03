@@ -201,3 +201,138 @@
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(212,175,55,0.15);
 }
+
+/* Continue-conversation input row — bottom of the modal so the
+   player can ask a free-text follow-up without leaving the panel.
+   Mirrors the bottom CommandInput aesthetic but scoped to dialogue. */
+.npc-dialogue-input-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(212, 175, 55, 0.2);
+}
+.npc-dialogue-input {
+  flex: 1;
+  background: rgba(15, 12, 8, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--text-light);
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 15px;
+  font-style: italic;
+  padding: 10px 14px;
+  letter-spacing: 0.2px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.npc-dialogue-input::placeholder {
+  color: var(--text-aged);
+  opacity: 0.55;
+  font-style: italic;
+}
+.npc-dialogue-input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.18);
+  background: rgba(15, 12, 8, 0.8);
+}
+.npc-dialogue-input-send {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.npc-dialogue-input-send:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.22);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+  transform: translateY(-1px);
+}
+.npc-dialogue-input-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Inline quest-offer block (when current NPC has a pending offer) */
+.npc-dialogue-offers {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(212, 175, 55, 0.25);
+}
+.npc-dialogue-offer {
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: linear-gradient(180deg, rgba(35, 28, 18, 0.85), rgba(20, 16, 11, 0.92));
+  padding: 12px 14px;
+  margin-top: 8px;
+  position: relative;
+}
+.npc-dialogue-offer-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: var(--accent-gold);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.npc-dialogue-offer-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+.npc-dialogue-offer-outcomes,
+.npc-dialogue-offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.npc-dialogue-offer-btn {
+  background: rgba(20, 16, 11, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: var(--text-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.npc-dialogue-offer-btn:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.1);
+  transform: translateY(-1px);
+}
+.npc-dialogue-offer-btn.primary {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.npc-dialogue-offer-decline {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-style: italic;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.npc-dialogue-offer-decline:hover {
+  opacity: 1;
+  color: var(--blood-bright);
+}

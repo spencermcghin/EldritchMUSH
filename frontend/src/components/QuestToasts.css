@@ -53,13 +53,58 @@
   font-variant-numeric: tabular-nums;
 }
 
-.quest-toast-in {
+.quest-toast-in,
+.quest-toast.in {
   transform: translateX(0);
   opacity: 1;
+  pointer-events: auto;
 }
-.quest-toast-out {
+.quest-toast-out,
+.quest-toast.out {
   transform: translateX(400px);
   opacity: 0;
+}
+
+/* Reputation-change toast — pinned higher than progress, lower
+   than accepted/completed so simultaneous changes stack neatly. */
+.rep-change-toast {
+  top: 460px;
+  width: 300px;
+  padding: 10px 14px;
+}
+.rep-change-toast.positive {
+  border-color: rgba(95, 179, 95, 0.55);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(95, 179, 95, 0.18);
+}
+.rep-change-toast.negative {
+  border-color: rgba(170, 48, 48, 0.55);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(170, 48, 48, 0.18);
+}
+.rep-toast-scope {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 2px 6px;
+  margin-right: 6px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--accent-gold);
+}
+.rep-delta {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.rep-delta.positive { color: #6dd7a0; }
+.rep-delta.negative { color: #e08080; }
+.rep-total {
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
 }
 
 .quest-toast-eyebrow {

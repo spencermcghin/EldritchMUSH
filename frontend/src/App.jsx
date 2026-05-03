@@ -30,6 +30,7 @@ import ItemReceivedToast from './components/ItemReceivedToast'
 import QuestAcceptedToast from './components/QuestAcceptedToast'
 import QuestCompletedToast from './components/QuestCompletedToast'
 import QuestProgressToast from './components/QuestProgressToast'
+import RepChangeToast from './components/RepChangeToast'
 import NpcDialoguePanel from './components/NpcDialoguePanel'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
@@ -741,27 +742,40 @@ function App() {
       )}
 
       {/* Quest offer modal — shows pending offers one at a time.
+          Suppressed when NpcDialoguePanel is currently displaying
+          the same offer inline (avoids stacking two modals over
+          each other for the same quest). The dialogue modal is
+          considered the primary surface for offers from an NPC the
+          player is talking to.
+
           Branching quests (offer.outcomes) use onAcceptOutcome which
           sends `quest accept <title> / <outcome_key>`. Non-branching
           quests use the single Accept button. */}
-      {oobState.questOffers?.length > 0 && (
-        <QuestOfferModal
-          open={true}
-          offer={oobState.questOffers[0]}
-          onAccept={() => {
-            const offer = oobState.questOffers[0]
-            sendCommand(`quest accept ${offer.title}`)
-            dismissOnAccept(offer)
-          }}
-          onAcceptOutcome={(outcomeKey) => {
-            const offer = oobState.questOffers[0]
-            sendCommand(`quest accept ${offer.title} / ${outcomeKey}`)
-            dismissOnAccept(offer)
-          }}
-          onDecline={() => dismissQuestOffer(oobState.questOffers[0].key)}
-          onClose={() => dismissQuestOffer(oobState.questOffers[0].key)}
-        />
-      )}
+      {(() => {
+        const offers = oobState.questOffers || []
+        if (offers.length === 0) return null
+        const dialogueNpc = (oobState.npcDialogue?.npc || '').toLowerCase()
+        const top = offers[0]
+        const handledByDialogue =
+          dialogueNpc && (top.giver || '').toLowerCase() === dialogueNpc
+        if (handledByDialogue) return null
+        return (
+          <QuestOfferModal
+            open={true}
+            offer={top}
+            onAccept={() => {
+              sendCommand(`quest accept ${top.title}`)
+              dismissOnAccept(top)
+            }}
+            onAcceptOutcome={(outcomeKey) => {
+              sendCommand(`quest accept ${top.title} / ${outcomeKey}`)
+              dismissOnAccept(top)
+            }}
+            onDecline={() => dismissQuestOffer(top.key)}
+            onClose={() => dismissQuestOffer(top.key)}
+          />
+        )
+      })()}
 
       {/* Item-received toast — NPC gift notification */}
       <ItemReceivedToast item={oobState.itemReceived} />
@@ -770,12 +784,23 @@ function App() {
       <QuestAcceptedToast quest={oobState.questAccepted} />
       <QuestCompletedToast quest={oobState.questCompleted} />
       <QuestProgressToast progress={oobState.questProgress} />
+      <RepChangeToast change={oobState.repChange} />
 
       {/* NPC dialogue panel — rich reply + topic chips */}
       <NpcDialoguePanel
         dialogue={oobState.npcDialogue}
         pendingDialogue={pendingDialogue}
         sendCommand={sendCommand}
+        questOffers={oobState.questOffers}
+        onAcceptOffer={(offer) => {
+          sendCommand(`quest accept ${offer.title}`)
+          dismissOnAccept(offer)
+        }}
+        onAcceptOfferOutcome={(offer, outcomeKey) => {
+          sendCommand(`quest accept ${offer.title} / ${outcomeKey}`)
+          dismissOnAccept(offer)
+        }}
+        onDeclineOffer={(offer) => dismissQuestOffer(offer.key)}
       />
 
 

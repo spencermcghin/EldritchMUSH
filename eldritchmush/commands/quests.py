@@ -229,7 +229,11 @@ def npc_rep_on_gift(char, npc, item):
 
 def _apply_npc_rep(char, deltas, memories):
     """Update char.db.npc_rep with the given deltas + memory tags.
-    Returns a list of (npc_key, delta, new_rep) tuples for display."""
+    Returns a list of (npc_key, delta, new_rep) tuples for display.
+
+    Also emits a `rep_change` OOB event per non-zero delta so the
+    web client can pop a toast like "Pelham Faye remembers (+1)".
+    """
     import time as _time
     changed = []
     if not char.db.npc_rep:
@@ -254,7 +258,40 @@ def _apply_npc_rep(char, deltas, memories):
         entry["last_interacted"] = now_iso
         char.db.npc_rep[npc_key_l] = entry
         changed.append((npc_key, delta, entry["rep"]))
+    _emit_rep_changes(char, changed, scope="npc")
     return changed
+
+
+def _emit_rep_changes(char, changed, scope="npc"):
+    """Fire `rep_change` OOB events for the web client.
+
+    `changed` is a list of (key, delta, new_total) tuples. Skips
+    zero-delta entries (memory-only updates). Used for both NPC and
+    faction rep changes — `scope` distinguishes the two so the
+    frontend can label the toast appropriately.
+    """
+    if not changed:
+        return
+    try:
+        import time as _t
+        for key, delta, new_total in changed:
+            if not delta:
+                continue
+            payload = {
+                "type": "rep_change",
+                "_ts": _t.time(),
+                "scope": scope,
+                "key": key,
+                "delta": int(delta),
+                "newTotal": int(new_total),
+            }
+            for sess in char.sessions.all():
+                try:
+                    sess.msg(event=payload)
+                except Exception:
+                    pass
+    except Exception:
+        pass
 
 
 def _fresh_objectives(quest_def, outcome_key=None):
@@ -435,6 +472,7 @@ def _check_completion(char, key):
     if rep_deltas:
         if not char.db.faction_rep:
             char.db.faction_rep = {}
+        faction_changed = []
         for faction, delta in rep_deltas.items():
             before = char.db.faction_rep.get(faction, 0)
             after = before + delta
@@ -443,6 +481,8 @@ def _check_completion(char, key):
             _msg_text_only(char,
                 f"|540Reputation: {sign}{delta}|n |w{faction.title()}|n "
                 f"|540(now {after})|n")
+            faction_changed.append((faction, delta, after))
+        _emit_rep_changes(char, faction_changed, scope="faction")
 
     # Apply per-NPC personal rep + memory tags (new in #15).
     npc_deltas, npc_memories = _effective_npc_rep(qdef, outcome_key)
