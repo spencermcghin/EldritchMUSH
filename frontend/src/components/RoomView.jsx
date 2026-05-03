@@ -259,7 +259,7 @@ function parseExitsAndEntities(text, exits, characters, items) {
   }
 }
 
-export default function RoomView({ messages, onCommand, onEntityClick, onEntityContextMenu, onExitContextMenu }) {
+export default function RoomView({ messages, onCommand, onEntityClick, onEntityContextMenu, onExitContextMenu, inspectSlot }) {
   const room = useMemo(() => parseRoomData(messages), [messages])
   const biome = useMemo(
     () => room ? detectBiome(room.roomName, room.description) : null,
@@ -284,23 +284,34 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
       {/* Atmospheric biome tint overlay */}
       <div className="room-biome-tint" />
 
-      {/* Scene header: room name on left, large faded biome art on right */}
-      <div className="room-header">
-        <div className="room-header-text">
-          <h2 className="room-name">{room.roomName}</h2>
-        </div>
-        {biome && (
-          <img
-            src={biome.icon}
-            alt={biome.label}
-            className="room-biome-backdrop"
-            loading="lazy"
-          />
-        )}
-      </div>
+      {/* When an entity is selected, the inspect slot takes over the
+          description area — header + biome backdrop + body. The 3
+          columns and ActionToolbar below stay rendered and usable
+          (so you can act on the thing you're inspecting). The
+          inspect's X close button restores the room description. */}
+      {inspectSlot ? (
+        inspectSlot
+      ) : (
+        <>
+          {/* Scene header: room name on left, large faded biome art on right */}
+          <div className="room-header">
+            <div className="room-header-text">
+              <h2 className="room-name">{room.roomName}</h2>
+            </div>
+            {biome && (
+              <img
+                src={biome.icon}
+                alt={biome.label}
+                className="room-biome-backdrop"
+                loading="lazy"
+              />
+            )}
+          </div>
 
-      {room.description && (
-        <p className="room-desc">{room.description}</p>
+          {room.description && (
+            <p className="room-desc">{room.description}</p>
+          )}
+        </>
       )}
 
       {/* Three-column scroll-frame layout. Each column is a single-

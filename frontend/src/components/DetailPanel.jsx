@@ -137,8 +137,7 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
 
   return (
     <>
-      <div className="detail-panel-backdrop" onClick={onClose} />
-      <aside className="detail-panel" onClick={(e) => e.stopPropagation()}>
+      <aside className="detail-panel">
         <div className="detail-panel-header">
           <span className="cinzel detail-panel-title">INSPECT</span>
           <button className="detail-panel-close" onClick={onClose} title="Close">✕</button>

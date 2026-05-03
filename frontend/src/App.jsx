@@ -556,6 +556,20 @@ function App() {
               onEntityClick={handleEntityClick}
               onEntityContextMenu={handleEntityContextMenu}
               onExitContextMenu={handleExitContextMenu}
+              inspectSlot={selectedEntity ? (
+                <DetailPanel
+                  entityName={selectedEntity.name}
+                  entityType={selectedEntity.type}
+                  onClose={handleDetailPanelClose}
+                  sendCommand={sendCommand}
+                  injectCommand={injectCommand}
+                  onPrompt={openPrompt}
+                  onGive={handleGiveToNpc}
+                  description={entityDescription}
+                  npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
+                  playerSilver={oobState.purse?.silver || 0}
+                />
+              ) : null}
             />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
             <ActionToolbar
@@ -600,23 +614,10 @@ function App() {
         </div>
       )}
 
-      {/* Inspect modal — opens when an entity is selected. Shows
-          description, portrait, topic chips. Action buttons live in
-          the bottom ActionToolbar instead. */}
-      {selectedEntity && (
-        <DetailPanel
-          entityName={selectedEntity.name}
-          entityType={selectedEntity.type}
-          onClose={handleDetailPanelClose}
-          sendCommand={sendCommand}
-          injectCommand={injectCommand}
-          onPrompt={openPrompt}
-          onGive={handleGiveToNpc}
-          description={entityDescription}
-          npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
-          playerSilver={oobState.purse?.silver || 0}
-        />
-      )}
+      {/* Inspect inline panel is rendered INSIDE RoomView via the
+          inspectSlot prop above (replaces the room description area
+          when an entity is selected). Keeping a single render path
+          avoids duplicate mounts. */}
 
       {/* Context menu overlay */}
       {contextMenu && (
