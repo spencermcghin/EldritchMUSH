@@ -1,0 +1,139 @@
+/* ── Action Toolbar ──
+   Bottom-of-screen contextual action bar. Sits above the entity
+   columns + command input. Compact when no entity is selected,
+   expanded with type tag + name + action buttons when one is. */
+
+.action-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  background:
+    linear-gradient(180deg, rgba(35, 28, 18, 0.85), rgba(20, 16, 11, 0.95)),
+    radial-gradient(ellipse at center, rgba(212, 175, 55, 0.04), transparent 70%);
+  flex-shrink: 0;
+  min-height: 52px;
+}
+
+.action-toolbar-empty {
+  justify-content: center;
+  opacity: 0.45;
+}
+
+.action-toolbar-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--text-aged);
+  font-size: 13px;
+}
+
+.action-toolbar-target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-right: 14px;
+  border-right: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.action-toolbar-type {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  text-transform: uppercase;
+}
+.action-toolbar-type.type-npc,
+.action-toolbar-type.type-character {
+  color: #6dd7a0;
+  border-color: rgba(0, 229, 160, 0.45);
+}
+.action-toolbar-type.type-item {
+  color: var(--accent-gold);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+.action-toolbar-type.type-player {
+  color: #cfe7ff;
+  border-color: rgba(120, 180, 255, 0.45);
+}
+
+.action-toolbar-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: var(--text-light);
+}
+
+.action-toolbar-inspect {
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--text-aged);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.action-toolbar-inspect:hover {
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.action-toolbar-actions {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.action-toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(20, 16, 11, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: var(--text-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.action-toolbar-btn:hover:not(:disabled):not(.disabled) {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--accent-gold);
+  transform: translateY(-1px);
+}
+.action-toolbar-btn:disabled,
+.action-toolbar-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.action-toolbar-icon {
+  font-size: 14px;
+}
+.action-toolbar-label {
+  letter-spacing: 0.4px;
+}
+
+.action-toolbar-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-aged);
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.action-toolbar-close:hover {
+  border-color: var(--blood-bright);
+  color: var(--blood-bright);
+}

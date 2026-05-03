@@ -136,81 +136,68 @@ export default function DetailPanel({ entityName, entityType, onClose, sendComma
   }, [entityName, sendCommand])
 
   return (
-    <aside className="detail-panel panel panel-decorated">
-      <div className="detail-panel-header">
-        <span className="cinzel detail-panel-title">INSPECT</span>
-        <button className="detail-panel-close" onClick={onClose} title="Close">✕</button>
-      </div>
+    <>
+      <div className="detail-panel-backdrop" onClick={onClose} />
+      <aside className="detail-panel panel panel-decorated" onClick={(e) => e.stopPropagation()}>
+        <div className="detail-panel-header">
+          <span className="cinzel detail-panel-title">INSPECT</span>
+          <button className="detail-panel-close" onClick={onClose} title="Close">✕</button>
+        </div>
 
-      <div className="detail-panel-body">
-        {/* Entity portrait */}
-        {iconSrc && (
-          <div className={`detail-portrait ${typeClass}`}>
-            <img src={iconSrc} alt={entityName} className="detail-portrait-img" loading="lazy" />
+        <div className="detail-panel-body">
+          {/* Entity portrait */}
+          {iconSrc && (
+            <div className={`detail-portrait ${typeClass}`}>
+              <img src={iconSrc} alt={entityName} className="detail-portrait-img" loading="lazy" />
+            </div>
+          )}
+
+          {/* Entity name */}
+          <div className="detail-name-row">
+            <span className="detail-name">{displayName}</span>
           </div>
-        )}
 
-        {/* Entity name */}
-        <div className="detail-name-row">
-          <span className="detail-name">{displayName}</span>
-        </div>
+          {/* Type tag */}
+          <div className="detail-type-row">
+            <span className={`detail-type-tag ${typeClass}`}>{typeLabel}</span>
+          </div>
 
-        {/* Type tag */}
-        <div className="detail-type-row">
-          <span className={`detail-type-tag ${typeClass}`}>{typeLabel}</span>
-        </div>
+          {/* Description */}
+          <div className="status-section-label cinzel">DESCRIPTION</div>
+          <div className="detail-description" style={{ whiteSpace: 'pre-line' }}>
+            {description || (
+              <span className="detail-desc-empty">
+                Inspecting...
+              </span>
+            )}
+          </div>
 
-        {/* Description */}
-        <div className="status-section-label cinzel">DESCRIPTION</div>
-        <div className="detail-description" style={{ whiteSpace: 'pre-line' }}>
-          {description || (
-            <span className="detail-desc-empty">
-              Inspecting...
-            </span>
+          {/* Topic chips — only shown for NPCs with quest hooks. Each
+              chip is a clickable hint at what to ask about. */}
+          {topics.length > 0 && (
+            <>
+              <div className="status-section-label cinzel">TOPICS</div>
+              <div className="detail-topics">
+                {topics.map((t, i) => (
+                  <button
+                    key={i}
+                    className="detail-topic-chip"
+                    onClick={() => handleTopicClick(t)}
+                    title={`Ask ${displayName} about this`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
-        {/* Topic chips — only shown for NPCs with quest hooks. Each
-            chip is a clickable hint at what to ask about. */}
-        {topics.length > 0 && (
-          <>
-            <div className="status-section-label cinzel">TOPICS</div>
-            <div className="detail-topics">
-              {topics.map((t, i) => (
-                <button
-                  key={i}
-                  className="detail-topic-chip"
-                  onClick={() => handleTopicClick(t)}
-                  title={`Ask ${displayName} about this`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Actions */}
-        <div className="detail-actions">
-          <div className="status-section-label cinzel">ACTIONS</div>
-          {actions.map((action) => (
-            <button
-              key={action.label}
-              className="detail-action-btn"
-              onClick={() => handleAction(action)}
-              title={action.command ? action.command(entityName) : action.label}
-            >
-              <span className="detail-action-icon">{action.icon}</span>
-              <span className="detail-action-label">{action.label}</span>
-            </button>
-          ))}
+        {/* Decorative footer */}
+        <div className="detail-panel-footer">
+          <span className="cinzel">✦ ─── ✦</span>
         </div>
-      </div>
-
-      {/* Decorative footer */}
-      <div className="detail-panel-footer">
-        <span className="cinzel">✦ ─── ✦</span>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }

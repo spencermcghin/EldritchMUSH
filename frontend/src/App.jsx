@@ -3,6 +3,7 @@ import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
 import CharacterSelect from './components/CharacterSelect'
 import CombatTracker from './components/CombatTracker'
+import ActionToolbar from './components/ActionToolbar'
 import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
 import DetailPanel from './components/DetailPanel'
@@ -53,13 +54,40 @@ const EXIT_CONTEXT_ITEMS = (dir) => [
 ]
 
 function App() {
-  const { connectionState, messages, oobState, latency, sendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate, showCharacterSelect, dismissQuestOffer } =
+  const { connectionState, messages, oobState, latency, sendCommand: rawSendCommand, connect, disconnect, exitChargen, enterChargen, clearLastCharCreate, showCharacterSelect, dismissQuestOffer } =
     useEvennia()
+
+  // Pending-dialogue state — declared early so sendCommand below
+  // can call setPendingDialogue. Pops the NpcDialoguePanel modal
+  // with a "considers your words" placeholder the moment the player
+  // issues an `ask <npc>` command, so the click feels responsive even
+  // before the AI reply arrives.
+  const [pendingDialogue, setPendingDialogue] = useState(null)
+
+  // Wrap sendCommand to detect `ask <npc>` syntax and pop the
+  // NpcDialoguePanel modal with a placeholder immediately. The real
+  // reply replaces it when the AI returns. All consumers go through
+  // this wrapper.
+  const sendCommand = useCallback((text) => {
+    const trimmed = (text || '').trim()
+    const askMatch = trimmed.match(/^ask\s+(.+?)\s*=\s*(.+)$/i)
+      || trimmed.match(/^ask\s+(\S+)\s+(.+)$/i)
+    if (askMatch) {
+      setPendingDialogue({
+        npc: askMatch[1].trim(),
+        question: askMatch[2].trim(),
+        channel: 'ask',
+        ts: Date.now(),
+      })
+    }
+    rawSendCommand(trimmed)
+  }, [rawSendCommand])
 
   const inputRef = useRef(null)
   // Imperative ref into AudioController so AudioToggle in the header
   // can drive playback without prop-drilling through the whole tree.
   const audioRef = useRef(null)
+
 
   // Auto-connect after OAuth redirect: when the page loads, ask the
   // backend whether we already have a Django session. If so, skip the
@@ -515,12 +543,12 @@ function App() {
             }
           />
 
-          {/* Center column: RoomView fills the full vertical space —
-              the room description gets max real estate. NPC dialogue
-              now plays as a center-screen modal (NpcDialoguePanel),
-              quest events show in toasts, and combat shows in
-              CombatTracker. The CommandInput stays at the bottom for
-              typed follow-ups. The legacy console scrollback is gone. */}
+          {/* Center column:
+                - RoomView (top, flex: 1; holds description + 3 columns)
+                - CombatTracker (only during combat)
+                - ActionToolbar (selected entity actions; sits just
+                  above the input bar)
+                - CommandInput (bottom, fixed height) */}
           <div className="app-main">
             <RoomView
               messages={messages}
@@ -530,6 +558,16 @@ function App() {
               onExitContextMenu={handleExitContextMenu}
             />
             {oobState.inCombat && <CombatTracker oobState={oobState} />}
+            <ActionToolbar
+              entity={selectedEntity}
+              npcMeta={oobState.roomNpcMeta?.[selectedEntity?.name?.toLowerCase()] || null}
+              playerSilver={oobState.purse?.silver || 0}
+              sendCommand={sendCommand}
+              onPrompt={openPrompt}
+              onGive={handleGiveToNpc}
+              onInspect={() => { /* clicking the entity card already opens DetailPanel; no-op */ }}
+              onClose={() => setSelectedEntity(null)}
+            />
             <div className="app-log-area">
               <CommandInput
                 ref={inputRef}
@@ -540,38 +578,44 @@ function App() {
             </div>
           </div>
 
-          {/* Right sidebar: character status or detail panel */}
-          {selectedEntity ? (
-            <DetailPanel
-              entityName={selectedEntity.name}
-              entityType={selectedEntity.type}
-              onClose={handleDetailPanelClose}
-              sendCommand={sendCommand}
-              injectCommand={injectCommand}
-              onPrompt={openPrompt}
-              onGive={handleGiveToNpc}
-              description={entityDescription}
-              npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
-              playerSilver={oobState.purse?.silver || 0}
-            />
-          ) : (
-            <CharacterStatus
-              oobState={oobState}
-              connectionState={connectionState}
-              sendCommand={sendCommand}
-              onChargen={enterChargen}
-              onWorldMap={() => setWorldMapOpen(true)}
-              onCharSheet={() => setCharSheetOpen(true)}
-              onQuestJournal={() => setQuestJournalOpen(true)}
-              onReputation={() => setReputationOpen(true)}
-              onAdmin={oobState.isAdmin ? () => setAdminOpen(true) : undefined}
-              onSwitchCharacter={() => {
-                sendCommand('ooc')
-                setTimeout(() => showCharacterSelect(), 300)
-              }}
-            />
-          )}
+          {/* Right sidebar: always CharacterStatus now. The Inspect
+              UI moved off the rail and is rendered as a modal below
+              (DetailPanel is now a centered overlay). The bottom
+              ActionToolbar handles entity-specific actions. */}
+          <CharacterStatus
+            oobState={oobState}
+            connectionState={connectionState}
+            sendCommand={sendCommand}
+            onChargen={enterChargen}
+            onWorldMap={() => setWorldMapOpen(true)}
+            onCharSheet={() => setCharSheetOpen(true)}
+            onQuestJournal={() => setQuestJournalOpen(true)}
+            onReputation={() => setReputationOpen(true)}
+            onAdmin={oobState.isAdmin ? () => setAdminOpen(true) : undefined}
+            onSwitchCharacter={() => {
+              sendCommand('ooc')
+              setTimeout(() => showCharacterSelect(), 300)
+            }}
+          />
         </div>
+      )}
+
+      {/* Inspect modal — opens when an entity is selected. Shows
+          description, portrait, topic chips. Action buttons live in
+          the bottom ActionToolbar instead. */}
+      {selectedEntity && (
+        <DetailPanel
+          entityName={selectedEntity.name}
+          entityType={selectedEntity.type}
+          onClose={handleDetailPanelClose}
+          sendCommand={sendCommand}
+          injectCommand={injectCommand}
+          onPrompt={openPrompt}
+          onGive={handleGiveToNpc}
+          description={entityDescription}
+          npcMeta={oobState.roomNpcMeta?.[selectedEntity.name?.toLowerCase()] || null}
+          playerSilver={oobState.purse?.silver || 0}
+        />
       )}
 
       {/* Context menu overlay */}
@@ -727,7 +771,11 @@ function App() {
       <QuestProgressToast progress={oobState.questProgress} />
 
       {/* NPC dialogue panel — rich reply + topic chips */}
-      <NpcDialoguePanel dialogue={oobState.npcDialogue} sendCommand={sendCommand} />
+      <NpcDialoguePanel
+        dialogue={oobState.npcDialogue}
+        pendingDialogue={pendingDialogue}
+        sendCommand={sendCommand}
+      />
 
 
       {/* Admin panel — only for admin users */}

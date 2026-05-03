@@ -1,16 +1,35 @@
+/* Inspect modal — center-screen, dim-backdrop overlay (was a fixed
+   right-rail panel; converted to a modal so the rail can host the
+   ActionToolbar instead, freeing horizontal real estate). */
+.detail-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 4, 3, 0.78);
+  backdrop-filter: blur(2px);
+  z-index: 1090;
+  animation: fadeIn 0.18s ease-out both;
+}
 .detail-panel {
-  width: 220px;
-  flex-shrink: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(380px, 50vw, 580px);
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid var(--border);
-  border-right: none;
-  border-top: none;
-  border-bottom: none;
-  background: var(--surface);
+  border: 1px solid var(--accent-gold);
+  background:
+    linear-gradient(180deg, rgba(35,28,18,0.98), rgba(20,16,11,0.99)),
+    radial-gradient(ellipse at top, rgba(212,175,55,0.06), transparent 70%);
+  box-shadow:
+    0 0 80px rgba(0, 0, 0, 0.85),
+    0 0 28px rgba(212, 175, 55, 0.18),
+    inset 0 0 60px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(212, 175, 55, 0.2);
   overflow: hidden;
-  position: relative;
-  animation: fade-in 0.2s ease-out;
+  z-index: 1100;
+  animation: fade-in 0.18s ease-out;
 }
 
 .detail-panel-header {
