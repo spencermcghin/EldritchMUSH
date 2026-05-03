@@ -23,12 +23,21 @@ def _fire_npc_dialogue(caller, target, question, reply, channel="ask"):
     public vs private conversations.
     """
     try:
-        topics_raw = target.attributes.get("ai_quest_topics", default=None)
-        if not topics_raw:
-            # Fall back to quest-hook summaries if explicit topics missing
-            hooks = target.attributes.get("ai_quest_hooks", default=None) or []
-            topics_raw = [h[:40].strip() for h in hooks[:4]]
-        topics = [t for t in (topics_raw or []) if t]
+        # Only surface topic chips for NPCs who actually give quests
+        # (named in any quest's `giver` field in QUESTS, by key or
+        # alias). Non-givers showed chips like "a delivery job" /
+        # "rumors" that primed players to expect quests no
+        # QuestOfferModal could fire — felt broken.
+        from world.ai_npc import _is_quest_giver
+        if not _is_quest_giver(target):
+            topics = []
+        else:
+            topics_raw = target.attributes.get("ai_quest_topics", default=None)
+            if not topics_raw:
+                # Fall back to quest-hook summaries if explicit topics missing
+                hooks = target.attributes.get("ai_quest_hooks", default=None) or []
+                topics_raw = [h[:40].strip() for h in hooks[:4]]
+            topics = [t for t in (topics_raw or []) if t]
         import time as _time
         payload = {
             "type": "npc_dialogue",

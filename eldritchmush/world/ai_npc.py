@@ -65,6 +65,39 @@ def _fallback_line(npc):
     return random.choice(CANNED_FALLBACKS).format(name=npc.key)
 
 
+def _is_quest_giver(npc):
+    """Return True if this NPC is named as the `giver` of any quest
+    in QUESTS — checked against the npc's key + aliases, all
+    case-insensitive. Authoritative answer to "should this NPC be
+    able to imply quests in dialogue."
+    """
+    if npc is None:
+        return False
+    try:
+        from world.quest_data import QUESTS
+    except Exception:
+        return False
+    names = set()
+    try:
+        if getattr(npc, "key", None):
+            names.add(npc.key.lower())
+    except Exception:
+        pass
+    try:
+        for a in npc.aliases.all():
+            if a:
+                names.add(a.lower())
+    except Exception:
+        pass
+    if not names:
+        return False
+    for qdef in QUESTS.values():
+        giver = (qdef.get("giver") or "").lower()
+        if giver and giver in names:
+            return True
+    return False
+
+
 def _build_system_prompt(npc, character=None):
     """Compose the NPC's system prompt from:
        1) the shared canonical world bible (world/ai_lore.py), which ALL
@@ -107,6 +140,27 @@ def _build_system_prompt(npc, character=None):
         parts.append("QUEST HOOKS YOU MAY OFFER WHEN APPROPRIATE:")
         for q in quests:
             parts.append(f"- {q}")
+
+    # True/false: is this NPC named as the `giver` of any quest in
+    # QUESTS? Authoritative source — driven by quest_data.py, not
+    # by attribute heuristics. A non-giver gets a hard "do not
+    # promise tasks" instruction; a giver does not.
+    if not _is_quest_giver(npc):
+        parts.append("")
+        parts.append("IMPORTANT — YOU ARE NOT A QUEST GIVER:")
+        parts.append(
+            "You are a conversational townsperson, NOT a quest giver. "
+            "Do NOT offer tasks, errands, deliveries, contracts, jobs, "
+            "favors, or payment for work. Do NOT say things like 'I "
+            "have a job for you,' 'take this to so-and-so,' 'come back "
+            "when you've...,' 'I could use some help with...,' or any "
+            "phrasing that promises a quest. Do NOT hand the player "
+            "items or coin you don't actually have permission to hand "
+            "over. Speak only about gossip, your work, your opinions, "
+            "atmosphere, lore, and where the player might find others "
+            "who genuinely have work to offer (e.g. 'the Herald at the "
+            "gates handles arrivals,' 'Captain Vance keeps the watch')."
+        )
 
     # Pull in extended canon entries that match the NPC's tags. The
     # canon module silently no-ops if the package failed to load.
