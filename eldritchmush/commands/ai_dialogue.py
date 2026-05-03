@@ -150,9 +150,16 @@ class CmdAsk(Command):
             caller.msg("What do you want to ask them?")
             return
         if not target.attributes.get("ai_personality", default=None):
-            caller.msg(
-                f"|x{target.key} gives you a blank look and says nothing.|n"
+            blank = (
+                f"{target.key} gives you a blank look and says nothing."
             )
+            caller.msg(f"|x{blank}|n")
+            # Still fire the dialogue OOB event so the web client's
+            # modal updates (otherwise it sits on the "*considers
+            # your words*" pending placeholder forever, since the
+            # console is gone). No quest offer dispatch since this
+            # NPC isn't a conversation partner.
+            _fire_npc_dialogue(caller, target, message, blank)
             return
 
         from world import ai_npc
