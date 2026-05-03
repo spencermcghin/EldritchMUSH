@@ -33,7 +33,7 @@ import urllib.request
 
 
 DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
-DEFAULT_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_MODEL = "llama-3.1-8b-instant"
 DEFAULT_MAX_TOKENS = 320          # enough for lore-heavy answers w/o runaway
 DEFAULT_TIMEOUT = 20
 
@@ -376,27 +376,32 @@ def chat(npc, character, message, on_reply):
                 body = exc.read().decode("utf-8")[:200]
             except Exception:
                 body = ""
+            # The HTTP error body (rate-limit JSON, etc.) is for the
+            # audit log only — the player sees just the canned fallback
+            # line. Nothing about LLM internals leaks into the modal.
             fallback = _fallback_line(npc)
-            msg = f"{fallback} |y(LLM HTTP {exc.code}: {body})|n"
+            print(f"[ai_npc] LLM HTTP {exc.code}: {body}", flush=True)
             try:
                 ai_safety.audit_log(
-                    npc, character, clean_msg, msg,
+                    npc, character, clean_msg,
+                    f"{fallback} (LLM HTTP {exc.code}: {body})",
                     flags=[f"llm_http_error:{exc.code}"]
                 )
             except Exception:
                 pass
-            _dispatch(on_reply, msg)
+            _dispatch(on_reply, fallback)
         except Exception as exc:
             fallback = _fallback_line(npc)
-            msg = f"{fallback} |y(LLM err: {type(exc).__name__}: {exc})|n"
+            print(f"[ai_npc] LLM err: {type(exc).__name__}: {exc}", flush=True)
             try:
                 ai_safety.audit_log(
-                    npc, character, clean_msg, msg,
+                    npc, character, clean_msg,
+                    f"{fallback} (LLM err: {type(exc).__name__}: {exc})",
                     flags=[f"llm_error:{type(exc).__name__}"]
                 )
             except Exception:
                 pass
-            _dispatch(on_reply, msg)
+            _dispatch(on_reply, fallback)
 
     threading.Thread(target=_run, daemon=True).start()
 
