@@ -5640,14 +5640,160 @@ _ensure_walkin_item(
     aliases=("manifest", "oban manifest", "supply manifest"),
 )
 
-# --- The nethermancer (escaped with the fel tome) ---
+# ===========================================================================
+# DOOM COMES TO MYSTVALE — Nethermancer field battle, set in the Barrows
+# Canon source: Eldritch Monster Manual + Event 4 NPC Notes - Nethermancer.
+#
+# Story: The Nethermancer descended into the ancient Annwyn Barrows and
+# shattered the four Telyrian wards that kept the dead bound. Now the
+# barrows are filled with risen dead, and the Nethermancer is in the
+# deepest sanctum, anchored by the Oblivion Coil. Players must descend,
+# recover the four shattered ward-fragments, restore them at the
+# Wardstone Hall, and only then can they break the Coil and put the
+# Nethermancer down.
+#
+# Structure (top → bottom):
+#   barrows_entrance (existing, in Tamris)
+#     ↓ down
+#   The Outer Corridor  — risen dead, Algiz fragment
+#     ↓ down
+#   The Burial Chamber  — risen dead, Tiwaz fragment
+#     ↓ down
+#   The Resting Hall    — risen dead, Eihwaz fragment
+#     ↓ down
+#   The Warding Circle  — risen dead, Ingwaz fragment
+#     ↓ inward
+#   The Wardstone Hall  — Altar of Seals (puzzle room, no enemies)
+#     ↓ inward (gated by the Oblivion Coil description)
+#   The Inner Sanctum   — Nethermancer + Netherphage + 2 risen dead
+# ===========================================================================
+print("\n=== DOOM COMES TO MYSTVALE — Barrows descent ===")
+
+# Drag any stale copies of the boss / fel tome out of their old rooms
+# (the First Expedition Camp from earlier seeding) before we recreate
+# them in the new sanctum, so the boss isn't standing next to friendly
+# NPCs anymore.
+for stale_key in ("the nethermancer", "fel tome"):
+    for obj in list(ObjectDB.objects.filter(db_key=stale_key)):
+        if obj.location and obj.location is not None:
+            print(f"  PURGE   : {stale_key} from {obj.location.key}")
+        obj.delete()
+
+# --- Barrow descent rooms ---
+barrows_outer_corridor = get_or_create_room(
+    "The Outer Corridor",
+    "typeclasses.rooms.Room",
+    "The corridor descends in shallow steps, the air dropping cold. "
+    "Walls of fitted Annwyn-script stone close in to either side. "
+    "Old torch brackets, long unlit, line the walls. A slick, tar-"
+    "coloured stain runs along the floor, leading deeper. The first "
+    "of the protective seals — once set into the keystone above this "
+    "passage — lies shattered on the flagstones, its rune still "
+    "legible.\n\n"
+    "|wUp|n to the Barrow entrance. |wDown|n into the Burial Chamber.",
+    zone="Tamris",
+)
+barrows_burial_chamber = get_or_create_room(
+    "The Burial Chamber",
+    "typeclasses.rooms.Room",
+    "A vaulted stone chamber, the centre dominated by a stone bier — "
+    "long since broken open from the inside. Bones are scattered "
+    "across the floor in a pattern that suggests something dragged "
+    "itself out and kept walking. A second shattered ward-fragment "
+    "lies among the grave-goods, its binding-rune snapped clean in "
+    "two.\n\n"
+    "|wUp|n to the Outer Corridor. |wDown|n into the Resting Hall.",
+    zone="Tamris",
+)
+barrows_resting_hall = get_or_create_room(
+    "The Resting Hall",
+    "typeclasses.rooms.Room",
+    "A long, low hall lined with stone biers — twenty of them, "
+    "arranged in two rows. None are occupied. Most are smashed. The "
+    "ceiling is carved with the great yew-tree of Telyrian rite, its "
+    "roots threading down the walls. A third broken seal lies "
+    "wedged against a fallen pillar, the yew-gate rune scored across "
+    "its face.\n\n"
+    "|wUp|n to the Burial Chamber. |wDown|n into the Warding Circle.",
+    zone="Tamris",
+)
+barrows_warding_circle = get_or_create_room(
+    "The Warding Circle",
+    "typeclasses.rooms.Room",
+    "A round chamber, its floor cut into a sealing-circle of "
+    "Telyrian script. Once these runes glowed; now they are dead "
+    "stone. The fourth and final broken seal lies at the centre — "
+    "the sealing-rune that anchored the others. The walls are "
+    "blackened in great handprints where the Nethermancer worked "
+    "his unbinding.\n\n"
+    "|wUp|n to the Resting Hall. |wInward|n to the Wardstone Hall.",
+    zone="Tamris",
+)
+wardstone_hall = get_or_create_room(
+    "The Wardstone Hall",
+    "typeclasses.rooms.Room",
+    "An antechamber walled in pale Telyrian stone, untouched by the "
+    "decay further out. At the centre rises the |MAltar of Seals|n — "
+    "a waist-high block of warded stone whose top bears four shallow "
+    "indentations, each cut to receive a broken ward-fragment. The "
+    "Aurorym built this place lifetimes ago. Its purpose was to bind. "
+    "It still wants to.\n\n"
+    "From the next chamber comes the cold, sweet air of amethyst "
+    "flame.\n\n"
+    "|wOutward|n to the Warding Circle. |wInward|n to the Inner "
+    "Sanctum (warded — currently impassable).",
+    zone="Tamris",
+)
+nether_sanctum = get_or_create_room(
+    "The Inner Sanctum",
+    "typeclasses.rooms.Room",
+    "The deepest chamber of the Barrows opens into a wide ritual "
+    "circle, ringed in low amethyst flame — four nested rings of "
+    "cold purple light burning in the air without fuel. Within them "
+    "stands a figure cloaked in shadow, breathing the lighter-folk's "
+    "names back into rotting throats. The shimmer of the |MOblivion "
+    "Coil|n hangs around the ritualist like glass over a candle.\n\n"
+    "Back |woutward|n to the Wardstone Hall.",
+    zone="Tamris",
+)
+
+# --- Connect the descent ---
+link(barrows_entrance, "down", barrows_outer_corridor, "up", "d", "u")
+link(barrows_outer_corridor, "down", barrows_burial_chamber, "up", "d", "u")
+link(barrows_burial_chamber, "down", barrows_resting_hall, "up", "d", "u")
+link(barrows_resting_hall, "down", barrows_warding_circle, "up", "d", "u")
+link(barrows_warding_circle, "inward", wardstone_hall, "outward",
+     "in", "out")
+link(wardstone_hall, "inward", nether_sanctum, "outward",
+     "sanctum", "out")
+
+# --- Risen Dead haunt every descent chamber ---
+def _ensure_risen_dead(location, count=1):
+    return _ensure_walkin_npc(
+        "a risen dead", location,
+        desc=(
+            "A corpse in rotting Annwyn livery, jaw unhinged, gait "
+            "wrong. The wards that should have kept it bound have "
+            "been broken."
+        ),
+        aliases=("risen dead", "dead", "zombie", "corpse"),
+        aggressive=True,
+        count=count,
+    )
+_ensure_risen_dead(barrows_outer_corridor, count=1)
+_ensure_risen_dead(barrows_burial_chamber, count=1)
+_ensure_risen_dead(barrows_resting_hall, count=2)
+_ensure_risen_dead(barrows_warding_circle, count=2)
+
+# --- The nethermancer (boss, behind the Coil, in the deepest chamber) ---
 nethermancer = _ensure_walkin_npc(
-    "the nethermancer", first_expedition_camp,
+    "the nethermancer", nether_sanctum,
     desc=(
         "A figure cloaked in shadow that the candle does not reach, "
         "a leather-bound tome chained to its left wrist, the right "
         "hand bare and ringed with bone. Where its face should be "
-        "there is only a darker patch of shadow."
+        "there is only a darker patch of shadow. The Oblivion Coil "
+        "shimmers around him in four nested amethyst rings."
     ),
     aliases=("nethermancer",),
     aggressive=True,
@@ -5663,6 +5809,8 @@ nethermancer = _ensure_walkin_npc(
         "tome eats its bargain in the end."
     ),
     ai_knowledge=(
+        "- Descended into the Annwyn Barrows and unbound the four "
+        "Telyrian wards that kept the dead at rest.\n"
         "- Stole the fel tome from the First Expedition's archives.\n"
         "- Knows what the Thornwood was before it was a wood.\n"
         "- Will trade a true word for a name — yours, your dead's, "
@@ -5672,16 +5820,117 @@ nethermancer = _ensure_walkin_npc(
 nethermancer.db.body = 12
 nethermancer.db.total_body = 12
 nethermancer.db.av = 4
+nethermancer.db.oblivion_coil_active = True
+nethermancer.db.boss_encounter = True
 
-_ensure_walkin_item(
-    "fel tome", first_expedition_camp,
+# --- The Netherphage (boss-protector thrall) ---
+netherphage = _ensure_walkin_npc(
+    "the netherphage", nether_sanctum,
     desc=(
-        "A heavy black tome, its cover stitched in something that is "
-        "not leather. The lock has bitten more than one curious hand. "
-        "Auron Calico died to keep it from being opened; it is open "
-        "now."
+        "A massive, hunched thing of stitched corpses and bone-thread, "
+        "head wrapped in the same amethyst flame that rings the "
+        "circle. It does not stir unless its master is threatened. "
+        "The Coil shines brightest around it."
     ),
-    aliases=("tome", "fel tome", "black tome"),
+    aliases=("netherphage", "phage", "thrall"),
+    aggressive=True,
+)
+netherphage.db.body = 14
+netherphage.db.total_body = 14
+netherphage.db.av = 6
+netherphage.db.oblivion_coil_active = True
+netherphage.db.boss_encounter = True
+
+# Two more risen dead inside the inner sanctum.
+_ensure_risen_dead(nether_sanctum, count=2)
+
+# --- The fel tome (drops on nethermancer kill via npc_drops) ---
+nethermancer.db.npc_drops = [
+    {
+        "key": "fel tome",
+        "desc": (
+            "A heavy black tome, its cover stitched in something that "
+            "is not leather. The lock has bitten more than one curious "
+            "hand. Auron Calico died to keep it from being opened; "
+            "it is open now."
+        ),
+        "aliases": ["tome", "fel tome", "black tome"],
+    },
+]
+
+# --- The Altar of Seals (in the Wardstone Hall) ---
+altar = _ensure_walkin_item(
+    "Altar of Seals", wardstone_hall,
+    desc=(
+        "A waist-high block of pale stone sunk into the floor. Its top "
+        "is graven with a circle of |yTelyrian|n script, four shallow "
+        "indentations spaced evenly around the rim. Each is sized to "
+        "receive a broken rune fragment. The air above it tastes of "
+        "frost."
+    ),
+    aliases=("altar", "rune altar", "seal altar"),
+    typeclass="typeclasses.objects.AltarOfSeals",
+    gettable=False,
+)
+altar.db.is_seal_altar = True
+altar.db.placed_runes = []
+altar.db.seals_placed = 0
+altar.db.coil_target_room = nether_sanctum
+
+# --- Four shattered ward-fragments scattered through the descent ---
+# Each carries an Elder Futhark / Telyrian protection rune. The
+# Nethermancer broke each one as he descended.
+def _ensure_seal(key, location, desc, aliases, rune_name, rune_symbol, meaning):
+    seal = _ensure_walkin_item(key, location, desc=desc, aliases=aliases)
+    seal.db.is_seal_fragment = True
+    seal.db.rune_name = rune_name
+    seal.db.rune_symbol = rune_symbol
+    seal.db.rune_meaning = meaning
+    return seal
+
+_ensure_seal(
+    "a shattered algiz ward", barrows_outer_corridor,
+    desc=(
+        "Two halves of a pale Telyrian stone, snapped clean across "
+        "the rune |wᛉ|n (Algiz — the warding). It once sat in the "
+        "keystone above this passage. The Nethermancer pried it out "
+        "as he descended."
+    ),
+    aliases=("algiz", "algiz ward", "warding seal", "broken seal", "ward"),
+    rune_name="algiz", rune_symbol="ᛉ", meaning="warding",
+)
+_ensure_seal(
+    "a shattered tiwaz ward", barrows_burial_chamber,
+    desc=(
+        "A cracked stone the size of a child's fist, the rune |wᛏ|n "
+        "(Tiwaz — the binding) chiselled deep along its face. The "
+        "binding-line that held the dead in this chamber is dead "
+        "stone now."
+    ),
+    aliases=("tiwaz", "tiwaz ward", "binding seal", "broken seal", "ward"),
+    rune_name="tiwaz", rune_symbol="ᛏ", meaning="binding",
+)
+_ensure_seal(
+    "a shattered eihwaz ward", barrows_resting_hall,
+    desc=(
+        "A length of dark, weathered yew bound in iron, the rune |wᛇ|n "
+        "(Eihwaz — the yew-gate) burned along its grain. It was set "
+        "into a fallen pillar. Its other half lies somewhere on the "
+        "floor."
+    ),
+    aliases=("eihwaz", "eihwaz ward", "yew-gate seal", "broken seal", "ward"),
+    rune_name="eihwaz", rune_symbol="ᛇ", meaning="yew-gate",
+)
+_ensure_seal(
+    "a shattered ingwaz ward", barrows_warding_circle,
+    desc=(
+        "A flat shard of bone-coloured stone bearing the rune |wᛜ|n "
+        "(Ingwaz — the sealing). It anchored the other three wards. "
+        "Without it the circle is broken and what walked here walks "
+        "again."
+    ),
+    aliases=("ingwaz", "ingwaz ward", "sealing seal", "broken seal", "ward"),
+    rune_name="ingwaz", rune_symbol="ᛜ", meaning="sealing",
 )
 
 # --- Magister Wynn — plague samples (existing NPC at Apotheca) ---

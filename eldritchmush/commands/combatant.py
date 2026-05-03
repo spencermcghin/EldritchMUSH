@@ -513,6 +513,20 @@ class Combatant:
         return amount
 
     def takeDamage(self, combatant, amount, shot_location, skip_av = False):
+        # Oblivion Coil — Nethermancer encounter mechanic. While the
+        # Coil is active around this NPC, all damage bounces. Players
+        # have to drop the Coil by reassembling the four shattered
+        # wards on the Altar of Seals in the Wardstone Hall.
+        if self.caller.attributes.get("oblivion_coil_active", default=False):
+            try:
+                self.broadcast(
+                    f"|M{combatant.name} strikes |c{self.name}|M, but "
+                    "the blow slides off a shimmering amethyst barrier — "
+                    "the Oblivion Coil holds.|n"
+                )
+            except Exception:
+                pass
+            return 0
         if self.av and (not skip_av):
             amount = self.takeAvDamage(amount)
 

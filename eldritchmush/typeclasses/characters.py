@@ -304,6 +304,18 @@ class Character(DefaultCharacter):
         except Exception as exc:
             print(f"[combat_prompt] failed: {exc!r}", flush=True)
 
+        # Seal Altar visual state — if this room has the Wardstone
+        # Hall's altar, push the rune-puzzle state so the modal
+        # populates as the player walks in.
+        try:
+            for obj in (self.location.contents if self.location else []):
+                if obj.attributes.get("is_seal_altar", default=False):
+                    from commands.seal_altar import emit_altar_state
+                    emit_altar_state(obj, character=self)
+                    break
+        except Exception as exc:
+            print(f"[seal_altar] enter emit failed: {exc!r}", flush=True)
+
     def at_post_puppet(self, **kwargs):
         """Called when a player puppets this character (login / reconnect)."""
         super().at_post_puppet(**kwargs)

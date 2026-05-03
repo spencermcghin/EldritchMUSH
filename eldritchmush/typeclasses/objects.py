@@ -11,7 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject, utils
-from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet, CrafterCmdSet, ApothecaryWorkbenchCmdSet, ShopCmdSet
+from commands.default_cmdsets import BoxCmdSet, BlacksmithCmdSet, CrafterCmdSet, ApothecaryWorkbenchCmdSet, ShopCmdSet, SealAltarCmdSet
 from typeclasses.npc import Npc
 import random
 
@@ -522,6 +522,48 @@ class ConsumableObject(DefaultObject):
         if self.db.level:
             looker.msg(f"|230Level:|n {self.db.level}")
         looker.msg(f"|230Market Value:|n {self.db.value_silver} Silver Dragons")
+
+
+class AltarOfSeals(DefaultObject):
+    """
+    Altar of Seals — Wardstone Hall puzzle prop.
+
+    Holds four broken Telyrian ward-fragments. Players use the
+    `place <fragment>` command (provided by SealAltarCmdSet) to set
+    each rune; on the fourth placement the Oblivion Coil collapses
+    in the adjacent Inner Sanctum, exposing the Nethermancer.
+
+    State lives on this object's db attributes:
+      - is_seal_altar (bool, True)
+      - placed_runes (list[str]) — names of runes already set
+      - seals_placed (int) — backwards-compat mirror of len(placed_runes)
+      - coil_target_room (Room) — where the Coil collapses on completion
+    """
+
+    def at_object_creation(self):
+        self.locks.add("get:false()")
+        self.db.is_seal_altar = True
+        if not self.db.placed_runes:
+            self.db.placed_runes = []
+        if self.db.seals_placed is None:
+            self.db.seals_placed = 0
+        self.cmdset.add_default(SealAltarCmdSet, permanent=True)
+
+    def return_appearance(self, looker):
+        string = super().return_appearance(looker)
+        placed = list(self.db.placed_runes or [])
+        total = 4
+        if placed:
+            string += (
+                f"\n\n|y{len(placed)}/{total}|n ward-fragments are set "
+                f"into the altar: " + ", ".join(placed) + "."
+            )
+        else:
+            string += (
+                "\n\n|yAll four|n indentations stand empty. The wards "
+                "have been shattered."
+            )
+        return string
 
 
 class ApothecaryWorkbench(DefaultObject):

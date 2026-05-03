@@ -32,6 +32,7 @@ import QuestCompletedToast from './components/QuestCompletedToast'
 import QuestProgressToast from './components/QuestProgressToast'
 import RepChangeToast from './components/RepChangeToast'
 import CombatEncounterModal from './components/CombatEncounterModal'
+import SealAltarModal from './components/SealAltarModal'
 import NpcDialoguePanel from './components/NpcDialoguePanel'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
@@ -794,6 +795,14 @@ function App() {
         encounter={oobState.combatEncounter}
         onEngage={(name) => sendCommand(`strike ${name}`)}
         onHold={() => {}}
+      />
+
+      {/* Wardstone Hall puzzle — the four-rune Altar of Seals. Pops
+          when the player enters the Wardstone Hall and on every
+          successful placement. */}
+      <SealAltarModal
+        altar={oobState.sealAltar}
+        sendCommand={sendCommand}
       />
 
       {/* NPC dialogue panel — rich reply + topic chips */}

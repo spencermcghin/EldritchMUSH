@@ -415,6 +415,20 @@ export function useEvennia() {
           next.roomNpcMeta = meta
           break
         }
+        case 'seal_altar_state': {
+          // Wardstone Hall altar — current placement state for the
+          // SealAltarModal. Fires on entry into the room and on every
+          // successful `place` placement.
+          next.sealAltar = {
+            room: kwargs.room || '',
+            slots: Array.isArray(kwargs.slots) ? kwargs.slots : [],
+            placed: Number(kwargs.placed) || 0,
+            total: Number(kwargs.total) || 4,
+            complete: !!kwargs.complete,
+            ts: Date.now(),
+          }
+          break
+        }
         case 'combat_encounter_prompt': {
           // The room contains hostile NPCs and the player isn't yet
           // engaged. Surface an opt-in modal so a stray click doesn't

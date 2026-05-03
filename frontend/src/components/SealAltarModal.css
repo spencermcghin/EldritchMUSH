@@ -1,0 +1,210 @@
+.seal-altar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1090;
+  backdrop-filter: blur(3px);
+}
+
+.seal-altar-modal {
+  background:
+    radial-gradient(ellipse at top, rgba(95, 50, 145, 0.18), transparent 70%),
+    var(--primary-medium, #2d2d2d);
+  border: 1px solid #6a4ca0;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.7),
+    0 0 32px rgba(149, 95, 215, 0.35),
+    0 12px 36px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  width: min(620px, 94vw);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.seal-altar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(180deg,
+    rgba(149, 95, 215, 0.20),
+    rgba(149, 95, 215, 0.05));
+  border-bottom: 1px solid rgba(149, 95, 215, 0.30);
+}
+
+.seal-altar-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: #c8a8ff;
+}
+
+.seal-altar-close {
+  background: transparent;
+  border: 0;
+  color: var(--text-aged, #c9b899);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.seal-altar-close:hover {
+  color: #c8a8ff;
+}
+
+.seal-altar-body {
+  padding: 18px 22px;
+  overflow-y: auto;
+}
+
+.seal-altar-progress {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-aged, #c9b899);
+  letter-spacing: 0.12em;
+  margin-bottom: 18px;
+}
+
+/* The four slots arranged in a 2×2 grid with a glow-ring backdrop. */
+.seal-altar-circle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 22px 18px;
+  margin: 0 auto 18px;
+  max-width: 480px;
+  background:
+    radial-gradient(circle at center, rgba(149, 95, 215, 0.10) 30%, transparent 70%);
+  border: 1px solid rgba(149, 95, 215, 0.25);
+  border-radius: 50%/14%;
+}
+
+.seal-slot {
+  text-align: center;
+  padding: 14px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.35);
+  transition: all 0.25s ease;
+}
+
+.seal-slot.empty {
+  opacity: 0.4;
+}
+
+.seal-slot.filled {
+  border-color: #c8a8ff;
+  background: rgba(149, 95, 215, 0.18);
+  box-shadow: 0 0 14px rgba(149, 95, 215, 0.45);
+  animation: seal-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes seal-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(149, 95, 215, 0.45); }
+  50%      { box-shadow: 0 0 22px rgba(149, 95, 215, 0.75); }
+}
+
+.seal-slot-glyph {
+  font-family: 'Noto Sans Runic', 'Segoe UI Symbol', 'Apple Symbols', serif;
+  font-size: 56px;
+  line-height: 1;
+  color: #e8d6ff;
+  text-shadow: 0 0 12px rgba(149, 95, 215, 0.85);
+}
+
+.seal-slot.empty .seal-slot-glyph {
+  color: rgba(201, 184, 153, 0.35);
+  text-shadow: none;
+  font-size: 40px;
+}
+
+.seal-slot-name {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--text-light, #e8e8e8);
+  margin-top: 8px;
+  text-transform: capitalize;
+}
+
+.seal-slot-meaning {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-aged, #c9b899);
+  margin-top: 2px;
+}
+
+.seal-altar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.seal-altar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(149, 95, 215, 0.40);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text-light, #e8e8e8);
+  transition: all 0.15s;
+}
+
+.seal-altar-btn.ready {
+  border-color: #c8a8ff;
+  background: rgba(149, 95, 215, 0.20);
+}
+
+.seal-altar-btn.ready:hover {
+  background: rgba(149, 95, 215, 0.36);
+  box-shadow: 0 0 10px rgba(149, 95, 215, 0.40);
+}
+
+.seal-altar-btn.waiting {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.seal-btn-glyph {
+  font-family: 'Noto Sans Runic', 'Segoe UI Symbol', 'Apple Symbols', serif;
+  font-size: 18px;
+  color: #c8a8ff;
+}
+
+.seal-btn-label {
+  text-transform: capitalize;
+}
+
+.seal-altar-hint {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-aged, #c9b899);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.seal-altar-complete {
+  margin-top: 8px;
+  padding: 14px 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: #e8d6ff;
+  text-align: center;
+  border: 1px solid #c8a8ff;
+  background: rgba(149, 95, 215, 0.14);
+  border-radius: 4px;
+  box-shadow: 0 0 18px rgba(149, 95, 215, 0.5);
+}

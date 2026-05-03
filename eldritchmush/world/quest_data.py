@@ -1421,12 +1421,17 @@ QUESTS = {
         "title": "Hunt the Nethermancer",
         "giver": "magister wynn",
         "description": (
-            "The nethermancer who escaped the Spring market is "
-            "holed up in the abandoned First Expedition Camp deep "
-            "in the Thornwood. Auron Calico died to keep the fel "
-            "tome closed; it is open now. Magister Wynn wants the "
-            "nethermancer dead and the tome destroyed before it "
-            "can be used again."
+            "The nethermancer who escaped the Spring market has "
+            "descended into the Annwyn Barrows and shattered the "
+            "four Telyrian wards that kept the dead at rest. He "
+            "now sits in the Inner Sanctum behind an Oblivion "
+            "Coil — invulnerable until the wards are restored. "
+            "Magister Wynn wants the nethermancer dead and the "
+            "fel tome destroyed.\n\n"
+            "Descend through the Barrows. Recover the four "
+            "shattered ward-fragments. Reassemble them at the "
+            "Altar of Seals in the Wardstone Hall to drop the "
+            "Coil. Then put him down."
         ),
         "outcomes": {
             "destroy_tome": {

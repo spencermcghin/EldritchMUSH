@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd, duel as duel_cmd, heal as heal_cmd, learn, reputation
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd, duel as duel_cmd, heal as heal_cmd, learn, reputation, seal_altar
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -83,6 +83,20 @@ class ShopCmdSet(CmdSet):
         self.add(shop.CmdBrowse())
         self.add(shop.CmdBuy())
         self.add(shop.CmdSell())
+
+
+class SealAltarCmdSet(CmdSet):
+    """
+    Commands available at the Altar of Seals (Wardstone Hall).
+
+    Exposes `place <fragment>` so players can reassemble the four
+    shattered Telyrian wards and collapse the Oblivion Coil
+    protecting the Nethermancer. See commands/seal_altar.py.
+    """
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(seal_altar.CmdPlaceSeal())
 
 """
 Strange Circus Command Sets - Virtual Event 1
