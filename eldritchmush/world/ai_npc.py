@@ -34,7 +34,10 @@ import urllib.request
 
 DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
 DEFAULT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
-DEFAULT_MAX_TOKENS = 320          # enough for lore-heavy answers w/o runaway
+DEFAULT_MAX_TOKENS = 600          # ~450 words; long enough that even a
+                                   # storytelling reply doesn't get cut off
+                                   # mid-sentence. Token cost is tiny in
+                                   # practice — most replies stay short.
 DEFAULT_TIMEOUT = 20
 
 HISTORY_TURNS = 8           # retained user+assistant exchanges per character
