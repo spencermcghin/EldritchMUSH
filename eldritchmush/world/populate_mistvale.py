@@ -4011,10 +4011,22 @@ def _ensure_walkin_npc(key, location, desc, aliases=(), aggressive=False,
 
 
 def _ensure_walkin_item(key, location, desc, aliases=(),
-                        typeclass="typeclasses.objects.Object", count=1):
-    """Idempotent create-or-refresh for gettable quest item(s).
+                        typeclass="typeclasses.objects.Object", count=1,
+                        gettable=True):
+    """Idempotent create-or-refresh for quest item(s).
 
-    `count` lets you seed multiple identical copies (e.g. wreck salvage × 3)."""
+    `count` seeds multiple identical copies (e.g. wreck salvage × 3).
+    `gettable=False` marks the item as scenery — visible in the room
+    but not pickup-able. Useful for things like signal-fires,
+    shrines, paper lanterns, training dummies, scattered tracks: the
+    player should be able to look at and reference them but not
+    cart them off in their pack.
+
+    Items that drop on a kill / quest-step (Lynden's confession,
+    witch's braid) should NOT be created in the room at all — they
+    belong on the corpse / get spawned by the kill hook. This helper
+    is for items that legitimately exist in the world from the start.
+    """
     existing = list(ObjectDB.objects.filter(
         db_key=key, db_location=location.pk,
     ))
@@ -4033,7 +4045,15 @@ def _ensure_walkin_item(key, location, desc, aliases=(),
         for a in aliases:
             obj.aliases.add(a)
         obj.db.desc = desc
-        obj.locks.add("get:all()")
+        if gettable:
+            obj.locks.add("get:all()")
+        else:
+            # Scenery — refuse picks, replace failure with a flavored line.
+            obj.locks.add("get:false()")
+            obj.db.get_err_msg = (
+                f"|y{key.title()} is part of the scene — you can study it, "
+                f"but it is not yours to carry off.|n"
+            )
     return first
 
 
@@ -4802,16 +4822,27 @@ lynden = _ensure_walkin_npc(
 lynden.db.body = 5
 lynden.db.total_body = 5
 lynden.db.av = 1
-
-_ensure_walkin_item(
-    "lynden's confession", thornwood_edge,
-    desc=(
-        "A bloodied oilcloth packet containing Lynden's scrawled "
-        "confession — names, dates, the pattern of his crimes. Enough "
-        "to convict him without the body."
-    ),
-    aliases=("confession", "lynden's confession"),
-)
+# Confession drops on Lynden's death — should not exist in the world
+# until then. The combatant kill hook reads npc_drops and spawns each
+# spec into the room.
+lynden.db.npc_drops = [
+    {
+        "key": "lynden's confession",
+        "aliases": ["confession", "lynden's confession"],
+        "desc": (
+            "A bloodied oilcloth packet containing Lynden's scrawled "
+            "confession — names, dates, the pattern of his crimes. Enough "
+            "to convict him without the body."
+        ),
+    },
+]
+# Pre-existing pre-kill confessions from older deploys: clear them so
+# the player isn't holding the evidence before the murderer is dead.
+for stale in ObjectDB.objects.filter(
+    db_key="lynden's confession",
+    db_location=thornwood_edge.pk,
+):
+    stale.delete()
 
 # A festival lantern item, a tip-jar prop, lantern-poles — flavour for
 # the festival of lights. Just visible props, not quest-gating.
@@ -4824,6 +4855,7 @@ for hart_room in (hart_hall_courtyard, hart_hall_great_hall):
             "from the courtyard poles."
         ),
         aliases=("lantern",),
+        gettable=False,
     )
 
 
@@ -5005,16 +5037,27 @@ for _ in range(3):
     witch.db.body = 5
     witch.db.total_body = 5
     witch.db.av = 1
+    # Braid drops on the first witch killed — only one needs to drop
+    # for the quest gather. Subsequent witches drop nothing.
+    witch.db.npc_drops = [
+        {
+            "key": "witch's braid",
+            "aliases": ["braid", "witch's braid"],
+            "desc": (
+                "A braid of dark hair bound with sinew — a witch's focus, "
+                "used to track people through the forest. Proof, if proof "
+                "is needed, that the witches are behind the expedition's fall."
+            ),
+        },
+    ]
 
-_ensure_walkin_item(
-    "witch's braid", first_expedition_camp,
-    desc=(
-        "A braid of dark hair bound with sinew — a witch's focus, "
-        "used to track people through the forest. Proof, if proof "
-        "is needed, that the witches are behind the expedition's fall."
-    ),
-    aliases=("braid", "witch's braid"),
-)
+# Clean up any pre-spawned witch's braids from older deploys so the
+# quest can't be completed without actually killing a witch.
+for stale in ObjectDB.objects.filter(
+    db_key="witch's braid",
+    db_location=first_expedition_camp.pk,
+):
+    stale.delete()
 
 # --- The Butcher ---
 the_butcher = _ensure_walkin_npc(
@@ -5067,6 +5110,7 @@ print("\n=== EVENT 2 BACKLOG ===")
 # --- Into the Woods (Friday Night patrol) ---
 # Reuses existing thornwood_edge + caravan_attack NPCs. New items:
 # crow signal-fire, scattered tracks. No new NPC.
+# These are scenery — meant to be looked at and reported, not carried.
 _ensure_walkin_item(
     "crow signal-fire", thornwood_edge,
     desc=(
@@ -5074,6 +5118,7 @@ _ensure_walkin_item(
         "broken across the coals — the Crow signal for 'no quarter.'"
     ),
     aliases=("signal-fire", "signal fire"),
+    gettable=False,
 )
 _ensure_walkin_item(
     "scattered tracks", thornwood_edge,
@@ -5083,9 +5128,12 @@ _ensure_walkin_item(
         "Thornwood — and back toward Stag Hall."
     ),
     aliases=("tracks", "scattered tracks"),
+    gettable=False,
 )
 
 # --- Murder Most Foul (body at Stag Hall, witness, evidence) ---
+# Body is scenery (cannot be carried off); the bloodstained letter
+# below is the actual takeable evidence.
 _ensure_walkin_item(
     "victim's body", hart_hall_courtyard,
     desc=(
@@ -5094,6 +5142,7 @@ _ensure_walkin_item(
         "has dried in patterns that suggest the killing happened slowly."
     ),
     aliases=("body", "victim", "corpse", "victim's body"),
+    gettable=False,
 )
 _ensure_walkin_item(
     "bloodstained letter", hart_hall_courtyard,

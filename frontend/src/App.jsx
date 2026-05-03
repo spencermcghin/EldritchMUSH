@@ -528,6 +528,7 @@ function App() {
             availableCommands={oobState.availableCommands}
             inCombat={oobState.inCombat}
             myTurn={oobState.myTurn}
+            selectedEntity={selectedEntity}
             onCommandClick={injectCommand}
             onPrompt={openPrompt}
             sendCommand={sendCommand}

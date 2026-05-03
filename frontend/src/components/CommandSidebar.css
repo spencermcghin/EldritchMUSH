@@ -116,6 +116,17 @@
   color: var(--accent-gold);
 }
 
+.cmd-entry.cmd-has-target {
+  background: rgba(139,0,0,0.10);
+  box-shadow: inset 3px 0 0 var(--accent-gold);
+}
+
+.cmd-entry.cmd-has-target .cmd-args {
+  color: var(--accent-gold);
+  opacity: 0.95;
+  max-width: 140px;
+}
+
 .cmd-entry.cmd-disabled {
   opacity: 0.4;
 }

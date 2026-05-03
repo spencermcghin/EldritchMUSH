@@ -553,6 +553,43 @@ class Combatant:
                                     npc_rep_on_kill(obj, self.caller)
                         except Exception:
                             pass
+                        # Spawn any quest-drop items the dead NPC was
+                        # carrying. `db.npc_drops` is a list of spec
+                        # dicts: [{"key": "lynden's confession",
+                        # "desc": "...", "aliases": ["confession"]}].
+                        # Items appear in the NPC's room on death so
+                        # the player can `get` them like a corpse loot.
+                        try:
+                            drops = self.caller.db.npc_drops or []
+                            if drops and self.caller.location:
+                                from evennia.utils import create as _drop_create
+                                for spec in drops:
+                                    if not isinstance(spec, dict):
+                                        continue
+                                    key = spec.get("key")
+                                    if not key:
+                                        continue
+                                    item = _drop_create.create_object(
+                                        spec.get(
+                                            "typeclass",
+                                            "typeclasses.objects.Object",
+                                        ),
+                                        key=key,
+                                        location=self.caller.location,
+                                    )
+                                    item.db.desc = spec.get("desc", "")
+                                    for a in spec.get("aliases", []):
+                                        item.aliases.add(a)
+                                    item.locks.add("get:all()")
+                                    self.caller.location.msg_contents(
+                                        f"|y{self.caller.key} drops "
+                                        f"|w{item.key}|y as they fall.|n"
+                                    )
+                                # Empty the drops list so a revived NPC
+                                # doesn't drop the same items twice.
+                                self.caller.db.npc_drops = []
+                        except Exception as exc:
+                            print(f"[npc_drops] failed: {exc!r}", flush=True)
                     # Duel resolution: whoever (player or NPC) just hit
                     # 0 bleed_points yields if they were in a duel. This
                     # fires BEFORE they're fully disabled so payout +

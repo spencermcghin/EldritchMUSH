@@ -89,8 +89,47 @@ function groupCommands(commands) {
   return sorted
 }
 
-function CommandEntry({ cmd, onClick, onPrompt, sendCommand }) {
+// Commands that take a single target (creature/character) and benefit from
+// the click-to-target shortcut. When the player has selected an entity in
+// the room view, clicking these fires `${cmd} ${entity.name}` directly —
+// no naming-collision modal. Falls through to the prompt modal otherwise.
+const TARGETED_COMMANDS = new Set([
+  'strike', 'shoot', 'disarm', 'stagger', 'stun', 'sunder',
+  'medicine', 'chirurgery',
+])
+
+// Map a command key to the entity types it can validly target. Combat
+// verbs only target NPCs / characters / players; healing verbs likewise.
+const TARGET_TYPES_FOR = {
+  strike: ['npc', 'character', 'player'],
+  shoot: ['npc', 'character', 'player'],
+  disarm: ['npc', 'character', 'player'],
+  stagger: ['npc', 'character', 'player'],
+  stun: ['npc', 'character', 'player'],
+  sunder: ['npc', 'character', 'player'],
+  medicine: ['character', 'player'],
+  chirurgery: ['character', 'player'],
+}
+
+function isValidTargetFor(cmdKey, entity) {
+  if (!entity) return false
+  const allowed = TARGET_TYPES_FOR[cmdKey]
+  if (!allowed) return false
+  return allowed.includes(entity.type)
+}
+
+function CommandEntry({ cmd, onClick, onPrompt, sendCommand, selectedEntity }) {
+  const targetable = TARGETED_COMMANDS.has(cmd.key)
+  const validTarget = targetable && isValidTargetFor(cmd.key, selectedEntity)
+
   const handleClick = () => {
+    // Click-to-target: if the player has a valid entity selected and
+    // this is a targeted command, fire it directly. Eliminates name
+    // collisions like "the nethermancer" vs "nethermancer".
+    if (validTarget && sendCommand) {
+      sendCommand(`${cmd.key} ${selectedEntity.name}`)
+      return
+    }
     // If this command needs input, prefer the friendly prompt modal
     const promptDef = getPromptForCommand(cmd.key)
     if (cmd.args_hint && promptDef && onPrompt && typeof promptDef === 'object') {
@@ -107,18 +146,27 @@ function CommandEntry({ cmd, onClick, onPrompt, sendCommand }) {
     onClick(text)
   }
 
+  // Show the resolved target on the button when one is selected, so the
+  // player can see exactly who their click will hit.
+  const argsDisplay = validTarget
+    ? `→ ${selectedEntity.name}`
+    : cmd.args_hint
+
   return (
-    <div className="cmd-entry cmd-enabled" onClick={handleClick}>
+    <div
+      className={`cmd-entry cmd-enabled${validTarget ? ' cmd-has-target' : ''}`}
+      onClick={handleClick}
+    >
       <span className="cmd-arrow">›</span>
       <span className="cmd-key">{cmd.label || cmd.key}</span>
-      {cmd.args_hint && (
-        <span className="cmd-args">{cmd.args_hint}</span>
+      {argsDisplay && (
+        <span className="cmd-args">{argsDisplay}</span>
       )}
     </div>
   )
 }
 
-export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, onShop, onCrafting, characterSkills = {} }) {
+export default function CommandSidebar({ availableCommands, inCombat, myTurn, onCommandClick, onPrompt, sendCommand, onEquip, onShop, onCrafting, characterSkills = {}, selectedEntity = null }) {
   const commands = buildCommandList(inCombat, characterSkills)
 
   // Merge server-pushed contextual commands (repair, reagents, etc.) into
@@ -188,6 +236,7 @@ export default function CommandSidebar({ availableCommands, inCombat, myTurn, on
                   onClick={onCommandClick}
                   onPrompt={onPrompt}
                   sendCommand={sendCommand}
+                  selectedEntity={selectedEntity}
                 />
               ))}
             </div>
