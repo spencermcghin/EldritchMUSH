@@ -41,11 +41,24 @@ def _fire_npc_dialogue(caller, target, question, reply, channel="ask"):
             "reply": reply,
             "topics": topics,
         }
+        # Send to every session — webclient sees the `event` kwarg
+        # and other protocols ignore unknown kwargs harmlessly. This
+        # is more permissive than the previous protocol_key filter
+        # (which was correct on paper but felt unreliable in prod).
+        sent = 0
         for sess in caller.sessions.all():
-            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+            try:
                 sess.msg(event=payload)
-    except Exception:
-        pass
+                sent += 1
+            except Exception as exc:
+                print(f"[npc_dialogue] sess.msg failed: {exc!r}", flush=True)
+        print(
+            f"[npc_dialogue] fired npc={target.key!r} sessions={sent} "
+            f"reply_len={len(reply or '')}",
+            flush=True,
+        )
+    except Exception as exc:
+        print(f"[npc_dialogue] FAILED: {exc!r}", flush=True)
 
 
 def _parse_target_and_message(caller, args):

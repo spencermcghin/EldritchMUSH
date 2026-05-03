@@ -160,23 +160,34 @@
   color: #8888cc;
 }
 
-/* Description */
+/* Description — matches the room-description aesthetic: Cormorant
+   Garamond serif on parchment-cream, slightly larger so longer NPC
+   bios are easy to read on a big monitor. Gold scrollbar for
+   visual consistency with .room-desc. */
 .detail-description {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--text-light);
-  opacity: 0.85;
-  max-height: 160px;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: clamp(15px, 1vw, 17px);
+  line-height: 1.65;
+  color: #f0d99c;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  max-height: 220px;
   overflow-y: auto;
-  padding: 6px 0;
+  padding: 6px 12px 6px 0;
+}
+.detail-description::-webkit-scrollbar { width: 8px; }
+.detail-description::-webkit-scrollbar-track { background: rgba(15,13,10,0.4); }
+.detail-description::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,0.4);
+  border: 1px solid rgba(212,175,55,0.3);
 }
 
 .detail-desc-empty {
   color: var(--text-aged);
-  opacity: 0.5;
+  opacity: 0.55;
   font-style: italic;
-  font-size: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
 }
 
 /* Actions */

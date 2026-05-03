@@ -327,6 +327,12 @@ def chat(npc, character, message, on_reply):
         _dispatch(on_reply, msg)
         return
 
+    print(
+        f"[ai_npc.chat] start npc={getattr(npc,'key','?')!r} "
+        f"char={getattr(character,'key','?')!r} msg_len={len(clean_msg)}",
+        flush=True,
+    )
+
     def _run():
         try:
             if not _enabled():
@@ -400,6 +406,8 @@ def _dispatch(fn, *args):
     try:
         from twisted.internet import reactor
         reactor.callFromThread(fn, *args)
-    except Exception:
+        print(f"[ai_npc._dispatch] scheduled callback", flush=True)
+    except Exception as exc:
+        print(f"[ai_npc._dispatch] reactor unavailable, calling inline: {exc!r}", flush=True)
         # Fallback: call inline if reactor is unavailable (e.g. test env).
         fn(*args)

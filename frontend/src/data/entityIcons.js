@@ -30,13 +30,18 @@ function pickHouse(name, prefix) {
   return null
 }
 
+// Default NPC portrait — the high-contrast Eldritch skull. Used for
+// any NPC / character whose name doesn't match a more specific rule
+// above. Sourced from the project's art repository.
+const DEFAULT_NPC_PORTRAIT = '/art/skull.png'
+const DEFAULT_ITEM_ICON = '/art/map/encounter3.png'
+
 export function getEntityIcon(name, type) {
   if (!name) return null
   const lower = name.toLowerCase()
 
   if (type === 'item') {
-    // Items use a generic encounter icon for now
-    return '/art/map/encounter3.png'
+    return DEFAULT_ITEM_ICON
   }
 
   // NPCs / characters / players
@@ -46,6 +51,5 @@ export function getEntityIcon(name, type) {
     }
   }
 
-  // Default: generic encounter
-  return '/art/map/encounter3.png'
+  return DEFAULT_NPC_PORTRAIT
 }
