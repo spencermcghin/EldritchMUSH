@@ -13,6 +13,42 @@ from world.events import emit_to
 from world.character_stats import push_character_stats
 
 
+def _push_combat_encounter_prompt(character):
+    """Fire `combat_encounter_prompt` OOB event if the room has hostiles.
+
+    Lets the web client surface an opt-in modal so a player who walks
+    into a boss room (e.g. the nethermancer's sanctum) isn't shoved
+    into a fight by the next click. Skipped while the player is
+    already in combat — they're already committed.
+    """
+    if not character.location:
+        return
+    if character.db.in_combat:
+        return
+    if (character.db.body or 0) <= 0:
+        return
+    hostiles = []
+    for obj in character.location.contents:
+        if obj is character:
+            continue
+        if not obj.attributes.get("is_aggressive", default=False):
+            continue
+        if (obj.db.body or 0) <= 0:
+            continue
+        hostiles.append({
+            "name": obj.key,
+            "dbref": getattr(obj, "dbref", ""),
+            "desc": (obj.db.desc or "")[:200],
+            "isBoss": bool(obj.attributes.get("boss_encounter", default=False)),
+        })
+    if not hostiles:
+        return
+    emit_to(character, "combat_encounter_prompt", {
+        "room": character.location.key,
+        "hostiles": hostiles,
+    })
+
+
 class Character(DefaultCharacter):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
@@ -258,6 +294,15 @@ class Character(DefaultCharacter):
         # fire when the player ASKS the NPC about something (see
         # commands/ai_dialogue.py). Auto-popping the modal as soon
         # as you walk in felt overbearing and broke immersion.
+
+        # Combat encounter opt-in: if the room contains hostile NPCs
+        # and the player isn't already engaged, surface a prompt so
+        # they aren't forced into an accidental fight (e.g. walking
+        # past the nethermancer while looking for a quest-giver).
+        try:
+            _push_combat_encounter_prompt(self)
+        except Exception as exc:
+            print(f"[combat_prompt] failed: {exc!r}", flush=True)
 
     def at_post_puppet(self, **kwargs):
         """Called when a player puppets this character (login / reconnect)."""

@@ -31,6 +31,7 @@ import QuestAcceptedToast from './components/QuestAcceptedToast'
 import QuestCompletedToast from './components/QuestCompletedToast'
 import QuestProgressToast from './components/QuestProgressToast'
 import RepChangeToast from './components/RepChangeToast'
+import CombatEncounterModal from './components/CombatEncounterModal'
 import NpcDialoguePanel from './components/NpcDialoguePanel'
 import CommandPrompt from './components/CommandPrompt'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
@@ -786,6 +787,14 @@ function App() {
       <QuestCompletedToast quest={oobState.questCompleted} />
       <QuestProgressToast progress={oobState.questProgress} />
       <RepChangeToast change={oobState.repChange} />
+
+      {/* Combat encounter opt-in — fires when entering a room with
+          aggressive NPCs so the player isn't shoved into a fight. */}
+      <CombatEncounterModal
+        encounter={oobState.combatEncounter}
+        onEngage={(name) => sendCommand(`strike ${name}`)}
+        onHold={() => {}}
+      />
 
       {/* NPC dialogue panel — rich reply + topic chips */}
       <NpcDialoguePanel

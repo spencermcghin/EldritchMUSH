@@ -415,6 +415,18 @@ export function useEvennia() {
           next.roomNpcMeta = meta
           break
         }
+        case 'combat_encounter_prompt': {
+          // The room contains hostile NPCs and the player isn't yet
+          // engaged. Surface an opt-in modal so a stray click doesn't
+          // throw them into a boss fight.
+          const hostiles = Array.isArray(kwargs.hostiles) ? kwargs.hostiles : []
+          next.combatEncounter = {
+            room: kwargs.room || '',
+            hostiles,
+            ts: Date.now(),
+          }
+          break
+        }
         case 'combat_start': {
           const combatants = kwargs.combatants || []
           const turnOrder = kwargs.turn_order || combatants
