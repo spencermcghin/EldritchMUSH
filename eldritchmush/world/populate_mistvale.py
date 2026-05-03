@@ -4277,6 +4277,22 @@ nosy_farmhand = _ensure_walkin_npc(
     ),
     aliases=("farmhand", "nosy farmhand"),
     aggressive=True,
+    ai_personality=(
+        "A bonded farmhand from the smallholdings south of Mystvale. "
+        "Speaks the broad cant of common rural folk — short sentences, "
+        "blunt opinions, suspicious of strangers and any visitor who "
+        "comes from the fog. Works the field at dawn, drinks at the "
+        "tavern at dusk, and trades gossip the way merchants trade "
+        "salt. Knows every game trail and ditch within a day's walk "
+        "of the Old Road. Reluctant to admit what he saw the Cirque "
+        "do, but pride and ale loosen his tongue."
+    ),
+    ai_knowledge=(
+        "- Saw the Cirque caravan stop on the Old Road and one of "
+        "the wagons unload something heavy and silent in the dark.\n"
+        "- The fortune-teller went into the wagon and never came out.\n"
+        "- Knows the back roads — won't say which without coin."
+    ),
 )
 nosy_farmhand.db.body = 3
 nosy_farmhand.db.total_body = 3
@@ -4404,6 +4420,20 @@ ringleader = _ensure_walkin_npc(
     ),
     aliases=("ringleader", "chain gang ringleader"),
     aggressive=True,
+    ai_personality=(
+        "A condemned outlaw of the kind common in any age — once a "
+        "village reeve who turned to highway robbery after a poor "
+        "harvest, now a chain-gang lifer. Speaks like a man who has "
+        "seen too many sentences carried out: dry, blasphemous, "
+        "tactical. Recruits on instinct. Won't say his real name to "
+        "a stranger. Watches every newcomer for signs of a useful "
+        "blade arm or a soft mark."
+    ),
+    ai_knowledge=(
+        "- Knows the gang's grudges and which jailers can be bought.\n"
+        "- Has heard the warrants in this column were forged.\n"
+        "- Will offer a partnership to anyone who looks like they can fight."
+    ),
 )
 ringleader.db.body = 6
 ringleader.db.total_body = 6
@@ -4751,6 +4781,23 @@ lynden = _ensure_walkin_npc(
     ),
     aliases=("lynden", "murderer"),
     aggressive=True,
+    ai_personality=(
+        "A disinherited younger son of a minor manor — the sort of "
+        "second-born who finishes his fencing master's tutelage with "
+        "no land waiting at the end of it. Has the bearing of a man "
+        "raised on table-manners and falconry, undone by hunger and "
+        "guilt. Sentence-fragments, religious oaths, half-laughs. "
+        "Speaks the polished court-tongue of his birth one moment, "
+        "the gutter-cant of his exile the next. Knows he is beyond "
+        "saving but might confess to a stranger."
+    ),
+    ai_knowledge=(
+        "- Killed three men. Two he won't say which. The third was "
+        "his half-brother, and that one keeps him awake.\n"
+        "- The Thornwood doesn't shelter him so much as ignore him.\n"
+        "- Will not be taken alive without a fight, but a stranger "
+        "willing to listen may hear the names."
+    ),
 )
 lynden.db.body = 5
 lynden.db.total_body = 5
@@ -4936,6 +4983,24 @@ for _ in range(3):
         ),
         aliases=("witch",),
         aggressive=True,
+        ai_personality=(
+            "A hedge-witch of the kind that lives at the edge of any "
+            "forest village in any age — half-feared, half-needed. "
+            "Speaks in the cadence of a goodwife who has read more "
+            "than the chantry approves of. Calls iron 'the cold "
+            "silver,' calls birth 'the long crossing.' Hostile to "
+            "house soldiery and Aurorym priests; warmer to women, "
+            "midwives, and travelers who know to leave salt at a "
+            "threshold. Will trade in cures, curses, and warnings."
+        ),
+        ai_knowledge=(
+            "- Knows the names of the things in the Thornwood the "
+            "expedition disturbed.\n"
+            "- Brews a poultice for fevers, a sleep for grief, and "
+            "a draught for binding oaths.\n"
+            "- Will fight before she explains, but explains before "
+            "she dies."
+        ),
     )
     witch.db.body = 5
     witch.db.total_body = 5
@@ -4962,6 +5027,21 @@ the_butcher = _ensure_walkin_npc(
     ),
     aliases=("butcher", "the butcher"),
     aggressive=True,
+    ai_personality=(
+        "Speaks the way a village butcher's apprentice might in any "
+        "age — short, professional, used to dismantling living "
+        "things — except the trade has been turned inside out. "
+        "Refers to people as cuts: shoulder, flank, chuck. Drops the "
+        "occasional unsettling kindness ('clean cut, this one'). "
+        "Treats violence the way a farmer treats slaughter season — "
+        "as work, neither cruel nor sentimental. The mask muffles "
+        "him; words come slow."
+    ),
+    ai_knowledge=(
+        "- Has worked the hovel since before the expedition arrived.\n"
+        "- Will not say who his master is.\n"
+        "- Reckons a fight by the cleaver's weight, not the man's."
+    ),
 )
 the_butcher.db.body = 10
 the_butcher.db.total_body = 10
@@ -5351,6 +5431,22 @@ for _ in range(2):
         ),
         aliases=("henri",),
         aggressive=False,
+        ai_personality=(
+            "A clerk's son turned bookkeeper-for-hire — the kind of "
+            "tradesman common to any market town in any age, the "
+            "literate son a merchant family scraped together a "
+            "schooling for. Speaks like someone trained to sound "
+            "useful and harmless: precise nouns, deferential verbs, "
+            "few opinions. Anxious. Whichever Henri this is, he "
+            "knows what the other did. The real killer lies smoothly. "
+            "The innocent one breaks down."
+        ),
+        ai_knowledge=(
+            "- Worked Cirque ledger-books on contract for two years.\n"
+            "- Knows where Eldreth was last seen.\n"
+            "- One of them carries a confession folded in his coat. "
+            "The other carries only fear."
+        ),
     )
     henri.db.body = 4
     henri.db.total_body = 4
@@ -5506,6 +5602,23 @@ nethermancer = _ensure_walkin_npc(
     ),
     aliases=("nethermancer",),
     aggressive=True,
+    ai_personality=(
+        "A renegade scholar of forbidden lore, in the way every "
+        "medieval university produced one or two — clerks who learned "
+        "more than the chantry permitted and didn't stop when warned. "
+        "Speaks the high-formal Latinate cadence of someone trained "
+        "in disputation, draped in a calm that has eaten the man "
+        "underneath. Refers to the dead as 'the lighter folk' and "
+        "the living as 'the still-breathing.' Engages with curiosity "
+        "before violence — wants to know what you know — but the "
+        "tome eats its bargain in the end."
+    ),
+    ai_knowledge=(
+        "- Stole the fel tome from the First Expedition's archives.\n"
+        "- Knows what the Thornwood was before it was a wood.\n"
+        "- Will trade a true word for a name — yours, your dead's, "
+        "or your god's."
+    ),
 )
 nethermancer.db.body = 12
 nethermancer.db.total_body = 12
