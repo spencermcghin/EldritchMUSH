@@ -75,10 +75,10 @@
 
 .room-name {
   font-family: 'Cinzel', serif;
-  font-size: 22px;
+  font-size: clamp(26px, 2.4vw, 36px);
   font-weight: 600;
   color: var(--accent-gold);
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   margin: 0;
   text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 6px rgba(212,175,55,0.4);
@@ -106,62 +106,132 @@
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%, black 100%);
 }
 
-/* Description — fills available space */
+/* Description — flexes to fill space; native scrollbar styled gold */
 .room-desc {
   font-family: 'Cormorant Garamond', 'Georgia', serif;
-  font-size: 15px;
-  line-height: 1.65;
-  color: #e8cf8a;
-  margin: 0 0 12px;
+  font-size: clamp(16px, 1.2vw, 18px);
+  line-height: 1.7;
+  color: #f0d99c;
+  margin: 0 0 14px;
   flex: 1;
   overflow-y: auto;
   letter-spacing: 0.2px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  padding-right: 12px;
+}
+.room-desc::-webkit-scrollbar { width: 10px; }
+.room-desc::-webkit-scrollbar-track {
+  background: rgba(15,13,10,0.6);
+  border-left: 1px solid rgba(212,175,55,0.15);
+}
+.room-desc::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(212,175,55,0.4), rgba(139,0,0,0.4));
+  border: 1px solid rgba(212,175,55,0.3);
+}
+.room-desc::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(212,175,55,0.6), rgba(139,0,0,0.6));
 }
 
-/* Sections (Exits, Characters, Items) */
+/* Three-column scroll-frame layout for Exits / Characters / Items.
+   Each column is its own bordered "scroll" panel — clear single-
+   purpose surfaces, video-game UI best practice (one type → one
+   place to look). Scroll within if content overflows. */
 .room-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  flex-shrink: 0;
+  max-height: 38%;
+  min-height: 180px;
 }
 
 .room-section {
-  flex: 1;
-  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid rgba(212,175,55,0.35);
+  background:
+    linear-gradient(180deg, rgba(35,28,18,0.85), rgba(20,16,11,0.95)),
+    radial-gradient(ellipse at top, rgba(212,175,55,0.05), transparent 70%);
+  box-shadow:
+    inset 0 1px 0 rgba(212,175,55,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 2px 6px rgba(0,0,0,0.5);
+  position: relative;
 }
+/* Decorative scroll-edge corners on each frame */
+.room-section::before,
+.room-section::after {
+  content: '✦';
+  position: absolute;
+  top: 4px;
+  font-size: 9px;
+  color: var(--accent-gold);
+  opacity: 0.5;
+}
+.room-section::before { left: 6px; }
+.room-section::after { right: 6px; }
 
 .room-section-label {
   display: block;
   font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 11px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--accent-gold);
-  margin-bottom: 8px;
-  border-bottom: 1px solid rgba(212,175,55,0.25);
-  padding-bottom: 4px;
+  text-align: center;
+  padding: 8px 0 6px;
+  border-bottom: 1px solid rgba(212,175,55,0.3);
+  background: linear-gradient(180deg, rgba(212,175,55,0.06), transparent);
 }
 
-/* Exit buttons */
+.room-section-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  min-height: 0;
+}
+.room-section-body::-webkit-scrollbar { width: 8px; }
+.room-section-body::-webkit-scrollbar-track {
+  background: rgba(15,13,10,0.4);
+}
+.room-section-body::-webkit-scrollbar-thumb {
+  background: rgba(212,175,55,0.4);
+}
+
+.room-section-empty {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-aged);
+  opacity: 0.55;
+  text-align: center;
+  padding: 14px 6px;
+}
+
+/* Exit / character / item buttons — vertical stack inside their
+   columns. Bigger tap targets (~38–46px), type-coded with an icon. */
 .room-exits {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
 }
 
 .room-exit-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
+  gap: 10px;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 14px;
   color: var(--text-light);
   background: rgba(212,175,55,0.04);
   border: 1px solid var(--border-bright);
-  padding: 5px 12px;
+  padding: 9px 14px;
   cursor: pointer;
   transition: all 0.15s;
+  text-align: left;
+  width: 100%;
 }
 .room-exit-btn:hover {
   border-color: var(--accent-gold);
@@ -188,25 +258,27 @@
   letter-spacing: 1px;
 }
 
-/* Entity buttons (characters and items) — clickable, interactive */
+/* Character / item lists — vertical stack, larger tap targets */
 .room-entities {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
 }
 
 .room-entity-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  padding: 6px 12px;
+  gap: 10px;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 14px;
+  padding: 9px 14px;
   border: 1px solid rgba(212,175,55,0.3);
   background: rgba(35,30,22,0.7);
   color: var(--text-light);
   cursor: pointer;
   transition: all 0.15s;
+  text-align: left;
+  width: 100%;
 }
 .room-entity-btn:hover {
   transform: translateY(-1px);
@@ -234,22 +306,43 @@
   background: rgba(212,175,55,0.12);
 }
 
+/* Type-coding icon: larger and tinted by entity type so the player
+   knows at a glance whether a row is an exit, NPC, or item. */
 .entity-icon {
+  font-size: 18px;
+  opacity: 0.85;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.room-entity-btn.character .entity-icon { color: #00e5a0; }
+.room-entity-btn.item .entity-icon { color: var(--accent-gold); }
+.room-exit-btn .room-exit-dir {
   font-size: 10px;
-  opacity: 0.6;
+  color: var(--accent-gold);
+  opacity: 0.7;
+  padding: 2px 6px;
+  border: 1px solid rgba(212,175,55,0.25);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .entity-name {
+  flex: 1;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .entity-count {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--accent-gold);
   background: rgba(212, 175, 55, 0.12);
   border: 1px solid rgba(212, 175, 55, 0.25);
-  padding: 1px 4px;
-  margin-left: 4px;
+  padding: 1px 5px;
+  margin-left: auto;
   flex-shrink: 0;
 }

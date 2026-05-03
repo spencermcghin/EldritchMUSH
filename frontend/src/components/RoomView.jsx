@@ -303,77 +303,95 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
         <p className="room-desc">{room.description}</p>
       )}
 
+      {/* Three-column scroll-frame layout. Each column is a single-
+          purpose surface so players know exactly where to look:
+          🚪 EXITS for movement, ⚔ CHARACTERS for NPCs/PCs,
+          ◆ ITEMS for things they can pick up or examine.
+
+          Empty columns still render so the layout stays consistent
+          across rooms and the player builds muscle memory for which
+          column lives where. */}
       <div className="room-details">
-        {/* Exits */}
-        {room.exits.length > 0 && (
-          <div className="room-section">
-            <span className="room-section-label">Exits</span>
-            <div className="room-exits">
-              {room.exits.map((exit, i) => (
-                <button
-                  key={i}
-                  className="room-exit-btn"
-                  onClick={() => onCommand(exit.dir)}
-                  onContextMenu={onExitContextMenu ? (e) => onExitContextMenu(e, exit.dir) : undefined}
-                  title={`Go ${exit.dir}`}
-                >
-                  <span className="room-exit-name">{exit.name}</span>
-                  <span className="room-exit-dir">{exit.dir}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Characters in room — each as an interactive card */}
-        {room.characters.length > 0 && (
-          <div className="room-section">
-            <span className="room-section-label">Characters</span>
-            <div className="room-entities">
-              {room.characters.map((c, i) => (
-                <button
-                  key={i}
-                  className="room-entity-btn character"
-                  onClick={onEntityClick ? () => onEntityClick(c.name, 'character') : () => onCommand(`look ${c.name}`)}
-                  onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, c.name, 'character') : undefined}
-                  title={`Look at ${c.name}`}
-                >
-                  <span className="entity-icon">⚔</span>
-                  <span className="entity-name">{c.name}</span>
-                  {c.count > 1 && <span className="entity-count">x{c.count}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Items in room — each clickable, with count badges */}
-        {room.items.length > 0 && (
-          <div className="room-section">
-            <span className="room-section-label">You See</span>
-            <div className="room-entities">
-              {room.items.map((item, i) => {
-                // Singularize when plural, and append -1 to target the
-                // first copy when there are duplicates in the room
-                const baseName = item.count > 1 ? singularize(item.name) : item.name
-                const ref = cmdRef(baseName, item.count)
-                return (
+        <div className="room-section">
+          <span className="room-section-label">🚪 Exits</span>
+          <div className="room-section-body">
+            {room.exits.length > 0 ? (
+              <div className="room-exits">
+                {room.exits.map((exit, i) => (
                   <button
                     key={i}
-                    className="room-entity-btn item"
-                    onClick={onEntityClick ? () => onEntityClick(ref, 'item') : () => onCommand(`look ${ref}`)}
-                    onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, ref, 'item') : undefined}
-                    title={`Look at ${baseName}`}
+                    className="room-exit-btn"
+                    onClick={() => onCommand(exit.dir)}
+                    onContextMenu={onExitContextMenu ? (e) => onExitContextMenu(e, exit.dir) : undefined}
+                    title={`Go ${exit.dir}`}
                   >
-                    <span className="entity-icon">◆</span>
-                    <span className="entity-name">{item.name}</span>
-                    {item.count > 1 && <span className="entity-count">x{item.count}</span>}
+                    <span className="entity-icon">→</span>
+                    <span className="entity-name">{exit.name}</span>
+                    <span className="room-exit-dir">{exit.dir}</span>
                   </button>
-                )
-              })}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="room-section-empty">No way out from here.</div>
+            )}
           </div>
-        )}
+        </div>
+
+        <div className="room-section">
+          <span className="room-section-label">⚔ Characters</span>
+          <div className="room-section-body">
+            {room.characters.length > 0 ? (
+              <div className="room-entities">
+                {room.characters.map((c, i) => (
+                  <button
+                    key={i}
+                    className="room-entity-btn character"
+                    onClick={onEntityClick ? () => onEntityClick(c.name, 'character') : () => onCommand(`look ${c.name}`)}
+                    onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, c.name, 'character') : undefined}
+                    title={`Look at ${c.name}`}
+                  >
+                    <span className="entity-icon">☥</span>
+                    <span className="entity-name">{c.name}</span>
+                    {c.count > 1 && <span className="entity-count">x{c.count}</span>}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="room-section-empty">No one here.</div>
+            )}
+          </div>
+        </div>
+
+        <div className="room-section">
+          <span className="room-section-label">◆ Items</span>
+          <div className="room-section-body">
+            {room.items.length > 0 ? (
+              <div className="room-entities">
+                {room.items.map((item, i) => {
+                  // Singularize when plural, and append -1 to target the
+                  // first copy when there are duplicates in the room
+                  const baseName = item.count > 1 ? singularize(item.name) : item.name
+                  const ref = cmdRef(baseName, item.count)
+                  return (
+                    <button
+                      key={i}
+                      className="room-entity-btn item"
+                      onClick={onEntityClick ? () => onEntityClick(ref, 'item') : () => onCommand(`look ${ref}`)}
+                      onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, ref, 'item') : undefined}
+                      title={`Look at ${baseName}`}
+                    >
+                      <span className="entity-icon">◆</span>
+                      <span className="entity-name">{item.name}</span>
+                      {item.count > 1 && <span className="entity-count">x{item.count}</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="room-section-empty">Nothing of note.</div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
