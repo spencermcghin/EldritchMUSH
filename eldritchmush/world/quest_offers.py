@@ -143,6 +143,13 @@ def push_quest_offers_for_npc(char, npc):
     when the player engages an NPC in conversation, rather than on
     every room entry.
 
+    Matches on either:
+      - exact npc.key (case-insensitive), or
+      - any of the npc's aliases (case-insensitive)
+    so quests using a short giver name like "elara" still match an
+    NPC whose canonical key is "Elara the Innkeeper" if she carries
+    "elara" as an alias.
+
     No-op if the NPC has no quests to offer that the char hasn't
     already started (or that they don't yet meet the prereqs for).
     """
@@ -155,14 +162,25 @@ def push_quest_offers_for_npc(char, npc):
     if not npc_key:
         return
 
+    # Build the set of names this NPC can be matched on.
+    npc_names = {npc_key}
+    try:
+        for a in npc.aliases.all():
+            if a:
+                npc_names.add(a.lower())
+    except Exception:
+        pass
+
     existing = char.db.quests or {}
     offers = []
+    matched_count = 0
     for key, qdef in QUESTS.items():
         if key in existing:
             continue
         giver = (qdef.get("giver") or "").lower()
-        if not giver or giver != npc_key:
+        if not giver or giver not in npc_names:
             continue
+        matched_count += 1
         if not _prereqs_met(char, qdef):
             continue
 
@@ -189,6 +207,18 @@ def push_quest_offers_for_npc(char, npc):
             offer["rewards"] = _format_reward_parts(qdef.get("rewards", {}))
         offers.append(offer)
     if not offers:
+        # Diagnostic — distinguishes "NPC isn't a giver" from "all
+        # their offers gated/already taken" from "session lookup is
+        # failing". Surfaces in railway logs.
+        already = sum(
+            1 for k, qd in QUESTS.items()
+            if k in existing and (qd.get("giver") or "").lower() in npc_names
+        )
+        print(
+            f"[quest_offer] no offers for npc='{npc.key}' "
+            f"(matched_givers={matched_count}, already_taken={already})",
+            flush=True,
+        )
         return
 
     import time as _time
@@ -197,8 +227,15 @@ def push_quest_offers_for_npc(char, npc):
         "_ts": _time.time(),
         "offers": offers,
     }
-    try:
-        for sess in char.sessions.all():
+    sent = 0
+    for sess in char.sessions.all():
+        try:
             sess.msg(event=payload)
-    except Exception:
-        pass
+            sent += 1
+        except Exception as exc:
+            print(f"[quest_offer] sess.msg failed: {exc!r}", flush=True)
+    print(
+        f"[quest_offer] fired {len(offers)} offer(s) for npc='{npc.key}' "
+        f"sessions={sent}",
+        flush=True,
+    )
