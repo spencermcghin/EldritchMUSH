@@ -361,7 +361,9 @@ export default function RoomView({ messages, onCommand, onEntityClick, onEntityC
                     onContextMenu={onEntityContextMenu ? (e) => onEntityContextMenu(e, c.name, 'character') : undefined}
                     title={`Look at ${c.name}`}
                   >
-                    <span className="entity-icon">👤</span>
+                    <span className="entity-icon entity-icon-skull">
+                      <img src="/art/skull.png" alt="" loading="lazy" />
+                    </span>
                     <span className="entity-name">{c.name}</span>
                     {c.count > 1 && <span className="entity-count">x{c.count}</span>}
                   </button>
