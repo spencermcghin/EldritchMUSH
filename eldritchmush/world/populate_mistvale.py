@@ -4289,15 +4289,99 @@ _ensure_walkin_item(
 _ensure_walkin_item(
     "constellation chart", ship_deck,
     desc=(
-        "The ship's navigational chart of the night sky, half-rolled "
-        "on the navigation table. Half the marked constellations "
-        "have been crossed out and re-drawn in a hurried hand. The "
-        "newer ones make no sense — they correspond to no Arnesse "
-        "sky. The captain's last note in the margin: 'These are not "
-        "the stars he sailed under.'"
+        "The ship's navigational chart of the night sky — the Annwyn "
+        "skies on one side, Arnesse on the other. The four Annwyn "
+        "constellations and their headings (as the captain logged them "
+        "before he vanished):\n\n"
+        "  |wThe Drowned Crown|n  sits over  |wnorth|n\n"
+        "  |wThe Broken Oar|n     sits over  |wsouth|n\n"
+        "  |wThe Hollow Tree|n    sits over  |weast|n\n"
+        "  |wThe Stag of the Deep|n sits over |wwest|n\n\n"
+        "To chart your course, type |wchart <constellation> "
+        "<direction>|n for each of the four."
     ),
     aliases=("chart", "constellation chart", "stars"),
+    gettable=False,
 )
+
+# ── Ship puzzle props ───────────────────────────────────────────────
+# Captain's door key — the lookout's hidden spare. Just findable.
+_ensure_walkin_item(
+    "captain's door key", ship_cargo_hold,
+    desc=(
+        "A heavy iron key on a hempen loop. Stamped with the captain's "
+        "mark. This is the lookout's drunken spare — the one he hid "
+        "under the wine-stained floorboards and forgot."
+    ),
+    aliases=("door key", "spare key", "captain key", "key"),
+)
+
+# Three buckets for the hull-plug puzzle. Scenery — they're tracked
+# via room state, not as carryable items.
+_ensure_walkin_item(
+    "three buckets",  ship_cargo_hold,
+    desc=(
+        "Three sea-buckets in a row by the breached hull: an 8-litre, "
+        "a 5-litre, and a 3-litre. The chief engineer's note nailed "
+        "above them reads:\n\n"
+        "  |w'Patch needs EXACTLY 4 litres of pitch-mix. You have "
+        "three buckets and no measure-lines. Figure it out.'|n\n\n"
+        "Commands: |wfill <bucket>|n, |wpour <from> <to>|n, "
+        "|wempty <bucket>|n, |whelp buckets|n."
+    ),
+    aliases=("buckets", "the buckets", "8L bucket", "5L bucket",
+             "3L bucket", "bucket"),
+    gettable=False,
+)
+
+# Chief Engineer's syllabus — the knot mapping reference.
+_ensure_walkin_item(
+    "Chief Engineer's syllabus",  ship_deck,
+    desc=(
+        "A salt-stained pamphlet from the Chief Engineer, on the rigging "
+        "of merchant vessels. The mast-and-knot reference page is dog-"
+        "eared:\n\n"
+        "  |wMainmast|n   needs a |wbowline|n  (it must not slip under load)\n"
+        "  |wForemast|n   needs a |wsheet bend|n  (it joins two ropes)\n"
+        "  |wMizzenmast|n needs a |wclove hitch|n (quick, holds against twist)\n"
+        "  |wBowsprit|n   needs a |wfigure eight|n (a stopper at the end)\n\n"
+        "To re-rig: type |wtie <knot> on <mast>|n at the mast."
+    ),
+    aliases=("syllabus", "engineer's syllabus", "chief engineer syllabus", "knot guide"),
+    gettable=False,
+)
+
+# Mast scenery — four labelled posts on the deck.
+for _mast in ("mainmast", "foremast", "mizzenmast", "bowsprit"):
+    _ensure_walkin_item(
+        _mast, ship_deck,
+        desc=(
+            f"The {_mast}, splintered by the storm, rigging hanging slack. "
+            f"It needs the right knot tied at its base before the wind "
+            f"picks up again — see the Chief Engineer's syllabus."
+        ),
+        aliases=(_mast.replace("mast", " mast"),),
+        gettable=False,
+    )
+
+# ── Attach the puzzle CmdSets to the ship rooms ─────────────────────
+# Idempotent: at_cmdset_creation has already been called once per
+# server start; adding the same cmdset key again is a no-op.
+try:
+    from commands.ship_puzzles import (
+        BucketPuzzleCmdSet, KnotPuzzleCmdSet, ConstellationPuzzleCmdSet,
+    )
+    if not ship_cargo_hold.cmdset.has("BucketPuzzleCmdSet"):
+        ship_cargo_hold.cmdset.add(BucketPuzzleCmdSet(), persistent=True)
+        print("  ATTACHED: BucketPuzzleCmdSet → Cargo Hold")
+    if not ship_deck.cmdset.has("KnotPuzzleCmdSet"):
+        ship_deck.cmdset.add(KnotPuzzleCmdSet(), persistent=True)
+        print("  ATTACHED: KnotPuzzleCmdSet → Deck")
+    if not ship_deck.cmdset.has("ConstellationPuzzleCmdSet"):
+        ship_deck.cmdset.add(ConstellationPuzzleCmdSet(), persistent=True)
+        print("  ATTACHED: ConstellationPuzzleCmdSet → Deck")
+except Exception as _exc:
+    print(f"  WARN: failed to attach ship puzzle cmdsets: {_exc!r}")
 
 
 harbormaster = _ensure_walkin_npc(

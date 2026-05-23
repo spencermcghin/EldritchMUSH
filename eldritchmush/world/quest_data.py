@@ -64,55 +64,176 @@ QUESTS = {
             "expect the worst. What you do with what you find on the wreck "
             "is your choice."
         ),
-        "outcomes": {
-            "salvage_for_crown": {
-                "label": "Report to the harbormaster",
-                "description": (
-                    "Deliver the wreck's manifest to the Mystvale harbormaster. "
-                    "A legitimate path — and the Crown takes a cut."
-                ),
-                "objectives": [
-                    {"type": "gather", "target": "wreck manifest",
-                     "qty": 1, "desc": "Recover the wreck manifest at Tamris Harbor (0/1)"},
-                    {"type": "deliver", "target": "mystvale harbormaster",
-                     "qty": 1, "desc": "Deliver the manifest to the Mystvale Harbormaster at Tamris Harbor (0/1)"},
-                ],
-                "rewards": {"silver": 15, "items": [], "reagents": {}},
-                "faction_rep": {"crown": 2, "outsider": 1},
-            },
-            "pocket_it": {
-                "label": "Pocket the salvage",
-                "description": (
-                    "Strip the wreck for yourself before the authorities arrive. "
-                    "More coin, quieter life — if you don't get caught. "
-                    "The wreck is at Tamris Harbor — east through Mystvale."
-                ),
-                "objectives": [
-                    {"type": "gather", "target": "wreck salvage",
-                     "qty": 3, "desc": "Strip salvage from the wreck at Tamris Harbor (0/3)"},
-                ],
-                "rewards": {"silver": 25, "items": [], "reagents": {}},
-                "faction_rep": {"crown": -1, "outlaws": 1, "outsider": 1},
-            },
-            "burn_it": {
-                "label": "Burn what the captain told you to burn",
-                "description": (
-                    "The captain's dying request: destroy the hold before "
-                    "anyone opens it. You won't be thanked, but the thing "
-                    "under the hull will stay under. The seal is at the "
-                    "wreck on Tamris Harbor."
-                ),
-                "objectives": [
-                    {"type": "gather", "target": "captain's seal",
-                     "qty": 1, "desc": "Recover the captain's seal from the wreck at Tamris Harbor (0/1)"},
-                ],
-                "rewards": {"silver": 10, "items": ["MORPHOS_LORE_SCROLL"],
-                            "reagents": {}},
-                "faction_rep": {"outsider": 3},
-            },
-        },
+        # Parent arc — accepting walkin_ship auto-accepts every subquest
+        # below. Children can be completed in any order; all eight can
+        # be active at once. Mutex still applies at the parent level —
+        # picking Ship locks out Cirque/Noble/Explorer/Chain Gang.
+        "subquests": [
+            "ship_find_key",
+            "ship_plug_hull",
+            "ship_find_navigator",
+            "ship_tie_knots",
+            "ship_chart_stars",
+            "ship_deliver_manifest",
+            "ship_wreck_salvage",
+            "ship_burn_hold",
+        ],
         "prereqs": [],
         "mutex_group": "walkin",
+    },
+
+    # ── Ship sub-quests (parent: walkin_ship) ──────────────────────
+    # Each has no `giver` (the Herald only gives the parent) and a
+    # `parent` link back to walkin_ship for journal grouping.
+
+    "ship_find_key": {
+        "key": "ship_find_key",
+        "title": "The Captain's Door Key",
+        "parent": "walkin_ship",
+        "description": (
+            "The captain locked the cargo hold from the outside and took "
+            "the key with him. There is, however, a SPARE — the lookout "
+            "hid it somewhere in the hold during a drunken night and "
+            "wrote a regretful journal entry about not remembering where. "
+            "Find the spare."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "captain's door key",
+             "qty": 1, "desc": "Find the captain's door key in the cargo hold (0/1)"},
+        ],
+        "rewards": {"silver": 5},
+        "prereqs": [],
+    },
+
+    "ship_plug_hull": {
+        "key": "ship_plug_hull",
+        "title": "Plug the Hull",
+        "parent": "walkin_ship",
+        "description": (
+            "Water is coming in through a hole in the hull. The chief "
+            "engineer's notes say you need exactly four litres of pitch-"
+            "mixed seawater to patch it — but you only have three buckets, "
+            "marked 8, 5, and 3 litres. Measure exactly 4 with what you "
+            "have. (Type |whelp buckets|n at the buckets for the commands.)"
+        ),
+        "objectives": [
+            {"type": "explore", "target": "plugged hull",
+             "qty": 1, "desc": "Measure exactly 4 litres with the three buckets (0/1)"},
+        ],
+        "rewards": {"silver": 10},
+        "prereqs": [],
+    },
+
+    "ship_find_navigator": {
+        "key": "ship_find_navigator",
+        "title": "Find the Navigator",
+        "parent": "walkin_ship",
+        "description": (
+            "First Mate Nosaj is the only surviving crew. He can chart a "
+            "course — if you can find him on the wreck. Get up to the "
+            "ship's deck and locate him."
+        ),
+        "objectives": [
+            {"type": "explore", "target": "The Doomed Ship's Deck",
+             "qty": 1, "desc": "Reach the ship's deck (0/1)"},
+        ],
+        "rewards": {"silver": 5},
+        "prereqs": [],
+    },
+
+    "ship_tie_knots": {
+        "key": "ship_tie_knots",
+        "title": "Tie the Sails",
+        "parent": "walkin_ship",
+        "description": (
+            "The storm tore the rigging. Four masts need fresh knots before "
+            "the wind picks back up. The Chief Engineer's syllabus on the "
+            "deck lists which knot belongs on which mast. (Type "
+            "|wtie <knot> on <mast>|n at the deck.)"
+        ),
+        "objectives": [
+            {"type": "explore", "target": "knots tied",
+             "qty": 4, "desc": "Tie the correct knot on each of the four masts (0/4)"},
+        ],
+        "rewards": {"silver": 15},
+        "prereqs": [],
+    },
+
+    "ship_chart_stars": {
+        "key": "ship_chart_stars",
+        "title": "Chart the Stars",
+        "parent": "walkin_ship",
+        "description": (
+            "The stars over the deck are not Arnesse stars. You'll need "
+            "to match the Annwyn-side constellations against the cardinal "
+            "directions to feed the navigator a course. The constellation "
+            "chart shows which star-cluster sits over which heading. "
+            "(Type |wchart <constellation> <direction>|n at the deck.)"
+        ),
+        "objectives": [
+            {"type": "explore", "target": "stars charted",
+             "qty": 4, "desc": "Chart all four constellations to their cardinal directions (0/4)"},
+        ],
+        "rewards": {"silver": 15},
+        "prereqs": [],
+    },
+
+    "ship_deliver_manifest": {
+        "key": "ship_deliver_manifest",
+        "title": "Report to the Harbormaster",
+        "parent": "walkin_ship",
+        "description": (
+            "Recover the wreck's manifest and deliver it to the Mystvale "
+            "Harbormaster at Tamris Harbor. A legitimate path — the "
+            "Crown takes a cut, and remembers a courier who plays it "
+            "straight."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "wreck manifest",
+             "qty": 1, "desc": "Recover the wreck manifest at Tamris Harbor (0/1)"},
+            {"type": "deliver", "target": "mystvale harbormaster",
+             "qty": 1, "desc": "Deliver the manifest to the Mystvale Harbormaster at Tamris Harbor (0/1)"},
+        ],
+        "rewards": {"silver": 15},
+        "faction_rep": {"crown": 2, "outsider": 1},
+        "prereqs": [],
+    },
+
+    "ship_wreck_salvage": {
+        "key": "ship_wreck_salvage",
+        "title": "Pocket the Salvage",
+        "parent": "walkin_ship",
+        "description": (
+            "Strip the wreck for yourself before the authorities count "
+            "everything. More coin, quieter life — if you don't get "
+            "caught. The wreck is at Tamris Harbor."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "wreck salvage",
+             "qty": 3, "desc": "Strip salvage from the wreck at Tamris Harbor (0/3)"},
+        ],
+        "rewards": {"silver": 25},
+        "faction_rep": {"crown": -1, "outlaws": 1, "outsider": 1},
+        "prereqs": [],
+    },
+
+    "ship_burn_hold": {
+        "key": "ship_burn_hold",
+        "title": "Burn What the Captain Told You to Burn",
+        "parent": "walkin_ship",
+        "description": (
+            "The captain's dying request: destroy the hold before anyone "
+            "opens it. You won't be thanked, but the thing under the "
+            "hull will stay under. The seal is at the wreck on Tamris "
+            "Harbor."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "captain's seal",
+             "qty": 1, "desc": "Recover the captain's seal from the wreck at Tamris Harbor (0/1)"},
+        ],
+        "rewards": {"silver": 10, "items": ["MORPHOS_LORE_SCROLL"]},
+        "faction_rep": {"outsider": 3},
+        "prereqs": [],
     },
 
     "walkin_cirque": {

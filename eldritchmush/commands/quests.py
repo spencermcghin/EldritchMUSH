@@ -388,6 +388,43 @@ def _completed_quests(char):
     return result
 
 
+def _maybe_complete_parent(char, parent_key):
+    """If every subquest of the parent is completed, mark the parent
+    completed too and fire a quest_completed OOB event for it.
+    No rewards — child completions already paid out individually.
+    """
+    parent_state = (char.db.quests or {}).get(parent_key)
+    if not parent_state or parent_state.get("status") != "active":
+        return
+    parent_def = QUESTS.get(parent_key)
+    if not parent_def:
+        return
+    children = parent_def.get("subquests") or parent_state.get("subquests") or []
+    if not children:
+        return
+    for child_key in children:
+        cs = (char.db.quests or {}).get(child_key)
+        if not cs or cs.get("status") != "completed":
+            return  # at least one not done
+    # All done — promote parent.
+    parent_state["status"] = "completed"
+    char.db.quests[parent_key] = parent_state
+    _msg_text_only(char, f"\n|y✦ Arc Complete: |w{parent_def.get('title','')}|n")
+    try:
+        import time as _time
+        payload = {
+            "type": "quest_completed",
+            "_ts": _time.time(),
+            "key": parent_key,
+            "title": parent_def.get("title", ""),
+            "is_parent": True,
+        }
+        for sess in char.sessions.all():
+            sess.msg(event=payload)
+    except Exception:
+        pass
+
+
 def _check_completion(char, key):
     """
     Check if all objectives for *key* are done.  If so, grant rewards and
@@ -493,6 +530,12 @@ def _check_completion(char, key):
             _msg_text_only(char,
                 f"|540{npc_key.title()} remembers you: {sign}{delta}|n "
                 f"|540(rep {new_rep})|n")
+
+    # If this is a subquest of a parent arc, check whether the parent
+    # is now fully complete (all its subquests done) and finalise it.
+    parent_key = qdef.get("parent")
+    if parent_key and parent_key in (char.db.quests or {}):
+        _maybe_complete_parent(char, parent_key)
 
     # Fire a quest_completed OOB event so the frontend can toast the
     # full summary (title, outcome label, rewards line, rep deltas).
@@ -877,6 +920,12 @@ class CmdQuest(Command):
             )
             return
 
+        # Parent quest — accepting this auto-accepts all its subquests
+        # in parallel. The parent itself carries no objectives; it's just
+        # an umbrella for tracking the arc as a whole.
+        if qdef.get("subquests"):
+            return self._accept_parent_quest(caller, qdef)
+
         # Branching quest — must pick an outcome
         if _has_outcomes(qdef):
             outcomes = qdef["outcomes"]
@@ -943,6 +992,83 @@ class CmdQuest(Command):
             }
             for sess in caller.sessions.all():
                 sess.msg(event=payload)
+        except Exception:
+            pass
+
+    def _accept_parent_quest(self, caller, qdef):
+        """Accept a parent quest and auto-accept all its subquests.
+
+        The parent's state has no objectives — completion is implicit:
+        when all listed subquests are completed, the parent flips to
+        completed too (handled by _check_parent_completion called from
+        _check_completion).
+        """
+        # Mark parent as active with the list of children for tracking.
+        caller.db.quests[qdef["key"]] = {
+            "status": "active",
+            "objectives": [],
+            "subquests": list(qdef.get("subquests", [])),
+        }
+
+        # Auto-accept each child quest.
+        accepted = []
+        skipped_existing = []
+        for child_key in qdef.get("subquests", []):
+            child = QUESTS.get(child_key)
+            if not child:
+                continue
+            if child_key in caller.db.quests:
+                skipped_existing.append(child_key)
+                continue
+            caller.db.quests[child_key] = {
+                "status": "active",
+                "objectives": _fresh_objectives(child),
+                "parent": qdef["key"],
+            }
+            accepted.append(child)
+
+        # Player-facing summary.
+        _msg_text_only(caller, f"\n|g✦ Quest Accepted: |w{qdef['title']}|n")
+        _msg_text_only(caller, "|540" + qdef["description"] + "|n")
+        if accepted:
+            _msg_text_only(caller, f"\n|y→ This arc opens {len(accepted)} sub-quest(s):|n")
+            for child in accepted:
+                _msg_text_only(caller, f"  |y•|n |w{child.get('title', child.get('key'))}|n")
+
+        # Directional cue for walk-ins (same as the regular path).
+        if qdef.get("mutex_group") == "walkin":
+            caller.msg(
+                "\n|y→ To begin the crossing:|n |wnorth|n to the "
+                "Mistwalker's Tent, |wwest|n to the Mistwall, then "
+                "|w'through the mists'|n."
+            )
+
+        # Fire OOB events: one for the parent acceptance, then one per
+        # subquest so the frontend journal can render them.
+        try:
+            import time as _time
+            base_ts = _time.time()
+            payloads = [{
+                "type": "quest_accepted",
+                "_ts": base_ts,
+                "key": qdef["key"],
+                "title": qdef["title"],
+                "giver": qdef.get("giver", ""),
+                "is_parent": True,
+                "subquests": [c["key"] for c in accepted],
+            }]
+            for c in accepted:
+                payloads.append({
+                    "type": "quest_accepted",
+                    "_ts": base_ts,
+                    "key": c["key"],
+                    "title": c.get("title", c["key"]),
+                    "giver": qdef.get("giver", ""),
+                    "parent": qdef["key"],
+                })
+            for sess in caller.sessions.all():
+                for p in payloads:
+                    sess.msg(event=p)
         except Exception:
             pass
 
