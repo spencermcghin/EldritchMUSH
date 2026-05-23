@@ -1,0 +1,170 @@
+/* Lore-crawl intro screen, full-viewport, dark parchment aesthetic. */
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #0a0807;
+  color: var(--text-aged, #c9b899);
+  font-family: 'Cormorant Garamond', serif;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.intro-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(20, 16, 12, 0.0) 30%,
+    rgba(0, 0, 0, 0.6) 70%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  pointer-events: none;
+}
+
+.intro-skip {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  z-index: 2;
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: rgba(212, 175, 55, 0.85);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.intro-skip:hover {
+  border-color: var(--accent-gold, #d4af37);
+  color: var(--accent-gold, #d4af37);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.intro-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 760px;
+  padding: 60px 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.intro-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.intro-eyebrow {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 4px;
+  color: rgba(212, 175, 55, 0.6);
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+.intro-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 4.5vw, 44px);
+  color: var(--accent-gold, #d4af37);
+  letter-spacing: 3px;
+  margin: 0;
+  text-shadow:
+    0 0 12px rgba(212, 175, 55, 0.5),
+    0 0 30px rgba(212, 175, 55, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.intro-crawl {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 24px 4px;
+  font-size: 18px;
+  line-height: 1.7;
+  letter-spacing: 0.3px;
+  /* Hide scrollbar but allow scroll (Firefox + WebKit) */
+  scrollbar-width: none;
+}
+.intro-crawl::-webkit-scrollbar { display: none; }
+
+.intro-crawl p {
+  margin: 0 0 18px;
+  text-align: justify;
+  hyphens: auto;
+}
+.intro-crawl strong {
+  color: var(--text-light, #e8e8e8);
+  font-weight: 600;
+}
+.intro-crawl em {
+  color: rgba(212, 175, 55, 0.9);
+  font-style: italic;
+}
+.intro-crawl code {
+  font-family: 'Cinzel', serif;
+  font-size: 0.92em;
+  color: var(--accent-gold, #d4af37);
+  background: rgba(40, 28, 12, 0.5);
+  padding: 1px 6px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.intro-divider {
+  text-align: center;
+  color: rgba(212, 175, 55, 0.4);
+  letter-spacing: 6px;
+  font-size: 12px;
+  margin: 28px 0;
+}
+
+.intro-section {
+  font-family: 'Cinzel', serif;
+  color: var(--accent-gold, #d4af37);
+  font-size: 22px;
+  letter-spacing: 2px;
+  text-align: center;
+  margin: 8px 0 18px;
+}
+
+.intro-closing {
+  text-align: center;
+  font-style: italic;
+  color: rgba(212, 175, 55, 0.85);
+  margin-top: 28px;
+  font-size: 17px;
+}
+
+.intro-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 18px;
+}
+
+.intro-continue {
+  border: 1px solid var(--accent-gold, #d4af37);
+  background: rgba(40, 28, 12, 0.9);
+  color: var(--accent-gold, #d4af37);
+  padding: 10px 28px;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.intro-continue:hover {
+  background: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.3);
+}
+.intro-continue.pending {
+  opacity: 0.7;
+}
+.intro-continue.ready {
+  border-color: var(--accent-gold, #d4af37);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}

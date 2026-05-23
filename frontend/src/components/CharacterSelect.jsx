@@ -4,8 +4,12 @@ import './CharacterSelect.css'
 
 // Hard upper bound on how long we'll wait for the server's
 // character_created / character_create_failed OOB event before
-// assuming the request was lost and surfacing a generic error.
-const CREATE_TIMEOUT_MS = 6000
+// FALLING BACK to a list re-fetch. Railway disk-backed DB writes
+// can take several seconds in the worst case, and the OOB event
+// has been observed to drop on the wire occasionally — so we bumped
+// this from 6s to 15s and added a re-fetch fallback that resolves
+// the create silently if the character actually exists.
+const CREATE_TIMEOUT_MS = 15000
 
 /**
  * CharacterSelect — shown after the player authenticates (OAuth or
@@ -53,16 +57,18 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
       if (!data.authenticated) {
         setError('You are not logged in.')
         setCharacters([])
-      } else {
-        setCharacters(data.characters || [])
-        setError(null)
-        // If they have zero characters, jump straight to the create form.
-        if ((data.characters || []).length === 0) {
-          setShowCreate(true)
-        }
+        return []
       }
+      setCharacters(data.characters || [])
+      setError(null)
+      // If they have zero characters, jump straight to the create form.
+      if ((data.characters || []).length === 0) {
+        setShowCreate(true)
+      }
+      return data.characters || []
     } catch (err) {
       setError(`Could not load characters: ${err.message}`)
+      return []
     } finally {
       setLoading(false)
     }
@@ -196,16 +202,29 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
     sendCommand(`charcreate ${name}`)
 
     // Fallback: if the server never replies (lost packet, command not
-    // registered, exception eaten), surface a generic error so the
-    // user isn't stuck on the spinner forever.
+    // registered, exception eaten), re-fetch the character list and
+    // see if the new character actually exists. If yes — silent
+    // success, dismiss the modal. If no — surface a real error.
     if (createTimeoutRef.current) clearTimeout(createTimeoutRef.current)
-    createTimeoutRef.current = setTimeout(() => {
-      setCreating(false)
-      setModalError(
-        'No response from the server. The character may not have been created — try a different name or refresh the page.'
+    createTimeoutRef.current = setTimeout(async () => {
+      const chars = await fetchCharacters()
+      const exists = (chars || []).some(
+        c => (c.name || '').toLowerCase() === name.toLowerCase()
       )
-      // Refetch in case it actually succeeded silently.
-      fetchCharacters()
+      if (exists) {
+        // Server actually created the character — the OOB event
+        // just got lost on the wire. Dismiss silently and treat
+        // this as success.
+        setCreating(false)
+        setShowCreate(false)
+        setNewName('')
+        setModalError(null)
+      } else {
+        setCreating(false)
+        setModalError(
+          'No response from the server. The character may not have been created — try a different name or refresh the page.'
+        )
+      }
     }, CREATE_TIMEOUT_MS)
   }, [newName, creating, sendCommand, fetchCharacters, clearLastCharCreate])
 

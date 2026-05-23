@@ -108,6 +108,35 @@ def at_server_start():
     # Fire immediately at start, then every 5s — Railway idle timeout is ~10s
     reactor.callLater(3, lc.start, 5, True)
 
+    # Backfill subscription state on existing accounts. Accounts that
+    # existed before the billing feature shipped have no
+    # trial_started_at attribute — without it, is_in_trial() returns
+    # False and the account shows as paywalled the moment it logs in.
+    # This grants every pre-existing account a fresh 30-day trial
+    # starting from the first boot after the billing feature lands.
+    # Idempotent: skips accounts that already have trial_started_at.
+    try:
+        import datetime
+        from evennia.accounts.models import AccountDB
+        now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        backfilled = 0
+        for acct in AccountDB.objects.all():
+            try:
+                if acct.attributes.get("trial_started_at", default=None):
+                    continue
+                acct.attributes.add("trial_started_at", now_iso)
+                if not acct.attributes.get("subscription_status", default=None):
+                    acct.attributes.add("subscription_status", "trialing")
+                backfilled += 1
+            except Exception as exc:
+                print(f"[trial_backfill] failed for {getattr(acct, 'username', '?')}: {exc!r}", flush=True)
+        if backfilled:
+            print(f"[trial_backfill] granted 30-day trial to {backfilled} existing account(s)")
+        else:
+            print("[trial_backfill] all accounts already have trial state")
+    except Exception as exc:
+        print(f"[trial_backfill] outer error: {exc!r}", flush=True)
+
     # Bootstrap the global AmbientNpcScript if it's not already running.
     # Idempotent: if a previous boot already created it, this no-ops.
     try:

@@ -97,11 +97,24 @@ class Account(DefaultAccount):
 
     def should_be_paywalled(self):
         """True if the account should be blocked from puppeting a
-        character: no active sub AND no remaining trial. Superusers
-        are exempt — they always have access.
+        character: no active sub AND no remaining trial.
+
+        Exemptions:
+          - Superusers (set via SUPERUSER_USERNAMES env on Railway)
+          - Django staff (is_staff=True — also covers all superusers)
+          - Anyone holding the Admin or Developer Evennia permstring
+        So operators and devs are never paywalled.
         """
-        if self.is_superuser:
+        if getattr(self, "is_superuser", False):
             return False
+        if getattr(self, "is_staff", False):
+            return False
+        try:
+            perms = list(self.permissions.all())
+            if "Admin" in perms or "Developer" in perms:
+                return False
+        except Exception:
+            pass
         if self.is_subscription_active():
             return False
         if self.is_in_trial():
