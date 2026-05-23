@@ -27,6 +27,10 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
   const [error, setError] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [newName, setNewName] = useState('')
+  // Subscription state — fetched from /api/billing/status on mount.
+  // `null` = not yet loaded; otherwise the JSON body of the endpoint.
+  const [billing, setBilling] = useState(null)
+  const [subscribing, setSubscribing] = useState(false)
   // creating == true between clicking Begin and receiving the server's
   // character_created event (or a failure / timeout). Disables the
   // submit button and shows the "Forging..." label.
@@ -68,6 +72,54 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
     fetchCharacters()
   }, [fetchCharacters])
 
+  // Fetch billing/subscription state. Re-fetches on mount and after
+  // returning from PayPal (the return URL bounces to /?subscribed=1).
+  const fetchBilling = useCallback(async () => {
+    try {
+      const resp = await fetch('/api/billing/status', { credentials: 'include' })
+      if (!resp.ok) {
+        setBilling({ error: `HTTP ${resp.status}` })
+        return
+      }
+      setBilling(await resp.json())
+    } catch (err) {
+      setBilling({ error: err.message })
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchBilling()
+    // If the user just returned from PayPal approval, re-fetch shortly
+    // so the webhook has a beat to update state.
+    if (typeof window !== 'undefined' && /[?&]subscribed=1/.test(window.location.search)) {
+      const t = setTimeout(fetchBilling, 1500)
+      return () => clearTimeout(t)
+    }
+  }, [fetchBilling])
+
+  const handleSubscribe = useCallback(async () => {
+    if (subscribing) return
+    setSubscribing(true)
+    try {
+      const resp = await fetch('/api/billing/create-subscription', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      const body = await resp.json().catch(() => ({}))
+      if (!resp.ok || !body.approval_url) {
+        alert(body.error || 'Could not start subscription. Please try again later.')
+        setSubscribing(false)
+        return
+      }
+      // Redirect to PayPal-hosted approval page. PayPal will bounce
+      // the user back to /api/billing/return after they approve.
+      window.location.href = body.approval_url
+    } catch (err) {
+      alert(`Subscription error: ${err.message}`)
+      setSubscribing(false)
+    }
+  }, [subscribing])
+
   // Clear pending timeout if the component unmounts mid-create.
   useEffect(() => {
     return () => {
@@ -107,6 +159,12 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
   }, [lastCharCreate, creating, sendCommand, onPuppeted, clearLastCharCreate])
 
   const handlePlay = useCallback((char) => {
+    // Paywall: if billing says the account is paywalled, bounce to
+    // the subscribe flow instead of attempting to puppet.
+    if (billing?.should_be_paywalled) {
+      handleSubscribe()
+      return
+    }
     // Under MULTISESSION_MODE=2, send `ooc` first to unpuppet any
     // currently-puppeted character, then `ic <name>` to puppet the
     // selected one. Without the `ooc`, the old character stays
@@ -116,7 +174,7 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
       sendCommand(`ic ${char.name}`)
       if (onPuppeted) onPuppeted(char)
     }, 300)
-  }, [sendCommand, onPuppeted])
+  }, [sendCommand, onPuppeted, billing, handleSubscribe])
 
   const handleCreateSubmit = useCallback((e) => {
     e.preventDefault()
@@ -177,6 +235,11 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
 
         {error && (
           <div className="charsel-error">{error}</div>
+        )}
+
+        {/* Subscription banner — trial countdown, paywall, or subscribed. */}
+        {billing && billing.authenticated && (
+          <SubscriptionBanner billing={billing} onSubscribe={handleSubscribe} subscribing={subscribing} />
         )}
 
         {!loading && (
@@ -288,4 +351,81 @@ function CharacterCard({ char, onPlay }) {
       <div className="charsel-card-play">PLAY</div>
     </button>
   )
+}
+
+
+/**
+ * SubscriptionBanner — renders the account's billing state above the
+ * character grid. One of:
+ *   - paywalled: "Your trial has ended. Subscribe — $5/month" + button
+ *   - trialing:  "Trial: N days remaining" (and a small Subscribe link)
+ *   - active:    "Subscribed — next renewal <date>"
+ *   - past_due:  "Payment failed — update your payment method"
+ */
+function SubscriptionBanner({ billing, onSubscribe, subscribing }) {
+  if (!billing) return null
+  const price = billing.monthly_price_usd || '5.00'
+
+  if (billing.should_be_paywalled) {
+    return (
+      <div className="charsel-sub-banner charsel-sub-paywall">
+        <div className="charsel-sub-text">
+          <strong>Your free trial has ended.</strong> Subscribe to keep playing — <strong>${price}/month</strong>, cancel anytime.
+        </div>
+        <button
+          className="charsel-sub-btn"
+          onClick={onSubscribe}
+          disabled={subscribing}
+        >
+          {subscribing ? 'Redirecting…' : 'Subscribe'}
+        </button>
+      </div>
+    )
+  }
+  if (billing.status === 'past_due') {
+    return (
+      <div className="charsel-sub-banner charsel-sub-paywall">
+        <div className="charsel-sub-text">
+          <strong>Payment failed.</strong> Update your payment method to keep playing.
+        </div>
+        <button
+          className="charsel-sub-btn"
+          onClick={onSubscribe}
+          disabled={subscribing}
+        >
+          {subscribing ? 'Redirecting…' : 'Fix Payment'}
+        </button>
+      </div>
+    )
+  }
+  if (billing.subscription_active) {
+    const renewal = billing.renewal_at
+      ? new Date(billing.renewal_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+      : null
+    return (
+      <div className="charsel-sub-banner charsel-sub-active">
+        <div className="charsel-sub-text">
+          ✓ Subscribed{renewal ? ` — next renewal ${renewal}` : ''}
+        </div>
+      </div>
+    )
+  }
+  if (billing.in_trial) {
+    const days = billing.trial_days_remaining
+    return (
+      <div className="charsel-sub-banner charsel-sub-trial">
+        <div className="charsel-sub-text">
+          Trial: <strong>{days}</strong> day{days === 1 ? '' : 's'} remaining
+        </div>
+        <button
+          className="charsel-sub-btn charsel-sub-btn-quiet"
+          onClick={onSubscribe}
+          disabled={subscribing}
+        >
+          {subscribing ? 'Redirecting…' : `Subscribe — $${price}/mo`}
+        </button>
+      </div>
+    )
+  }
+  return null
 }

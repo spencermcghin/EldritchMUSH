@@ -19,6 +19,9 @@ from web.api_views import (
     npc_audit_log,
 )
 from web.diag import diag_view
+from web.billing import (
+    billing_status, create_subscription, billing_return, webhook as billing_webhook,
+)
 
 # Side-effect import: connects OAuth signal handlers. Must happen
 # AFTER django.setup() (we're guaranteed that here because URL
@@ -52,6 +55,11 @@ custom_patterns = [
     # with flags for banned-phrase hits, moderation flags, rate limits,
     # and LLM errors. See world/ai_safety.py for the log format.
     path("api/admin/npc-audit/", npc_audit_log, name="npc_audit_log"),
+    # Billing / PayPal subscription endpoints.
+    path("api/billing/status", billing_status, name="billing_status"),
+    path("api/billing/create-subscription", create_subscription, name="create_subscription"),
+    path("api/billing/return", billing_return, name="billing_return"),
+    path("api/billing/webhook", billing_webhook, name="billing_webhook"),
     # Diagnostic log viewer — visit /api/diag/ in a browser to read the
     # tail of /data/diag.log. Used to debug Railway log capture issues
     # where Evennia server stdout/server.log isn't being collected.
