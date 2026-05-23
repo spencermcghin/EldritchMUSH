@@ -76,11 +76,37 @@ function layoutGraph(nodes, edges) {
   return { positions: pos, width: W, height: H }
 }
 
-const NODE_COLORS = {
+// Per-zone palette — gives the map a sense of place at a glance.
+// Each settlement gets a tinted base color matching its canon vibe:
+// Mystvale gold, Tamris sea-grey, Carran rust, Ironhaven steel,
+// Harrowgate cold purple, etc. Falls through to the type-based
+// palette for rooms with no zone match.
+const ZONE_COLORS = {
+  'Gateway':     '#9a8266',
+  'Arrival':     '#8b5cf6',
+  'The Mists':   '#a8a4a0',
+  'The Annwyn':  '#8a7e72',
+  'Mystvale':    '#b89244',
+  'Tamris':      '#5e8a8c',
+  'Carran':      '#a8624a',
+  'Ironhaven':   '#6a7585',
+  'Harrowgate':  '#7a6a8a',
+  'Arcton':      '#7a8a5e',
+  'Goldleaf':    '#a8a064',
+  'Moonfall':    '#5a6a8e',
+  'The Cirque':  '#c0506e',
+}
+
+// Fallback per-type palette (used when zone isn't in ZONE_COLORS).
+const TYPE_COLORS = {
   room: '#9a8266',
   weather: '#6a8a6a',
   market: '#d4af37',
   chargen: '#8b5cf6',
+}
+
+function colorFor(node) {
+  return ZONE_COLORS[node.zone] || TYPE_COLORS[node.type] || TYPE_COLORS.room
 }
 
 const ZONE_ALL = '__all__'
@@ -251,17 +277,20 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                 className="map-svg"
                 preserveAspectRatio="xMidYMid meet"
               >
-                {/* Edges */}
+                {/* Edges — edges connected to the current room get a
+                    bright phosphor highlight so the player can see at
+                    a glance which directions they can move. */}
                 {layout.edges.map((e, i) => {
                   const from = layout.positions[e.from]
                   const to = layout.positions[e.to]
                   if (!from || !to) return null
+                  const adjacent = e.from === layout.currentRoom || e.to === layout.currentRoom
                   return (
                     <line
                       key={i}
                       x1={from.x} y1={from.y}
                       x2={to.x} y2={to.y}
-                      className="map-edge"
+                      className={`map-edge ${adjacent ? 'adjacent' : ''}`}
                     />
                   )
                 })}
@@ -269,7 +298,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                 {layout.nodes.map((node, idx) => {
                   const p = layout.positions[node.id]
                   if (!p) return null
-                  const color = NODE_COLORS[node.type] || NODE_COLORS.room
+                  const color = colorFor(node)
                   const num = idx + 1
                   return (
                     <g
@@ -296,6 +325,17 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                       >
                         {num}
                       </text>
+                      {/* Always-visible label for the player's
+                          current location. Other nodes show name on
+                          hover via the tooltip. */}
+                      {node.current && (
+                        <text
+                          x={p.x} y={p.y + 36}
+                          className="map-node-here-label"
+                        >
+                          ✦ {node.name} ✦
+                        </text>
+                      )}
                     </g>
                   )
                 })}
@@ -308,7 +348,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                   <div className="map-tooltip-header">
                     <span
                       className="map-tooltip-dot"
-                      style={{ background: NODE_COLORS[tooltip.node.type] || NODE_COLORS.room }}
+                      style={{ background: colorFor(tooltip.node) }}
                     >
                       {tooltip.node.num}
                     </span>
@@ -354,7 +394,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                     >
                       <span
                         className="map-key-num"
-                        style={{ background: NODE_COLORS[node.type] || NODE_COLORS.room }}
+                        style={{ background: colorFor(node) }}
                       >
                         {idx + 1}
                       </span>
