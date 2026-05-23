@@ -1,0 +1,10 @@
+# EldritchMUSH — public game site.
+# Crawlers welcome on the marketing surface. The Django admin and
+# internal API endpoints aren't linked from anywhere reachable so
+# we don't bother disallowing them explicitly here.
+
+User-agent: *
+Allow: /
+
+# Sitemap location — points search engines at the canonical URL list.
+Sitemap: https://eldritchmush.com/sitemap.xml
