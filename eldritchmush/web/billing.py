@@ -196,19 +196,64 @@ def create_subscription(request):
 @require_http_methods(["GET"])
 def billing_return(request):
     """PayPal redirects the user here after they approve the
-    subscription. We link the sub id to the account and bounce them
-    back to character select.
+    subscription. We link the sub id to the account AND actively
+    fetch the subscription's current state from PayPal so we don't
+    have to wait for the webhook (which can be slow, retry-flaky,
+    or misconfigured). The webhook still does the right thing on
+    state changes later (cancellation, payment failure, renewal).
     """
     sub_id = request.GET.get("subscription_id")
-    if request.user.is_authenticated and sub_id:
+    if request.user.is_authenticated and sub_id and _paypal_configured():
         acct = _account_for_user(request.user)
         if acct:
             acct.db.paypal_subscription_id = sub_id
-            # Optimistic — actual ACTIVE state is confirmed via webhook.
-            # Until then we mark trialing+paid_pending; the webhook
-            # promotes to "active".
-            if not acct.db.subscription_status:
-                acct.db.subscription_status = "trialing"
+            # Active fetch — confirm the subscription is ACTIVE
+            # before we tell the user "you're subscribed".
+            try:
+                token = _get_access_token()
+                resp = requests.get(
+                    f"{_paypal_base()}/v1/billing/subscriptions/{sub_id}",
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Accept": "application/json",
+                    },
+                    timeout=10,
+                )
+                if resp.status_code == 200:
+                    sub = resp.json()
+                    pp_status = (sub.get("status") or "").upper()
+                    if pp_status == "ACTIVE":
+                        acct.db.subscription_status = "active"
+                    elif pp_status == "APPROVAL_PENDING":
+                        # User finished the approval click but PayPal
+                        # is still processing. Webhook will activate.
+                        if not acct.db.subscription_status:
+                            acct.db.subscription_status = "trialing"
+                    elif pp_status == "APPROVED":
+                        # Approved but not yet billed — treat as active
+                        # for access purposes; the next billing cycle
+                        # will produce a webhook to confirm.
+                        acct.db.subscription_status = "active"
+                    elif pp_status == "SUSPENDED":
+                        acct.db.subscription_status = "past_due"
+                    elif pp_status in ("CANCELLED", "EXPIRED"):
+                        acct.db.subscription_status = "canceled"
+                    nbt = (sub.get("billing_info") or {}).get("next_billing_time")
+                    if nbt:
+                        acct.db.subscription_renewal_at = nbt
+                    print(
+                        f"[billing_return] sub={sub_id} pp_status={pp_status} "
+                        f"local_status={acct.db.subscription_status}",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        f"[billing_return] PayPal GET sub failed: "
+                        f"HTTP {resp.status_code} body={resp.text[:200]}",
+                        flush=True,
+                    )
+            except Exception as exc:
+                print(f"[billing_return] fetch failed: {exc!r}", flush=True)
     base = _site_base_url(request)
     return HttpResponseRedirect(f"{base}/?subscribed=1")
 

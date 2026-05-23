@@ -95,11 +95,24 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
 
   useEffect(() => {
     fetchBilling()
-    // If the user just returned from PayPal approval, re-fetch shortly
-    // so the webhook has a beat to update state.
+    // If the user just returned from PayPal approval, poll the
+    // status endpoint a few times. The /api/billing/return handler
+    // actively fetches subscription state from PayPal before
+    // redirecting, so the first follow-up should already reflect
+    // ACTIVE — but PayPal's webhook can also fire and update during
+    // this window, so we retry a few times with a small backoff to
+    // catch state changes either way.
     if (typeof window !== 'undefined' && /[?&]subscribed=1/.test(window.location.search)) {
-      const t = setTimeout(fetchBilling, 1500)
-      return () => clearTimeout(t)
+      const delays = [1000, 2500, 5000, 10000]
+      const timers = delays.map(d => setTimeout(fetchBilling, d))
+      // Clean the ?subscribed=1 from the URL so a manual reload
+      // doesn't re-trigger the polling.
+      try {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('subscribed')
+        window.history.replaceState({}, '', url.toString())
+      } catch (e) { /* noop */ }
+      return () => timers.forEach(clearTimeout)
     }
   }, [fetchBilling])
 
