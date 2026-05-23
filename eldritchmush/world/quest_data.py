@@ -120,63 +120,94 @@ QUESTS = {
         "title": "From the Mists: Cirque",
         "giver": "herald at the gates",
         "description": (
-            "You travelled with the Grand Cirque Obscura through fog that "
-            "swallowed miles. When the caravan stopped at the Mystvale gates, "
-            "one of the troupe was missing — Eldreth, the fortune-teller. "
-            "The ringmaster is not the kind of man who reports such things "
-            "to the watch. He is, however, the kind of man who rewards "
-            "discretion."
+            "You travelled with the Grand Cirque Obscura's caravan. At the "
+            "Mistwall the hired Mistwalker never showed; the cargo waits "
+            "in four iron-banded crates and the Cirque's foreman Yan needs "
+            "a courier with the nerve to carry them through the Tangle. "
+            "On the other side: Eldreth, the Cirque's merchant in the "
+            "Annwyn — or, in her absence, the Ringmaster himself at the "
+            "Mystvale Marketplace. In between: the Lost, the Underwriter, "
+            "and a chasm only a trod torch will let you cross."
         ),
         "outcomes": {
-            "return_alive": {
-                "label": "Find Eldreth and bring her back",
+            "deliver_all_four": {
+                "label": "Fight the Lost, pay the Underwriter, deliver all four",
                 "description": (
-                    "Track Eldreth into the forest and return her to the caravan. "
-                    "Clean. The Cirque remembers."
+                    "Cut through the Lost in the Tangle. Pay the "
+                    "Underwriter in coin for the trod torch. Carry all "
+                    "four crates over the ghost-bridge to the Ringmaster "
+                    "at the Mystvale Marketplace. The Cirque pays in "
+                    "favour, not pity."
                 ),
                 "objectives": [
-                    {"type": "explore", "target": "The Old Road",
-                     "qty": 1, "desc": "Search the Old Road south of Mystvale (0/1)"},
-                    {"type": "gather", "target": "eldreth's pendant",
-                     "qty": 1, "desc": "Find Eldreth's pendant on the Old Road south (0/1)"},
+                    {"type": "kill", "target": "the first lost",
+                     "qty": 1, "desc": "Put down the First Lost in the Tangle (0/1)"},
+                    {"type": "kill", "target": "the second lost",
+                     "qty": 1, "desc": "Put down the Second Lost in the Tangle (0/1)"},
+                    {"type": "gather", "target": "trod torch",
+                     "qty": 1, "desc": "Buy the trod torch from the Underwriter (0/1)"},
                     {"type": "deliver", "target": "the ringmaster",
-                     "qty": 1, "desc": "Return to the Ringmaster at the Mystvale Marketplace (0/1)"},
+                     "qty": 1, "desc": "Deliver the Cirque cargo manifest to the Ringmaster at the Mystvale Marketplace (0/1)"},
+                ],
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"cirque": 4, "outlaws": 1},
+            },
+            "mercy_to_the_lost": {
+                "label": "Give the Lost a crate, deliver three",
+                "description": (
+                    "Hand the Lost a crate. They take it into the dark "
+                    "and let you pass. Pay the Underwriter for the "
+                    "torch. Bring three crates to the Ringmaster. The "
+                    "Cirque notes the loss and the mercy."
+                ),
+                "objectives": [
+                    {"type": "deliver", "target": "the first lost",
+                     "qty": 1, "desc": "Give a Cirque crate to the First Lost (0/1)"},
+                    {"type": "gather", "target": "trod torch",
+                     "qty": 1, "desc": "Buy the trod torch from the Underwriter (0/1)"},
+                    {"type": "deliver", "target": "the ringmaster",
+                     "qty": 1, "desc": "Deliver the Cirque cargo manifest to the Ringmaster at the Mystvale Marketplace (0/1)"},
                 ],
                 "rewards": {"silver": 20, "items": [], "reagents": {}},
-                "faction_rep": {"cirque": 3},
+                "faction_rep": {"cirque": 2, "outsider": 2},
             },
-            "cover_up": {
-                "label": "Help the Cirque cover her disappearance",
+            "barter_with_underwriter": {
+                "label": "Trade a crate to the Underwriter for the torch",
                 "description": (
-                    "Whatever Eldreth was hiding, the Cirque wants it stay hidden. "
-                    "Silence the witness on the Old Road south, then bring "
-                    "the pendant back. The troupe will owe you."
+                    "Make it past the Lost as you can. Hand the "
+                    "Underwriter one of the Cirque's crates as payment "
+                    "for the trod torch. Carry three crates through. "
+                    "The Cirque charges the loss to your share."
                 ),
                 "objectives": [
-                    {"type": "kill", "target": "nosy farmhand",
-                     "qty": 1, "desc": "Silence the nosy farmhand on the Old Road south (0/1)"},
-                    {"type": "gather", "target": "eldreth's pendant",
-                     "qty": 1, "desc": "Recover Eldreth's pendant on the Old Road south (0/1)"},
-                ],
-                "rewards": {"silver": 30, "items": [], "reagents": {}},
-                "faction_rep": {"cirque": 2, "crown": -2, "outlaws": 1},
-            },
-            "turn_in": {
-                "label": "Turn the Cirque over to Mystvale's watch",
-                "description": (
-                    "Walk to the watch and tell them exactly what the Cirque "
-                    "was hiding. You'll be paid in Crown coin, not Cirque coin — "
-                    "and the Cirque doesn't forget. Find the Captain of the "
-                    "Watch at the barracks in Carran."
-                ),
-                "objectives": [
-                    {"type": "gather", "target": "eldreth's pendant",
-                     "qty": 1, "desc": "Find evidence on the Old Road south (0/1)"},
-                    {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Report to the watch captain at Carran Barracks (0/1)"},
+                    {"type": "explore", "target": "The Tangle",
+                     "qty": 1, "desc": "Cross the Tangle (0/1)"},
+                    {"type": "deliver", "target": "the underwriter",
+                     "qty": 1, "desc": "Give a Cirque crate to the Underwriter for the trod torch (0/1)"},
+                    {"type": "deliver", "target": "the ringmaster",
+                     "qty": 1, "desc": "Deliver the Cirque cargo manifest to the Ringmaster at the Mystvale Marketplace (0/1)"},
                 ],
                 "rewards": {"silver": 25, "items": [], "reagents": {}},
-                "faction_rep": {"crown": 3, "cirque": -3},
+                "faction_rep": {"cirque": 1, "outsider": 1},
+            },
+            "sell_to_underwriter": {
+                "label": "Sell all four crates to the Underwriter",
+                "description": (
+                    "The Underwriter offers a heavy purse for the whole "
+                    "manifest. Take it. Walk into Mystvale alone, "
+                    "wealthy, and on the Cirque's blacklist forever. "
+                    "Disappear into the Marketplace crowd."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Tangle",
+                     "qty": 1, "desc": "Cross the Tangle (0/1)"},
+                    {"type": "deliver", "target": "the underwriter",
+                     "qty": 1, "desc": "Sell the Cirque cargo manifest to the Underwriter (0/1)"},
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Slip into the Mystvale Marketplace (0/1)"},
+                ],
+                "rewards": {"silver": 60, "items": [], "reagents": {}},
+                "faction_rep": {"cirque": -4, "outlaws": 2, "outsider": 2},
             },
         },
         "prereqs": [],
@@ -189,63 +220,96 @@ QUESTS = {
         "giver": "herald at the gates",
         "description": (
             "You rode in the retinue of a minor noble house — or you rode "
-            "as one, depending on how you tell it. The Mists parted onto "
-            "the road to Mystvale, and with you came a sealed letter bound "
-            "for a contact in the upper city. Bandits know these roads. "
-            "So do crueler things."
+            "as one, depending on how you tell it. The retinue hired a "
+            "Mistwalker called Martin in Gateway, and his assistant Wil "
+            "led you out to meet him at a camp past the Mistwall. The "
+            "camp is empty. The fire is cold. Wil is sweating. Beyond "
+            "the camp lies the Spider-Wood, Martin's true fate, and a "
+            "leather journal whose secret the Crown and the Crows both "
+            "want enough to kill for."
         ),
         "outcomes": {
-            "delivered_sealed": {
-                "label": "Deliver the letter, seal intact",
+            "expose_wil": {
+                "label": "Bring Wil's fraud and Martin's journal to Lady Ysolde",
                 "description": (
-                    "Reach Lady Ysolde at the Mystvale Town Hall, seal "
-                    "unbroken. The court will note your reliability. "
-                    "Bandits hunt the Old Road south — go through them first."
+                    "Survive the Spider-Wood. Take Martin's journal from "
+                    "the Hollow where Wil drops it. Carry both the "
+                    "journal and the story of Wil's con back to Lady "
+                    "Ysolde at the Mystvale Town Hall. The Crown will "
+                    "remember the courier who handed it a Mistwalker's "
+                    "route and a false Guide's name in the same breath."
                 ),
                 "objectives": [
-                    {"type": "kill", "target": "road bandit",
-                     "qty": 2, "desc": "Survive the bandit ambush on the Old Road south (0/2)"},
+                    {"type": "explore", "target": "The Spider-Wood",
+                     "qty": 1, "desc": "Cross the Spider-Wood (0/1)"},
+                    {"type": "gather", "target": "Martin's journal",
+                     "qty": 1, "desc": "Take Martin's journal from the Web-Wreathed Hollow (0/1)"},
                     {"type": "deliver", "target": "lady ysolde of the crescent",
-                     "qty": 1, "desc": "Deliver the letter unopened to Lady Ysolde at the Mystvale Town Hall (0/1)"},
+                     "qty": 1, "desc": "Deliver Martin's journal to Lady Ysolde at the Mystvale Town Hall (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "outlaws": -1},
+            },
+            "let_wil_go": {
+                "label": "Let Wil flee — no blood, no journal",
+                "description": (
+                    "Hear Wil's confession in the Hollow. Pity him. Let "
+                    "him take Martin's journal and vanish into the "
+                    "Mystvale crowd. You arrive in the Marketplace with "
+                    "nothing but a story nobody will pay for. The Crown "
+                    "and the Crows both wonder where the Guide's gear "
+                    "went."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Spider-Wood",
+                     "qty": 1, "desc": "Cross the Spider-Wood (0/1)"},
+                    {"type": "explore", "target": "The Web-Wreathed Hollow",
+                     "qty": 1, "desc": "Hear Wil's confession in the Web-Wreathed Hollow (0/1)"},
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Arrive in the Mystvale Marketplace (0/1)"},
+                ],
+                "rewards": {"silver": 10, "items": [], "reagents": {}},
+                "faction_rep": {"outsider": 2},
+            },
+            "kill_wil": {
+                "label": "Kill Wil for the deception",
+                "description": (
+                    "A conman ran your retinue into the Spider-Wood for "
+                    "coin. Cut him down in the Hollow when he tries to "
+                    "flee. Take Martin's journal. Walk into Mystvale "
+                    "with the dead Guide's secret in your pack."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Spider-Wood",
+                     "qty": 1, "desc": "Cross the Spider-Wood (0/1)"},
+                    {"type": "kill", "target": "wil",
+                     "qty": 1, "desc": "Put Wil down in the Web-Wreathed Hollow (0/1)"},
+                    {"type": "gather", "target": "Martin's journal",
+                     "qty": 1, "desc": "Take Martin's journal from the Hollow (0/1)"},
                 ],
                 "rewards": {"silver": 25, "items": [], "reagents": {}},
-                "faction_rep": {"crown": 3},
+                "faction_rep": {"crown": 1, "outlaws": 2},
             },
-            "read_it_first": {
-                "label": "Read the letter before delivering",
+            "sell_journal_to_crows": {
+                "label": "Sell Martin's journal to the Crows",
                 "description": (
-                    "Break the seal on the road. Read it. Re-seal it with "
-                    "wax and hope. What you learn is worth more than the "
-                    "delivery fee — if you survive knowing it. Then deliver "
-                    "to Lady Ysolde at the Mystvale Town Hall."
+                    "The journal contains a route through the Mists the "
+                    "Crown does not own. The Crows will pay in heavy "
+                    "silver and protection for it. Cross the Spider-Wood, "
+                    "take the journal at the Hollow, and find the Crow "
+                    "Agent on the Old Road south. The Crown will know "
+                    "your name and hate it."
                 ),
                 "objectives": [
-                    {"type": "kill", "target": "road bandit",
-                     "qty": 2, "desc": "Survive the bandit ambush on the Old Road south (0/2)"},
-                    {"type": "gather", "target": "unsealed letter",
-                     "qty": 1, "desc": "Break the seal and read on the Old Road south (0/1)"},
-                    {"type": "deliver", "target": "lady ysolde of the crescent",
-                     "qty": 1, "desc": "Deliver the letter to Lady Ysolde at the Mystvale Town Hall (0/1)"},
-                ],
-                "rewards": {"silver": 15, "items": ["MORPHOS_LORE_SCROLL"],
-                            "reagents": {}},
-                "faction_rep": {"crown": 1, "outsider": 2},
-            },
-            "sell_to_crows": {
-                "label": "Sell the letter to the Crows",
-                "description": (
-                    "The Crows pay well for Crown correspondence. The Crown "
-                    "pays less well for traitors. You'll have to pick a side. "
-                    "The Crow agent waits on the Old Road south."
-                ),
-                "objectives": [
-                    {"type": "explore", "target": "The Old Road",
-                     "qty": 1, "desc": "Meet the Crow agent on the Old Road south (0/1)"},
+                    {"type": "explore", "target": "The Spider-Wood",
+                     "qty": 1, "desc": "Cross the Spider-Wood (0/1)"},
+                    {"type": "gather", "target": "Martin's journal",
+                     "qty": 1, "desc": "Take Martin's journal from the Hollow (0/1)"},
                     {"type": "deliver", "target": "crow agent",
-                     "qty": 1, "desc": "Hand the letter to the Crow Agent on the Old Road south (0/1)"},
+                     "qty": 1, "desc": "Sell Martin's journal to the Crow Agent on the Old Road south (0/1)"},
                 ],
-                "rewards": {"silver": 40, "items": [], "reagents": {}},
-                "faction_rep": {"crown": -4, "crows": 4},
+                "rewards": {"silver": 50, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -3, "crows": 4},
             },
         },
         "prereqs": [],
@@ -254,61 +318,93 @@ QUESTS = {
 
     "walkin_scout": {
         "key": "walkin_scout",
-        "title": "From the Mists: Scout",
+        "title": "From the Mists: Explorer",
         "giver": "herald at the gates",
         "description": (
-            "You came through the wilderness — the long way, the quiet way. "
-            "Somewhere in the pine shadow you saw Crow sign: fresh tracks, "
-            "a felled messenger bird, a waymark cut into bark. The watch "
-            "should hear of it. Or they shouldn't. Your call."
+            "You answered Magister Ipwin's call. He summoned the Lodge of "
+            "the Metaphysical Mind to the Annwyn to study its spirit "
+            "phenomena, and you came at his name. His abandoned camp is "
+            "ahead, his trail marked in blacklight you can only see by "
+            "the lanterns he left. He went on toward a barrow he opened. "
+            "What you find at the barrow will be Ipwin, the spirit that "
+            "now wears him, and a choice — for the binding, against it, "
+            "or past it altogether."
         ),
         "outcomes": {
-            "warn_watch": {
-                "label": "Warn the Mystvale watch",
+            "save_ipwin": {
+                "label": "Reassemble the binding-figure, exorcise Shireen, save Ipwin",
                 "description": (
-                    "Pick up the waymark on the Old Road south, then report "
-                    "what you saw to the Captain of the Watch at the "
-                    "Carran Barracks. Honest work — the watch remembers "
-                    "faces that help them."
+                    "Gather the four rune-bones from the barrow floor. "
+                    "Lay them in the figure carved on the wall. Shireen "
+                    "is bound back into the earth and Magister Ipwin "
+                    "walks out of the barrow himself. Deliver him to "
+                    "Lady Ysolde at the Mystvale Town Hall — the "
+                    "Lodge's standing in the Crown's eye rises."
                 ),
                 "objectives": [
-                    {"type": "gather", "target": "crow waymark",
-                     "qty": 1, "desc": "Recover the waymark on the Old Road south (0/1)"},
-                    {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Warn the watch captain at Carran Barracks (0/1)"},
-                ],
-                "rewards": {"silver": 15, "items": [], "reagents": {}},
-                "faction_rep": {"crown": 2, "rangers": 2},
-            },
-            "sell_intel_crows": {
-                "label": "Sell the intel back to the Crows",
-                "description": (
-                    "They'd rather know that you saw than have you warn anyone. "
-                    "The price is good. The cost is your reputation. Find "
-                    "the Crow Agent on the Old Road south."
-                ),
-                "objectives": [
-                    {"type": "gather", "target": "crow waymark",
-                     "qty": 1, "desc": "Recover the waymark on the Old Road south (0/1)"},
-                    {"type": "deliver", "target": "crow agent",
-                     "qty": 1, "desc": "Return the waymark to the Crow Agent on the Old Road south (0/1)"},
+                    {"type": "gather", "target": "rune-bone",
+                     "qty": 4, "desc": "Gather all four rune-bones in the Barrow (0/4)"},
+                    {"type": "deliver", "target": "lady ysolde of the crescent",
+                     "qty": 1, "desc": "Deliver Ipwin's journal to Lady Ysolde at the Mystvale Town Hall (0/1)"},
                 ],
                 "rewards": {"silver": 30, "items": [], "reagents": {}},
-                "faction_rep": {"crown": -2, "rangers": -1, "crows": 3},
+                "faction_rep": {"crown": 2, "rangers": 2},
             },
-            "stay_silent": {
-                "label": "Say nothing",
+            "fight_shireen": {
+                "label": "Destroy Shireen — Ipwin survives, the lore burns",
                 "description": (
-                    "The forest keeps its secrets. You keep yours. Slip into "
-                    "the Mystvale Marketplace and disappear — nobody's "
-                    "business but yours."
+                    "Drive Shireen out of Ipwin by sword and prayer. "
+                    "She dies hard. Ipwin lives, but the Witch-Queen "
+                    "loses a daughter, the bones lie scattered, and "
+                    "the lore Ipwin came for is mostly gone. Walk "
+                    "him into the Mystvale Marketplace alive."
                 ),
                 "objectives": [
+                    {"type": "kill", "target": "shireen",
+                     "qty": 1, "desc": "Destroy Shireen in the Barrow (0/1)"},
                     {"type": "explore", "target": "The Mystvale Marketplace",
-                     "qty": 1, "desc": "Slip into the Mystvale Marketplace quietly (0/1)"},
+                     "qty": 1, "desc": "Bring Ipwin into the Mystvale Marketplace (0/1)"},
                 ],
-                "rewards": {"silver": 5, "items": [], "reagents": {}},
-                "faction_rep": {"rangers": 1, "outsider": 1},
+                "rewards": {"silver": 20, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 1, "outsider": 1},
+            },
+            "take_ipwins_journal": {
+                "label": "Abandon Ipwin — take his research to the Crown",
+                "description": (
+                    "Ipwin is gone. Shireen wears him. The Lodge "
+                    "loses a scholar; the Crown gains a journal of "
+                    "his metaphysical findings. Take Ipwin's journal "
+                    "from the camp and carry it to Lady Ysolde at "
+                    "the Mystvale Town Hall."
+                ),
+                "objectives": [
+                    {"type": "gather", "target": "Ipwin's journal",
+                     "qty": 1, "desc": "Take Ipwin's journal from his camp (0/1)"},
+                    {"type": "deliver", "target": "lady ysolde of the crescent",
+                     "qty": 1, "desc": "Deliver Ipwin's journal to Lady Ysolde at the Mystvale Town Hall (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "outsider": 2},
+            },
+            "serve_shireen": {
+                "label": "Refuse the binding — accept the Witch-Queen's gift",
+                "description": (
+                    "Leave the bones where they lie. Speak with "
+                    "Shireen. Accept the Witch-Queen's gift — a "
+                    "touch of fae sight, a debt called in later. "
+                    "Walk into Mystvale changed. The Crown will not "
+                    "thank you. The old powers will remember."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "The Barrow of Shireen",
+                     "qty": 1, "desc": "Reach Shireen in the Barrow (0/1)"},
+                    {"type": "deliver", "target": "shireen",
+                     "qty": 1, "desc": "Offer Ipwin's journal to Shireen as tribute (0/1)"},
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Walk into the Mystvale Marketplace marked (0/1)"},
+                ],
+                "rewards": {"silver": 20, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -3, "crows": 2, "outsider": 3},
             },
         },
         "prereqs": [],
@@ -321,75 +417,99 @@ QUESTS = {
         "giver": "herald at the gates",
         "description": (
             "You do not remember the crime. You remember the chains. The "
-            "jailers marched the gang through the Mists for a day and a "
-            "night, and when the fog thinned, the Mystvale Gates were ahead "
-            "and an opportunity was behind. Break free, plead your case, or "
-            "sell out the others. Choose before the cart rolls on."
+            "jailers marched the gang to the edge of the Mistwall, cuffed "
+            "you to a wagon-chain with strangers, took your weapons in a "
+            "Laurent-stamped crate, and turned the wagon back. Ahead lies "
+            "the Last Walk — and a Northman named Ulfric in the seat "
+            "beside you who already knows your name. Whatever happens in "
+            "the woods between here and Mystvale will define you."
         ),
         "outcomes": {
-            "bloody_break": {
-                "label": "Kill the jailers, free the gang",
+            "join_ulfric": {
+                "label": "Throw in with Ulfric — take the gold, kill the guard",
                 "description": (
-                    "Violence and freedom. The jailers stand at the Mistwall — "
-                    "drop them, then run for the Mystvale Marketplace before "
-                    "anyone else arrives. The Crown will hate you for it."
+                    "Stand with Ulfric at the clearing. Help him put down "
+                    "Killian, take the Laurent strongbox, and walk into "
+                    "Mystvale a gang. The Crown will know your name and "
+                    "hate it. The outlaw network will know your name and "
+                    "shake your hand."
                 ),
                 "objectives": [
-                    {"type": "kill", "target": "mystvale jailer",
-                     "qty": 2, "desc": "Put down the jailers at the Mistwall (0/2)"},
+                    {"type": "explore", "target": "A Clearing in the Mists",
+                     "qty": 1, "desc": "Reach the clearing in the Mists (0/1)"},
+                    {"type": "kill", "target": "killian",
+                     "qty": 1, "desc": "Help Ulfric put Killian down at the Clearing (0/1)"},
+                    {"type": "gather", "target": "Laurent strongbox",
+                     "qty": 1, "desc": "Take the Laurent strongbox (0/1)"},
                     {"type": "explore", "target": "The Mystvale Marketplace",
-                     "qty": 1, "desc": "Escape to the Mystvale Marketplace (0/1)"},
+                     "qty": 1, "desc": "Escape into the Mystvale Marketplace (0/1)"},
                 ],
-                "rewards": {"silver": 10, "items": [], "reagents": {}},
-                "faction_rep": {"crown": -4, "crows": 2, "outlaws": 3},
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -4, "outlaws": 4, "crows": 1},
             },
-            "quiet_slip": {
-                "label": "Slip your chains alone",
+            "save_killian": {
+                "label": "Defend Killian — return the gold to House Laurent",
                 "description": (
-                    "Slide out at the Mistwall while no one's looking, then "
-                    "lose yourself in the Mystvale Marketplace. No blood, no "
-                    "friends, no enemies — just you, free, in Mystvale."
+                    "Refuse Ulfric. Stand between him and Killian. Bring "
+                    "the Laurent strongbox and Lord Laurent's letter "
+                    "through the Mists to the Mystvale Captain of the "
+                    "Watch — House Laurent will remember the name of the "
+                    "stranger who held the line."
                 ),
                 "objectives": [
-                    {"type": "explore", "target": "The Mystvale Marketplace",
-                     "qty": 1, "desc": "Disappear into the crowd at the Mystvale Marketplace (0/1)"},
-                ],
-                "rewards": {"silver": 5, "items": [], "reagents": {}},
-                "faction_rep": {"outsider": 2},
-            },
-            "legal_appeal": {
-                "label": "Surrender and plead your case",
-                "description": (
-                    "Find the forged warrant at the Mistwall to prove the "
-                    "charge was bogus, then take it to the Captain of the "
-                    "Watch at the Carran Barracks. If the case holds, you "
-                    "arrive in Mystvale a free citizen with no debts owed."
-                ),
-                "objectives": [
-                    {"type": "gather", "target": "forged warrant",
-                     "qty": 1, "desc": "Find the forged warrant at the Mistwall (0/1)"},
+                    {"type": "explore", "target": "A Clearing in the Mists",
+                     "qty": 1, "desc": "Reach the clearing in the Mists (0/1)"},
+                    {"type": "kill", "target": "ulfric",
+                     "qty": 1, "desc": "Put Ulfric down at the Clearing (0/1)"},
+                    {"type": "gather", "target": "Laurent strongbox",
+                     "qty": 1, "desc": "Recover the Laurent strongbox at the Clearing (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Present your case to the watch captain at Carran Barracks (0/1)"},
+                     "qty": 1, "desc": "Deliver the strongbox to the watch captain at the Bannon Barracks (0/1)"},
                 ],
                 "rewards": {"silver": 20, "items": [], "reagents": {}},
-                "faction_rep": {"crown": 3, "outlaws": -1},
+                "faction_rep": {"crown": 4, "rangers": 1, "outlaws": -3},
             },
-            "turncoat": {
-                "label": "Sell out the gang for your own freedom",
+            "take_gold_spare_killian": {
+                "label": "Take the gold — leave Killian alive",
                 "description": (
-                    "Subdue the ringleader at the Mistwall, then turn him in "
-                    "to the Captain of the Watch at the Carran Barracks. The "
+                    "No kill, no glory. Bind Killian's wound, take the "
+                    "Laurent strongbox, and walk past him into the "
+                    "Mystvale crowd. You arrive in the Marketplace a "
+                    "free outlaw with a heavy purse and no story you'd "
+                    "want told."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "A Clearing in the Mists",
+                     "qty": 1, "desc": "Reach the clearing in the Mists (0/1)"},
+                    {"type": "gather", "target": "Laurent strongbox",
+                     "qty": 1, "desc": "Take the Laurent strongbox (0/1)"},
+                    {"type": "explore", "target": "The Mystvale Marketplace",
+                     "qty": 1, "desc": "Slip into the Mystvale Marketplace (0/1)"},
+                ],
+                "rewards": {"silver": 30, "items": [], "reagents": {}},
+                "faction_rep": {"crown": -1, "outlaws": 2, "outsider": 2},
+            },
+            "turn_in_ulfric": {
+                "label": "Subdue Ulfric — march him to the watch with Lord Laurent's letter",
+                "description": (
+                    "Put Ulfric down before he can move on the chest, "
+                    "find Lord Laurent's letter at the Clearing, and "
+                    "carry it to the Mystvale Captain of the Watch. The "
                     "Crown files your name as a useful man. The outlaw "
                     "network files your name in ink."
                 ),
                 "objectives": [
-                    {"type": "kill", "target": "chain gang ringleader",
-                     "qty": 1, "desc": "Subdue the ringleader at the Mistwall (0/1)"},
+                    {"type": "explore", "target": "A Clearing in the Mists",
+                     "qty": 1, "desc": "Reach the clearing in the Mists (0/1)"},
+                    {"type": "kill", "target": "ulfric",
+                     "qty": 1, "desc": "Subdue Ulfric at the Clearing (0/1)"},
+                    {"type": "gather", "target": "Lord Laurent's letter",
+                     "qty": 1, "desc": "Recover Lord Laurent's letter at the Clearing (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch",
-                     "qty": 1, "desc": "Turn the ringleader in to the watch captain at Carran Barracks (0/1)"},
+                     "qty": 1, "desc": "Deliver the letter to the watch captain at the Bannon Barracks (0/1)"},
                 ],
                 "rewards": {"silver": 30, "items": [], "reagents": {}},
-                "faction_rep": {"crown": 3, "outlaws": -4, "crows": -2},
+                "faction_rep": {"crown": 3, "outlaws": -4},
             },
         },
         "prereqs": [],

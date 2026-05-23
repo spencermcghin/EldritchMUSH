@@ -570,44 +570,48 @@ const SPEC_WALKIN_SHIP = {
 }
 const SPEC_WALKIN_CIRQUE = {
   key: 'walkin_cirque', title: 'From the Mists: Cirque',
-  outcome: 'return_alive',
+  outcome: 'deliver_all_four',
   room: 'Gateway — The Open Square',
-  label: 'w2-cirque-return',
+  label: 'w2-cirque-deliver-all',
   tick:
-    `from commands.quests import quest_gather, quest_deliver, quest_explore; ` +
-    `quest_explore(me, "The Old Road"); ` +
-    `quest_gather(me, "eldreth's pendant"); ` +
-    `quest_deliver(me, "eldreth's pendant", "The Ringmaster")`,
+    `from commands.quests import quest_kill, quest_gather, quest_deliver; ` +
+    `quest_kill(me, "The First Lost"); ` +
+    `quest_kill(me, "The Second Lost"); ` +
+    `quest_gather(me, "trod torch"); ` +
+    `quest_deliver(me, "Cirque cargo manifest", "The Ringmaster")`,
 }
 const SPEC_WALKIN_NOBLE = {
   key: 'walkin_noble', title: 'From the Mists: Noble',
-  outcome: 'delivered_sealed',
+  outcome: 'expose_wil',
   room: 'Gateway — The Open Square',
-  label: 'w3-noble-sealed',
+  label: 'w3-noble-expose-wil',
   tick:
-    `from commands.quests import quest_kill, quest_deliver; ` +
-    `${rep(2, 'quest_kill(me, "road bandit")')}; ` +
-    `quest_deliver(me, "sealed letter", "Lady Ysolde of the Crescent")`,
+    `from commands.quests import quest_explore, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "The Spider-Wood"); ` +
+    `quest_gather(me, "Martin's journal"); ` +
+    `quest_deliver(me, "Martin's journal", "Lady Ysolde of the Crescent")`,
 }
 const SPEC_WALKIN_SCOUT = {
-  key: 'walkin_scout', title: 'From the Mists: Scout',
-  outcome: 'warn_watch',
+  key: 'walkin_scout', title: 'From the Mists: Explorer',
+  outcome: 'save_ipwin',
   room: 'Gateway — The Open Square',
-  label: 'w4-scout-warn',
+  label: 'w4-explorer-save-ipwin',
   tick:
     `from commands.quests import quest_gather, quest_deliver; ` +
-    `quest_gather(me, "crow waymark"); ` +
-    `quest_deliver(me, "crow waymark", "Mystvale Captain of the Watch")`,
+    `${rep(4, 'quest_gather(me, "rune-bone")')}; ` +
+    `quest_deliver(me, "Ipwin's journal", "Lady Ysolde of the Crescent")`,
 }
 const SPEC_WALKIN_CHAIN = {
   key: 'walkin_chain_gang', title: 'From the Mists: Chain Gang',
-  outcome: 'legal_appeal',
+  outcome: 'turn_in_ulfric',
   room: 'Gateway — The Open Square',
-  label: 'w5-chain-legal',
+  label: 'w5-chain-turn-in',
   tick:
-    `from commands.quests import quest_gather, quest_deliver; ` +
-    `quest_gather(me, "forged warrant"); ` +
-    `quest_deliver(me, "forged warrant", "Mystvale Captain of the Watch")`,
+    `from commands.quests import quest_explore, quest_kill, quest_gather, quest_deliver; ` +
+    `quest_explore(me, "A Clearing in the Mists"); ` +
+    `quest_kill(me, "Ulfric"); ` +
+    `quest_gather(me, "Lord Laurent's letter"); ` +
+    `quest_deliver(me, "Lord Laurent's letter", "Mystvale Captain of the Watch")`,
 }
 
 const WALKIN_QUESTS = [

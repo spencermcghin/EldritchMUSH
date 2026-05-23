@@ -80,63 +80,67 @@ class WalkInMistsExit(Exit):
             ),
         },
         "walkin_cirque": {
-            "dest_key": "The Mystvale Marketplace",
+            "dest_key": "The Cirque Camp at the Mistwall",
             "arrival": (
-                "|cThe caravan rolls onward through the fog.|n\n\n"
-                "|wYan|n strums a slow tune at the head of the wagon. The "
-                "|wRingmaster|n smokes in the painted door of his coach, "
-                "watching the road behind. |wEldreth|n's seat in the "
-                "fortune-teller's wagon is empty — the lamp guttering, "
-                "the curtains pulled back. Nobody saw her step out. "
-                "Nobody heard the wheels stop.\n\n"
-                "The mist parts. The lights of Mystvale's marketplace "
-                "rise out of the dusk. Hawkers, horse-traders, the "
-                "smell of charcoal and roast fowl. The Cirque circles "
-                "for camp. The Ringmaster's eyes find yours — and "
-                "ask, without asking, what you saw."
+                "|cThe caravan stops at the Mistwall. The guide does not come.|n\n\n"
+                "Two days of waiting in painted wagons at the edge of "
+                "the fog. The horses are nervous. The food is gone. "
+                "Mistwalker Soap, who was supposed to lead the cargo "
+                "through, never came. Now |wYan|n, the Cirque's "
+                "foreman, stands by four iron-banded crates with a "
+                "Cirque-stamped contract rolled in his belt and the "
+                "look of a man who has chosen to walk the Tangle "
+                "alone if he has to.\n\n"
+                "|wThe Cirque needs a courier|n, he says when he sees "
+                "you. |wEldreth waits in the Annwyn. Soap doesn't. "
+                "Sign the manifest, take the crates, walk with me.|n"
             ),
         },
         "walkin_noble": {
-            "dest_key": "The Old Road — South",
+            "dest_key": "Martin's Abandoned Camp",
             "arrival": (
-                "|cThe carriage rocks across the rutted road.|n\n\n"
-                "Hooves thunder behind. \"|rBANDITS!|n\" — the driver's "
-                "shout — then a crossbow bolt punches through the "
-                "lacquered door. You leap clear into wet leaves, the "
-                "|wsealed letter|n a hot weight in your sleeve. The "
-                "noble's retinue scatters. Steel sings somewhere in "
-                "the trees. The mist thins.\n\n"
-                "The Old Road south of Mystvale opens before you, "
-                "quiet now, the bandits regrouping somewhere in the "
-                "pines. The letter is still sealed. You can feel the "
-                "wax under your thumb. The decision is yours."
+                "|cThe last of the road, the empty camp, the wrong silence.|n\n\n"
+                "You travelled the long way overland in noble comfort "
+                "until comfort ran out and you walked the rest. |wWil|n, "
+                "the Guide's assistant the retinue hired in Gateway, "
+                "promised Mistwalker Martin would meet you at the "
+                "trail-head. He did not. The camp ahead is set, the "
+                "fire is dead, the cook-pot is cold, and the lantern "
+                "burned itself out hours ago.\n\n"
+                "Wil clears his throat too cheerfully. |wMust have just "
+                "stepped away|n, he says. |wLet's see what he left us.|n"
             ),
         },
         "walkin_scout": {
-            "dest_key": "The Old Road — South",
+            "dest_key": "Magister Ipwin's Abandoned Camp",
             "arrival": (
-                "|cYou cut through pine shadow alone.|n\n\n"
-                "Hours of mist, then more mist. A felled raven, neck "
-                "broken neat. Then another. Then a |wwaymark|n cut into "
-                "the bark of a black pine — three intersecting lines "
-                "and a dot. Crow sign. Fresh.\n\n"
-                "The Old Road south of Mystvale curls ahead, its mile-"
-                "stones half-buried in moss. You can hear the gates "
-                "of Mystvale, distantly, north. The waymark is still "
-                "behind you, waiting to be reported — or sold."
+                "|cThe Lodge's call, the dim trail, the empty desk.|n\n\n"
+                "You answered Magister Ipwin's summons to the Annwyn — "
+                "him and his Lodge of the Metaphysical Mind, "
+                "promising a once-in-a-lifetime study of the place's "
+                "spirit phenomena. The lanterns marking the way "
+                "burned violet, and you followed them through the "
+                "Mists. They lead here: a scholar's camp, a cold "
+                "cooking-fire, an open journal, and no Ipwin.\n\n"
+                "|wMagister Vell|n, your Lodge colleague, is already "
+                "frowning over a pinned note. |wHe's gone on ahead|n, "
+                "she says. |wA discovery. The barrow. The trail's in "
+                "the lanterns. We'd better catch him.|n"
             ),
         },
         "walkin_chain_gang": {
-            "dest_key": "The Mystvale Marketplace",
+            "dest_key": "The Prison Cart at the Mistwall",
             "arrival": (
-                "|cThe chains, the road, the screaming silence of the Mists.|n\n\n"
-                "Whatever you did at the Mistwall — bloody, quiet, legal, "
-                "or damning — it is behind you now. The cart-wheels "
-                "rumble. A jailer's whistle goes silent in the fog. "
-                "Somewhere a fellow prisoner sobs, then doesn't.\n\n"
-                "Mystvale's marketplace opens around you, indifferent. "
-                "Stalls, shouting, the smell of bread. Nobody is looking "
-                "for you here. Not yet."
+                "|cChains, a wagon, the long dark road into the fog.|n\n\n"
+                "The jailers cuff you and chain you to the man beside "
+                "you. Your weapons go into a Laurent-stamped crate that "
+                "is carried off into the mist. The wagon-doors open on "
+                "blackness and a forest the captain calls the Last Walk. "
+                "Beside you, a heavy-shouldered Northman whose wrists "
+                "are as raw as yours leans close.\n\n"
+                "|wThe name's Ulfric|n, he says. |wYou look like a man "
+                "who can hold a blade. Stay near me, friend. The Mists "
+                "are about to get interesting.|n"
             ),
         },
     }

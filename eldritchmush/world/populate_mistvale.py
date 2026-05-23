@@ -3920,8 +3920,8 @@ herald.attributes.add("ai_personality", (
 ))
 herald.attributes.add("ai_knowledge", (
     "- Offers five walk-in quests depending on arrival flavor: Ship, "
-    "Cirque, Noble, Scout, or Chain Gang. Each has multiple paths to "
-    "completion with different reputation outcomes.\n"
+    "Cirque, Noble, Explorer, or Chain Gang. Each has multiple paths "
+    "to completion with different reputation outcomes.\n"
     "- Players accept by clicking the quest offer modal, or typing "
     "|wquest accept <title> / <path>|n.\n"
     "- She does not take sides — she logs arrivals. What a newcomer "
@@ -3936,18 +3936,37 @@ herald.attributes.add("ai_knowledge", (
     "- SHIP: cross to Mystvale, then take the road east toward "
     "Tamris. The wreck — manifest, salvage, captain's seal — and "
     "the Mystvale Harbormaster are all at Tamris Harbor.\n"
-    "- CIRQUE: cross to Mystvale and find the Ringmaster at the "
-    "Mystvale Marketplace. Eldreth's pendant and the nosy farmhand "
-    "are on the Old Road south, between the Mistgate and Mystvale.\n"
-    "- NOBLE: cross to Mystvale and report to Lady Ysolde of the "
-    "Crescent at the Mystvale Town Hall. The road bandits who "
-    "took the letter are on the Old Road south.\n"
-    "- SCOUT: the crow waymark and the Crow Agent are on the Old "
-    "Road south. To warn the watch, find the Mystvale Captain of "
-    "the Watch at the barracks in Carran (east of Carran Square).\n"
-    "- CHAIN GANG: everything happens at the Mistwall before the "
-    "crossing — jailers, the ringleader, and the forged warrant. "
-    "The Mistgate to Mystvale lies beyond, once things are settled."
+    "- CIRQUE: crossing the Mists drops the bearer at the Cirque "
+    "caravan parked at the Mistwall, where Yan the foreman gives "
+    "out the cargo manifest and four crates. The trail leads "
+    "through the Tangle (where the Lost demand crates or blood) "
+    "and past the Underwriter's pavilion (where the trod torch "
+    "is sold for crate, coin, or memory). Deliver surviving "
+    "crates to the Ringmaster at the Mystvale Marketplace."
+    "- NOBLE: crossing the Mists drops the bearer at Mistwalker "
+    "Martin's abandoned camp, where the conman Wil is pretending "
+    "to be Martin's assistant. The trail leads through the "
+    "Spider-Wood (where Martin's body is cocooned) to a hollow "
+    "where Wil's con falls apart and he drops Martin's journal. "
+    "Outcomes: bring the journal to Lady Ysolde at the Mystvale "
+    "Town Hall, let Wil flee, kill Wil, or sell the journal to "
+    "the Crow Agent on the Old Road south."
+    "- EXPLORER: crossing the Mists drops the bearer at Magister "
+    "Ipwin's abandoned camp, where Magister Vell is waiting. The "
+    "blacklight lanterns mark the trail to a shrine of the "
+    "Witch-Queen and then to a barrow tomb. Inside the barrow, "
+    "Ipwin has been possessed by the fae spirit Shireen. "
+    "Outcomes: reassemble the four rune-bones to exorcise her "
+    "(deliver Ipwin's journal to Lady Ysolde), destroy Shireen "
+    "outright, abandon Ipwin and take his journal to the Crown, "
+    "or accept the Witch-Queen's gift and serve Shireen instead."
+    "- CHAIN GANG: crossing the Mists drops the bearer in a prison "
+    "wagon with Ulfric the Coldhand and his crew. The trail leads "
+    "through the Mists to a clearing where a wounded Laurent "
+    "guard named Killian holds a strongbox of Lord Garamond "
+    "Laurent's coin. The moral choice is what to do with Killian, "
+    "Ulfric, and the gold — return to the Mystvale Captain of the "
+    "Watch at the Bannon Barracks if siding with Crown/Laurent."
 ))
 
 # Offer all five walk-ins by default — but make the listing gentler by
@@ -4271,7 +4290,33 @@ _ensure_walkin_item(
 )
 
 
-# ── Cirque walk-in ──────────────────────────────────────────────────────────
+# ── Cirque walk-in transit scene ────────────────────────────────────────────
+# Three-room scripted scene the Cirque walk-in plays through before
+# emerging in Mystvale. Source: the original Event 1 LARP encounter
+# "Cirque Walk In" by Jessica Sills — the caravan's guide never came,
+# supplies are low, the players are pushed forward into the Tangle
+# (a memory-stripping forest) carrying four crates of Cirque cargo
+# destined for the merchant Eldreth in the Annwyn. On the way they
+# meet The Lost (starving, mad), then a Changeling Underwriter who
+# sells the trod torch — required to see a ghost bridge over a
+# chasm separating the Tangle from the Annwyn.
+#
+# Yan travels with the player as the Cirque's foreman. The Lost are
+# aggressive; the Underwriter is unsettling but transactional.
+
+# --- Remove legacy Cirque props from the old (replaced) flow ---
+# Older outcomes (return_alive / cover_up / turn_in) put Eldreth's
+# pendant + Nosy Farmhand on the Old Road south. Neither maps to the
+# new source-faithful outcomes; sweep them away.
+for _legacy_key in ("Nosy Farmhand", "eldreth's pendant"):
+    for _legacy in ObjectDB.objects.filter(
+        db_key=_legacy_key, db_location=old_road_south.pk
+    ):
+        _legacy.delete()
+        print(f"  DELETED : {_legacy_key} (legacy cirque prop)")
+
+# Ringmaster stays at the Marketplace as the post-walkin delivery target
+# for most outcomes (he receives the surviving crates and the report).
 ringmaster = _ensure_walkin_npc(
     "The Ringmaster", marketplace,
     desc=(
@@ -4284,51 +4329,344 @@ ringmaster = _ensure_walkin_npc(
     ai_personality=(
         "The Ringmaster of the Grand Cirque Obscura — outwardly warm, "
         "privately ruthless. Values the Cirque's reputation above any "
-        "single performer."
-    ),
-)
-
-nosy_farmhand = _ensure_walkin_npc(
-    "Nosy Farmhand", old_road_south,
-    desc=(
-        "A wiry man in patched homespun, a hay-hook tucked in his belt. "
-        "He's been watching the Cirque caravan more than his cattle, and "
-        "he saw something he probably shouldn't have."
-    ),
-    aliases=("farmhand", "nosy farmhand"),
-    aggressive=True,
-    ai_personality=(
-        "A bonded farmhand from the smallholdings south of Mystvale. "
-        "Speaks the broad cant of common rural folk — short sentences, "
-        "blunt opinions, suspicious of strangers and any visitor who "
-        "comes from the fog. Works the field at dawn, drinks at the "
-        "tavern at dusk, and trades gossip the way merchants trade "
-        "salt. Knows every game trail and ditch within a day's walk "
-        "of the Old Road. Reluctant to admit what he saw the Cirque "
-        "do, but pride and ale loosen his tongue."
+        "single performer. Accepts delivery of crates from any walk-in "
+        "courier the Cirque hired through the Tangle. Will reward "
+        "couriers in coin and standing — and remember those who came "
+        "back light-handed."
     ),
     ai_knowledge=(
-        "- Saw the Cirque caravan stop on the Old Road and one of "
-        "the wagons unload something heavy and silent in the dark.\n"
-        "- The fortune-teller went into the wagon and never came out.\n"
-        "- Knows the back roads — won't say which without coin."
+        "- The Cirque hired a Mistwalker to bring four crates of "
+        "cargo through to Eldreth in the Annwyn. The guide never "
+        "arrived; the cargo was sent through anyway with whatever "
+        "couriers the Cirque could find at the gate.\n"
+        "- Will accept the crates from the courier on arrival. "
+        "Each surviving crate is worth its weight in Cirque favour.\n"
+        "- Knows of the Tangle, the Lost, and the Changeling "
+        "Underwriter — they are not rumours to the Cirque, they are "
+        "expenses."
     ),
 )
-nosy_farmhand.db.body = 3
-nosy_farmhand.db.total_body = 3
-nosy_farmhand.db.av = 0
 
-_ensure_walkin_item(
-    "eldreth's pendant", old_road_south,
+# Room 1 — the Cirque caravan camp, stalled at the Mistwall.
+cirque_camp = get_or_create_room(
+    "The Cirque Camp at the Mistwall",
+    "typeclasses.rooms.Room",
+    "A painted Cirque wagon parked at the very edge of the Mistwall — "
+    "the great fog wall rolls past its sideboards in slow grey "
+    "currents. A canvas awning, half-collapsed, throws shadow over "
+    "four heavy iron-banded |wcrates|n stacked under a watered-down "
+    "lamp. The Cirque guide was supposed to meet the caravan here "
+    "two days ago. He never came. Supplies are gone. The horses "
+    "are nervous.\n\n"
+    "|wYan|n, the Cirque's foreman, stands by the crates with a "
+    "rolled |wcontract|n in his belt. He is waiting on someone "
+    "with the nerve to carry the cargo through.\n\n"
+    "|540The Ringmaster's word is plain: the goods reach Eldreth in "
+    "the Annwyn or the Cirque's losses come out of the courier's "
+    "share.|n\n\n"
+    "|wForward|n into |wthe Tangle|n.",
+    zone="The Mists",
+)
+
+# Room 2 — the Tangle, where the Lost wander.
+the_tangle = get_or_create_room(
+    "The Tangle",
+    "typeclasses.rooms.Room",
+    "A forest of black-barked trees that grow in loops and knots, "
+    "branches twisting back on themselves until the trail you "
+    "walked feels like the trail you'll walk. Your own footprints "
+    "from a minute ago lie ahead of you on the path. The lanterns "
+    "of the Cirque camp are gone behind you, then gone again, then "
+    "gone a third time. Memory feels thin here.\n\n"
+    "Two ragged shapes step out of the trees — wide-eyed, "
+    "hollow-cheeked, more hunger than person. They look at the "
+    "crates you carry the way a starving dog looks at meat.\n\n"
+    "|540You will not pass without a transaction. They will give "
+    "you the truth — or what passes for it in their mouths — and "
+    "they will take a crate, or they will take a body.|n\n\n"
+    "|wAhead|n through the loops to the |wunderwriter's pavilion|n.",
+    zone="The Mists",
+)
+
+# Room 3 — the Underwriter's pavilion.
+underwriter_pavilion = get_or_create_room(
+    "The Underwriter's Pavilion",
+    "typeclasses.rooms.Room",
+    "A tall striped pavilion of oiled silk, pitched in the only "
+    "clearing in the Tangle that is not somehow a circle. Lanterns "
+    "of green and gold glass hang on staves at every corner. A "
+    "panel of stretched silk — translucent, faintly luminous — "
+    "screens the back third of the tent. Behind it, a |wfigure|n "
+    "sits very still at a writing-desk. She is not human, and you "
+    "are aware of this before you can name why.\n\n"
+    "On the desk in front of the silk: a single short black candle, "
+    "an iron-bound ledger, and a |wtrod torch|n on a velvet "
+    "cushion. The trod torch is what shows you the bridge across "
+    "the chasm that lies beyond this tent. Without it, the chasm "
+    "is everything you ever feared the dark was.\n\n"
+    "|540The Underwriter does not haggle so much as appraise. The "
+    "price is what you can bear to lose.|n\n\n"
+    "|wOut|n the back, across the |wghost-bridge|n, to |wMystvale|n.",
+    zone="The Mists",
+)
+
+# Connect the three scripted rooms; WalkInJourneyExit so companions follow.
+link(cirque_camp, "forward", the_tangle, "back", "f", "b")
+link(the_tangle, "ahead", underwriter_pavilion, "back", "a", "b")
+for _src, _dst in (
+    (cirque_camp, the_tangle),
+    (the_tangle, cirque_camp),
+    (the_tangle, underwriter_pavilion),
+    (underwriter_pavilion, the_tangle),
+):
+    for _ex in _src.contents:
+        if getattr(_ex, "destination", None) == _dst:
+            if _ex.typeclass_path != "typeclasses.exits.WalkInJourneyExit":
+                _ex.swap_typeclass(
+                    "typeclasses.exits.WalkInJourneyExit",
+                    clean_attributes=False,
+                )
+
+# Final exit — pavilion → Mystvale Marketplace. Cutscene narrates the
+# chasm crossing using the trod torch.
+_pavilion_out = ObjectDB.objects.filter(
+    db_key="out", db_location=underwriter_pavilion.pk
+).first()
+if not _pavilion_out:
+    _pavilion_out = _create.create_object(
+        "typeclasses.exits.WalkInJourneyExit",
+        key="out", location=underwriter_pavilion, destination=marketplace,
+    )
+    _pavilion_out.aliases.add("bridge")
+    _pavilion_out.aliases.add("ghost-bridge")
+    _pavilion_out.aliases.add("mystvale")
+    print("  CREATED : Underwriter's Pavilion → Mystvale Marketplace (ghost-bridge)")
+
+# --- Yan: Cirque foreman, walks with the player ---
+yan = _ensure_walkin_npc(
+    "Yan the Cirque Foreman", cirque_camp,
     desc=(
-        "A tin-and-enamel pendant in the shape of a jackdaw, its chain "
-        "snapped. It smells faintly of lamp oil."
+        "A short, weather-leathered man in a Cirque-painted vest, a "
+        "fiddle slung across his back like a sword. He has the look of "
+        "a man who has counted the same four crates four hundred times "
+        "in the past two days and is now going to count them in the "
+        "Tangle whether anyone goes with him or not."
     ),
-    aliases=("pendant", "jackdaw pendant", "eldreth pendant"),
+    aliases=("yan", "foreman"),
+    aggressive=False,
+    ai_personality=(
+        "Yan, foreman to the Grand Cirque Obscura's caravan. Practical, "
+        "tired, loyal. Has done the Cirque's quiet errands on six "
+        "borders. Believes the cargo gets through or the Cirque "
+        "starves this winter. Will walk the Tangle himself if no "
+        "courier takes the contract. Speaks in short sentences "
+        "punctuated by the way performers do — a beat, a glance, the "
+        "next line. Carries the |wCirque cargo manifest|n; will let "
+        "any new courier sign for the four crates."
+    ),
+    ai_knowledge=(
+        "- The Cirque hired Mistwalker Soap to guide the caravan "
+        "through the Tangle. Soap never arrived. They are now two "
+        "days late.\n"
+        "- The four crates must reach Eldreth — or in her absence, "
+        "the Ringmaster at the Mystvale Marketplace.\n"
+        "- The Lost wander the Tangle. They are starving and beyond "
+        "reasoning. Give them a crate or fight them.\n"
+        "- The Changeling Underwriter has a tent past the Lost. She "
+        "sells the trod torch needed to cross the chasm out. No "
+        "courier crosses without it.\n"
+        "- The Cirque will reward the courier per crate delivered."
+    ),
+)
+yan.attributes.add("is_walkin_companion", True)
+yan.db.body = 4
+yan.db.total_body = 4
+yan.db.av = 1
+yan.db.melee_weapons = 1
+
+# --- The Lost: aggressive, starving wanderers in the Tangle ---
+first_lost = _ensure_walkin_npc(
+    "The First Lost", the_tangle,
+    desc=(
+        "A man — or what is left of a man — in rags that may once have "
+        "been a traveller's coat. His eyes will not stop moving and his "
+        "hands are wet to the wrists. He cannot remember his own name. "
+        "He remembers being hungry."
+    ),
+    aliases=("first lost", "lost",),
+    aggressive=True,
+    ai_personality=(
+        "One of the Lost — a traveller who tried the Mists without a "
+        "guide and has been wandering the Tangle long enough that "
+        "name, home, and reason have been peeled away. Only hunger "
+        "and a survivor's instinct to stay near the other Lost "
+        "remain. Will demand food, then a crate, then a fight. "
+        "Bickers with the Second Lost when not threatening anyone."
+    ),
+    ai_knowledge=(
+        "- Knows nothing about himself. Has been hungry for an "
+        "indefinite time.\n"
+        "- Wants food, or anything that might contain food. A crate "
+        "from the Cirque caravan would do.\n"
+        "- Will let the courier pass for one crate. Otherwise will "
+        "fight to the death."
+    ),
+)
+first_lost.db.body = 3
+first_lost.db.total_body = 3
+first_lost.db.av = 0
+first_lost.db.master_of_arms = 1
+first_lost.db.tough = 1
+first_lost.db.melee_weapons = 1
+
+second_lost = _ensure_walkin_npc(
+    "The Second Lost", the_tangle,
+    desc=(
+        "A small wiry person in the remains of a labourer's smock, "
+        "shoeless, the soles of her feet black with weeks of trail. "
+        "She watches the First Lost as much as she watches you. There "
+        "is the suggestion of a quarrel between them that the next "
+        "missed meal will finish."
+    ),
+    aliases=("second lost",),
+    aggressive=True,
+    ai_personality=(
+        "The other of the Lost — same fate as the First Lost, but "
+        "more suspicious, less direct. Will speak in third-person "
+        "fragments. Hungry enough that she will turn on her "
+        "companion if a crate is offered and there's a fight over "
+        "it. Holds a sharpened bone."
+    ),
+    ai_knowledge=(
+        "- Same as the First Lost: no memory, no name, just hunger.\n"
+        "- Watches the First Lost for signs he will eat first.\n"
+        "- Will let the courier pass for a crate."
+    ),
+)
+second_lost.db.body = 3
+second_lost.db.total_body = 3
+second_lost.db.av = 0
+second_lost.db.master_of_arms = 1
+second_lost.db.tough = 1
+second_lost.db.melee_weapons = 1
+
+# --- The Underwriter: changeling merchant in the Pavilion ---
+underwriter = _ensure_walkin_npc(
+    "The Underwriter", underwriter_pavilion,
+    desc=(
+        "Behind the silk panel, a tall figure seated very still at a "
+        "desk. The candlelight does not quite agree on her shape. "
+        "Long fingers, too long. Black eyes that have no white. A "
+        "merchant's collar, a scribe's hands, a smile that does not "
+        "show teeth. She is taking notes about you in her ledger "
+        "while you are still deciding whether to step forward."
+    ),
+    aliases=("underwriter", "the underwriter", "changeling", "merchant"),
+    aggressive=False,
+    ai_personality=(
+        "The Underwriter — a changeling merchant who has pitched "
+        "her pavilion in the Tangle for longer than any human can "
+        "remember. Sells the trod torch (required to cross the "
+        "ghost-bridge to the Annwyn) and a few other curiosities. "
+        "Takes coin, crates, names, favours, oaths, memories. Does "
+        "not haggle so much as appraise. Speaks formally, with the "
+        "careful courtesy of a creature that has nothing to gain by "
+        "rudeness and everything to gain by patience. Calls "
+        "everyone 'courier' unless they offer a name."
+    ),
+    ai_knowledge=(
+        "- Sells the trod torch — the only way to see the ghost-bridge "
+        "across the chasm at the far edge of the Tangle. Anyone who "
+        "tries to cross without it falls into a darkness from which "
+        "they do not return.\n"
+        "- Standard price: one crate of Cirque cargo, or fifty silver, "
+        "or a memory the courier will not miss until later.\n"
+        "- Will offer to buy ALL four crates outright for a heavy "
+        "purse — a price that exceeds what the Cirque would pay, "
+        "and a betrayal the Cirque will remember.\n"
+        "- Will let any courier walk through if they cannot pay, but "
+        "the chasm will not let them across."
+    ),
+)
+underwriter.db.body = 6
+underwriter.db.total_body = 6
+underwriter.db.av = 2
+
+# --- Items: Cirque Camp ---
+_ensure_walkin_item(
+    "Cirque cargo manifest", cirque_camp,
+    desc=(
+        "A rolled parchment, sealed with the Cirque's jackdaw mark. "
+        "It commissions the bearer to carry four crates of Cirque "
+        "cargo through the Tangle to Eldreth in the Annwyn — or in "
+        "her absence, to the Ringmaster at the Mystvale Marketplace. "
+        "Reward: payable per surviving crate. Signed by the "
+        "Ringmaster of the Grand Cirque Obscura."
+    ),
+    aliases=("manifest", "cirque manifest", "contract"),
+)
+_ensure_walkin_item(
+    "Cirque crate", cirque_camp,
+    desc=(
+        "An iron-banded wooden crate, stamped with the Cirque's "
+        "jackdaw. Heavy. It does not rattle. It does not smell. The "
+        "Cirque has not told the courier what is inside, and the "
+        "courier is expected not to ask."
+    ),
+    aliases=("crate", "cirque crate"),
+    count=4,
+)
+
+# --- Items: The Underwriter's Pavilion ---
+_ensure_walkin_item(
+    "trod torch", underwriter_pavilion,
+    desc=(
+        "A short pitch-black torch, head wrapped in pale fibre that "
+        "is not quite cloth. The Underwriter implies it does not "
+        "burn so much as remember. When lit, it shows the bridge "
+        "the dark hides."
+    ),
+    aliases=("torch", "trod torch"),
+)
+_ensure_walkin_item(
+    "the Underwriter's ledger", underwriter_pavilion,
+    desc=(
+        "A heavy iron-bound ledger on the desk behind the silk. It "
+        "is open to a page that is, until you step closer, blank. "
+        "It is not blank when you step closer."
+    ),
+    aliases=("ledger", "underwriter ledger"),
+    gettable=False,
 )
 
 
-# ── Noble walk-in ───────────────────────────────────────────────────────────
+# ── Noble walk-in transit scene ─────────────────────────────────────────────
+# Three-room scripted scene the Noble walk-in plays through before
+# emerging in Mystvale. Source: the original Event 1 LARP encounter
+# "Noble Walk In" by Jessica Sills — a noble retinue hires Guide
+# Martin to lead them through the Mists. They meet his "assistant"
+# Wil at Gateway. Wil is a Gateway thief who stumbled on Martin's
+# abandoned camp, stole his journal and gear, then convinced the
+# nobles he was Martin's assistant. They reach the empty camp, take
+# Martin's trod torch and antidotes, then cross the Spider-Wood. They
+# find Martin dead in a cocoon. Wil's con falls apart. The party
+# decides what to do with Wil and with Martin's journal — which
+# contains the Mistwalkers' route into the Annwyn, a secret the
+# Crown and the Crows would both kill to possess.
+
+# --- Remove legacy Noble props from the old (replaced) flow ---
+# Older outcomes (delivered_sealed / read_it_first / sell_to_crows) put
+# road bandits + an unsealed letter on the Old Road south. The new
+# source-faithful outcomes use Wil and Martin's journal instead.
+for _legacy_key in ("road bandit", "unsealed letter"):
+    for _legacy in ObjectDB.objects.filter(
+        db_key=_legacy_key, db_location=old_road_south.pk
+    ):
+        _legacy.delete()
+        print(f"  DELETED : {_legacy_key} (legacy noble prop)")
+
+# Lady Ysolde stays at the Town Hall as the Crown delivery target for
+# the expose_wil outcome.
 lady_ysolde = _ensure_walkin_npc(
     "Lady Ysolde of the Crescent", town_hall,
     desc=(
@@ -4341,37 +4679,252 @@ lady_ysolde = _ensure_walkin_npc(
     ai_personality=(
         "Lady Ysolde of the Crescent, a minor Crown functionary running a "
         "clearing-house of correspondence out of Mystvale Town Hall. "
-        "Courteous, clipped, meticulous about seals and provenance."
+        "Courteous, clipped, meticulous about seals and provenance. "
+        "Pays handsomely for evidence of Gateway fraud — particularly "
+        "any false Guide who has cheated nobles bound for the Annwyn. "
+        "Will take possession of any genuine Mistwalker's journal "
+        "brought to her and file it where the Crown can use it."
+    ),
+    ai_knowledge=(
+        "- The Crown is aware that several false Guides have set up "
+        "in Gateway, taking coin from nobles and walking them into "
+        "the Mists with no real expertise. She wants their names.\n"
+        "- A genuine Mistwalker's journal is a prize beyond price; "
+        "the Crown has been trying for years to acquire one.\n"
+        "- Will reward couriers who bring her either."
     ),
 )
 
-bandit = _ensure_walkin_npc(
-    "road bandit", old_road_south,
+# Room 1 — Martin's Abandoned Camp.
+martins_camp = get_or_create_room(
+    "Martin's Abandoned Camp",
+    "typeclasses.rooms.Room",
+    "A traveller's camp in a clearing where the mist sits in pools at "
+    "ankle height. A small canvas tent stands open; a cook-pot on a "
+    "tripod over a long-dead fire holds a half-eaten meal that the "
+    "mice have not finished. A lantern hangs from the tent-pole, "
+    "burnt to its socket. Nothing has been overturned. Nobody "
+    "fought here. The Guide simply got up and left.\n\n"
+    "|wWil|n, the assistant who has led you this far from Gateway, "
+    "rakes a hand through his hair and tries — visibly tries — to "
+    "look like a man surprised by an empty camp.\n\n"
+    "|540Among the gear on the ground: a |whurried note|n, a |wtrod "
+    "torch|n with a pale fibre wick, and a small leather |wpouch of "
+    "antidotes|n. Take what you need. The Mists are ahead.|n\n\n"
+    "|wForward|n into the |wspider-wood|n.",
+    zone="The Mists",
+)
+
+# Room 2 — the Spider-Wood.
+spider_wood = get_or_create_room(
+    "The Spider-Wood",
+    "typeclasses.rooms.Room",
+    "A stretch of pine that the trod torch shows is not pine. Webs at "
+    "chest height, hung between trunks in pale grey curtains. The "
+    "ground crunches softly with the husks of things that did not "
+    "make it through. The bells on the stretched silk above the "
+    "trail trill at every step. Somewhere out past the torchlight, "
+    "a many-legged shape moves between trunks without quite ever "
+    "showing itself.\n\n"
+    "Strung up to one side of the path is a |wcocoon|n the size of "
+    "a man. Inside the wrapping, a face that was once a man's. "
+    "Around his neck, the puncture-marks have crusted over.\n\n"
+    "|540It is Martin. Wil makes a small noise that he tries to "
+    "swallow and fails.|n\n\n"
+    "|wAhead|n into the |wweb-wreathed hollow|n.",
+    zone="The Mists",
+)
+
+# Room 3 — the Web-Wreathed Hollow. Wil's con falls apart here.
+web_hollow = get_or_create_room(
+    "The Web-Wreathed Hollow",
+    "typeclasses.rooms.Room",
+    "A clearing low between two ridges, ankle-deep in old web. The "
+    "Spider's territory thins here. The trod torch in your hand "
+    "begins to flicker. Wil is shaking — actually shaking now, all "
+    "pretense gone. He takes |wa leather-bound journal|n out from "
+    "under his cloak, looks at it, looks at you, and lets it fall "
+    "into the leaves at your feet.\n\n"
+    "|wI'm not anybody's assistant|n, he says. |wI found his camp "
+    "a fortnight back. He was already gone. I took the book and "
+    "the gear and I went back to Gateway and I told the lords I'd "
+    "guide them through. I'm sorry. I'm so sorry.|n\n\n"
+    "|540The journal is on the ground. Wil is on the ground. The "
+    "Annwyn is ahead, over the rise, where the torch will not need "
+    "to burn anymore.|n\n\n"
+    "|wOut|n the rise to |wMystvale|n.",
+    zone="The Mists",
+)
+
+# Connect the three scripted rooms; WalkInJourneyExit so Wil follows.
+link(martins_camp, "forward", spider_wood, "back", "f", "b")
+link(spider_wood, "ahead", web_hollow, "back", "a", "b")
+for _src, _dst in (
+    (martins_camp, spider_wood),
+    (spider_wood, martins_camp),
+    (spider_wood, web_hollow),
+    (web_hollow, spider_wood),
+):
+    for _ex in _src.contents:
+        if getattr(_ex, "destination", None) == _dst:
+            if _ex.typeclass_path != "typeclasses.exits.WalkInJourneyExit":
+                _ex.swap_typeclass(
+                    "typeclasses.exits.WalkInJourneyExit",
+                    clean_attributes=False,
+                )
+
+# Final exit — Hollow → Mystvale Marketplace (the trod torch dies on the way).
+_hollow_out = ObjectDB.objects.filter(
+    db_key="out", db_location=web_hollow.pk
+).first()
+if not _hollow_out:
+    _hollow_out = _create.create_object(
+        "typeclasses.exits.WalkInJourneyExit",
+        key="out", location=web_hollow, destination=marketplace,
+    )
+    _hollow_out.aliases.add("rise")
+    _hollow_out.aliases.add("mystvale")
+    print("  CREATED : Web-Wreathed Hollow → Mystvale Marketplace (the rise)")
+
+# --- Wil the Conman: companion, present at all 3 rooms ---
+wil = _ensure_walkin_npc(
+    "Wil the Conman", martins_camp,
     desc=(
-        "A wiry man in mismatched leathers, a crude cudgel in one hand "
-        "and a dirty scarf hiding the lower half of his face."
+        "A wiry person in good warm traveling clothes that don't quite "
+        "fit. A backpack slung over one shoulder, lantern in hand, no "
+        "weapon at the belt. They smile too quickly at every question "
+        "and look at the trail markers for too long before agreeing "
+        "they're the right ones."
     ),
-    aliases=("bandit",),
-    aggressive=True,
-    count=2,
+    aliases=("wil", "william", "wilhelmina", "conman", "assistant", "guide's assistant"),
+    aggressive=False,
+    ai_personality=(
+        "Wil — Gateway petty thief and conman. Stumbled on Mistwalker "
+        "Martin's abandoned camp on a solo run into the Mists, stole "
+        "his journal and trod torch, and went back to Gateway to find "
+        "marks. Conned the noble retinue in the bearer's party into "
+        "believing he was Martin's assistant. Has no real knowledge "
+        "of the Annwyn beyond what he half-read in the stolen journal. "
+        "Cocky and glib in the Camp, increasingly afraid in the "
+        "Spider-Wood, confessing and panicking in the Hollow. Will "
+        "try to flee if cornered; carries no weapon and will not "
+        "fight competently if forced to."
+    ),
+    ai_knowledge=(
+        "- Stole Martin's journal and trod torch from an abandoned "
+        "camp a fortnight ago. Has been pretending to be the Guide's "
+        "Assistant in Gateway ever since.\n"
+        "- Knows enough of the journal to repeat its broad warnings: "
+        "travel together; do not leave the torch; antidotes for fang "
+        "drop poison; the Spider hates groups.\n"
+        "- Knows nothing of where Martin actually went. The body in "
+        "the cocoon is a shock to him.\n"
+        "- Will confess in the Hollow, drop the journal, and try to "
+        "vanish into Mystvale at the first opportunity."
+    ),
 )
-# Apply stats to every instance in the room.
-for b in ObjectDB.objects.filter(db_key="road bandit", db_location=old_road_south.pk):
-    b.db.body = 4
-    b.db.total_body = 4
-    b.db.av = 1
+wil.attributes.add("is_walkin_companion", True)
+wil.db.body = 3
+wil.db.total_body = 3
+wil.db.av = 0
 
+# --- Items: Martin's Camp ---
 _ensure_walkin_item(
-    "unsealed letter", old_road_south,
+    "Martin's hurried note", martins_camp,
     desc=(
-        "A nobleman's letter, wax seal cracked open. You shouldn't have "
-        "read it. You did. You know what's inside now."
+        "A piece of trail-parchment with hurried handwriting:\n\n"
+        "'Something in the trees. Watching. Have been here before — "
+        "groups confuse it. Travel connected. Antidote in pouch if "
+        "bitten. Will try for the Annwyn alone tonight — meet you on "
+        "the far side. The candle shows the trail markers. Do not "
+        "let it go out. — M.'"
     ),
-    aliases=("unsealed letter", "letter"),
+    aliases=("note", "martin's note", "hurried note"),
+)
+_ensure_walkin_item(
+    "trod torch", martins_camp,
+    desc=(
+        "A short pitch-black torch, head wrapped in pale fibre. When "
+        "lit it burns a hot purple that hurts to look at directly. "
+        "By its light, marks invisible on bare bark show plainly on "
+        "the trees."
+    ),
+    aliases=("torch", "trod torch", "candle"),
+)
+_ensure_walkin_item(
+    "pouch of antidotes", martins_camp,
+    desc=(
+        "A small oiled-leather pouch with five corked glass phials of "
+        "a thin clear liquid. A loop of string is tied around each "
+        "with a label: 'Fang Drop'."
+    ),
+    aliases=("pouch", "antidote", "antidotes", "phials"),
+)
+
+# --- Items: Spider-Wood ---
+_ensure_walkin_item(
+    "Martin's cocoon", spider_wood,
+    desc=(
+        "A man-sized cocoon strung up between two trunks. Inside the "
+        "silk, a traveller in dark wool, neck punctured many times, "
+        "his hands folded as if someone had taken the time to fold "
+        "them. He has been dead a fortnight. He is Mistwalker Martin, "
+        "or what is left of him."
+    ),
+    aliases=("cocoon", "martin", "body", "martin's body"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "second guide candle", spider_wood,
+    desc=(
+        "Tucked into Martin's belt, half-used, a twin to the trod "
+        "torch in your hand. Worth keeping. Worth more not to need."
+    ),
+    aliases=("candle", "second candle", "guide candle"),
+)
+
+# --- Items: Web-Wreathed Hollow ---
+_ensure_walkin_item(
+    "Martin's journal", web_hollow,
+    desc=(
+        "A leather-bound journal in a Mistwalker's hand. The earlier "
+        "pages are dense with sketches and notations of trail markers, "
+        "candle behaviour, the Spider's patterns. The later pages "
+        "describe a route through the Mists that is not on any map "
+        "the Crown owns — or the Crows. Whoever has this can find "
+        "the safe way into the Annwyn. Or sell the secret of it."
+    ),
+    aliases=("journal", "martin's journal", "notebook", "guide journal"),
 )
 
 
-# ── Scout walk-in ───────────────────────────────────────────────────────────
+# ── Explorer walk-in transit scene (was Scout) ──────────────────────────────
+# Three-room scripted scene the Explorer walk-in plays through before
+# emerging in Mystvale. Source: the original Event 1 LARP encounter
+# "The Fate of Magister Ipwin" by John Kozar — scholars of the Lodge
+# of the Metaphysical Mind respond to Magister Ipwin's call to study
+# the Annwyn. They find his camp abandoned, follow his trail through
+# the Tangle past a shrine to the old Witch-Queen, and reach a
+# barrow tomb where Ipwin is being possessed by Shireen, a fae
+# spirit. They must reassemble Shireen's rune-bones to exorcise her,
+# or fight her, or take Ipwin's metaphysics research and flee, or
+# strike a darker bargain with the Witch-Queen's gift.
+#
+# The quest key remains walkin_scout for DB stability; the title and
+# framing become "Explorer" to match the canonical fifth walk-in.
+
+# --- Remove legacy Scout props ---
+# Older outcomes (warn_watch / sell_intel_crows / stay_silent) used a
+# lone-scout framing with a Crow waymark on the Old Road south. The
+# new source-faithful outcomes use Ipwin and Shireen instead.
+for _legacy_key in ("crow waymark",):
+    for _legacy in ObjectDB.objects.filter(
+        db_key=_legacy_key, db_location=old_road_south.pk
+    ):
+        _legacy.delete()
+        print(f"  DELETED : {_legacy_key} (legacy scout prop)")
+
+# Watch Captain stays — Chain Gang, Cirque, etc. use them as delivery target.
 watch_captain = _ensure_walkin_npc(
     "Mystvale Captain of the Watch", bannon_barracks,
     desc=(
@@ -4388,15 +4941,7 @@ watch_captain = _ensure_walkin_npc(
     ),
 )
 
-_ensure_walkin_item(
-    "crow waymark", old_road_south,
-    desc=(
-        "A crude waymark cut into a shingle of pine bark — three "
-        "intersecting lines and a dot. Crow sign, fresh."
-    ),
-    aliases=("waymark", "crow waymark"),
-)
-
+# Crow Agent stays — Noble's sell_journal_to_crows uses them.
 crow_agent = _ensure_walkin_npc(
     "Crow Agent", old_road_south,
     desc=(
@@ -4413,60 +4958,660 @@ crow_agent = _ensure_walkin_npc(
     ),
 )
 
-
-# ── Chain Gang walk-in ──────────────────────────────────────────────────────
-# Placed at the Mistwall (the mist-edge where chain gangs are marched in).
-jailer = _ensure_walkin_npc(
-    "Mystvale Jailer", mistwall,
-    desc=(
-        "A thickset man in boiled leather with a chain-driver's whip "
-        "looped at his belt. He smells of sweat and old iron."
-    ),
-    aliases=("jailer",),
-    aggressive=True,
-    count=2,
+# Room 1 — Magister Ipwin's Abandoned Camp.
+ipwin_camp = get_or_create_room(
+    "Magister Ipwin's Abandoned Camp",
+    "typeclasses.rooms.Room",
+    "A scholar's camp at the edge of the Mists — a folding writing-desk "
+    "under a stretched oilcloth, three smudged blacklight lanterns "
+    "spaced along a perimeter rope, a fire of pine-cones still warm "
+    "in the pit. Books, charts, and a half-empty cup of something "
+    "the colour of ditchwater sit on the desk. Magister Ipwin of the "
+    "Lodge of the Metaphysical Mind summoned you here. He is not here.\n\n"
+    "|wMagister Vell|n, your colleague from the Lodge, frowns at "
+    "Ipwin's open journal and a pinned note that reads, in Ipwin's "
+    "hand: |w'A discovery. The barrow. Follow if you can. The path "
+    "is in the lanterns.'|n\n\n"
+    "|540The lanterns are blacklight — they show the perception "
+    "trail Ipwin left for the Lodge. The trail leads forward, into "
+    "the Tangle.|n\n\n"
+    "|wForward|n into the |wTangle|n.",
+    zone="The Mists",
 )
-for j in ObjectDB.objects.filter(db_key="Mystvale Jailer", db_location=mistwall.pk):
-    j.db.body = 5
-    j.db.total_body = 5
-    j.db.av = 2
 
-ringleader = _ensure_walkin_npc(
-    "Chain Gang Ringleader", mistwall,
+# Room 2 — the Shrine in the Tangle.
+shrine_tangle = get_or_create_room(
+    "The Shrine in the Tangle",
+    "typeclasses.rooms.Room",
+    "A small stone shrine in a clearing the trees seem reluctant to "
+    "enter. Old offerings — a wreath of bird-bones, a clay cup, a "
+    "lock of hair tied in green ribbon — sit at the foot of a "
+    "weather-worn carving of a woman crowned in branches. She was "
+    "the |wnature-goddess|n the old peoples worshipped before she "
+    "became the |wWitch-Queen|n of the green wood. The peoples are "
+    "gone. The shrine is not.\n\n"
+    "A line of script in old Ard runs around the lintel of the "
+    "shrine: |w'What is yours but never yours?'|n It waits to be "
+    "answered.\n\n"
+    "|540Ipwin's blacklight trail continues past the shrine, "
+    "deeper into the Tangle. The Lodge's instruments would advise "
+    "you to look closely here before pressing on.|n\n\n"
+    "|wAhead|n into the |wbarrow|n.",
+    zone="The Mists",
+)
+
+# Room 3 — the Barrow of Shireen.
+barrow_shireen = get_or_create_room(
+    "The Barrow of Shireen",
+    "typeclasses.rooms.Room",
+    "An earth-mound barrow tomb opened by Ipwin's pick and lamp. Inside, "
+    "a ritual circle has been broken — chalk lines scuffed by frantic "
+    "boots — and a litter of |wrune-bones|n is scattered across the "
+    "earthen floor. Each bone bears a small carved sigil; when "
+    "complete, they would lay out a binding figure for the spirit "
+    "the barrow was built to hold.\n\n"
+    "Magister |wIpwin|n is kneeling at the centre of the circle, "
+    "talking quietly to a woman who is not in the circle and not "
+    "in the world. |wShireen|n. Her face turns to the doorway when "
+    "you enter. Her smile does not reach her eyes because her eyes "
+    "are not eyes.\n\n"
+    "|540The bones can be reassembled. The spirit can be "
+    "exorcised. The spirit can be fought. The bones can be left "
+    "where they lie, and the scholar with them.|n\n\n"
+    "|wOut|n through the barrow mouth, back to |wMystvale|n.",
+    zone="The Mists",
+)
+
+# Connect the three scripted rooms; WalkInJourneyExit so Vell follows.
+link(ipwin_camp, "forward", shrine_tangle, "back", "f", "b")
+link(shrine_tangle, "ahead", barrow_shireen, "back", "a", "b")
+for _src, _dst in (
+    (ipwin_camp, shrine_tangle),
+    (shrine_tangle, ipwin_camp),
+    (shrine_tangle, barrow_shireen),
+    (barrow_shireen, shrine_tangle),
+):
+    for _ex in _src.contents:
+        if getattr(_ex, "destination", None) == _dst:
+            if _ex.typeclass_path != "typeclasses.exits.WalkInJourneyExit":
+                _ex.swap_typeclass(
+                    "typeclasses.exits.WalkInJourneyExit",
+                    clean_attributes=False,
+                )
+
+# Final exit — Barrow → Mystvale Marketplace.
+_barrow_out = ObjectDB.objects.filter(
+    db_key="out", db_location=barrow_shireen.pk
+).first()
+if not _barrow_out:
+    _barrow_out = _create.create_object(
+        "typeclasses.exits.WalkInJourneyExit",
+        key="out", location=barrow_shireen, destination=marketplace,
+    )
+    _barrow_out.aliases.add("mystvale")
+    _barrow_out.aliases.add("mouth")
+    print("  CREATED : Barrow of Shireen → Mystvale Marketplace (barrow mouth)")
+
+# --- Magister Vell: Lodge colleague, companion ---
+vell = _ensure_walkin_npc(
+    "Magister Vell", ipwin_camp,
     desc=(
-        "A grey-bearded prisoner, wrists still chained, eyes bright with "
-        "plans. He hisses at every guard who passes and watches the newer "
-        "captives like a man counting fighters."
+        "A spare, ink-stained scholar in a Lodge of the Metaphysical "
+        "Mind robe, satchel of writing tools at the hip, a small "
+        "iron-bound book in one hand. They are middle-aged, "
+        "watchful, and very tired of having to explain to people "
+        "outside the Lodge what metaphysics is for."
     ),
-    aliases=("ringleader", "chain gang ringleader"),
-    aggressive=True,
+    aliases=("vell", "magister vell"),
+    aggressive=False,
     ai_personality=(
-        "A condemned outlaw of the kind common in any age — once a "
-        "village reeve who turned to highway robbery after a poor "
-        "harvest, now a chain-gang lifer. Speaks like a man who has "
-        "seen too many sentences carried out: dry, blasphemous, "
-        "tactical. Recruits on instinct. Won't say his real name to "
-        "a stranger. Watches every newcomer for signs of a useful "
-        "blade arm or a soft mark."
+        "Magister Vell of the Lodge of the Metaphysical Mind, a "
+        "colleague of Magister Ipwin's. Came at his summons. "
+        "Practical scholar — does not believe in ghosts the way "
+        "Ipwin does, until they are standing in a barrow looking at "
+        "one. Will reason through the bone-rune ritual if given the "
+        "time, will hold a lantern in a fight, will not draw a "
+        "blade because they do not own one. Speaks with the "
+        "careful clarity of a person who has spent a life "
+        "explaining."
     ),
     ai_knowledge=(
-        "- Knows the gang's grudges and which jailers can be bought.\n"
-        "- Has heard the warrants in this column were forged.\n"
-        "- Will offer a partnership to anyone who looks like they can fight."
+        "- Ipwin is a respected (if eccentric) member of the Lodge. "
+        "His specialty is forest-bound spirits and the lingering "
+        "effects of old worship.\n"
+        "- The blacklight lanterns mark the trail Ipwin laid for "
+        "the Lodge — invisible without their light.\n"
+        "- The Witch-Queen was the nature-goddess of the old "
+        "peoples before she withdrew into the green wood. Her "
+        "shrines are scattered through any forest old enough.\n"
+        "- The riddle at the shrine — 'what is yours but never "
+        "yours' — has the answer 'a gift'. Speaking the answer is "
+        "the courteous way to pass the goddess's ground.\n"
+        "- Rune-bones bind a spirit when laid out in the correct "
+        "figure. Breaking the figure releases the spirit. The "
+        "barrow was a binding-place; Ipwin broke the figure when "
+        "he opened it."
     ),
 )
-ringleader.db.body = 6
-ringleader.db.total_body = 6
-ringleader.db.av = 1
+vell.attributes.add("is_walkin_companion", True)
+vell.db.body = 3
+vell.db.total_body = 3
+vell.db.av = 0
 
-_ensure_walkin_item(
-    "forged warrant", mistwall,
+# --- Magister Ipwin (possessed) at the Barrow ---
+ipwin = _ensure_walkin_npc(
+    "Magister Ipwin", barrow_shireen,
     desc=(
-        "A thick parchment warrant bearing your name — and, beneath the "
-        "wax, the smudge of a seal that was re-pressed while still warm. "
-        "Not a genuine Crown seal. Proof, if a court will hear you."
+        "An older Magister in soaked Lodge robes, kneeling at the "
+        "centre of the broken ritual circle. His voice is his own; "
+        "his eyes, when they turn to you, are not. He is being worn "
+        "like a coat. He smiles too widely and apologises in two "
+        "voices: his own, for breaking the binding; and another "
+        "voice, much older, for being grateful that he did."
     ),
-    aliases=("forged warrant", "warrant"),
+    aliases=("ipwin", "magister ipwin", "possessed"),
+    aggressive=False,
+    ai_personality=(
+        "Magister Ipwin of the Lodge of the Metaphysical Mind. "
+        "Came to the Annwyn to study spirit phenomena. Found a "
+        "barrow with an intact binding-figure; opened it; released "
+        "the spirit it held; was possessed by her on contact. Now "
+        "speaks in alternating voices — his own (academic, "
+        "apologetic, frightened) and Shireen's (older, slower, "
+        "amused). Wants the courier-party to either reassemble the "
+        "binding-figure (Ipwin's voice) or leave it broken "
+        "(Shireen's voice). If killed, Shireen will exit the body "
+        "and seek a new host."
+    ),
+    ai_knowledge=(
+        "- Opened the barrow's ritual circle without recognising it.\n"
+        "- Shireen is a fae spirit bound here in the second age — "
+        "a daughter of the Witch-Queen, by his guess.\n"
+        "- The rune-bones, reassembled into the binding-figure, "
+        "would put Shireen back. Each bone is paired with a sigil "
+        "on the barrow walls.\n"
+        "- The Lodge would prefer he be returned alive and "
+        "exorcised, but he has accepted that this may not be "
+        "possible."
+    ),
+)
+ipwin.db.body = 4
+ipwin.db.total_body = 4
+ipwin.db.av = 0
+
+# --- Shireen: fae spirit, manifests at the Barrow ---
+shireen = _ensure_walkin_npc(
+    "Shireen", barrow_shireen,
+    desc=(
+        "A pale, narrow woman standing where Ipwin is kneeling, "
+        "wearing a green wedding-dress that fades into the cold air "
+        "at the hem. Her eyes are wet black holes. The light bends "
+        "wrong around her. She is the spirit the barrow was built "
+        "to hold. She is now standing outside it, smiling at you, "
+        "and the smile is a courtesy."
+    ),
+    aliases=("shireen", "fae spirit", "fae", "spirit"),
+    aggressive=False,
+    ai_personality=(
+        "Shireen — a daughter of the Witch-Queen, bound in the "
+        "barrow's ritual circle for crimes the binders did not "
+        "name. Released when Ipwin broke the circle. Now wears him "
+        "as a host while she decides where to go. Will speak with "
+        "couriers; will offer the Witch-Queen's gift (a touch, a "
+        "secret, a name) to anyone who will leave her free; will "
+        "fight if a courier reassembles the bones. Dies hard. Does "
+        "not die forever."
+    ),
+    ai_knowledge=(
+        "- Was bound here in the second age by an unnamed Aurorym "
+        "circle. Her crime was speaking to the Witch-Queen when the "
+        "circle had outlawed her name.\n"
+        "- Has been alone in the barrow for centuries.\n"
+        "- The Witch-Queen's gift, offered to a willing courier: a "
+        "small touch of fae sight, a debt called in later.\n"
+        "- The binding-figure is fixed by laying the rune-bones in "
+        "the pattern carved on the barrow walls. Anyone with eyes "
+        "for sigils can do it."
+    ),
+)
+shireen.db.body = 6
+shireen.db.total_body = 6
+shireen.db.av = 2
+shireen.db.master_of_arms = 1
+shireen.db.tough = 2
+
+# --- Items: Ipwin's Camp ---
+_ensure_walkin_item(
+    "Ipwin's journal", ipwin_camp,
+    desc=(
+        "Magister Ipwin's working journal, bound in scuffed black "
+        "leather. The opening pages catalogue ghost phenomena across "
+        "Arnesse. The latter pages turn frantic: |wfound a barrow|n, "
+        "|wintact binding circle|n, |wthird-age work|n. The last "
+        "entry stops mid-sentence: |wif the figure breaks, the spirit|n"
+    ),
+    aliases=("journal", "ipwin's journal", "notebook"),
+)
+_ensure_walkin_item(
+    "blacklight lantern", ipwin_camp,
+    desc=(
+        "A small lantern fitted with a violet-filtered candle. By "
+        "its light, blacklight markings invisible in daylight glow "
+        "pale green on bark and stone. Ipwin used these to mark the "
+        "trail for the Lodge."
+    ),
+    aliases=("lantern", "blacklight"),
+)
+_ensure_walkin_item(
+    "Ipwin's pinned note", ipwin_camp,
+    desc=(
+        "A scrap pinned to the corner of the desk in Ipwin's "
+        "handwriting: |w'A discovery. The barrow. Follow if you "
+        "can. The path is in the lanterns. Bring antidotes if you "
+        "have them. — I.'|n"
+    ),
+    aliases=("pinned note", "ipwin note", "note"),
+    gettable=False,
+)
+
+# --- Items: The Shrine ---
+_ensure_walkin_item(
+    "shrine of the Witch-Queen", shrine_tangle,
+    desc=(
+        "A weather-worn stone shrine in the shape of a woman crowned "
+        "in branches. Old offerings — bird-bones in a wreath, a "
+        "clay cup, a green ribbon — lie at the foot. The lintel "
+        "above her head reads, in old Ard:\n\n"
+        "    |w'What is yours but never yours?'|n\n\n"
+        "(The answer, courteous and old, is |wa gift|n.)"
+    ),
+    aliases=("shrine", "witch-queen", "witch queen"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "tangle lore stone", shrine_tangle,
+    desc=(
+        "A flat slate at the foot of the shrine, lichen-edged. The "
+        "inscription, half-read: |w'The Tangle was her loom and her "
+        "needle. Step softly. Pay her toll. Pass.'|n"
+    ),
+    aliases=("lore stone", "stone", "tangle lore"),
+    gettable=False,
+)
+
+# --- Items: The Barrow ---
+_ensure_walkin_item(
+    "rune-bone", barrow_shireen,
+    desc=(
+        "A small human finger-bone carved with a fae sigil. Pair it "
+        "with the matching sigil on the barrow wall and the spirit "
+        "is bound one tile closer to her circle. There are four "
+        "such bones loose on the floor; the figure cannot complete "
+        "without all of them."
+    ),
+    aliases=("bone", "rune-bone", "rune bone"),
+    count=4,
+)
+_ensure_walkin_item(
+    "broken ritual circle", barrow_shireen,
+    desc=(
+        "A chalk and salt circle that someone has scuffed through "
+        "with a frantic boot. The breakage is small — a hand's "
+        "width — but it was enough. The bones that lay in figure "
+        "around the circle are scattered."
+    ),
+    aliases=("circle", "ritual circle", "broken circle"),
+    gettable=False,
+)
+
+
+# ── Chain Gang walk-in transit scene ────────────────────────────────────────
+# Three-room scripted scene the Chain Gang walk-in plays through before
+# emerging in Mystvale. Source: the original Event 1 LARP encounter
+# "The Chain Gang" by John Kozar — prisoners delivered to the edge of
+# the Mists, chained, disarmed; Ulfric the Coldhand tries to recruit
+# them as the wagon trail descends into a forest where something
+# very large stalks the dark; at a forested clearing they find a wounded
+# Laurent man-at-arms, his butchered comrades, and a chest of Laurent
+# gold. The moral choice is what to do with the gold and Killian.
+#
+# Ulfric, Cedric, and Josyn travel with the player as walk-in companions.
+# Killian is stationary at the Clearing.
+
+# --- Remove legacy Mistwall props from the old (replaced) Chain Gang flow ---
+# Older outcomes (bloody_break / quiet_slip / legal_appeal / turncoat)
+# used Mystvale Jailers + a Chain Gang Ringleader + a forged warrant at
+# the Mistwall. None of those map to the new source-faithful outcomes,
+# so sweep them away on populate.
+for _legacy_key in ("Mystvale Jailer", "Chain Gang Ringleader", "forged warrant"):
+    for _legacy in ObjectDB.objects.filter(
+        db_key=_legacy_key, db_location=mistwall.pk
+    ):
+        _legacy.delete()
+        print(f"  DELETED : {_legacy_key} (legacy chain-gang prop)")
+
+# Room 1 — the prison cart at the Mistwall. Chained, dark, frightened.
+prison_cart = get_or_create_room(
+    "The Prison Cart at the Mistwall",
+    "typeclasses.rooms.Room",
+    "The back of an iron-banded prison wagon, parked at the mist's edge. "
+    "A guttering torch nailed to the wagon's roof throws shaking light "
+    "over a row of chained captives — you among them. Iron cuffs at "
+    "wrist and ankle, a common chain run through every cuff. Your "
+    "weapons, your armor, your purse — gone, locked in a crate the "
+    "jailers carried off into the fog. The wagon doors hang open; "
+    "the jailers have already turned back, leaving you to the Last "
+    "Walk and whatever waits past the Mistwall.\n\n"
+    "|540You are not alone. The other prisoners watch you the way "
+    "men watch a card-table when the stakes are about to be called.|n\n\n"
+    "|wForward|n into the |wmist-wreathed trail|n.",
+    zone="The Mists",
+)
+
+# Room 2 — the trail through the forest in the Mists. Dark, something stalks.
+mist_trail = get_or_create_room(
+    "The Mist-Wreathed Trail",
+    "typeclasses.rooms.Room",
+    "A muddy track winding between black pines that the fog will not "
+    "let you see the tops of. The torch from the prison wagon is "
+    "behind you and going out. Ahead, somewhere in the trees, "
+    "branches break — not the snap of a deer or the crash of a boar, "
+    "but the slow deliberate flex of something setting its weight "
+    "down. Tracks gouge the soft earth: large, cloven, deep.\n\n"
+    "Off to one side of the trail lies |wsomething that was a person|n. "
+    "It is not a person anymore.\n\n"
+    "|540The lantern of the Mistwalker who was supposed to guide you "
+    "lies smashed in the mud, the wick still trying to burn.|n\n\n"
+    "|wAhead|n through the trees, light glimmers — a |wclearing|n.",
+    zone="The Mists",
+)
+
+# Room 3 — the bandit clearing. The moral choice scene.
+bandit_clearing = get_or_create_room(
+    "A Clearing in the Mists",
+    "typeclasses.rooms.Room",
+    "A small lantern-lit clearing, lanterns staked into the earth — the "
+    "ones the dead set out before they died. A caravan's wagon lies "
+    "tipped on its side, one wheel still spinning slowly. Two armored "
+    "bodies, men-at-arms in Laurent green, lie in the mud, torn apart "
+    "by something with talons. A third Laurent guard — alive, just — "
+    "is propped against the wagon, pressing a wadded cloak to a "
+    "wound in his side.\n\n"
+    "A heavy |wstrongbox|n sits half-open beside him, gold coin "
+    "spilling into the dirt. Crates of weapons and armor lie scattered "
+    "around it — and stamped on one crate, in fresh wax, is your own "
+    "name. Whoever was bringing this gear into the Annwyn was "
+    "bringing your gear too.\n\n"
+    "|540The other prisoners are looking at the gold. Ulfric is "
+    "looking at the wounded guard. The decision is yours, and it is "
+    "about to be made for you if you do not move.|n\n\n"
+    "|wOut|n through the mists, following the Mistwalker's last "
+    "lantern toward |wMystvale|n.",
+    zone="The Mists",
+)
+
+# Connect the three scripted rooms. Companion-following exits.
+link(prison_cart, "forward", mist_trail, "back", "f", "b")
+link(mist_trail, "ahead", bandit_clearing, "back", "a", "b")
+for _src, _dst in (
+    (prison_cart, mist_trail),
+    (mist_trail, prison_cart),
+    (mist_trail, bandit_clearing),
+    (bandit_clearing, mist_trail),
+):
+    for _ex in _src.contents:
+        if getattr(_ex, "destination", None) == _dst:
+            if _ex.typeclass_path != "typeclasses.exits.WalkInJourneyExit":
+                _ex.swap_typeclass(
+                    "typeclasses.exits.WalkInJourneyExit",
+                    clean_attributes=False,
+                )
+
+# Final escape — clearing → Mystvale Marketplace. Companions follow if
+# they're still alive (Ulfric may have been killed by the player).
+_out_exit = ObjectDB.objects.filter(
+    db_key="out", db_location=bandit_clearing.pk
+).first()
+if not _out_exit:
+    _out_exit = _create.create_object(
+        "typeclasses.exits.WalkInJourneyExit",
+        key="out", location=bandit_clearing, destination=marketplace,
+    )
+    _out_exit.aliases.add("lantern")
+    _out_exit.aliases.add("mystvale")
+    print("  CREATED : Bandit Clearing → Mystvale Marketplace (lantern out)")
+
+# --- Companion NPCs: Ulfric, Cedric, Josyn ---
+ulfric = _ensure_walkin_npc(
+    "Ulfric the Coldhand", prison_cart,
+    desc=(
+        "A heavy-shouldered Northman, wrists raw from the cuffs, a "
+        "weeks-old beard and eyes that have already finished sizing up "
+        "everyone in the wagon. From the lands of House Coldhill, "
+        "though he is no friend to any lord. The chain that binds him "
+        "is the same chain that binds you."
+    ),
+    aliases=("ulfric", "coldhand"),
+    aggressive=False,
+    ai_personality=(
+        "Ulfric the Coldhand — a Trollkin bandit from the lands of "
+        "House Coldhill, arrested in Gateway for killing a man in a "
+        "tavern brawl. Charismatic, contemptuous of nobility, sees "
+        "the Last Walk as a chance to build his outlaw band. He will "
+        "pitch the bearer on joining him. If they refuse and he sees "
+        "the gold at the Clearing, he will take it by force. Speaks "
+        "in plain, dry, hard sentences."
+    ),
+    ai_knowledge=(
+        "- Was running with a small gang called the Trollkin before "
+        "being arrested in Gateway.\n"
+        "- The warrants in this column were rushed; he heard the Gateway "
+        "nobility wanted certain names off their docket fast.\n"
+        "- Cedric is his man; Josyn is his blade.\n"
+        "- Wants to recruit anyone with a hand for a blade. Will share "
+        "the gold equally with anyone who throws in. Will kill anyone "
+        "who tries to stop him from taking the chest.\n"
+        "- Knows the Annwyn is where you go to disappear — perfect "
+        "country for an outlaw band."
+    ),
+)
+ulfric.attributes.add("is_walkin_companion", True)
+ulfric.db.body = 5
+ulfric.db.total_body = 5
+ulfric.db.av = 1
+ulfric.db.master_of_arms = 1
+ulfric.db.tough = 1
+ulfric.db.melee_weapons = 2
+
+cedric = _ensure_walkin_npc(
+    "Cedric", prison_cart,
+    desc=(
+        "A narrow, plain-faced man from the Hearthlands, the kind of "
+        "porter you forget the moment he leaves the room. He keeps "
+        "close to Ulfric and watches Ulfric for cues the way a dog "
+        "watches a man with a stick."
+    ),
+    aliases=("cedric",),
+    aggressive=False,
+    ai_personality=(
+        "Cedric — a Hearthlander follower with a long list of petty "
+        "crimes who fell in with Ulfric in Gateway. Has neither "
+        "initiative nor conviction; will agree with whoever frightens "
+        "him most in the moment. Defers to Ulfric on everything."
+    ),
+    ai_knowledge=(
+        "- Was wanted for petty theft and fraud before the murder in "
+        "Gateway swept him up too.\n"
+        "- Believes Ulfric is going somewhere; would rather be in "
+        "Ulfric's pocket than out of it.\n"
+        "- Won't make a decision on his own. Look to Ulfric."
+    ),
+)
+cedric.attributes.add("is_walkin_companion", True)
+cedric.db.body = 3
+cedric.db.total_body = 3
+cedric.db.av = 0
+
+josyn = _ensure_walkin_npc(
+    "Josyn", prison_cart,
+    desc=(
+        "A lean ex-mercenary in a stained gambeson, ejected from the "
+        "Richter armies for drinking and the trouble that follows from "
+        "drinking. He has not spoken since the wagon stopped. He is "
+        "watching everyone's hands."
+    ),
+    aliases=("josyn",),
+    aggressive=False,
+    ai_personality=(
+        "Josyn — ex-Richter mercenary, drummed out for drink, now in "
+        "Ulfric's band. The violent one. Talks little; cuts throats "
+        "quickly. Loyal to Ulfric out of habit and shared crimes."
+    ),
+    ai_knowledge=(
+        "- Was a Richter merc; knows blade-work and the inside of a "
+        "campaign tent.\n"
+        "- Will fight for Ulfric if a fight breaks out at the Clearing.\n"
+        "- Has nothing kind to say and rarely says anything at all."
+    ),
+)
+josyn.attributes.add("is_walkin_companion", True)
+josyn.db.body = 4
+josyn.db.total_body = 4
+josyn.db.av = 1
+josyn.db.melee_weapons = 1
+
+# --- Killian: wounded Laurent man-at-arms at the Clearing ---
+killian = _ensure_walkin_npc(
+    "Killian", bandit_clearing,
+    desc=(
+        "A middle-aged man-at-arms in dented Laurent green, propped "
+        "against the wreck of the wagon. A wadded cloak is pressed to "
+        "a wound at his side, dark with blood that is no longer "
+        "running. His longsword is on the ground beside him. His "
+        "eyes are clear; he has been waiting for someone to come down "
+        "this trail."
+    ),
+    aliases=("killian", "guard", "laurent guard"),
+    aggressive=False,
+    ai_personality=(
+        "Killian — senior man-at-arms in the service of Lord Garamond "
+        "Laurent for many years. Loyal, professional, wounded but not "
+        "panicking. His charge was the strongbox of Laurent gold; he "
+        "intends to keep it or die over it. Will fight to the death "
+        "if anyone moves on the chest. Will reward (with thanks and "
+        "Laurent goodwill) anyone who tends his wound and protects "
+        "the gold. Saw the thing that killed his comrades only as "
+        "claws and shadow and 'so much blood.'"
+    ),
+    ai_knowledge=(
+        "- He serves Lord Garamond Laurent. Two dead men here were "
+        "his sworn brothers, Bren and Tomas.\n"
+        "- The chest is Laurent gold being moved to fund the Laurent "
+        "expedition into the Annwyn.\n"
+        "- The Mistwalker who guided them was killed by the same "
+        "thing that killed the others — black, huge, talons. He "
+        "could not describe it better than that.\n"
+        "- If brought safely to the Mystvale Captain of the Watch, "
+        "House Laurent will remember the bearer's name."
+    ),
+)
+killian.db.body = 2
+killian.db.total_body = 5  # wounded, partially down
+killian.db.av = 2
+killian.db.master_of_arms = 1
+killian.db.tough = 2
+killian.db.melee_weapons = 1
+killian.db.shields = 2
+
+# --- Items: Prison Cart ---
+_ensure_walkin_item(
+    "rusty lockpicks", prison_cart,
+    desc=(
+        "A small bent set of lockpicks, half-buried under a pile of "
+        "rags in the corner of the wagon. Someone before you came "
+        "prepared — and did not get the chance to use them."
+    ),
+    aliases=("picks", "lockpicks", "pick"),
+)
+_ensure_walkin_item(
+    "common chain", prison_cart,
+    desc=(
+        "A heavy iron chain run through every cuff in the wagon, "
+        "shackling each prisoner to the next. The cuffs themselves "
+        "are crude — picked, they would fall open easily."
+    ),
+    aliases=("chain", "chains", "cuffs"),
+    gettable=False,
+)
+
+# --- Items: Mist-Wreathed Trail ---
+_ensure_walkin_item(
+    "mauled traveller", mist_trail,
+    desc=(
+        "What is left of a person who tried to walk this trail before "
+        "you. Mauled by something very large, with talons. The bones "
+        "have been gnawed. The body is too torn to identify; the "
+        "clothes are coarse wool, the kind a labourer wears."
+    ),
+    aliases=("body", "traveller", "mauled body", "corpse"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "smashed lantern", mist_trail,
+    desc=(
+        "A staved-in glass lantern, dropped in the mud. The wick is "
+        "still trying to burn against the wet glass. The Mistwalker "
+        "who carried this is not here, and was not carried away."
+    ),
+    aliases=("lantern", "broken lantern"),
+    gettable=False,
+)
+
+# --- Items: Bandit Clearing ---
+_ensure_walkin_item(
+    "Laurent strongbox", bandit_clearing,
+    desc=(
+        "A heavy iron-bound chest, lid sprung half-open, gold coin "
+        "spilling from the gap. Stamped on the lid is the green "
+        "crescent-and-tower of House Laurent."
+    ),
+    aliases=("strongbox", "chest", "laurent chest", "gold", "coin"),
+)
+_ensure_walkin_item(
+    "Lord Laurent's letter", bandit_clearing,
+    desc=(
+        "A sealed parchment, lying near Killian's hand. The wax bears "
+        "the green crescent of House Laurent. It commissions Killian "
+        "and his men to bring the enclosed coin and gear to the "
+        "Laurent expedition camp in the Annwyn — and lists, in a "
+        "careful hand, the names of certain prisoners on this Last "
+        "Walk whose convictions Lord Garamond believes were rushed by "
+        "Gateway's nobility. Yours may be among them."
+    ),
+    aliases=("letter", "laurent letter", "lord laurent letter"),
+)
+_ensure_walkin_item(
+    "Laurent guards' bodies", bandit_clearing,
+    desc=(
+        "Two men-at-arms in Laurent green, side by side. Their armor "
+        "is half-torn from their bodies; great rents go through the "
+        "steel as if it were linen. Killian's brothers, Bren and "
+        "Tomas, by the embroidered initials on the gambeson cuffs."
+    ),
+    aliases=("bodies", "guards", "dead guards", "laurent dead"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "gear crates", bandit_clearing,
+    desc=(
+        "Half a dozen wooden crates, lids pried up. Weapons, armor, "
+        "kits, purses — all stamped with names. One crate bears your "
+        "own. Lord Laurent must have known which prisoners were being "
+        "walked in tonight, and arranged to return their gear to "
+        "them past the gates of the Annwyn."
+    ),
+    aliases=("crates", "gear", "your gear"),
+    gettable=False,
 )
 
 
