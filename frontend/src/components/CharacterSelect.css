@@ -121,25 +121,21 @@
   transform: translateY(0);
 }
 
-/* Portrait — frameless, image bleeds into card */
+/* Portrait — frameless, full skull visible above the name */
 .charsel-portrait {
-  width: 140px;
-  height: 140px;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .charsel-portrait img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* Source image has padding around the skull — scale up to crop it
-     so the skull fills the portrait area instead of sitting in dead
-     space. */
-  transform: scale(1.25);
+  /* contain (not cover) so the whole skull is visible, never cropped */
+  object-fit: contain;
   filter: brightness(1.1) drop-shadow(0 2px 6px rgba(0,0,0,0.6));
 }
 
