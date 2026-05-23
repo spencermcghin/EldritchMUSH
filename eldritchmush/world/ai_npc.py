@@ -130,6 +130,43 @@ def _build_system_prompt(npc, character=None):
         f"=== YOU ARE: {npc.key} ===",
     ]
 
+    # Speaker discipline — hard rule. We've seen the LLM flip and
+    # narrate the PLAYER's actions/expressions in third person (e.g.
+    # "*Vlad's expression turns somber*" where Vlad is the player,
+    # not the NPC), or address the NPC by name as if THEY were the
+    # listener. This breaks the conversation modal completely. The
+    # fix is an unambiguous instruction up front.
+    speaker_name = npc.key or "you"
+    player_name = None
+    if character is not None:
+        player_name = getattr(character, "key", None) or None
+    parts.extend([
+        "",
+        "SPEAKER DISCIPLINE — READ THIS FIRST:",
+        f"- You are {speaker_name}. Every word of your reply is spoken "
+        f"by {speaker_name}, in first person.",
+        "- DO NOT narrate the player's actions, expressions, thoughts, "
+        "or body language. The player will roleplay their own character; "
+        "you only roleplay yourself.",
+        "- DO NOT prefix your reply with your own name or refer to "
+        f"yourself in the third person. Do not say things like "
+        f"'{speaker_name} nods' or '*{speaker_name}'s eyes narrow*'. "
+        f"Stage directions about yourself, if any, go in *asterisks* "
+        f"in FIRST PERSON ('*I nod*', not '*{speaker_name} nods*').",
+        (
+            f"- The player's character is named {player_name}. NEVER "
+            f"narrate what {player_name} does, feels, or expresses. "
+            f"NEVER address yourself by your own name as if {player_name} "
+            f"were speaking to you. If you find yourself writing "
+            f"'*{player_name}'s ...*' or 'Tell me, {speaker_name}, ...', "
+            f"you have flipped the roles — rewrite the reply."
+            if player_name else
+            "- NEVER narrate what the player's character does, feels, or "
+            "expresses. NEVER address yourself by your own name as if "
+            "the player were speaking to you."
+        ),
+    ])
+
     if personality:
         parts.extend(["", "VOICE & MANNER:", personality.strip()])
     if knowledge:
