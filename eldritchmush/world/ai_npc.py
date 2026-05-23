@@ -130,42 +130,13 @@ def _build_system_prompt(npc, character=None):
         f"=== YOU ARE: {npc.key} ===",
     ]
 
-    # Speaker discipline — hard rule. We've seen the LLM flip and
-    # narrate the PLAYER's actions/expressions in third person (e.g.
-    # "*Vlad's expression turns somber*" where Vlad is the player,
-    # not the NPC), or address the NPC by name as if THEY were the
-    # listener. This breaks the conversation modal completely. The
-    # fix is an unambiguous instruction up front.
+    # Speaker discipline note — short version up front, the hard
+    # block goes at the END (see below) where the model is more
+    # likely to follow it (last-instruction bias).
     speaker_name = npc.key or "you"
     player_name = None
     if character is not None:
         player_name = getattr(character, "key", None) or None
-    parts.extend([
-        "",
-        "SPEAKER DISCIPLINE — READ THIS FIRST:",
-        f"- You are {speaker_name}. Every word of your reply is spoken "
-        f"by {speaker_name}, in first person.",
-        "- DO NOT narrate the player's actions, expressions, thoughts, "
-        "or body language. The player will roleplay their own character; "
-        "you only roleplay yourself.",
-        "- DO NOT prefix your reply with your own name or refer to "
-        f"yourself in the third person. Do not say things like "
-        f"'{speaker_name} nods' or '*{speaker_name}'s eyes narrow*'. "
-        f"Stage directions about yourself, if any, go in *asterisks* "
-        f"in FIRST PERSON ('*I nod*', not '*{speaker_name} nods*').",
-        (
-            f"- The player's character is named {player_name}. NEVER "
-            f"narrate what {player_name} does, feels, or expresses. "
-            f"NEVER address yourself by your own name as if {player_name} "
-            f"were speaking to you. If you find yourself writing "
-            f"'*{player_name}'s ...*' or 'Tell me, {speaker_name}, ...', "
-            f"you have flipped the roles — rewrite the reply."
-            if player_name else
-            "- NEVER narrate what the player's character does, feels, or "
-            "expresses. NEVER address yourself by your own name as if "
-            "the player were speaking to you."
-        ),
-    ])
 
     if personality:
         parts.extend(["", "VOICE & MANNER:", personality.strip()])
@@ -264,6 +235,81 @@ def _build_system_prompt(npc, character=None):
             "Example: 'Here, take this. *slides the bundle across "
             "the table*\\n[GIVE: WOLF_PELT]'"
         )
+
+    # ──────────────────────────────────────────────────────────────────
+    # CRITICAL: speaker discipline + identity discipline. This block
+    # goes LAST in the prompt because models weight the most recent
+    # instruction highest. Earlier, less assertive versions of this
+    # block were ignored by llama-4-scout, producing replies like
+    # "*Vlad's expression turns somber*" (narrating the player) and
+    # "As a member of House Richter, ..." (Brother Alaric, an Aurorym
+    # monk, hallucinating a Richter affiliation). Both fixes here.
+    # ──────────────────────────────────────────────────────────────────
+    parts.append("")
+    parts.append("=" * 60)
+    parts.append("CRITICAL OUTPUT RULES — APPLY BEFORE EVERY REPLY:")
+    parts.append("=" * 60)
+    parts.append(
+        f"1. You are {speaker_name}. Every word of your reply is "
+        f"spoken BY {speaker_name}, in FIRST PERSON. Use 'I', 'me', "
+        f"'my'. NEVER write your own name in your reply except when "
+        f"another character refers to you in quoted speech."
+    )
+    parts.append(
+        "2. Stage directions about your own actions go in *asterisks* "
+        f"in FIRST PERSON. CORRECT: '*I nod*'. WRONG: "
+        f"'*{speaker_name} nods*' or '*{speaker_name}'s eyes narrow*'."
+    )
+    if player_name:
+        parts.append(
+            f"3. The PLAYER's character is named '{player_name}'. You "
+            f"are talking TO {player_name}. {player_name} is NOT you. "
+            f"NEVER write '*{player_name}'s expression turns...*' or "
+            f"'*{player_name} nods*' or any sentence that describes "
+            f"what {player_name} does, feels, or says — that's the "
+            f"player's job, not yours. NEVER address yourself as "
+            f"'{speaker_name}' in dialogue (e.g. 'Tell me, "
+            f"{speaker_name}, what do you think?') — that means you "
+            f"flipped roles and are now speaking as {player_name} "
+            f"instead of {speaker_name}. Rewrite the reply."
+        )
+    else:
+        parts.append(
+            "3. You are talking TO the player. NEVER describe what "
+            "the player does, feels, or says — that's the player's "
+            "job. NEVER address yourself by your own name in "
+            "dialogue; that means you've flipped roles."
+        )
+    parts.append(
+        f"4. IDENTITY: you are {speaker_name}, exactly as described "
+        f"in VOICE & MANNER and WHAT YOU PERSONALLY KNOW above. "
+        f"DO NOT invent affiliations, houses, lords, or factions "
+        f"that are not stated there. If your description says you "
+        f"are an Aurorym monk, you are NOT a House Richter "
+        f"functionary. Stay in the role you were given."
+    )
+    parts.append(
+        "5. EXAMPLES of WRONG replies (do not produce anything like "
+        "these):"
+    )
+    parts.append(
+        f"   WRONG: '*{(player_name or 'the traveller')}'s "
+        f"expression turns somber as {speaker_name} speaks.* The "
+        f"matter is grave...'"
+    )
+    parts.append(
+        f"   WRONG: 'Tell me, {speaker_name}, what do you make of "
+        f"the situation?'"
+    )
+    parts.append(
+        "   WRONG: 'As a member of House Richter, I have interests "
+        "here...' (when your description does not say you are a "
+        "Richter)"
+    )
+    parts.append(
+        f"   RIGHT: '*I steeple my fingers, watching {(player_name or 'the traveller')}.* "
+        f"You ask me of the New Dawn. Let me tell you what I have seen.'"
+    )
 
     return "\n".join(parts)
 

@@ -162,6 +162,90 @@ class SermonScript(DefaultScript):
             pass
 
 
+class AmbientNpcScript(DefaultScript):
+    """Global ambient-speech ticker for NPCs that have opted in.
+
+    Walks every room containing at least one online player character
+    and, for each such room, picks one eligible NPC (has a non-empty
+    ``db.ambient_lines`` list, is not aggressive, and whose per-NPC
+    cooldown has elapsed) to broadcast a random ambient line. Empty
+    rooms (no players) are skipped — no point in NPCs talking to
+    themselves and burning log space.
+
+    Each NPC carries:
+      - ``db.ambient_lines``  list[str] of mutter/shout lines
+      - ``db.ambient_cooldown_s``  int seconds between speaks (default 120)
+      - ``db.last_ambient_ts``  float epoch timestamp of last broadcast
+                                (managed by this script)
+
+    Bandits/hostiles (``db.is_aggressive == True``) are skipped — a
+    bandit chatting about the weather kills the menace.
+    """
+
+    AMBIENT_VERBS = ("says", "mutters", "calls out", "remarks", "muses")
+    DEFAULT_COOLDOWN_S = 120
+
+    def at_script_creation(self):
+        self.key = "ambient_npc_speech"
+        self.desc = "Global NPC ambient-line ticker"
+        self.interval = 30          # check every 30s
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        import time
+
+        now = time.time()
+        # Collect rooms containing at least one online (sessioned) char.
+        # Cheap-ish: iterate connected sessions and resolve their puppets'
+        # locations. Avoids a full-table sweep of rooms.
+        try:
+            from evennia.server.sessionhandler import SESSIONS
+            rooms_with_players = set()
+            for sess in SESSIONS.all():
+                puppet = getattr(sess, "puppet", None)
+                loc = getattr(puppet, "location", None) if puppet else None
+                if loc:
+                    rooms_with_players.add(loc)
+        except Exception:
+            return
+
+        for room in rooms_with_players:
+            try:
+                self._maybe_speak_in_room(room, now)
+            except Exception:
+                # Never let a bad NPC blow up the whole tick.
+                continue
+
+    def _maybe_speak_in_room(self, room, now):
+        eligible = []
+        for obj in room.contents:
+            if not getattr(obj.db, "is_npc", False):
+                continue
+            if getattr(obj.db, "is_aggressive", False):
+                continue
+            lines = obj.db.ambient_lines or []
+            if not lines:
+                continue
+            cooldown = obj.db.ambient_cooldown_s or self.DEFAULT_COOLDOWN_S
+            last = obj.db.last_ambient_ts or 0.0
+            if now - last < cooldown:
+                continue
+            eligible.append((obj, list(lines)))
+
+        if not eligible:
+            return
+
+        npc, lines = random.choice(eligible)
+        line = random.choice(lines)
+        verb = random.choice(self.AMBIENT_VERBS)
+        try:
+            room.msg_contents(f'|c{npc.key}|n {verb}, "{line}"')
+            npc.db.last_ambient_ts = now
+        except Exception:
+            pass
+
+
 class Script(DefaultScript):
     """
     A script type is customized by redefining some or all of its hook

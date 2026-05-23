@@ -108,6 +108,24 @@ def at_server_start():
     # Fire immediately at start, then every 5s — Railway idle timeout is ~10s
     reactor.callLater(3, lc.start, 5, True)
 
+    # Bootstrap the global AmbientNpcScript if it's not already running.
+    # Idempotent: if a previous boot already created it, this no-ops.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="ambient_npc_speech").exists():
+            create_script(
+                "typeclasses.scripts.AmbientNpcScript",
+                key="ambient_npc_speech",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] AmbientNpcScript bootstrapped")
+        else:
+            print("[at_server_start] AmbientNpcScript already present")
+    except Exception as exc:
+        print(f"[at_server_start] AmbientNpcScript bootstrap FAILED: {exc!r}")
+
 
 def at_server_stop():
     """

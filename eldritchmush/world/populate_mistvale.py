@@ -3922,12 +3922,20 @@ herald.attributes.add("ai_personality", (
     "ahead, west, through the Mistwall — not behind. She is helping "
     "the bearer plan it, not congratulating them on having survived it."
 ))
-# Topic chips for `ask herald` — keep tight and action-oriented.
-# Empty list suppresses the fallback that would otherwise leak the
-# ai_quest_hooks string ("Offers the five walk-in quests (walkin_...")
-# as a useless topic chip. Inline quest offers fire on ask via
-# push_quest_offers_for_npc; chips would only duplicate them.
-herald.attributes.add("ai_quest_topics", [])
+# Topic chips for `ask herald` — curated, one per crossing path so
+# the player has obvious entry points without us leaking the raw
+# `ai_quest_hooks` text (which is what the fallback would do).
+# Clicking any of these fires `ask herald = <topic>`, which runs
+# CmdAsk → push_quest_offers_for_npc → inline Accept buttons appear
+# in the conversation panel.
+herald.attributes.add("ai_quest_topics", [
+    "the crossing",
+    "the Ship path",
+    "the Cirque caravan",
+    "the Noble retinue",
+    "the Lodge of the Metaphysical Mind",
+    "the Chain Gang",
+])
 herald.attributes.add("ai_knowledge", (
     "- Offers five walk-in crossing-paths the bearer can pick: by "
     "Ship, with the Cirque caravan, in a Noble retinue, as an "
@@ -3999,6 +4007,22 @@ herald.attributes.add("ai_quest_hooks", [
     "noble retinue, with the Lodge of the Metaphysical Mind, or "
     "in a chain gang."
 ])
+
+# Ambient mutter lines — the AmbientNpcScript picks one of these at
+# random every ~2 min when a player is in the room. Each line is a
+# HOOK: it references something the player can ask the Herald about
+# (ship, Cirque caravan, chain gang, etc.), nudging quest discovery
+# without forcing the player to think to ask.
+herald.attributes.add("ambient_lines", [
+    "If you're crossing today, see me before you leave. Five paths, one chance.",
+    "That Cirque caravan's been parked at the Wall two days now. They'll take a courier if anyone's brave enough.",
+    "Chain gang came in this morning. Bad lot. They'll be walked into the Mists by sundown.",
+    "Word from the docks: a ship's chartered for the crossing. Captain claims he can find the Annwyn by stars. Sure he can.",
+    "The Lodge of the Metaphysical Mind has scholars asking the way to a Magister Ipwin. Went into the Mists days ago.",
+    "Noble retinue passed through yesterday. Hired a Mistwalker called Martin. Their assistant Wil's the type I'd not trust with my purse.",
+    "Mistwall's open today. Once you're through, you don't come back. Choose your path before you cross.",
+])
+herald.attributes.add("ambient_cooldown_s", 90)
 
 
 # ===========================================================================
@@ -7115,5 +7139,56 @@ _ensure_walkin_item(
     count=3,
 )
 
+
+# ── Ambient NPC speech seeds ─────────────────────────────────────────────────
+# Opt-in chatter for the AmbientNpcScript (typeclasses/scripts.py).
+# Each NPC keyed below gets a list of mutter lines the ticker will
+# broadcast every ~90s when a player is in the room. Lines should
+# reference askable topics — they're meant to be HOOKS for player
+# curiosity, not flavour-noise. Aggressive NPCs are auto-excluded by
+# the script (no bandit chatter).
+print("\n=== AMBIENT NPC SPEECH SEEDS ===")
+
+
+def _seed_ambient(npc_key, lines, cooldown=90):
+    """Look up an NPC by key, set its ambient_lines + cooldown.
+    Silent no-op if the NPC isn't in the DB (lets us seed lines for
+    NPCs that may not always populate)."""
+    npc = ObjectDB.objects.filter(db_key=npc_key).first()
+    if not npc:
+        print(f"  SKIP    : ambient seed for {npc_key} (not in DB)")
+        return
+    npc.attributes.add("ambient_lines", list(lines))
+    npc.attributes.add("ambient_cooldown_s", cooldown)
+    print(f"  SEEDED  : {npc_key} (×{len(lines)} lines, every {cooldown}s)")
+
+
+# Mistwalker Soap — at the Mistwall. Taciturn; lines should match his
+# slow, weight-of-the-mists voice.
+_seed_ambient("Soap", [
+    "The mists are not weather. They are a place.",
+    "Walk in my shadow. Do not speak to what speaks to you. Do not turn around.",
+    "The cord is silver. The cord is the rule. Do not drop the cord.",
+    "Four bearers lost in thirty crossings. Not a bad record.",
+    "If you have a Writ, show it. If you do not, you are not crossing today.",
+])
+
+# Pelham Faye — Gateway tavern innkeeper. Sailor, grift-detector,
+# pours strong. Lines should sound like a barkeep watching the room.
+_seed_ambient("Pelham Faye", [
+    "Coin first. Always coin first. This is the Oar, not your mother's kitchen.",
+    "Mistwalkers don't drink. Take note of that, friend, and ask yourself why.",
+    "If you're crossing, eat before you go. The Annwyn doesn't feed strangers.",
+    "Heard a ship's sailing for the Annwyn this week. Heard it twice from drunks, once from a sober man. Make of that what you will.",
+    "Don't sit in the back booth. That's Soap's. They don't sit in it, but it's theirs.",
+])
+
+# Captain Vance of the Mistguard — at the Mistwall.
+_seed_ambient("Captain Vance of the Mistguard", [
+    "If you've a Writ, queue. If you don't, you're loitering. Pick.",
+    "Mistguard moves at the Compact's pace. Yours doesn't matter.",
+    "Last week's chain gang lost three before the column reached the Wall. Iron's not what it was.",
+    "Civilians: north tent. Prisoners: the wagon. Pilgrims: wait your turn like everyone else.",
+])
 
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
