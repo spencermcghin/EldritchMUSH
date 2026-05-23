@@ -963,6 +963,20 @@ link(old_road_south, "south", mistgate, "north", "s", "n")
 #   - East → Arcton (Corveaux, eastern sea)
 #   - Far southwest → Tamris ruins (ancient port)
 link(old_road_south, "south",     carran_square, "north", None, None)
+# Reverse from Old Road South back to Carran: the canonical 'south'
+# direction is already taken by the Mistgate, so we add a named
+# one-way exit "carran" (alias c) so players who came up from Carran
+# via 'north' can type 'carran' to head back. Carran's own 'north'
+# exit (created by the link above) handles the outbound direction.
+if not ObjectDB.objects.filter(
+    db_key="carran", db_location=old_road_south.pk
+).exists():
+    _carran_back = _create.create_object(
+        "evennia.objects.objects.DefaultExit",
+        key="carran", location=old_road_south, destination=carran_square,
+    )
+    _carran_back.aliases.add("c")
+    print("  CREATED : Old Road South — 'carran' (back to Carran Square)")
 link(old_road_south, "southwest", ironhaven_square, "northeast", "sw", "ne")
 link(old_road_south, "east",      arcton_camp, "west", "e", "w")
 link(old_road_south, "thornwood",  thornwood_edge, "out", "thorn", "o")
@@ -992,6 +1006,20 @@ link(north_gate, "north", forest_road, "south", "n", "s")
 # Aurorym pilgrim camp ten miles north of Mystvale (Event 3).
 link(north_gate, "dawnhaven", dawnhaven, "south", "dawn", "s")
 link(forest_road, "north", harrowgate, "south", "n", "s")
+
+# ── Foreign-house outposts (orphan-room fix) ─────────────────────────
+# Goldleaf (House Innis) and Moonfall (House Aragon) are foreign
+# encampments that were previously seeded with no exits at all,
+# making them unreachable. Hook each into the nearest road room so
+# they're on the map and curious players can find them.
+# - Goldleaf Innis Encampment branches off the Forest Road north of
+#   Mystvale (Innis lands are in the Northern Marches; this is a
+#   forward outpost in Bannon territory).
+# - Moonfall Aragon Outpost branches off the Old Road South (Aragon
+#   is rumoured to be the hidden hand behind the Crows; an outpost
+#   off the south road fits).
+link(forest_road,    "encampment", goldleaf, "road",   "encamp", "back")
+link(old_road_south, "outpost",    moonfall, "road",   "out",    "back")
 
 # Crow Camp rooms — Rescue the Crafters quest chain (Event 1)
 # Gated: players must have the corresponding quest active to enter.
@@ -1046,7 +1074,12 @@ quest_gated_link(
 
 # Tamris ruins interior (accessed from Carran SW or Ironhaven W)
 link(tamris_approach, "in", tamris_ruins, "out", None, "o")
-link(tamris_approach, "east", tamris_harbor, "west", "e", "w")
+# Harbor is on the coast SOUTH of the approach. Earlier this used
+# east/west, but tamris_approach.east was already taken by the
+# Ironhaven link a few lines up, so the link() helper silently
+# skipped and the harbor ended up one-way. Use south/north pair,
+# both free on these rooms, and the geography is correct.
+link(tamris_approach, "south", tamris_harbor, "north", "s", "n")
 link(tamris_approach, "down", barrows_entrance, "up", "d", "u")
 
 # Gateway zone — Arnesse side of the Mists
