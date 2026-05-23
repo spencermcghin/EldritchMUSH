@@ -229,11 +229,23 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
   }, [newName, creating, sendCommand, fetchCharacters, clearLastCharCreate])
 
   const handleCloseModal = useCallback(() => {
-    if (creating) return
+    // Always allow Cancel — even while a create is in-flight. If the
+    // server actually succeeded the character will show up on the next
+    // characters refetch anyway. Previously this was gated on `creating`
+    // which trapped users in hung modals when the character_created OOB
+    // event dropped on the wire.
+    if (createTimeoutRef.current) {
+      clearTimeout(createTimeoutRef.current)
+      createTimeoutRef.current = null
+    }
+    setCreating(false)
     setShowCreate(false)
     setNewName('')
     setModalError(null)
-  }, [creating])
+    // Refetch in case the create actually completed server-side before
+    // we cancelled — that way the new character appears in the grid.
+    fetchCharacters()
+  }, [fetchCharacters])
 
   return (
     <div className="charsel-screen">
@@ -310,7 +322,6 @@ export default function CharacterSelect({ sendCommand, lastCharCreate, clearLast
                     type="button"
                     className="charsel-modal-cancel"
                     onClick={handleCloseModal}
-                    disabled={creating}
                   >
                     Cancel
                   </button>

@@ -138,6 +138,29 @@ def _build_system_prompt(npc, character=None):
     if character is not None:
         player_name = getattr(character, "key", None) or None
 
+    # ── Where the NPC currently IS ───────────────────────────────────
+    # Without this, walk-in companions like First Mate Nosaj keep
+    # behaving as if they're still on the doomed ship even after the
+    # player has dragged them ashore at Tamris Harbor. The LLM has no
+    # awareness of motion unless we tell it the present location.
+    try:
+        loc = getattr(npc, "location", None)
+        if loc:
+            loc_key = getattr(loc, "key", "") or "Somewhere"
+            loc_desc = (getattr(loc.db, "desc", "") or "")[:280]
+            parts.extend([
+                "",
+                "YOUR CURRENT LOCATION:",
+                f"  {loc_key}",
+                f"  ({loc_desc.strip()})" if loc_desc else "",
+                "  React to where you actually are now. If you've "
+                "travelled with the bearer to a new location, the past "
+                "(the ship, the road, the cell) is behind you — speak "
+                "to the present, not the journey that brought you here.",
+            ])
+    except Exception:
+        pass
+
     if personality:
         parts.extend(["", "VOICE & MANNER:", personality.strip()])
     if knowledge:
