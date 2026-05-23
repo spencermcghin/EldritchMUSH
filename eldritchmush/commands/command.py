@@ -1143,6 +1143,85 @@ class SetArmorSpecialist(Command):
             # Return armor value to console.
             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
 
+class SetGender(Command):
+    """Set your character's gender identity.
+
+    Usage: setgender <male|female|non-binary>
+
+    Choose one of:
+      male         (he/him/his)
+      female       (she/her/hers)
+      non-binary   (they/them/theirs)
+
+    You may also use the shorthand `nb`, `enby`, `m`, or `f`. NPCs
+    will use the matching pronouns when speaking of you. You can
+    change this at any time.
+    """
+
+    key = "setgender"
+    aliases = ["set gender"]
+    help_category = "mush"
+
+    # Canonical values and accepted aliases mapped to them.
+    _ALIASES = {
+        "m": "male", "male": "male",
+        "f": "female", "female": "female",
+        "nb": "non-binary", "enby": "non-binary",
+        "non-binary": "non-binary", "nonbinary": "non-binary",
+        "non binary": "non-binary",
+    }
+
+    def func(self):
+        raw = (self.args or "").strip().lower()
+        if not raw:
+            current = self.caller.db.gender or "unset"
+            self.caller.msg(
+                "|430Usage: setgender <male|female|non-binary>|n\n"
+                f"|400Your current gender is: |w{current}|n"
+            )
+            return
+        canonical = self._ALIASES.get(raw)
+        if not canonical:
+            self.caller.msg(
+                "|430Usage: setgender <male|female|non-binary>|n\n"
+                "|400Pick one of male, female, or non-binary.|n"
+            )
+            return
+        self.caller.db.gender = canonical
+        self.caller.msg(
+            f"|gYour gender is now |w{canonical}|g.|n NPCs will refer "
+            f"to you with {_pronoun_phrase(canonical)} pronouns."
+        )
+
+
+def _pronoun_phrase(gender):
+    """Return a human-friendly 'he/him' style string for a gender value."""
+    table = {
+        "male": "he/him",
+        "female": "she/her",
+        "non-binary": "they/them",
+    }
+    return table.get((gender or "").lower(), "unspecified")
+
+
+def pronouns_for(character):
+    """Return a dict of pronouns for a character based on db.gender.
+
+    Used by the NPC LLM prompt builder so the AI uses the correct
+    pronouns for the player it's addressing. Defaults to 'they/them'
+    if gender is unset — neutral and safe.
+    """
+    gender = (getattr(character.db, "gender", None) or "").lower()
+    table = {
+        "male":       {"subj": "he",   "obj": "him",  "poss": "his",    "reflex": "himself"},
+        "female":     {"subj": "she",  "obj": "her",  "poss": "her",    "reflex": "herself"},
+        "non-binary": {"subj": "they", "obj": "them", "poss": "their",  "reflex": "themselves"},
+    }
+    return table.get(gender, {
+        "subj": "they", "obj": "them", "poss": "their", "reflex": "themselves",
+    })
+
+
 class SetVigil(Command):
     """Set the Vigil archetype level of a character
 

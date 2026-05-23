@@ -237,51 +237,106 @@ def _build_system_prompt(npc, character=None):
         )
 
     # ──────────────────────────────────────────────────────────────────
-    # CRITICAL: speaker discipline + identity discipline. This block
-    # goes LAST in the prompt because models weight the most recent
-    # instruction highest. Earlier, less assertive versions of this
-    # block were ignored by llama-4-scout, producing replies like
-    # "*Vlad's expression turns somber*" (narrating the player) and
-    # "As a member of House Richter, ..." (Brother Alaric, an Aurorym
-    # monk, hallucinating a Richter affiliation). Both fixes here.
+    # Player profile — gender + pronouns the NPC should use when
+    # referring to the player in the third person. Defaults to
+    # they/them if unset. Goes BEFORE the critical rules block so
+    # the rules can reference these pronouns.
     # ──────────────────────────────────────────────────────────────────
+    if character is not None:
+        try:
+            from commands.command import pronouns_for
+            pron = pronouns_for(character)
+            player_gender = (getattr(character.db, "gender", None) or "unset").lower()
+            parts.append("")
+            parts.append("THE PLAYER YOU ARE SPEAKING WITH:")
+            parts.append(
+                f"  Name: {character.key}\n"
+                f"  Gender: {player_gender}\n"
+                f"  Pronouns: {pron['subj']}/{pron['obj']}/{pron['poss']} "
+                f"(use these when referring to {character.key} in the "
+                f"third person)."
+            )
+        except Exception:
+            pass
+
+    # ──────────────────────────────────────────────────────────────────
+    # CRITICAL: output format + identity discipline. Goes LAST
+    # because models weight the most recent instruction highest.
+    #
+    # Format: third-person prose narration like a novel.
+    # - Actions and expressions: third person, referring to the NPC
+    #   by name and pronoun (e.g. "Brother Alaric looks at you with
+    #   a serious expression").
+    # - Spoken dialogue: in double quotes, attributed naturally
+    #   ("'The New Dawn is noble,' he says").
+    # - NEVER narrate the player — only the NPC describes the NPC.
+    # - NEVER use *asterisks* for stage directions (that was the old
+    #   buggy convention that the LLM kept getting wrong).
+    # ──────────────────────────────────────────────────────────────────
+    # Pick a default pronoun for the NPC. If the NPC has db.pronouns
+    # set explicitly use that, otherwise use the neutral they/them.
+    npc_pron = npc.attributes.get("pronouns", default=None) or {
+        "subj": "they", "obj": "them", "poss": "their",
+    }
+    if isinstance(npc_pron, str):
+        # Allow shorthand: db.pronouns = "he/him" / "she/her" / "they/them"
+        _table = {
+            "he/him": {"subj": "he", "obj": "him", "poss": "his"},
+            "she/her": {"subj": "she", "obj": "her", "poss": "her"},
+            "they/them": {"subj": "they", "obj": "them", "poss": "their"},
+        }
+        npc_pron = _table.get(npc_pron.lower(), {"subj": "they", "obj": "them", "poss": "their"})
+
     parts.append("")
     parts.append("=" * 60)
-    parts.append("CRITICAL OUTPUT RULES — APPLY BEFORE EVERY REPLY:")
+    parts.append("CRITICAL OUTPUT FORMAT — APPLY BEFORE EVERY REPLY:")
     parts.append("=" * 60)
     parts.append(
-        f"1. You are {speaker_name}. Every word of your reply is "
-        f"spoken BY {speaker_name}, in FIRST PERSON. Use 'I', 'me', "
-        f"'my'. NEVER write your own name in your reply except when "
-        f"another character refers to you in quoted speech."
+        f"1. Write your reply as THIRD-PERSON PROSE NARRATION, like "
+        f"a novel. Describe what {speaker_name} does, feels, and "
+        f"says using {speaker_name}'s name and pronouns "
+        f"({npc_pron['subj']}/{npc_pron['obj']}/{npc_pron['poss']}). "
+        f"Put {speaker_name}'s spoken words in double quotes."
     )
     parts.append(
-        "2. Stage directions about your own actions go in *asterisks* "
-        f"in FIRST PERSON. CORRECT: '*I nod*'. WRONG: "
-        f"'*{speaker_name} nods*' or '*{speaker_name}'s eyes narrow*'."
+        f"   RIGHT: 'Brother Alaric looks at you with a serious "
+        f"expression. \"The New Dawn,\" he says, \"is a most noble "
+        f"endeavor. I have watched our holy warriors gather here at "
+        f"the Wall, week upon week.\"'"
+    )
+    parts.append(
+        "2. DO NOT use *asterisks* for stage directions. That format "
+        "is BANNED. Actions and gestures are part of the prose, not "
+        "in asterisks: write 'she nods', not '*nods*' or '*I nod*'."
+    )
+    parts.append(
+        "3. DO NOT write in first person ('I', 'me', 'my'). The "
+        "narration is third person. The only first-person text in "
+        "your reply is what is INSIDE the double quotes when "
+        f"{speaker_name} speaks aloud."
     )
     if player_name:
         parts.append(
-            f"3. The PLAYER's character is named '{player_name}'. You "
-            f"are talking TO {player_name}. {player_name} is NOT you. "
-            f"NEVER write '*{player_name}'s expression turns...*' or "
-            f"'*{player_name} nods*' or any sentence that describes "
-            f"what {player_name} does, feels, or says — that's the "
-            f"player's job, not yours. NEVER address yourself as "
-            f"'{speaker_name}' in dialogue (e.g. 'Tell me, "
-            f"{speaker_name}, what do you think?') — that means you "
-            f"flipped roles and are now speaking as {player_name} "
-            f"instead of {speaker_name}. Rewrite the reply."
+            f"4. The player's character is named '{player_name}'. "
+            f"You may have {speaker_name} address {player_name} "
+            f"directly inside the spoken dialogue (e.g. \"Tell me, "
+            f"{player_name}, what brings you here?\"). But NEVER "
+            f"narrate what {player_name} does, says, feels, or thinks "
+            f"outside the dialogue. Do NOT write '{player_name} "
+            f"nods' or '{player_name}'s expression turns somber' — "
+            f"that's the player's job, not yours. You may have "
+            f"{speaker_name} REACT to {player_name} ('Brother Alaric "
+            f"studies you for a moment'), but you may not put words "
+            f"or actions IN {player_name}."
         )
     else:
         parts.append(
-            "3. You are talking TO the player. NEVER describe what "
-            "the player does, feels, or says — that's the player's "
-            "job. NEVER address yourself by your own name in "
-            "dialogue; that means you've flipped roles."
+            "4. You are talking TO the player. You may have your NPC "
+            "react to or address the player, but NEVER narrate what "
+            "the player does, says, feels, or thinks."
         )
     parts.append(
-        f"4. IDENTITY: you are {speaker_name}, exactly as described "
+        f"5. IDENTITY: you are {speaker_name}, exactly as described "
         f"in VOICE & MANNER and WHAT YOU PERSONALLY KNOW above. "
         f"DO NOT invent affiliations, houses, lords, or factions "
         f"that are not stated there. If your description says you "
@@ -289,26 +344,28 @@ def _build_system_prompt(npc, character=None):
         f"functionary. Stay in the role you were given."
     )
     parts.append(
-        "5. EXAMPLES of WRONG replies (do not produce anything like "
-        "these):"
+        "6. EXAMPLES of WRONG vs RIGHT (study carefully):"
     )
     parts.append(
-        f"   WRONG: '*{(player_name or 'the traveller')}'s "
-        f"expression turns somber as {speaker_name} speaks.* The "
-        f"matter is grave...'"
+        f"   WRONG: '*I look at you with a serious expression.* "
+        f"The New Dawn is noble.'   (asterisks + first person — both "
+        f"banned)"
     )
     parts.append(
-        f"   WRONG: 'Tell me, {speaker_name}, what do you make of "
-        f"the situation?'"
+        f"   WRONG: '*{(player_name or 'You')} nods thoughtfully.* "
+        f"Tell me, {speaker_name}, ...'   (narrating the player AND "
+        f"flipping roles)"
     )
     parts.append(
-        "   WRONG: 'As a member of House Richter, I have interests "
-        "here...' (when your description does not say you are a "
-        "Richter)"
+        "   WRONG: 'As a member of House Richter, I have "
+        "interests...'   (invented affiliation; speaking in first "
+        "person without quotes)"
     )
     parts.append(
-        f"   RIGHT: '*I steeple my fingers, watching {(player_name or 'the traveller')}.* "
-        f"You ask me of the New Dawn. Let me tell you what I have seen.'"
+        f"   RIGHT: '{speaker_name} pauses, choosing {npc_pron['poss']} "
+        f"words carefully. \"The New Dawn is a most noble endeavor,\" "
+        f"{npc_pron['subj']} says. \"I have watched our faithful "
+        f"gather here, week upon week.\"'"
     )
 
     return "\n".join(parts)

@@ -155,6 +155,12 @@ class Character(DefaultCharacter):
         self.db.skip_turn = False
         self.db.is_staggered = False
 
+        # Gender identity — male / female / non-binary. Defaults to
+        # "unset"; players choose during chargen via `setgender` and
+        # can change later. Used by NPC LLM prompts for correct
+        # pronoun choice and by any future romance/encounter mechanics.
+        self.db.gender = "unset"
+
         # Char slots for equipping items
         self.db.left_slot = []
         self.db.right_slot = []

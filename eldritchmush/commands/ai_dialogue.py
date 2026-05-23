@@ -197,13 +197,29 @@ class CmdAsk(Command):
                 except Exception as exc:
                     print(f"[CmdAsk._on_reply] quest_offers failed: {exc!r}", flush=True)
                 # Broadcast to the room so other players see the exchange too.
+                # The reply is now third-person prose with spoken dialogue
+                # in double quotes inside (e.g. "Brother Alaric pauses,
+                # then says, 'The New Dawn is noble.'"), so we don't wrap
+                # it in `says, "..."` anymore — that would double-wrap and
+                # read as garbled. We just colour-prefix with the NPC's
+                # name as a chat attribution and let the prose speak.
                 try:
+                    name_lower = (target.key or "").lower().strip()
+                    reply_starts_with_name = (
+                        name_lower
+                        and reply.lower().lstrip().startswith(name_lower)
+                    )
+                    line = (
+                        # Reply already starts with the NPC's name — just
+                        # tint the leading name without prefixing.
+                        f"|c{reply}|n"
+                        if reply_starts_with_name
+                        else f"|c{target.key}|n: {reply}"
+                    )
                     if caller.location:
-                        caller.location.msg_contents(
-                            f'|c{target.key}|n says, "{reply}"'
-                        )
+                        caller.location.msg_contents(line)
                     else:
-                        caller.msg(f'|c{target.key}|n says, "{reply}"')
+                        caller.msg(line)
                 except Exception as exc:
                     print(f"[CmdAsk._on_reply] room broadcast failed: {exc!r}", flush=True)
             except Exception as exc:
