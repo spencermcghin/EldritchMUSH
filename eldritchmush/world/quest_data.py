@@ -56,13 +56,13 @@ QUESTS = {
         "title": "From the Mists: Ship",
         "giver": "herald at the gates",
         "description": (
-            "You remember the deck of the ship, the horizon bending the "
-            "wrong way, stars that were not the stars you knew. You remember "
-            "the captain's last whispered name for what was under the hull. "
-            "Everything after that is salt and fog — until you woke on the "
-            "Mystvale shore, the wreck still bleeding timber into the tide. "
-            "The harbormaster will want to hear about the cargo. Others will "
-            "want to hear less."
+            "You'll sail the Mists. A merchant ship has been chartered for "
+            "the Annwyn crossing; you and a handful of passengers will "
+            "board at the Mistwall, slip down into the cargo hold, and "
+            "trust the captain to find Tamris Harbor through the fog. "
+            "Ships that try this almost always wash up empty. You should "
+            "expect the worst. What you do with what you find on the wreck "
+            "is your choice."
         ),
         "outcomes": {
             "salvage_for_crown": {
@@ -120,14 +120,14 @@ QUESTS = {
         "title": "From the Mists: Cirque",
         "giver": "herald at the gates",
         "description": (
-            "You travelled with the Grand Cirque Obscura's caravan. At the "
-            "Mistwall the hired Mistwalker never showed; the cargo waits "
-            "in four iron-banded crates and the Cirque's foreman Yan needs "
-            "a courier with the nerve to carry them through the Tangle. "
-            "On the other side: Eldreth, the Cirque's merchant in the "
-            "Annwyn — or, in her absence, the Ringmaster himself at the "
-            "Mystvale Marketplace. In between: the Lost, the Underwriter, "
-            "and a chasm only a trod torch will let you cross."
+            "You'll cross with the Grand Cirque Obscura's caravan. They're "
+            "camped at the Mistwall — the hired Mistwalker never came, "
+            "and the cargo (four iron-banded crates) still needs to reach "
+            "Eldreth on the Annwyn side. Yan, the Cirque's foreman, will "
+            "hand you the contract and walk the Tangle with you. Expect "
+            "the Lost between the trees and the Underwriter past them — "
+            "neither will let you through for nothing. The crates that "
+            "survive go to the Ringmaster at the Mystvale Marketplace."
         ),
         "outcomes": {
             "deliver_all_four": {
@@ -219,14 +219,14 @@ QUESTS = {
         "title": "From the Mists: Noble",
         "giver": "herald at the gates",
         "description": (
-            "You rode in the retinue of a minor noble house — or you rode "
-            "as one, depending on how you tell it. The retinue hired a "
-            "Mistwalker called Martin in Gateway, and his assistant Wil "
-            "led you out to meet him at a camp past the Mistwall. The "
-            "camp is empty. The fire is cold. Wil is sweating. Beyond "
-            "the camp lies the Spider-Wood, Martin's true fate, and a "
-            "leather journal whose secret the Crown and the Crows both "
-            "want enough to kill for."
+            "You'll cross with a minor noble retinue — as one of them or "
+            "in their service, however you tell it. The party hired the "
+            "Mistwalker Martin in Gateway, and his assistant Wil is "
+            "ready to lead you out to Martin's camp past the Mistwall. "
+            "What waits there is not what Wil promised. Beyond the "
+            "camp is the Spider-Wood, Martin's true fate, and a leather "
+            "journal whose secret the Crown and the Crows would both "
+            "kill for."
         ),
         "outcomes": {
             "expose_wil": {
@@ -321,14 +321,14 @@ QUESTS = {
         "title": "From the Mists: Explorer",
         "giver": "herald at the gates",
         "description": (
-            "You answered Magister Ipwin's call. He summoned the Lodge of "
-            "the Metaphysical Mind to the Annwyn to study its spirit "
-            "phenomena, and you came at his name. His abandoned camp is "
-            "ahead, his trail marked in blacklight you can only see by "
-            "the lanterns he left. He went on toward a barrow he opened. "
-            "What you find at the barrow will be Ipwin, the spirit that "
-            "now wears him, and a choice — for the binding, against it, "
-            "or past it altogether."
+            "You'll cross with the Lodge of the Metaphysical Mind. "
+            "Magister Ipwin summoned scholars to the Annwyn to study "
+            "its spirit phenomena; you and Magister Vell answered. "
+            "Ipwin went ahead through the Mists days ago, leaving "
+            "blacklight lanterns to mark his trail and a note about a "
+            "barrow he'd opened. The trail is waiting on the far side "
+            "of the Mistwall. What you'll find at the barrow's end is "
+            "Ipwin — and the spirit that now wears him."
         ),
         "outcomes": {
             "save_ipwin": {
@@ -416,13 +416,14 @@ QUESTS = {
         "title": "From the Mists: Chain Gang",
         "giver": "herald at the gates",
         "description": (
-            "You do not remember the crime. You remember the chains. The "
-            "jailers marched the gang to the edge of the Mistwall, cuffed "
-            "you to a wagon-chain with strangers, took your weapons in a "
-            "Laurent-stamped crate, and turned the wagon back. Ahead lies "
-            "the Last Walk — and a Northman named Ulfric in the seat "
-            "beside you who already knows your name. Whatever happens in "
-            "the woods between here and Mystvale will define you."
+            "You'll cross the Mists the way the condemned do — chained "
+            "to a wagon at the Mistwall with a column of other prisoners "
+            "the jailers won't be bringing back. Your weapons go in a "
+            "Laurent-stamped crate that gets carried off into the fog. "
+            "Beside you on the chain is a Northman named Ulfric who "
+            "already knows your name and has plans for the both of you. "
+            "Whatever happens in the woods between the Mistwall and "
+            "Mystvale will define what you become on the far side."
         ),
         "outcomes": {
             "join_ulfric": {

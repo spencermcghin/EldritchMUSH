@@ -914,6 +914,18 @@ class CmdQuest(Command):
             _msg_text_only(caller, f"|540{odef.get('description', '')}|n")
         else:
             _msg_text_only(caller, "|540" + qdef["description"] + "|n")
+
+        # Walk-in quests share a fixed crossing route from Gateway Square
+        # to the Mistwall. New players need a clear "where do I go" cue
+        # the moment they accept, or they're stranded at the Herald.
+        # ALL recipients (web + telnet) get this — it's the action prompt.
+        if qdef.get("mutex_group") == "walkin":
+            caller.msg(
+                "\n|y→ To begin the crossing:|n |wnorth|n to the "
+                "Mistwalker's Tent, |wwest|n to the Mistwall, then "
+                "|w'through the mists'|n."
+            )
+
         _msg_text_only(caller, f"\n|540Type |wquest {qdef['title']}|540 to track progress.|n")
 
         # Fire OOB event so the frontend can toast the acceptance —
