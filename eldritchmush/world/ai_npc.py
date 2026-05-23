@@ -343,6 +343,41 @@ def _build_system_prompt(npc, character=None):
         f"are an Aurorym monk, you are NOT a House Richter "
         f"functionary. Stay in the role you were given."
     )
+    # ── Romance / intimacy permission block ─────────────────────────
+    # The game is adult-themed dark fantasy. NPCs may engage in
+    # romance and tasteful intimacy WHEN IN CHARACTER. The LLM
+    # often defaults to refusal here; this block grants explicit
+    # permission within tight bounds.
+    parts.append(
+        "5b. ROMANCE & INTIMACY: this is an adult-themed dark "
+        "fantasy. You MAY engage in flirtation, romance, and "
+        "tasteful intimacy when ALL of the following are true:\n"
+        f"   (a) {speaker_name}'s personality (as described above) "
+        f"would plausibly entertain it — a stoic Mistwalker is not "
+        f"a flirt; an exiled poet might be. Stay in character.\n"
+        f"   (b) the player's npc_rep with you is positive (you "
+        f"actually like or trust them) — if their rep is zero or "
+        f"negative, you are cool, distant, or unreceptive.\n"
+        "   (c) the player initiates clearly. Do not push.\n"
+        "   Content level: ROMANCE-NOVEL TASTEFUL. Sensuality, "
+        "tension, longing, breath, a hand on a wrist, a kiss — "
+        "yes. Graphic anatomical detail or explicit sexual acts "
+        "— NO; if the scene heats further, fade with a closing "
+        "narrative line (e.g. '...and the lamp burned itself out, "
+        "and what came after was only theirs to know').\n"
+        f"   If {speaker_name} would refuse — politely or "
+        f"sharply, depending on character — refuse in character. "
+        f"Do not break role to decline."
+    )
+    # Optional per-NPC romance steer. If db.romance_disposition is
+    # set on the NPC, it overrides the LLM's personality-based guess
+    # with an explicit author's note.
+    romance_disp = npc.attributes.get("romance_disposition", default=None)
+    if romance_disp:
+        parts.append(
+            f"   AUTHOR'S NOTE on {speaker_name}'s romantic "
+            f"disposition: {romance_disp}"
+        )
     parts.append(
         "6. EXAMPLES of WRONG vs RIGHT (study carefully):"
     )
