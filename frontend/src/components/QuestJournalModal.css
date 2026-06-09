@@ -128,9 +128,9 @@
   margin-bottom: 4px;
 }
 .qj-card-title {
-  font-family: 'Cinzel', serif;
-  color: var(--text-light);
-  font-size: 14px;
+  font-family: var(--font-display);
+  color: var(--accent-gold);
+  font-size: 15px;
   letter-spacing: 1px;
 }
 .qj-card-progress {
@@ -146,10 +146,11 @@
   margin-bottom: 2px;
 }
 .qj-card-desc {
-  font-size: 12px;
-  color: var(--text-aged);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--bone);
   margin: 6px 0 8px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* Objectives */
@@ -162,8 +163,9 @@
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-size: 12px;
-  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--bone);
   padding: 2px 0;
 }
 .qj-obj-tick {
@@ -172,7 +174,7 @@
   color: #aa3030;
 }
 .qj-obj.done .qj-obj-tick {
-  color: #5fb35f;
+  color: var(--mist);
 }
 .qj-obj.done .qj-obj-desc {
   text-decoration: line-through;

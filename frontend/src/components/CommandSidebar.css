@@ -144,10 +144,12 @@
   opacity: 0.7;
 }
 
+/* Command names read as in-world actions ("Strike", "Forage"), not
+   machine syntax — serif bone; the literal arg syntax stays mono. */
 .cmd-key {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--bone);
   flex: 1;
   min-width: 0;
 }

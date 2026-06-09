@@ -8,6 +8,8 @@ import '../App.css'
 import RoomView from '../components/RoomView.jsx'
 import GameOutput from '../components/GameOutput.jsx'
 import NpcDialoguePanel from '../components/NpcDialoguePanel.jsx'
+import QuestOfferModal from '../components/QuestOfferModal.jsx'
+import QuestCompletedToast from '../components/QuestCompletedToast.jsx'
 
 const ROOM_MSG = {
   content: [
@@ -81,8 +83,41 @@ function Swatch({ name, varName, text }) {
   )
 }
 
-// ?panel=1 shows the NPC dialogue modal (it backdrops everything else)
-const SHOW_PANEL = new URLSearchParams(window.location.search).has('panel')
+const OFFER = {
+  key: 'rescue_blacksmith',
+  title: 'Rescue the Crafters: The Blacksmith',
+  giver: 'Ser Ewan Bannon',
+  description:
+    'Crow bandits have kidnapped Mystvale’s blacksmith and are holding ' +
+    'him at a camp in the forest. Ser Ewan Bannon is looking for ' +
+    'volunteers to raid the camp and bring the smith home — by blade, ' +
+    'by parley, or by ransom.',
+  // linear offer → shows the wax-seal ACCEPT button; add ?branching=1
+  // for the outcome-picker variant.
+  objectives: [
+    { desc: 'Defeat the Crow Striker', qty: 1 },
+    { desc: 'Walk Torben home to the Crafter’s Quarter', qty: 1 },
+  ],
+  rewards: ['25 silver', 'crow signal whistle'],
+}
+
+const COMPLETED_QUEST = {
+  ts: 1,
+  title: 'The Festival of Lights',
+  outcomeLabel: 'Every lantern lit',
+  silver: 20,
+  items: ['paper lantern'],
+  reagents: { Sayge: 2 },
+  factionRep: { crown: 2 },
+  npcRep: { 'curate godrick': 1 },
+}
+
+// ?panel=1 — NPC dialogue modal; ?offer=1 — quest offer modal (wax
+// seal accept); ?toast=1 — completed toast. Modals backdrop the page.
+const Q = new URLSearchParams(window.location.search)
+const SHOW_PANEL = Q.has('panel')
+const SHOW_OFFER = Q.has('offer')
+const SHOW_TOAST = Q.has('toast')
 
 function Preview() {
   return (
@@ -109,6 +144,17 @@ function Preview() {
           onDeclineOffer={() => {}}
         />
       )}
+      {SHOW_OFFER && (
+        <QuestOfferModal
+          open
+          offer={OFFER}
+          onAccept={() => {}}
+          onAcceptOutcome={() => {}}
+          onDecline={() => {}}
+          onClose={() => {}}
+        />
+      )}
+      {SHOW_TOAST && <QuestCompletedToast quest={COMPLETED_QUEST} />}
     </div>
   )
 }

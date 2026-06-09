@@ -75,11 +75,11 @@
 
 .login-subtitle {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 10px;
-  letter-spacing: 5px;
-  color: var(--text-aged);
+  font-size: 12px;
+  letter-spacing: 6px;
+  color: var(--bone);
   text-transform: uppercase;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 /* Divider */
@@ -99,14 +99,14 @@
 
 /* Flavor text */
 .login-flavor {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: 17px;
   font-style: italic;
-  color: var(--text-aged);
+  color: var(--bone);
   text-align: center;
-  opacity: 0.9;
-  max-width: 380px;
-  line-height: 1.8;
+  opacity: 0.92;
+  max-width: 420px;
+  line-height: 1.75;
 }
 
 /* Form panel */

@@ -39,9 +39,9 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 8px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
-  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--bone);
 }
 .quest-toast-progress-desc {
   overflow: hidden;
@@ -73,10 +73,10 @@
   padding: 10px 14px;
 }
 .rep-change-toast.positive {
-  border-color: rgba(95, 179, 95, 0.55);
+  border-color: rgba(163, 181, 168, 0.6);
   box-shadow:
     0 6px 20px rgba(0, 0, 0, 0.5),
-    0 0 12px rgba(95, 179, 95, 0.18);
+    0 0 12px rgba(163, 181, 168, 0.2);
 }
 .rep-change-toast.negative {
   border-color: rgba(170, 48, 48, 0.55);
@@ -98,7 +98,7 @@
   font-size: 18px;
   font-weight: 600;
 }
-.rep-delta.positive { color: #6dd7a0; }
+.rep-delta.positive { color: var(--mist); }
 .rep-delta.negative { color: #e08080; }
 .rep-total {
   color: var(--text-aged);
@@ -122,10 +122,10 @@
 }
 .quest-toast-sub {
   margin-top: 6px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
-  line-height: 1.35;
-  color: var(--text-light);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--bone);
   font-style: italic;
 }
 
@@ -154,9 +154,9 @@
   letter-spacing: 0.5px;
 }
 .quest-toast-rep-chip.pos {
-  background: rgba(76, 175, 80, 0.08);
-  color: #b6d8a5;
-  border-color: rgba(76, 175, 80, 0.4);
+  background: var(--mist-faint);
+  color: #c2d3c7;
+  border-color: rgba(163, 181, 168, 0.45);
 }
 .quest-toast-rep-chip.neg {
   background: rgba(139, 0, 0, 0.08);
