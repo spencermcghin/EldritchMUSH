@@ -23,7 +23,13 @@ Set `ai_giftable_items` on the NPC — a list of prototype keys, e.g.:
 The LLM's system prompt should tell it to emit `[GIVE: PROTO_KEY]`
 (on its own line or inline) whenever it wants to hand over one of
 those items. The marker itself is stripped from the visible text.
+
+Throttle: each (NPC, item) pair gives at most NPC_GIFT_LIMIT_PER_PAIR
+times per character (default 1) — counted on
+`recipient.db.npc_gifts_received` — so a player can't sweet-talk (or
+prompt-inject) an NPC into farming its allowlisted items repeatedly.
 """
+import os
 import re
 
 _GIFT_RE = re.compile(r"\[GIVE:\s*([A-Za-z0-9_ \-]+?)\s*\]", re.IGNORECASE)
@@ -80,13 +86,28 @@ def process_gift_markers(reply, npc, recipient):
         return reply
     allow_raw = npc.attributes.get("ai_giftable_items", default=None) or []
     allow = {str(k).strip().upper(): str(k).strip() for k in allow_raw}
+    try:
+        gift_limit = max(1, int(os.environ.get("NPC_GIFT_LIMIT_PER_PAIR", "1")))
+    except ValueError:
+        gift_limit = 1
 
     def _sub(match):
         claim = match.group(1).strip()
         claim_key = claim.upper().replace(" ", "_").replace("-", "_")
         if claim_key in allow:
+            received = dict(recipient.db.npc_gifts_received or {})
+            pair = f"{(npc.key or '').lower()}|{claim_key}"
+            if received.get(pair, 0) >= gift_limit:
+                print(
+                    f"[npc_gifts] throttled: {npc.key} already gave "
+                    f"{claim_key} to {recipient.key} x{received[pair]}",
+                    flush=True,
+                )
+                return ""
             item = _spawn_into(allow[claim_key], recipient)
             if item:
+                received[pair] = received.get(pair, 0) + 1
+                recipient.db.npc_gifts_received = received
                 _fire_item_received(recipient, npc, item)
                 try:
                     recipient.msg(

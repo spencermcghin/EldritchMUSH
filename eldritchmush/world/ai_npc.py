@@ -1,18 +1,34 @@
 """
-AI-driven NPC dialogue via an OpenAI-compatible LLM endpoint.
+AI-driven NPC dialogue.
 
-NPCs in the game world can hold in-character conversations with players
-through an LLM. The provider is configured via env vars, defaulting to
-Groq (free tier) running Kimi K2.
+Two provider paths, selected by NPC_LLM_PROVIDER (or auto-detected):
+
+  - "anthropic" — Claude via the official `anthropic` SDK. The system
+    prompt is split into three blocks so prompt caching pays off:
+      1) the shared world bible (static per scope)   — cached
+      2) the per-NPC block (personality/canon/rules) — cached
+      3) the per-conversation block (location, player profile,
+         NPC memory of the player, live quest state) — not cached
+    Default model: claude-haiku-4-5.
+  - "openai" — any OpenAI-compatible endpoint (Groq etc.) via raw
+    HTTP. Legacy path, kept as a fallback; no caching.
 
 Env vars:
     NPC_LLM_ENABLED   — "1" (default) to enable; "0" disables all AI calls.
-    NPC_LLM_API_KEY   — bearer token. Required; if absent, NPCs fall back
+    NPC_LLM_PROVIDER  — "anthropic" | "openai". When unset, detected:
+                        keys starting "sk-ant-" → anthropic, else openai.
+    NPC_LLM_API_KEY   — API key. Required; if absent, NPCs fall back
                         to canned atmospheric lines.
-    NPC_LLM_BASE_URL  — default "https://api.groq.com/openai/v1"
-    NPC_LLM_MODEL     — default "moonshotai/kimi-k2-instruct"
-    NPC_LLM_MAX_TOKENS— default 220
+    NPC_LLM_BASE_URL  — openai path only; default Groq.
+    NPC_LLM_MODEL     — default "claude-haiku-4-5" (anthropic) or
+                        "meta-llama/llama-4-scout-17b-16e-instruct" (openai).
+    NPC_LLM_MAX_TOKENS— default 600
     NPC_LLM_TIMEOUT   — default 20 (seconds)
+    NPC_LLM_WORKERS   — LLM worker threads (default 4). Replaces the old
+                        unbounded thread-per-request model.
+    NPC_LLM_DAILY_BUDGET_USD — hard daily spend cap (default 5.0).
+                        When exhausted, NPCs return canned lines until
+                        midnight UTC. In-memory; resets on reload.
 
 NPC attributes (set via populate scripts):
     ai_personality    — system prompt fragment describing voice/mood
@@ -30,10 +46,12 @@ import time
 import threading
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 
 DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
 DEFAULT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
 DEFAULT_MAX_TOKENS = 600          # ~450 words; long enough that even a
                                    # storytelling reply doesn't get cut off
                                    # mid-sentence. Token cost is tiny in
@@ -44,6 +62,12 @@ HISTORY_TURNS = 8           # retained user+assistant exchanges per character
 RATE_LIMIT_MSGS = 30        # max messages
 RATE_LIMIT_WINDOW = 3600    # per 3600 seconds (1 hour)
 MAX_USER_MESSAGE = 600      # chars — caps prompt-injection / context abuse
+
+# Haiku 4.5 pricing ($/MTok) for the spend cap. The openai path uses
+# a flat conservative estimate since provider pricing varies.
+_PRICE_IN, _PRICE_OUT = 1.00, 5.00
+_PRICE_CACHE_WRITE, _PRICE_CACHE_READ = 1.25, 0.10
+_OPENAI_FLAT_PRICE = 0.50  # $/MTok, both directions, rough
 
 CANNED_FALLBACKS = [
     "{name} regards you silently for a long moment, then turns away.",
@@ -64,8 +88,96 @@ def _enabled():
     return bool(_env("NPC_LLM_API_KEY"))
 
 
+def _provider():
+    p = (_env("NPC_LLM_PROVIDER") or "").strip().lower()
+    if p in ("anthropic", "openai"):
+        return p
+    key = _env("NPC_LLM_API_KEY") or ""
+    if key.startswith("sk-ant-"):
+        return "anthropic"
+    if "anthropic" in (_env("NPC_LLM_BASE_URL") or ""):
+        return "anthropic"
+    return "openai"
+
+
+def _model():
+    if _provider() == "anthropic":
+        return _env("NPC_LLM_MODEL", DEFAULT_ANTHROPIC_MODEL)
+    return _env("NPC_LLM_MODEL", DEFAULT_MODEL)
+
+
 def _fallback_line(npc):
     return random.choice(CANNED_FALLBACKS).format(name=npc.key)
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Daily spend cap — in-memory, resets at UTC midnight (and on reload).
+# A kill switch, not an accounting system: protects against runaway
+# loops and hostile traffic, not against precise budget drift.
+# ───────────────────────────────────────────────────────────────────────────
+_SPEND_LOCK = threading.Lock()
+_SPEND = {"day": None, "usd": 0.0, "warned": False}
+
+
+def _budget_usd():
+    try:
+        return float(_env("NPC_LLM_DAILY_BUDGET_USD", "5.0"))
+    except ValueError:
+        return 5.0
+
+
+def _spend_day():
+    return time.strftime("%Y-%m-%d", time.gmtime())
+
+
+def _spend_ok():
+    with _SPEND_LOCK:
+        day = _spend_day()
+        if _SPEND["day"] != day:
+            _SPEND.update(day=day, usd=0.0, warned=False)
+        return _SPEND["usd"] < _budget_usd()
+
+
+def _record_spend(usd):
+    with _SPEND_LOCK:
+        day = _spend_day()
+        if _SPEND["day"] != day:
+            _SPEND.update(day=day, usd=0.0, warned=False)
+        _SPEND["usd"] += usd
+        if _SPEND["usd"] >= _budget_usd() and not _SPEND["warned"]:
+            _SPEND["warned"] = True
+            print(
+                f"[ai_npc] DAILY LLM BUDGET EXHAUSTED "
+                f"(${_SPEND['usd']:.2f} >= ${_budget_usd():.2f}). "
+                f"NPCs fall back to canned lines until UTC midnight. "
+                f"Raise NPC_LLM_DAILY_BUDGET_USD if this is legitimate "
+                f"traffic.",
+                flush=True,
+            )
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Worker pool — bounded, replaces thread-per-request. Per-NPC locks
+# serialize calls to the same NPC so concurrent talkers can't race
+# the conversation-history read/modify/write.
+# ───────────────────────────────────────────────────────────────────────────
+def _workers():
+    try:
+        return max(1, int(_env("NPC_LLM_WORKERS", "4")))
+    except ValueError:
+        return 4
+
+
+_EXECUTOR = ThreadPoolExecutor(max_workers=_workers(),
+                               thread_name_prefix="ai_npc")
+_NPC_LOCKS = {}
+_NPC_LOCKS_GUARD = threading.Lock()
+
+
+def _npc_lock(npc):
+    key = getattr(npc, "id", None) or id(npc)
+    with _NPC_LOCKS_GUARD:
+        return _NPC_LOCKS.setdefault(key, threading.Lock())
 
 
 def _is_quest_giver(npc):
@@ -80,6 +192,18 @@ def _is_quest_giver(npc):
         from world.quest_data import QUESTS
     except Exception:
         return False
+    names = _npc_names(npc)
+    if not names:
+        return False
+    for qdef in QUESTS.values():
+        giver = (qdef.get("giver") or "").lower()
+        if giver and giver in names:
+            return True
+    return False
+
+
+def _npc_names(npc):
+    """Lowercase key + aliases this NPC answers to."""
     names = set()
     try:
         if getattr(npc, "key", None):
@@ -92,74 +216,34 @@ def _is_quest_giver(npc):
                 names.add(a.lower())
     except Exception:
         pass
-    if not names:
-        return False
-    for qdef in QUESTS.values():
-        giver = (qdef.get("giver") or "").lower()
-        if giver and giver in names:
-            return True
-    return False
+    return names
 
 
-def _build_system_prompt(npc, character=None):
-    """Compose the NPC's system prompt from:
-       1) the shared canonical world bible (world/ai_lore.py), which ALL
-          NPCs share, so no one hallucinates house/faction/geography.
-       2) the NPC's personal `ai_personality` — voice, mood, manner.
-       3) the NPC's personal `ai_knowledge` — what THIS person knows
-          beyond the shared canon (secrets, opinions, local facts).
-       4) optional quest hooks.
-       5) if `character` is supplied, the NPC's memory of THAT player
-          (rep score + memory tags from char.db.npc_rep), so the LLM
-          can greet known faces differently from strangers.
-    """
+# ───────────────────────────────────────────────────────────────────────────
+# Prompt assembly — three blocks, ordered static → per-NPC → dynamic,
+# so the anthropic path can put cache breakpoints after blocks 1 and 2.
+# Any byte change in an earlier block invalidates the cache for
+# everything after it, so keep volatile content OUT of blocks 1 and 2.
+# ───────────────────────────────────────────────────────────────────────────
+
+def _static_block(scope):
+    """Block 1: the shared canonical world bible. Identical for every
+    NPC with the same scope — the big cache win (~6-8k tokens)."""
     from world import ai_lore
+    return ai_lore.get_world_bible(scope=scope)
 
+
+def _npc_block(npc):
+    """Block 2: everything about this NPC that does not change between
+    conversations — identity, voice, knowledge, canon, gifting rules,
+    quest-giver status, and the critical output-format rules (written
+    player-agnostically so the block stays byte-stable per NPC)."""
     personality = npc.attributes.get("ai_personality", default=None) or ""
     knowledge = npc.attributes.get("ai_knowledge", default=None) or ""
     quests = npc.attributes.get("ai_quest_hooks", default=None) or []
-    # scope controls how much lore this NPC knows. Information flows
-    # poorly across the Mists, so Arnesse-side NPCs get rumor-level
-    # Annwyn knowledge only. Default "gateway" — safer than leaking
-    # interior info.
-    scope = npc.attributes.get("ai_scope", default=None) or "gateway"
-
-    parts = [
-        ai_lore.get_world_bible(scope=scope),
-        "",
-        f"=== YOU ARE: {npc.key} ===",
-    ]
-
-    # Speaker discipline note — short version up front, the hard
-    # block goes at the END (see below) where the model is more
-    # likely to follow it (last-instruction bias).
     speaker_name = npc.key or "you"
-    player_name = None
-    if character is not None:
-        player_name = getattr(character, "key", None) or None
 
-    # ── Where the NPC currently IS ───────────────────────────────────
-    # Without this, walk-in companions like First Mate Nosaj keep
-    # behaving as if they're still on the doomed ship even after the
-    # player has dragged them ashore at Tamris Harbor. The LLM has no
-    # awareness of motion unless we tell it the present location.
-    try:
-        loc = getattr(npc, "location", None)
-        if loc:
-            loc_key = getattr(loc, "key", "") or "Somewhere"
-            loc_desc = (getattr(loc.db, "desc", "") or "")[:280]
-            parts.extend([
-                "",
-                "YOUR CURRENT LOCATION:",
-                f"  {loc_key}",
-                f"  ({loc_desc.strip()})" if loc_desc else "",
-                "  React to where you actually are now. If you've "
-                "travelled with the bearer to a new location, the past "
-                "(the ship, the road, the cell) is behind you — speak "
-                "to the present, not the journey that brought you here.",
-            ])
-    except Exception:
-        pass
+    parts = [f"=== YOU ARE: {npc.key} ==="]
 
     if personality:
         parts.extend(["", "VOICE & MANNER:", personality.strip()])
@@ -169,17 +253,33 @@ def _build_system_prompt(npc, character=None):
             "WHAT YOU PERSONALLY KNOW (beyond the shared world canon):",
             knowledge.strip(),
         ])
+
+    is_giver = _is_quest_giver(npc)
     if quests:
         parts.append("")
         parts.append("QUEST HOOKS YOU MAY OFFER WHEN APPROPRIATE:")
         for q in quests:
             parts.append(f"- {q}")
 
-    # True/false: is this NPC named as the `giver` of any quest in
-    # QUESTS? Authoritative source — driven by quest_data.py, not
-    # by attribute heuristics. A non-giver gets a hard "do not
-    # promise tasks" instruction; a giver does not.
-    if not _is_quest_giver(npc):
+    if is_giver:
+        parts.append("")
+        parts.append("OFFERING WORK:")
+        parts.append(
+            "When the conversation naturally reaches the point where "
+            "you would formally offer the player a task — they ask for "
+            "work, or one of your quest hooks comes up and they show "
+            "genuine interest — include the marker [OFFER] on its own "
+            "line in your reply. The system will then present your "
+            "available tasks to the player formally, with details and "
+            "rewards. Do not quote reward numbers yourself. Use the "
+            "marker at most once per reply, and only when an offer "
+            "genuinely fits the conversation — not as a greeting."
+        )
+    else:
+        # True/false: is this NPC named as the `giver` of any quest in
+        # QUESTS? Authoritative source — driven by quest_data.py, not
+        # by attribute heuristics. A non-giver gets a hard "do not
+        # promise tasks" instruction; a giver does not.
         parts.append("")
         parts.append("IMPORTANT — YOU ARE NOT A QUEST GIVER:")
         parts.append(
@@ -207,34 +307,6 @@ def _build_system_prompt(npc, character=None):
     except Exception:
         pass
 
-    # Personal memory of THIS player — read from char.db.npc_rep by
-    # this NPC's lowercase key. Gives the LLM grounding for how to
-    # greet known characters.
-    if character is not None:
-        try:
-            npc_rep = getattr(character.db, "npc_rep", None) or {}
-            entry = npc_rep.get((npc.key or "").lower())
-            if entry:
-                score = int(entry.get("rep", 0) or 0)
-                mems = [m for m in (entry.get("memories") or []) if m]
-                parts.append("")
-                parts.append(f"WHAT YOU REMEMBER OF {character.key}:")
-                parts.append(
-                    f"  Personal regard: {score:+d} "
-                    f"({'friend' if score > 0 else 'enemy' if score < 0 else 'known'})."
-                )
-                if mems:
-                    parts.append("  Specific memories:")
-                    for m in mems[-5:]:
-                        parts.append(f"    - {m}")
-                parts.append(
-                    "  Speak to this person with that history in mind — warmth, "
-                    "coolness, or suspicion as fits. Do NOT explicitly quote a "
-                    "rep number; just let it colour your tone."
-                )
-        except Exception:
-            pass
-
     # Item handoff instructions — only included if this NPC has an
     # allow-list of physical items it can hand to a player.
     giftable = npc.attributes.get("ai_giftable_items", default=None) or []
@@ -249,7 +321,9 @@ def _build_system_prompt(npc, character=None):
             "inventory and confirm the transfer. Only use this when "
             "you are genuinely handing something over as part of the "
             "conversation — not merely mentioning an item. You may "
-            "give at most one item per reply."
+            "give at most one item per reply, and each item only once "
+            "per person — if you have already given someone an item, "
+            "do not give it again."
         )
         parts.append("Items you can give:")
         for g in giftable:
@@ -260,44 +334,11 @@ def _build_system_prompt(npc, character=None):
         )
 
     # ──────────────────────────────────────────────────────────────────
-    # Player profile — gender + pronouns the NPC should use when
-    # referring to the player in the third person. Defaults to
-    # they/them if unset. Goes BEFORE the critical rules block so
-    # the rules can reference these pronouns.
+    # CRITICAL: output format + identity discipline. Goes LAST in this
+    # block because models weight recent instructions highest. Written
+    # player-agnostically ("the player") so this block caches per-NPC;
+    # the player's actual name is reinforced in the dynamic block.
     # ──────────────────────────────────────────────────────────────────
-    if character is not None:
-        try:
-            from commands.command import pronouns_for
-            pron = pronouns_for(character)
-            player_gender = (getattr(character.db, "gender", None) or "unset").lower()
-            parts.append("")
-            parts.append("THE PLAYER YOU ARE SPEAKING WITH:")
-            parts.append(
-                f"  Name: {character.key}\n"
-                f"  Gender: {player_gender}\n"
-                f"  Pronouns: {pron['subj']}/{pron['obj']}/{pron['poss']} "
-                f"(use these when referring to {character.key} in the "
-                f"third person)."
-            )
-        except Exception:
-            pass
-
-    # ──────────────────────────────────────────────────────────────────
-    # CRITICAL: output format + identity discipline. Goes LAST
-    # because models weight the most recent instruction highest.
-    #
-    # Format: third-person prose narration like a novel.
-    # - Actions and expressions: third person, referring to the NPC
-    #   by name and pronoun (e.g. "Brother Alaric looks at you with
-    #   a serious expression").
-    # - Spoken dialogue: in double quotes, attributed naturally
-    #   ("'The New Dawn is noble,' he says").
-    # - NEVER narrate the player — only the NPC describes the NPC.
-    # - NEVER use *asterisks* for stage directions (that was the old
-    #   buggy convention that the LLM kept getting wrong).
-    # ──────────────────────────────────────────────────────────────────
-    # Pick a default pronoun for the NPC. If the NPC has db.pronouns
-    # set explicitly use that, otherwise use the neutral they/them.
     npc_pron = npc.attributes.get("pronouns", default=None) or {
         "subj": "they", "obj": "them", "poss": "their",
     }
@@ -308,7 +349,8 @@ def _build_system_prompt(npc, character=None):
             "she/her": {"subj": "she", "obj": "her", "poss": "her"},
             "they/them": {"subj": "they", "obj": "them", "poss": "their"},
         }
-        npc_pron = _table.get(npc_pron.lower(), {"subj": "they", "obj": "them", "poss": "their"})
+        npc_pron = _table.get(npc_pron.lower(),
+                              {"subj": "they", "obj": "them", "poss": "their"})
 
     parts.append("")
     parts.append("=" * 60)
@@ -338,26 +380,14 @@ def _build_system_prompt(npc, character=None):
         "your reply is what is INSIDE the double quotes when "
         f"{speaker_name} speaks aloud."
     )
-    if player_name:
-        parts.append(
-            f"4. The player's character is named '{player_name}'. "
-            f"You may have {speaker_name} address {player_name} "
-            f"directly inside the spoken dialogue (e.g. \"Tell me, "
-            f"{player_name}, what brings you here?\"). But NEVER "
-            f"narrate what {player_name} does, says, feels, or thinks "
-            f"outside the dialogue. Do NOT write '{player_name} "
-            f"nods' or '{player_name}'s expression turns somber' — "
-            f"that's the player's job, not yours. You may have "
-            f"{speaker_name} REACT to {player_name} ('Brother Alaric "
-            f"studies you for a moment'), but you may not put words "
-            f"or actions IN {player_name}."
-        )
-    else:
-        parts.append(
-            "4. You are talking TO the player. You may have your NPC "
-            "react to or address the player, but NEVER narrate what "
-            "the player does, says, feels, or thinks."
-        )
+    parts.append(
+        f"4. You are talking TO the player's character. You may have "
+        f"{speaker_name} address the player directly inside spoken "
+        f"dialogue, and you may have {speaker_name} REACT to the "
+        f"player ('{speaker_name} studies you for a moment'). But "
+        f"NEVER narrate what the player does, says, feels, or thinks "
+        f"— that's the player's job, not yours."
+    )
     parts.append(
         f"5. IDENTITY: you are {speaker_name}, exactly as described "
         f"in VOICE & MANNER and WHAT YOU PERSONALLY KNOW above. "
@@ -410,7 +440,7 @@ def _build_system_prompt(npc, character=None):
         f"banned)"
     )
     parts.append(
-        f"   WRONG: '*{(player_name or 'You')} nods thoughtfully.* "
+        f"   WRONG: '*The player's character nods thoughtfully.* "
         f"Tell me, {speaker_name}, ...'   (narrating the player AND "
         f"flipping roles)"
     )
@@ -425,8 +455,183 @@ def _build_system_prompt(npc, character=None):
         f"{npc_pron['subj']} says. \"I have watched our faithful "
         f"gather here, week upon week.\"'"
     )
-
     return "\n".join(parts)
+
+
+def _quest_state_lines(npc, character):
+    """Live quest-state context: the player's active/completed quests
+    that involve THIS NPC (as giver, or as an objective target). Lets
+    the NPC ask about progress and acknowledge finished work instead
+    of being amnesiac about its own errands."""
+    lines = []
+    try:
+        from world.quest_data import QUESTS
+        names = _npc_names(npc)
+        if not names:
+            return lines
+        quests = character.db.quests or {}
+        active, done_for_me = [], []
+        for key, state in quests.items():
+            qdef = QUESTS.get(key)
+            if not qdef:
+                continue
+            giver = (qdef.get("giver") or "").lower()
+            giver_match = giver in names
+            objs = state.get("objectives") or []
+            target_match = any(
+                (o.get("target") or "").lower() in n
+                for o in objs for n in names
+            )
+            if not (giver_match or target_match):
+                continue
+            status = state.get("status")
+            if status == "active":
+                prog = "; ".join(
+                    f"{o['desc'].split('(')[0].strip()} "
+                    f"({o['current']}/{o['qty']})"
+                    for o in objs[:4]
+                )
+                role = "for YOU" if giver_match else "that involves you"
+                active.append(
+                    f'  - "{qdef["title"]}" ({role})'
+                    + (f": {prog}" if prog else "")
+                )
+            elif status == "completed" and giver_match:
+                done_for_me.append(qdef["title"])
+        if active:
+            lines.append("")
+            lines.append("THE PLAYER'S ACTIVE TASKS INVOLVING YOU:")
+            lines.extend(active[:5])
+            lines.append(
+                "  You may naturally reference these — ask how the "
+                "errand is going, react to good or poor progress. Do "
+                "NOT invent new objectives, change requirements, or "
+                "declare a task complete yourself; the world handles "
+                "completion."
+            )
+        if done_for_me:
+            lines.append("")
+            lines.append(
+                "WORK THE PLAYER ALREADY COMPLETED FOR YOU: "
+                + "; ".join(done_for_me[:3])
+                + ". Treat them accordingly — this person has proven "
+                  "themselves to you."
+            )
+    except Exception:
+        pass
+    return lines
+
+
+def _dynamic_block(npc, character):
+    """Block 3: per-conversation context — current location, the
+    player's identity/pronouns, the NPC's memory of this player, and
+    live quest state. Changes often; never cached."""
+    parts = []
+    speaker_name = npc.key or "you"
+    player_name = getattr(character, "key", None) if character else None
+
+    # ── Where the NPC currently IS ───────────────────────────────────
+    # Without this, walk-in companions like First Mate Nosaj keep
+    # behaving as if they're still on the doomed ship even after the
+    # player has dragged them ashore at Tamris Harbor. The LLM has no
+    # awareness of motion unless we tell it the present location.
+    try:
+        loc = getattr(npc, "location", None)
+        if loc:
+            loc_key = getattr(loc, "key", "") or "Somewhere"
+            loc_desc = (getattr(loc.db, "desc", "") or "")[:280]
+            parts.extend([
+                "YOUR CURRENT LOCATION:",
+                f"  {loc_key}",
+                f"  ({loc_desc.strip()})" if loc_desc else "",
+                "  React to where you actually are now. If you've "
+                "travelled with the bearer to a new location, the past "
+                "(the ship, the road, the cell) is behind you — speak "
+                "to the present, not the journey that brought you here.",
+            ])
+    except Exception:
+        pass
+
+    if character is not None:
+        # Player profile — gender + pronouns the NPC should use when
+        # referring to the player in the third person.
+        try:
+            from commands.command import pronouns_for
+            pron = pronouns_for(character)
+            player_gender = (getattr(character.db, "gender", None)
+                             or "unset").lower()
+            parts.append("")
+            parts.append("THE PLAYER YOU ARE SPEAKING WITH:")
+            parts.append(
+                f"  Name: {character.key}\n"
+                f"  Gender: {player_gender}\n"
+                f"  Pronouns: {pron['subj']}/{pron['obj']}/{pron['poss']} "
+                f"(use these when referring to {character.key} in the "
+                f"third person)."
+            )
+        except Exception:
+            pass
+
+        # Personal memory of THIS player — read from char.db.npc_rep by
+        # this NPC's lowercase key.
+        try:
+            npc_rep = getattr(character.db, "npc_rep", None) or {}
+            entry = npc_rep.get((npc.key or "").lower())
+            if entry:
+                score = int(entry.get("rep", 0) or 0)
+                mems = [m for m in (entry.get("memories") or []) if m]
+                parts.append("")
+                parts.append(f"WHAT YOU REMEMBER OF {character.key}:")
+                parts.append(
+                    f"  Personal regard: {score:+d} "
+                    f"({'friend' if score > 0 else 'enemy' if score < 0 else 'known'})."
+                )
+                if mems:
+                    parts.append("  Specific memories:")
+                    for m in mems[-5:]:
+                        parts.append(f"    - {m}")
+                parts.append(
+                    "  Speak to this person with that history in mind — warmth, "
+                    "coolness, or suspicion as fits. Do NOT explicitly quote a "
+                    "rep number; just let it colour your tone."
+                )
+        except Exception:
+            pass
+
+        # Live quest state involving this NPC.
+        parts.extend(_quest_state_lines(npc, character))
+
+    if player_name:
+        parts.append("")
+        parts.append(
+            f"REMINDER: the player's character is named "
+            f"'{player_name}'. You may have {speaker_name} address "
+            f"{player_name} by name inside spoken dialogue, but NEVER "
+            f"narrate {player_name}'s actions, words, feelings, or "
+            f"thoughts — do not write '{player_name} nods' or "
+            f"'{player_name}'s expression turns somber'."
+        )
+
+    return "\n".join(p for p in parts if p is not None)
+
+
+def _build_prompt_blocks(npc, character=None):
+    """Return (static, npc_block, dynamic) prompt strings."""
+    # scope controls how much lore this NPC knows. Information flows
+    # poorly across the Mists, so Arnesse-side NPCs get rumor-level
+    # Annwyn knowledge only. Default "gateway" — safer than leaking
+    # interior info.
+    scope = npc.attributes.get("ai_scope", default=None) or "gateway"
+    return (
+        _static_block(scope),
+        _npc_block(npc),
+        _dynamic_block(npc, character),
+    )
+
+
+def _build_system_prompt(npc, character=None):
+    """Flat single-string system prompt (openai path + tests)."""
+    return "\n\n".join(b for b in _build_prompt_blocks(npc, character) if b)
 
 
 def _get_history(npc, character):
@@ -494,8 +699,84 @@ def _rate_check(npc, character):
     return True, 0
 
 
-def _call_llm(npc, character, message):
-    """Synchronous LLM call. Returns the reply text or raises."""
+# ───────────────────────────────────────────────────────────────────────────
+# LLM calls
+# ───────────────────────────────────────────────────────────────────────────
+_ANTH_CLIENT = None
+_ANTH_CLIENT_LOCK = threading.Lock()
+
+
+def _anthropic_client():
+    global _ANTH_CLIENT
+    with _ANTH_CLIENT_LOCK:
+        if _ANTH_CLIENT is None:
+            import anthropic
+            _ANTH_CLIENT = anthropic.Anthropic(
+                api_key=_env("NPC_LLM_API_KEY"),
+                timeout=float(_env("NPC_LLM_TIMEOUT", DEFAULT_TIMEOUT)),
+                max_retries=1,
+            )
+        return _ANTH_CLIENT
+
+
+def _call_anthropic(npc, character, message):
+    """Claude path with prompt caching. Cache breakpoints close the
+    world-bible block and the per-NPC block; the dynamic block and
+    conversation history stay uncached (they change every call)."""
+    static, npc_block, dynamic = _build_prompt_blocks(npc, character=character)
+    system = [
+        {"type": "text", "text": static,
+         "cache_control": {"type": "ephemeral"}},
+        {"type": "text", "text": npc_block,
+         "cache_control": {"type": "ephemeral"}},
+    ]
+    if dynamic:
+        system.append({"type": "text", "text": dynamic})
+
+    messages = list(_get_history(npc, character))
+    messages.append({
+        "role": "user",
+        "content": f"[{character.key}, in-character] {message}",
+    })
+
+    client = _anthropic_client()
+    resp = client.messages.create(
+        model=_model(),
+        max_tokens=int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS)),
+        temperature=0.85,
+        system=system,
+        messages=messages,
+    )
+    reply = "".join(
+        block.text for block in resp.content if block.type == "text"
+    ).strip()
+
+    # Spend tracking + cache visibility.
+    try:
+        u = resp.usage
+        cache_w = getattr(u, "cache_creation_input_tokens", 0) or 0
+        cache_r = getattr(u, "cache_read_input_tokens", 0) or 0
+        usd = (
+            u.input_tokens * _PRICE_IN
+            + u.output_tokens * _PRICE_OUT
+            + cache_w * _PRICE_CACHE_WRITE
+            + cache_r * _PRICE_CACHE_READ
+        ) / 1_000_000
+        _record_spend(usd)
+        print(
+            f"[ai_npc] anthropic ok model={resp.model} "
+            f"in={u.input_tokens} out={u.output_tokens} "
+            f"cache_write={cache_w} cache_read={cache_r} "
+            f"~${usd:.4f} (day ${_SPEND['usd']:.2f})",
+            flush=True,
+        )
+    except Exception:
+        pass
+    return reply
+
+
+def _call_openai(npc, character, message):
+    """Legacy OpenAI-compatible path (Groq etc.) via raw HTTP."""
     system_prompt = _build_system_prompt(npc, character=character)
     history = _get_history(npc, character)
 
@@ -511,7 +792,7 @@ def _call_llm(npc, character, message):
     base_url = _env("NPC_LLM_BASE_URL", DEFAULT_BASE_URL).rstrip("/")
     url = f"{base_url}/chat/completions"
     payload = {
-        "model": _env("NPC_LLM_MODEL", DEFAULT_MODEL),
+        "model": _model(),
         "messages": messages,
         "max_tokens": int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS)),
         "temperature": 0.85,
@@ -529,6 +810,21 @@ def _call_llm(npc, character, message):
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         data = json.loads(resp.read().decode("utf-8"))
     reply = data["choices"][0]["message"]["content"].strip()
+    try:
+        usage = data.get("usage") or {}
+        total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
+        _record_spend(total * _OPENAI_FLAT_PRICE / 1_000_000)
+    except Exception:
+        pass
+    return reply
+
+
+def _call_llm(npc, character, message):
+    """Synchronous LLM call. Returns the reply text or raises."""
+    if _provider() == "anthropic":
+        reply = _call_anthropic(npc, character, message)
+    else:
+        reply = _call_openai(npc, character, message)
     # Strip any leading "Name:" the model may have added despite instructions.
     prefix = f"{npc.key}:"
     if reply.lower().startswith(prefix.lower()):
@@ -557,7 +853,7 @@ def chat(npc, character, message, on_reply):
         return
 
     # Defense layer 1: banned-phrase filter. Synchronous, regex-only,
-    # no API call. Runs BEFORE we spin up the thread to save latency.
+    # no API call. Runs BEFORE we queue the work to save latency.
     banned_hit = ai_safety.check_banned(clean_msg)
     if banned_hit:
         refusal = ai_safety.canned_refusal(npc)
@@ -582,9 +878,19 @@ def chat(npc, character, message, on_reply):
         _dispatch(on_reply, msg)
         return
 
+    # Defense layer 2b: daily spend kill-switch.
+    if not _spend_ok():
+        reply = _fallback_line(npc)
+        ai_safety.audit_log(
+            npc, character, clean_msg, reply, flags=["budget_exhausted"]
+        )
+        _dispatch(on_reply, reply)
+        return
+
     print(
         f"[ai_npc.chat] start npc={getattr(npc,'key','?')!r} "
-        f"char={getattr(character,'key','?')!r} msg_len={len(clean_msg)}",
+        f"char={getattr(character,'key','?')!r} msg_len={len(clean_msg)} "
+        f"provider={_provider()}",
         flush=True,
     )
 
@@ -598,32 +904,36 @@ def chat(npc, character, message, on_reply):
                 _dispatch(on_reply, reply)
                 return
 
-            allowed, retry = _rate_check(npc, character)
-            if not allowed:
-                msg = (f"|y({npc.key} has had enough of talk for now. "
-                       f"Try again in about {retry} minute(s).)|n")
-                ai_safety.audit_log(
-                    npc, character, clean_msg, msg,
-                    flags=["rate_limited_char_npc"]
-                )
-                _dispatch(on_reply, msg)
-                return
+            # Serialize per-NPC: protects ai_conversations / ai_rate_state
+            # read-modify-write when several players talk to the same NPC
+            # at once. Different NPCs still run in parallel.
+            with _npc_lock(npc):
+                allowed, retry = _rate_check(npc, character)
+                if not allowed:
+                    msg = (f"|y({npc.key} has had enough of talk for now. "
+                           f"Try again in about {retry} minute(s).)|n")
+                    ai_safety.audit_log(
+                        npc, character, clean_msg, msg,
+                        flags=["rate_limited_char_npc"]
+                    )
+                    _dispatch(on_reply, msg)
+                    return
 
-            # Defense layer 3: Llama Guard moderation (optional, gated
-            # by NPC_LLM_MODERATE=1). Extra API call but catches hate /
-            # violence / sexual content before the main LLM even sees it.
-            mod_ok, mod_cat = ai_safety.check_moderation(clean_msg)
-            if not mod_ok:
-                refusal = ai_safety.canned_refusal(npc)
-                ai_safety.audit_log(
-                    npc, character, clean_msg, refusal,
-                    flags=["moderated_input", f"category:{mod_cat}"]
-                )
-                _dispatch(on_reply, refusal)
-                return
+                # Defense layer 3: Llama Guard moderation (optional, gated
+                # by NPC_LLM_MODERATE=1). Extra API call but catches hate /
+                # violence / sexual content before the main LLM even sees it.
+                mod_ok, mod_cat = ai_safety.check_moderation(clean_msg)
+                if not mod_ok:
+                    refusal = ai_safety.canned_refusal(npc)
+                    ai_safety.audit_log(
+                        npc, character, clean_msg, refusal,
+                        flags=["moderated_input", f"category:{mod_cat}"]
+                    )
+                    _dispatch(on_reply, refusal)
+                    return
 
-            reply = _call_llm(npc, character, clean_msg)
-            _save_history(npc, character, clean_msg, reply)
+                reply = _call_llm(npc, character, clean_msg)
+                _save_history(npc, character, clean_msg, reply)
             ai_safety.audit_log(npc, character, clean_msg, reply, flags=[])
             _dispatch(on_reply, reply)
         except urllib.error.HTTPError as exc:
@@ -658,7 +968,7 @@ def chat(npc, character, message, on_reply):
                 pass
             _dispatch(on_reply, fallback)
 
-    threading.Thread(target=_run, daemon=True).start()
+    _EXECUTOR.submit(_run)
 
 
 def _dispatch(fn, *args):

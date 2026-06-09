@@ -1,2 +1,3 @@
 evennia
 django-allauth[socialaccount]>=0.58
+anthropic>=0.69

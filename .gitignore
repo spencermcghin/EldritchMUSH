@@ -3,6 +3,11 @@
 *.log
 *.pid
 __pycache__
+.DS_Store
+# rotated server logs (portal.log.2026_04_21 etc. don't match *.log)
+eldritchmush/server/logs/
+# local playtest harness output
+.claude/skills/playtest/ui/runs/
 eldritchmush/server/.static/
 jessmushtest
 devevenv

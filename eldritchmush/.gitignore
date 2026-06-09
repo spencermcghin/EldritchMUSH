@@ -1,6 +1,7 @@
 # Custom
 *.db3
-!server/evennia.db3
+# NOTE: never re-add a "!server/evennia.db3" exception here — the DB
+# holds real password hashes and PII (see root .gitignore).
 *.log
 *.pid
 __pycache__

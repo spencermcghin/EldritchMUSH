@@ -28,7 +28,10 @@ disabled without code changes:
    /api/npc_audit/ (admin-only).
 
 Env vars:
-    NPC_LLM_API_KEY          — required (same key used by ai_npc)
+    NPC_LLM_API_KEY          — fallback moderation key (same as ai_npc)
+    NPC_MODERATE_API_KEY     — Groq key for Llama Guard when the main
+                               dialogue provider is Anthropic
+    NPC_MODERATE_BASE_URL    — default "https://api.groq.com/openai/v1"
     NPC_LLM_MODERATE         — "1" to enable Llama Guard (default "0")
     NPC_LLM_MODERATE_MODEL   — default "llama-guard-4-12b" (Groq)
     NPC_ACCT_RATE_LIMIT      — int, default 100
@@ -113,9 +116,23 @@ def check_account_rate(account):
 # ---------------------------------------------------------------------------
 # 3. Llama Guard moderation (input only, optional)
 # ---------------------------------------------------------------------------
+def _moderation_key():
+    """Moderation runs against Groq's Llama Guard, which needs a Groq
+    key. With the main dialogue provider now on Anthropic, the keys can
+    differ — NPC_MODERATE_API_KEY takes precedence, falling back to
+    NPC_LLM_API_KEY for single-provider setups."""
+    return (os.environ.get("NPC_MODERATE_API_KEY")
+            or os.environ.get("NPC_LLM_API_KEY"))
+
+
+def _moderation_base_url():
+    return (os.environ.get("NPC_MODERATE_BASE_URL")
+            or "https://api.groq.com/openai/v1")
+
+
 def moderation_enabled():
     return os.environ.get("NPC_LLM_MODERATE", "0") == "1" and bool(
-        os.environ.get("NPC_LLM_API_KEY")
+        _moderation_key()
     )
 
 
@@ -133,9 +150,7 @@ def check_moderation(text):
     if not moderation_enabled():
         return True, None
     try:
-        base_url = os.environ.get(
-            "NPC_LLM_BASE_URL", "https://api.groq.com/openai/v1"
-        ).rstrip("/")
+        base_url = _moderation_base_url().rstrip("/")
         url = f"{base_url}/chat/completions"
         payload = {
             "model": _moderation_model(),
@@ -148,7 +163,7 @@ def check_moderation(text):
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {os.environ['NPC_LLM_API_KEY']}",
+                "Authorization": f"Bearer {_moderation_key()}",
                 "User-Agent": "EldritchMUSH/1.0",
             },
         )
@@ -168,8 +183,14 @@ def check_moderation(text):
             return False, category
         # Unknown reply shape — fail open
         return True, None
-    except Exception:
-        # Network error, timeout, etc. — fail open
+    except Exception as exc:
+        # Network error, timeout, etc. — fail open, but LOUDLY: an
+        # operator who enabled moderation should know it isn't running.
+        print(
+            f"[ai_safety] MODERATION CALL FAILED (failing open): "
+            f"{type(exc).__name__}: {exc}",
+            flush=True,
+        )
         return True, None
 
 
