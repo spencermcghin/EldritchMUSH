@@ -167,7 +167,7 @@
 }
 .alchemy-recipe-item.can-brew .alchemy-recipe-indicator {
   background: var(--phosphor);
-  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+  box-shadow: 0 0 6px rgba(163, 181, 168, 0.5);
 }
 
 .alchemy-recipe-indicator {
@@ -193,7 +193,7 @@
   border: 1px solid var(--border);
   color: var(--text-aged);
 }
-.alchemy-recipe-type-tag.apotheca { border-color: rgba(0, 229, 160, 0.4); color: var(--phosphor); }
+.alchemy-recipe-type-tag.apotheca { border-color: rgba(163, 181, 168, 0.4); color: var(--phosphor); }
 .alchemy-recipe-type-tag.poison { border-color: rgba(139, 0, 0, 0.5); color: var(--blood-bright); }
 .alchemy-recipe-type-tag.drug { border-color: rgba(147, 112, 219, 0.5); color: #9370db; }
 
@@ -299,7 +299,7 @@
 }
 .alchemy-reagent-status.has-enough {
   background: var(--phosphor);
-  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+  box-shadow: 0 0 6px rgba(163, 181, 168, 0.5);
 }
 .alchemy-reagent-status.missing {
   background: var(--blood-bright);
@@ -370,7 +370,7 @@
 }
 .alchemy-kit-dot.has-kit {
   background: var(--phosphor);
-  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+  box-shadow: 0 0 6px rgba(163, 181, 168, 0.5);
 }
 .alchemy-kit-dot.no-kit {
   background: var(--blood-bright);
@@ -498,7 +498,7 @@
 }
 .crafting-tab-status-dot.ok {
   background: var(--phosphor);
-  box-shadow: 0 0 4px rgba(0, 229, 160, 0.5);
+  box-shadow: 0 0 4px rgba(163, 181, 168, 0.5);
 }
 .crafting-tab-status-dot.missing {
   background: var(--blood-bright);

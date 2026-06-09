@@ -22,15 +22,18 @@
   opacity: 0.5;
 }
 
+/* The command line keeps its monospace voice — it's the one place
+   the player "types into the machine" — but glows candle-gold, not
+   phosphor green. */
 .cmd-prompt {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 18px;
-  color: var(--phosphor);
+  color: var(--accent-gold);
   padding: 10px 0 10px 14px;
   user-select: none;
   flex-shrink: 0;
   line-height: 1;
-  text-shadow: 0 0 6px rgba(0,229,160,0.5);
+  text-shadow: 0 0 6px rgba(212,175,55,0.45);
 }
 
 .cmd-input {
@@ -39,10 +42,10 @@
   border: none;
   outline: none;
   color: var(--text-light);
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 14px;
   padding: 10px 10px 10px 8px;
-  caret-color: var(--phosphor);
+  caret-color: var(--accent-gold);
   min-width: 0;
 }
 
@@ -52,7 +55,7 @@
 }
 
 .cmd-input:not(:placeholder-shown) {
-  text-shadow: 0 0 4px rgba(0,229,160,0.12);
+  text-shadow: 0 0 4px rgba(212,175,55,0.12);
 }
 
 .cmd-send-btn {

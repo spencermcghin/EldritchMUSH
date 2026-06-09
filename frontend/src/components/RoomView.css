@@ -15,13 +15,15 @@
   --biome-accent: var(--accent-gold);
 }
 
-/* Atmospheric biome tint — sits above background, below content */
+/* Atmospheric biome tint — sits above background, below content.
+   The slow mist-drift is the room's only ambient motion. */
 .room-biome-tint {
   position: absolute;
   inset: 0;
   background: radial-gradient(ellipse at top, var(--biome-tint), transparent 70%);
   pointer-events: none;
   z-index: 0;
+  animation: mist-drift 14s ease-in-out infinite;
 }
 .room-view > *:not(.room-biome-tint) {
   position: relative;
@@ -48,8 +50,8 @@
   font-size: 12px;
 }
 .room-view-empty code {
-  color: var(--phosphor);
-  background: rgba(0,229,160,0.07);
+  color: var(--mist);
+  background: var(--mist-faint);
   padding: 1px 4px;
 }
 
@@ -106,12 +108,14 @@
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%, black 100%);
 }
 
-/* Description — flexes to fill space; native scrollbar styled gold */
+/* Description — flexes to fill space; native scrollbar styled gold.
+   Bone-white serif: the prose is the brightest element on screen,
+   not the chrome. */
 .room-desc {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
-  font-size: clamp(16px, 1.2vw, 18px);
-  line-height: 1.7;
-  color: #f0d99c;
+  font-family: var(--font-body);
+  font-size: clamp(17px, 1.25vw, 19px);
+  line-height: 1.65;
+  color: var(--bone);
   margin: 0 0 14px;
   flex: 1;
   overflow-y: auto;
@@ -286,13 +290,13 @@
 }
 
 .room-entity-btn.character {
-  color: #c8f0d8;
-  border-color: rgba(0,229,160,0.4);
-  background: rgba(20,40,30,0.55);
+  color: #cfd9d0;
+  border-color: rgba(163,181,168,0.4);
+  background: rgba(30,38,33,0.55);
 }
 .room-entity-btn.character:hover {
-  border-color: var(--phosphor);
-  background: rgba(0,229,160,0.12);
+  border-color: var(--mist);
+  background: var(--mist-faint);
 }
 
 .room-entity-btn.item {
@@ -315,7 +319,7 @@
   text-align: center;
   flex-shrink: 0;
 }
-.room-entity-btn.character .entity-icon { color: #00e5a0; }
+.room-entity-btn.character .entity-icon { color: var(--mist); }
 .room-entity-btn.item .entity-icon { color: var(--accent-gold); }
 
 /* Inline skull image used as the character icon — small, parchment-
@@ -336,13 +340,13 @@
   object-fit: contain;
   filter:
     brightness(1.15)
-    drop-shadow(0 0 3px rgba(0, 229, 160, 0.35));
+    drop-shadow(0 0 3px rgba(163, 181, 168, 0.35));
   opacity: 0.92;
 }
 .room-entity-btn.character:hover .entity-icon-skull img {
   filter:
     brightness(1.3)
-    drop-shadow(0 0 5px rgba(0, 229, 160, 0.55));
+    drop-shadow(0 0 5px rgba(163, 181, 168, 0.55));
 }
 .room-exit-btn .room-exit-dir {
   font-size: 10px;

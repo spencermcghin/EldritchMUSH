@@ -1,19 +1,43 @@
 /* Fonts loaded via <link> in index.html — no @import needed */
 
 :root {
+  /* ── Mistbound Gothic palette ──────────────────────────────────
+     Surfaces stay near-black; PROSE is the brightest thing on
+     screen (bone-white serif); gold is reserved for titles and
+     interactive elements; living things read in cold mist-
+     verdigris; blood stays for danger. */
+
+  /* surfaces */
   --void: #0a0807;
   --surface: #141210;
   --parchment: #1e1a14;
   --primary-dark: #141210;
-  --accent-gold: #d4af37;
+
+  /* accents */
+  --accent-gold: #d4af37;      /* titles + interactives ONLY */
   --accent-blood: #8b0000;
   --blood-bright: #cc2211;
-  --neon-warn: #c9ff00;
-  --phosphor: #00e5a0;
+  --mist: #a3b5a8;             /* cold verdigris — living things, signals */
+  --mist-dim: #6f7f74;
+  --mist-faint: rgba(163, 181, 168, 0.12);
+
+  /* text */
+  --bone: #d8d3c3;             /* primary prose — brightest element */
   --text-light: #e8e4d0;
-  --text-aged: #9a8266;
+  --text-aged: #a89478;        /* chrome/secondary (contrast-bumped) */
   --border: #2e2418;
   --border-bright: #4a3828;
+
+  /* type */
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Cormorant Garamond', Georgia, serif;
+  --font-mono: 'Share Tech Mono', monospace;
+
+  /* legacy aliases — the old CRT-terminal tokens, remapped into the
+     mistbound palette so every existing usage desaturates without
+     touching 30+ files. Do not use in new code. */
+  --neon-warn: var(--accent-gold);
+  --phosphor: var(--mist);
 }
 
 * {
@@ -31,7 +55,10 @@ html, body, #root {
 body {
   background: var(--void);
   color: var(--text-light);
-  font-family: 'Share Tech Mono', monospace;
+  /* Prose-first: the readable serif is the default. Monospace is an
+     opt-in for the command input and log chrome, not the baseline. */
+  font-family: var(--font-body);
+  font-size: 16px;
   height: 100vh;
   overflow: hidden;
 }
@@ -68,9 +95,11 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+/* Mist drifts at panel edges — THE atmospheric signature. One slow,
+   subtle movement; everything else holds still. */
+@keyframes mist-drift {
+  0%, 100% { opacity: 0.5; transform: translateX(0); }
+  50% { opacity: 0.85; transform: translateX(8px); }
 }
 
 @keyframes glow-gold {

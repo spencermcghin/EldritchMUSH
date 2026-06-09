@@ -266,10 +266,10 @@
 
 .shop-action-btn.buy {
   color: var(--phosphor);
-  border-color: rgba(0, 229, 160, 0.3);
+  border-color: rgba(163, 181, 168, 0.3);
 }
 .shop-action-btn.buy:hover:not(:disabled) {
-  background: rgba(0, 229, 160, 0.1);
+  background: rgba(163, 181, 168, 0.1);
   border-color: var(--phosphor);
 }
 
@@ -346,7 +346,7 @@
 
 .shop-stat.av {
   color: var(--phosphor);
-  border-color: rgba(0, 229, 160, 0.3);
+  border-color: rgba(163, 181, 168, 0.3);
 }
 
 .shop-stat.materials {

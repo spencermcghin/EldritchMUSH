@@ -88,7 +88,7 @@
 }
 .map-dot.current {
   background: var(--phosphor);
-  box-shadow: 0 0 6px rgba(0, 229, 160, 0.5);
+  box-shadow: 0 0 6px rgba(163, 181, 168, 0.5);
 }
 .map-dot.market {
   background: var(--accent-gold);
@@ -265,7 +265,7 @@
 
 .map-tooltip-row.current {
   color: var(--phosphor);
-  text-shadow: 0 0 6px rgba(0, 229, 160, 0.35);
+  text-shadow: 0 0 6px rgba(163, 181, 168, 0.35);
   font-style: italic;
 }
 
@@ -345,9 +345,9 @@
 /* Edges connected to the player's current room — bright phosphor
    so you can see at a glance which directions you can move. */
 .map-edge.adjacent {
-  stroke: rgba(0, 229, 160, 0.65);
+  stroke: rgba(163, 181, 168, 0.65);
   stroke-width: 2.5;
-  filter: drop-shadow(0 0 4px rgba(0, 229, 160, 0.5));
+  filter: drop-shadow(0 0 4px rgba(163, 181, 168, 0.5));
 }
 
 /* Always-visible label for the player's current node. */
@@ -360,7 +360,7 @@
   pointer-events: none;
   font-weight: 600;
   text-shadow:
-    0 0 6px rgba(0, 229, 160, 0.6),
+    0 0 6px rgba(163, 181, 168, 0.6),
     0 1px 2px rgba(0, 0, 0, 0.9);
   paint-order: stroke;
   stroke: rgba(0, 0, 0, 0.85);
@@ -444,7 +444,7 @@
 }
 
 .map-key-item.current {
-  background: rgba(0, 229, 160, 0.08);
+  background: rgba(163, 181, 168, 0.08);
 }
 
 .map-key-num {
@@ -486,8 +486,8 @@
   font-size: 7px;
   letter-spacing: 1px;
   color: var(--phosphor);
-  background: rgba(0, 229, 160, 0.12);
-  border: 1px solid rgba(0, 229, 160, 0.3);
+  background: rgba(163, 181, 168, 0.12);
+  border: 1px solid rgba(163, 181, 168, 0.3);
   padding: 1px 4px;
   flex-shrink: 0;
 }

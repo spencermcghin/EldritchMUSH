@@ -126,7 +126,7 @@
 
 .hp-bar-fill.hp-high {
   background: var(--phosphor);
-  box-shadow: 0 0 4px rgba(0,229,160,0.5);
+  box-shadow: 0 0 4px rgba(163,181,168,0.5);
 }
 
 .hp-bar-fill.hp-mid {

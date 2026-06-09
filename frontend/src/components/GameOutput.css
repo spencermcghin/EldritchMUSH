@@ -46,11 +46,12 @@
   font-style: italic;
 }
 
-/* Base message — Cormorant Garamond for body, parchment cream */
+/* Base message — readable serif at full prose size; the scene log
+   carries NPC dialogue and narration, the heart of the game. */
 .msg {
-  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
-  font-size: 14px;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
   padding: 3px 0 3px 10px;
   margin: 2px 0;
   color: var(--text-light);
@@ -99,9 +100,9 @@
   border-left-color: var(--blood-bright, #cc2211);
 }
 
-/* Default game text — parchment cream */
+/* Default game text — bone-white, the brightest layer */
 .msg-game {
-  color: var(--text-light);
+  color: var(--bone);
 }
 
 /* In-line action markers e.g. *Pauses, hands clasped together*. */

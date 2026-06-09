@@ -97,7 +97,7 @@
 
 .detail-portrait.type-npc::after,
 .detail-portrait.type-character::after {
-  border-color: rgba(0,229,160,0.25);
+  border-color: rgba(163,181,168,0.25);
 }
 
 .detail-portrait.type-item::after {
@@ -143,8 +143,8 @@
 }
 
 .detail-type-tag.type-npc {
-  background: rgba(0,229,160,0.1);
-  border: 1px solid rgba(0,229,160,0.3);
+  background: rgba(163,181,168,0.1);
+  border: 1px solid rgba(163,181,168,0.3);
   color: var(--phosphor);
 }
 
@@ -168,7 +168,7 @@
   font-family: 'Cormorant Garamond', 'Georgia', serif;
   font-size: clamp(15px, 1vw, 17px);
   line-height: 1.65;
-  color: #f0d99c;
+  color: var(--bone);
   letter-spacing: 0.2px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
   max-height: 220px;

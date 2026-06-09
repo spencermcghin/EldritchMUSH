@@ -148,7 +148,7 @@
 }
 
 .cs-skill-row.has-skill {
-  background: rgba(0, 229, 160, 0.04);
+  background: rgba(163, 181, 168, 0.04);
 }
 
 .cs-skill-row.no-skill {
@@ -186,7 +186,7 @@
 .cs-pip.filled {
   background: var(--phosphor);
   border-color: var(--phosphor);
-  box-shadow: 0 0 4px rgba(0, 229, 160, 0.4);
+  box-shadow: 0 0 4px rgba(163, 181, 168, 0.4);
 }
 
 .cs-pip.empty {
