@@ -296,16 +296,21 @@ def _emit_rep_changes(char, changed, scope="npc"):
 
 def _fresh_objectives(quest_def, outcome_key=None):
     """Return a deep-copied list of objective dicts with current=0."""
-    return [
-        {
+    out = []
+    for obj in _effective_objectives_src(quest_def, outcome_key):
+        fresh = {
             "type": obj["type"],
             "target": obj["target"],
             "qty": obj["qty"],
             "current": 0,
             "desc": obj["desc"],
         }
-        for obj in _effective_objectives_src(quest_def, outcome_key)
-    ]
+        # 'talk' objectives may carry an optional topic keyword the
+        # player must mention in conversation for the tick to count.
+        if obj.get("topic"):
+            fresh["topic"] = obj["topic"]
+        out.append(fresh)
+    return out
 
 
 def _mutex_clear(char, quest_def):
@@ -342,6 +347,16 @@ def _prerequisites_met(char, quest_def):
         return False
     for prereq in quest_def.get("prereqs", []):
         if isinstance(prereq, dict):
+            # Faction-rep gate: {"faction": "crown", "min": 5} and/or
+            # "max" for negative gating ({"faction": "crows", "max": -3}
+            # = only offered to characters the Crows dislike).
+            if "faction" in prereq:
+                rep = (char.db.faction_rep or {}).get(prereq["faction"], 0)
+                if "min" in prereq and rep < prereq["min"]:
+                    return False
+                if "max" in prereq and rep > prereq["max"]:
+                    return False
+                continue
             q_key = prereq["quest"]
             want_outcome = prereq.get("outcome")
             state = char.db.quests.get(q_key)
@@ -646,6 +661,67 @@ def quest_deliver(char, item_name, npc_key):
                     obj["current"] = obj["qty"]
                     _announce_progress(char, key, obj)
                     _check_completion(char, key)
+
+
+def quest_talk(char, npc_key, message=""):
+    """
+    Call this when *char* converses with an NPC (ask / whisper / say).
+    Ticks matching 'talk' objectives. A talk objective's `target` is
+    the NPC name; an optional `topic` keyword must appear somewhere in
+    the player's message for the tick to count (lets encounter docs
+    express "learn the password from the witness" style beats):
+
+        {"type": "talk", "target": "curate godrick", "topic": "pilgrimage",
+         "qty": 1, "desc": "Ask Curate Godrick about the pilgrimage (0/1)"}
+    """
+    _ensure_quest_db(char)
+    npc_key_lower = (npc_key or "").lower()
+    msg_lower = (message or "").lower()
+    for key, state in char.db.quests.items():
+        if state["status"] != "active":
+            continue
+        for obj in state["objectives"]:
+            if obj["type"] == "talk" and obj["target"].lower() in npc_key_lower:
+                topic = (obj.get("topic") or "").lower()
+                if topic and topic not in msg_lower:
+                    continue
+                if obj["current"] < obj["qty"]:
+                    obj["current"] += 1
+                    _announce_progress(char, key, obj)
+                    _check_completion(char, key)
+
+
+def fail_quest(char, key, reason=""):
+    """
+    Mark an active quest as failed (timed encounters, botched
+    choices, scripted consequences). Returns True if the quest was
+    active and is now failed. Failed quests stay in char.db.quests so
+    they cannot be re-accepted; staff can clear with @py if needed.
+    """
+    state = _get_quest_state(char, key)
+    if not state or state.get("status") != "active":
+        return False
+    qdef = QUESTS.get(key) or {}
+    state["status"] = "failed"
+    char.db.quests[key] = state
+    title = qdef.get("title", key)
+    _msg_text_only(char, f"\n|r✦ Quest Failed: |w{title}|n")
+    if reason:
+        _msg_text_only(char, f"|540{reason}|n")
+    try:
+        import time as _time
+        payload = {
+            "type": "quest_failed",
+            "_ts": _time.time(),
+            "key": key,
+            "title": title,
+            "reason": reason,
+        }
+        for sess in char.sessions.all():
+            sess.msg(event=payload)
+    except Exception:
+        pass
+    return True
 
 
 def quest_explore(char, room_name):

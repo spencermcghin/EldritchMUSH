@@ -70,6 +70,21 @@ def _fire_npc_dialogue(caller, target, question, reply, channel="ask"):
         print(f"[npc_dialogue] FAILED: {exc!r}", flush=True)
 
 
+def _tick_quest_talk(caller, target, message):
+    """Tick 'talk' quest objectives for a conversation with an NPC.
+    Deterministic — fires on the player's act of speaking to the NPC
+    (with the optional topic keyword matched against their message),
+    never on LLM output."""
+    try:
+        if not (getattr(target.db, "is_npc", False)
+                or target.attributes.get("ai_personality", default=None)):
+            return
+        from commands.quests import quest_talk
+        quest_talk(caller, target.key, message)
+    except Exception as exc:
+        print(f"[quest_talk] tick failed: {exc!r}", flush=True)
+
+
 def _parse_target_and_message(caller, args):
     """Parse '<target> <message>' or '<target> = <message>' where target
     may be a multi-word NPC name like 'Mab the Gambler'.
@@ -158,6 +173,8 @@ class CmdAsk(Command):
         if not message:
             caller.msg("What do you want to ask them?")
             return
+
+        _tick_quest_talk(caller, target, message)
         if not target.attributes.get("ai_personality", default=None):
             blank = (
                 f"{target.key} gives you a blank look and says nothing."
@@ -184,16 +201,27 @@ class CmdAsk(Command):
                     reply = process_gift_markers(reply, target, caller)
                 except Exception as exc:
                     print(f"[CmdAsk._on_reply] gift_markers failed: {exc!r}", flush=True)
+                # [OFFER] markers — the NPC decided the conversation
+                # earned a formal quest offer. Strips the marker and
+                # fires the offer push itself.
+                offered = False
+                try:
+                    from world.quest_offers import process_offer_markers
+                    reply, offered = process_offer_markers(reply, target, caller)
+                except Exception as exc:
+                    print(f"[CmdAsk._on_reply] offer_markers failed: {exc!r}", flush=True)
                 if not reply:
                     reply = "..."
                 # Fire the OOB dialogue event FIRST so the modal updates
                 # regardless of whether the room broadcast succeeds.
                 # Telnet bystanders + the room narration come after.
                 _fire_npc_dialogue(caller, target, message, reply)
-                # Quest offer surfacing — non-fatal if it errors.
+                # Quest offer surfacing — non-fatal if it errors. Skipped
+                # when the [OFFER] marker already pushed this turn.
                 try:
-                    from world.quest_offers import push_quest_offers_for_npc
-                    push_quest_offers_for_npc(caller, target)
+                    if not offered:
+                        from world.quest_offers import push_quest_offers_for_npc
+                        push_quest_offers_for_npc(caller, target)
                 except Exception as exc:
                     print(f"[CmdAsk._on_reply] quest_offers failed: {exc!r}", flush=True)
                 # Broadcast to the room so other players see the exchange too.
@@ -266,10 +294,17 @@ class CmdWhisper(_DefaultCmdWhisper):
             from world import ai_npc
             from world.npc_gifts import process_gift_markers
 
+            _tick_quest_talk(caller, target, message)
+
             def _on_reply(reply):
                 if not reply:
                     reply = "..."
                 reply = process_gift_markers(reply, target, caller)
+                try:
+                    from world.quest_offers import process_offer_markers
+                    reply, _ = process_offer_markers(reply, target, caller)
+                except Exception as exc:
+                    print(f"[CmdWhisper._on_reply] offer_markers failed: {exc!r}", flush=True)
                 if not reply:
                     reply = "..."
                 caller.msg(
@@ -348,7 +383,21 @@ class CmdSay(_DefaultCmdSay):
         target = addressed[0]
         from world import ai_npc
 
+        _tick_quest_talk(self.caller, target, message)
+
         def _on_reply(reply):
+            if not reply:
+                reply = "..."
+            try:
+                from world.npc_gifts import process_gift_markers
+                reply = process_gift_markers(reply, target, self.caller)
+            except Exception as exc:
+                print(f"[CmdSay._on_reply] gift_markers failed: {exc!r}", flush=True)
+            try:
+                from world.quest_offers import process_offer_markers
+                reply, _ = process_offer_markers(reply, target, self.caller)
+            except Exception as exc:
+                print(f"[CmdSay._on_reply] offer_markers failed: {exc!r}", flush=True)
             if not reply:
                 reply = "..."
             location.msg_contents(

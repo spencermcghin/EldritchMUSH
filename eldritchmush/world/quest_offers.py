@@ -7,36 +7,43 @@ quest_offer OOB event so the frontend can pop a parchment-styled
 accept/reject modal. Players can still use `quest accept <title>`
 manually — the modal is just a discoverability win.
 """
+import re
+
 from world.quest_data import QUESTS
+
+# LLM reply marker: a quest-giver NPC emits [OFFER] (on its own line)
+# when the conversation has naturally earned a formal quest offer.
+# Parsed + stripped by process_offer_markers below.
+_OFFER_RE = re.compile(r"\[\s*OFFER\s*(?::[^\]]*)?\]", re.IGNORECASE)
 
 
 def _prereqs_met(char, qdef):
-    quests = char.db.quests or {}
-    # mutex_group exclusivity — once one walk-in is taken, the
-    # others are unavailable forever for this character.
-    mg = qdef.get("mutex_group")
-    if mg:
-        own_key = qdef.get("key")
-        for other_key in quests.keys():
-            if other_key == own_key:
-                continue
-            other = QUESTS.get(other_key)
-            if other and other.get("mutex_group") == mg:
-                return False
-    for prereq in qdef.get("prereqs", []):
-        if isinstance(prereq, dict):
-            q_key = prereq["quest"]
-            want_outcome = prereq.get("outcome")
-            st = quests.get(q_key)
-            if not st or st.get("status") != "completed":
-                return False
-            if want_outcome and st.get("outcome") != want_outcome:
-                return False
-        else:
-            st = quests.get(prereq)
-            if not st or st.get("status") != "completed":
-                return False
-    return True
+    """Single source of truth for prereq + mutex gating — delegates to
+    the quest engine so offer eligibility can never drift from accept
+    eligibility (it used to be a hand-copied duplicate of that logic)."""
+    from commands.quests import _prerequisites_met
+    return _prerequisites_met(char, qdef)
+
+
+def process_offer_markers(reply, npc, character):
+    """Strip [OFFER] markers from an LLM reply. If a marker was present
+    AND the NPC is genuinely a quest giver with something to offer, push
+    the formal quest_offer OOB event. Hallucinated markers from
+    non-givers strip silently — same philosophy as [GIVE:] handling.
+
+    Returns (cleaned_reply, offered_bool).
+    """
+    if not reply or "[OFFER" not in reply.upper():
+        return reply, False
+    cleaned = _OFFER_RE.sub("", reply)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
+    offered = False
+    try:
+        push_quest_offers_for_npc(character, npc)
+        offered = True
+    except Exception as exc:
+        print(f"[quest_offer] marker push failed: {exc!r}", flush=True)
+    return cleaned, offered
 
 
 def _format_reward_parts(rewards):

@@ -155,6 +155,32 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] AmbientNpcScript bootstrap FAILED: {exc!r}")
 
+    # Cross-check quest content against the live world. Quest targets
+    # bind by substring match, so a renamed room/NPC/item silently
+    # strands quests — this surfaces those as boot-time log errors
+    # instead of player-reported bugs. Never blocks startup.
+    try:
+        from world.quest_validation import run_and_report
+        run_and_report(check_world=True,
+                       out=lambda m: print(m, flush=True))
+    except Exception as exc:
+        print(f"[at_server_start] quest validation FAILED: {exc!r}")
+
+    # Loud one-time notice if AI input moderation is disabled — the
+    # regex banned-phrase filter alone is a noise filter, not a
+    # defense. Set NPC_LLM_MODERATE=1 in production.
+    try:
+        import os as _os
+        if _os.environ.get("NPC_LLM_MODERATE", "0") != "1":
+            print(
+                "[ai_safety] WARNING: NPC_LLM_MODERATE is disabled — "
+                "AI NPC input moderation is OFF. Set NPC_LLM_MODERATE=1 "
+                "in production.",
+                flush=True,
+            )
+    except Exception:
+        pass
+
 
 def at_server_stop():
     """
