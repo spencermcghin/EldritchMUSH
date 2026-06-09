@@ -62,14 +62,27 @@ def _collect_prototype_keys():
 
 
 def _collect_world_names():
-    """Return (rooms, objects) where each is {name_lower: canonical_key}.
-    Object names include aliases, all mapping back to the object's
-    canonical key so ambiguity counting is per-object, not per-alias."""
-    rooms, objects = {}, {}
+    """Return (rooms, npcs, items, drops) where rooms/npcs/items map
+    {name_lower: canonical_key} (names include aliases, mapped back to
+    the canonical key so ambiguity counting is per-object, not
+    per-alias) and drops is a set of item names spawned by NPC
+    `npc_drops` kill-drop specs (valid gather sources that deliberately
+    do not exist in the world until the NPC dies)."""
+    rooms, npcs, items, drops = {}, {}, {}, set()
     try:
         from evennia.objects.models import ObjectDB
     except Exception:
-        return None, None
+        return None, None, None, None
+
+    def _add(table, obj, key):
+        table[key] = key
+        try:
+            for alias in obj.aliases.all():
+                if alias:
+                    table[alias.lower()] = key
+        except Exception:
+            pass
+
     try:
         for obj in ObjectDB.objects.all():
             key = (obj.db_key or "").lower()
@@ -80,17 +93,26 @@ def _collect_world_names():
                 rooms[key] = key
             elif ".exits." in path:
                 continue
-            else:
-                objects[key] = key
+            elif ".npc." in path:
+                _add(npcs, obj, key)
                 try:
-                    for alias in obj.aliases.all():
-                        if alias:
-                            objects[alias.lower()] = key
+                    for spec in obj.attributes.get("npc_drops",
+                                                   default=None) or []:
+                        dk = (spec.get("key") or "").lower()
+                        if dk:
+                            drops.add(dk)
+                        for a in spec.get("aliases") or []:
+                            if a:
+                                drops.add(a.lower())
                 except Exception:
                     pass
+            elif path.endswith("characters.Character"):
+                continue  # player characters are not quest targets
+            else:
+                _add(items, obj, key)
     except Exception:
-        return None, None
-    return rooms, objects
+        return None, None, None, None
+    return rooms, npcs, items, drops
 
 
 def _matches(target, names):
@@ -217,14 +239,14 @@ def validate_quests(check_world=True):
 
     # ── World checks (need DB) ───────────────────────────────────────
     if check_world:
-        rooms, objects = _collect_world_names()
+        rooms, npcs, items, drops = _collect_world_names()
         if rooms is None:
             warn("world checks skipped — Evennia DB not available")
             return issues
         for key, qdef in QUESTS.items():
             where = f"quest '{key}'"
             giver = (qdef.get("giver") or "").lower()
-            if giver and giver not in objects:
+            if giver and giver not in npcs and giver not in items:
                 err(f"{where}: giver {giver!r} matches no object key or "
                     f"alias in the world — quest is unobtainable")
             for label, objectives in _iter_objective_sets(qdef):
@@ -241,20 +263,26 @@ def validate_quests(check_world=True):
                         hits = _matches(tgt, rooms)
                         kind = "room"
                     elif otype == "gather":
-                        hits = _matches(tgt, objects)
+                        # Valid sources: items in the world, NPC kill
+                        # drops (npc_drops specs), or spawnable
+                        # prototypes (rewards, [GIVE:] gifts).
+                        hits = _matches(tgt, items)
+                        t = tgt.lower()
+                        if not hits and any(t in d for d in drops):
+                            hits = ["<npc drop>"]
                         if not hits and tgt.upper().replace(" ", "_") in proto_keys:
                             hits = ["<prototype>"]
                         kind = "item"
                     else:  # kill / deliver / duel / talk
-                        hits = _matches(tgt, objects)
+                        hits = _matches(tgt, npcs)
                         kind = "npc"
                     if not hits:
                         err(f"{where}: {otype} target {tgt!r} matches no "
                             f"{kind} in the world — objective can never "
                             f"tick")
-                    elif len(hits) > 1 and "<prototype>" not in hits:
+                    elif len(hits) > 1 and hits[0].startswith("<") is False:
                         warn(f"{where}: {otype} target {tgt!r} matches "
-                             f"{len(hits)} distinct objects {hits[:4]} — "
+                             f"{len(hits)} distinct {kind}s {hits[:4]} — "
                              f"may tick on the wrong entity")
     return issues
 

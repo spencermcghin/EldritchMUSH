@@ -760,7 +760,7 @@ class CmdQuest(Command):
       quest
       quest Clear the Old Road
       quest accept Clear the Old Road
-      quest abandon wolf_problem
+      quest abandon combat_training
 
     Quests are offered by NPCs around the world.  When you're near a quest
     giver, their available quests appear in the |wavailable|n section.
