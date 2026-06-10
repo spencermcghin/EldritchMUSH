@@ -66,10 +66,10 @@
   gap: 10px;
 }
 
-/* Entity portrait */
+/* Entity portrait — compact; the description is the star */
 .detail-portrait {
   width: 100%;
-  height: 140px;
+  height: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,8 +105,8 @@
 }
 
 .detail-portrait-img {
-  width: 110px;
-  height: 110px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   filter: brightness(1.1) contrast(1.05) drop-shadow(0 0 6px rgba(0,0,0,0.6));
   z-index: 1;
@@ -165,13 +165,17 @@
    bios are easy to read on a big monitor. Gold scrollbar for
    visual consistency with .room-desc. */
 .detail-description {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
-  font-size: clamp(15px, 1vw, 17px);
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.1vw, 18px);
   line-height: 1.65;
   color: var(--bone);
   letter-spacing: 0.2px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
-  max-height: 220px;
+  /* The description OWNS the panel's flexible space — never capped
+     to a fixed height (the old 220px cap clipped long NPC bios when
+     vertical space got tight). */
+  flex: 1;
+  min-height: 110px;
   overflow-y: auto;
   padding: 6px 12px 6px 0;
 }

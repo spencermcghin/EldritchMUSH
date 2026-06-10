@@ -61,10 +61,10 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
-  min-height: 130px;
+  min-height: 96px;
   overflow: hidden;
 }
 
@@ -143,10 +143,10 @@
 .room-details {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
   flex-shrink: 0;
-  max-height: 38%;
-  min-height: 180px;
+  max-height: 26%;
+  min-height: 132px;
 }
 
 .room-section {
@@ -231,7 +231,7 @@
   color: var(--text-light);
   background: rgba(212,175,55,0.04);
   border: 1px solid var(--border-bright);
-  padding: 9px 14px;
+  padding: 6px 12px;
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
@@ -275,7 +275,7 @@
   gap: 10px;
   font-family: 'Cormorant Garamond', 'Georgia', serif;
   font-size: 14px;
-  padding: 9px 14px;
+  padding: 6px 12px;
   border: 1px solid rgba(212,175,55,0.3);
   background: rgba(35,30,22,0.7);
   color: var(--text-light);

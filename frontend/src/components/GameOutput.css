@@ -8,7 +8,6 @@
 
 .game-output-wrap {
   flex: 0 0 auto;
-  height: 200px;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -17,6 +16,42 @@
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   background: linear-gradient(180deg, #1a1610 0%, #14110d 100%);
+  transition: height 0.2s ease;
+}
+/* Collapsed (default): a peripheral ticker — the last few lines.
+   Expanded: a proper scrollback. The description above stays the
+   dominant surface either way. */
+.game-output-wrap.collapsed { height: 108px; }
+.game-output-wrap.expanded { height: 320px; }
+
+.game-output-toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--parchment);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 3px 14px;
+  cursor: pointer;
+}
+.game-output-toggle-label {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-aged);
+  opacity: 0.8;
+}
+.game-output-toggle-chevron {
+  color: var(--accent-gold);
+  font-size: 10px;
+  opacity: 0.7;
+}
+.game-output-toggle:hover .game-output-toggle-label {
+  color: var(--accent-gold);
+  opacity: 1;
 }
 
 .game-output {

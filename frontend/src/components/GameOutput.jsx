@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import DOMPurify from 'dompurify'
 import './GameOutput.css'
 
@@ -92,12 +92,17 @@ export default function GameOutput({ messages, inCombat, onCommand }) {
   const containerRef = useRef(null)
   const bottomRef = useRef(null)
   const userScrolledRef = useRef(false)
+  // Collapsed by default — the chronicle is a peripheral ticker
+  // showing the last few lines; the room/NPC description is the
+  // star. Click the header (or the chevron) to open the full
+  // scrollback.
+  const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     if (!userScrolledRef.current && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
-  }, [messages])
+  }, [messages, expanded])
 
   const handleScroll = () => {
     const el = containerRef.current
@@ -107,7 +112,15 @@ export default function GameOutput({ messages, inCombat, onCommand }) {
   }
 
   return (
-    <div className={`game-output-wrap ${inCombat ? 'in-combat' : ''}`}>
+    <div className={`game-output-wrap ${inCombat ? 'in-combat' : ''} ${expanded ? 'expanded' : 'collapsed'}`}>
+      <button
+        className="game-output-toggle"
+        onClick={() => setExpanded(v => !v)}
+        title={expanded ? 'Collapse the chronicle' : 'Expand the chronicle'}
+      >
+        <span className="game-output-toggle-label">✦ Chronicle</span>
+        <span className="game-output-toggle-chevron">{expanded ? '▾' : '▴'}</span>
+      </button>
       <div
         className="game-output"
         ref={containerRef}
