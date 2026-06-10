@@ -10,6 +10,7 @@ import CharacterStatus from './components/CharacterStatus'
 import DetailPanel from './components/DetailPanel'
 import ContextMenu from './components/ContextMenu'
 import CommandInput from './components/CommandInput'
+import GameOutput from './components/GameOutput'
 import ChargenWizard from './components/ChargenWizard'
 import RoomView from './components/RoomView'
 import WorldMapModal from './components/WorldMapModal'
@@ -588,6 +589,16 @@ function App() {
               onClose={() => setSelectedEntity(null)}
             />
             <div className="app-log-area">
+              {/* Scene log — the chronological scrollback of speech,
+                  command echoes, combat lines, and system responses.
+                  Without it, typed commands appear to do nothing:
+                  RoomView only re-renders on full room looks, and
+                  OOB toasts only carry quest/item events. */}
+              <GameOutput
+                messages={messages}
+                inCombat={oobState.inCombat}
+                onCommand={sendCommand}
+              />
               <CommandInput
                 ref={inputRef}
                 onSend={sendCommand}
