@@ -235,6 +235,12 @@ if _allauth_available:
     ACCOUNT_SIGNUP_FIELDS = ["email*", "username*"]
     SOCIALACCOUNT_AUTO_SIGNUP = True
     SOCIALACCOUNT_LOGIN_ON_GET = True
+    # A verified Google email that matches an EXISTING local account
+    # logs straight into that account instead of bouncing the user to
+    # the "complete sign up" interstitial (the email-collision case:
+    # e.g. the seeded admin account shares the owner's gmail).
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+    SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
     # Force allauth to build callback URLs with https://. Twisted's
     # HTTP layer in front of Django doesn't always pass through the
     # X-Forwarded-Proto header that nginx sends, so Django thinks

@@ -1,0 +1,113 @@
+{% load i18n %}
+{# Styled override of allauth's bare-bones social signup interstitial.
+   Shown only when auto-signup can't complete (e.g. username conflict
+   for a brand-new Google sign-in). Matches the React login screen's
+   Mistbound Gothic look. #}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Cross the Threshold — Eldritch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #0a0807; --surface: #141210; --parchment: #1e1a14;
+      --accent-gold: #d4af37; --blood-bright: #cc2211;
+      --bone: #d8d3c3; --text-aged: #a89478;
+      --border: #2e2418; --border-bright: #4a3828;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--void); color: var(--bone);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 24px;
+    }
+    .seal-card {
+      width: 100%; max-width: 440px; background: var(--parchment);
+      border: 1px solid var(--border-bright); padding: 36px 38px 30px;
+      box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 24px rgba(212,175,55,0.12),
+                  inset 0 0 30px rgba(0,0,0,0.45);
+    }
+    h1 {
+      font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--accent-gold); text-align: center; margin-bottom: 8px;
+    }
+    .rule { text-align: center; color: var(--accent-gold); opacity: 0.45;
+            font-size: 12px; letter-spacing: 4px; margin-bottom: 18px; }
+    p.lead {
+      font-size: 16.5px; font-style: italic; line-height: 1.6;
+      color: var(--bone); text-align: center; margin-bottom: 24px;
+    }
+    form p, .field { margin-bottom: 16px; }
+    label {
+      display: block; font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--text-aged); margin-bottom: 6px;
+    }
+    input[type="text"], input[type="email"] {
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border-bright); color: var(--bone);
+      font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px;
+      padding: 10px 12px; outline: none;
+    }
+    input:focus { border-color: var(--accent-gold);
+                  box-shadow: 0 0 8px rgba(212,175,55,0.2); }
+    .errorlist, .err {
+      list-style: none; color: #e08080; font-size: 14px;
+      font-style: italic; margin: 6px 0 0;
+    }
+    button[type="submit"] {
+      width: 100%; margin-top: 10px; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 3px;
+      text-transform: uppercase; padding: 12px 0; color: #f0d2a8;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.7);
+      border: 1px solid rgba(204,34,17,0.65);
+      background: radial-gradient(ellipse at 30% 25%, #7c1511 0%, #51100b 55%, #3a0907 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12),
+                  inset 0 -3px 6px rgba(0,0,0,0.55),
+                  0 0 14px rgba(139,0,0,0.35);
+    }
+    button[type="submit"]:hover {
+      color: #ffe9c4; border-color: var(--blood-bright);
+      background: radial-gradient(ellipse at 30% 25%, #96201a 0%, #5f130d 55%, #420a08 100%);
+    }
+    .back { display: block; text-align: center; margin-top: 18px;
+            font-size: 14px; font-style: italic; color: var(--text-aged);
+            text-decoration: none; }
+    .back:hover { color: var(--accent-gold); }
+  </style>
+</head>
+<body>
+  <div class="seal-card">
+    <h1>Cross the Threshold</h1>
+    <div class="rule">╌╌ ✦ ╌╌</div>
+    <p class="lead">
+      Your Google account is recognized. Choose the name the Mists
+      will know you by, and your account is sealed.
+    </p>
+    <form method="post" action="{% url 'socialaccount_signup' %}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <ul class="errorlist">{{ form.non_field_errors }}</ul>
+      {% endif %}
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="err">{{ field.errors|striptags }}</div>{% endif %}
+        </div>
+      {% endfor %}
+      {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+      {% endif %}
+      <button type="submit">{% trans "Enter the Mists" %}</button>
+    </form>
+    <a class="back" href="/">↩ return to the gate</a>
+  </div>
+</body>
+</html>
