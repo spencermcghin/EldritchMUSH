@@ -77,6 +77,13 @@ function SellCard({ item, onSell, selling }) {
 }
 
 export default function ShopModal({ onClose, sendCommand, shopData }) {
+
+  // Close on Escape — keyboard parity with the other overlay modals.
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
   const [tab, setTab] = useState('buy')
   const [loading, setLoading] = useState(!shopData)
   const [buying, setBuying] = useState(null)

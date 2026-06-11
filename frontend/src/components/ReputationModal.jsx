@@ -93,6 +93,13 @@ function NpcRow({ npc, expanded, onToggle }) {
 }
 
 export default function ReputationModal({ onClose, sendCommand, reputationData }) {
+
+  // Close on Escape — keyboard parity with the other overlay modals.
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
   const [expandedNpc, setExpandedNpc] = useState(null)
   const [filter, setFilter] = useState('')
 

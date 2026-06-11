@@ -78,6 +78,13 @@ function CompletedQuestRow({ quest }) {
 }
 
 export default function QuestJournalModal({ onClose, sendCommand, questLog }) {
+
+  // Close on Escape — keyboard parity with the other overlay modals.
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
   const [tab, setTab] = useState('active')
   const [busyKey, setBusyKey] = useState(null)
   const loading = !questLog

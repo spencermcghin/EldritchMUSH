@@ -79,6 +79,13 @@ function SkillSection({ title, data, type }) {
 }
 
 export default function CharSheetModal({ onClose, sendCommand, charsheetData }) {
+
+  // Close on Escape — keyboard parity with the other overlay modals.
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
   const [loading, setLoading] = useState(!charsheetData)
 
   useEffect(() => {

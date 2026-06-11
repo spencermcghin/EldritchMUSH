@@ -22,6 +22,13 @@ function prettyMaterial(name) {
 }
 
 export default function CraftingModal({ onClose, sendCommand, craftingData }) {
+
+  // Close on Escape — keyboard parity with the other overlay modals.
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
   const tabs = craftingData?.tabs || []
   const [activeTabId, setActiveTabId] = useState(null)
   const [selectedKey, setSelectedKey] = useState(null)
