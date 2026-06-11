@@ -554,4 +554,314 @@ QUESTS = {
         },
         "prereqs": [],
     },
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 3 — BATCH 1 EXPANSIONS (2026-06-10)
+    # Source: Drive / Reboot / Event 3 - The Awakening — Crow Tolls /
+    # Crippled Crow / Tempest's Revenge III-V / Heist Pt 3 / Murder Pt III.
+    # ─────────────────────────────────────────────────────────────────────────
+    "crow_tolls": {
+        "key": "crow_tolls",
+        "title": "The Crow Toll",
+        "giver": "captain thelmer of the stag watch",
+        "description": (
+            "The Crows have hung a toll-gate on the Forest Road — one "
+            "silver a head, collected by a reeve with a tally-cord and "
+            "two bored tollmen. Thelmer wants the road open. How it "
+            "opens is your business."
+        ),
+        "outcomes": {
+            "break_the_racket": {
+                "label": "Break the toll racket by force",
+                "description": (
+                    "Put the tollmen down and scatter the gate. The "
+                    "road opens; the Crows remember."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "crow tollman", "qty": 2,
+                     "desc": "Drive off the Crow tollmen (0/2)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Report the road cleared (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 3, "crows": -3},
+                "npc_rep_deltas": {"captain thelmer of the stag watch": 3},
+                "npc_memories": {"captain thelmer of the stag watch":
+                                 "broke the Crow toll-gate on the Forest Road"},
+            },
+            "learn_the_passphrase": {
+                "label": "Learn the Crow passphrase and walk through",
+                "description": (
+                    "There's a phrase that opens that gate for free. "
+                    "Speak it to the reeve and report what you learn — "
+                    "or keep what you learn for yourself."
+                ),
+                "objectives": [
+                    {"type": "talk", "target": "crow toll-reeve",
+                     "topic": "uncaged", "qty": 1,
+                     "desc": "Give the reeve the Crow passphrase (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Report the gate's workings to Thelmer (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 1, "crows": 2},
+                "npc_rep_deltas": {"crow toll-reeve": 3},
+                "npc_memories": {"crow toll-reeve":
+                                 "knew the passphrase and was waved through as kin"},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "the_crippled_crow": {
+        "key": "the_crippled_crow",
+        "title": "The Crippled Crow",
+        "giver": "feargus the lame crow",
+        "description": (
+            "A lamed Crow deserter begs at the south gate, one eye on "
+            "every shadow — Cale the Thorn doesn't pension his people "
+            "off. He needs a meal and, though he'd never ask, a medic "
+            "willing to mend a badly-set leg. Or the watch would pay "
+            "to know exactly where he sits."
+        ),
+        "outcomes": {
+            "mend_and_shelter": {
+                "label": "Feed him, mend him, win his trust",
+                "description": (
+                    "Kindness first. A fed, mended Feargus talks — "
+                    "about tolls, rotations, and the words that open "
+                    "Crow gates."
+                ),
+                "objectives": [
+                    {"type": "deliver", "target": "feargus the lame crow",
+                     "qty": 1, "desc": "Give Feargus a meal or something useful (0/1)"},
+                    {"type": "talk", "target": "feargus the lame crow",
+                     "topic": "leg", "qty": 1,
+                     "desc": "Ask Feargus about his lame leg (0/1)"},
+                ],
+                "rewards": {"silver": 5, "items": [], "reagents": {"Sayge": 2}},
+                "faction_rep": {"crows": 2, "outsider": 1},
+                "npc_rep_deltas": {"feargus the lame crow": 6},
+                "npc_memories": {"feargus the lame crow":
+                                 "showed him kindness when the whole vale looked away"},
+            },
+            "sell_him_out": {
+                "label": "Report him to the watch",
+                "description": (
+                    "A deserter with Crow knowledge is worth coin to "
+                    "the Stag Watch. Feargus will find out who told."
+                ),
+                "objectives": [
+                    {"type": "talk", "target": "feargus the lame crow",
+                     "topic": "crows", "qty": 1,
+                     "desc": "Draw Feargus out about the Crows (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Report the deserter to Thelmer (0/1)"},
+                ],
+                "rewards": {"silver": 20, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 2, "crows": -2},
+                "npc_rep_deltas": {"feargus the lame crow": -8},
+                "npc_memories": {"feargus the lame crow":
+                                 "sold him to the watch after he talked"},
+            },
+        },
+        "prereqs": [],
+    },
+
+    "tempest_damned_crew": {
+        "key": "tempest_damned_crew",
+        "title": "Tempest's Revenge: The Damned Crew",
+        "giver": "kestren the bard",
+        "description": (
+            "Kestren's sea-wolf legend was no legend. Fog has settled "
+            "over the Broken Pier and drowned sailors walk it, chains "
+            "grown into their wrists, mouthing one word over and over. "
+            "She knows the word — the old shanty-law that even the "
+            "damned must honor."
+        ),
+        "outcomes": {
+            "honor_the_parlay": {
+                "label": "Walk the pier and call for parlay",
+                "description": (
+                    "Sea-law older than drowning: call parlay, and the "
+                    "dead must hear you out."
+                ),
+                "objectives": [
+                    {"type": "explore", "target": "Tamris Harbor — The Broken Pier",
+                     "qty": 1, "desc": "Walk the fogbound Broken Pier (0/1)"},
+                    {"type": "talk", "target": "black sam tempest",
+                     "topic": "parlay", "qty": 1,
+                     "desc": "Call parlay with the dead captain (0/1)"},
+                ],
+                "rewards": {"silver": 15, "items": [], "reagents": {}},
+                "faction_rep": {"outsider": 2},
+                "npc_rep_deltas": {"black sam tempest": 4},
+                "npc_memories": {"black sam tempest":
+                                 "honored parlay like a proper sailor"},
+            },
+            "drive_them_back": {
+                "label": "Drive the damned crew back into the water",
+                "description": (
+                    "Steel works on the drowned, after a fashion. It "
+                    "doesn't work on what sent them."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "ghost of the damned crew", "qty": 3,
+                     "desc": "Scatter the damned crew on the pier (0/3)"},
+                    {"type": "deliver", "target": "kestren the bard", "qty": 1,
+                     "desc": "Bring Kestren proof for her next verse (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 1, "outsider": -1},
+                "npc_rep_deltas": {"black sam tempest": -4},
+                "npc_memories": {"black sam tempest":
+                                 "raised steel against his crew instead of honoring parlay"},
+            },
+        },
+        "prereqs": ["tale_to_remember"],
+    },
+
+    "tempest_captain_returns": {
+        "key": "tempest_captain_returns",
+        "title": "Tempest's Revenge: The Captain Returns",
+        "giver": "kestren the bard",
+        "description": (
+            "Black Sam Tempest has come for what is his. His cursed "
+            "coin is scattered through Mystvale's purses and floorboards "
+            "— and everyone holding a piece of it dies with the tide "
+            "unless every last coin goes back. Gather the black-spotted "
+            "gold and settle the dead captain's account."
+        ),
+        "objectives": [
+            {"type": "gather", "target": "cursed coin", "qty": 5,
+             "desc": "Gather the black-spotted coins scattered through the vale (0/5)"},
+            {"type": "deliver", "target": "black sam tempest", "qty": 1,
+             "desc": "Return the coin to Black Sam at the Broken Pier (0/1)"},
+        ],
+        "rewards": {
+            "silver": 20,
+            "items": ["WATERLOGGED_PISTOL"],
+            "reagents": {},
+        },
+        "prereqs": ["tempest_damned_crew"],
+    },
+
+    "heist_pt3_cat_sith": {
+        "key": "heist_pt3_cat_sith",
+        "title": "The Heist: Rescue the Cat Sith",
+        "giver": "quill the fixer",
+        "description": (
+            "The false-bottom papers named the place: a Laurent "
+            "waystation on the Old Road, where a star-marked chest "
+            "waits for the morning vault-wagon — and inside it, the "
+            "Cat Sith idol the Innis have hunted for two seasons. "
+            "Quill wants it lifted tonight. There's a password, a "
+            "nervous courier who knows it, and two guards who don't "
+            "have to die."
+        ),
+        "outcomes": {
+            "quiet_job": {
+                "label": "Talk your way in with the password",
+                "description": (
+                    "The courier leaks like a holed skiff. Get the "
+                    "password out of him, walk past the guards like "
+                    "you belong, and lift the idol clean."
+                ),
+                "objectives": [
+                    {"type": "talk", "target": "laurent waystation messenger",
+                     "topic": "password", "qty": 1,
+                     "desc": "Coax the password out of the courier (0/1)"},
+                    {"type": "gather", "target": "cat sith idol", "qty": 1,
+                     "desc": "Lift the Cat Sith idol from the star-marked chest (0/1)"},
+                    {"type": "deliver", "target": "quill the fixer", "qty": 1,
+                     "desc": "Deliver the idol to Quill (0/1)"},
+                ],
+                "rewards": {"silver": 70, "items": [], "reagents": {}},
+                "faction_rep": {"outlaws": 4, "crown": -2},
+                "npc_rep_deltas": {"quill the fixer": 6},
+                "npc_memories": {"quill the fixer":
+                                 "lifted the Cat Sith without a drop of blood — an artist"},
+            },
+            "loud_job": {
+                "label": "Put the guards down and take it",
+                "description": (
+                    "No finesse, no witnesses standing. The Laurents "
+                    "will know, and so will everyone else."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "laurent waystation guard", "qty": 2,
+                     "desc": "Deal with the waystation guards (0/2)"},
+                    {"type": "gather", "target": "cat sith idol", "qty": 1,
+                     "desc": "Take the Cat Sith idol (0/1)"},
+                    {"type": "deliver", "target": "quill the fixer", "qty": 1,
+                     "desc": "Deliver the idol to Quill (0/1)"},
+                ],
+                "rewards": {"silver": 55, "items": [], "reagents": {}},
+                "faction_rep": {"outlaws": 3, "crown": -4},
+                "npc_rep_deltas": {"quill the fixer": 3},
+                "npc_memories": {"quill the fixer":
+                                 "got the idol, loudly — competent, but the heat was real"},
+            },
+        },
+        "prereqs": ["the_heist_pt2"],
+    },
+
+    "murder_most_foul_pt3": {
+        "key": "murder_most_foul_pt3",
+        "title": "Murder Most Foul: Shireen Revealed",
+        "giver": "captain thelmer of the stag watch",
+        "description": (
+            "Lynden is dealt with — and the killings haven't stopped. "
+            "Same glyph, same verdicts, new hand. Thelmer's trackers "
+            "followed the cold up to the Thornwood Edge and refused to "
+            "go further. Whatever judges 'the guilty' out there wears "
+            "a veil and was never human. End it, or come to terms "
+            "with it."
+        ),
+        "outcomes": {
+            "banish_the_banshee": {
+                "label": "Banish Shireen by steel and will",
+                "description": (
+                    "She can be driven out of the vale. Not killed — "
+                    "things like her don't die — but broken enough to "
+                    "leave."
+                ),
+                "objectives": [
+                    {"type": "kill", "target": "banshee of the thornwood", "qty": 1,
+                     "desc": "Break Shireen's hold on the Thornwood (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Report the Thornwood quiet (0/1)"},
+                ],
+                "rewards": {"silver": 40, "items": [], "reagents": {}},
+                "faction_rep": {"crown": 4},
+                "npc_rep_deltas": {"captain thelmer of the stag watch": 5},
+                "npc_memories": {"captain thelmer of the stag watch":
+                                 "faced the thing behind the murders and drove it out"},
+            },
+            "dark_bargain": {
+                "label": "Strike a bargain with the banshee",
+                "description": (
+                    "She only kills the guilty — by her count. Agree "
+                    "her verdicts stop arriving in Mystvale, and tell "
+                    "the watch the woods are clear. Live with it."
+                ),
+                "objectives": [
+                    {"type": "talk", "target": "banshee of the thornwood",
+                     "topic": "bargain", "qty": 1,
+                     "desc": "Offer Shireen a bargain (0/1)"},
+                    {"type": "deliver", "target": "captain thelmer of the stag watch",
+                     "qty": 1, "desc": "Tell Thelmer the Thornwood is clear (0/1)"},
+                ],
+                "rewards": {"silver": 25, "items": [], "reagents": {"Grave Blood": 2}},
+                "faction_rep": {"outlaws": 2, "crown": -2},
+                "npc_rep_deltas": {"the banshee of the thornwood": 6,
+                                   "captain thelmer of the stag watch": -2},
+                "npc_memories": {"the banshee of the thornwood":
+                                 "spoke terms with her in the dusk and kept them",
+                                 "captain thelmer of the stag watch":
+                                 "reported the Thornwood clear — something in it didn't sit right"},
+            },
+        },
+        "prereqs": ["murder_most_foul_pt2"],
+    },
 }

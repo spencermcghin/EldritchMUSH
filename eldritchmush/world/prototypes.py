@@ -3813,3 +3813,25 @@ SCHEMATIC_MASTERWORK_PISTOL = {
     "value_silver": 36,
     "schematic_craft_type": 'Gunsmith',
 }
+
+
+# ── Event 3: Tempest's Revenge reward ──────────────────────────────────
+WATERLOGGED_PISTOL = {
+    "typeclass": "typeclasses.objects.WeaponObject",
+    "key": "waterlogged pistol",
+    "aliases": ["pistol", "waterlogged pistol", "tempest's pistol"],
+    "desc": (
+        "A flintlock pistol crusted with salt and barnacle-scar, pulled "
+        "from Black Sam Tempest's sea-chest. The lockwork is fouled with "
+        "brine — but the bones of it are masterwork Richter steel. A "
+        "gunsmith could make this sing again. A king's ransom, restorable."
+    ),
+    "craft_source": "gunsmith",
+    "value_copper": 500,
+    "value_silver": 50,
+    "value_gold": 5,
+    "material_value": 3,
+    "required_skill": "gunner",
+    "level": 2,
+    "is_pistol": True,
+}

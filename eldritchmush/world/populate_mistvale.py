@@ -7308,4 +7308,383 @@ _seed_ambient("Captain Vance of the Mistguard", [
     "Civilians: north tent. Prisoners: the wagon. Pilgrims: wait your turn like everyone else.",
 ])
 
+
+# ===========================================================================
+# EVENT CONTENT BATCH 1 (2026-06-10)
+#
+# Sources: Drive / Reboot / Event 3 - The Awakening (Crow Tolls, The
+# Crippled Crow, Tempest's Revenge III-V, The Heist Pt 3, Murder Most
+# Foul Pt III) and Event 2 - The Wrath (The Herbalist, The Sea Witch /
+# Albatross Doom Pt I). Quest defs live in world/quests/event3_awakening
+# and event2_wrath.
+# ===========================================================================
+print("\n=== EVENT BATCH 1 (E2/E3 expansions) ===")
+
+# --- Crow Tolls — toll-gate band on the Forest Road -----------------------
+toll_reeve = _ensure_walkin_npc(
+    "Crow Toll-Reeve", forest_road,
+    desc=(
+        "A wiry Crow in a patchwork of stolen Mistguard kit, a tally-board "
+        "of knotted cord at her belt and a toll-chest chained to a stump "
+        "beside her. Two tollmen lounge within whistling distance, "
+        "crossbows unbent but strung."
+    ),
+    aliases=("toll-reeve", "reeve", "toll reeve"),
+    aggressive=False,
+    ai_personality=(
+        "The Crow Toll-Reeve runs the Forest Road toll for the Crows: "
+        "one silver a head, no exceptions, no apologies. Dry, "
+        "unhurried, professionally unimpressed by threats. Secretly "
+        "respects anyone who knows the Crow passphrase — answers it "
+        "with the countersign and waves them through as kin."
+    ),
+    ai_knowledge=(
+        "- The toll is one silver a head; resources and goods in kind "
+        "accepted at her discretion.\n"
+        "- The Crow passphrase this season: someone says 'uncaged, we "
+        "take wing' — the countersign is 'and peck their eyes out.' "
+        "Speakers pass free as friends of the flock.\n"
+        "- The take goes up the chain toward the Fox Den. She keeps a "
+        "cut, everyone keeps a cut; that's the whole philosophy.\n"
+        "- Captain Thelmer's watch would dearly love this gate gone."
+    ),
+)
+toll_reeve.db.body = 4
+toll_reeve.db.total_body = 4
+toll_reeve.db.av = 1
+
+_ensure_walkin_npc(
+    "Crow Tollman", forest_road,
+    desc=(
+        "A bored Crow bandit leaning on a half-pike, one of the pair "
+        "working the Forest Road toll-gate. Boiled leather, a cheap "
+        "blade, and the unbothered patience of a man paid to loiter."
+    ),
+    aliases=("tollman",),
+    aggressive=False,
+    count=2,
+)
+for _tm in ObjectDB.objects.filter(db_key="Crow Tollman", db_location=forest_road.pk):
+    _tm.db.body = 3
+    _tm.db.total_body = 3
+    _tm.db.av = 1
+
+# --- The Crippled Crow — deserter at the south gate ------------------------
+feargus = get_or_create_npc(
+    "Feargus the Lame Crow", south_gate,
+    desc=(
+        "A gaunt man in the unpicked remains of a Crow jerkin, the badge "
+        "torn off but its shadow still stitched into the leather. His "
+        "left leg drags — an old break, badly set. He keeps to the gate's "
+        "shadow, hat out, eyes down."
+    ),
+    personality=(
+        "Feargus, a lamed Crow deserter begging at Mystvale's south "
+        "gate. Cagey, wry, beaten-down but not broken. Deflects "
+        "questions about the Crows with jokes until shown real "
+        "kindness. Terrified of Cale the Thorn's enforcers finding him."
+    ),
+    knowledge=(
+        "- Deserted the Crows after Cale the Thorn had a friend's hands "
+        "struck off for skimming.\n"
+        "- His leg was broken in a toll dispute two winters back and "
+        "set crooked; he assumes it is past mending. A skilled medic "
+        "could fix it.\n"
+        "- Knows the Crow passphrase and, if he trusts someone, will "
+        "teach it: 'uncaged, we take wing' / 'and peck their eyes out.'\n"
+        "- Knows the toll-gate rotations on the Forest Road."
+    ),
+    quest_hooks=[
+        "Needs shelter, a meal, and — though he'd never ask — a medic "
+        "willing to rebreak and set his lame leg.",
+    ],
+    topics=["his leg", "the Crows", "Cale the Thorn"],
+)
+feargus.db.body = 2
+feargus.db.total_body = 2
+
+# --- Tempest's Revenge — the Damned Crew + Black Sam at the Broken Pier ---
+_ensure_walkin_npc(
+    "Ghost of the Damned Crew", tamris_harbor,
+    desc=(
+        "A drowned sailor walking — kelp in the beard, chain-links "
+        "grown into the wrist, a cutlass furred with rust. A cold "
+        "lantern-light moves where its eyes should be. It mouths a "
+        "word, over and over, that might be 'parlay'."
+    ),
+    aliases=("ghost", "damned crew", "drowned sailor"),
+    aggressive=False,
+    count=3,
+)
+for _gp in ObjectDB.objects.filter(db_key="Ghost of the Damned Crew", db_location=tamris_harbor.pk):
+    _gp.db.body = 4
+    _gp.db.total_body = 4
+    _gp.db.av = 1
+
+black_sam = _ensure_walkin_npc(
+    "Black Sam Tempest", tamris_harbor,
+    desc=(
+        "The dead captain himself: tall as a mast-step, coat heavy with "
+        "forty years of seawater, a beard of black weed. Coins gleam "
+        "in his coat-lining — and his eyes count yours. Mister Tibbs, "
+        "a skeletal purser, perches at his elbow with a ledger."
+    ),
+    aliases=("black sam", "tempest", "the captain"),
+    aggressive=False,
+    ai_personality=(
+        "Black Sam Tempest, the drowned pirate captain of the Sea "
+        "Wolf, returned for what is his. Glacially courteous, "
+        "biblically patient, entirely without mercy. Every sentence "
+        "is an accounting. He wants his cursed coin returned — all "
+        "of it — and rewards honest delivery like a captain pays a "
+        "crew: generously, once."
+    ),
+    ai_knowledge=(
+        "- His cursed coins are scattered through Mystvale's markets "
+        "and taverns; he can smell them moving.\n"
+        "- Whoever returns the coin is quit of the Black Spot; whoever "
+        "hoards it dies with the tide.\n"
+        "- His sea-chest holds a waterlogged flintlock — masterwork "
+        "Richter steel under the salt — which he'd trade for the "
+        "full count.\n"
+        "- PARLAY is law even among the damned; his crew honors it."
+    ),
+)
+black_sam.db.body = 8
+black_sam.db.total_body = 8
+black_sam.db.av = 3
+
+_ensure_walkin_item(
+    "cursed coin", marketplace,
+    desc=(
+        "A gold piece, heavier than it should be, sweating cold "
+        "seawater. A black smudge on the obverse looks back at you "
+        "like a pupil. It wants returning."
+    ),
+    aliases=("coin", "black coin"),
+)
+_ensure_walkin_item(
+    "cursed coin", aentact,
+    desc=(
+        "A gold piece, heavier than it should be, sweating cold "
+        "seawater. The black spot on its face has grown since you "
+        "first looked."
+    ),
+    aliases=("coin", "black coin"),
+)
+_ensure_walkin_item(
+    "cursed coin", gateway_tavern,
+    desc=(
+        "A gold piece wedged in a crack of the bar, crusted with "
+        "salt though Gateway has no sea. The black spot on it is "
+        "warm to the touch."
+    ),
+    aliases=("coin", "black coin"),
+)
+_ensure_walkin_item(
+    "cursed coin", old_road_south,
+    desc=(
+        "A gold piece half-trodden into the mud of the Old Road, "
+        "gleaming wet. Whoever dropped it was running."
+    ),
+    aliases=("coin", "black coin"),
+)
+_ensure_walkin_item(
+    "cursed coin", thornwood_edge,
+    desc=(
+        "A gold piece resting in the roots of a thorn-oak like an "
+        "offering. The black spot covers half its face now."
+    ),
+    aliases=("coin", "black coin"),
+)
+
+# --- The Heist Pt 3 — Laurent waystation on the Old Road -------------------
+_ensure_walkin_npc(
+    "Laurent Waystation Guard", old_road_south,
+    desc=(
+        "A house Laurent guard in a rain-darkened tabard, posted over "
+        "a tarped wagon and a stack of strapped chests at the old "
+        "waystation. Alert enough to be a problem; bored enough to "
+        "be a different kind of problem."
+    ),
+    aliases=("waystation guard", "guard"),
+    aggressive=False,
+    count=2,
+)
+for _wg in ObjectDB.objects.filter(db_key="Laurent Waystation Guard", db_location=old_road_south.pk):
+    _wg.db.body = 4
+    _wg.db.total_body = 4
+    _wg.db.av = 2
+
+waystation_messenger = _ensure_walkin_npc(
+    "Laurent Waystation Messenger", old_road_south,
+    desc=(
+        "A mud-spattered courier pacing by the waystation wagon, "
+        "satchel chained to his wrist, lips moving — rehearsing "
+        "tonight's password over and over so he doesn't forget it."
+    ),
+    aliases=("messenger", "courier"),
+    aggressive=False,
+    ai_personality=(
+        "A nervous Laurent courier who carries the waystation "
+        "password and knows he shouldn't talk about it. Chatty when "
+        "flattered, leaky when nervous. If someone presses him about "
+        "the password he protests too much — then lets it slip in "
+        "fragments."
+    ),
+    ai_knowledge=(
+        "- Tonight's waystation password is 'gilded stag'. He is NOT "
+        "supposed to say that.\n"
+        "- The star-marked chest under the tarp rides for the Laurent "
+        "vaults at first light.\n"
+        "- The guards change at the second bell; both of them owe "
+        "him dice-money."
+    ),
+)
+waystation_messenger.db.body = 2
+waystation_messenger.db.total_body = 2
+
+_ensure_walkin_item(
+    "star-marked chest", old_road_south,
+    desc=(
+        "An iron-strapped chest under the wagon tarp, a six-point "
+        "star burned into the lid — the Laurent vault-mark. Whatever "
+        "rides inside rides alone: the other chests keep their "
+        "distance, as if instructed."
+    ),
+    aliases=("chest", "star chest"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "cat sith idol", old_road_south,
+    desc=(
+        "A cat carved from witch-iron, sitting the way cats sit when "
+        "they are deciding something about you. The Innis want it "
+        "back. The Laurents wanted it hidden. It, by every "
+        "appearance, wants to watch."
+    ),
+    aliases=("idol", "cat sith"),
+)
+
+# --- Murder Most Foul Pt III — Shireen at the Thornwood --------------------
+shireen = _ensure_walkin_npc(
+    "The Banshee of the Thornwood", thornwood_edge,
+    desc=(
+        "A woman-shaped absence in the dusk between thorn-oaks, veiled "
+        "in something that moves against the wind. Where her face "
+        "should be there is grief, worn sharp. The carved glyph from "
+        "the murder scenes hangs in the air around her like frost."
+    ),
+    aliases=("banshee", "the banshee", "veiled one"),
+    aggressive=False,
+    ai_personality=(
+        "Shireen, a Fae revenant who kills those she judges guilty — "
+        "and is always certain. Speaks in a low, reasonable voice that "
+        "makes terrible things sound like arithmetic. Believes Lynden "
+        "was her instrument and the watch hanged the puppet while the "
+        "hand walked free. Open to a bargain with anyone bold enough "
+        "to say the word; contemptuous of threats."
+    ),
+    ai_knowledge=(
+        "- She drove the killings the watch pinned on Lynden; the "
+        "'guilty' glyph is her mark and her verdict.\n"
+        "- She can be banished by violence — or bargained with: she "
+        "names the wicked, others deliver them.\n"
+        "- She remembers every hand that ever wronged her, and the "
+        "Thornwood remembers with her."
+    ),
+)
+shireen.db.body = 6
+shireen.db.total_body = 6
+shireen.db.av = 2
+
+# --- Event 2: The Herbalist — Magister Marionne ----------------------------
+marionne = get_or_create_npc(
+    "Magister Marionne", herbalist_garden,
+    desc=(
+        "A travelling Laurent magister in field-stained robes, sleeves "
+        "rolled past the elbow, a portable still and a rack of labelled "
+        "phials arranged on a trestle with surgical neatness. She "
+        "lectures while she works, to anyone and no one."
+    ),
+    personality=(
+        "Magister Marionne of Hartwood, House Laurent's itinerant "
+        "herbalist. Brisk, exacting, delighted by competent students "
+        "and witheringly patient with incompetent ones. Treats "
+        "alchemy as a craft discipline, not a mystery."
+    ),
+    knowledge=(
+        "- Teaches herbalism: Merchant's Leaf, Wraith Orchid, Willow "
+        "Root, Verbaena, Celandine — what they do and what they cost.\n"
+        "- Orgonnian grapes grow half-wild around the garden and the "
+        "Thornwood fringe; she pays in reagents for clean bunches.\n"
+        "- Brews Lillywhite (Dragon's Eye, Verbaena, Willow Root, "
+        "Celandine) as her standard demonstration.\n"
+        "- Suspects someone intends to sabotage one of her "
+        "demonstrations; she has not said so aloud."
+    ),
+    quest_hooks=[
+        "Wants clean-picked Orgonnian grapes for her demonstrations — "
+        "pays in prepared reagents and a lesson worth more than coin.",
+    ],
+    topics=["herbalism", "orgonnian grapes", "lillywhite"],
+)
+
+_ensure_walkin_item(
+    "orgonnian grapes", herbalist_garden,
+    desc=(
+        "A fat bunch of dusk-purple grapes growing half-wild along the "
+        "garden fence, skins frosted silver. Sweet, slightly "
+        "soporific, and worth more to an alchemist than to a vintner."
+    ),
+    aliases=("grapes",),
+    count=2,
+)
+_ensure_walkin_item(
+    "orgonnian grapes", thornwood_edge,
+    desc=(
+        "A bunch of dusk-purple grapes straggling over a thorn-break, "
+        "out of place this far from any garden — half-wild descendants "
+        "of some abandoned Laurent planting."
+    ),
+    aliases=("grapes",),
+)
+
+# --- Event 2: The Sea Witch — Captain Phoenix at the Broken Oar ------------
+phoenix = get_or_create_npc(
+    "Captain Phoenix Swallowsong", gateway_tavern,
+    desc=(
+        "A Rourke captain holding the Broken Oar's darkest booth like "
+        "a captured prize: storm-grey coat, twin pistols worn smooth "
+        "at the grips, an amulet of something many-armed at her "
+        "throat. They call her the Sea Witch. She lets them."
+    ),
+    personality=(
+        "Captain Phoenix Swallowsong of the Pegasus — the 'Sea "
+        "Witch'. Amused, unhurried, speaks in trade-terms even about "
+        "murder. Loyal to the Rourke fleet and to profit, in an "
+        "order she declines to specify. Pays well for intelligence "
+        "and despises freebies — a gift insults her; a price she "
+        "can respect."
+    ),
+    knowledge=(
+        "- Anchored off Shipwreck Bay; Lady Jane Swallowsong's cove "
+        "operation is coming — she does not discuss it sober.\n"
+        "- Buys intelligence: caravan routes, house politics, the "
+        "Cat Sith idol's whereabouts (a full gold for that one).\n"
+        "- The ghost-ship Sea Wolf has been sighted twice this "
+        "season; she collects every telling of it.\n"
+        "- Wants the gunsmith William recruited for quiet work — "
+        "the fleet pays better than any forge license.",
+    ),
+    quest_hooks=[
+        "Trades silver for rumors and tribute — bring her something "
+        "worth her time and hear what the Rourke fleet is planning.",
+    ],
+    topics=["the sea wolf", "shipwreck bay", "quiet work"],
+)
+phoenix.db.body = 6
+phoenix.db.total_body = 6
+phoenix.db.av = 2
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

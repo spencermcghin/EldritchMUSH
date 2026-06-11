@@ -320,4 +320,59 @@ QUESTS = {
         },
         "prereqs": [],
     },
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # EVENT 2 — BATCH 1 EXPANSIONS (2026-06-10)
+    # Source: Drive / Reboot / Event 2 - The Wrath — The Herbalist;
+    # The Sea Witch ("The Albatross Doom, Part I").
+    # ─────────────────────────────────────────────────────────────────────────
+    "the_herbalist": {
+        "key": "the_herbalist",
+        "title": "The Herbalist's Lesson",
+        "giver": "magister marionne",
+        "description": (
+            "Magister Marionne of Hartwood has set up her travelling "
+            "still at the Herbalist's Garden and is lecturing to anyone "
+            "with the sense to listen. She pays for clean-picked "
+            "Orgonnian grapes — and pays better in knowledge than "
+            "in coin."
+        ),
+        "objectives": [
+            {"type": "talk", "target": "magister marionne",
+             "topic": "herbalism", "qty": 1,
+             "desc": "Attend Marionne's herbalism lesson (0/1)"},
+            {"type": "gather", "target": "orgonnian grapes", "qty": 3,
+             "desc": "Pick clean bunches of Orgonnian grapes (0/3)"},
+            {"type": "deliver", "target": "magister marionne", "qty": 1,
+             "desc": "Bring the grapes to Marionne (0/1)"},
+        ],
+        "rewards": {
+            "silver": 10,
+            "items": [],
+            "reagents": {"Verbaena": 2, "Willow Root": 2, "Celandine": 1},
+        },
+        "prereqs": [],
+    },
+
+    "the_sea_witch": {
+        "key": "the_sea_witch",
+        "title": "The Sea Witch",
+        "giver": "captain phoenix swallowsong",
+        "description": (
+            "Captain Phoenix Swallowsong — the Sea Witch — holds the "
+            "darkest booth in the Broken Oar and pays silver for what "
+            "she calls 'weather': rumors, routes, and who's moving "
+            "what. Bring her tribute worth her time and ask about the "
+            "ghost-ship her sailors won't name twice."
+        ),
+        "objectives": [
+            {"type": "deliver", "target": "captain phoenix swallowsong",
+             "qty": 1, "desc": "Bring the Sea Witch tribute worth her time (0/1)"},
+            {"type": "talk", "target": "captain phoenix swallowsong",
+             "topic": "sea wolf", "qty": 1,
+             "desc": "Ask her about the Sea Wolf (0/1)"},
+        ],
+        "rewards": {"silver": 30, "items": [], "reagents": {}},
+        "prereqs": ["caravan_attack"],
+    },
 }
