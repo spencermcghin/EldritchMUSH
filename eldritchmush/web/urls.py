@@ -17,6 +17,7 @@ from web.api_views import (
     admin_all_accounts, admin_set_role, admin_approve_character,
     admin_purge_legacy,
     npc_audit_log,
+    telemetry_metrics,
 )
 from web.diag import diag_view
 from web.billing import (
@@ -55,6 +56,7 @@ custom_patterns = [
     # with flags for banned-phrase hits, moderation flags, rate limits,
     # and LLM errors. See world/ai_safety.py for the log format.
     path("api/admin/npc-audit/", npc_audit_log, name="npc_audit_log"),
+    path("api/admin/metrics/", telemetry_metrics, name="telemetry_metrics"),
     # Billing / PayPal subscription endpoints.
     path("api/billing/status", billing_status, name="billing_status"),
     path("api/billing/create-subscription", create_subscription, name="create_subscription"),

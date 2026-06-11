@@ -162,6 +162,30 @@ class SermonScript(DefaultScript):
             pass
 
 
+class TelemetryHeartbeatScript(DefaultScript):
+    """Operational telemetry heartbeat (world/telemetry.py).
+
+    Every 5 minutes: logs one JSON line of process/session/DB/LLM-spend
+    state to the volume + stdout, and runs the threshold checks that
+    email the admin on runaway LLM spend, LLM error bursts, or DB
+    growth. Bootstrapped at server start.
+    """
+
+    def at_script_creation(self):
+        self.key = "telemetry_heartbeat"
+        self.desc = "Operational telemetry heartbeat"
+        self.interval = 300
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import telemetry
+            telemetry.heartbeat()
+        except Exception as exc:
+            print(f"[telemetry] heartbeat script error: {exc!r}", flush=True)
+
+
 class AmbientNpcScript(DefaultScript):
     """Global ambient-speech ticker for NPCs that have opted in.
 

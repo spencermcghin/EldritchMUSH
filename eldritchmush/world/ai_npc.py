@@ -139,6 +139,7 @@ def _spend_ok():
 
 
 def _record_spend(usd):
+    tripped = False
     with _SPEND_LOCK:
         day = _spend_day()
         if _SPEND["day"] != day:
@@ -146,14 +147,21 @@ def _record_spend(usd):
         _SPEND["usd"] += usd
         if _SPEND["usd"] >= _budget_usd() and not _SPEND["warned"]:
             _SPEND["warned"] = True
-            print(
-                f"[ai_npc] DAILY LLM BUDGET EXHAUSTED "
-                f"(${_SPEND['usd']:.2f} >= ${_budget_usd():.2f}). "
-                f"NPCs fall back to canned lines until UTC midnight. "
-                f"Raise NPC_LLM_DAILY_BUDGET_USD if this is legitimate "
-                f"traffic.",
-                flush=True,
+            tripped = True
+    try:
+        from world import telemetry
+        telemetry.incr("llm.cost_usd", usd)
+        if tripped:
+            telemetry.alert(
+                "llm_budget_exhausted",
+                f"DAILY LLM BUDGET EXHAUSTED (${_SPEND['usd']:.2f} >= "
+                f"${_budget_usd():.2f})",
+                "NPCs fall back to canned lines until UTC midnight. "
+                "Raise NPC_LLM_DAILY_BUDGET_USD if this is legitimate "
+                "traffic.",
             )
+    except Exception:
+        pass
 
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -763,6 +771,12 @@ def _call_anthropic(npc, character, message):
             + cache_r * _PRICE_CACHE_READ
         ) / 1_000_000
         _record_spend(usd)
+        from world import telemetry
+        telemetry.incr("llm.calls")
+        telemetry.incr("llm.input_tokens", u.input_tokens)
+        telemetry.incr("llm.output_tokens", u.output_tokens)
+        telemetry.incr("llm.cache_read_tokens", cache_r)
+        telemetry.incr("llm.cache_write_tokens", cache_w)
         print(
             f"[ai_npc] anthropic ok model={resp.model} "
             f"in={u.input_tokens} out={u.output_tokens} "
@@ -814,6 +828,10 @@ def _call_openai(npc, character, message):
         usage = data.get("usage") or {}
         total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
         _record_spend(total * _OPENAI_FLAT_PRICE / 1_000_000)
+        from world import telemetry
+        telemetry.incr("llm.calls")
+        telemetry.incr("llm.input_tokens", usage.get("prompt_tokens") or 0)
+        telemetry.incr("llm.output_tokens", usage.get("completion_tokens") or 0)
     except Exception:
         pass
     return reply
@@ -854,8 +872,12 @@ def chat(npc, character, message, on_reply):
 
     # Defense layer 1: banned-phrase filter. Synchronous, regex-only,
     # no API call. Runs BEFORE we queue the work to save latency.
+    from world import telemetry
+    telemetry.incr("npc.chat_requests")
+
     banned_hit = ai_safety.check_banned(clean_msg)
     if banned_hit:
+        telemetry.incr("safety.banned_phrase")
         refusal = ai_safety.canned_refusal(npc)
         ai_safety.audit_log(
             npc, character, clean_msg, refusal,
@@ -869,6 +891,7 @@ def chat(npc, character, message, on_reply):
     account = getattr(character, "account", None)
     acct_ok, acct_retry = ai_safety.check_account_rate(account)
     if not acct_ok:
+        telemetry.incr("safety.rate_limited_account")
         msg = (f"|y({npc.key} looks at you, then the door, then you again. "
                f"\"You've been jawing the ear off every soul in Gateway today. "
                f"Come back in about {acct_retry} minutes, bearer.\")|n")
@@ -880,6 +903,7 @@ def chat(npc, character, message, on_reply):
 
     # Defense layer 2b: daily spend kill-switch.
     if not _spend_ok():
+        telemetry.incr("llm.budget_blocked")
         reply = _fallback_line(npc)
         ai_safety.audit_log(
             npc, character, clean_msg, reply, flags=["budget_exhausted"]
@@ -945,6 +969,7 @@ def chat(npc, character, message, on_reply):
             # audit log only — the player sees just the canned fallback
             # line. Nothing about LLM internals leaks into the modal.
             fallback = _fallback_line(npc)
+            telemetry.incr("llm.errors")
             print(f"[ai_npc] LLM HTTP {exc.code}: {body}", flush=True)
             try:
                 ai_safety.audit_log(
@@ -957,6 +982,7 @@ def chat(npc, character, message, on_reply):
             _dispatch(on_reply, fallback)
         except Exception as exc:
             fallback = _fallback_line(npc)
+            telemetry.incr("llm.errors")
             print(f"[ai_npc] LLM err: {type(exc).__name__}: {exc}", flush=True)
             try:
                 ai_safety.audit_log(

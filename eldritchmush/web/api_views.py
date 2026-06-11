@@ -879,3 +879,34 @@ def admin_approve_character(request):
         "character": char.key,
         "status": "approved" if approved else "rejected",
     })
+
+
+def telemetry_metrics(request):
+    """Superuser/Admin only: live operational snapshot + recent
+    heartbeats (sessions, RSS, DB size, LLM spend/budget, counters).
+    See world/telemetry.py.
+
+    Query params:
+      limit=int (heartbeat records, default 72 ≈ 6h, max 500)
+    """
+    user = request.user
+    if not _is_admin_or_super(user):
+        return JsonResponse({"error": "admin_required"}, status=403)
+    try:
+        limit = min(int(request.GET.get("limit", "72")), 500)
+    except ValueError:
+        limit = 72
+    try:
+        from world.telemetry import snapshot, read_heartbeat_tail
+        return JsonResponse({
+            "now": snapshot(),
+            "heartbeats": read_heartbeat_tail(limit=limit),
+        })
+    except Exception:
+        try:
+            from web.diag import diag_write
+            import traceback
+            diag_write("telemetry_metrics failed", tb=traceback.format_exc())
+        except Exception:
+            pass
+        return JsonResponse({"error": "telemetry_failed"}, status=500)

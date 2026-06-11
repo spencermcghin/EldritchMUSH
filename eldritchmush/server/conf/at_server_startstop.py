@@ -155,6 +155,22 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] AmbientNpcScript bootstrap FAILED: {exc!r}")
 
+    # Bootstrap the telemetry heartbeat (operational logging + cost
+    # alerts — see world/telemetry.py). Idempotent.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="telemetry_heartbeat").exists():
+            create_script(
+                "typeclasses.scripts.TelemetryHeartbeatScript",
+                key="telemetry_heartbeat",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] TelemetryHeartbeatScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] telemetry bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors

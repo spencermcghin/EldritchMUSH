@@ -1,0 +1,23 @@
+# External uptime probe — pings prod + UAT /health every 15 minutes.
+# A failing run emails the repo owner via GitHub's workflow-failure
+# notification; the run history doubles as a free uptime log.
+name: uptime
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: prod /health
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://eldritchmush.com/health)
+          echo "prod: $code"
+          [ "$code" = "200" ]
+      - name: uat /health
+        if: always()
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://uat.eldritchmush.com/health)
+          echo "uat: $code"
+          [ "$code" = "200" ]
