@@ -400,3 +400,44 @@ body::before {
     opacity: 0.8;
   }
 }
+
+/* ── Hit-flash: quick red screen flash when the player takes damage ──
+   Fired per damage_taken OOB event; the element remounts (keyed by ts)
+   so back-to-back hits each flash. Armor-absorbed hits flash lighter. */
+.damage-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(139, 0, 0, 0.25) 0%,
+      rgba(139, 0, 0, 0.55) 100%);
+  opacity: 0;
+  animation: damage-flash-anim 380ms ease-out forwards;
+}
+.damage-flash.absorbed {
+  animation: damage-flash-absorbed-anim 300ms ease-out forwards;
+}
+@keyframes damage-flash-anim {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+@keyframes damage-flash-absorbed-anim {
+  0%   { opacity: 0; }
+  12%  { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No hard flash — one gentle, self-clearing fade. */
+  .damage-flash,
+  .damage-flash.absorbed {
+    animation: damage-flash-gentle 600ms ease-out forwards;
+  }
+  @keyframes damage-flash-gentle {
+    0%   { opacity: 0; }
+    30%  { opacity: 0.15; }
+    100% { opacity: 0; }
+  }
+}

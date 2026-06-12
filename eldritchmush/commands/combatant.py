@@ -527,8 +527,27 @@ class Combatant:
             except Exception:
                 pass
             return 0
+        struck = amount  # pre-armor hit size, for the client hit-flash
         if self.av and (not skip_av):
             amount = self.takeAvDamage(amount)
+
+        # Hit-flash for the web client: the victim's screen flashes red
+        # the moment a hit lands (lighter if armor ate all of it). NPCs
+        # have no sessions, so this is a no-op for them.
+        try:
+            if struck > 0:
+                import time as _time
+                payload = {
+                    "type": "damage_taken",
+                    "_ts": _time.time(),
+                    "amount": int(max(amount, 0)),
+                    "absorbed": amount <= 0,
+                    "location": shot_location,
+                }
+                for sess in self.caller.sessions.all():
+                    sess.msg(event=payload)
+        except Exception:
+            pass
 
         if amount > 0:
             #We have damage that made it through armor!

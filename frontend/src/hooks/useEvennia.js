@@ -287,6 +287,16 @@ export function useEvennia() {
           if (kwargs.purse) next.purse = { ...prev.purse, ...kwargs.purse }
           break
         }
+        case 'damage_taken': {
+          // Hit-flash: App.jsx renders a brief red vignette. ts makes
+          // each hit retrigger the animation even in rapid succession.
+          next.damageFlash = {
+            ts: Date.now(),
+            amount: typeof kwargs.amount === 'number' ? kwargs.amount : 0,
+            absorbed: !!kwargs.absorbed,
+          }
+          break
+        }
         case 'tavyl_state': {
           // Mirror the entire payload onto tavylState so the modal can
           // re-render. ts is added so React notices the change even if

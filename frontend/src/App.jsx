@@ -490,6 +490,13 @@ function App() {
       {/* Séance vignette — mist closing in from the edges while a
           ghost speaks. Always mounted so opacity can transition. */}
       <div className="seance-vignette" aria-hidden="true" />
+      {oobState.damageFlash && (
+        <div
+          key={oobState.damageFlash.ts}
+          className={`damage-flash${oobState.damageFlash.absorbed ? ' absorbed' : ''}`}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Background music — single global <audio>, controlled by the
           header toggle via audioRef. Mounted at the app level so a
