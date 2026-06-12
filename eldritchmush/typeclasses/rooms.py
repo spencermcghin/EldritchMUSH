@@ -117,6 +117,16 @@ class Room(DefaultRoom):
         except Exception:
             pass
 
+        # Permanent world scar (the one shared-world consequence —
+        # e.g. the Siege of the North Gate). Survives populate runs
+        # because it rides on a db attribute, not the desc.
+        try:
+            scar = self.db.world_scar
+            if scar:
+                final_payload.append(f"|y {scar}|n")
+        except Exception:
+            pass
+
         # Format room perception results for printing
         if room_perception_results:
             format_room_perception_results = [f"|=t{result}|n\n" for result in room_perception_results]

@@ -265,6 +265,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(npc.CmdEditNPC())
         self.add(npc.CmdNPC())
         self.add(alchemy.CmdAddReagent())
+        self.add(confession.CmdSiege())
         # Override default charcreate so new characters spawn in the
         # ChargenRoom (so the React ChargenWizard fires automatically).
         self.add(account.CmdCharCreate())

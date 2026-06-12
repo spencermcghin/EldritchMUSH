@@ -1144,6 +1144,92 @@ def moonstorm_tick():
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 12 — THE SIEGE (the one shared-world consequence)
+#
+# Per design decision, consequence is per-character — with ONE
+# exception: a scheduled live siege event whose outcome scars the
+# world for everyone. The outcome is resolved by staff (@siege) after
+# the live wave-defense; the scar renders via Room.return_appearance
+# (db.world_scar), so populate runs can't erase it.
+# ─────────────────────────────────────────────────────────────────────────
+
+SIEGE_ROOM_KEY = "Mystvale North Gate"
+SIEGE_FLAG = "north_gate_siege"
+
+SIEGE_SCARS = {
+    "held": (
+        "The gate bears the wounds of the Siege — deep gouges in the "
+        "timber, scorch-shadows on the stone, and a row of fresh "
+        "graves just outside the wall. But it bears them STANDING. "
+        "The defenders' names are cut into the gatepost, and someone "
+        "keeps the letters clean."
+    ),
+    "fell": (
+        "The gate is new wood — raw, pale, hastily hung — because the "
+        "old gate is ash. The stone on either side is still "
+        "fire-blackened, and the wall wears its breach like a badly "
+        "healed wound. Nobody talks about the night the North Gate "
+        "fell. Everybody remembers it."
+    ),
+}
+
+SIEGE_ANNOUNCE = {
+    "held": (
+        "|yWord runs through every street and every taproom of the "
+        "Vale: THE GATE HELD. The Siege of the North Gate is over, "
+        "and Mystvale still stands behind its wall.|n"
+    ),
+    "fell": (
+        "|rWord runs through every street and every taproom of the "
+        "Vale, and it runs quietly, the way bad news does: the North "
+        "Gate fell. The wall is breached. Mystvale will never quite "
+        "be the town it was yesterday.|n"
+    ),
+}
+
+
+def set_siege(outcome):
+    """Resolve the Siege: outcome in ('held', 'fell', 'clear').
+    Returns a status string for the admin."""
+    from evennia.objects.models import ObjectDB
+    from world import world_state
+
+    room = ObjectDB.objects.filter(db_key=SIEGE_ROOM_KEY).first()
+    if not room:
+        return f"ERROR: room '{SIEGE_ROOM_KEY}' not found."
+
+    if outcome == "clear":
+        world_state.set_flag(SIEGE_FLAG, None)
+        room.db.world_scar = None
+        return "Siege state cleared; the gate is unmarked."
+
+    if outcome not in SIEGE_SCARS:
+        return "Usage: @siege held|fell|clear"
+
+    world_state.set_flag(SIEGE_FLAG, outcome)
+    room.db.world_scar = SIEGE_SCARS[outcome]
+
+    # One world-wide announcement, to every occupied room.
+    announced = set()
+    for char in _player_characters():
+        try:
+            loc = char.location
+            if loc and loc.id not in announced and char.sessions.count():
+                loc.msg_contents(SIEGE_ANNOUNCE[outcome])
+                announced.add(loc.id)
+        except Exception:
+            continue
+    ledger_add("siege", char="Mystvale", outcome=outcome)
+    try:
+        from world import telemetry
+        telemetry.incr(f"living_world.siege_{outcome}")
+    except Exception:
+        pass
+    return (f"Siege resolved: the gate {outcome.upper()}. Scar set on "
+            f"{SIEGE_ROOM_KEY}; flag '{SIEGE_FLAG}'={outcome!r}.")
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 

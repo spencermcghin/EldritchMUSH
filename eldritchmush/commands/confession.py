@@ -195,3 +195,31 @@ class CmdPry(Command):
             telemetry.incr("living_world.secrets_pried")
         except Exception:
             pass
+
+
+class CmdSiege(Command):
+    """
+    Resolve the Siege of the North Gate (staff only).
+
+    Usage:
+      @siege held    — the gate held; Mystvale stands
+      @siege fell    — the gate fell; the wall is breached
+      @siege clear   — remove the siege state entirely
+
+    The ONE shared-world consequence: sets the world flag, scars the
+    North Gate's description for every player forever (or until
+    cleared), and announces the outcome to every occupied room. Run
+    this after the live wave-defense event resolves.
+    """
+
+    key = "@siege"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+
+    def func(self):
+        outcome = (self.args or "").strip().lower()
+        if outcome not in ("held", "fell", "clear"):
+            self.caller.msg("|430Usage: @siege held|fell|clear|n")
+            return
+        from world.living_world import set_siege
+        self.caller.msg(f"|y{set_siege(outcome)}|n")
