@@ -9398,6 +9398,18 @@ for _ghost_key in ("the apparition of zeke", "the Adjudicator",
         print(f"  GHOST   : {_g.key} flagged is_ghost")
 
 # ---------------------------------------------------------------------------
+# VENGEFUL FLAGS — named antagonists that return from death remembering
+# their killer (living_world.on_npc_slain / vengeful_return)
+# ---------------------------------------------------------------------------
+for _v_key in ("The Banshee of the Thornwood",
+               "Captain Maribel Fairweather",
+               "Blind Stalker of the Deep Mine",
+               "barrow ravager"):
+    for _v in ObjectDB.objects.filter(db_key=_v_key):
+        _v.db.vengeful = True
+        print(f"  VENGEFUL: {_v.key}")
+
+# ---------------------------------------------------------------------------
 # ARTESSA'S CABINET — true-fortune machine, beside Eldreth in the market
 # ---------------------------------------------------------------------------
 print("\n=== ARTESSA'S CABINET (true fortunes) ===")

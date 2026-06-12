@@ -32,6 +32,24 @@ class Npc(Character):
                 self.make_equipment()
         except Exception:
             pass
+        # A returned antagonist greets its killer — once per visit.
+        try:
+            killed_by = self.db.killed_by or []
+            if (killed_by and character.key in killed_by
+                    and getattr(character, "has_account", False)):
+                seen = self.ndb.vengeance_greeted or set()
+                if character.key not in seen:
+                    seen.add(character.key)
+                    self.ndb.vengeance_greeted = seen
+                    if self.location:
+                        self.location.msg_contents(
+                            f"|m{self.key} turns toward "
+                            f"{character.key} the moment they enter — "
+                            f"before any sound could have reached it. "
+                            f"\"You,\" it says. \"I remember the iron "
+                            f"in your hand.\"|n")
+        except Exception:
+            pass
 
     def at_object_receive(self, moved_obj, source_location, **kwargs):
         """When an item moves into this NPC, react if it's a player gift.

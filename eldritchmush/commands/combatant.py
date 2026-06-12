@@ -561,10 +561,17 @@ class Combatant:
                     if ev_utils.inherits_from(self.caller, Npc):
                         try:
                             from commands.quests import quest_kill, npc_rep_on_kill
+                            killers = []
                             for obj in self.caller.location.contents:
                                 if getattr(obj, "has_account", False) and obj.has_account:
                                     quest_kill(obj, self.caller.key)
                                     npc_rep_on_kill(obj, self.caller)
+                                    killers.append(obj)
+                            # Vengeful antagonists schedule their return.
+                            if self.caller.db.vengeful:
+                                from world import living_world
+                                living_world.on_npc_slain(
+                                    self.caller, killers)
                         except Exception:
                             pass
                         # Spawn any quest-drop items the dead NPC was

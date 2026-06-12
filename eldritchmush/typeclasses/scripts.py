@@ -292,6 +292,29 @@ class ChronicleScript(DefaultScript):
                   flush=True)
 
 
+class VengefulReturnScript(DefaultScript):
+    """One-shot: a slain vengeful NPC rises again after its interval
+    (living_world.vengeful_return), remembering its killer."""
+
+    def at_script_creation(self):
+        self.key = "vengeful_return"
+        self.desc = "A slain antagonist is coming back"
+        self.interval = 345600  # overridden at schedule time
+        self.start_delay = True
+        self.repeats = 1
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            npc = self.obj
+            if npc:
+                from world import living_world
+                living_world.vengeful_return(npc)
+        except Exception as exc:
+            print(f"[living_world] vengeful script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 

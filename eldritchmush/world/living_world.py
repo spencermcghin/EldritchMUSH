@@ -712,6 +712,123 @@ def _place_chronicle_page(room, body):
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 8 — VENGEFUL RETURNS
+#
+# Named antagonists flagged db.vengeful=True don't stay down. Days
+# after being slain, they rise where they fell — stats restored,
+# dialogue updated to KNOW who killed them and how it felt. The
+# killer's npc_rep already carries "killed by your hand"; the return
+# adds the other half of the relationship.
+# ─────────────────────────────────────────────────────────────────────────
+
+VENGEFUL_MIN_DAYS = 3
+VENGEFUL_MAX_DAYS = 6
+
+VENGEANCE_MARKER = "\n- RETURNED FROM DEATH"
+
+
+def on_npc_slain(npc, killers):
+    """Called from combat when a vengeful NPC drops. Schedules the
+    return. *killers* = account-backed characters present at the kill."""
+    try:
+        if not npc.db.vengeful or npc.db.vengeful_return_pending:
+            return
+        npc.db.vengeful_return_pending = True
+        npc.db.slain_by = [c.key for c in (killers or [])
+                           if c is not None] or ["persons unknown"]
+        delay = random.randint(
+            VENGEFUL_MIN_DAYS * 86400, VENGEFUL_MAX_DAYS * 86400)
+        from evennia import create_script
+        script = create_script(
+            "typeclasses.scripts.VengefulReturnScript",
+            obj=npc,
+            key="vengeful_return",
+            persistent=True,
+            autostart=False,
+        )
+        if script:
+            script.interval = delay
+            script.start()
+        ledger_add("slain", char=", ".join(npc.db.slain_by),
+                   npc=npc.key)
+        try:
+            from world import telemetry
+            telemetry.incr("living_world.vengeful_scheduled")
+        except Exception:
+            pass
+        print(f"[living_world.vengeful] {npc.key} will return in "
+              f"{delay // 86400}d (slain by {npc.db.slain_by})",
+              flush=True)
+    except Exception as exc:
+        print(f"[living_world.vengeful] schedule err: {exc!r}",
+              flush=True)
+
+
+def vengeful_return(npc):
+    """Restore the slain NPC and teach it who killed it."""
+    try:
+        npc.db.vengeful_return_pending = False
+        killers = list(npc.db.slain_by or ["persons unknown"])
+        killer_names = ", ".join(killers)
+
+        # Restore vitals to their full values.
+        npc.db.body = npc.db.total_body or npc.db.body or 4
+        npc.db.bleed_points = 3
+        npc.db.death_points = 3
+        npc.db.weakness = 0
+        npc.db.in_combat = 0
+        npc.db.is_staggered = False
+        for part in ("right_arm", "left_arm", "right_leg", "left_leg",
+                     "torso"):
+            npc.attributes.add(part, 1)
+
+        # Teach its dialogue what happened (replace-not-accumulate).
+        know = npc.attributes.get("ai_knowledge", default="") or ""
+        if VENGEANCE_MARKER in know:
+            know = know.split(VENGEANCE_MARKER)[0]
+        npc.attributes.add(
+            "ai_knowledge",
+            know + f"{VENGEANCE_MARKER}: you were killed — truly "
+            f"killed — by {killer_names}, and you came back. You "
+            f"remember the iron in their hands and the cold after. "
+            f"If you speak with them, let them know, quietly, that "
+            f"you remember. You do not forgive.")
+        npc.db.killed_by = killers
+
+        room = npc.location
+        if room:
+            room.msg_contents(
+                f"|m{npc.key} draws a breath it should not be able "
+                f"to draw, and rises. Something is different about "
+                f"the way it looks at the world now — like a debt "
+                f"being counted.|n")
+        # The killers' own npc_rep gains the other half of the memory.
+        try:
+            from commands.quests import _adjust_npc_rep
+            from evennia.objects.models import ObjectDB
+            for name in killers:
+                kc = ObjectDB.objects.filter(
+                    db_key=name, db_account__isnull=False).first()
+                if kc:
+                    _adjust_npc_rep(
+                        kc, (npc.key or "").lower(), 0,
+                        memory_tag="returned from the death you gave "
+                                   "them — and remembers it")
+        except Exception:
+            pass
+        ledger_add("returned", npc=npc.key, char=killer_names)
+        try:
+            from world import telemetry
+            telemetry.incr("living_world.vengeful_returns")
+        except Exception:
+            pass
+        print(f"[living_world.vengeful] {npc.key} has returned "
+              f"(remembers {killer_names})", flush=True)
+    except Exception as exc:
+        print(f"[living_world.vengeful] return err: {exc!r}", flush=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 
