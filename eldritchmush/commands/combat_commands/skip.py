@@ -39,6 +39,10 @@ class CmdSkip(Command):
                 combatant.location.msg_contents(f"|025{self.caller.key} passes on their turn.|n")
                 # Instantiate combat loop class
                 loop = CombatLoop(self.caller, target=None)
+                # Passing IS the turn — without this the skipper kept a
+                # live combat_turn and could act again immediately,
+                # getting a free extra action every round.
+                loop.combatTurnOff(self.caller)
                 loop.cleanup()
 
             else:

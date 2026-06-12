@@ -73,7 +73,11 @@ class Helper():
             die_result = random.randint(1,10)
         elif level == 2:
             die_result = random.randint(1,6) + random.randint(1,6)
-        elif level == 3:
+        else:
+            # Level 3 — and anything above it. Buffs (moonstorm +1,
+            # equip bonuses) can push a level-3 fighter past the table;
+            # clamping to the top dice keeps every attack roll valid
+            # instead of crashing the actor's turn.
             die_result = random.randint(1,8) + random.randint(1,8)
 
         return die_result
@@ -89,7 +93,8 @@ class Helper():
             die_result = random.randint(1,10)
         elif level == 2:
             die_result = random.randint(1,6) + random.randint(1,6)
-        elif level == 3:
+        else:
+            # Clamp level 3+ to the top dice (see masterOfArms).
             die_result = random.randint(1,8) + random.randint(1,8)
 
         return die_result

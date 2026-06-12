@@ -68,10 +68,26 @@ class CombatLoop:
 	def __init__(self, caller, target = None):
 		self.caller = caller
 		self.target = target
-
-		# TODO: Get access to rooms combat loop
 		self.current_room = self.caller.location
-		self.combat_loop = self.current_room.db.combat_loop
+
+	@property
+	def combat_loop(self):
+		"""Always read the room's loop fresh from the db.
+
+		Caching the _SaverList at __init__ meant every command held its
+		own snapshot: an NPC removing itself via its own CombatLoop
+		instance was invisible to the outer cleanup()'s instance, which
+		then handed turns to phantom combatants (stranding the last
+		player in_combat forever). Re-reading at use time keeps every
+		wrapper looking at the same live list.
+		"""
+		if not self.current_room:
+			return []
+		if self.current_room.db.combat_loop is None:
+			self.current_room.db.combat_loop = []
+		# Return the live _SaverList itself (never a copy or a
+		# substitute) so mutations through this property persist.
+		return self.current_room.db.combat_loop
 
 
 	def inLoop(self):
@@ -172,7 +188,7 @@ class CombatLoop:
 			for combatant in self.combat_loop:
 				push_available_commands(combatant)
 
-		elif self.inLoop() is False and loopLength > 1:
+		elif self.inLoop() is False and loopLength >= 1:
 
 			if self.target not in self.combat_loop:
 				# Append caller and target to end of loop
@@ -238,6 +254,21 @@ class CombatLoop:
 
 
 	def cleanup(self):
+		# Drop combatants the room can't reach anymore (disconnected
+		# players stowed at location=None, deleted NPCs) BEFORE turn
+		# math — a single absent entry used to freeze the whole loop.
+		try:
+			for combatant in list(self.combat_loop):
+				if (combatant is None
+						or getattr(combatant, "location", None)
+						!= self.current_room):
+					self.combat_loop.remove(combatant)
+					if combatant is not None:
+						combatant.db.in_combat = 0
+						combatant.db.combat_turn = 1
+		except Exception:
+			pass
+
 		# Check for number of elements in the combat loop
 		if self.getLoopLength() > 1:
 

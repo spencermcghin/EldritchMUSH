@@ -53,8 +53,13 @@ class CmdMedicine(Command):
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
         if target:
-            if (combatant.caller in combatant.caller.location.db.combat_loop) or (target in combatant.caller.location.db.combat_loop):
-                loop = CombatLoop(combatant.caller, target)
+            room_loop = combatant.caller.location.db.combat_loop or []
+            if (combatant.caller in room_loop) or (target in room_loop):
+                # Healing inside a fight respects turn order — but never
+                # conscript a bystander patient INTO the loop. Only pass
+                # the patient as the loop target if they're already in it.
+                loop_target = target if target in room_loop else None
+                loop = CombatLoop(combatant.caller, loop_target)
                 loop.resolveCommand()
         else:
             self.msg("|430Please designate an appropriate target.|n")

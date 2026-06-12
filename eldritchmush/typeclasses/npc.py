@@ -223,8 +223,14 @@ class Npc(Character):
         """Choose an action for a generic aggressive NPC's turn."""
         if not target.db.bleed_points:
             return "disengage"
+        # Sunder needs a two-handed weapon — never pick it without one
+        # (the command also passes the turn defensively now, but an NPC
+        # visibly wasting turns on impossible maneuvers reads as broken).
+        rs = self.db.right_slot or []
+        two_handed = bool(rs and not isinstance(rs[0], str)
+                          and rs[0].db.twohanded)
         am = {
-            "sunder": self.db.sunder or 0,
+            "sunder": (self.db.sunder or 0) if two_handed else 0,
             "disarm": self.db.disarm or 0,
             "stagger": self.db.stagger or 0,
             "stun": self.db.stun or 0,

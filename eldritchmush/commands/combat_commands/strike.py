@@ -42,9 +42,6 @@ class CmdStrike(Command):
         if not self.args:
             self.msg("|430Usage: strike <target>|n")
             return
-        elif self.args == self.caller:
-            self.msg("|400You can't do that.|n")
-            return
         elif combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
@@ -55,6 +52,14 @@ class CmdStrike(Command):
         # Use parsed args in combat loop. Handles turn order in combat.
         if not target:
             combatant.message("|430Please designate an appropriate target.|n")
+            return
+
+        # Self-target guard AFTER the search: "strike me" resolves to
+        # the caller, and the old string-vs-object check never caught
+        # it — the caller double-joined the loop and soft-locked
+        # themselves in a phantom solo combat.
+        if target == self.caller:
+            self.msg("|400You can't attack yourself.|n")
             return
 
         victim = combatant.getVictim(self.target)

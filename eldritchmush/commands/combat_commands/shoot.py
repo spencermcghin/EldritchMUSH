@@ -44,9 +44,6 @@ class CmdShoot(Command):
         if not self.args:
             self.msg("|430Usage: shoot <target>|n")
             return
-        elif self.args == self.caller:
-            self.msg("|400You can't do that.|n")
-            return
         elif combatant.cantFight:
             combatant.message("|400You are too injured to act.|n")
             return
@@ -64,6 +61,12 @@ class CmdShoot(Command):
         # Use parsed args in combat loop. Handles turn order in combat.
         if not target:
             combatant.message("|430Please designate an appropriate target.|n")
+            return
+
+        # Self-target guard AFTER the search ("shoot me" resolves to
+        # the caller; the old string-vs-object check never fired).
+        if target == self.caller:
+            self.msg("|400You can't shoot yourself.|n")
             return
 
         victim = combatant.getVictim(self.target)

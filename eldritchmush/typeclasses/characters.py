@@ -358,4 +358,38 @@ class Character(DefaultCharacter):
                     item.delete()
         except Exception:
             pass
+        # Leave any combat loop BEFORE super() stows us at location=None.
+        # A disconnected combatant left in the loop used to freeze the
+        # whole fight: turn handoff crashed on our null location, and
+        # NPCs kept targeting a character who wasn't there.
+        try:
+            location = self.location
+            loop_list = location.db.combat_loop if location else None
+            if loop_list and self in loop_list:
+                had_turn = bool(self.db.combat_turn)
+                my_index = loop_list.index(self)
+                loop_list.remove(self)
+                self.db.in_combat = 0
+                self.db.combat_turn = 1
+                location.msg_contents(
+                    f"|025{self.key} slips from the fight as their "
+                    f"presence fades from the world.|n")
+                if len(loop_list) <= 1:
+                    # Fight's over — release the last combatant.
+                    for char in list(loop_list):
+                        char.db.combat_turn = 1
+                        char.db.in_combat = 0
+                    loop_list.clear()
+                    location.msg_contents(
+                        f"|430Combat is now over for the {location}.|n")
+                elif had_turn:
+                    # Hand the turn on by advancing from the combatant
+                    # BEFORE our old slot — cleanup() then lands on
+                    # whoever was next after us and drives NPC turns.
+                    from world.combat_loop import CombatLoop
+                    prev_char = loop_list[(my_index - 1) % len(loop_list)]
+                    CombatLoop(prev_char).cleanup()
+        except Exception as exc:
+            print(f"[characters] unpuppet combat-leave err: {exc!r}",
+                  flush=True)
         super().at_post_unpuppet(account=account, session=session, **kwargs)

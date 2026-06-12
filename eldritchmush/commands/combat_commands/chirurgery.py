@@ -86,7 +86,7 @@ class CmdChirurgery(Command):
             combatant.useChirurgeonsKit()
 
             combatant.message(f"After some time and many delicate procedures, you skillfully heal {victim.name}")
-            victim.message(f"You have been restored to your full measure of health thanks to {target.name}'s skillful application of the healing arts.")
+            victim.message(f"You have been restored to your full measure of health thanks to {combatant.name}'s skillful application of the healing arts.")
 
             # Push updated vitals for the healed target to the web UI sidebar.
             try:

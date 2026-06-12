@@ -48,6 +48,14 @@ class CmdSunder(Command):
         # Check for and error handle designated target
         target = self.caller.search(self.target)
 
+        if not target:
+            combatant.message("|430Please designate an appropriate target.|n")
+            return
+
+        if target == self.caller:
+            self.msg("|400You can't sunder your own gear.|n")
+            return
+
         victim = combatant.getVictim(self.target)
 
         if not target.db.bleed_points:
@@ -58,7 +66,17 @@ class CmdSunder(Command):
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
 
-        # Run logic for cleave command
+        def _npc_pass_turn():
+            """An NPC whose maneuver fails a precondition must still
+            hand the turn on — an early-out used to leave it holding
+            the turn forever, freezing the entire room's combat."""
+            if (utils.inherits_from(self.caller, Npc)
+                    and self.caller.db.combat_turn
+                    and self.caller.db.in_combat):
+                loop.combatTurnOff(self.caller)
+                loop.cleanup()
+
+        # Run logic for sunder command
         if not self.caller.db.combat_turn:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")
             return
@@ -68,7 +86,13 @@ class CmdSunder(Command):
 
         # Confirm whether object carried is a two handed weapon
         right_hand_item = combat_stats.get("right_slot", '')
-        rightObject = self.caller.search(right_hand_item)
+        rightObject = self.caller.search(right_hand_item, quiet=True) if right_hand_item else None
+        if isinstance(rightObject, (list, tuple)):
+            rightObject = rightObject[0] if rightObject else None
+        if not rightObject:
+            self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
+            _npc_pass_turn()
+            return
         isTwoHanded = True if rightObject.db.twohanded else False
 
         left_hand_item = combat_stats.get("left_slot", '')
@@ -76,10 +100,12 @@ class CmdSunder(Command):
 
         if not isTwoHanded:
             self.msg("|430Before you attack you must equip a two-handed weapon using the command equip <weapon name>.|n")
+            _npc_pass_turn()
             return
 
         if sundersRemaining <= 0:
             self.caller.msg("|400You have 0 sunders remaining or do not have the skill.\nPlease choose another action.|n")
+            _npc_pass_turn()
             return
 
         die_result = h.attackDiceChecker(combat_stats.get("master_of_arms", 0), combat_stats.get("vigil", 0))
@@ -156,8 +182,9 @@ class CmdSunder(Command):
                 pass
         else:
             self.caller.location.msg_contents(f"{self.caller.key} |025strikes a devastating blow at|n {target.key}|025, but misses.|n")
-            # Clean up
-            # Set self.caller's combat_turn to 0. Can no longer use combat commands.
-            loop.combatTurnOff(self.caller)
 
+        # Clean up — a resolved sunder consumes the turn on a HIT as
+        # well as a miss (it used to leave the attacker's turn live
+        # after a hit, granting free extra actions every round).
+        loop.combatTurnOff(self.caller)
         loop.cleanup()

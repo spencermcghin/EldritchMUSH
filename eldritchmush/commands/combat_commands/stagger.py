@@ -1,6 +1,7 @@
 # Local imports
-from evennia import Command
+from evennia import Command, utils
 from world.combat_loop import CombatLoop
+from typeclasses.npc import Npc
 from commands.combatant import Combatant
 
 class CmdStagger(Command):
@@ -100,3 +101,12 @@ class CmdStagger(Command):
                             else:
                                 combatant.message(
                                     f"|430To use Stagger with a bow equipped you must have the Sniper skill|n")
+
+        # NPC guard-fail safety: if any precondition above bailed out
+        # while an NPC held the turn, hand it on instead of freezing
+        # the whole room's combat (players keep their turn to retry).
+        if (utils.inherits_from(self.caller, Npc)
+                and self.caller.db.combat_turn
+                and self.caller.db.in_combat):
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
