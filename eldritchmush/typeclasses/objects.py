@@ -257,6 +257,31 @@ class Object(DefaultObject):
     #     pass
 
 
+class ArtessaMachine(DefaultObject):
+    """Artessa's Cabinet — the fortune machine (pull crank).
+
+    The fortune is generated from the player's real quest/faction/wound
+    state via world/living_world.true_fortune. Place one in any room;
+    the ArtessaCmdSet rides on the object.
+    """
+
+    def at_object_creation(self):
+        from commands.default_cmdsets import ArtessaCmdSet
+        self.locks.add("get:false()")
+        self.db.get_err_msg = (
+            "|yThe cabinet is bolted to its cart, and the seeress "
+            "behind the glass watches you try. Don't.|n")
+        self.db.desc = (
+            "A tall carnival cabinet of black lacquer and tarnished "
+            "brass, its glass front fogged with age. Behind the glass "
+            "sits a painted wooden seeress, eyes closed, one articulated "
+            "hand resting on a deck of cards. A brass crank juts from "
+            "the side, worn bright by ten thousand hopeful hands. A "
+            "plaque reads: |wARTESSA SEES|n.\n\n"
+            "|rOOG - Usage: pull crank|n")
+        self.cmdset.add_default(ArtessaCmdSet, permanent=True)
+
+
 """
 Carnival - Ticket Box
 """

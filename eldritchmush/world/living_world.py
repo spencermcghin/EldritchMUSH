@@ -313,6 +313,129 @@ def _spawn_letter(char, index, body):
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 11 — TRUE FORTUNES
+#
+# Artessa's Cabinet reads the player's actual game state — active
+# quests, the choice they haven't made yet, faction standing, wounds —
+# and the LLM writes a Tarot-style fortune that is TRUE. Falls back to
+# the classic canned strings when the LLM is off.
+# ─────────────────────────────────────────────────────────────────────────
+
+FORTUNE_SYSTEM = (
+    "You are Artessa, a haunted carnival fortune-cabinet in a dark-"
+    "fantasy world. You are given true facts about the petitioner's "
+    "life. Write their fortune: second person, present tense, 40-80 "
+    "words, in the register of a Tarot reading — symbol, omen, "
+    "warning. Reference AT LEAST ONE concrete fact from the digest, "
+    "transfigured into imagery (a quest about coins becomes 'five cold "
+    "mouths to feed'; an unmade choice becomes a fork, a door, a card "
+    "not yet turned). Never name game mechanics. Never give "
+    "instructions. End on an ambiguous line that could be promise or "
+    "threat. Output only the fortune."
+)
+
+FORTUNE_FALLBACKS = (
+    "|430Unknow all that you think you know.|n",
+    "|430You have what many want, though you still want more.|n",
+    "|430Nothing here is as it seems.|n",
+    "|430The card you have not turned is the only one that matters.|n",
+    "|430Someone speaks your name tonight, in a room you have never "
+    "entered.|n",
+)
+
+FORTUNE_COOLDOWN = 120  # seconds between pulls per character
+
+
+def _fortune_digest(char):
+    """One-paragraph plain-text summary of the player's true state."""
+    lines = []
+    try:
+        from commands.quests import QUESTS
+        quests = char.db.quests or {}
+        active = [(k, s) for k, s in quests.items()
+                  if s.get("status") == "active"]
+        for key, state in active[:3]:
+            qdef = QUESTS.get(key) or {}
+            title = qdef.get("title", key)
+            pending = [o["desc"] for o in state.get("objectives", [])
+                       if o.get("current", 0) < o.get("qty", 1)]
+            if pending:
+                lines.append(
+                    f"Mid-quest '{title}'; still undone: {pending[0]}")
+        done = [(k, s) for k, s in quests.items()
+                if s.get("status") == "completed" and s.get("outcome")]
+        if done:
+            k, s = done[-1]
+            qdef = QUESTS.get(k) or {}
+            lines.append(
+                f"Recently chose '{s['outcome']}' in '{qdef.get('title', k)}'")
+        failed = [k for k, s in quests.items()
+                  if s.get("status") == "failed"]
+        if failed:
+            lines.append(f"Has failed: {failed[-1]}")
+    except Exception:
+        pass
+    try:
+        rep = char.db.faction_rep or {}
+        if rep:
+            best = max(rep, key=rep.get)
+            worst = min(rep, key=rep.get)
+            if rep[best] > 0:
+                lines.append(f"Loved by the {best} ({rep[best]:+d})")
+            if rep[worst] < 0:
+                lines.append(f"Hated by the {worst} ({rep[worst]:+d})")
+    except Exception:
+        pass
+    try:
+        body = char.db.body
+        total = char.db.total_body
+        if body is not None and total and body < total:
+            lines.append(f"Carrying wounds ({body}/{total} body)")
+        silver = char.db.silver or 0
+        if silver > 60:
+            lines.append("Heavy purse")
+        elif silver < 5:
+            lines.append("Near-empty purse")
+    except Exception:
+        pass
+    try:
+        if char.db.adjudicator_letters_started:
+            lines.append("Has stolen a vision from the Fae and is "
+                         "receiving the Adjudicator's letters")
+    except Exception:
+        pass
+    return "; ".join(lines) if lines else "A stranger with no story yet"
+
+
+def true_fortune(char, on_reply):
+    """Generate a fortune for *char*. on_reply(text) always receives a
+    displayable string (LLM fortune or canned fallback)."""
+    from world import ai_npc
+
+    digest = _fortune_digest(char)
+
+    def _wrap(text):
+        fortune = (text or "").strip()
+        if fortune:
+            fortune = f"|430{fortune}|n"
+        else:
+            fortune = random.choice(FORTUNE_FALLBACKS)
+        try:
+            from world import telemetry
+            telemetry.incr("living_world.fortunes_told")
+        except Exception:
+            pass
+        on_reply(fortune)
+
+    user_text = (
+        f"The petitioner is {char.key}. True facts: {digest}.\n"
+        f"Write their fortune."
+    )
+    ai_npc.generate(FORTUNE_SYSTEM, user_text, _wrap,
+                    max_tokens=160, temperature=1.0)
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 

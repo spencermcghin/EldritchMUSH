@@ -2036,47 +2036,56 @@ class CmdSmile(Command):
 """
 Carnival commands
 """
-# Fortune teller in Carnival
+# Fortune machine — Artessa's Cabinet. The cabinet reads the player's
+# actual game state and the LLM writes a fortune that is true
+# (world/living_world.true_fortune). Canned strings when the LLM is off.
 class CmdPull(Command):
     """
+    Pull the crank of Artessa's Cabinet.
+
     Usage: pull crank
 
-    Should get a fortune from the Artessa machine in the room. Command tied to room only.
+    The cabinet shudders, the painted seeress's eyes roll, and a
+    fortune is dispensed. They say her fortunes are only flavor.
+    They are wrong.
     """
 
     key = "pull"
+    help_category = "General"
 
     def func(self):
-        # Try and find caller key in fortuneStrings. If found, return fortune Value
-        # Remove it from the fortuneString dict
-        # If not found return a default fortune string
-        args = self.args
+        import time as _time
+        caller = self.caller
 
-        err_msg = "|430Usage: pull crank|n"
-        fortuneStrings = ["|430Unknow all that you think you know.|n",
-                          "|430You have what many want, though you still want more.|n",
-                          "|430Who is the little brother.|n",
-                          "|430I am not who they say I am.|n",
-                          "|430Can you help me?|n",
-                          "|430Be careful in the hall of mirrors. The cats are friends. Do not let the child catch them, for he is cruel.|n",
-                          "|430Nothing here is as it seems.|n",
-                          "|430Did you see them set up? Did you see any of it?|n",
-                          "|430Who are the Bordello Brothers|n",
-                          "|430Where is this place?|n",
-                          "|430Please...|n"
-                          ]
+        if (self.args or "").strip().lower() not in ("crank", "the crank"):
+            caller.msg("|430Usage: pull crank|n")
+            return
 
-        if not self.args:
-            self.caller.msg(err_msg)
+        now = _time.time()
+        last = caller.db.fortune_last_pull or 0
+        from world.living_world import FORTUNE_COOLDOWN, true_fortune
+        if now - last < FORTUNE_COOLDOWN:
+            caller.msg(
+                "|025The cabinet is silent. Behind the glass, the "
+                "seeress's painted eyes stay shut. Artessa does not "
+                "repeat herself so soon.|n")
             return
-        try:
-            args == "crank"
-        except ValueError:
-            self.caller.msg(err_msg)
-            return
-        else:
-            fortune = random.choice(fortuneStrings)
-            self.caller.msg(fortune)
+        caller.db.fortune_last_pull = now
+
+        caller.location.msg_contents(
+            f"|025{caller.key} pulls the crank of Artessa's Cabinet. "
+            f"Gears grind; the painted seeress jerks upright; somewhere "
+            f"inside, something inhales.|n")
+
+        def _deliver(fortune, caller=caller):
+            try:
+                caller.msg(
+                    "|025A card drops into the brass tray, still warm. "
+                    "It reads:|n\n\n" + fortune)
+            except Exception:
+                pass
+
+        true_fortune(caller, _deliver)
 
 class CmdThrow(Command):
     """

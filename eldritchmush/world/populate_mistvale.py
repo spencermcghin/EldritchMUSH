@@ -9387,4 +9387,22 @@ _ensure_walkin_item(
     gettable=True,
 )
 
+# ---------------------------------------------------------------------------
+# ARTESSA'S CABINET — true-fortune machine, beside Eldreth in the market
+# ---------------------------------------------------------------------------
+print("\n=== ARTESSA'S CABINET (true fortunes) ===")
+_artessa = ObjectDB.objects.filter(
+    db_key="Artessa's Cabinet", db_location=marketplace.pk,
+).first()
+if not _artessa:
+    _artessa = _create.create_object(
+        "typeclasses.objects.ArtessaMachine",
+        key="Artessa's Cabinet", location=marketplace)
+    print("  CREATED : Artessa's Cabinet → marketplace")
+else:
+    print("  EXISTS  : Artessa's Cabinet")
+_artessa.aliases.add("cabinet")
+_artessa.aliases.add("artessa")
+_artessa.aliases.add("fortune machine")
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
