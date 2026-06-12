@@ -156,3 +156,169 @@ def gossip_tick(max_events=4):
         print(f"[living_world.gossip] tick spread {events} rumor(s)",
               flush=True)
     return events
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Feature 3 — THE ADJUDICATOR'S LETTERS
+#
+# Days after a player steals a fae vision (or robs Welkin's ring), a
+# sealed letter from the Dark Forest's Adjudicator materializes in
+# their inventory — LLM-written in escalating cease-and-desist menace,
+# referencing what they actually did. Three letters, then silence
+# (the silence is worse). Canned letters when the LLM is off.
+# ─────────────────────────────────────────────────────────────────────────
+
+# Delays before each letter (seconds): ~2h, ~26h, ~3 days. Real-world
+# pacing so a letter lands while the player is back in town living
+# their life — that's the horror of it.
+LETTER_DELAYS = (7200, 93600, 259200)
+
+ADJUDICATOR_SYSTEM = (
+    "You are the Adjudicator, the bureaucratic voice of the Dark "
+    "Forest's law in a dark-fantasy world. You write formal "
+    "cease-and-desist letters to mortals who stole visions from the "
+    "Fae realm by eating sacred mushrooms. Register: icily polite "
+    "legal correspondence — salutation ('To the Most Honourable "
+    "<name>, presently of the Annwyn'), numbered grievance, demanded "
+    "remedy, formal close ('By my hand and the Forest's seal'). "
+    "Letter 1 is courteous warning; letter 2 drops courtesies and "
+    "cites 'continued non-compliance'; letter 3 is final — it names "
+    "the Book of the Unforgiven and promises a reckoning, never mere "
+    "death. Under 130 words. No quotation marks around the whole "
+    "letter. Output only the letter text."
+)
+
+_CANNED_LETTERS = (
+    "To the Most Honourable {name}, presently of the Annwyn.\n\n"
+    "It has come to the attention of this office that on a recent "
+    "evening you did consume that which was not yours to consume, and "
+    "did look upon that which was not yours to see. The Forest "
+    "requests, with all courtesy, that you cease. There need be no "
+    "unpleasantness between us.\n\nBy my hand and the Forest's seal,\n"
+    "— THE ADJUDICATOR",
+
+    "To {name}.\n\nCourtesy was extended. Courtesy was declined. Your "
+    "continued possession of a vision unlawfully obtained constitutes "
+    "ongoing theft, and each night you dream of it, you steal it "
+    "again. Remedy is demanded. You will not enjoy the manner of its "
+    "collection.\n\nBy my hand,\n— THE ADJUDICATOR",
+
+    "{name}.\n\nThis is the final correspondence you will receive. "
+    "Your name has been entered in the Book of the Unforgiven, in ink "
+    "you would not care to learn the source of. No further warnings "
+    "are coming. Something else is.\n\n— THE ADJUDICATOR",
+)
+
+
+def start_adjudicator_letters(char):
+    """Begin the three-letter chain for a vision-thief. Idempotent —
+    a second offense doesn't double the correspondence."""
+    if char.db.adjudicator_letters_started:
+        return
+    char.db.adjudicator_letters_started = True
+    _schedule_letter(char, 0)
+    try:
+        from world import telemetry
+        telemetry.incr("living_world.letter_chains_started")
+    except Exception:
+        pass
+
+
+def _schedule_letter(char, index):
+    if index >= len(LETTER_DELAYS):
+        return
+    from evennia import create_script
+    script = create_script(
+        "typeclasses.scripts.AdjudicatorLetterScript",
+        obj=char,
+        key=f"adjudicator_letter_{index}",
+        persistent=True,
+        autostart=False,
+    )
+    if script:
+        script.interval = LETTER_DELAYS[index]
+        script.db.letter_index = index
+        script.start()
+        print(f"[living_world.letters] scheduled letter {index + 1} "
+              f"for {char.key} in {LETTER_DELAYS[index]}s", flush=True)
+
+
+def deliver_letter(char, index):
+    """Generate + spawn letter *index* into the player's inventory,
+    then schedule the next. Called by AdjudicatorLetterScript."""
+    from world import ai_npc
+
+    def _on_reply(text, char=char, index=index):
+        try:
+            body = (text or "").strip()
+            if not body:
+                body = _CANNED_LETTERS[index].format(name=char.key)
+            _spawn_letter(char, index, body)
+            _schedule_letter(char, index + 1)
+        except Exception as exc:
+            print(f"[living_world.letters] deliver err: {exc!r}",
+                  flush=True)
+
+    deeds = ""
+    try:
+        rep = char.db.faction_rep or {}
+        if rep:
+            worst = min(rep, key=rep.get)
+            deeds = (f" Since the theft they have made a name among the "
+                     f"factions of the Annwyn (notably {worst}).")
+    except Exception:
+        pass
+    user_text = (
+        f"Write letter number {index + 1} of 3 to the mortal "
+        f"'{char.key}', who ate a sacred fae mushroom at the Thornwood "
+        f"Edge and stole a vision of the Unbound.{deeds}"
+    )
+    ai_npc.generate(ADJUDICATOR_SYSTEM, user_text, _on_reply,
+                    max_tokens=220, temperature=0.9)
+
+
+def _spawn_letter(char, index, body):
+    from evennia.utils import create
+    ordinals = ("first", "second", "final")
+    letter = create.create_object(
+        "typeclasses.objects.Object",
+        key=f"a sealed letter of the Dark Forest ({ordinals[index]})",
+        location=char,
+    )
+    letter.aliases.add("letter")
+    letter.aliases.add("sealed letter")
+    letter.db.desc = (
+        "A letter of heavy grey parchment, sealed in wax the colour of "
+        "deep moss. The seal bears no sigil — only a perfect circle, "
+        "like a ring of mushrooms. It is addressed to you in a hand "
+        "too regular to be human.\n\n|w" + body + "|n"
+    )
+    letter.locks.add("get:all()")
+    char.msg(
+        "|mSomething whispers against your pack. A sealed letter is "
+        "in your inventory that was not there a moment ago.|n")
+    try:
+        from world.npc_gifts import announce_item_drop
+        announce_item_drop(char, letter,
+                           from_source_name="The Dark Forest")
+    except Exception:
+        pass
+    try:
+        from world import telemetry
+        telemetry.incr("living_world.letters_delivered")
+    except Exception:
+        pass
+    print(f"[living_world.letters] delivered letter {index + 1} to "
+          f"{char.key}", flush=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Quest-completion aftermath dispatcher
+# ─────────────────────────────────────────────────────────────────────────
+
+def on_quest_completed(char, quest_key, outcome_key):
+    """Called by commands/quests.py after every quest completion.
+    Routes (quest, outcome) pairs to living-world consequences."""
+    if quest_key == "shrooms_man" and outcome_key in (
+            "take_the_vision", "rob_the_forager"):
+        start_adjudicator_letters(char)

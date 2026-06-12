@@ -241,6 +241,34 @@ class GossipScript(DefaultScript):
                   flush=True)
 
 
+class AdjudicatorLetterScript(DefaultScript):
+    """One-shot delayed delivery of a Dark Forest letter (living_world).
+
+    Attached to a character; fires once after its interval, spawns the
+    letter via living_world.deliver_letter (which schedules the next
+    letter in the chain), then stops.
+    """
+
+    def at_script_creation(self):
+        self.key = "adjudicator_letter"
+        self.desc = "A letter from the Dark Forest is on its way"
+        self.interval = 7200  # overridden at schedule time
+        self.start_delay = True
+        self.repeats = 1
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            char = self.obj
+            index = int(self.db.letter_index or 0)
+            if char:
+                from world import living_world
+                living_world.deliver_letter(char, index)
+        except Exception as exc:
+            print(f"[living_world] letter script error: {exc!r}",
+                  flush=True)
+
+
 class AmbientNpcScript(DefaultScript):
     """Global ambient-speech ticker for NPCs that have opted in.
 

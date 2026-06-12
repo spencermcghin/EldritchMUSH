@@ -717,6 +717,14 @@ def _check_completion(char, key):
     except Exception:
         pass
 
+    # Living-world aftermath hook (Adjudicator letters, vengeful
+    # respawns, chronicle fodder...). Never blocks completion.
+    try:
+        from world import living_world
+        living_world.on_quest_completed(char, key, outcome_key)
+    except Exception as exc:
+        print(f"[quests] living_world hook err: {exc!r}", flush=True)
+
     return True
 
 
