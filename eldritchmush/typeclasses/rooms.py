@@ -102,6 +102,21 @@ class Room(DefaultRoom):
         # List for final print
         final_payload = [string]
 
+        # The Withering Maw's corruption trail: rooms it passed through
+        # in the last 48h carry a visible scar (living_world feature 5).
+        try:
+            import time as _t
+            stamp = self.db.maw_corruption or 0
+            if stamp and _t.time() - stamp < 172800:
+                final_payload.append(
+                    "|m The vegetation here is wrong — blackened in a "
+                    "wide dragged swath, and the ground is dimpled "
+                    "with marks like the suckers of an enormous "
+                    "mouth. Something vast passed through, and "
+                    "recently.|n")
+        except Exception:
+            pass
+
         # Format room perception results for printing
         if room_perception_results:
             format_room_perception_results = [f"|=t{result}|n\n" for result in room_perception_results]

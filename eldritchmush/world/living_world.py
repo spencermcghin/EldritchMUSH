@@ -956,6 +956,83 @@ def mist_tick():
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 5 — THE WITHERING MAW
+#
+# A roaming boss with a heartbeat. Every hour it moves one room: if a
+# player is in an adjacent wild room, it stalks TOWARD them; otherwise
+# it drifts. Rooms it leaves carry a 48h corruption scar (rendered by
+# Room.return_appearance), so players can track it by the wounds it
+# leaves in the world. Combat-teeth + vengeful: it fights, it kills,
+# and if you kill it, it comes back remembering you.
+# ─────────────────────────────────────────────────────────────────────────
+
+MAW_KEY = "The Withering Maw"
+
+# The Maw stays in the wilds — never inside Mystvale's walls.
+MAW_ZONES = ("The Annwyn", "Annwyn", "Tamris")
+
+
+def _maw():
+    from evennia.objects.models import ObjectDB
+    return ObjectDB.objects.filter(db_key=MAW_KEY).first()
+
+
+def _maw_valid_dest(room):
+    """The Maw roams the wild surface — never inside town walls."""
+    try:
+        if not room or room.db.zone not in MAW_ZONES:
+            return False
+        key_l = (room.key or "").lower()
+        if "—" in (room.key or ""):
+            return False
+        if any(s in key_l for s in MIST_DENY_SUBSTRINGS):
+            return False
+        return True
+    except Exception:
+        return False
+
+
+def maw_tick():
+    """Move the Maw one room; prefer rooms holding players."""
+    npc = _maw()
+    if not npc or not npc.location:
+        return
+    # Don't wander out of an active fight.
+    if npc.db.in_combat:
+        return
+    here = npc.location
+    exits = [e for e in here.contents
+             if getattr(e, "destination", None)
+             and _maw_valid_dest(e.destination)]
+    if not exits:
+        return
+    hunted = [e for e in exits
+              if any(getattr(o, "has_account", False)
+                     for o in e.destination.contents)]
+    chosen = random.choice(hunted or exits)
+    dest = chosen.destination
+
+    here.msg_contents(
+        f"|m{npc.key} drags itself toward {chosen.key}, and the ground "
+        f"it crossed stays crushed.|n")
+    import time as _t
+    here.db.maw_corruption = _t.time()
+    npc.move_to(dest, quiet=True)
+    dest.msg_contents(
+        f"|rSomething vast shoulders into {dest.key} — a wall of grey "
+        f"flesh and a mouth that takes up most of it. {npc.key} has "
+        f"found this place.|n")
+    if hunted:
+        try:
+            from world import telemetry
+            telemetry.incr("living_world.maw_hunts")
+        except Exception:
+            pass
+    print(f"[living_world.maw] {here.key} -> {dest.key}"
+          + (" (hunting)" if hunted else ""), flush=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 

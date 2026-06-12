@@ -232,6 +232,21 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] mists bootstrap FAILED: {exc!r}")
 
+    # Bootstrap the Withering Maw's heartbeat. Idempotent.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="living_world_maw").exists():
+            create_script(
+                "typeclasses.scripts.WitheringMawScript",
+                key="living_world_maw",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] WitheringMawScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] maw bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors

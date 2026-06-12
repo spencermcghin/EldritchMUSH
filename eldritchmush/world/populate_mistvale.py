@@ -9398,6 +9398,36 @@ for _ghost_key in ("the apparition of zeke", "the Adjudicator",
         print(f"  GHOST   : {_g.key} flagged is_ghost")
 
 # ---------------------------------------------------------------------------
+# THE WITHERING MAW — roaming boss (living_world.maw_tick, hourly)
+# ---------------------------------------------------------------------------
+print("\n=== THE WITHERING MAW (roaming boss) ===")
+_MAW_DESC = (
+    "A wall of grey, glistening flesh the size of a wagon, dragging "
+    "itself on limbs that are mostly mouth. Where it has passed, the "
+    "ground stays crushed and the green things blacken. It does not "
+    "roar. It inhales — long, and slow, and tasting — and everything "
+    "it tastes, it wants."
+)
+for _maw_npc in get_or_create_enemies(
+        "The Withering Maw", "typeclasses.npc.Npc",
+        thornwood_edge, _MAW_DESC, count=1):
+    _maw_npc.db.is_aggressive = True
+    _maw_npc.db.weapon_proto = "IRON_LARGE_WEAPON"
+    _maw_npc.db.master_of_arms = 2
+    _maw_npc.db.tough = 2
+    _maw_npc.db.body = 10
+    _maw_npc.db.total_body = 10
+    _maw_npc.db.av = 2
+    _maw_npc.db.bleed_points = 3
+    _maw_npc.db.death_points = 3
+    _maw_npc.db.sunder = 1
+    _maw_npc.db.stagger = 1
+    _maw_npc.db.stun = 1
+    _maw_npc.db.weakness = 0
+    _maw_npc.db.peaceful = False
+    _maw_npc.db.vengeful = True
+
+# ---------------------------------------------------------------------------
 # THE KEEPER OF THE VAULT — confession-keeper in the Aurorym Chantry
 # (commands/confession.py: confess / pry)
 # ---------------------------------------------------------------------------

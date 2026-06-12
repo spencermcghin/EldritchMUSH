@@ -336,6 +336,25 @@ class MistPassageScript(DefaultScript):
                   flush=True)
 
 
+class WitheringMawScript(DefaultScript):
+    """Hourly heartbeat of the roaming boss (living_world.maw_tick)."""
+
+    def at_script_creation(self):
+        self.key = "living_world_maw"
+        self.desc = "The Withering Maw roams"
+        self.interval = 3600
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.maw_tick()
+        except Exception as exc:
+            print(f"[living_world] maw script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 
