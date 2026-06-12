@@ -217,6 +217,21 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] chronicle bootstrap FAILED: {exc!r}")
 
+    # Bootstrap the moving Mists. Idempotent.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="living_world_mists").exists():
+            create_script(
+                "typeclasses.scripts.MistPassageScript",
+                key="living_world_mists",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] MistPassageScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] mists bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors

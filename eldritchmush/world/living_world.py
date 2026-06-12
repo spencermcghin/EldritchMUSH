@@ -829,6 +829,133 @@ def vengeful_return(npc):
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 4 — THE MISTS MOVE
+#
+# Every few days, the Mists open ONE temporary passage between two
+# wild rooms that have no direct connection — and close the last one
+# they opened. Purely additive: no real exit is ever touched, so no
+# quest geography can break. Dungeon interiors are excluded by the
+# em-dash naming convention; transit/chargen rooms by zone.
+# ─────────────────────────────────────────────────────────────────────────
+
+MIST_ZONES = ("The Annwyn", "Annwyn", "Tamris", "Mystvale")
+MIST_EXIT_KEY = "mist-passage"
+
+# Interior/progression rooms the Mists must never open into. Checked
+# as case-insensitive substrings of the room key (em-dash dungeon
+# naming is excluded separately).
+MIST_DENY_SUBSTRINGS = (
+    "barrow", "crypt", "tomb", "sanctum", "corridor", "resting hall",
+    "wardstone", "mine", "scriptorium", "office", "deck", "hold",
+    "cabin", "cargo", "cell", "prison", "vault", "hovel", "lair",
+    "burial", "warding",
+)
+
+
+def _mist_rooms():
+    """Wild rooms eligible to host a mist passage."""
+    from evennia.objects.models import ObjectDB
+    rooms = []
+    for room in ObjectDB.objects.filter(
+            db_typeclass_path__startswith="typeclasses.rooms"):
+        try:
+            zone = room.db.zone
+            if zone not in MIST_ZONES:
+                continue
+            key = room.key or ""
+            if "—" in key:
+                continue  # dungeon sub-rooms (The Mine — ..., etc.)
+            key_l = key.lower()
+            if any(s in key_l for s in MIST_DENY_SUBSTRINGS):
+                continue
+            if room.db.no_mist_passage:
+                continue
+            rooms.append(room)
+        except Exception:
+            continue
+    return rooms
+
+
+def _close_mist_passage():
+    """Delete the current mist passage exits (both directions)."""
+    from evennia.objects.models import ObjectDB
+    closed_rooms = []
+    for ex in list(ObjectDB.objects.filter(db_key=MIST_EXIT_KEY)):
+        try:
+            loc = ex.location
+            if loc:
+                closed_rooms.append(loc)
+            ex.delete()
+        except Exception:
+            pass
+    for room in closed_rooms:
+        try:
+            room.msg_contents(
+                "|025The wall of mist at the edge of the world thins, "
+                "wavers — and is simply gone, taking the path it "
+                "offered with it.|n")
+        except Exception:
+            pass
+    return len(closed_rooms)
+
+
+def mist_tick():
+    """Close the old passage, open a new one elsewhere."""
+    from evennia.utils import create
+    closed = _close_mist_passage()
+    rooms = _mist_rooms()
+    if len(rooms) < 2:
+        print("[living_world.mists] not enough rooms; skipping",
+              flush=True)
+        return
+    random.shuffle(rooms)
+    room_a, room_b = None, None
+    for cand_a in rooms[:20]:
+        for cand_b in rooms[:20]:
+            if cand_a == cand_b:
+                continue
+            # No existing direct connection in either direction.
+            if any(getattr(e, "destination", None) == cand_b
+                   for e in cand_a.contents):
+                continue
+            if any(getattr(e, "destination", None) == cand_a
+                   for e in cand_b.contents):
+                continue
+            room_a, room_b = cand_a, cand_b
+            break
+        if room_a:
+            break
+    if not room_a:
+        print("[living_world.mists] no unconnected pair found",
+              flush=True)
+        return
+
+    for src, dst in ((room_a, room_b), (room_b, room_a)):
+        ex = create.create_object(
+            "typeclasses.exits.Exit",
+            key=MIST_EXIT_KEY, location=src, destination=dst)
+        ex.aliases.add("mist")
+        ex.aliases.add("passage")
+        ex.db.desc = (
+            "A seam in the world where the mist has worn through — "
+            "grey light, and the smell of somewhere else.")
+        src.msg_contents(
+            f"|025The mist along one edge of {src.key} thins to a "
+            f"seam of grey light. Through it: somewhere that should "
+            f"not be a single step away. The Mists are offering. "
+            f"They will change their mind.|n")
+
+    ledger_add("mist_passage", a=room_a.key, b=room_b.key)
+    try:
+        from world import telemetry
+        telemetry.incr("living_world.mist_passages")
+    except Exception:
+        pass
+    print(f"[living_world.mists] closed {closed} old; opened "
+          f"{room_a.key} <-> {room_b.key}", flush=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 

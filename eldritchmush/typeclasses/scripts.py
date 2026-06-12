@@ -315,6 +315,27 @@ class VengefulReturnScript(DefaultScript):
                   flush=True)
 
 
+class MistPassageScript(DefaultScript):
+    """Every 3 days the Mists move: close the old temporary passage,
+    open a new one between two unconnected wild rooms
+    (living_world.mist_tick)."""
+
+    def at_script_creation(self):
+        self.key = "living_world_mists"
+        self.desc = "The Mists open and close passages"
+        self.interval = 259200  # 3 days
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.mist_tick()
+        except Exception as exc:
+            print(f"[living_world] mist script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 
