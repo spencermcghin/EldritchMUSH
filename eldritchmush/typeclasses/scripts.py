@@ -241,6 +241,36 @@ class GossipScript(DefaultScript):
                   flush=True)
 
 
+class LedgerStorageScript(DefaultScript):
+    """Inert storage for the living-world deed ledger (db.events).
+    Never fires; exists so the ledger survives reboots."""
+
+    def at_script_creation(self):
+        self.key = "living_world_ledger"
+        self.desc = "World deed ledger storage"
+        self.interval = -1  # no repeat
+        self.persistent = True
+
+
+class DreamScript(DefaultScript):
+    """Weekly: Dierdra dreams the players' deeds (living_world.dream_tick)."""
+
+    def at_script_creation(self):
+        self.key = "living_world_dream"
+        self.desc = "Dierdra's weekly dream"
+        self.interval = 604800  # 7 days
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.dream_tick()
+        except Exception as exc:
+            print(f"[living_world] dream script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 

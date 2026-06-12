@@ -101,6 +101,8 @@ def _write_rumor(char, source_key, target_key, rumor_text):
         telemetry.incr("living_world.rumors_spread")
     except Exception:
         pass
+    ledger_add("rumor", char=char.key, source=source_key,
+               target=target_key)
     print(
         f"[living_world.gossip] {char.key}: {source_key} -> {target_key}: "
         f"{rumor_text[:80]}", flush=True)
@@ -308,6 +310,7 @@ def _spawn_letter(char, index, body):
         telemetry.incr("living_world.letters_delivered")
     except Exception:
         pass
+    ledger_add("letter", char=char.key, index=index)
     print(f"[living_world.letters] delivered letter {index + 1} to "
           f"{char.key}", flush=True)
 
@@ -436,6 +439,171 @@ def true_fortune(char, on_reply):
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# THE WORLD LEDGER — a rolling log of notable player deeds. Dreams,
+# the chronicle, and future features all read from it. Stored on a
+# singleton storage script so it survives reboots.
+# ─────────────────────────────────────────────────────────────────────────
+
+LEDGER_CAP = 200
+
+
+def _ledger_script():
+    from evennia.scripts.models import ScriptDB
+    from evennia import create_script
+    script = ScriptDB.objects.filter(db_key="living_world_ledger").first()
+    if not script:
+        script = create_script(
+            "typeclasses.scripts.LedgerStorageScript",
+            key="living_world_ledger",
+            persistent=True, autostart=False,
+        )
+    return script
+
+
+def ledger_add(kind, **fields):
+    """Append one event to the world ledger (capped ring)."""
+    import time as _time
+    try:
+        script = _ledger_script()
+        events = list(script.db.events or [])
+        fields["kind"] = kind
+        fields["ts"] = _time.time()
+        events.append(fields)
+        if len(events) > LEDGER_CAP:
+            events = events[-LEDGER_CAP:]
+        script.db.events = events
+    except Exception as exc:
+        print(f"[living_world.ledger] add err: {exc!r}", flush=True)
+
+
+def ledger_recent(days=7, kinds=None):
+    import time as _time
+    try:
+        script = _ledger_script()
+        cutoff = _time.time() - days * 86400
+        out = [e for e in (script.db.events or [])
+               if e.get("ts", 0) >= cutoff
+               and (kinds is None or e.get("kind") in kinds)]
+        return out
+    except Exception:
+        return []
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Feature 2 — DIERDRA DREAMS
+#
+# Once a week, Dierdra the Wisewoman dreams. The LLM stitches the
+# week's real player deeds (from the ledger) into a surreal prophecy
+# threaded with the campaign's Unbound arc. The dream is spoken aloud
+# if anyone is present, and becomes part of her conversational
+# knowledge — ask her about her dream and she'll recount it.
+# ─────────────────────────────────────────────────────────────────────────
+
+DREAMER_KEY = "Dierdra the Wisewoman"
+
+DREAM_SYSTEM = (
+    "You are the dreaming mind of Dierdra the Wisewoman, a witch-"
+    "touched oracle in a dark-fantasy frontier town. You are given the "
+    "week's true deeds of real travelers. Compose her dream: first "
+    "person, present tense, 90-130 words, surreal and prophetic. Weave "
+    "in 2-3 of the deeds, transfigured into dream-imagery (names may "
+    "surface once, half-remembered). Thread through it the deep omen: "
+    "something ancient — the Unbound — turning in its tomb beneath "
+    "everything, a door opening by inches. Never explain. Never break "
+    "register. Output only the dream."
+)
+
+DREAM_FALLBACK = (
+    "I am standing in a field of doors laid flat like graves. Under "
+    "every door, breathing. The breathing is patient. A crow lands on "
+    "the nearest door and says a name I knew this week and have "
+    "already forgotten, and far below, something that has been "
+    "counting the years stops counting. It has reached the number it "
+    "wanted. The doors are so thin. They were always so thin."
+)
+
+
+def _dream_npc():
+    from evennia.objects.models import ObjectDB
+    return ObjectDB.objects.filter(db_key=DREAMER_KEY).first()
+
+
+def _deed_lines(days=7, cap=8):
+    """Human-readable lines for recent ledger deeds."""
+    lines = []
+    for e in ledger_recent(days=days)[-cap:]:
+        kind = e.get("kind")
+        who = e.get("char", "a traveler")
+        if kind == "quest":
+            lines.append(
+                f"{who} completed '{e.get('title', '?')}'"
+                + (f" choosing '{e.get('outcome')}'" if e.get("outcome")
+                   else ""))
+        elif kind == "rumor":
+            lines.append(f"a rumor about {who} spread to "
+                         f"{e.get('target', 'someone')}")
+        elif kind == "letter":
+            lines.append(f"the Dark Forest wrote to {who}")
+    return lines
+
+
+def dream_tick():
+    """Weekly: compose Dierdra's dream from the ledger and deliver it."""
+    from world import ai_npc
+    npc = _dream_npc()
+    if not npc:
+        print("[living_world.dream] Dierdra not found; skipping",
+              flush=True)
+        return
+
+    deeds = _deed_lines()
+
+    def _on_reply(text, npc=npc):
+        try:
+            dream = (text or "").strip() or DREAM_FALLBACK
+            if len(dream) > 1200:
+                dream = dream[:1200]
+            npc.db.current_dream = dream
+            # Fold into her conversational knowledge (replace any prior
+            # dream block so it never accumulates).
+            know = npc.attributes.get("ai_knowledge", default="") or ""
+            marker = "\n- HER LATEST DREAM"
+            if marker in know:
+                know = know.split(marker)[0]
+            npc.attributes.add(
+                "ai_knowledge",
+                know + f"{marker} (recount it, haltingly, if asked "
+                f"about dreams or omens): \"{dream}\"")
+            # Speak it if anyone is present to hear.
+            room = npc.location
+            if room and any(getattr(o, "has_account", False)
+                            for o in room.contents):
+                room.msg_contents(
+                    f"|m{npc.key} goes suddenly still. Her eyes close. "
+                    f"When she speaks, it is from somewhere else:|n\n"
+                    f"|w\"{dream}\"|n")
+            try:
+                from world import telemetry
+                telemetry.incr("living_world.dreams")
+            except Exception:
+                pass
+            print(f"[living_world.dream] new dream set "
+                  f"({len(dream)} chars)", flush=True)
+        except Exception as exc:
+            print(f"[living_world.dream] err: {exc!r}", flush=True)
+
+    if deeds:
+        user_text = ("This week's true deeds:\n- "
+                     + "\n- ".join(deeds) + "\nCompose the dream.")
+    else:
+        user_text = ("No travelers did anything of note this week. "
+                     "Compose a dream of unbearable stillness — the "
+                     "quiet before something wakes.")
+    ai_npc.generate(DREAM_SYSTEM, user_text, _on_reply,
+                    max_tokens=260, temperature=1.0)
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 
@@ -445,3 +613,12 @@ def on_quest_completed(char, quest_key, outcome_key):
     if quest_key == "shrooms_man" and outcome_key in (
             "take_the_vision", "rob_the_forager"):
         start_adjudicator_letters(char)
+
+    # Feed the world ledger (dreams + chronicle source material).
+    try:
+        from commands.quests import QUESTS
+        title = (QUESTS.get(quest_key) or {}).get("title", quest_key)
+        ledger_add("quest", char=char.key, quest=quest_key,
+                   title=title, outcome=outcome_key)
+    except Exception:
+        pass

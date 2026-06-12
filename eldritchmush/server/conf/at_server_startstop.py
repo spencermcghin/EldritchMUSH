@@ -186,6 +186,21 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] gossip bootstrap FAILED: {exc!r}")
 
+    # Bootstrap Dierdra's weekly dream. Idempotent.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="living_world_dream").exists():
+            create_script(
+                "typeclasses.scripts.DreamScript",
+                key="living_world_dream",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] DreamScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] dream bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors
