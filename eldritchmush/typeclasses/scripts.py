@@ -271,6 +271,27 @@ class DreamScript(DefaultScript):
                   flush=True)
 
 
+class ChronicleScript(DefaultScript):
+    """Weekly: the Chronicler leaves a page of player-deed prose in the
+    tavern (living_world.chronicle_tick). Offset from DreamScript so
+    the two don't land the same moment."""
+
+    def at_script_creation(self):
+        self.key = "living_world_chronicle"
+        self.desc = "The weekly Chronicle of the Vale"
+        self.interval = 604800  # 7 days
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.chronicle_tick()
+        except Exception as exc:
+            print(f"[living_world] chronicle script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 

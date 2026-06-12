@@ -604,6 +604,114 @@ def dream_tick():
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 9 — THE CHRONICLE OF THE VALE
+#
+# Once a week, an unseen chronicler writes a page of bardic prose
+# summarizing the week's real player deeds (from the ledger) and
+# leaves it on the long table of Songbird's Rest. The last few pages
+# remain readable; older pages crumble. Player history becomes lore.
+# ─────────────────────────────────────────────────────────────────────────
+
+CHRONICLE_ROOM_KEY = "Songbird's Rest"
+CHRONICLE_KEEP = 4
+
+CHRONICLE_SYSTEM = (
+    "You are the anonymous Chronicler of the Vale, writing the weekly "
+    "page of a frontier town's chronicle in a dark-fantasy world. You "
+    "are given the week's true deeds of real travelers. Write the "
+    "page: 100-150 words of bardic period prose, third person, "
+    "naming the travelers as the deeds name them. Honor what deserves "
+    "honor; note what deserves suspicion with a dry, careful pen — "
+    "the Chronicler must live here too. Close with one line about "
+    "the Vale itself (the season, the mists, the unquiet dead). "
+    "Output only the page text."
+)
+
+
+def _chronicle_room():
+    from evennia.objects.models import ObjectDB
+    return ObjectDB.objects.filter(db_key=CHRONICLE_ROOM_KEY).first()
+
+
+def _fallback_chronicle(deeds):
+    body = "This week the Vale records: " + "; ".join(deeds) + "."
+    return (body + " So it is written, and so the mists were "
+            "watching, as they always are.")
+
+
+def chronicle_tick():
+    """Weekly: write the chronicle page and place it in the tavern."""
+    from world import ai_npc
+    room = _chronicle_room()
+    if not room:
+        print("[living_world.chronicle] tavern not found; skipping",
+              flush=True)
+        return
+    deeds = _deed_lines(days=7, cap=10)
+    if not deeds:
+        print("[living_world.chronicle] quiet week; no page written",
+              flush=True)
+        return
+
+    def _on_reply(text, room=room, deeds=deeds):
+        try:
+            body = (text or "").strip() or _fallback_chronicle(deeds)
+            if len(body) > 1500:
+                body = body[:1500]
+            _place_chronicle_page(room, body)
+        except Exception as exc:
+            print(f"[living_world.chronicle] err: {exc!r}", flush=True)
+
+    user_text = ("This week's true deeds:\n- " + "\n- ".join(deeds)
+                 + "\nWrite the page.")
+    ai_npc.generate(CHRONICLE_SYSTEM, user_text, _on_reply,
+                    max_tokens=300, temperature=0.95)
+
+
+def _place_chronicle_page(room, body):
+    from evennia.utils import create
+    from evennia.objects.models import ObjectDB
+    script = _ledger_script()
+    page_no = int(script.db.chronicle_page or 0) + 1
+    script.db.chronicle_page = page_no
+
+    page = create.create_object(
+        "typeclasses.objects.Object",
+        key=f"Chronicle of the Vale, page {page_no}",
+        location=room,
+    )
+    page.aliases.add("chronicle")
+    page.aliases.add("page")
+    page.db.chronicle_page = page_no
+    page.db.desc = (
+        "A single page of close-written vellum, left on the long table "
+        "where anyone might read it. No one has ever seen the "
+        "Chronicler write. The ink is always still damp.\n\n|w"
+        + body + "|n")
+    page.locks.add("get:false()")
+    page.db.get_err_msg = (
+        "|yThe page will not leave the table. The Chronicle stays "
+        "where all may read it.|n")
+
+    # Crumble pages beyond the kept window.
+    pages = [o for o in ObjectDB.objects.filter(db_location=room.pk)
+             if (o.db.chronicle_page or 0) > 0]
+    pages.sort(key=lambda o: o.db.chronicle_page)
+    for old in pages[:-CHRONICLE_KEEP]:
+        old.delete()
+
+    room.msg_contents(
+        "|025A new page lies on the long table that was not there "
+        "before. The ink is still damp.|n")
+    try:
+        from world import telemetry
+        telemetry.incr("living_world.chronicle_pages")
+    except Exception:
+        pass
+    print(f"[living_world.chronicle] page {page_no} placed", flush=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 
