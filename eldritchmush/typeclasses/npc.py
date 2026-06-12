@@ -1241,7 +1241,7 @@ class BanditMeleeOneHanded(Npc):
     def make_equipment(self):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
-        self.db.right_slot = [weapon.key]
+        self.db.right_slot = [weapon]
         # Iron medium weapon is level 1 → weaponValue(1) = 2
         self.db.weapon_level = 2
 
@@ -1330,7 +1330,7 @@ class WildWolfNpc(Npc):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_SMALL_WEAPON",
                         "key": "wolf bite", "location": self})[0]
-        self.db.right_slot = [weapon.key]
+        self.db.right_slot = [weapon]
         # Small weapon is level 0 → weapon_level bonus 0
         self.db.weapon_level = 0
 
@@ -1416,7 +1416,7 @@ class SkeletonArcher(Npc):
         from evennia import spawn
         bow = spawn({"prototype_parent": "HUNTING_BOW", "location": self})[0]
         arrows = spawn({"prototype_parent": "ARROWS", "location": self})[0]
-        self.db.right_slot = [bow.key]
+        self.db.right_slot = [bow]
         self.db.arrow_slot = [arrows.key]
         # Bow uses archer skill; weapon_level bonus from bow level
         bow_level = getattr(bow.db, 'level', 0) or 0
@@ -1518,7 +1518,7 @@ class CrowStriker(Npc):
     def make_equipment(self):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
-        self.db.right_slot = [weapon.key]
+        self.db.right_slot = [weapon]
         self.db.weapon_level = 2
 
     def remove_equipment(self):
@@ -1628,7 +1628,7 @@ class CrowBruiser(Npc):
     def make_equipment(self):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_LARGE_WEAPON", "location": self})[0]
-        self.db.right_slot = [weapon.key]
+        self.db.right_slot = [weapon]
         self.db.weapon_level = 2
 
     def remove_equipment(self):
@@ -1739,7 +1739,7 @@ class CaleTheThorn(Npc):
     def make_equipment(self):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "STEEL_MEDIUM_WEAPON", "location": self})[0]
-        self.db.right_slot = [weapon.key]
+        self.db.right_slot = [weapon]
         self.db.weapon_level = 3
 
     def remove_equipment(self):

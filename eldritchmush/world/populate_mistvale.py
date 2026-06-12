@@ -7461,7 +7461,7 @@ toll_reeve = _ensure_walkin_npc(
 )
 toll_reeve.db.body = 4
 toll_reeve.db.total_body = 4
-toll_reeve.db.av = 1
+toll_reeve.db.tough = 1
 
 _ensure_walkin_npc(
     "Crow Tollman", forest_road,
@@ -7477,7 +7477,7 @@ _ensure_walkin_npc(
 for _tm in ObjectDB.objects.filter(db_key="Crow Tollman", db_location=forest_road.pk):
     _tm.db.body = 3
     _tm.db.total_body = 3
-    _tm.db.av = 1
+    _tm.db.tough = 1
 
 # --- The Crippled Crow — deserter at the south gate ------------------------
 feargus = get_or_create_npc(
@@ -7529,7 +7529,7 @@ _ensure_walkin_npc(
 for _gp in ObjectDB.objects.filter(db_key="Ghost of the Damned Crew", db_location=tamris_harbor.pk):
     _gp.db.body = 4
     _gp.db.total_body = 4
-    _gp.db.av = 1
+    _gp.db.tough = 1
 
 black_sam = _ensure_walkin_npc(
     "Black Sam Tempest", tamris_harbor,
@@ -7562,7 +7562,7 @@ black_sam = _ensure_walkin_npc(
 )
 black_sam.db.body = 8
 black_sam.db.total_body = 8
-black_sam.db.av = 3
+black_sam.db.tough = 3
 
 _ensure_walkin_item(
     "cursed coin", marketplace,
@@ -7624,7 +7624,7 @@ _ensure_walkin_npc(
 for _wg in ObjectDB.objects.filter(db_key="Laurent Waystation Guard", db_location=old_road_south.pk):
     _wg.db.body = 4
     _wg.db.total_body = 4
-    _wg.db.av = 2
+    _wg.db.tough = 2
 
 waystation_messenger = _ensure_walkin_npc(
     "Laurent Waystation Messenger", old_road_south,
@@ -7706,7 +7706,7 @@ shireen = _ensure_walkin_npc(
 )
 shireen.db.body = 6
 shireen.db.total_body = 6
-shireen.db.av = 2
+shireen.db.tough = 2
 
 # --- Event 2: The Herbalist — Magister Marionne ----------------------------
 marionne = get_or_create_npc(
