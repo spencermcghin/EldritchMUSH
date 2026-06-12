@@ -11,6 +11,16 @@ import time
 from world.quest_data import QUESTS
 
 
+def _clean(text):
+    """Strip Evennia color markup (|w, |n, |430, |=k ...) for the web UI,
+    which renders plain text in the journal."""
+    try:
+        from evennia.utils.ansi import ANSIString
+        return str(ANSIString(text or "").clean())
+    except Exception:
+        return text or ""
+
+
 def _objectives_payload(state_objectives):
     """Convert in-progress state objectives into UI-ready dicts.
 
@@ -29,7 +39,7 @@ def _objectives_payload(state_objectives):
     for obj in objs:
         desc = obj.get("desc", "") or ""
         # Strip trailing parenthetical hints like "(0/3)" — UI renders its own count.
-        short = desc.split("(")[0].strip()
+        short = _clean(desc.split("(")[0].strip())
         done = int(obj.get("current", 0) or 0) >= int(obj.get("qty", 0) or 0)
         requires = obj.get("requires")
         out.append({
@@ -48,7 +58,7 @@ def _outcome_objectives_payload(qdef, outcome_key):
     odef = (qdef.get("outcomes") or {}).get(outcome_key) or {}
     return [
         {
-            "desc": (o.get("desc", "") or "").split("(")[0].strip(),
+            "desc": _clean((o.get("desc", "") or "").split("(")[0].strip()),
             "current": 0,
             "qty": int(o.get("qty", 0) or 0),
             "done": False,
@@ -167,7 +177,7 @@ def push_quest_journal(character, session=None):
                         "outcomeDescription": "",
                         "objectives": [
                             {
-                                "desc": (o.get("desc", "") or "").split("(")[0].strip(),
+                                "desc": _clean((o.get("desc", "") or "").split("(")[0].strip()),
                                 "current": 0,
                                 "qty": int(o.get("qty", 0) or 0),
                                 "done": False,

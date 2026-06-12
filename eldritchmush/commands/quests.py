@@ -63,7 +63,7 @@ def _any_webclient(char):
     """
     try:
         for sess in char.sessions.all():
-            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+            if (getattr(sess, "protocol_key", "") or "").startswith(("webclient", "websocket")):
                 return True
     except Exception:
         pass
@@ -75,7 +75,7 @@ def _msg_text_only(char, text):
     the OOB-driven toast/modal instead."""
     try:
         for sess in char.sessions.all():
-            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+            if (getattr(sess, "protocol_key", "") or "").startswith(("webclient", "websocket")):
                 continue
             sess.msg(text=text)
     except Exception:
@@ -112,7 +112,7 @@ def _announce_progress(char, quest_key, obj):
             "done": obj["current"] >= obj["qty"],
         }
         for sess in char.sessions.all():
-            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+            if (getattr(sess, "protocol_key", "") or "").startswith(("webclient", "websocket")):
                 sess.msg(event=payload)
     except Exception:
         pass
@@ -1018,7 +1018,7 @@ class CmdQuest(Command):
                         "_ts": _time.time(),
                     }
                     for sess in caller.sessions.all():
-                        if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                        if (getattr(sess, "protocol_key", "") or "").startswith(("webclient", "websocket")):
                             sess.msg(event=payload)
                 except Exception:
                     pass

@@ -267,3 +267,27 @@
   font-style: italic;
   font-size: 0.85em;
 }
+
+/* Available-here cards: outcome variants of one quest read as paths,
+   not duplicates. */
+.qj-card-outcome {
+  color: var(--accent-gold, #d4af37);
+  font-style: italic;
+  font-weight: normal;
+}
+.qj-accept-btn {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  color: var(--accent-gold, #d4af37);
+  padding: 4px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.qj-accept-btn:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.25);
+}
+.qj-accept-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

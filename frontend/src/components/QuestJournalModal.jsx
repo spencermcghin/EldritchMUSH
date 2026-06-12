@@ -68,6 +68,40 @@ function ActiveQuestCard({ quest, onAbandon, busyKey }) {
   )
 }
 
+function AvailableQuestCard({ quest, onAccept, busyKey }) {
+  const rowKey = quest.outcomeKey ? `${quest.key}/${quest.outcomeKey}` : quest.key
+  const isBusy = busyKey === rowKey
+  return (
+    <div className="qj-card qj-available-card">
+      <div className="qj-card-head">
+        <span className="qj-card-title">
+          {quest.title}
+          {quest.outcomeLabel && (
+            <span className="qj-card-outcome"> — {quest.outcomeLabel}</span>
+          )}
+        </span>
+        {quest.giver && <span className="qj-card-giver">from {quest.giver}</span>}
+      </div>
+      {(quest.outcomeDescription || quest.description) && (
+        <p className="qj-card-desc">
+          {quest.outcomeDescription || quest.description}
+        </p>
+      )}
+      <ObjectivesList objectives={quest.objectives} />
+      <RewardLine rewards={quest.rewards} />
+      <div className="qj-card-actions">
+        <button
+          className="qj-accept-btn"
+          onClick={() => onAccept(quest)}
+          disabled={isBusy}
+        >
+          {isBusy ? 'Accepting...' : 'Accept'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function CompletedQuestRow({ quest }) {
   return (
     <div className="qj-completed-row">
@@ -112,7 +146,23 @@ export default function QuestJournalModal({ onClose, sendCommand, questLog }) {
     }, 600)
   }, [sendCommand, refresh])
 
+  const handleAccept = useCallback((quest) => {
+    const rowKey = quest.outcomeKey ? `${quest.key}/${quest.outcomeKey}` : quest.key
+    setBusyKey(rowKey)
+    // CmdQuest accepts "quest accept <title> / <outcome_key>" for branches.
+    const cmd = quest.outcomeKey
+      ? `quest accept ${quest.title} / ${quest.outcomeKey}`
+      : `quest accept ${quest.title}`
+    sendCommand(cmd)
+    setTimeout(() => {
+      refresh()
+      setBusyKey(null)
+      setTab('active')
+    }, 600)
+  }, [sendCommand, refresh])
+
   const active = questLog?.active || []
+  const available = questLog?.availableHere || []
   const completed = questLog?.completed || []
 
   return (
@@ -129,6 +179,12 @@ export default function QuestJournalModal({ onClose, sendCommand, questLog }) {
             onClick={() => setTab('active')}
           >
             Active <span className="qj-tab-count">{active.length}</span>
+          </button>
+          <button
+            className={`qj-tab ${tab === 'available' ? 'active' : ''}`}
+            onClick={() => setTab('available')}
+          >
+            Available Here <span className="qj-tab-count">{available.length}</span>
           </button>
           <button
             className={`qj-tab ${tab === 'completed' ? 'active' : ''}`}

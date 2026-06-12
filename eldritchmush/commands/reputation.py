@@ -20,7 +20,7 @@ def _any_webclient(char):
     """True if the character has at least one web-client session."""
     try:
         for sess in char.sessions.all():
-            if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+            if (getattr(sess, "protocol_key", "") or "").startswith(("webclient", "websocket")):
                 return True
     except Exception:
         pass
@@ -77,7 +77,7 @@ class CmdReputation(Command):
                 import time as _time
                 payload = {"type": "reputation_open", "_ts": _time.time()}
                 for sess in caller.sessions.all():
-                    if (getattr(sess, "protocol_key", "") or "").startswith("webclient"):
+                    if (getattr(sess, "protocol_key", "") or "").startswith(("webclient", "websocket")):
                         sess.msg(event=payload)
             except Exception:
                 pass
