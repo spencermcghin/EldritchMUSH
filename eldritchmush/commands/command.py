@@ -534,7 +534,7 @@ class CmdTend(Command):
         caller = self.caller
         name = (self.args or "").strip()
         if not name:
-            caller.msg("|430Tend to whom? Usage: tend <target>|n")
+            caller.msg("|430Treat whom? Usage: treat <target>|n")
             return
         target = caller.search(name, location=caller.location)
         if not target:
@@ -563,16 +563,26 @@ class CmdTend(Command):
                             f"someone who has it.|n"
                         )
                         return
-                    caller.msg(
-                        f"|gYou put your {skill} to work on {target.key}.|n"
-                    )
-                    if caller.location:
-                        caller.location.msg_contents(
-                            f"|c{caller.key}|n tends to |c{target.key}|n "
-                            f"with practiced hands.",
-                            exclude=caller,
+                    # Tick first; only narrate success if it actually
+                    # advanced. A `requires` gate (or an already-finished
+                    # beat) otherwise prints a misleading success line.
+                    if quest_skill(caller, skill, target.key):
+                        caller.msg(
+                            f"|gYou put your {skill} to work on "
+                            f"{target.key}.|n"
                         )
-                    quest_skill(caller, skill, target.key)
+                        if caller.location:
+                            caller.location.msg_contents(
+                                f"|c{caller.key}|n tends to "
+                                f"|c{target.key}|n with practiced hands.",
+                                exclude=caller,
+                            )
+                    else:
+                        caller.msg(
+                            f"|540You move to tend {target.key}, but the "
+                            f"moment isn't right yet — there's something "
+                            f"you must do first.|n"
+                        )
                     return
         except Exception:
             pass

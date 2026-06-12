@@ -151,11 +151,14 @@ def _effective_rewards(quest_def, outcome_key=None):
 
 
 def _effective_faction_rep(quest_def, outcome_key=None):
-    """Faction rep deltas to apply on completion. Only defined for outcomes."""
+    """Faction rep deltas to apply on completion. Branching quests define
+    it per-outcome; non-branching quests can declare it at the top level
+    (mirrors _effective_npc_rep — without this fallback, top-level
+    `faction_rep` was silently dropped)."""
     if _has_outcomes(quest_def):
         outcome = _quest_outcome_def(quest_def, outcome_key)
         return (outcome or {}).get("faction_rep", {})
-    return {}
+    return quest_def.get("faction_rep", {})
 
 
 def _effective_npc_rep(quest_def, outcome_key=None):
@@ -853,6 +856,7 @@ def quest_skill(char, skill_name, target_key):
     _ensure_quest_db(char)
     target_lower = (target_key or "").lower()
     skill_lower = (skill_name or "").lower()
+    ticked = False
     for key, state in char.db.quests.items():
         if state["status"] != "active":
             continue
@@ -865,8 +869,10 @@ def quest_skill(char, skill_name, target_key):
                 continue
             if obj["current"] < obj["qty"] and _can_tick(char, state, obj):
                 obj["current"] += 1
+                ticked = True
                 _announce_progress(char, key, obj)
                 _check_completion(char, key)
+    return ticked
 
 
 def quest_talk(char, npc_key, message=""):
