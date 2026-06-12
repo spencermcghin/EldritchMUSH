@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
-from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd, duel as duel_cmd, heal as heal_cmd, learn, reputation, seal_altar
+from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd, duel as duel_cmd, heal as heal_cmd, learn, reputation, seal_altar, confession
 from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
 
 
@@ -157,6 +157,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdGive())
         self.add(command.CmdGet())
         self.add(command.CmdTend())
+        self.add(confession.CmdConfess())
+        self.add(confession.CmdPry())
         self.add(command.CmdOpen())
         self.add(command.CmdSmile())
         self.add(command.SetGender())

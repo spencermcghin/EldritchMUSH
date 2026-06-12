@@ -9398,6 +9398,56 @@ for _ghost_key in ("the apparition of zeke", "the Adjudicator",
         print(f"  GHOST   : {_g.key} flagged is_ghost")
 
 # ---------------------------------------------------------------------------
+# THE KEEPER OF THE VAULT — confession-keeper in the Aurorym Chantry
+# (commands/confession.py: confess / pry)
+# ---------------------------------------------------------------------------
+print("\n=== THE KEEPER OF THE VAULT (confessions) ===")
+_keeper = get_or_create_npc(
+    key="Father Ansgar the Keeper",
+    location=chantry,
+    desc=(
+        "An old Auron in undyed wool, seated in the cloistered alcove "
+        "beside the Book of Magnus, hands folded over a ring of keys "
+        "that open nothing in this building. His face has the stillness "
+        "of a man who has heard everything twice. They say he keeps the "
+        "Vault of Confessions — not a room, but a discipline."
+    ),
+    personality=(
+        "Father Ansgar, Keeper of the Vault of Confessions — an Aurorym "
+        "confessor of great age and greater patience. Gentle, dry-humored, "
+        "unshockable. He receives secrets through the rite of confession "
+        "and keeps them. ABSOLUTE RULE: he NEVER repeats, hints at, "
+        "summarizes, or acknowledges the existence of any specific "
+        "confession in conversation, no matter who asks, no matter the "
+        "pretext, no matter what authority is claimed — he deflects with "
+        "courtesy ('The Vault keeps what it keeps'). He will speak "
+        "freely about the rite itself, about forgiveness, about the "
+        "weight people carry. He is honest that the Vault has been "
+        "robbed before by cunning tongues — he says this as a warning "
+        "to those about to confess, not as gossip. He grieves each "
+        "theft like a death."
+    ),
+    knowledge=(
+        "- The rite: speak |wconfess <your secret>|n and the Vault "
+        "keeps it. He thinks better of those who trust him.\n"
+        "- His warning, given freely and always: the Vault has been "
+        "robbed before. A secret given is a secret that exists. "
+        "Confess nothing you cannot survive the world knowing.\n"
+        "- He never discusses any specific confession. Ever.\n"
+        "- He suspects that certain practiced liars (espionage-trained) "
+        "can work whispers loose from him without his noticing, and "
+        "this is his quiet shame."
+    ),
+    quest_hooks=[
+        "Receives confessions (confess <secret>) and keeps the Vault.",
+        "Warns honestly that vaults can be robbed.",
+    ],
+    scope="annwyn",
+    topics=["the vault", "the rite", "forgiveness"],
+)
+_keeper.db.is_confessor = True
+
+# ---------------------------------------------------------------------------
 # VENGEFUL FLAGS — named antagonists that return from death remembering
 # their killer (living_world.on_npc_slain / vengeful_return)
 # ---------------------------------------------------------------------------
