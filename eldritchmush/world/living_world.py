@@ -1033,6 +1033,117 @@ def maw_tick():
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# Feature 6 — MOONSTORMS (weather with teeth)
+#
+# Roughly once a night a moonstorm breaks over the Vale for ~30
+# minutes. While it lasts, every armed aggressive NPC fights harder
+# (+1 master_of_arms, tagged for clean revert). WeatherRooms announce
+# the storm; the sky is now a gameplay variable. Stale buffs are
+# reverted at boot in case a storm spanned a crash.
+# ─────────────────────────────────────────────────────────────────────────
+
+MOONSTORM_CHANCE = 0.15  # per 30-min tick → ~1 storm per 3-4 hours
+
+MOONSTORM_START = (
+    "|mThe cloud ceiling tears open and the moon comes through wrong "
+    "— too large, too close, the light of it silvering every edge. "
+    "Out in the dark, things that were merely hungry become eager. "
+    "A moonstorm is on the Vale.|n"
+)
+MOONSTORM_END = (
+    "|025The clouds knit closed over the moon, and the silver drains "
+    "out of the world. Whatever the storm lent the dark, it takes "
+    "back — for now.|n"
+)
+
+
+def _weather_rooms():
+    from evennia.objects.models import ObjectDB
+    return list(ObjectDB.objects.filter(
+        db_typeclass_path="typeclasses.rooms.WeatherRoom"))
+
+
+def _buffable_npcs():
+    """Armed aggressive NPCs (combat-teeth or fighting subclasses)."""
+    from evennia.objects.models import ObjectDB
+    out = []
+    for npc in ObjectDB.objects.filter(
+            db_typeclass_path__startswith="typeclasses.npc."):
+        try:
+            if npc.db.is_aggressive and (
+                    npc.db.weapon_proto or npc.db.right_slot):
+                out.append(npc)
+        except Exception:
+            continue
+    return out
+
+
+def _start_moonstorm():
+    script = _ledger_script()
+    script.db.moonstorm_active = True
+    buffed = 0
+    for npc in _buffable_npcs():
+        try:
+            if npc.db.moonstorm_buffed:
+                continue
+            npc.db.master_of_arms = (npc.db.master_of_arms or 0) + 1
+            npc.db.moonstorm_buffed = True
+            buffed += 1
+        except Exception:
+            continue
+    for room in _weather_rooms():
+        try:
+            room.msg_contents(MOONSTORM_START)
+        except Exception:
+            pass
+    ledger_add("moonstorm", char="the Vale")
+    try:
+        from world import telemetry
+        telemetry.incr("living_world.moonstorms")
+    except Exception:
+        pass
+    print(f"[living_world.moonstorm] STARTED — {buffed} NPC(s) "
+          f"empowered", flush=True)
+
+
+def end_moonstorm(announce=True):
+    """Revert all storm buffs. Safe to call any time (boot cleanup)."""
+    script = _ledger_script()
+    script.db.moonstorm_active = False
+    reverted = 0
+    from evennia.objects.models import ObjectDB
+    for npc in ObjectDB.objects.filter(
+            db_typeclass_path__startswith="typeclasses.npc."):
+        try:
+            if npc.db.moonstorm_buffed:
+                npc.db.master_of_arms = max(
+                    0, (npc.db.master_of_arms or 1) - 1)
+                npc.db.moonstorm_buffed = False
+                reverted += 1
+        except Exception:
+            continue
+    if announce and reverted:
+        for room in _weather_rooms():
+            try:
+                room.msg_contents(MOONSTORM_END)
+            except Exception:
+                pass
+    if reverted:
+        print(f"[living_world.moonstorm] ended — {reverted} NPC(s) "
+              f"reverted", flush=True)
+    return reverted
+
+
+def moonstorm_tick():
+    """Every 30 min: end an active storm, or maybe start one."""
+    script = _ledger_script()
+    if script.db.moonstorm_active:
+        end_moonstorm()
+    elif random.random() < MOONSTORM_CHANCE:
+        _start_moonstorm()
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 

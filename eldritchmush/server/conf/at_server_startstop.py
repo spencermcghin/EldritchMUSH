@@ -247,6 +247,24 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] maw bootstrap FAILED: {exc!r}")
 
+    # Bootstrap moonstorms + revert any storm buff stranded by a crash.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(
+                db_key="living_world_moonstorm").exists():
+            create_script(
+                "typeclasses.scripts.MoonstormScript",
+                key="living_world_moonstorm",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] MoonstormScript bootstrapped")
+        from world import living_world
+        living_world.end_moonstorm(announce=False)
+    except Exception as exc:
+        print(f"[at_server_start] moonstorm bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors

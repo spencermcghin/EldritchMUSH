@@ -355,6 +355,26 @@ class WitheringMawScript(DefaultScript):
                   flush=True)
 
 
+class MoonstormScript(DefaultScript):
+    """Every 30 min: end the active moonstorm or roll to start one
+    (living_world.moonstorm_tick)."""
+
+    def at_script_creation(self):
+        self.key = "living_world_moonstorm"
+        self.desc = "Moonstorms break over the Vale"
+        self.interval = 1800
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.moonstorm_tick()
+        except Exception as exc:
+            print(f"[living_world] moonstorm script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 
