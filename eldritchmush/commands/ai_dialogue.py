@@ -39,10 +39,17 @@ def _fire_npc_dialogue(caller, target, question, reply, channel="ask"):
                 topics_raw = [h[:40].strip() for h in hooks[:4]]
             topics = [t for t in (topics_raw or []) if t]
         import time as _time
+        # Ghost NPCs (db.is_ghost=True) trigger the web client's
+        # séance mode. Defensive lookup — never crash dialogue over it.
+        try:
+            is_ghost = bool(target.attributes.get("is_ghost", default=False))
+        except Exception:
+            is_ghost = False
         payload = {
             "type": "npc_dialogue",
             "_ts": _time.time(),
             "channel": channel,
+            "isGhost": is_ghost,
             "npc": target.key,
             "npcDbref": getattr(target, "dbref", ""),
             "npcDesc": (target.db.desc or "")[:240],

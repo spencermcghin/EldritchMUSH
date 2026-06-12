@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import GhostText from './GhostText'
 import './NpcDialoguePanel.css'
 
 /**
@@ -25,11 +26,19 @@ export default function NpcDialoguePanel({
   onAcceptOffer,
   onAcceptOfferOutcome,
   onDeclineOffer,
+  onClose,
 }) {
   const [visible, setVisible] = useState(false)
   const [current, setCurrent] = useState(null)
   const [draft, setDraft] = useState('')
   const inputRef = useRef(null)
+
+  // Single close path so App.jsx can react (e.g. end séance mode
+  // when a ghost conversation is dismissed).
+  const closePanel = () => {
+    setVisible(false)
+    if (onClose) onClose(current)
+  }
 
   // Real reply arrives → swap in the AI response.
   useEffect(() => {
@@ -57,10 +66,10 @@ export default function NpcDialoguePanel({
 
   useEffect(() => {
     if (!visible) return
-    const onKey = (e) => { if (e.key === 'Escape') setVisible(false) }
+    const onKey = (e) => { if (e.key === 'Escape') closePanel() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [visible])
+  }, [visible, current])
 
   if (!current) return null
 
@@ -85,7 +94,7 @@ export default function NpcDialoguePanel({
   return (
     <>
       {visible && (
-        <div className="npc-dialogue-backdrop" onClick={() => setVisible(false)} />
+        <div className="npc-dialogue-backdrop" onClick={closePanel} />
       )}
       <div className={`npc-dialogue-panel ${visible ? 'npc-dialogue-panel-in' : 'npc-dialogue-panel-out'}`}>
         <div className="npc-dialogue-header">
@@ -95,7 +104,7 @@ export default function NpcDialoguePanel({
           </span>
           <button
             className="npc-dialogue-close"
-            onClick={() => setVisible(false)}
+            onClick={closePanel}
             title="Close"
           >
             ✕
@@ -111,7 +120,13 @@ export default function NpcDialoguePanel({
               </span>
             </div>
           )}
-          <div className="npc-dialogue-reply">“{current.reply}”</div>
+          <div className="npc-dialogue-reply">
+            {current.isGhost && !current.pending ? (
+              <>“<GhostText text={current.reply} />”</>
+            ) : (
+              <>“{current.reply}”</>
+            )}
+          </div>
 
           {current.topics?.length > 0 && (
             <div className="npc-dialogue-topics">

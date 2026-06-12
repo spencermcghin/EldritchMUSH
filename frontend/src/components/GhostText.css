@@ -1,0 +1,66 @@
+/* GhostText — séance dialogue treatment (Mistbound Gothic).
+   Ghost speech drifts in pale verdigris; one word per line is struck
+   through and "corrected" in trembling caps. */
+
+.ghost-text {
+  color: var(--mist); /* cold verdigris — the living-things color */
+  text-shadow: 0 0 8px rgba(163, 181, 168, 0.35);
+  letter-spacing: 0.03em;
+  font-style: italic;
+}
+
+/* Staggered word arrival — each word drifts up out of the mist. */
+.ghost-word {
+  display: inline-block;
+  opacity: 0;
+  animation: ghost-word-in 0.7s ease-out forwards;
+  will-change: opacity;
+}
+
+/* Tail beyond the stagger cap fades in as one block. */
+.ghost-block {
+  opacity: 0;
+  animation: ghost-block-in 1.2s ease-out forwards;
+}
+
+@keyframes ghost-word-in {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(0.18em);
+  }
+  to {
+    opacity: 0.95;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes ghost-block-in {
+  from { opacity: 0; }
+  to { opacity: 0.95; }
+}
+
+/* The self-correction: a word the ghost un-says, then re-says. */
+.ghost-strike {
+  text-decoration: line-through;
+  text-decoration-color: rgba(163, 181, 168, 0.7);
+  text-decoration-thickness: 1px;
+  opacity: 0.55;
+}
+
+.ghost-correction {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--bone);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 10px rgba(163, 181, 168, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-word,
+  .ghost-block {
+    animation: none;
+    opacity: 0.95;
+  }
+}

@@ -93,6 +93,29 @@ function App() {
   // can drive playback without prop-drilling through the whole tree.
   const audioRef = useRef(null)
 
+  // ── Séance mode ──
+  // When a ghost NPC (backend flags isGhost on the npc_dialogue
+  // event) speaks, the whole UI shifts into a supernatural state
+  // (`seance-active` on the app root). Each ghost line resets a 20s
+  // timer; it also ends when the dialogue panel for the ghost closes.
+  const [seanceActive, setSeanceActive] = useState(false)
+  const seanceTimerRef = useRef(null)
+  const endSeance = useCallback(() => {
+    if (seanceTimerRef.current) clearTimeout(seanceTimerRef.current)
+    seanceTimerRef.current = null
+    setSeanceActive(false)
+  }, [])
+  useEffect(() => {
+    const d = oobState.npcDialogue
+    if (!d || !d.ts || !d.isGhost) return
+    setSeanceActive(true)
+    if (seanceTimerRef.current) clearTimeout(seanceTimerRef.current)
+    seanceTimerRef.current = setTimeout(() => setSeanceActive(false), 20000)
+  }, [oobState.npcDialogue?.ts])
+  useEffect(() => () => {
+    if (seanceTimerRef.current) clearTimeout(seanceTimerRef.current)
+  }, [])
+
 
   // Auto-connect after OAuth redirect: when the page loads, ask the
   // backend whether we already have a Django session. If so, skip the
@@ -462,7 +485,11 @@ function App() {
     !oobState.characterName
 
   return (
-    <div className="app-container">
+    <div className={`app-container${seanceActive ? ' seance-active' : ''}`}>
+
+      {/* Séance vignette — mist closing in from the edges while a
+          ghost speaks. Always mounted so opacity can transition. */}
+      <div className="seance-vignette" aria-hidden="true" />
 
       {/* Background music — single global <audio>, controlled by the
           header toggle via audioRef. Mounted at the app level so a
@@ -832,6 +859,10 @@ function App() {
           dismissOnAccept(offer)
         }}
         onDeclineOffer={(offer) => dismissQuestOffer(offer.key)}
+        onClose={() => {
+          // Closing a ghost's dialogue panel ends the séance early.
+          if (oobState.npcDialogue?.isGhost) endSeance()
+        }}
       />
 
 

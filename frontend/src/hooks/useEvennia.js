@@ -388,6 +388,7 @@ export function useEvennia() {
             question: kwargs.question || '',
             reply: kwargs.reply || '',
             topics: Array.isArray(kwargs.topics) ? kwargs.topics : [],
+            isGhost: !!(kwargs.isGhost || kwargs.is_ghost),
             ts: Date.now(),
           }
           break

@@ -9388,6 +9388,16 @@ _ensure_walkin_item(
 )
 
 # ---------------------------------------------------------------------------
+# GHOST FLAGS — NPCs whose dialogue triggers séance mode in the web client
+# (frontend reads isGhost on the npc_dialogue OOB event)
+# ---------------------------------------------------------------------------
+for _ghost_key in ("the apparition of zeke", "the Adjudicator",
+                   "The Banshee of the Thornwood"):
+    for _g in ObjectDB.objects.filter(db_key=_ghost_key):
+        _g.db.is_ghost = True
+        print(f"  GHOST   : {_g.key} flagged is_ghost")
+
+# ---------------------------------------------------------------------------
 # ARTESSA'S CABINET — true-fortune machine, beside Eldreth in the market
 # ---------------------------------------------------------------------------
 print("\n=== ARTESSA'S CABINET (true fortunes) ===")

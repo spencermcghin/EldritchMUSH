@@ -339,3 +339,64 @@ body::before {
   min-height: 0;
   border-top: 1px solid var(--border);
 }
+
+/* ═══════════ Séance mode ═══════════
+   Active while a ghost NPC (db.is_ghost) is speaking. The whole UI
+   cools and desaturates toward the mist verdigris, and a slow
+   vignette breathes at the edges. Enter/exit transition ~1.5s. */
+
+.app-container {
+  transition: filter 1.5s ease;
+}
+
+.app-container.seance-active {
+  /* Cool + desaturate the whole interface — gold dims, mist rises. */
+  filter: saturate(0.6) hue-rotate(-14deg) brightness(0.95);
+}
+
+/* Mist vignette — always mounted; opacity transitions it in/out.
+   Note: .app-container's filter makes it a containing block, so
+   position:fixed here resolves against the (full-viewport) container,
+   which is what we want. */
+.seance-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9500;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  background:
+    radial-gradient(ellipse at center,
+      transparent 52%,
+      rgba(60, 86, 76, 0.22) 80%,
+      rgba(24, 42, 36, 0.5) 100%);
+}
+
+.seance-active .seance-vignette {
+  opacity: 1;
+  animation: seance-breathe 8s ease-in-out infinite;
+}
+
+/* Slow mist pulse — opacity only, cheap to composite. */
+@keyframes seance-breathe {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+
+/* Room/chat prose goes slightly paler while the dead are speaking. */
+.seance-active .app-log-area {
+  opacity: 0.82;
+  transition: opacity 1.5s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-container,
+  .seance-vignette,
+  .seance-active .app-log-area {
+    transition: none;
+  }
+  .seance-active .seance-vignette {
+    animation: none;
+    opacity: 0.8;
+  }
+}
