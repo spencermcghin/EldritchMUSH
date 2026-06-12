@@ -217,6 +217,30 @@ class TelemetryHeartbeatScript(DefaultScript):
             print(f"[telemetry] heartbeat script error: {exc!r}", flush=True)
 
 
+class GossipScript(DefaultScript):
+    """Nightly-ish rumor propagation (world/living_world.py).
+
+    Every 6 hours, NPC memories about players spread to other NPCs the
+    player knows, distorted in the retelling by the LLM (template
+    fallback when the LLM is off). Bootstrapped at server start.
+    """
+
+    def at_script_creation(self):
+        self.key = "living_world_gossip"
+        self.desc = "Rumors spread between NPCs"
+        self.interval = 21600  # 6 hours
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.gossip_tick()
+        except Exception as exc:
+            print(f"[living_world] gossip script error: {exc!r}",
+                  flush=True)
+
+
 class AmbientNpcScript(DefaultScript):
     """Global ambient-speech ticker for NPCs that have opted in.
 

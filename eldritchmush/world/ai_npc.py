@@ -861,6 +861,118 @@ def _call_llm(npc, character, message):
     return reply
 
 
+def _generate_anthropic(system_text, user_text, max_tokens, temperature):
+    client = _anthropic_client()
+    resp = client.messages.create(
+        model=_model(),
+        max_tokens=max_tokens,
+        temperature=temperature,
+        system=[{"type": "text", "text": system_text,
+                 "cache_control": {"type": "ephemeral"}}],
+        messages=[{"role": "user", "content": user_text}],
+    )
+    text = "".join(
+        block.text for block in resp.content if block.type == "text"
+    ).strip()
+    try:
+        u = resp.usage
+        cache_w = getattr(u, "cache_creation_input_tokens", 0) or 0
+        cache_r = getattr(u, "cache_read_input_tokens", 0) or 0
+        usd = (
+            u.input_tokens * _PRICE_IN
+            + u.output_tokens * _PRICE_OUT
+            + cache_w * _PRICE_CACHE_WRITE
+            + cache_r * _PRICE_CACHE_READ
+        ) / 1_000_000
+        _record_spend(usd)
+        from world import telemetry
+        telemetry.incr("llm.calls")
+        telemetry.incr("llm.generate_calls")
+        telemetry.incr("llm.input_tokens", u.input_tokens)
+        telemetry.incr("llm.output_tokens", u.output_tokens)
+    except Exception:
+        pass
+    return text
+
+
+def _generate_openai(system_text, user_text, max_tokens, temperature):
+    base_url = _env("NPC_LLM_BASE_URL", DEFAULT_BASE_URL).rstrip("/")
+    url = f"{base_url}/chat/completions"
+    payload = {
+        "model": _model(),
+        "messages": [
+            {"role": "system", "content": system_text},
+            {"role": "user", "content": user_text},
+        ],
+        "max_tokens": max_tokens,
+        "temperature": temperature,
+    }
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {_env('NPC_LLM_API_KEY')}",
+            "User-Agent": "EldritchMUSH/1.0",
+        },
+    )
+    timeout = int(_env("NPC_LLM_TIMEOUT", DEFAULT_TIMEOUT))
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    text = data["choices"][0]["message"]["content"].strip()
+    try:
+        usage = data.get("usage") or {}
+        total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
+        _record_spend(total * _OPENAI_FLAT_PRICE / 1_000_000)
+        from world import telemetry
+        telemetry.incr("llm.calls")
+        telemetry.incr("llm.generate_calls")
+    except Exception:
+        pass
+    return text
+
+
+def generate_sync(system_text, user_text, max_tokens=400, temperature=0.9):
+    """Generic spend-capped completion for world systems (gossip
+    distortion, fae letters, fortunes, dreams, the chronicle).
+
+    Shares the provider switch, daily spend kill-switch, and telemetry
+    with NPC chat. Returns the generated text, or None when the LLM is
+    disabled, over budget, or errors — callers MUST handle None with a
+    non-LLM fallback. Synchronous: never call from the reactor thread;
+    use generate() for that.
+    """
+    if not _enabled() or not _spend_ok():
+        return None
+    try:
+        if _provider() == "anthropic":
+            return _generate_anthropic(
+                system_text, user_text, max_tokens, temperature)
+        return _generate_openai(
+            system_text, user_text, max_tokens, temperature)
+    except Exception as exc:
+        try:
+            from world import telemetry
+            telemetry.incr("llm.errors")
+        except Exception:
+            pass
+        print(f"[ai_npc.generate] err: {type(exc).__name__}: {exc}",
+              flush=True)
+        return None
+
+
+def generate(system_text, user_text, on_reply, max_tokens=400,
+             temperature=0.9):
+    """Non-blocking wrapper around generate_sync. on_reply(text_or_None)
+    runs on the reactor thread, so Evennia state access is safe inside it."""
+    def _run():
+        result = generate_sync(
+            system_text, user_text,
+            max_tokens=max_tokens, temperature=temperature)
+        _dispatch(on_reply, result)
+    _EXECUTOR.submit(_run)
+
+
 def chat(npc, character, message, on_reply):
     """Kick off a non-blocking LLM request.
 

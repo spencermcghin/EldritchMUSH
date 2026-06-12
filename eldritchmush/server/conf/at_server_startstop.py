@@ -171,6 +171,21 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] telemetry bootstrap FAILED: {exc!r}")
 
+    # Bootstrap the gossip ticker (world/living_world.py). Idempotent.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="living_world_gossip").exists():
+            create_script(
+                "typeclasses.scripts.GossipScript",
+                key="living_world_gossip",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] GossipScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] gossip bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors
