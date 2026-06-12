@@ -45,21 +45,25 @@ from world.quests import (
     event1_walkins,
     event1_saturday,
     event2_wrath,
+    event2_gambling,
     event5_trial,
     event5_resources,
     event5_scriptorium,
+    event5_shiptour,
     event4_sacrifice,
+    event4_necropolis,
     event3_awakening,
     event3_mine,
     event3_doll,
+    event3_shrooms,
     event6_frenzy,
 )
 
 _MODULES = (
-    event1_walkins, event1_saturday, event2_wrath,
-    event5_trial, event5_resources, event5_scriptorium,
-    event4_sacrifice,
-    event3_awakening, event3_mine, event3_doll,
+    event1_walkins, event1_saturday, event2_wrath, event2_gambling,
+    event5_trial, event5_resources, event5_scriptorium, event5_shiptour,
+    event4_sacrifice, event4_necropolis,
+    event3_awakening, event3_mine, event3_doll, event3_shrooms,
     event6_frenzy,
 )
 

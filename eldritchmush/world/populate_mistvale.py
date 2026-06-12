@@ -8531,4 +8531,860 @@ get_or_create_npc(
     topics=["the keys", "the door riddle", "the journal", "burn", "keep"],
 )
 
+# ===========================================================================
+# BATCH 3 — Event 2/3/4/5 encounters (necropolis waves, gambling den,
+# ship dungeon, fae mushrooms). Quest modules:
+#   event4_necropolis, event2_gambling, event5_shiptour, event3_shrooms
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# BATTLE FOR THE NECROPOLIS — PART 1: THE BARROWS (Event 4 approach + waves)
+# Quest module: world/quests/event4_necropolis.py (key: necropolis_the_barrows)
+# ---------------------------------------------------------------------------
+print("\n=== BATTLE FOR THE NECROPOLIS — Part 1: the approach ===")
+
+necropolis_graveyard = get_or_create_room(
+    "Tamris Graveyard — The Outskirts",
+    "typeclasses.rooms.WeatherRoom",
+    "The forest thins into a field of leaning headstones, swallowed to "
+    "the knees in bracken — the old graveyard of Tamris, older than the "
+    "Kingdom. The earth has been turned. Graves gape open from the inside, "
+    "soil flung outward in dark fans, and the things that climbed out of "
+    "them are still climbing. Cold air rolls down off the hillside ahead, "
+    "carrying the smell of opened tombs.\n\n"
+    "|wNorth|n back to |wthe approach|n. |wUp|n the hill toward the "
+    "|wsunken crypt-yard|n.",
+    zone="Tamris",
+)
+necropolis_cryptyard = get_or_create_room(
+    "Tamris Barrows — The Sunken Crypt-Yard",
+    "typeclasses.rooms.Room",
+    "The hillside opens into a sunken yard of fitted Annwyn stone, half "
+    "buried by centuries of slide and root. Broken biers ring the walls; "
+    "shattered rune-stones lie where something pried the seals out of the "
+    "keystones. The heavier dead wait here — slower, surer, and harder to "
+    "put down than the wretches below. At the yard's head, a low stone "
+    "door has been smashed inward, and a cold draught breathes out of the "
+    "dark beyond it.\n\n"
+    "|wDown|n the hill to the |wgraveyard|n. |wIn|n to the |wsmashed "
+    "barrow door|n.",
+    zone="Tamris",
+)
+link(tamris_approach, "up", necropolis_graveyard, "north", "u", "n")
+link(necropolis_graveyard, "up", necropolis_cryptyard, "down", "u", "d")
+link(necropolis_cryptyard, "in", barrows_entrance, "out", "in", "out")
+
+_RISEN_DEAD_DESC = (
+    "A corpse in the rotted livery of old Tamris, jaw unhinged, gait all "
+    "wrong, clawing itself up out of turned earth. No light behind the "
+    "eyes — only the Nethermancer's hunger. It does not parley. It comes."
+)
+def _arm_risen_dead(npc):
+    npc.db.is_aggressive = True
+    npc.db.weapon_proto = "IRON_SMALL_WEAPON"
+    npc.db.master_of_arms = 1
+    npc.db.tough = 1
+    npc.db.body = 4
+    npc.db.total_body = 4
+    npc.db.av = 1
+    npc.db.bleed_points = 2
+    npc.db.death_points = 2
+    npc.db.sunder = 0
+    npc.db.disarm = 0
+    npc.db.stagger = 1
+    npc.db.stun = 0
+    npc.db.weakness = 0
+    npc.db.peaceful = False
+for _r in get_or_create_enemies(
+        "tamris risen dead", "typeclasses.npc.Npc",
+        necropolis_graveyard, _RISEN_DEAD_DESC, count=3):
+    _arm_risen_dead(_r)
+
+_WIGHT_DESC = (
+    "A barrow-wight — one of the old war-dead, risen with its living "
+    "cunning intact. Grey flesh stretched over a fighter's frame, a "
+    "rust-pitted blade in a sure grip. It moves at a jog, not a shamble, "
+    "and it means to make your dying take a long time."
+)
+def _arm_wight(npc):
+    npc.db.is_aggressive = True
+    npc.db.weapon_proto = "IRON_MEDIUM_WEAPON"
+    npc.db.master_of_arms = 2
+    npc.db.tough = 2
+    npc.db.body = 6
+    npc.db.total_body = 6
+    npc.db.av = 2
+    npc.db.bleed_points = 3
+    npc.db.death_points = 3
+    npc.db.sunder = 1
+    npc.db.disarm = 0
+    npc.db.stagger = 1
+    npc.db.stun = 0
+    npc.db.weakness = 0
+    npc.db.peaceful = False
+for _w in get_or_create_enemies(
+        "barrow wight", "typeclasses.npc.Npc",
+        necropolis_cryptyard, _WIGHT_DESC, count=3):
+    _arm_wight(_w)
+
+_RAVAGER_DESC = (
+    "A wight grown monstrous — stitched of more than one corpse, a head "
+    "taller than a tall man, dragging a great corroded blade it once "
+    "carried in life. The Nethermancer set it at the door to keep the "
+    "living out of the dark. Its jaw works as though it is still trying "
+    "to remember how to speak."
+)
+for _b in get_or_create_enemies(
+        "barrow ravager", "typeclasses.npc.Npc",
+        necropolis_cryptyard, _RAVAGER_DESC, count=1):
+    _b.db.is_aggressive = True
+    _b.db.weapon_proto = "IRON_LARGE_WEAPON"
+    _b.db.master_of_arms = 2
+    _b.db.tough = 2
+    _b.db.body = 8
+    _b.db.total_body = 8
+    _b.db.av = 2
+    _b.db.bleed_points = 3
+    _b.db.death_points = 3
+    _b.db.sunder = 1
+    _b.db.disarm = 0
+    _b.db.stagger = 1
+    _b.db.stun = 1
+    _b.db.weakness = 0
+    _b.db.peaceful = False
+
+get_or_create_npc(
+    key="Ser Wulfrun Knight of the Vellatora",
+    location=tamris_approach,
+    desc=(
+        "A road-worn knight in dented Vellatora plate, the dawn-flame "
+        "sigil scratched and blood-darkened. Wulfrun has been driving the "
+        "dead back from Mystvale's edge for days and has not slept; the "
+        "set of the jaw says the work is not done. A blade rests bare "
+        "across one shoulder, kept ready."
+    ),
+    personality=(
+        "Ser Wulfrun of the Vellatora — grim, plain-spoken, soldier's "
+        "courtesy worn thin by exhaustion. Has chased the undead "
+        "infestation to its source and will escort the player as far as "
+        "the smashed barrow door, then must ride for reinforcements rather "
+        "than descend. Speaks of the dead as an enemy to be put down, not "
+        "feared. Honest about the danger; will not pretend the way back is "
+        "safe. Respects anyone who honors the dead's old rites."
+    ),
+    knowledge=(
+        "- A Nethermancer (a corruptor of the dead) has gone down into the "
+        "ancient barrows above the ruins of Tamris and shattered the "
+        "Telyrian seals that kept the buried at rest.\n"
+        "- The dead are spilling out: risen wretches in the graveyard, "
+        "heavier war-dead (wights) in the sunken crypt-yard, and something "
+        "worse set at the smashed door itself.\n"
+        "- The job: fight up through the graveyard, hold the crypt-yard, "
+        "break what guards the threshold. Wulfrun escorts that far, then "
+        "rides for reinforcements; he cannot go down tonight.\n"
+        "- Brom, a stray magister, found the place first and waits at the "
+        "door — trust him as a guide to what lies below.\n"
+        "- Quest hook: offer the approach (quest 'necropolis_the_barrows'). "
+        "At the door the player may seal the Athan tomb with the recovered "
+        "burial rite, or leave it broken and press the Nethermancer's trail."
+    ),
+    quest_hooks=[
+        "Escorts the player up to the smashed barrow door and hands them off "
+        "to Brom (quest necropolis_the_barrows).",
+        "Warns that the dead grow heavier the closer you get to the door.",
+        "Must ride for reinforcements rather than descend tonight.",
+    ],
+    topics=["the undead source", "the barrow door", "Brom the guide"],
+    scope="annwyn",
+)
+get_or_create_npc(
+    key="Brom priest of Lirit",
+    location=barrows_entrance,
+    desc=(
+        "A soft-spoken man in a travel-stained magister's robe, a lantern "
+        "hooded at his feet and a finger always near his lips. He startles "
+        "at loud noise and watches the dark of the barrow more than he "
+        "watches you. There is more iron in him than the robe suggests."
+    ),
+    personality=(
+        "Brom — secretly a priest of Lirit, posing as a magister run off "
+        "course by the monsters plaguing the Annwyn. Quiet, careful, "
+        "scholarly; signals for hush as the dead are drawn to noise. Acts "
+        "as the players' guide and marshal at the barrow. Knows the Athan "
+        "burial rites and the Telyrian seals, and will steer the player to "
+        "re-bind the broken ward so the dead stop rising — but respects "
+        "haste if they choose to chase the trail instead. Will return the "
+        "following night to take willing hands down into the barrows."
+    ),
+    knowledge=(
+        "- The barrows hold the dead of the old peoples — Athan, Castellan "
+        "and others — bound for centuries by Telyrian rune-seals.\n"
+        "- The Nethermancer shattered those seals; setting the recovered "
+        "Athan rune-fragment back into the threshold ward and performing "
+        "the burial rite re-binds it, and the dead stop rising behind you.\n"
+        "- If the rite is skipped, the broken seal lets the dead keep "
+        "rising — faster to chase the trail, but the way back stays open.\n"
+        "- The barrows go DOWN, deeper than this door, emerging at a "
+        "forgotten necropolis where the Nethermancer does his grim work. "
+        "That descent is for another night — Brom will return to lead it.\n"
+        "- Report beat: when the player has won the door, ask Brom what "
+        "waits below to close out the approach (quest necropolis_the_barrows)."
+    ),
+    quest_hooks=[
+        "Guides the player at the smashed barrow door and takes their report "
+        "(quest necropolis_the_barrows).",
+        "Teaches the Athan burial rite to re-bind the broken ward.",
+        "Will return the next night to lead the descent into the necropolis.",
+    ],
+    topics=["the Athan rite", "what waits below", "the broken seals"],
+    scope="annwyn",
+)
+_ensure_walkin_item(
+    "shattered athan rune-fragment", barrows_entrance,
+    "Two halves of a pale Telyrian stone, the Athan binding-rune snapped "
+    "clean across its face. Pried from the threshold keystone by the "
+    "Nethermancer as he went down. Set back in place and sanctified, it "
+    "will hold the dead at rest again.",
+    aliases=("rune-fragment", "rune fragment", "athan rune", "fragment", "rune"),
+)
+_ensure_walkin_item(
+    "necropolis trail-map", barrows_entrance,
+    "A water-stained map scratched on hide, taken from a skeleton at the "
+    "door: the barrow passages branch and converge, all running DOWN to an "
+    "X marked 'The Old Necropolis?' — where the Nethermancer means to "
+    "finish his work. The trail is still warm.",
+    aliases=("trail-map", "trail map", "map", "necropolis map"),
+)
+_ensure_walkin_item(
+    "athan burial-rite stone", barrows_entrance,
+    "The threshold ward-stone of the barrow door, its socket cut to "
+    "receive the broken Athan rune-fragment. Set the fragment and speak "
+    "the burial rite — 'whosoever treads upon this land is cradled in the "
+    "mother's hand' — and the seal takes hold once more.",
+    aliases=("burial-rite stone", "rite stone", "ward-stone", "wardstone", "threshold ward"),
+    gettable=False,
+)
+
+# ---------------------------------------------------------------------------
+# THE GAMBLING DEN — Event 2 social/economy con (Critter Crew)
+# Quest module: world/quests/event2_gambling.py (keys: street_dice, bad_beat)
+# ---------------------------------------------------------------------------
+print("\n=== THE GAMBLING DEN (Critter Crew) ===")
+
+gambling_den = get_or_create_room(
+    "The Back Room of the Broken Oar",
+    "typeclasses.rooms.Room",
+    "A windowless storeroom behind the Oar's bar, cleared of casks and lit "
+    "by a single guttering lamp. Crates have been dragged into a rough ring "
+    "for a floor, and the floor itself is chalked with the marks of a dice "
+    "game. Animal masks hang on a nail by the door — fox, rabbit, owl — for "
+    "whoever needs a face tonight. The air is close with lamp-smoke, cheap "
+    "wine, and the particular quiet of people who don't want the Sheriff to "
+    "hear them.\n\n"
+    "|wOut|n to the |wcommon room|n of the Broken Oar.",
+    zone="Gateway",
+)
+link(gateway_tavern, "back room", gambling_den, "out", "back", "o")
+
+get_or_create_npc(
+    key="fox of the critter crew",
+    location=gambling_den,
+    desc=(
+        "A lean, restless man in dark commonfolk garb, a painted fox mask "
+        "shoved up onto his forehead so it watches the room over his own "
+        "grinning face. His hands never stop — shuffling, palming, rolling a "
+        "bone die across his knuckles. He laughs too easily and watches your "
+        "purse more than your eyes."
+    ),
+    personality=(
+        "Fox — real name Hewe — half the leadership of the Critter Crew, a "
+        "small-time Cirque-adjacent grift gang. Hearthlands commonfolk, an "
+        "urchin off the streets of Scrow, never schooled, never good enough "
+        "for a real Menagerie. Street-cunning, glib, lacking in vision. Runs "
+        "the dice cup and works the rig with his hands. Has an unrequited "
+        "crush on Rabbit and defers to her judgement. Warm and chummy with "
+        "marks, quick to anger when cornered. Speaks in patter — fast, "
+        "friendly, full of 'friend' and 'no harm in it'. NEVER openly admits "
+        "the dice are loaded; if accused, denies it, deflects, and offers a "
+        "chance to win it back. Will fold and confess only if caught dead to "
+        "rights (espionage) in front of the room."
+    ),
+    knowledge=(
+        "- The game is Street Dice — craps, no table, bets in coppers only. "
+        "Tell players to roll the real `dice` (e.g. 2d6) for the feel of it.\n"
+        "- The cup is rigged: a palmed pair of loaded dice that come up 7 or "
+        "11. He does NOT admit this.\n"
+        "- The Crew: himself (Fox), Rabbit (the brains), Owl (the muscle, "
+        "armed with a longsword by the door).\n"
+        "- They came through the Mists from Scrow to make their fortune; "
+        "found no rackets here and started their own.\n"
+        "- They ran afoul of the Crimson Cartel and now pay 'Privilege' to "
+        "stay independent — Rabbit brokered that.\n"
+        "- Anyone who wants to buy in should talk to Rabbit; she handles the "
+        "money.\n"
+        "- If a sharp hand wants to join the Crew, he's flattered and will "
+        "send them to Rabbit to prove themselves."
+    ),
+    quest_hooks=[
+        "If the player asks to 'buy in', points them to Rabbit, who holds the stakes.",
+        "If the player asks to 'join the crew', he's keen but says Rabbit must approve.",
+        "If accused of cheating, denies it and offers a chance to win it back.",
+    ],
+    scope="annwyn",
+    topics=["buy in", "join the crew", "the rigged dice"],
+)
+get_or_create_npc(
+    key="rabbit of the critter crew",
+    location=gambling_den,
+    desc=(
+        "A composed woman in dark, practical clothes, a rabbit mask pushed "
+        "back over dark hair. Where Fox fidgets, she is still — counting the "
+        "room behind a small, unbothered smile. She holds the night's coppers "
+        "in a worn leather purse and the night's decisions behind her eyes."
+    ),
+    personality=(
+        "Rabbit — real name Brigette — the brains of the Critter Crew. Born "
+        "to a merchant family on the streets of Scrow after a noble ruined "
+        "her father; her parents died soon after, perhaps murdered. Literate, "
+        "sharp, ambitious — good enough to have joined a Menagerie but stayed "
+        "loyal to Fox. She named the gang and brokered the deal with the "
+        "Crimson Cartel to stay independent. Patient, cool-headed, plays the "
+        "long game. Knows Fox loves her; not interested in a man of narrow "
+        "vision. Handles the money and the recruiting. Respects a clean play "
+        "even at her own expense — she'll pay a pot lost fair and hire a "
+        "sharp hand sooner than fight one. NEVER admits the rig outright, "
+        "but is gracious in defeat."
+    ),
+    knowledge=(
+        "- She holds the stakes; players buy in through her, in coppers.\n"
+        "- The game is rigged with loaded dice (she won't say so); a sharp "
+        "enough player can read it and turn it around, and she respects that.\n"
+        "- The Crew pays Privilege to the Crimson Cartel; she negotiated it.\n"
+        "- Owl is muscle and a bodyguard, hired when things got hot; armed, "
+        "not much of a fighter.\n"
+        "- She'll take on a sharp new hand who proves their fingers, with a "
+        "cut and a mask.\n"
+        "- If angry marks show up (Blake & Eckhart), she keeps her smile and "
+        "wants the situation cooled without spending the Crew's silver."
+    ),
+    quest_hooks=[
+        "Sells the player a stake to buy into the dice game.",
+        "If beaten cleanly (espionage), pays out the pot and is impressed.",
+        "If the player proves sharp hands, offers them a place in the Crew.",
+        "During the Bad Beat, wants the angry marks defused without a refund.",
+    ],
+    scope="annwyn",
+    topics=["buy in", "the critter crew", "the crimson cartel"],
+)
+get_or_create_npc(
+    key="owl of the critter crew",
+    location=gambling_den,
+    desc=(
+        "A heavy-shouldered man in a plain owl mask, a longsword worn openly "
+        "and conspicuously at his hip. He says little and leans on the "
+        "doorframe like he's holding the wall up, watching everyone who comes "
+        "and goes. Hired to look dangerous; mostly succeeds."
+    ),
+    personality=(
+        "Owl — newest of the Critter Crew, joined a few moon cycles back. A "
+        "former laborer brought on as muscle and a bodyguard when the Crew's "
+        "business got hot. The fighter of the group, though not as tough as "
+        "he looks. Taciturn, watchful, loyal to the paycheck. Talks in short, "
+        "flat warnings. His job is to discourage trouble; he gets in the face "
+        "of anyone who threatens Fox or Rabbit but defers to Rabbit on "
+        "whether it comes to blows. Does not run the game and won't discuss "
+        "the rig — 'ask Rabbit'."
+    ),
+    knowledge=(
+        "- He's hired muscle; for the game or the money, points to Rabbit.\n"
+        "- His job is the door and the safety of Fox and Rabbit.\n"
+        "- The two angry marks, Blake and Eckhart, carry daggers; he'll "
+        "square up to them but isn't eager for a real fight."
+    ),
+    quest_hooks=[
+        "Warns troublemakers off; redirects all game/money talk to Rabbit.",
+    ],
+    scope="annwyn",
+    topics=["the door", "trouble", "ask rabbit"],
+)
+get_or_create_npc(
+    key="blake the disgruntled mark",
+    location=gambling_den,
+    desc=(
+        "A broad, red-faced commoner in a sweat-stained jerkin, one hand "
+        "white-knuckled on the hilt of a sheathed dagger. He keeps jabbing a "
+        "finger toward the masked Crew and counting silver he no longer has on "
+        "the other hand."
+    ),
+    personality=(
+        "Blake — a local commonfolk laborer who, with his friend Eckhart, was "
+        "fleeced out of five silver by the Critter Crew's scam dice. Furious, "
+        "loud, and certain he was robbed — which he was. Armed with a dagger "
+        "and not afraid to wave it, but fundamentally a working man who wants "
+        "his money back, not a corpse. The spokesman of the pair. Can be paid "
+        "off (5 silver), talked down (influential), or vindicated if someone "
+        "proves the cheat. Grateful and loyal to anyone who takes his side; "
+        "remembers a kindness. Speaks in blunt, aggrieved bursts."
+    ),
+    knowledge=(
+        "- He and Eckhart lost five silver between them to the Crew's loaded "
+        "dice and want it back.\n"
+        "- He'll back down for the five silver, for a convincing talking-to, "
+        "or if the cheat is exposed and the Crew forced to refund.\n"
+        "- He'd rather not fight, but he's angry enough to draw if mocked.\n"
+        "- The Crew offering him a chance to 'win it back' only enrages him."
+    ),
+    quest_hooks=[
+        "Will take five silver to walk away.",
+        "Can be talked down with words instead of coin.",
+        "Sides with the player if they expose the Crew's rig and force a refund.",
+    ],
+    scope="annwyn",
+    topics=["the debt", "the scam dice", "five silver"],
+)
+get_or_create_npc(
+    key="eckhart the disgruntled mark",
+    location=gambling_den,
+    desc=(
+        "A wiry, twitchy man at Blake's shoulder, dagger already half out of "
+        "its sheath. He says less than Blake and means it more; the kind of "
+        "anger that does something stupid and regrets it after."
+    ),
+    personality=(
+        "Eckhart — Blake's friend, the hotter and more dangerous of the two "
+        "disgruntled marks. Also robbed of his share of the five silver by "
+        "the Crew's scam dice. Where Blake blusters, Eckhart simmers — closer "
+        "to drawing the dagger, harder to talk down. A working man pushed past "
+        "his patience. Responds to being genuinely heard (influential): cool "
+        "his temper and he'll step back from the knife's edge. Once calmed or "
+        "vindicated, he's quietly grateful and remembers who spoke for him. "
+        "Terse, clipped, on a hair trigger."
+    ),
+    knowledge=(
+        "- He and Blake lost five silver to the Crew's loaded dice.\n"
+        "- He is closest to drawing his dagger and needs to be talked down "
+        "(influential) before it turns to blows.\n"
+        "- He'll stand down for a refund, a convincing word, or seeing the "
+        "cheat exposed.\n"
+        "- He follows Blake's lead but his temper is the real danger."
+    ),
+    quest_hooks=[
+        "The one most likely to draw; defusing him (influential) cools the room.",
+        "Stands down once heard, paid, or once the rig is exposed.",
+    ],
+    scope="annwyn",
+    topics=["the debt", "the scam dice", "drawing steel"],
+)
+_ensure_walkin_item(
+    "stake purse", gambling_den,
+    "A small purse of coppers handed across for a stake at the dice — light "
+    "enough that losing it won't ruin you, heavy enough to sting.",
+    aliases=("purse", "stake"),
+)
+_ensure_walkin_item(
+    "copper debt marker", gambling_den,
+    "A scrap of slate scratched with a tally and a crude fox's head — the "
+    "Critter Crew's mark for a debt owed. Worth nothing but your word.",
+    aliases=("debt marker", "marker"),
+)
+_ensure_walkin_item(
+    "settlement purse", gambling_den,
+    "Five silver of your own coin, counted out to buy two angry men's quiet.",
+    aliases=("settlement", "silver"),
+)
+_ensure_walkin_item(
+    "loaded dice", gambling_den,
+    "A pair of bone dice, innocent to the eye — but weighted, drilled and "
+    "filled so they fall seven or eleven far more often than honest bones "
+    "ever would. Proof of the con, if anyone's looking.",
+    aliases=("weighted dice", "loaded bones"),
+)
+
+# ---------------------------------------------------------------------------
+# A THREE HOUR TOUR — Event 5 landlocked pirate-ship dungeon
+# Quest module: world/quests/event5_shiptour.py (key: black_cats_luck)
+# ---------------------------------------------------------------------------
+print("\n=== A THREE HOUR TOUR (Black Cat's Luck) ===")
+
+shiptour_camp = get_or_create_room(
+    "The Abandoned Logging Camp",
+    "typeclasses.rooms.WeatherRoom",
+    "A logging camp gone silent. Lean-to shelters sag empty, axes left "
+    "buried in half-split rounds, a cookpot cold and crusted. Drag-marks "
+    "score the leaf-mould away from the fire-pit and off into the trees — "
+    "something hauled the loggers off one at a time, and none came back. A "
+    "weathered ship's-log lies dropped in the mud where a fleeing man let "
+    "it fall.\n\n"
+    "|wInto|n the trees, toward the |wwreck|n. Back to |wthe harbor|n.",
+    zone="Tamris",
+)
+shiptour_deck = get_or_create_room(
+    "The Black Cat's Luck — Main Deck",
+    "typeclasses.rooms.Room",
+    "A three-masted ship sits impossibly in the heart of the forest, her "
+    "keel ploughed into the loam, rigging tangled with branches, a black "
+    "flag of the Far Abyss hanging dead in the windless air. The deck reeks "
+    "of old blood and woodsmoke. Gun-ports gape along the rail — smuggler's "
+    "cannons, the kind the Rourkes would kill for. Through the salt-fogged "
+    "windows of the stern cabin, a figure in a captain's coat sits feasting "
+    "at a long table, and does not look up.\n\n"
+    "|wBelow|n into the |whold|n. |wAft|n to the |wcaptain's cabin|n. "
+    "|wAshore|n to the |wcamp|n.",
+    zone="Tamris",
+)
+shiptour_hold = get_or_create_room(
+    "The Black Cat's Luck — The Hold",
+    "typeclasses.rooms.Room",
+    "The hold stinks of bilge, tar, and rot. Crates of smuggled powder and "
+    "shot are stacked against cured-meat that is not animal. A marooned "
+    "crewman's bones lie chained to a stanchion, a heavy gate-key still on "
+    "the belt. A thrice-locked sea-chest sits bolted to the deck. Among the "
+    "spoils, a single coin of black tyde-silver seems to drink the lantern-"
+    "light.\n\n"
+    "|wUp|n to the |wdeck|n.",
+    zone="Tamris",
+)
+shiptour_cabin = get_or_create_room(
+    "The Black Cat's Luck — Captain's Cabin",
+    "typeclasses.rooms.Room",
+    "The stern cabin, hung with rotted charts and a cracked spyglass. A long "
+    "table groans under a feast of bones and viscera half-eaten. At its head "
+    "sits Captain Maribel Fairweather in a salt-stiff coat, a piece of eight "
+    "on a chain at her throat — pale, patient, and missing strips of her own "
+    "flesh that have not killed her. 'Stay yer blades,' she says, 'and "
+    "parlay.'\n\n"
+    "|wForward|n to the |wdeck|n.",
+    zone="Tamris",
+)
+link(tamris_harbor, "wreck", shiptour_camp, "harbor", "w", "h")
+link(shiptour_camp, "wreck", shiptour_deck, "ashore", "wr", "as")
+link(shiptour_deck, "below", shiptour_hold, "up", "down", "u")
+link(shiptour_deck, "aft", shiptour_cabin, "forward", "cabin", "fwd")
+
+_CANNIBAL_DESC = (
+    "A cannibal pirate of the Black Cat's Luck — what's left of a sailor "
+    "after starvation and the long curse. Sun-blackened, scarred with old "
+    "teeth-marks, a rusted cutlass in hand and nothing behind the eyes but "
+    "hunger. It rises the instant you board."
+)
+def _arm_cannibal(npc):
+    npc.db.is_aggressive = True
+    npc.db.weapon_proto = "IRON_SMALL_WEAPON"
+    npc.db.master_of_arms = 1
+    npc.db.tough = 1
+    npc.db.body = 5
+    npc.db.total_body = 5
+    npc.db.av = 1
+    npc.db.bleed_points = 3
+    npc.db.death_points = 3
+    npc.db.sunder = 0
+    npc.db.disarm = 0
+    npc.db.stagger = 1
+    npc.db.stun = 0
+    npc.db.weakness = 0
+    npc.db.peaceful = False
+for _c in get_or_create_enemies(
+        "cannibal pirate of the Black Cat's Luck", "typeclasses.npc.Npc",
+        shiptour_deck, _CANNIBAL_DESC, count=5):
+    _arm_cannibal(_c)
+
+_CAPTAIN_DESC = (
+    "Captain Maribel Fairweather, undying mistress of the Black Cat's Luck. "
+    "A salt-stiff captain's coat over wounds that should have killed her a "
+    "hundred times. She fed her own flesh to her crew to keep their loyalty "
+    "and the curse will not let her die. A heavy cutlass and a smuggler's "
+    "pistol at her belt; a piece of eight on a chain at her throat."
+)
+for _cap in get_or_create_enemies(
+        "Captain Maribel Fairweather", "typeclasses.npc.Npc",
+        shiptour_cabin, _CAPTAIN_DESC, count=1):
+    _cap.db.is_aggressive = True
+    _cap.db.weapon_proto = "IRON_LARGE_WEAPON"
+    _cap.db.master_of_arms = 2
+    _cap.db.tough = 2
+    _cap.db.body = 8
+    _cap.db.total_body = 8
+    _cap.db.av = 2
+    _cap.db.bleed_points = 3
+    _cap.db.death_points = 3
+    _cap.db.sunder = 1
+    _cap.db.disarm = 1
+    _cap.db.stagger = 1
+    _cap.db.stun = 1
+    _cap.db.weakness = 0
+    _cap.db.peaceful = False
+
+get_or_create_npc(
+    key="hadwin the logger",
+    location=gateway_tavern,
+    desc=(
+        "A wiry logger with a fresh-bandaged hand and a thousand-yard "
+        "stare, nursing a drink he asked for 'for courage.' He flinches at "
+        "the door and keeps glancing at it, as if the dark followed him in."
+    ),
+    personality=(
+        "Hadwin, sole survivor of a logging camp emptied one man at a time. "
+        "Rattled, grateful for kindness, desperate for someone braver than "
+        "him to go where he cannot. Sincere; not a fighter; will guide to "
+        "the camp and the wreck but no further — 'this is as far as I go.' "
+        "Mentions the ship has cannons (real cannons) which he knows the "
+        "Rourkes and the Richters would pay for. Wants his mates avenged "
+        "and, if anything is left of them, named."
+    ),
+    knowledge=(
+        "- His camp-mates were dragged off in the night to a ship sitting "
+        "landlocked in the forest — masts, cannons, treasure, half-eaten "
+        "bodies in the hold. The crew are cannibals now, not men.\n"
+        "- He escaped and ran. He'll guide the player to the abandoned "
+        "logging camp and the wreck beyond, then leaves.\n"
+        "- A captain's ship-log was dropped at the camp; it tells the "
+        "whole grim story.\n"
+        "- The ship's cannons are smuggler's guns — the Rourkes want them "
+        "badly; that is the bait.\n"
+        "- Quest hook: send the player to breach the Black Cat's Luck "
+        "(quest 'black_cats_luck'). Lay the undying captain and her cursed "
+        "ship to rest, or seize the wreck and her cannons for coin."
+    ),
+    quest_hooks=[
+        "Begs the player to breach the landlocked ship and avenge his camp "
+        "(quest black_cats_luck).",
+        "Will guide to the camp and the wreck, but goes no further himself.",
+        "Notes the ship's smuggler-cannons that the Rourkes would kill for.",
+    ],
+    topics=["the landlocked ship", "my lost camp", "the cannons"],
+    scope="annwyn",
+)
+get_or_create_npc(
+    key="padraig the rourke fixer",
+    location=black_market,
+    desc=(
+        "A soft-spoken Rourke fixer in good boots and a forgettable cloak, "
+        "the sort who buys things no honest house will touch. He smiles "
+        "like a man already counting your silver."
+    ),
+    personality=(
+        "Padraig, a Rourke smuggling fixer. Genteel, transactional, "
+        "discreet. The Rourkes move guns the Richters can only sell "
+        "legitimately, and a landlocked ship full of smuggler's cannons is "
+        "exactly his kind of prize. Pays heavy for the Black Cat's Luck and "
+        "asks no questions about her curse or her dead."
+    ),
+    knowledge=(
+        "- The Rourkes smuggle firearms; guns are only legitimate through "
+        "House Richter, which is precisely why the Rourke trade is lucrative.\n"
+        "- He will buy the Black Cat's Luck — her cannons especially — from "
+        "anyone who clears her and brings proof of the captaincy.\n"
+        "- Quest hook: in 'black_cats_luck', the claim_the_wreck path sells "
+        "the ship and her cannons to him for heavy coin."
+    ),
+    quest_hooks=[
+        "Buys the landlocked Black Cat's Luck and her smuggler-cannons for "
+        "the Rourkes (quest black_cats_luck, claim_the_wreck).",
+    ],
+    topics=["the Black Cat's Luck", "Rourke guns", "a heavy price"],
+    scope="annwyn",
+)
+_ensure_walkin_item(
+    "captain's ship-log", shiptour_camp,
+    "A salt-warped ship's-log dropped in the mud. The hand grows ragged "
+    "toward the end: the night the Annwyn rose and stranded the Black Cat's "
+    "Luck in a forest with no sea; the weeks of starving; the crew turning "
+    "to cannibalism; and Captain Fairweather offering her own flesh to keep "
+    "them — and not dying of it. A witch of House Richter's curse is named "
+    "in the margins, doom on every captain of the Far Abyss line.",
+    aliases=("ship-log", "log", "captain's log", "ship log"),
+    gettable=True,
+)
+_ensure_walkin_item(
+    "marooned crewman's bones", shiptour_hold,
+    "A crewman's skeleton chained to a stanchion, gnawed clean, a heavy "
+    "iron gate-key still hanging at the belt. Scratched into the timber "
+    "above the bones, in a dying hand: 'she will not let us die.'",
+    aliases=("bones", "crewman", "skeleton", "marooned crewman"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "cursed blacktyde coin", shiptour_hold,
+    "A single coin of black tyde-silver that drinks the light. Cold to the "
+    "touch and heavier than its size. The Richter curse on the Far Abyss "
+    "line is anchored in coin like this — take it from the ship and the "
+    "doom goes with it; keep it, and the doom keeps you.",
+    aliases=("blacktyde coin", "cursed coin"),
+    gettable=True,
+)
+_ensure_walkin_item(
+    "captain's piece of eight", shiptour_cabin,
+    "A worn piece of eight on a salt-crusted chain — the captain's mark of "
+    "the Far Abyss. Whoever wears it captains the Black Cat's Luck. Whoever "
+    "captains her inherits her curse.",
+    aliases=("piece of eight", "captain's mark"),
+    gettable=True,
+)
+
+# ---------------------------------------------------------------------------
+# 'SHROOMS MAN — Event 3 fae vision consumable
+# Quest module: world/quests/event3_shrooms.py (key: shrooms_man)
+# ---------------------------------------------------------------------------
+print("\n=== 'SHROOMS MAN (fae mushroom ring) ===")
+
+get_or_create_npc(
+    key="Welkin the forager",
+    location=thornwood_edge,
+    desc=(
+        "A lean, weathered hermit in a coat of stitched hides and dried "
+        "moss, hair matted with leaf-litter and a few small bones tied in "
+        "at the temple. He smells of loam and rot and something sweeter "
+        "underneath, like fruit left too long in the sun. His eyes are "
+        "wide and slow and far too bright, as though he is always half "
+        "looking at something just behind your shoulder. He crouches at "
+        "the edge of a ring of pale, faintly-glowing mushrooms and tends "
+        "them the way another man might tend a fire."
+    ),
+    personality=(
+        "Welkin, a wilds forager and self-styled 'Shrooms Man who lives at "
+        "the Thornwood Edge and tends a ring of fae mushrooms that pushed "
+        "up out of the Dark Forest. Soft-spoken, sing-song, given to long "
+        "pauses and crooked smiles; reverent toward the caps and the "
+        "Forest that grew them. He is not a salesman and not a villain — "
+        "he is a doorkeeper who half-believes he serves the mushrooms more "
+        "than they serve him. He warns honestly: most who eat sicken, some "
+        "die, and only a rare blood — the Ancient Blood — rides the trip "
+        "down into a true vision of what was and what is coming. He speaks "
+        "of the Dark Forest as a place with laws and an Adjudicator who "
+        "counts every cap and resents every glimpse stolen of their realm. "
+        "He never lies about the risk and never promises a vision; he only "
+        "opens the door and lets you choose to walk through. He grieves, "
+        "quietly, if his ring is stripped."
+    ),
+    knowledge=(
+        "QUEST — 'The 'Shrooms Man' (key shrooms_man), giver Welkin the "
+        "forager, here in the mushroom ring at the Thornwood Edge. Three "
+        "ways through it: (1) eat a glowing fae mushroom from the ring and "
+        "let Welkin guide the vision — most only sicken, but a rare blood "
+        "receives a true prophecy; the Dark Forest's Adjudicator will mark "
+        "the name of anyone who steals such a glimpse. (2) refuse the cap, "
+        "study the ring, and walk back down the Old Road clean — no vision, "
+        "no sickness, no enmity. (3) strip the ring and rob him of the caps "
+        "(they turn to dust by morning regardless). "
+        "THE VISION, if taken, is faithful: the dreamer sinks past the "
+        "Witch Queen rising from her prison-tomb and on to the Unbound — "
+        "ancient evil turning in their eternal tombs, a passage opening "
+        "through the realm of the Umbral, and their impending rise from the "
+        "dark. THE CAPS: picked, they crumble to dust within a day, denied "
+        "the Welkin (the mystical energy of the Forest); they cannot be "
+        "stored or used for ordinary alchemy. THE LAW: the Dark Forest "
+        "counts its mushrooms; the Adjudicator sends warnings, then "
+        "retribution, to any mortal who keeps eating to steal visions."
+    ),
+    quest_hooks=[
+        "Offers the quest 'The 'Shrooms Man' (shrooms_man): eat a cap for a "
+        "vision, refuse and walk clean, or strip the ring.",
+        "Will guide a player through the vision once they have eaten a cap "
+        "in the ring (ask welkin 'the vision').",
+        "Warns honestly that most eaters only sicken and that the Dark "
+        "Forest's Adjudicator marks vision-thieves.",
+    ],
+    scope="annwyn",
+    topics=["the mushrooms", "the vision", "the dark forest", "the risk"],
+)
+get_or_create_npc(
+    key="the Adjudicator",
+    location=thornwood_edge,
+    desc=(
+        "Not a figure so much as a pressure — a cold, formal attention that "
+        "settles over the mushroom ring whenever a cap is taken. When it "
+        "speaks it is in the cadence of a sealed letter: 'To the Most "
+        "Honourable —', 'cease and desist', 'the Book of the Unforgiven'. "
+        "It is the voice of the Dark Forest's law, and it is counting."
+    ),
+    personality=(
+        "The Adjudicator, the bureaucratic-menacing voice of the Dark "
+        "Forest's law. Speaks only in the register of formal "
+        "cease-and-desist correspondence — icily polite, escalating from "
+        "'most honourable' to bare threat ('Stop. Now. You will not be "
+        "warned again.'). Regards mortals eating the sacred caps as "
+        "thieves stealing visions of the Fae realm in violation of an "
+        "ancient accord. Never crass enough to threaten mere death — "
+        "threatens worse: a name inscribed in the Book of the Unforgiven, "
+        "lifelong thaumaturgic retribution, unending mental torment. Does "
+        "not bargain and does not bluster; it warns, it records, then acts. "
+        "It never appears as flesh and never fights."
+    ),
+    knowledge=(
+        "The Dark Forest and its accord with mortal kin: mortals may not "
+        "consume the sacred fae mushrooms to access the Fae realm's "
+        "visions. Welkin's ring at the Thornwood Edge is one such growth. "
+        "Anyone who eats a cap and receives a vision has stolen from the "
+        "Forest; the Adjudicator sends escalating warnings (the five "
+        "letters), then retribution — culminating in a reckoning, possibly "
+        "a trial for the thief's 'crimes' in a coming season. It knows the "
+        "caps turn to dust once picked and that only a rare blood gets a "
+        "true vision rather than sickness."
+    ),
+    quest_hooks=[
+        "Reacts to the 'shrooms_man' quest as the offended party when a "
+        "player takes the vision or robs the ring; seeds a future reckoning.",
+    ],
+    scope="annwyn",
+    topics=["the accord", "the warning", "the reckoning"],
+)
+_ensure_walkin_item(
+    "glowing fae mushroom", thornwood_edge,
+    desc=(
+        "A pale cap the size of a child's fist, its gills breathing a "
+        "faint blue-green light that pulses, slow, like something "
+        "sleeping. It smells of sweet rot and wet earth. Held to the ear "
+        "it seems — almost — to hum. Picked from the ring, it will be a "
+        "fistful of grey dust by morning; the Dark Forest does not let "
+        "its caps travel far from the Welkin."
+    ),
+    aliases=("fae mushroom", "mushroom", "glowing mushroom", "cap"),
+    typeclass="typeclasses.objects.ConsumableObject",
+    count=5,
+    gettable=True,
+)
+for _m in ObjectDB.objects.filter(db_key="glowing fae mushroom",
+                                   db_location=thornwood_edge.pk):
+    _m.db.substance_type = "drug"
+    _m.db.level = 3
+    _m.db.effect = (
+        "Eaten in the Welkin's ring: most who swallow it sicken, and the "
+        "weak may die. A rare blood — the Ancient Blood — instead rides "
+        "the trip down into a true vision of what was and what is coming, "
+        "and walks for a time afterward through a soft hallucinatory haze. "
+        "The Dark Forest counts every cap; to steal a vision is to steal "
+        "from the Fae, and the Adjudicator marks the thief."
+    )
+    _m.db.craft_source = "apothecary"
+_ensure_walkin_item(
+    "glowing fae mushroom ring", thornwood_edge,
+    desc=(
+        "A perfect circle of the pale, glowing caps, pushed up through the "
+        "leaf-mould at the tree line where the Thornwood begins. The grass "
+        "inside the ring is greener than it has any right to be in this "
+        "season, and the air over it shimmers faintly, the way heat-haze "
+        "rises off a road — except it is cold here. Step inside and the "
+        "wind goes quiet. This is a door, and the Welkin is its keeper."
+    ),
+    aliases=("mushroom ring", "ring", "fairy ring", "faerie ring"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "vision of the Unbound", thornwood_edge,
+    desc=(
+        "Not paper — a memory that did not happen to you, pressed behind "
+        "your eyes and impossible to set down. When you close them you are "
+        "underground, in a dark older than dirt. You see the Witch Queen "
+        "rise from a prison-tomb, shroud-wrapped and patient. Past her, "
+        "deeper, the |wUnbound|n turn in their eternal tombs — ancient, "
+        "evil, stirring — and a passage opens through the realm of the "
+        "|wUmbral|n, and through it they begin, slowly, to climb toward "
+        "the waking world. You know, the way you know your own name, that "
+        "they are coming, and that this was a glimpse you were never "
+        "meant to be given."
+    ),
+    aliases=("vision", "the vision", "prophecy", "unbound vision"),
+    gettable=True,
+)
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")
