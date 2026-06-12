@@ -68,11 +68,11 @@ def _collect_world_names():
     per-alias) and drops is a set of item names spawned by NPC
     `npc_drops` kill-drop specs (valid gather sources that deliberately
     do not exist in the world until the NPC dies)."""
-    rooms, npcs, items, drops = {}, {}, {}, set()
+    rooms, npcs, items, drops, gettable = {}, {}, {}, set(), set()
     try:
         from evennia.objects.models import ObjectDB
     except Exception:
-        return None, None, None, None
+        return None, None, None, None, None
 
     def _add(table, obj, key):
         table[key] = key
@@ -110,9 +110,17 @@ def _collect_world_names():
                 continue  # player characters are not quest targets
             else:
                 _add(items, obj, key)
+                # Scenery (get:false()) can't satisfy gather objectives
+                # — track keys where a carriable instance exists.
+                try:
+                    lock = obj.locks.get("get") or ""
+                    if "false()" not in lock:
+                        gettable.add(key)
+                except Exception:
+                    gettable.add(key)
     except Exception:
         return None, None, None, None
-    return rooms, npcs, items, drops
+    return rooms, npcs, items, drops, gettable
 
 
 def _matches(target, names):
@@ -239,7 +247,7 @@ def validate_quests(check_world=True):
 
     # ── World checks (need DB) ───────────────────────────────────────
     if check_world:
-        rooms, npcs, items, drops = _collect_world_names()
+        rooms, npcs, items, drops, gettable = _collect_world_names()
         if rooms is None:
             warn("world checks skipped — Evennia DB not available")
             return issues
@@ -263,11 +271,20 @@ def validate_quests(check_world=True):
                         hits = _matches(tgt, rooms)
                         kind = "room"
                     elif otype == "gather":
-                        # Valid sources: items in the world, NPC kill
-                        # drops (npc_drops specs), or spawnable
+                        # Valid sources: CARRIABLE items in the world,
+                        # NPC kill drops (npc_drops specs), or spawnable
                         # prototypes (rewards, [GIVE:] gifts).
                         hits = _matches(tgt, items)
                         t = tgt.lower()
+                        if hits and not any(h in gettable for h in hits):
+                            # Scenery ticks gather on an examine (get
+                            # attempt), not a pickup — fine for "examine
+                            # the body" beats, but the player can't
+                            # carry it, so flag for an author check.
+                            warn(f"{where}: gather target {tgt!r} matches "
+                                 f"only scenery — ticks on examine, not "
+                                 f"pickup; confirm that's the intent")
+                            continue
                         if not hits and any(t in d for d in drops):
                             hits = ["<npc drop>"]
                         if not hits and tgt.upper().replace(" ", "_") in proto_keys:

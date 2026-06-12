@@ -378,6 +378,8 @@ def _available_quests(char):
     for key, qdef in QUESTS.items():
         if key in char.db.quests:
             continue  # already started or completed
+        if qdef.get("parent"):
+            continue  # subquests are auto-accepted via their parent
         if _prerequisites_met(char, qdef):
             result.append(qdef)
     return result
@@ -526,6 +528,8 @@ def _check_completion(char, key):
             char.db.faction_rep = {}
         faction_changed = []
         for faction, delta in rep_deltas.items():
+            if not delta:
+                continue  # zero-delta entries make noisy "+0" lines
             before = char.db.faction_rep.get(faction, 0)
             after = before + delta
             char.db.faction_rep[faction] = after
@@ -652,6 +656,7 @@ def quest_deliver(char, item_name, npc_key):
     """
     _ensure_quest_db(char)
     npc_key_lower = npc_key.lower()
+    ticked = False
     for key, state in char.db.quests.items():
         if state["status"] != "active":
             continue
@@ -659,8 +664,10 @@ def quest_deliver(char, item_name, npc_key):
             if obj["type"] == "deliver" and obj["target"].lower() in npc_key_lower:
                 if obj["current"] < obj["qty"]:
                     obj["current"] = obj["qty"]
+                    ticked = True
                     _announce_progress(char, key, obj)
                     _check_completion(char, key)
+    return ticked
 
 
 def quest_talk(char, npc_key, message=""):
@@ -848,7 +855,7 @@ class CmdQuest(Command):
         npc_keys = {npc.key.lower() for npc in room_npcs}
         local_available = [
             qdef for qdef in available
-            if qdef["giver"].lower() in npc_keys
+            if (qdef.get("giver") or "").lower() in npc_keys
         ]
 
         if local_available:

@@ -246,8 +246,16 @@ def _npc_block(npc):
     conversations — identity, voice, knowledge, canon, gifting rules,
     quest-giver status, and the critical output-format rules (written
     player-agnostically so the block stays byte-stable per NPC)."""
-    personality = npc.attributes.get("ai_personality", default=None) or ""
-    knowledge = npc.attributes.get("ai_knowledge", default=None) or ""
+    # Coerce defensively: a trailing comma in a populate script turns a
+    # parenthesized string into a tuple, which silently killed one
+    # NPC's entire LLM pipeline (.strip() on a tuple). Join sequences.
+    def _as_text(val):
+        if isinstance(val, (list, tuple)):
+            return "\n".join(str(v) for v in val)
+        return str(val) if val else ""
+
+    personality = _as_text(npc.attributes.get("ai_personality", default=None))
+    knowledge = _as_text(npc.attributes.get("ai_knowledge", default=None))
     quests = npc.attributes.get("ai_quest_hooks", default=None) or []
     speaker_name = npc.key or "you"
 

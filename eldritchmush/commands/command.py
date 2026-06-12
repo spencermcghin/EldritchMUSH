@@ -259,7 +259,17 @@ class CmdGet(Command):
             self.caller.msg("|430Usage: get <qty> <object> from <target> or get <object>|n\nNote - Quantity of an item is optional and only works on reosources or currency - ex: get 5 gold from chest.")
             return
 
-        target = self.caller.search(self.target, location=self.caller.location)
+        # Search quietly and take the first match: rooms routinely hold
+        # several identical quest items (cursed coins, grape bunches),
+        # and the stock multimatch prompt ("coin-1 / coin-2") is a dead
+        # end for players who just typed `get coin`.
+        target = self.caller.search(self.target, location=self.caller.location, quiet=True)
+        if isinstance(target, (list, tuple)):
+            target = target[0] if target else None
+        if not target:
+            # Mirror Evennia's default "not found" feedback.
+            self.caller.search(self.target, location=self.caller.location)
+            return
 
         if target == self.caller:
             self.caller.msg(f"You keep {self.item} to yourself.")
@@ -314,6 +324,16 @@ class CmdGet(Command):
 
             if target:
                 if not target.access(self.caller, "get"):
+                    # Scenery items (a body to examine, signal-fires,
+                    # tracks) are investigation props: you can't pocket
+                    # them, but trying to "get" one IS the act of
+                    # examining it, so tick any quest gather/investigate
+                    # objective keyed to it before showing the flavor.
+                    try:
+                        from commands.quests import quest_gather
+                        quest_gather(self.caller, target.key)
+                    except Exception:
+                        pass
                     if target.db.get_err_msg:
                         self.msg(target.db.get_err_msg)
                     else:
@@ -354,26 +374,35 @@ class CmdGive(Command):
     arg_regex = r"\s|$"
 
     def parse(self):
+        args = (self.args or "").strip()
 
-        raw = self.args
-        args = raw.strip()
+        # Split the item phrase from the target on an explicit delimiter
+        # so BOTH can be multi-word: "give cursed coin to black sam
+        # tempest" or "give 5 gold = Tom". The old first-word/last-word
+        # split mangled multi-word item and NPC names alike.
+        item_part, target_part = args, ""
+        for delim in (" to ", "=", " = "):
+            if delim in args:
+                item_part, _, target_part = args.partition(delim)
+                break
+        if not target_part:
+            # Legacy fallback: last word is the target.
+            bits = args.split(" ")
+            item_part = " ".join(bits[:-1]) if len(bits) > 1 else args
+            target_part = bits[-1] if bits else ""
 
-        # Parse arguments
-        self.args_list = args.split(" ")
+        item_part = item_part.strip()
+        target_part = target_part.strip()
 
-        # Check for qty at first element in args list
-        try:
-            isInt = int(self.args_list[0])
-        except ValueError:
-            item = self.args_list[0]
-            qty = None
-        else:
-            qty = int(self.args_list[0])
-            item = self.args_list[1]
+        # Optional leading quantity ("give 5 gold to Tom").
+        self.qty = None
+        qbits = item_part.split(" ", 1)
+        if qbits and qbits[0].isdigit():
+            self.qty = int(qbits[0])
+            item_part = qbits[1].strip() if len(qbits) > 1 else ""
 
-        self.target = self.args_list[-1]
-        self.item = item
-        self.qty = qty
+        self.item = item_part
+        self.target = target_part
 
     def func(self):
 
@@ -432,15 +461,20 @@ class CmdGive(Command):
 
         else:
 
-            # Default give code
-            to_give = self.caller.search(
-                self.item,
-                location=self.caller,
-                nofound_string=f"|430You aren't carrying a {self.item}. If you want to give resources or currency please specify a quantity before the item. Ex: give 1 gold to Tom.|n" ,
-                multimatch_string=f"|430You carry more than one {self.item}|n:" ,
-            )
-
-            if not (to_give and target):
+            # Default give code. Take the first match on a stack of
+            # identical items (five cursed coins, several grape
+            # bunches) instead of dead-ending on a multimatch prompt.
+            to_give = self.caller.search(self.item, location=self.caller, quiet=True)
+            if isinstance(to_give, (list, tuple)):
+                to_give = to_give[0] if to_give else None
+            if not to_give:
+                self.caller.msg(
+                    f"|430You aren't carrying a {self.item}. If you want to "
+                    f"give resources or currency please specify a quantity "
+                    f"before the item. Ex: give 1 gold to Tom.|n"
+                )
+                return
+            if not target:
                 return
 
             if not to_give.location == self.caller:
@@ -463,8 +497,12 @@ class CmdGive(Command):
             # players, items) are filtered by the npc_rep_on_gift hook.
             try:
                 from commands.quests import quest_deliver, npc_rep_on_gift
-                quest_deliver(self.caller, to_give.key, target.key)
-                if getattr(target.db, "is_npc", False):
+                ticked = quest_deliver(self.caller, to_give.key, target.key)
+                # Only register a generic "accepted a gift" memory when
+                # the handoff was NOT a quest delivery — quest deliveries
+                # carry their own npc_memories and shouldn't be doubled
+                # up with "accepted a gift: clear-woods report" noise.
+                if not ticked and getattr(target.db, "is_npc", False):
                     npc_rep_on_gift(self.caller, target, to_give)
             except Exception:
                 pass

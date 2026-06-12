@@ -6153,19 +6153,26 @@ for stale in ObjectDB.objects.filter(
 ):
     stale.delete()
 
-# A festival lantern item, a tip-jar prop, lantern-poles — flavour for
-# the festival of lights. Just visible props, not quest-gating.
+# Festival lanterns — these gate festival_of_lights' gather objective
+# (qty 2), so they MUST be gettable; the playtest audit found the old
+# scenery-only seeds made the quest uncompletable. Migrate existing
+# scenery copies in place, then ensure two carriable ones in the
+# courtyard to match the objective text.
 for hart_room in (hart_hall_courtyard, hart_hall_great_hall):
-    _ensure_walkin_item(
-        "paper lantern", hart_room,
-        desc=(
-            "A slender frame of bent reed wrapped in waxed paper, a "
-            "stub of candle set in its base. Light it and hang it "
-            "from the courtyard poles."
-        ),
-        aliases=("lantern",),
-        gettable=False,
-    )
+    for _lantern in ObjectDB.objects.filter(
+        db_key="paper lantern", db_location=hart_room.pk,
+    ):
+        _lantern.locks.add("get:all()")
+_ensure_walkin_item(
+    "paper lantern", hart_hall_courtyard,
+    desc=(
+        "A slender frame of bent reed wrapped in waxed paper, a "
+        "stub of candle set in its base. Light it and hang it "
+        "from the courtyard poles."
+    ),
+    aliases=("lantern",),
+    count=2,
+)
 
 
 # ===========================================================================
@@ -7675,7 +7682,7 @@ phoenix = get_or_create_npc(
         "- The ghost-ship Sea Wolf has been sighted twice this "
         "season; she collects every telling of it.\n"
         "- Wants the gunsmith William recruited for quiet work — "
-        "the fleet pays better than any forge license.",
+        "the fleet pays better than any forge license."
     ),
     quest_hooks=[
         "Trades silver for rumors and tribute — bring her something "
