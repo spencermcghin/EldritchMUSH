@@ -17,6 +17,17 @@ player did — and players can chase a rumor back to who started it.
 
 import random
 
+def _log(msg):
+    """stdout log that survives @py's FakeStd (no .flush attr)."""
+    try:
+        print(msg)
+    except Exception:
+        try:
+            print(msg)
+        except Exception:
+            pass
+
+
 # Rumor memories are prefixed so they are never re-gossiped (no
 # infinite telephone) and so the dialogue LLM knows it's secondhand.
 RUMOR_PREFIX = "heard a rumor"
@@ -103,9 +114,9 @@ def _write_rumor(char, source_key, target_key, rumor_text):
         pass
     ledger_add("rumor", char=char.key, source=source_key,
                target=target_key)
-    print(
+    _log(
         f"[living_world.gossip] {char.key}: {source_key} -> {target_key}: "
-        f"{rumor_text[:80]}", flush=True)
+        f"{rumor_text[:80]}")
 
 
 def gossip_tick(max_events=4):
@@ -125,8 +136,8 @@ def gossip_tick(max_events=4):
         try:
             options = _gossip_candidates(char)
         except Exception as exc:
-            print(f"[living_world.gossip] candidates err for "
-                  f"{getattr(char, 'key', '?')}: {exc!r}", flush=True)
+            _log(f"[living_world.gossip] candidates err for "
+                  f"{getattr(char, 'key', '?')}: {exc!r}")
             continue
         if not options:
             continue
@@ -144,8 +155,7 @@ def gossip_tick(max_events=4):
                     rumor = rumor[:300]
                 _write_rumor(char, source_key, target_key, rumor)
             except Exception as exc:
-                print(f"[living_world.gossip] write err: {exc!r}",
-                      flush=True)
+                _log(f"[living_world.gossip] write err: {exc!r}")
 
         user_text = (
             f"NPC '{source_key}' has this firsthand memory of the "
@@ -155,8 +165,7 @@ def gossip_tick(max_events=4):
         ai_npc.generate(GOSSIP_SYSTEM, user_text, _on_reply,
                         max_tokens=90, temperature=1.0)
     if events:
-        print(f"[living_world.gossip] tick spread {events} rumor(s)",
-              flush=True)
+        _log(f"[living_world.gossip] tick spread {events} rumor(s)")
     return events
 
 
@@ -241,8 +250,8 @@ def _schedule_letter(char, index):
         script.interval = LETTER_DELAYS[index]
         script.db.letter_index = index
         script.start()
-        print(f"[living_world.letters] scheduled letter {index + 1} "
-              f"for {char.key} in {LETTER_DELAYS[index]}s", flush=True)
+        _log(f"[living_world.letters] scheduled letter {index + 1} "
+              f"for {char.key} in {LETTER_DELAYS[index]}s")
 
 
 def deliver_letter(char, index):
@@ -258,8 +267,7 @@ def deliver_letter(char, index):
             _spawn_letter(char, index, body)
             _schedule_letter(char, index + 1)
         except Exception as exc:
-            print(f"[living_world.letters] deliver err: {exc!r}",
-                  flush=True)
+            _log(f"[living_world.letters] deliver err: {exc!r}")
 
     deeds = ""
     try:
@@ -311,8 +319,8 @@ def _spawn_letter(char, index, body):
     except Exception:
         pass
     ledger_add("letter", char=char.key, index=index)
-    print(f"[living_world.letters] delivered letter {index + 1} to "
-          f"{char.key}", flush=True)
+    _log(f"[living_world.letters] delivered letter {index + 1} to "
+          f"{char.key}")
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -473,7 +481,7 @@ def ledger_add(kind, **fields):
             events = events[-LEDGER_CAP:]
         script.db.events = events
     except Exception as exc:
-        print(f"[living_world.ledger] add err: {exc!r}", flush=True)
+        _log(f"[living_world.ledger] add err: {exc!r}")
 
 
 def ledger_recent(days=7, kinds=None):
@@ -552,8 +560,7 @@ def dream_tick():
     from world import ai_npc
     npc = _dream_npc()
     if not npc:
-        print("[living_world.dream] Dierdra not found; skipping",
-              flush=True)
+        _log("[living_world.dream] Dierdra not found; skipping")
         return
 
     deeds = _deed_lines()
@@ -587,10 +594,10 @@ def dream_tick():
                 telemetry.incr("living_world.dreams")
             except Exception:
                 pass
-            print(f"[living_world.dream] new dream set "
-                  f"({len(dream)} chars)", flush=True)
+            _log(f"[living_world.dream] new dream set "
+                  f"({len(dream)} chars)")
         except Exception as exc:
-            print(f"[living_world.dream] err: {exc!r}", flush=True)
+            _log(f"[living_world.dream] err: {exc!r}")
 
     if deeds:
         user_text = ("This week's true deeds:\n- "
@@ -644,13 +651,11 @@ def chronicle_tick():
     from world import ai_npc
     room = _chronicle_room()
     if not room:
-        print("[living_world.chronicle] tavern not found; skipping",
-              flush=True)
+        _log("[living_world.chronicle] tavern not found; skipping")
         return
     deeds = _deed_lines(days=7, cap=10)
     if not deeds:
-        print("[living_world.chronicle] quiet week; no page written",
-              flush=True)
+        _log("[living_world.chronicle] quiet week; no page written")
         return
 
     def _on_reply(text, room=room, deeds=deeds):
@@ -660,7 +665,7 @@ def chronicle_tick():
                 body = body[:1500]
             _place_chronicle_page(room, body)
         except Exception as exc:
-            print(f"[living_world.chronicle] err: {exc!r}", flush=True)
+            _log(f"[living_world.chronicle] err: {exc!r}")
 
     user_text = ("This week's true deeds:\n- " + "\n- ".join(deeds)
                  + "\nWrite the page.")
@@ -689,6 +694,7 @@ def _place_chronicle_page(room, body):
         "Chronicler write. The ink is always still damp.\n\n|w"
         + body + "|n")
     page.locks.add("get:false()")
+    page.db.immovable = True  # refuses `get` even from superusers
     page.db.get_err_msg = (
         "|yThe page will not leave the table. The Chronicle stays "
         "where all may read it.|n")
@@ -708,7 +714,7 @@ def _place_chronicle_page(room, body):
         telemetry.incr("living_world.chronicle_pages")
     except Exception:
         pass
-    print(f"[living_world.chronicle] page {page_no} placed", flush=True)
+    _log(f"[living_world.chronicle] page {page_no} placed")
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -756,12 +762,10 @@ def on_npc_slain(npc, killers):
             telemetry.incr("living_world.vengeful_scheduled")
         except Exception:
             pass
-        print(f"[living_world.vengeful] {npc.key} will return in "
-              f"{delay // 86400}d (slain by {npc.db.slain_by})",
-              flush=True)
+        _log(f"[living_world.vengeful] {npc.key} will return in "
+              f"{delay // 86400}d (slain by {npc.db.slain_by})")
     except Exception as exc:
-        print(f"[living_world.vengeful] schedule err: {exc!r}",
-              flush=True)
+        _log(f"[living_world.vengeful] schedule err: {exc!r}")
 
 
 def vengeful_return(npc):
@@ -822,10 +826,10 @@ def vengeful_return(npc):
             telemetry.incr("living_world.vengeful_returns")
         except Exception:
             pass
-        print(f"[living_world.vengeful] {npc.key} has returned "
-              f"(remembers {killer_names})", flush=True)
+        _log(f"[living_world.vengeful] {npc.key} has returned "
+              f"(remembers {killer_names})")
     except Exception as exc:
-        print(f"[living_world.vengeful] return err: {exc!r}", flush=True)
+        _log(f"[living_world.vengeful] return err: {exc!r}")
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -905,8 +909,7 @@ def mist_tick():
     closed = _close_mist_passage()
     rooms = _mist_rooms()
     if len(rooms) < 2:
-        print("[living_world.mists] not enough rooms; skipping",
-              flush=True)
+        _log("[living_world.mists] not enough rooms; skipping")
         return
     random.shuffle(rooms)
     room_a, room_b = None, None
@@ -926,8 +929,7 @@ def mist_tick():
         if room_a:
             break
     if not room_a:
-        print("[living_world.mists] no unconnected pair found",
-              flush=True)
+        _log("[living_world.mists] no unconnected pair found")
         return
 
     for src, dst in ((room_a, room_b), (room_b, room_a)):
@@ -951,8 +953,8 @@ def mist_tick():
         telemetry.incr("living_world.mist_passages")
     except Exception:
         pass
-    print(f"[living_world.mists] closed {closed} old; opened "
-          f"{room_a.key} <-> {room_b.key}", flush=True)
+    _log(f"[living_world.mists] closed {closed} old; opened "
+          f"{room_a.key} <-> {room_b.key}")
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -1028,8 +1030,8 @@ def maw_tick():
             telemetry.incr("living_world.maw_hunts")
         except Exception:
             pass
-    print(f"[living_world.maw] {here.key} -> {dest.key}"
-          + (" (hunting)" if hunted else ""), flush=True)
+    _log(f"[living_world.maw] {here.key} -> {dest.key}"
+          + (" (hunting)" if hunted else ""))
 
 
 # ─────────────────────────────────────────────────────────────────────────
@@ -1102,8 +1104,8 @@ def _start_moonstorm():
         telemetry.incr("living_world.moonstorms")
     except Exception:
         pass
-    print(f"[living_world.moonstorm] STARTED — {buffed} NPC(s) "
-          f"empowered", flush=True)
+    _log(f"[living_world.moonstorm] STARTED — {buffed} NPC(s) "
+          f"empowered")
 
 
 def end_moonstorm(announce=True):
@@ -1129,8 +1131,8 @@ def end_moonstorm(announce=True):
             except Exception:
                 pass
     if reverted:
-        print(f"[living_world.moonstorm] ended — {reverted} NPC(s) "
-              f"reverted", flush=True)
+        _log(f"[living_world.moonstorm] ended — {reverted} NPC(s) "
+              f"reverted")
     return reverted
 
 

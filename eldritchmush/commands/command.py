@@ -275,6 +275,14 @@ class CmdGet(Command):
             self.caller.msg(f"You keep {self.item} to yourself.")
             return
 
+        # Truly immovable fixtures (Chronicle pages, etc.): refused for
+        # EVERYONE, including superusers — `access()` below is bypassed
+        # for staff, which let admins walk off with world fixtures.
+        if target.db.immovable:
+            self.msg(target.db.get_err_msg
+                     or f"|y{target.key} cannot be carried off.|n")
+            return
+
         resource_dict = {"iron_ingots": ["iron", "ingots", "iron ingots"],
                           "refined_wood": ["refined", "wood", "refined wood"],
                           "leather": ["leather"],
