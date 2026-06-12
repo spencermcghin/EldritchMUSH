@@ -12,17 +12,33 @@ from world.quest_data import QUESTS
 
 
 def _objectives_payload(state_objectives):
-    """Convert in-progress state objectives into UI-ready dicts."""
+    """Convert in-progress state objectives into UI-ready dicts.
+
+    Ordered beats: an objective with a `requires` tag whose prerequisite
+    step isn't finished yet is marked `locked`, so the UI renders it
+    dimmed under the parent quest — a classic RPG step list. Steps come
+    back in definition order, which IS the intended play order.
+    """
+    objs = list(state_objectives or [])
+    done_tags = {
+        o.get("tag") for o in objs
+        if o.get("tag")
+        and int(o.get("current", 0) or 0) >= int(o.get("qty", 0) or 0)
+    }
     out = []
-    for obj in state_objectives or []:
+    for obj in objs:
         desc = obj.get("desc", "") or ""
         # Strip trailing parenthetical hints like "(0/3)" — UI renders its own count.
         short = desc.split("(")[0].strip()
+        done = int(obj.get("current", 0) or 0) >= int(obj.get("qty", 0) or 0)
+        requires = obj.get("requires")
         out.append({
             "desc": short,
             "current": int(obj.get("current", 0) or 0),
             "qty": int(obj.get("qty", 0) or 0),
-            "done": int(obj.get("current", 0) or 0) >= int(obj.get("qty", 0) or 0),
+            "done": done,
+            "locked": bool(requires and requires not in done_tags
+                           and not done),
         })
     return out
 
@@ -108,8 +124,19 @@ def push_quest_journal(character, session=None):
         }
         room_npc_keys.discard(None)
         room_npc_keys.discard("")
+        try:
+            from commands.quests import _prerequisites_met
+        except Exception:
+            _prerequisites_met = None
         for key, qdef in QUESTS.items():
             if key in quests:
+                continue
+            if qdef.get("parent"):
+                continue  # subquests auto-accept via their parent
+            # Never tease quests the player can't actually take yet —
+            # an un-acceptable row is exactly the "what am I supposed
+            # to do?" confusion we're avoiding.
+            if _prerequisites_met and not _prerequisites_met(character, qdef):
                 continue
             giver = (qdef.get("giver") or "").lower()
             if giver and giver in room_npc_keys:

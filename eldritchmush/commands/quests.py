@@ -1056,11 +1056,27 @@ class CmdQuest(Command):
                 done = sum(1 for o in state["objectives"] if o["current"] >= o["qty"])
                 total = len(state["objectives"])
                 lines.append(f"|y║|n  |w{qdef['title']}|n  [{done}/{total} objectives]")
+                done_tags = {
+                    o.get("tag") for o in state["objectives"]
+                    if o.get("tag") and o["current"] >= o["qty"]
+                }
                 for obj in state["objectives"]:
-                    tick = "|g✓|n" if obj["current"] >= obj["qty"] else "|r•|n"
+                    is_done = obj["current"] >= obj["qty"]
+                    req = obj.get("requires")
+                    locked = bool(req and req not in done_tags
+                                  and not is_done)
+                    if is_done:
+                        tick = "|g✓|n"
+                    elif locked:
+                        tick = "|=k▪|n"
+                    else:
+                        tick = "|r•|n"
+                    suffix = ("  |=k(finish the earlier step first)|n"
+                              if locked else
+                              f" |540({obj['current']}/{obj['qty']})|n")
                     lines.append(
-                        f"|y║|n    {tick} {obj['desc'].split('(')[0].strip()} "
-                        f"|540({obj['current']}/{obj['qty']})|n"
+                        f"|y║|n    {tick} {obj['desc'].split('(')[0].strip()}"
+                        f"{suffix}"
                     )
         else:
             lines.append("|y║|n  |540No active quests.|n")
@@ -1135,11 +1151,25 @@ class CmdQuest(Command):
                 odef = _quest_outcome_def(qdef, outcome_key) or {}
                 lines.append(f"|540Path:|n |w{odef.get('label', outcome_key)}|n")
             lines.append("|540Objectives:|n")
+            done_tags = {
+                o.get("tag") for o in state["objectives"]
+                if o.get("tag") and o["current"] >= o["qty"]
+            }
             for obj in state["objectives"]:
-                tick = "|g✓|n" if obj["current"] >= obj["qty"] else "|r•|n"
+                is_done = obj["current"] >= obj["qty"]
+                req = obj.get("requires")
+                locked = bool(req and req not in done_tags and not is_done)
+                if is_done:
+                    tick = "|g✓|n"
+                elif locked:
+                    tick = "|=k▪|n"
+                else:
+                    tick = "|r•|n"
+                suffix = ("|=k(finish the earlier step first)|n"
+                          if locked
+                          else f"({obj['current']}/{obj['qty']})")
                 lines.append(
-                    f"  {tick} {obj['desc'].split('(')[0].strip()} "
-                    f"({obj['current']}/{obj['qty']})"
+                    f"  {tick} {obj['desc'].split('(')[0].strip()} {suffix}"
                 )
         elif _has_outcomes(qdef):
             lines.append("|540Paths available:|n")

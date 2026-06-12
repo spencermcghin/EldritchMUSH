@@ -6,11 +6,14 @@ function ObjectivesList({ objectives }) {
   return (
     <ul className="qj-obj-list">
       {objectives.map((o, i) => (
-        <li key={i} className={`qj-obj ${o.done ? 'done' : ''}`}>
-          <span className="qj-obj-tick">{o.done ? '✓' : '•'}</span>
+        <li
+          key={i}
+          className={`qj-obj ${o.done ? 'done' : ''} ${o.locked ? 'locked' : ''}`}
+        >
+          <span className="qj-obj-tick">{o.done ? '✓' : o.locked ? '🔒' : '•'}</span>
           <span className="qj-obj-desc">{o.desc}</span>
           <span className="qj-obj-count">
-            {o.current}/{o.qty}
+            {o.locked ? 'later' : `${o.current}/${o.qty}`}
           </span>
         </li>
       ))}

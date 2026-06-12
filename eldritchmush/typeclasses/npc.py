@@ -18,12 +18,79 @@ class Npc(Character):
         super().at_object_creation()
         self.db.is_npc = True
 
+    def telegraph_and_engage(self, character, delay=None):
+        """Warn the room, give the player a window to flee, THEN attack.
+
+        Replaces instant-aggression: the player gets a clear threat
+        line (with the flee option spelled out) and ~8-12 seconds
+        before the NPC commits. The room only broadcasts ONE warning
+        per ambush window even when several hostiles share the room —
+        each hostile still schedules its own (staggered) engagement.
+        At fire time we re-check that both parties are still here,
+        alive, and not already fighting.
+        """
+        import time as _time
+
+        if not getattr(character, "has_account", False):
+            return
+        if self.db.peaceful or not self.db.bleed_points:
+            return
+        if self.ndb.engage_pending:
+            return
+        self.ndb.engage_pending = True
+
+        room = self.location
+        if room:
+            now = _time.time()
+            warned_until = room.ndb.threat_warned_until or 0
+            if now >= warned_until:
+                room.ndb.threat_warned_until = now + 12
+                hostiles = [
+                    o for o in room.contents
+                    if o is not character and o.db.is_aggressive
+                    and o.db.bleed_points
+                    and (o.db.weapon_proto or o.db.right_slot)
+                ]
+                if len(hostiles) > 1:
+                    threat = (f"|r{len(hostiles)} hostiles turn toward "
+                              f"you as one")
+                else:
+                    threat = f"|r{self.key} marks you — weapon out, weight shifting"
+                room.msg_contents(
+                    f"{threat}. You have a breath to act: |wflee "
+                    f"through an exit|n, or stand and fight.|n")
+
+        delay = delay if delay is not None else 8 + random.random() * 4
+
+        def _engage():
+            try:
+                self.ndb.engage_pending = False
+                if (not self.location
+                        or character.location != self.location):
+                    return  # they fled — no pursuit
+                if not self.db.is_aggressive or not self.db.bleed_points:
+                    return
+                if self.db.in_combat:
+                    return
+                if not getattr(character.db, "bleed_points", None):
+                    return  # already down; no corpse-kicking
+                if not self.db.right_slot:
+                    self.make_equipment()
+                if not self.db.right_slot:
+                    return
+                self.execute_cmd(self.command_picker(character))
+            except Exception as exc:
+                print(f"[npc.telegraph] engage err: {exc!r}", flush=True)
+
+        utils.delay(delay, _engage)
+
     def at_char_entered(self, character):
         """
-        Arm a generic aggressive NPC when a player arrives, so its weapon is
-        equipped before the combat loop's pre-check runs (the loop boots any
-        weaponless combatant before its turn). Opt-in via ``db.weapon_proto``;
-        passive NPCs and combat subclasses (which override this) are untouched.
+        Arm a generic aggressive NPC when a player arrives (the combat
+        loop boots weaponless combatants before their turn), then
+        telegraph and engage after a flee window. Opt-in via
+        ``db.weapon_proto``; passive NPCs are untouched. Non-hostile
+        quest givers instead hint at the tasks they can offer.
         """
         try:
             if (self.db.is_aggressive and self.db.weapon_proto
@@ -48,6 +115,36 @@ class Npc(Character):
                             f"before any sound could have reached it. "
                             f"\"You,\" it says. \"I remember the iron "
                             f"in your hand.\"|n")
+        except Exception:
+            pass
+        # Hostiles telegraph, then commit; players get a flee window.
+        try:
+            if (self.db.is_aggressive
+                    and (self.db.weapon_proto or self.db.right_slot)):
+                self.telegraph_and_engage(character)
+                return
+        except Exception:
+            pass
+        # Non-hostile quest giver: hint at available tasks, once per
+        # visit, so players always know where the next thread starts.
+        try:
+            if not getattr(character, "has_account", False):
+                return
+            hinted = self.ndb.quest_hinted or set()
+            if character.key in hinted:
+                return
+            from commands.quests import _available_quests
+            mine = [q for q in _available_quests(character)
+                    if (q.get("giver") or "").lower()
+                    == (self.key or "").lower()]
+            if mine:
+                hinted.add(character.key)
+                self.ndb.quest_hinted = hinted
+                titles = ", ".join(f"|w{q['title']}|n" for q in mine)
+                character.msg(
+                    f"|540{self.key} has a task for you: {titles}. "
+                    f"Type |wquest accept <title>|n to begin, or just "
+                    f"talk to them.|n")
         except Exception:
             pass
 
@@ -1621,11 +1718,11 @@ class CrowStriker(Npc):
         self.execute_cmd(self.command_picker(target))
 
     def at_char_entered(self, character):
+        # Telegraph + flee window instead of an instant first strike.
         if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             if not self.db.right_slot:
                 self.make_equipment()
-            command = self.command_picker(character)
-            self.execute_cmd(command)
+            self.telegraph_and_engage(character)
 
 
 class CrowBruiser(Npc):
@@ -1731,11 +1828,11 @@ class CrowBruiser(Npc):
         self.execute_cmd(self.command_picker(target))
 
     def at_char_entered(self, character):
+        # Telegraph + flee window instead of an instant first strike.
         if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             if not self.db.right_slot:
                 self.make_equipment()
-            command = self.command_picker(character)
-            self.execute_cmd(command)
+            self.telegraph_and_engage(character)
 
 
 class CaleTheThorn(Npc):
@@ -1846,11 +1943,11 @@ class CaleTheThorn(Npc):
         self.execute_cmd(self.command_picker(target))
 
     def at_char_entered(self, character):
+        # Telegraph + flee window instead of an instant first strike.
         if self.db.is_aggressive and self.db.bleed_points and self.db.combat_turn:
             if not self.db.right_slot:
                 self.make_equipment()
-            command = self.command_picker(character)
-            self.execute_cmd(command)
+            self.telegraph_and_engage(character)
 
 
 class QuestGiverNpc(Npc):

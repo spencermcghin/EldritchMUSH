@@ -257,3 +257,13 @@
   font-size: 11px;
   letter-spacing: 2px;
 }
+
+/* Ordered beats: steps gated behind an earlier step render dimmed
+   with a lock until the prerequisite is finished. */
+.qj-obj.locked {
+  opacity: 0.45;
+}
+.qj-obj.locked .qj-obj-count {
+  font-style: italic;
+  font-size: 0.85em;
+}
