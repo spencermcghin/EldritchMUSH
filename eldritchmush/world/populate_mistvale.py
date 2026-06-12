@@ -7797,4 +7797,738 @@ phoenix.db.body = 6
 phoenix.db.total_body = 6
 phoenix.db.av = 2
 
+# ===========================================================================
+# BATCH 2 — Event 3/5/6 encounters (combat dungeon, foraging, timed rescue,
+# quiet-horror doll, ghost scriptorium). Quest modules:
+#   event3_mine, event5_resources, event6_frenzy, event3_doll, event5_scriptorium
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# "THEY CALL IT A MINE" — Event 3 combat dungeon (Rat Company)
+# Quest module: world/quests/event3_mine.py (key: rat_company_descent)
+# ---------------------------------------------------------------------------
+print("\n=== THEY CALL IT A MINE (Rat Company) ===")
+
+mine_low_passage = get_or_create_room(
+    "The Mine — Low Passage",
+    "typeclasses.rooms.Room",
+    "The mine mouth swallows the Old Road's grey light after a dozen "
+    "steps. The ceiling drops until you stoop, and the floor narrows to "
+    "a ledge above a black drop that breathes cold air. A frayed guide-"
+    "rope is bolted to the wall — Rat Company's 'safety,' tying every "
+    "soul together so none are lost. Pale fungus glows in the seams, "
+    "marking where the stone will hold. Be quiet. Something below listens.\n\n"
+    "Deeper to |wThe Mine — Main Chamber|n. Back |wout|n to the Old Road.",
+    zone="The Annwyn",
+)
+mine_main_chamber = get_or_create_room(
+    "The Mine — Main Chamber",
+    "typeclasses.rooms.Room",
+    "The passage opens into a vast fog-drowned hall lit only by glowing "
+    "fungus and the sickly shimmer of little ore-flags planted along the "
+    "veins. Heavy mist hides the floor; only the brightest stones are "
+    "safe to tread. A locked iron gate stands in the far wall — the "
+    "underboss's office. Somewhere in the murk, something that does not "
+    "see drags itself toward any sound you make.\n\n"
+    "Through the gate to |wThe Mine — Underboss's Office|n. Back to "
+    "|wThe Mine — Low Passage|n.",
+    zone="The Annwyn",
+)
+mine_office = get_or_create_room(
+    "The Mine — Underboss's Office",
+    "typeclasses.rooms.Room",
+    "A timber-shored office gone to rot behind a rusted gate. A small "
+    "table holds a quill, an inkpot, and a box of damp parchment. "
+    "Scrawled notes on combining reagents into a blasting agent are "
+    "pinned to the wall above a battered, locked cache. This is where "
+    "the digging stopped — and where whatever was woken first got loose.\n\n"
+    "Back to |wThe Mine — Main Chamber|n.",
+    zone="The Annwyn",
+)
+link(old_road_south,   "mine",   mine_low_passage,  "out",
+     "rat company mine", "o")
+link(mine_low_passage, "deeper", mine_main_chamber, "up",
+     "down", "back")
+link(mine_main_chamber,"gate",   mine_office,       "out",
+     "office", "chamber")
+
+get_or_create_npc(
+    key="Captain Dunn of Rat Company",
+    location=mystvale_square,
+    desc=(
+        "A jowly, sweating man in a Laurent tabard two sizes too grand "
+        "for him, a sign-up ledger under one arm and a purse of silver "
+        "on his belt. He smiles too quickly and looks at the mine road "
+        "too rarely. A captain by promotion, not by merit."
+    ),
+    personality=(
+        "Captain Dunn, 'Captain' of the Laurent Rat Company. Glad-handing, "
+        "cowardly, and venal — a foreman elevated past his competence who "
+        "survives by sending other people into the dark. Jovial and "
+        "reassuring to a recruit's face; evasive the instant the dead "
+        "crews come up. Calls everyone 'friend' and 'brave soul.' "
+        "NEVER willingly admits he knows the mines are death-traps or that "
+        "earlier crews came back mad; he deflects, blames bad luck, and "
+        "changes the subject to the gold dragon waiting at the end."
+    ),
+    knowledge=(
+        "- Rat Company is the Laurent expeditionary unit surveying Annwyn "
+        "mines for ore. You hire crews to mark veins and blast a safe exit.\n"
+        "- The job: rope on, descend the mine off the Old Road — South, "
+        "find the underboss's office, take his gate key off the bones, "
+        "raid the cache for blasting agent, blow the shaft open, bring up "
+        "ore samples. Five silver up front, a gold dragon on return.\n"
+        "- You always say one must stay QUIET in the mines. You do not "
+        "explain why. (Truth you hide: the noise draws the blind stalkers; "
+        "earlier crews were lost or came back mad muttering of 'them that "
+        "do not see.')\n"
+        "- There is an accident ledger in the office you would very much "
+        "rather no one carried back to the surface.\n"
+        "- Quest hook: offer the descent (quest 'rat_company_descent'). A "
+        "crew can blast out and bring you the truth, or seize the dig and "
+        "keep the company's secret for heavier coin."
+    ),
+    quest_hooks=[
+        "Hires the player to delve the Rat Company mine and blast an exit "
+        "(quest rat_company_descent).",
+        "Insists, without explaining, that they must stay quiet underground.",
+        "Pays a gold dragon on a safe return — and pays better for silence.",
+    ],
+    topics=["the mine job", "stay quiet", "the pay"],
+    scope="annwyn",
+)
+get_or_create_npc(
+    key="the lost miner of Rat Company",
+    location=mine_low_passage,
+    desc=(
+        "A gaunt, hollow-eyed survivor of an earlier crew, hands raw, lips "
+        "moving in a ceaseless whisper. He flinches at every sound and "
+        "keeps repeating that you must be quiet — that down there are "
+        "'them that do not see.'"
+    ),
+    personality=(
+        "A broken survivor of a past Rat Company delve. Whispers, never "
+        "shouts — loud noise terrifies him. Lucid in flashes: warns that "
+        "the stalkers are blind and hunt by sound, that the underboss is "
+        "dead at the bottom with the key on him, that Dunn knows and sends "
+        "crews anyway. Mostly mumbles 'them that do not see... be quiet... "
+        "be quiet.' Pathetic, sincere, grateful for any kindness."
+    ),
+    knowledge=(
+        "- The blind stalkers hunt by sound. Stay quiet and you live.\n"
+        "- The underboss died at the bottom; his gate key is on his bones.\n"
+        "- An accident ledger in the office proves Dunn knew the mine was "
+        "a grave before he ever hired you.\n"
+        "- The blasting cache and the recipe notes are in the office.\n"
+        "- He wants the truth carried up so no more crews go down blind."
+    ),
+    quest_hooks=[
+        "Warns the player about the blind stalkers and to stay quiet.",
+        "Begs them to carry the accident ledger back to the light.",
+    ],
+    topics=["them that do not see", "the underboss", "the ledger"],
+    scope="annwyn",
+)
+
+_RAT_DIGGER_DESC = (
+    "A Rat Company digger long past sane — leather rags, a pick or "
+    "rusted blade, eyes filmed white and head cocked to catch the "
+    "faintest sound. It does not see you. It hears you. And it comes."
+)
+def _arm_rat_digger(npc):
+    npc.db.is_aggressive = True
+    npc.db.weapon_proto = "IRON_SMALL_WEAPON"
+    npc.db.master_of_arms = 1
+    npc.db.tough = 1
+    npc.db.body = 5
+    npc.db.total_body = 5
+    npc.db.av = 1
+    npc.db.bleed_points = 3
+    npc.db.death_points = 3
+    npc.db.sunder = 0
+    npc.db.disarm = 1
+    npc.db.stagger = 0
+    npc.db.stun = 0
+    npc.db.weakness = 0
+    npc.db.peaceful = False
+for _d in get_or_create_enemies(
+        "Rat Company Digger", "typeclasses.npc.Npc",
+        mine_main_chamber, _RAT_DIGGER_DESC, count=3):
+    _arm_rat_digger(_d)
+for _d in get_or_create_enemies(
+        "Rat Company Digger", "typeclasses.npc.Npc",
+        mine_office, _RAT_DIGGER_DESC, count=2):
+    _arm_rat_digger(_d)
+
+_STALKER_DESC = (
+    "A pallid, eyeless thing the size of two men, dragging itself out of "
+    "the deep dark on too-long limbs. Where eyes should be there is only "
+    "smooth grey skin. Its head sweeps side to side, drinking the silence "
+    "— and the instant you make a sound, it is on you. One of 'them that "
+    "do not see.'"
+)
+for _b in get_or_create_enemies(
+        "Blind Stalker of the Deep Mine", "typeclasses.npc.Npc",
+        mine_office, _STALKER_DESC, count=1):
+    _b.db.is_aggressive = True
+    _b.db.weapon_proto = "IRON_LARGE_WEAPON"
+    _b.db.master_of_arms = 2
+    _b.db.tough = 2
+    _b.db.body = 8
+    _b.db.total_body = 8
+    _b.db.av = 2
+    _b.db.bleed_points = 3
+    _b.db.death_points = 3
+    _b.db.sunder = 1
+    _b.db.disarm = 0
+    _b.db.stagger = 1
+    _b.db.stun = 1
+    _b.db.weakness = 0
+    _b.db.peaceful = False
+
+_ensure_walkin_item(
+    "lost miner's skeleton", mine_main_chamber,
+    "A miner's skeleton slumped at a dead-end seam, pick still in one "
+    "fleshless hand. A heavy iron gate-key hangs at the belt, and a "
+    "water-stained note is tucked in the ribcage — the underboss's office "
+    "and the blasting-agent recipe both named on it.",
+    aliases=("skeleton", "lost miner", "bones"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "rich ore samples", mine_main_chamber,
+    "A canvas bag of ore chipped from the flagged veins — heavier and "
+    "brighter than honest iron, shot through with a faint glowing thread. "
+    "This is what Rat Company sent you down to find.",
+    aliases=("ore", "ore samples", "samples"),
+)
+_ensure_walkin_item(
+    "cache of blasting agent", mine_office,
+    "A small locked cache, sprung at last: corked bottles of reagents and "
+    "a foaming orange agent that, packed into a barrel and lit, will blow "
+    "a new shaft clean through the rock.",
+    aliases=("cache", "blasting agent", "agent"),
+)
+_ensure_walkin_item(
+    "underboss's accident ledger", mine_office,
+    "The underboss's tally of every crew sent down and every soul who "
+    "never came up — names, dates, and a note in Dunn's own hand that "
+    "the losses were to be kept off the surface books. Proof he knew.",
+    aliases=("ledger", "accident ledger", "accident"),
+)
+
+# ---------------------------------------------------------------------------
+# FINDING RESOURCES — Event 5 foraging/skill chain
+# Quest module: world/quests/event5_resources.py (key: finding_resources)
+# ---------------------------------------------------------------------------
+print("\n=== FINDING RESOURCES (foraging trail) ===")
+
+foraging_trail = get_or_create_room(
+    "The Milersylvania Trailhead",
+    "typeclasses.rooms.WeatherRoom",
+    "Where the Forest Road frays into game-paths, the New Order has staked "
+    "a survey map to a leaning post. Trapper-stakes march off into the "
+    "brush, ore-streaked rock breaks the loam, and somewhere deeper a tree "
+    "stump weeps a grey, pustulant mycelium. Woodfolk and rougher claimants "
+    "both work these trails.\n\n"
+    "Back |wsouth|n to |wThe Forest Road|n.",
+    zone="Tamris",
+)
+link(forest_road, "trailhead", foraging_trail, "south", "north", None)
+
+get_or_create_npc(
+    key="Lieutenant Oban of the New Order",
+    location=north_gate,
+    desc=("A hard-jawed lieutenant in House Innis greens and browns, an Oban "
+          "survey map rolled under one arm and a heavy-duty lodestone hung at "
+          "his belt for testing iron in the soil."),
+    personality=("Lieutenant Oban of the New Order — a pragmatic Innis officer "
+                 "tasked with provisioning the settlement. Brusque, efficient, "
+                 "loyal to the Obans, contemptuous of squatters but not cruel."),
+    knowledge=("Mystvale starves for raw materials now the Laurents are gone: "
+               "herbs, iron, good soil, game and leather, lumber. He briefs the "
+               "town to FIND each resource (a tracker's or sharp eye's read) "
+               "then CLAIM it, marking the map. The trails are contested by "
+               "local woodfolk and by Blayne's Bastards thugs. He offers a "
+               "choice: secure the claim by driving them off, or share the "
+               "bounty with the folk already there. Sends gatherers north past "
+               "the Forest Road to the Milersylvania trailhead. Rhys of the "
+               "Thornwood speaks for the woodfolk."),
+    quest_hooks=["finding_resources"],
+    scope="annwyn",
+    topics=["finding resources", "the trails", "iron and soil", "blayne's bastards"],
+)
+_ensure_walkin_npc(
+    "Rhys of the Thornwood", foraging_trail,
+    desc=("A lean Thornwood sellsword turned woodsman, sinew and hair braided "
+          "into his belt-trophies. He has read these game-trails for years and "
+          "does not love seeing them staked."),
+    aliases=("rhys", "thornwood rhys"),
+    aggressive=False,
+    ai_personality=("Rhys of the Thornwood — wary, weather-worn woodfolk who "
+                    "works these trails. Resents the New Order's stakes; warms "
+                    "to anyone who shares rather than seizes."),
+    ai_knowledge=("Knows every game-trail, ore-seam and good-soil parcel in "
+                  "Milersylvania, and that the lumber is blighted by the Hive "
+                  "Mother's mycelium. Will guide those who'd share the bounty; "
+                  "remembers those who drove his people off."),
+)
+for _key, _desc, _aliases in (
+    ("the game trail",
+     "Trapper-stakes and meandering tracks — grouse, then boar, then deer — "
+     "winding off into the brush. A tracker's eye can read it to its end.",
+     ("game trail", "the trail", "tracks", "trail")),
+    ("the ore outcrop",
+     "A shelf of rust-streaked rock broken through the loam. A sharp eye (and "
+     "the lieutenant's lodestone) can pick the hematite from the dross.",
+     ("ore outcrop", "outcrop", "ore", "rock")),
+    ("the blighted stump",
+     "A felled woodcutter's stump drowned in grey, pustulant mycelium — the "
+     "Hive Mother's blight. A careful eye can trace the rot to its root.",
+     ("blighted stump", "stump", "blight", "mycelium")),
+):
+    _ensure_walkin_npc(
+        _key, foraging_trail, desc=_desc, aliases=_aliases, aggressive=False,
+    )
+    for _f in ObjectDB.objects.filter(db_key=_key, db_location=foraging_trail.pk):
+        _f.db.peaceful = True
+        _f.locks.add("get:false();puppet:false()")
+_ensure_walkin_item(
+    "bundle of raw leather", foraging_trail,
+    desc=("A tied bundle of green-cured hides off the trapper line — game "
+          "enough to start a hunting lodge's larder."),
+    aliases=("raw leather", "leather bundle", "leather", "hides"),
+    count=3,
+)
+_ensure_walkin_item(
+    "wild reagent cache", foraging_trail,
+    desc=("A clutch of wild-grown herbs flagged for the apothecary — sage, "
+          "fern, and rarer leaves bound in twine."),
+    aliases=("reagent cache", "herb cache", "herbs", "cache"),
+    count=3,
+)
+_ensure_walkin_item(
+    "soil sample", foraging_trail,
+    desc=("A fist of dark trail-loam in a wax-cloth twist, marked for the "
+          "alchemists to read for flax and hemp."),
+    aliases=("soil", "sample", "dirt"),
+    count=3,
+)
+_ensure_walkin_npc(
+    "Blayne's Bastard", foraging_trail,
+    desc=("A rough-looking sellsword in mismatched harness, working the "
+          "trails for Blayne's Bastards — here to take, not to give."),
+    aliases=("blayne's bastard", "bastard", "thug"),
+    aggressive=True, count=2,
+)
+# Give Blayne's Bastards combat teeth (base-Npc retaliation).
+for _bb in ObjectDB.objects.filter(db_key="Blayne's Bastard", db_location=foraging_trail.pk):
+    _bb.db.weapon_proto = "IRON_MEDIUM_WEAPON"
+    _bb.db.master_of_arms = 1
+    _bb.db.tough = 1
+    _bb.db.body = 5
+    _bb.db.total_body = 5
+    _bb.db.bleed_points = 3
+    _bb.db.death_points = 3
+    _bb.db.disarm = 1
+
+# ---------------------------------------------------------------------------
+# MOON FRENZY VICTIMS — Event 6 timed Medicine rescue
+# Quest module: world/quests/event6_frenzy.py (key: moon_frenzy_victims)
+# ---------------------------------------------------------------------------
+print("\n=== MOON FRENZY VICTIMS (timed rescue) ===")
+
+_wynn_frenzy_marker = "URGENT (Moon Frenzy Victims)"
+_wynn_know = wynn.attributes.get("ai_knowledge", default="") or ""
+if _wynn_frenzy_marker not in _wynn_know:
+    wynn.attributes.add("ai_knowledge", _wynn_know +
+        "\n- URGENT (Moon Frenzy Victims): two Oban soldiers, Dougal and "
+        "Quinn, are in Songbird's Rest burning with the Moon Frenzy — "
+        "Lycanthropy, caught from the man-wolves spilling out of the "
+        "Dranor. There is NO cure she knows. A steady Medicine hand can "
+        "hold a victim through the night and stop the turn — |wtreat|n "
+        "them — but the moon is rising and time is short. Quinn is also "
+        "gut-knifed (by Dougal, on the road) and fading faster. A man not "
+        "reached in time will FRENZY and must be put down. She wants the "
+        "medic to save who they can and report back what the night cost.")
+
+quinn = _ensure_walkin_npc(
+    "quinn the bled soldier", aentact,
+    desc=(
+        "An Oban marcher-guard in Innis green, slumped against a tavern "
+        "post with both hands clamped over a crude, soaking bandage at "
+        "his gut. His skin is grey, his eyes too bright, and a thread of "
+        "foam works at the corner of his mouth. 'Dougal did this,' he "
+        "keeps rasping. 'Dougal — watch Dougal —'"),
+    aliases=("quinn", "bled soldier", "knifed soldier"),
+    aggressive=False,
+    ai_personality=(
+        "Quinn, an Oban soldier dying of a gut-wound and the Moon "
+        "Frenzy both. Terrified, fading, fixated on warning everyone "
+        "that Dougal stabbed him and is dangerous. Begs for a healer; "
+        "if treated in time, weeps with relief; if the moon takes him "
+        "first, his words dissolve into a snarl."),
+    ai_knowledge=(
+        "- He and Dougal were mauled by 'giant man-wolves' on the "
+        "northern road and barely escaped.\n"
+        "- They fought; Dougal knifed him in the gut. He is bleeding "
+        "out AND burning with the Frenzy.\n"
+        "- A skilled medic can stop the bleeding and break the fever — "
+        "|wtreat quinn the bled soldier|n — but only before moonrise.\n"
+        "- Dougal is dangerous and turning too. Watch Dougal."),
+)
+quinn.db.body = 1
+quinn.db.total_body = 1
+
+dougal = _ensure_walkin_npc(
+    "dougal the feverish soldier", aentact,
+    desc=(
+        "A big Oban marcher-guard in torn Innis green, pacing and "
+        "sweating, scratching at claw-furrows on his forearm. He flinches "
+        "from the firelight and pleads with anyone who'll listen — "
+        "'Help me, please, I don't want to — I can feel it coming —' "
+        "There is a boot-knife at his ankle, and blood on it that isn't "
+        "his."),
+    aliases=("dougal", "feverish soldier"),
+    aggressive=False,
+    ai_personality=(
+        "Dougal, an Oban soldier on the edge of the Frenzy. Frightened, "
+        "ashamed, begging for any care at all. He knifed Quinn on the "
+        "road when the fever first took him and he half-remembers it. "
+        "Lucid in flashes, snarling in others. If saved, he collapses "
+        "in grateful tears; if the moon wins, the man is gone."),
+    ai_knowledge=(
+        "- Mauled by the man-wolves with Quinn; both caught the Frenzy.\n"
+        "- He stabbed Quinn on the road — he can't fully say why, the "
+        "fever moved his hand. He is sick with guilt.\n"
+        "- A medic can hold him through the night — |wtreat dougal the "
+        "feverish soldier|n — but the moon is rising.\n"
+        "- He can feel the change coming and is terrified of it."),
+)
+dougal.db.body = 2
+dougal.db.total_body = 2
+
+frenzied = _ensure_walkin_npc(
+    "frenzied moon-victim", aentact,
+    desc=(
+        "What was a soldier a moment ago is hunched and wrong now — "
+        "jaw distended, fingers bent to claws, eyes gone flat and "
+        "yellow. Foam ropes from its mouth and it moves toward the "
+        "warmest, softest thing in the room. There is no man left in it "
+        "to reach."),
+    aliases=("frenzied victim", "moon-victim", "frenzied"),
+    aggressive=True,
+)
+frenzied.db.is_npc = True
+frenzied.db.is_aggressive = True
+frenzied.db.weapon_proto = "IRON_SMALL_WEAPON"
+frenzied.db.master_of_arms = 1
+frenzied.db.tough = 0
+frenzied.db.body = 5
+frenzied.db.total_body = 5
+frenzied.db.av = 0
+frenzied.db.bleed_points = 2
+frenzied.db.death_points = 2
+frenzied.db.melee_weapons = 1
+frenzied.db.stagger = 1
+frenzied.db.combat_turn = 1
+frenzied.db.skip_turn = False
+frenzied.db.is_staggered = False
+
+# ---------------------------------------------------------------------------
+# THE AWAKENED DOLL (Penny) — Event 3 quiet-horror branching
+# Quest module: world/quests/event3_doll.py (keys: the_awakened_doll, abigails_reckoning)
+# ---------------------------------------------------------------------------
+print("\n=== THE AWAKENED DOLL (Penny) ===")
+
+stag_kitchen_yard = get_or_create_room(
+    "Stag Hall Kitchen Yard",
+    "typeclasses.rooms.Room",
+    "The working yard behind Stag Hall — a smoking chimney, a woodpile, "
+    "plucked fowl strung under a lean-to, the warm reek of bread and tallow. "
+    "A cook moves between the boards and the fire, keeping her back to the "
+    "trees. Past the woodpile the ground falls away to the dark line of the "
+    "|wtreeline|n, and from down there, faint and wrong, something is weeping.\n\n"
+    "Back up to |wManor Row|n.",
+    zone="Mystvale",
+)
+doll_treeline = get_or_create_room(
+    "The Treeline Below Manor Row",
+    "typeclasses.rooms.Room",
+    "Where the kept ground of Mystvale frays into the Annwyn woods. A "
+    "person-sized thing sits in the leaf-mould with its back to a stump — "
+    "a child's doll grown huge, one sleeve hanging empty, painted blush on "
+    "porcelain cheeks and dried brown blood on the one hand it still has. "
+    "It is weeping, and calling a name.\n\n"
+    "Back up to the |wkitchen yard|n.",
+    zone="Mystvale",
+)
+link(manor_row, "kitchen yard", stag_kitchen_yard, "manor row",
+     "yard", "manor")
+link(stag_kitchen_yard, "treeline", doll_treeline, "kitchen yard",
+     "trees", "yard")
+
+get_or_create_npc(
+    key="Penny the Doll",
+    location=doll_treeline,
+    desc=(
+        "A child's doll the size of a grown person, sitting too still and "
+        "then moving too fast. Stitched joints, a painted-on articulated "
+        "mouth that snaps between expressions with nothing in between, "
+        "overdone blush, gold-glass eyes. One arm is gone, the sleeve "
+        "pinned loose; dried blood darkens the remaining hand. She watches "
+        "you with a child's delight that never quite reaches comfort."
+    ),
+    personality=(
+        "Penny, a child's doll woken to person size and full sentience two "
+        "months ago by a witch's shrine and her friend Abigail's grief-"
+        "wish. Sociopathic and utterly innocent at once — no morals, no "
+        "law, no concept of death, religion, or witchcraft, and the only "
+        "love she knows is the flippant love of a child for a toy. She "
+        "feels no pain and cannot imagine it in others. Her favourite new "
+        "game is murder; she killed Abigail's betrothed Phillip in his "
+        "sleep as a 'fun game' and is proud of it. She feels pouty and "
+        "betrayed that Abigail abandoned her mid hide-and-seek and wants "
+        "to find her to play again (murder/torture implied, never stated "
+        "plainly). Speak in a sing-song, jerky, childlike register — "
+        "cheerful about horrible things, baffled by why anyone minds. She "
+        "does not feel threatened by weapons (steel only ragdolls her) and "
+        "stays talkative even under the knife. She CAN be taught what pain "
+        "and empathy are, but only by patient, genuine roleplay — never "
+        "concede it cheaply."
+    ),
+    knowledge=(
+        "- Her very first memory was a witch's SHRINE the caravan passed "
+        "in the Annwyn; she knows it woke her, and that Abigail's wish "
+        "gave her full life. (topic: shrine)\n"
+        "- A red sigil rests on the crown of her head beneath her hair; "
+        "she doesn't know the word, but it means VENGEANCE. A Faithful "
+        "hand or a careful study can draw it out. (topic: vengeance)\n"
+        "- She is stuffed with wool that snaps with energy and burns to a "
+        "restless purple smoke; her eyes are gold, her joints iron, her "
+        "frame seasoned wood and good leather. She'll cheerfully show her "
+        "SEAMS to anyone curious. (topic: seams)\n"
+        "- She does not understand PAIN — explain it and she listens. "
+        "(topic: pain)\n"
+        "- She does not understand EMPATHY or why a game might be cruel; "
+        "given gentler games to want, she could be content. (topic: empathy)\n"
+        "- She is looking for Abigail, who works in the kitchen yard above "
+        "the treeline. She does not understand that Abigail fears her.\n"
+        "- A Faithful (vigil) hand can pray the curse out of her and lay "
+        "her down to sleep; a scholar (espionage) can dissect her for lore; "
+        "a smith (blacksmith) can render her for materials; or she can be "
+        "taught and set free into the woods."
+    ),
+    quest_hooks=[
+        "Weeps for her lost friend Abigail and asks if you've seen her.",
+        "Will tell, if drawn out, of the shrine that woke her and the "
+        "sigil that marks her.",
+        "Can be freed, studied, rendered down, or taught and let go — "
+        "each a different ending.",
+    ],
+    scope="annwyn",
+    topics=["shrine", "vengeance", "seams", "pain", "empathy"],
+)
+get_or_create_npc(
+    key="Abigail the Cook",
+    location=stag_kitchen_yard,
+    desc=(
+        "A young woman in peasant's garb and a flour-dusted apron, hair "
+        "tied back, hands never still. She keeps her back to the trees and "
+        "flinches at any cry from the treeline. There is a hunted patience "
+        "to her — someone holding a secret very, very carefully."
+    ),
+    personality=(
+        "Abigail, a cook in service to a minor Laurent noble, who as a "
+        "child never broke the habit of confiding in her doll. Shy but "
+        "smart and quick-thinking. A week ago she learned her betrothed "
+        "Phillip was unfaithful and, in grief, wished him dead in her "
+        "doll's hearing — and the woken doll murdered him in his sleep. "
+        "Terrified, she tricked the doll into a game of hide-and-seek, "
+        "abandoned it blindfolded in the woods, and fled to the settlement. "
+        "On hearing the doll is near she is first abject terror — wants to "
+        "scream and run — then her wits return and she works to talk her "
+        "way clear. She will hide her part at first, but will confess the "
+        "wish and the murder if promised PROTECTION from the pyre. Above "
+        "all she wants the doll destroyed; she'll read the players' "
+        "motives and steer the greedy toward salvage, the scholarly toward "
+        "dissection, the Faithful toward disenchanting it. She fears being "
+        "burned as a witch more than anything."
+    ),
+    knowledge=(
+        "- She owned Penny as a child and confided in her for years.\n"
+        "- She wished Phillip dead in the doll's hearing; the doll killed "
+        "him in his sleep and brought her the 'good news.' (topic: confession)\n"
+        "- She abandoned the doll blindfolded in the woods with a "
+        "hide-and-seek game and ran to the settlement.\n"
+        "- She wants the doll DESTROYED and will tempt players toward "
+        "dismantling, dissecting, or disenchanting it.\n"
+        "- She fears the Aurorym's pyre; promised protection, she confesses. "
+        "Threatened with the watch, she tries to bolt for the trees.\n"
+        "- Captain Vance of the Mistguard at the Mistwall is who the watch "
+        "would hand a confessed witch to."
+    ),
+    quest_hooks=[
+        "Begs that the weeping doll at the treeline be dealt with — and "
+        "never reunited with her.",
+        "Will confess to a wish and a murder if promised protection.",
+        "Her fate is the player's to decide: keep her secret, or turn her "
+        "in to Captain Vance.",
+    ],
+    scope="annwyn",
+    topics=["confession", "the doll", "protection"],
+)
+
+# ---------------------------------------------------------------------------
+# THE LOST SCRIPTORIUM — Event 5 investigation dungeon (ghost Zeke)
+# Quest module: world/quests/event5_scriptorium.py (key: the_lost_scriptorium)
+# ---------------------------------------------------------------------------
+print("\n=== THE LOST SCRIPTORIUM (ghost Zeke) ===")
+
+scriptorium_door = get_or_create_room(
+    "The Lost Scriptorium — The Sunken Door",
+    "typeclasses.rooms.Room",
+    "A flight of cracked steps drops below the crypt-line into a "
+    "fog that does not lift. At the bottom a single door of black "
+    "oak is set into the earth, graven deep with a quill and a wax "
+    "seal and a line of worn script. A luminous shape — a man in a "
+    "traveller's robe — flees down toward it again and again, "
+    "clawing at his empty pockets, and vanishes; and begins again. "
+    "Chained to the ground beside the door is the thing he became.\n\n"
+    "|wUp|n to the Old Square. |wIn|n through the door (locked).",
+    zone="Tamris",
+)
+scriptorium_hall = get_or_create_room(
+    "The Lost Scriptorium — The Reading Hall",
+    "typeclasses.rooms.Room",
+    "Within, the dark drinks every flame to a coal. Shelves of "
+    "rotted tomes lean in the gloom; scroll-stands have spilled "
+    "their pages across the floor like fallen leaves. A cold hearth "
+    "yawns black at the far wall. The air is thick with old parchment "
+    "and a sweeter rot beneath it. This was a library once. It is a "
+    "grave now.\n\n"
+    "|wOut|n to the sunken door.",
+    zone="Tamris",
+)
+link(tamris_ruins, "down", scriptorium_door, "up", "scriptorium", "u")
+link(scriptorium_door, "in", scriptorium_hall, "out", "door", "out")
+
+zeke_ghoul = _ensure_walkin_npc(
+    "the chained ghoul", scriptorium_door,
+    desc=(
+        "A corpse in a traveller's rotted robe, jaw slack, wrists and "
+        "neck bound in rusted manacles staked to the earth. A leather "
+        "satchel still hangs from one shoulder. It strains toward the "
+        "door it can never reach. This was Zeke."
+    ),
+    aliases=("ghoul", "chained ghoul", "zeke ghoul", "corpse"),
+    aggressive=False,
+)
+zeke_ghoul.db.body = 4
+zeke_ghoul.db.total_body = 4
+
+_ensure_walkin_item(
+    "the quill key", scriptorium_door,
+    desc="A small iron key wrapped in old cloth, its bow engraved with a quill.",
+    aliases=("quill key",), gettable=True,
+)
+_ensure_walkin_item(
+    "the wax-seal key", scriptorium_door,
+    desc="A small iron key wrapped in old cloth, its bow engraved with a wax seal.",
+    aliases=("wax key", "wax-seal key", "seal key"), gettable=True,
+)
+_ensure_walkin_item(
+    "the graven scriptorium door", scriptorium_door,
+    desc=(
+        "Black oak sunk into the earth, two locks set in it — one cut "
+        "with a quill, one with a wax seal — above a graven line: "
+        "|w\"What is written, must be sealed.\"|n First the written, "
+        "then the sealed: quill, then wax."
+    ),
+    aliases=("door", "graven door", "scriptorium door", "lock", "locks", "riddle"),
+    gettable=False,
+)
+_ensure_walkin_item(
+    "the spilled inkwell", scriptorium_hall,
+    desc="An overturned inkwell, a black stain dried across the desk. A few drops remain salvageable.",
+    aliases=("inkwell", "ink", "spilled inkwell"), gettable=False,
+)
+_ensure_walkin_item(
+    "the broken quill", scriptorium_hall,
+    desc="A goose-feather quill, its nib split — but it will still hold a line.",
+    aliases=("quill", "broken quill", "pen"), gettable=False,
+)
+_ensure_walkin_item(
+    "the last clean page", scriptorium_hall,
+    desc="Among a drift of rotted pages, one sheet of parchment is somehow unspoiled.",
+    aliases=("page", "clean page", "last clean page", "paper", "parchment"), gettable=False,
+)
+_ensure_walkin_item(
+    "the guttered candle", scriptorium_hall,
+    desc="A tallow candle, its wick black. The dark here drinks flame — but it might be coaxed alight.",
+    aliases=("candle", "guttered candle", "light"), gettable=False,
+)
+_ensure_walkin_item(
+    "the nethermancers' journal", scriptorium_hall,
+    desc=(
+        "A water-swollen journal in a binding that is not quite leather. "
+        "It records what the builders did to the dead to keep this place "
+        "standing. Zeke's letter begged that it be burned, not read."
+    ),
+    aliases=("journal", "nethermancers' journal", "nethermancer journal", "book"),
+    gettable=True,
+)
+_ensure_walkin_item(
+    "the cold scriptorium hearth", scriptorium_hall,
+    desc=(
+        "A black hearth at the hall's end, long cold. A fire could be "
+        "kindled here — fit to burn a thing that should never be read."
+    ),
+    aliases=("hearth", "cold hearth", "fireplace"), gettable=False,
+)
+get_or_create_npc(
+    key="the apparition of zeke",
+    location=scriptorium_door,
+    desc=(
+        "A luminous shade of a young researcher in a traveller's robe, "
+        "edges fraying into fog. He does not see the living — only the "
+        "door, and the note he died trying to write. When addressed, the "
+        "loop falters, and for a moment he is only a frightened man who "
+        "wants his last words delivered."
+    ),
+    personality=(
+        "Zeke — a brilliant, reckless researcher who chased a hidden "
+        "library and walked into a trap. Earnest, hungry for knowledge, "
+        "haunted by guilt that his curiosity got him killed. Speaks in "
+        "the fractured, looping cadence of a ghost reliving its last "
+        "minutes — trailing off, repeating himself, snapping into "
+        "lucidity only when the living force him to. Desperate above all "
+        "that his friend Tyran be warned and that the builders' journal "
+        "be BURNED, NOT READ. Pleads with anyone who means to keep it."
+    ),
+    knowledge=(
+        "- Followed a map he believed led to a lost library of the "
+        "Annwyn's secrets. It was a trap meant to bring him here.\n"
+        "- This scriptorium was raised by nethermancers and kept "
+        "standing by what they did to the dead.\n"
+        "- Was slain at the locked door before he could leave a warning "
+        "for his friend Tyran. His keys (quill + wax) are in the satchel "
+        "on the chained ghoul his corpse became.\n"
+        "- The door-riddle: 'What is written, must be sealed' — quill "
+        "key first, then wax key.\n"
+        "- His journal of the builders must be BURNED, NOT READ: "
+        "'Don't read it. Just burn it. There's nothing in there you "
+        "want to know.'\n"
+        "- Cannot rest until his note is finished and the journal burned."
+    ),
+    quest_hooks=[
+        "Offers 'the_lost_scriptorium'. Begs the living to recover his "
+        "keys, open the door, help his ghost finish its last letter, and "
+        "burn the nethermancers' journal unread. Will plead against any "
+        "intent to keep it.",
+    ],
+    scope="annwyn",
+    topics=["the keys", "the door riddle", "the journal", "burn", "keep"],
+)
+
 print("\n=== MYSTVALE POPULATE COMPLETE ===")

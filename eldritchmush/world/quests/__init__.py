@@ -46,11 +46,22 @@ from world.quests import (
     event1_saturday,
     event2_wrath,
     event5_trial,
+    event5_resources,
+    event5_scriptorium,
     event4_sacrifice,
     event3_awakening,
+    event3_mine,
+    event3_doll,
+    event6_frenzy,
 )
 
-_MODULES = (event1_walkins, event1_saturday, event2_wrath, event5_trial, event4_sacrifice, event3_awakening)
+_MODULES = (
+    event1_walkins, event1_saturday, event2_wrath,
+    event5_trial, event5_resources, event5_scriptorium,
+    event4_sacrifice,
+    event3_awakening, event3_mine, event3_doll,
+    event6_frenzy,
+)
 
 QUESTS = {}
 for _mod in _MODULES:

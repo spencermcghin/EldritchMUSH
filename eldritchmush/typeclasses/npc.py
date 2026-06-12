@@ -20,10 +20,18 @@ class Npc(Character):
 
     def at_char_entered(self, character):
         """
-         A simple is_aggressive check.
-         Can be expanded upon later.
+        Arm a generic aggressive NPC when a player arrives, so its weapon is
+        equipped before the combat loop's pre-check runs (the loop boots any
+        weaponless combatant before its turn). Opt-in via ``db.weapon_proto``;
+        passive NPCs and combat subclasses (which override this) are untouched.
         """
-        pass
+        try:
+            if (self.db.is_aggressive and self.db.weapon_proto
+                    and not self.db.right_slot
+                    and getattr(character, "has_account", False)):
+                self.make_equipment()
+        except Exception:
+            pass
 
     def at_object_receive(self, moved_obj, source_location, **kwargs):
         """When an item moves into this NPC, react if it's a player gift.
@@ -75,12 +83,61 @@ class Npc(Character):
         except Exception:
             pass
 
+    def make_equipment(self):
+        """Arm a generic aggressive NPC from a configured prototype.
+
+        Opt-in: only does anything if populate set ``db.weapon_proto`` to a
+        prototype key (e.g. "IRON_MEDIUM_WEAPON", "RUSTED_DAGGER"). The
+        spawned weapon's level drives damage via Helper.weaponValue, so an
+        aggressive base Npc scales correctly without a bespoke subclass.
+        Passive NPCs (no weapon_proto) are completely unaffected.
+        """
+        proto = self.db.weapon_proto
+        if not proto or self.db.right_slot:
+            return
+        try:
+            weapon = spawn({"prototype_parent": proto, "location": self})[0]
+        except Exception:
+            return
+        self.db.right_slot = [weapon]
+        # weapon_level is fed through Helper.weaponValue() in combat; use the
+        # spawned weapon's own level so the tier table applies cleanly.
+        self.db.weapon_level = weapon.db.level or weapon.db.tier or 1
+
+    def command_picker(self, target):
+        """Choose an action for a generic aggressive NPC's turn."""
+        if not target.db.bleed_points:
+            return "disengage"
+        am = {
+            "sunder": self.db.sunder or 0,
+            "disarm": self.db.disarm or 0,
+            "stagger": self.db.stagger or 0,
+            "stun": self.db.stun or 0,
+        }
+        # Weight strike heavily so maneuvers are a flavourful minority.
+        flat = [c for c, v in am.items() for _ in range(v)] + ["strike", "strike", "strike"]
+        chosen = "strike" if self.db.weakness else random.choice(flat)
+        return f"{chosen} {target.key}"
+
     def take_combat_turn(self, target):
         """
         Called by the combat loop when it is this NPC's turn.
-        Non-combatant NPCs disengage by default; combat subclasses override this.
+
+        An NPC retaliates only when it is flagged aggressive AND has a weapon
+        (already equipped, or a ``weapon_proto`` it can spawn). Everything
+        else disengages — preserving the original behaviour for non-combat
+        NPCs. Combat subclasses override this entirely.
         """
-        self.execute_cmd("disengage")
+        if not self.db.is_aggressive or not (self.db.right_slot or self.db.weapon_proto):
+            self.execute_cmd("disengage")
+            return
+        if not self.db.right_slot:
+            self.make_equipment()
+        if not self.db.right_slot:
+            # Arming failed (bad proto key); don't deadlock the loop.
+            self.execute_cmd("disengage")
+            return
+        self.execute_cmd(self.command_picker(target))
 
     def on_switch(self):
         self.db.is_aggressive = True
