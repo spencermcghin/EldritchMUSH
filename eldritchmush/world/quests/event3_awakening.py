@@ -625,25 +625,45 @@ QUESTS = {
             "to know exactly where he sits."
         ),
         "outcomes": {
-            "mend_and_shelter": {
-                "label": "Feed him, mend him, win his trust",
+            "show_kindness": {
+                "label": "Feed him and win his trust",
                 "description": (
-                    "Kindness first. A fed, mended Feargus talks — "
-                    "about tolls, rotations, and the words that open "
-                    "Crow gates."
+                    "Kindness first. A fed Feargus talks — about tolls, "
+                    "rotations, and the words that open Crow gates."
                 ),
                 "objectives": [
                     {"type": "deliver", "target": "feargus the lame crow",
-                     "qty": 1, "desc": "Give Feargus a meal or something useful (0/1)"},
-                    {"type": "talk", "target": "feargus the lame crow",
-                     "topic": "leg", "qty": 1,
-                     "desc": "Ask Feargus about his lame leg (0/1)"},
+                     "qty": 1,
+                     "desc": "Give Feargus a meal or something useful (0/1)"},
                 ],
                 "rewards": {"silver": 5, "items": [], "reagents": {"Sayge": 2}},
                 "faction_rep": {"crows": 2, "outsider": 1},
                 "npc_rep_deltas": {"feargus the lame crow": 6},
                 "npc_memories": {"feargus the lame crow":
                                  "showed him kindness when the whole vale looked away"},
+            },
+            "mend_his_leg": {
+                "label": "Feed him AND mend his crippled leg",
+                "description": (
+                    "He never imagined anyone would look at the leg — it "
+                    "was set crooked two winters back and he'd written it "
+                    "off. A skilled medic could rebreak and set it true. "
+                    "(Feed him first, then |wtreat feargus|n — needs the "
+                    "medicine skill.)"
+                ),
+                "objectives": [
+                    {"type": "deliver", "target": "feargus the lame crow",
+                     "tag": "fed", "qty": 1,
+                     "desc": "Give Feargus a meal or something useful (0/1)"},
+                    {"type": "skill", "target": "feargus the lame crow",
+                     "skill": "medicine", "requires": "fed", "qty": 1,
+                     "desc": "Once he trusts you, tend his badly-set leg (0/1)"},
+                ],
+                "rewards": {"silver": 10, "items": [], "reagents": {"Sayge": 3}},
+                "faction_rep": {"crows": 3, "outsider": 2},
+                "npc_rep_deltas": {"feargus the lame crow": 10},
+                "npc_memories": {"feargus the lame crow":
+                                 "gave him back his stride when no one else would even look"},
             },
             "sell_him_out": {
                 "label": "Report him to the watch",
@@ -735,8 +755,9 @@ QUESTS = {
         "objectives": [
             {"type": "gather", "target": "cursed coin", "qty": 5,
              "desc": "Gather the black-spotted coins scattered through the vale (0/5)"},
-            {"type": "deliver", "target": "black sam tempest", "qty": 1,
-             "desc": "Return the coin to Black Sam at the Broken Pier (0/1)"},
+            {"type": "deliver", "target": "black sam tempest",
+             "item": "cursed coin", "qty": 5,
+             "desc": "Return EVERY cursed coin to Black Sam at the Broken Pier (0/5)"},
         ],
         "rewards": {
             "silver": 20,
@@ -769,10 +790,11 @@ QUESTS = {
                 ),
                 "objectives": [
                     {"type": "talk", "target": "laurent waystation messenger",
-                     "topic": "password", "qty": 1,
+                     "topic": "password", "tag": "password", "qty": 1,
                      "desc": "Coax the password out of the courier (0/1)"},
                     {"type": "gather", "target": "cat sith idol", "qty": 1,
-                     "desc": "Lift the Cat Sith idol from the star-marked chest (0/1)"},
+                     "requires": "password",
+                     "desc": "With the password, lift the Cat Sith idol from the star-marked chest (0/1)"},
                     {"type": "deliver", "target": "quill the fixer", "qty": 1,
                      "desc": "Deliver the idol to Quill (0/1)"},
                 ],
@@ -803,7 +825,7 @@ QUESTS = {
                                  "got the idol, loudly — competent, but the heat was real"},
             },
         },
-        "prereqs": ["the_heist_pt2"],
+        "prereqs": [{"quest": "the_heist_pt2", "outcome": "split_with_quill"}],
     },
 
     "murder_most_foul_pt3": {
@@ -834,9 +856,12 @@ QUESTS = {
                 ],
                 "rewards": {"silver": 40, "items": [], "reagents": {}},
                 "faction_rep": {"crown": 4},
-                "npc_rep_deltas": {"captain thelmer of the stag watch": 5},
+                "npc_rep_deltas": {"captain thelmer of the stag watch": 5,
+                                   "the banshee of the thornwood": -6},
                 "npc_memories": {"captain thelmer of the stag watch":
-                                 "faced the thing behind the murders and drove it out"},
+                                 "faced the thing behind the murders and drove it out",
+                                 "the banshee of the thornwood":
+                                 "drove me from the Thornwood by blade — I will not forget the hand that did it"},
             },
             "dark_bargain": {
                 "label": "Strike a bargain with the banshee",

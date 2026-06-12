@@ -39,7 +39,8 @@ Manual run from the shell:
 # at_object_creation faction_rep initialisation.
 FACTIONS = {"crown", "cirque", "rangers", "crows", "outlaws", "outsider"}
 
-OBJECTIVE_TYPES = {"kill", "gather", "deliver", "explore", "duel", "talk"}
+OBJECTIVE_TYPES = {"kill", "gather", "deliver", "explore", "duel",
+                   "talk", "skill"}
 
 
 def _collect_prototype_keys():
@@ -227,6 +228,7 @@ def validate_quests(check_world=True):
             if not objectives and not qdef.get("subquests"):
                 warn(f"{where} {label}: no objectives (quest can never "
                      f"complete)")
+            tags_here = {o.get("tag") for o in objectives if o.get("tag")}
             for obj in objectives:
                 otype = obj.get("type")
                 if otype not in OBJECTIVE_TYPES:
@@ -240,6 +242,24 @@ def validate_quests(check_world=True):
                 if len(tgt) <= 3:
                     warn(f"{where} {label}: target {tgt!r} is very short "
                          f"— substring matching may over-match")
+                # Primitive cross-references must resolve to a tag in
+                # the same objective set, or the beat can never unlock.
+                if obj.get("skill") and otype != "skill":
+                    warn(f"{where} {label}: `skill` field on a non-skill "
+                         f"objective is ignored")
+                if otype == "skill" and not obj.get("skill"):
+                    err(f"{where} {label}: skill objective missing `skill`")
+                req = obj.get("requires")
+                if req and req not in tags_here:
+                    err(f"{where} {label}: `requires` {req!r} matches no "
+                        f"`tag` in this objective set — beat never unlocks")
+                dstart = obj.get("deadline_starts_on")
+                if dstart and dstart not in tags_here:
+                    err(f"{where} {label}: `deadline_starts_on` {dstart!r} "
+                        f"matches no `tag` — timer never arms")
+                if obj.get("deadline") and not dstart:
+                    err(f"{where} {label}: `deadline` set without "
+                        f"`deadline_starts_on` — timer never arms")
 
         # giver
         if not qdef.get("parent") and not (qdef.get("giver") or "").strip():
@@ -290,7 +310,7 @@ def validate_quests(check_world=True):
                         if not hits and tgt.upper().replace(" ", "_") in proto_keys:
                             hits = ["<prototype>"]
                         kind = "item"
-                    else:  # kill / deliver / duel / talk
+                    else:  # kill / deliver / duel / talk / skill
                         hits = _matches(tgt, npcs)
                         kind = "npc"
                     if not hits:

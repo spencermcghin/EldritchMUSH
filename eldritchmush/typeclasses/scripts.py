@@ -162,6 +162,37 @@ class SermonScript(DefaultScript):
             pass
 
 
+class QuestDeadlineScript(DefaultScript):
+    """A timed-rescue deadline for a single quest objective.
+
+    Armed by the quest engine when a 'deadline_starts_on' beat completes
+    (e.g. the player reaches the dying man). If the deadline objective
+    isn't finished before `interval` seconds elapse, the quest fails
+    with the authored reason — the doc's "save him in ten minutes or he
+    burns from the inside." Attached to the character; self-deletes once
+    it fires or once the objective completes (the engine stops it).
+    """
+
+    def at_script_creation(self):
+        self.key = "quest_deadline"
+        self.desc = "Timed quest objective deadline"
+        self.start_delay = True
+        self.repeats = 1
+        self.persistent = True
+
+    def at_repeat(self):
+        char = self.obj
+        quest_key = self.db.quest_key
+        tag = self.db.objective_tag
+        reason = self.db.reason or ""
+        try:
+            from commands.quests import _deadline_expired
+            _deadline_expired(char, quest_key, tag, reason)
+        except Exception as exc:
+            print(f"[quest_deadline] expiry error: {exc!r}", flush=True)
+        self.stop()
+
+
 class TelemetryHeartbeatScript(DefaultScript):
     """Operational telemetry heartbeat (world/telemetry.py).
 

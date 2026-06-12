@@ -295,7 +295,25 @@ def _emit_rep_changes(char, changed, scope="npc"):
 
 
 def _fresh_objectives(quest_def, outcome_key=None):
-    """Return a deep-copied list of objective dicts with current=0."""
+    """Return a deep-copied list of objective dicts with current=0.
+
+    Optional objective fields (the content-standards primitives — see
+    docs/CONTENT_STANDARDS.md) are carried through verbatim:
+      topic    — talk objectives: keyword the player must mention.
+      tag      — names this objective so others can sequence after it.
+      requires — this objective can't tick until the objective with the
+                 matching `tag` is complete (ordered beats).
+      skill    — skill objectives: the char.db skill (e.g. "medicine")
+                 the player must hold to satisfy `tend <target>`.
+      item     — deliver objectives: the specific item key the handoff
+                 must consume (and `qty` of them) — "return ALL the coin".
+      deadline / deadline_starts_on — timed-rescue: once the objective
+                 tagged `deadline_starts_on` completes, this objective
+                 has `deadline` seconds before the quest fails.
+    """
+    carry = ("topic", "tag", "requires", "skill", "item",
+             "deadline", "deadline_starts_on", "deadline_reason",
+             "deadline_fails")
     out = []
     for obj in _effective_objectives_src(quest_def, outcome_key):
         fresh = {
@@ -305,12 +323,41 @@ def _fresh_objectives(quest_def, outcome_key=None):
             "current": 0,
             "desc": obj["desc"],
         }
-        # 'talk' objectives may carry an optional topic keyword the
-        # player must mention in conversation for the tick to count.
-        if obj.get("topic"):
-            fresh["topic"] = obj["topic"]
+        for field in carry:
+            if obj.get(field) is not None:
+                fresh[field] = obj[field]
         out.append(fresh)
     return out
+
+
+def _objective_done(state, tag):
+    """True if the objective in *state* tagged *tag* is complete."""
+    for o in state.get("objectives", []):
+        if o.get("tag") == tag:
+            return o["current"] >= o["qty"]
+    return False  # unknown tag → treat as not-yet-done (fail safe)
+
+
+def _can_tick(char, state, obj):
+    """Ordered-objective gate: an objective with `requires: <tag>` only
+    ticks once the objective carrying that tag is complete. Lets a
+    'quiet' heist genuinely require learning the password before the
+    idol can be lifted, instead of being a cosmetic checkbox."""
+    req = obj.get("requires")
+    if not req:
+        return True
+    done = _objective_done(state, req)
+    if not done:
+        # Quiet nudge so the player understands the lock, once.
+        try:
+            _msg_text_only(
+                char,
+                f"|540(You can't do that yet — finish the earlier step "
+                f"first.)|n",
+            )
+        except Exception:
+            pass
+    return done
 
 
 def _mutex_clear(char, quest_def):
@@ -442,6 +489,84 @@ def _maybe_complete_parent(char, parent_key):
         pass
 
 
+def _deadline_scripts(char):
+    """All live quest-deadline scripts on a character."""
+    try:
+        return [s for s in char.scripts.all()
+                if s.key == "quest_deadline" and s.is_active]
+    except Exception:
+        return []
+
+
+def _arm_deadlines(char, key):
+    """Start/stop timed-rescue deadlines for quest *key* based on its
+    current objective state. Armed when the `deadline_starts_on` beat
+    completes; stopped when the deadline objective itself completes or
+    the start beat is undone."""
+    state = _get_quest_state(char, key)
+    if not state or state.get("status") != "active":
+        # quest no longer active — clear its deadlines
+        for s in _deadline_scripts(char):
+            if s.db.quest_key == key:
+                s.stop()
+        return
+    from evennia import create_script
+    for obj in state["objectives"]:
+        deadline = obj.get("deadline")
+        start_tag = obj.get("deadline_starts_on")
+        if not deadline or not start_tag:
+            continue
+        my_tag = obj.get("tag") or obj.get("desc")
+        armed = [s for s in _deadline_scripts(char)
+                 if s.db.quest_key == key and s.db.objective_tag == my_tag]
+        done = obj["current"] >= obj["qty"]
+        started = _objective_done(state, start_tag)
+        if done or not started:
+            for s in armed:
+                s.stop()
+            continue
+        if not armed:
+            scr = create_script(
+                "typeclasses.scripts.QuestDeadlineScript",
+                obj=char, interval=int(deadline), persistent=True,
+                autostart=True,
+            )
+            if scr:
+                scr.db.quest_key = key
+                scr.db.objective_tag = my_tag
+                scr.db.reason = obj.get("deadline_reason") or (
+                    "You were too slow.")
+                _msg_text_only(
+                    char,
+                    f"|r⧗ The clock is running — "
+                    f"{obj['desc'].split('(')[0].strip()}.|n")
+
+
+def _deadline_expired(char, key, tag, reason):
+    """Called by QuestDeadlineScript when a rescue deadline runs out.
+
+    If the deadline objective declares `deadline_fails: "objective"`,
+    only that beat is lost — it's marked failed-but-satisfied so the
+    larger quest can still complete (the rescue failed; the
+    investigation goes on). Otherwise the whole quest fails (default —
+    a hard stake)."""
+    state = _get_quest_state(char, key)
+    if not state or state.get("status") != "active":
+        return
+    for obj in state["objectives"]:
+        my_tag = obj.get("tag") or obj.get("desc")
+        if my_tag != tag or obj["current"] >= obj["qty"]:
+            continue
+        if obj.get("deadline_fails") == "objective":
+            obj["current"] = obj["qty"]
+            obj["_failed"] = True
+            _msg_text_only(char, f"|r✗ {reason}|n")
+            _check_completion(char, key)
+        else:
+            fail_quest(char, key, reason)
+        return
+
+
 def _check_completion(char, key):
     """
     Check if all objectives for *key* are done.  If so, grant rewards and
@@ -454,6 +579,12 @@ def _check_completion(char, key):
     qdef = QUESTS.get(key)
     if not qdef:
         return False
+
+    # Arm/disarm any timed-rescue deadlines based on current progress.
+    try:
+        _arm_deadlines(char, key)
+    except Exception:
+        pass
 
     for obj in state["objectives"]:
         if obj["current"] < obj["qty"]:
@@ -602,7 +733,7 @@ def quest_kill(char, npc_key):
             continue
         for obj in state["objectives"]:
             if obj["type"] == "kill" and obj["target"].lower() in npc_key_lower:
-                if obj["current"] < obj["qty"]:
+                if obj["current"] < obj["qty"] and _can_tick(char, state, obj):
                     obj["current"] += 1
                     remaining = obj["qty"] - obj["current"]
                     _announce_progress(char, key, obj)
@@ -621,6 +752,8 @@ def quest_gather(char, item_name, qty=1):
             continue
         for obj in state["objectives"]:
             if obj["type"] == "gather" and obj["target"].lower() in item_lower:
+                if not _can_tick(char, state, obj):
+                    continue
                 before = obj["current"]
                 obj["current"] = min(obj["current"] + qty, obj["qty"])
                 gained = obj["current"] - before
@@ -641,7 +774,7 @@ def quest_duel_win(char, npc_key):
             continue
         for obj in state["objectives"]:
             if obj["type"] == "duel" and obj["target"].lower() in npc_key_lower:
-                if obj["current"] < obj["qty"]:
+                if obj["current"] < obj["qty"] and _can_tick(char, state, obj):
                     obj["current"] += 1
                     _announce_progress(char, key, obj)
                     _check_completion(char, key)
@@ -652,22 +785,88 @@ def quest_deliver(char, item_name, npc_key):
     Call this when *char* gives *item_name* to an NPC with key *npc_key*.
     Ticks matching 'deliver' objectives.  A deliver objective's `target` is
     the NPC key; the item is implicit (the player must have been carrying it
-    to give it). Completes immediately (deliver is binary).
+    to give it).
+
+    If the objective declares an explicit `item` key and qty > 1, the
+    handoff is treated as "hand over ALL of them": every remaining
+    matching item is swept from the player's inventory to the NPC and
+    the objective ticks to full. This makes "return all five cursed
+    coins" mean what the doc says, instead of completing on one coin.
     """
     _ensure_quest_db(char)
     npc_key_lower = npc_key.lower()
+    item_lower = (item_name or "").lower()
     ticked = False
     for key, state in char.db.quests.items():
         if state["status"] != "active":
             continue
         for obj in state["objectives"]:
-            if obj["type"] == "deliver" and obj["target"].lower() in npc_key_lower:
-                if obj["current"] < obj["qty"]:
-                    obj["current"] = obj["qty"]
-                    ticked = True
-                    _announce_progress(char, key, obj)
-                    _check_completion(char, key)
+            if obj["type"] != "deliver":
+                continue
+            if obj["target"].lower() not in npc_key_lower:
+                continue
+            # If the objective names a specific item, the handed item
+            # must match it (so giving an unrelated trinket doesn't
+            # satisfy a "deliver the idol" step).
+            want_item = (obj.get("item") or "").lower()
+            if want_item and want_item not in item_lower:
+                continue
+            if obj["current"] >= obj["qty"] or not _can_tick(char, state, obj):
+                continue
+            if want_item and obj["qty"] > 1:
+                # Sweep the rest of the stack out of the player's pack
+                # into the NPC — the doc wants all of them surrendered.
+                swept = 1  # the one already handed over in CmdGive
+                try:
+                    npc = None
+                    from evennia import search_object
+                    found = search_object(npc_key)
+                    npc = found[0] if found else None
+                    for it in list(getattr(char, "contents", [])):
+                        if want_item in (it.key or "").lower():
+                            if npc:
+                                it.move_to(npc, quiet=True)
+                            else:
+                                it.delete()
+                            swept += 1
+                except Exception:
+                    pass
+                obj["current"] = obj["qty"]
+            else:
+                obj["current"] = obj["qty"]
+            ticked = True
+            _announce_progress(char, key, obj)
+            _check_completion(char, key)
     return ticked
+
+
+def quest_skill(char, skill_name, target_key):
+    """
+    Call this when *char* successfully uses a skill (medicine, chirurgeon,
+    tracking, perception, lockpicking …) on an NPC/object — see the
+    `tend` command. Ticks matching 'skill' objectives whose `skill`
+    field matches and whose `target` substring-matches *target_key*.
+    The skill check itself (does the char hold the skill) is the
+    caller's job, so a 'skill' objective is a true skill-gated beat:
+    the doc's "a medic can mend his leg — he never considered it."
+    """
+    _ensure_quest_db(char)
+    target_lower = (target_key or "").lower()
+    skill_lower = (skill_name or "").lower()
+    for key, state in char.db.quests.items():
+        if state["status"] != "active":
+            continue
+        for obj in state["objectives"]:
+            if obj["type"] != "skill":
+                continue
+            if (obj.get("skill") or "").lower() != skill_lower:
+                continue
+            if obj["target"].lower() not in target_lower:
+                continue
+            if obj["current"] < obj["qty"] and _can_tick(char, state, obj):
+                obj["current"] += 1
+                _announce_progress(char, key, obj)
+                _check_completion(char, key)
 
 
 def quest_talk(char, npc_key, message=""):
@@ -692,7 +891,7 @@ def quest_talk(char, npc_key, message=""):
                 topic = (obj.get("topic") or "").lower()
                 if topic and topic not in msg_lower:
                     continue
-                if obj["current"] < obj["qty"]:
+                if obj["current"] < obj["qty"] and _can_tick(char, state, obj):
                     obj["current"] += 1
                     _announce_progress(char, key, obj)
                     _check_completion(char, key)
@@ -711,6 +910,13 @@ def fail_quest(char, key, reason=""):
     qdef = QUESTS.get(key) or {}
     state["status"] = "failed"
     char.db.quests[key] = state
+    # Stop any timed-rescue deadlines still armed for this quest.
+    try:
+        for s in _deadline_scripts(char):
+            if s.db.quest_key == key:
+                s.stop()
+    except Exception:
+        pass
     title = qdef.get("title", key)
     _msg_text_only(char, f"\n|r✦ Quest Failed: |w{title}|n")
     if reason:

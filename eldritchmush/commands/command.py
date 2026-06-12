@@ -508,6 +508,81 @@ class CmdGive(Command):
                 pass
 
 
+class CmdTend(Command):
+    """
+    Treat someone with your skills — mend a wound, set a break, ease
+    a fever — outside of combat.
+
+    Usage:
+      treat <target>
+
+    Some folk carry hurts that aren't a fight: a crippled leg badly
+    set, a sickness, an old wound they've stopped expecting anyone to
+    look at. If you have the right training (medicine, chirurgery, and
+    the like), treating them can change things a blade never could.
+
+    If you lack the skill the moment calls for, they'll tell you so.
+
+    See also: heal, diagnose, restore (chirurgery)
+    """
+    key = "treat"
+    aliases = ["mend"]
+    locks = "cmd:all()"
+    help_category = "Healing"
+
+    def func(self):
+        caller = self.caller
+        name = (self.args or "").strip()
+        if not name:
+            caller.msg("|430Tend to whom? Usage: tend <target>|n")
+            return
+        target = caller.search(name, location=caller.location)
+        if not target:
+            return
+
+        # Find an active skill-objective keyed to this target and gate
+        # it on the caller actually holding the named skill.
+        try:
+            from commands.quests import quest_skill
+            quests = caller.db.quests or {}
+            tkey = (target.key or "").lower()
+            for state in quests.values():
+                if state.get("status") != "active":
+                    continue
+                for obj in state.get("objectives", []):
+                    if obj.get("type") != "skill":
+                        continue
+                    if obj["target"].lower() not in tkey:
+                        continue
+                    skill = (obj.get("skill") or "").lower()
+                    have = int(caller.attributes.get(skill, default=0) or 0)
+                    if have < 1:
+                        caller.msg(
+                            f"|540You look {target.key} over, but you lack "
+                            f"the |w{skill}|n |540training this needs. Find "
+                            f"someone who has it.|n"
+                        )
+                        return
+                    caller.msg(
+                        f"|gYou put your {skill} to work on {target.key}.|n"
+                    )
+                    if caller.location:
+                        caller.location.msg_contents(
+                            f"|c{caller.key}|n tends to |c{target.key}|n "
+                            f"with practiced hands.",
+                            exclude=caller,
+                        )
+                    quest_skill(caller, skill, target.key)
+                    return
+        except Exception:
+            pass
+
+        caller.msg(
+            f"|540You look {target.key} over. There's nothing here your "
+            f"skills can mend just now.|n"
+        )
+
+
 class CmdEquip(Command):
     """
     Equip a weapon, shield, or piece of armor from your inventory.

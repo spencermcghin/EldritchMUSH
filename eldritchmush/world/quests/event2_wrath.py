@@ -12,6 +12,14 @@ QUESTS = {
     # these four cover the Friday Night opening. Saturday content will
     # be added in a later pass.
     # ─────────────────────────────────────────────────────────────────────────
+    # ─────────────────────────────────────────────────────────────────────────
+    # Festival of Lights — rebuilt 2026-06-11 to restore the doc's dark
+    # turn (a witch-thrall host, a man dying of the Curse of Thorns on a
+    # timed Medicine save, the incriminating note). Reference exemplar
+    # for the timed-rescue (deadline) + skill + ordered-beat primitives;
+    # see docs/CONTENT_STANDARDS.md. The rescue is a SOFT deadline: if
+    # Grigory dies the investigation still goes on, but the loss is real.
+    # ─────────────────────────────────────────────────────────────────────────
     "festival_of_lights": {
         "key": "festival_of_lights",
         "title": "The Festival of Lights",
@@ -19,17 +27,42 @@ QUESTS = {
         "description": (
             "House Laurent's yearly Festival of Lights opens at Stag Hall "
             "tonight. Branwyn the herald is recruiting willing hands to "
-            "hang the last lanterns in the courtyard before dusk — the "
-            "fort has been tense of late and the ritual matters more than "
-            "usual. A simple task; the Laurents remember those who show up."
+            "hang the last lanterns — but the wisewoman Dierdra has the "
+            "run of the festival games, and the fort has been tense of "
+            "late. Light the lanterns, enjoy the night... and be ready, "
+            "for the night does not stay gentle. Bring a healer."
         ),
         "objectives": [
             {"type": "gather", "target": "paper lantern", "qty": 2,
-             "desc": "Gather paper lanterns from the courtyard (0/2)"},
+             "tag": "lights",
+             "desc": "Hang the festival lanterns in the courtyard (0/2)"},
+            # The crisis: once the lights are up, Grigory staggers in
+            # dying — a poppet sewn into his belly, burning him from the
+            # inside (the Curse of Thorns). Cut it free with a Medicine
+            # hand before the clock runs out. Soft deadline.
+            {"type": "skill", "target": "grigory", "skill": "medicine",
+             "requires": "lights", "tag": "grigory", "qty": 1,
+             "deadline": 600, "deadline_starts_on": "lights",
+             "deadline_fails": "objective",
+             "deadline_reason": (
+                 "Grigory burned out from the inside before anyone could "
+                 "cut the poppet free. The festival falls silent."),
+             "desc": "Save dying Grigory before the curse takes him — "
+                     "|wtreat grigory|n (medicine) (0/1)"},
+            # The reveal: his last breath names the wisewoman. Find the
+            # witch's note she's been carrying.
+            {"type": "gather", "target": "dierdra's note",
+             "requires": "grigory", "tag": "note", "qty": 1,
+             "desc": "Search the wisewoman Dierdra for the truth (0/1)"},
             {"type": "deliver", "target": "branwyn the festival herald",
-             "qty": 1, "desc": "Return to Branwyn with the lanterns hung (0/1)"},
+             "requires": "note", "qty": 1,
+             "desc": "Bring the witch's note to Branwyn (0/1)"},
         ],
-        "rewards": {"silver": 10, "items": [], "reagents": {}},
+        "rewards": {"silver": 25, "items": [], "reagents": {"Hollyrue": 2}},
+        "faction_rep": {"crown": 3, "crows": -2},
+        "npc_rep_deltas": {"branwyn the festival herald": 4},
+        "npc_memories": {"branwyn the festival herald":
+                         "unmasked the witch-thrall hiding inside our own festival"},
         "prereqs": [],
     },
 

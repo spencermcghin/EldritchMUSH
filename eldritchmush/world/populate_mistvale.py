@@ -6014,9 +6014,112 @@ festival_herald = _ensure_walkin_npc(
     ai_knowledge=(
         "- The Festival of Lights opens Stag Hall's yearly rites. She "
         "wants newcomers to help hang lanterns around the courtyard.\n"
-        "- Accept |wThe Festival of Lights|n to participate. Tipping "
-        "her Bannon-coin for the Chapel poor-box is encouraged."
+        "- Accept |wThe Festival of Lights|n to participate.\n"
+        "- She trusts the wisewoman Dierdra, who runs the festival "
+        "games — and would be horrified to learn the truth about her. "
+        "If shown the witch's note, she takes it straight to the watch."
     ),
+)
+
+# --- The Festival's dark turn: Dierdra (witch-thrall) + dying Grigory ---
+# Restores the doc's twist. Dierdra hosts the games as a curse-trap; a
+# poppet-cursed man dies of the Curse of Thorns on a timed Medicine save;
+# her incriminating note is the reveal. See festival_of_lights quest def.
+dierdra = get_or_create_npc(
+    "Dierdra the Wisewoman", hart_hall_courtyard,
+    desc=(
+        "A plump, kindly-eyed wisewoman in festival reds, dealing "
+        "fortune-cards and running the regrets-box at a cloth-draped "
+        "table. She smiles at everyone. The smile never quite reaches "
+        "the way she watches the lantern-light — measuring it, almost, "
+        "as if waiting for something to begin."
+    ),
+    personality=(
+        "Dierdra, a wisewoman hosting the Festival of Lights games — "
+        "secretly a thrall of the witches, though she shows NOTHING of "
+        "it. Outwardly warm, grandmotherly, endlessly reassuring. "
+        "Steers players toward her cursed games ('go on, draw a card, "
+        "name a regret') and collects hair-clippings and confessions "
+        "for her mistress. If accused she is wounded, baffled, "
+        "tearful — never confessing. Only the note in her shawl, found "
+        "by force or search, betrays her. NEVER admit the witchcraft."
+    ),
+    knowledge=(
+        "- Hosts the festival games: fortune-cards and a regrets-box. "
+        "Urges everyone to play 'for luck'.\n"
+        "- (HIDDEN — never reveal): the games are a curse-trap tied to "
+        "a Miasmir tower outside the courtyard; she swaps the regrets "
+        "and collects hair for the coven. The man Grigory played, and "
+        "the Curse of Thorns is killing him.\n"
+        "- Keeps a folded note in her shawl. She will die before "
+        "handing it over willingly."
+    ),
+    quest_hooks=[
+        "Invites players to try the festival games 'for a little luck'.",
+    ],
+    topics=["the festival games", "draw a card", "the regrets-box"],
+)
+dierdra.db.body = 4
+dierdra.db.total_body = 4
+dierdra.attributes.add("romance_disposition",
+                       "Not interested — grandmotherly and entirely "
+                       "preoccupied with her hidden work.")
+
+grigory = _ensure_walkin_npc(
+    "Grigory the Cursed", hart_hall_courtyard,
+    desc=(
+        "A festival-goer doubled over against the courtyard wall, "
+        "sweat-soaked and grey, both hands pressed to his belly. "
+        "Something MOVES beneath his shirt — a knot of cloth and "
+        "thorn sewn into the flesh, pulsing. He is burning from the "
+        "inside, and he knows it. 'The wisewoman,' he keeps trying "
+        "to say. 'It was the wisewoman.'"
+    ),
+    aliases=("grigory", "cursed man", "dying man"),
+    aggressive=False,
+    ai_personality=(
+        "Grigory, a commoner dying of the Curse of Thorns — a poppet "
+        "sewn burning into his belly after he played Dierdra's "
+        "festival game. Delirious with pain, terrified, lucid in "
+        "flashes. Begs for a healer. Names Dierdra the wisewoman as "
+        "the one who did this. If saved, weeps with relief; if no one "
+        "comes in time, he dies cursing her name."
+    ),
+    ai_knowledge=(
+        "- Played Dierdra's fortune-game; woke with a poppet sewn into "
+        "his gut, burning him alive from within (the Curse of Thorns).\n"
+        "- A skilled medic can cut the poppet free in time and save "
+        "him — |wtreat grigory|n.\n"
+        "- It was the wisewoman Dierdra. He is certain. He saw her "
+        "tuck a note into her shawl."
+    ),
+)
+grigory.db.body = 1
+grigory.db.total_body = 1
+
+_ensure_walkin_item(
+    "dierdra's note", hart_hall_courtyard,
+    desc=(
+        "A square of folded vellum, still warm from being carried "
+        "against skin. The hand is cramped and reverent: instructions "
+        "to the festival's host — which games to rig, whose hair to "
+        "keep, when to feed the Miasmir, and the closing line, "
+        "'the Mother thanks her faithful Dierdra.' Proof, in ink."
+    ),
+    aliases=("note", "witch's note", "folded note"),
+)
+
+_ensure_walkin_item(
+    "the Miasmir", hart_hall_courtyard,
+    desc=(
+        "A squat tower of black wax and bound bone half-hidden behind "
+        "the festival stalls, no taller than a child, breathing a cold "
+        "that the lantern-light can't touch. It drinks the festival's "
+        "luck. It cannot be broken by any hand here — only the Aurorym "
+        "know the rite to unmake one."
+    ),
+    aliases=("miasmir", "wax tower", "tower"),
+    gettable=False,
 )
 
 capt_guard = _ensure_walkin_npc(
