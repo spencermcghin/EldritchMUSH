@@ -35,10 +35,14 @@ export default function LoginScreen({ connectionState, onConnect }) {
 
   const handleGoogleSignIn = () => {
     // Send the user to django-allauth's Google login URL. After OAuth
-    // success, allauth redirects to "/" (the React frontend root) and
-    // the Django session cookie is set. The useEvennia hook then
-    // fetches the csessid and opens the WS authenticated.
-    const next = encodeURIComponent(window.location.pathname || '/')
+    // success, allauth redirects back to the SPA with the Django
+    // session cookie set; the useEvennia hook then fetches the csessid
+    // and opens the WS authenticated. We send users to "/play" (not
+    // "/") so the marketing landing page is skipped post-login. The
+    // Google OAuth redirect URI (/accounts/google/login/callback/) is
+    // untouched — `next` only controls the in-site hop afterwards.
+    const path = window.location.pathname || '/'
+    const next = encodeURIComponent(path === '/' ? '/play' : path)
     window.location.href = `/accounts/google/login/?next=${next}`
   }
 

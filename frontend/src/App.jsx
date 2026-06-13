@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
 import { useEvennia } from './hooks/useEvennia'
 import LoginScreen from './components/LoginScreen'
+import LandingPage from './components/LandingPage'
 import CharacterSelect from './components/CharacterSelect'
 import IntroScreen from './components/IntroScreen'
 import CombatTracker from './components/CombatTracker'
@@ -87,6 +88,28 @@ function App() {
     }
     rawSendCommand(trimmed)
   }, [rawSendCommand])
+
+  // ── Landing page gate ──
+  // "/" shows the marketing landing page to logged-out visitors; the
+  // login UI lives behind "/play" (or one click on PLAY NOW). Existing
+  // authenticated sessions bypass this entirely — the auto-connect
+  // effect below flips connectionState to 'connecting' and the landing
+  // unmounts. No server routing changed, so OAuth redirect URIs and
+  // old bookmarks keep working.
+  const [gateEntered, setGateEntered] = useState(
+    () => window.location.pathname.startsWith('/play')
+  )
+  const enterGate = useCallback(() => {
+    if (!window.location.pathname.startsWith('/play')) {
+      window.history.pushState({}, '', '/play')
+    }
+    setGateEntered(true)
+  }, [])
+  useEffect(() => {
+    const onPop = () => setGateEntered(window.location.pathname.startsWith('/play'))
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   const inputRef = useRef(null)
   // Imperative ref into AudioController so AudioToggle in the header
@@ -503,6 +526,14 @@ function App() {
           full re-render doesn't restart the track. */}
       <AudioController ref={audioRef} atTitleScreen={atTitleScreen} />
 
+      {/* ── Landing page ── */}
+      {/* Marketing one-pager for logged-out visitors at "/". The game
+          header is suppressed while it shows; PLAY pushes /play and
+          reveals the LoginScreen. */}
+      {!isConnected && !isConnecting && !gateEntered && (
+        <LandingPage onPlay={enterGate} />
+      )}
+
       {/* ── Header ── */}
       <header className="app-header">
         <div className="app-header-title">
@@ -523,7 +554,7 @@ function App() {
       </header>
 
       {/* ── Login ── */}
-      {!isConnected && !isConnecting && (
+      {!isConnected && !isConnecting && gateEntered && (
         <LoginScreen connectionState={connectionState} onConnect={connect} />
       )}
 

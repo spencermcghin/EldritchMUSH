@@ -26,8 +26,8 @@ const SHOT_DIR = path.join(__dirname, 'screenshots')
 const RUNS_DIR = path.join(__dirname, 'runs')
 
 const TARGETS = {
-  uat:  { url: 'https://uat.eldritchmush.com', authFile: 'auth-uat.json' },
-  prod: { url: 'https://eldritchmush.com',     authFile: 'auth-prod.json' },
+  uat:  { url: 'https://uat.eldritchmush.com/play', authFile: 'auth-uat.json' },
+  prod: { url: 'https://eldritchmush.com/play',     authFile: 'auth-prod.json' },
 }
 
 function parseArgs(argv) {
