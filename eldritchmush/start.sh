@@ -25,7 +25,11 @@ if [ -n "$UAT_GATE_USER" ] && [ -n "$UAT_GATE_PASS" ]; then
     # the image; -stdin keeps the password out of the process list.
     HASH=$(printf '%s' "$UAT_GATE_PASS" | openssl passwd -apr1 -stdin)
     printf '%s:%s\n' "$UAT_GATE_USER" "$HASH" > /etc/nginx/.uat_htpasswd
-    chmod 600 /etc/nginx/.uat_htpasswd
+    # 644, not 600: nginx workers drop to an unprivileged user and must
+    # be able to READ this file — a root-only file makes every auth
+    # attempt 500. The hash is salted apr1; readable inside the
+    # single-tenant container is acceptable.
+    chmod 644 /etc/nginx/.uat_htpasswd
     AUTH_BASIC='auth_basic "EldritchMUSH UAT - restricted"; auth_basic_user_file /etc/nginx/.uat_htpasswd;'
     echo "=== UAT access gate ENABLED (basic auth, user: $UAT_GATE_USER) ==="
 else
