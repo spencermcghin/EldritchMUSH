@@ -21,7 +21,7 @@ const ALWAYS_COMMANDS = [
 const COMBAT_COMMANDS = [
   { key: 'strike', label: 'Strike', args_hint: '<target>', category: 'Combat' },
   { key: 'shoot', label: 'Shoot', args_hint: '<target>', category: 'Combat' },
-  { key: 'cleave', label: 'Cleave', args_hint: '', category: 'Combat' },
+  { key: 'cleave', label: 'Cleave', args_hint: '<target>', category: 'Combat' },
   { key: 'disarm', label: 'Disarm', args_hint: '<target>', category: 'Combat' },
   { key: 'stagger', label: 'Stagger', args_hint: '<target>', category: 'Combat' },
   { key: 'stun', label: 'Stun', args_hint: '<target>', category: 'Combat' },
@@ -30,15 +30,11 @@ const COMBAT_COMMANDS = [
   { key: 'disengage', label: 'Disengage', args_hint: '', category: 'Combat' },
 ]
 
-// Skill-gated commands — only shown if character has the relevant skill.
-// Crafting (forge/craft/brew) is no longer here: it's a single contextual
-// "Crafting" button wired up via the onCrafting prop, driven by the
-// server's available_commands OOB event (only shown at a matching
-// station). Repair / reagents likewise come from the server.
-const SKILL_COMMANDS = [
-  { key: 'medicine', label: 'Medicine', args_hint: '<target>', category: 'Healing', requireSkill: 'medicine' },
-  { key: 'chirurgery', label: 'Chirurgery', args_hint: '<target>', category: 'Healing', requireSkill: 'chirurgeon' },
-]
+// Skill-gated healing commands come from the server's
+// available_commands push (keys `heal` / `restore`) — the old
+// hardcoded medicine/chirurgery entries here were dead code (the
+// characterSkills map was never populated) and used command keys
+// that don't exist server-side.
 
 // Shop commands — only shown when the server's available_commands OOB
 // event includes them (i.e. when a Merchant is in the room). Removed
@@ -52,15 +48,6 @@ function buildCommandList(inCombat, characterSkills) {
   // Combat commands only when fighting
   if (inCombat) {
     cmds.push(...COMBAT_COMMANDS)
-  }
-
-  // Skill-gated commands
-  for (const cmd of SKILL_COMMANDS) {
-    if (cmd.requireSkill && characterSkills[cmd.requireSkill]) {
-      cmds.push(cmd)
-    } else if (cmd.requireAny && cmd.requireAny.some(s => characterSkills[s])) {
-      cmds.push(cmd)
-    }
   }
 
   // Context commands (shop) — only shown via OOB available_commands
@@ -151,6 +138,24 @@ function CommandEntry({ cmd, onClick, onPrompt, sendCommand, selectedEntity }) {
   const argsDisplay = validTarget
     ? `→ ${selectedEntity.name}`
     : cmd.args_hint
+
+  // Server-pushed commands can arrive disabled with a reason ("No
+  // chirurgeon's kit equipped", "Waiting for your turn"). Render them
+  // grayed out with the reason instead of as a clickable dead end.
+  const isDisabled = cmd.enabled === false
+
+  if (isDisabled) {
+    return (
+      <div
+        className="cmd-entry cmd-disabled"
+        title={cmd.reason || 'Unavailable right now'}
+      >
+        <span className="cmd-arrow">›</span>
+        <span className="cmd-key">{cmd.label || cmd.key}</span>
+        {cmd.reason && <span className="cmd-args">{cmd.reason}</span>}
+      </div>
+    )
+  }
 
   return (
     <div

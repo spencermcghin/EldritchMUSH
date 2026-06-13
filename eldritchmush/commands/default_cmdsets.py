@@ -37,6 +37,9 @@ class RoomCmdSet(CmdSet):
 Crafting Command Sets
 """
 class BlacksmithCmdSet(CmdSet):
+    # Co-located stations (forge + workbench in one room) must not
+    # produce "More than one match for repair" — collapse duplicates.
+    duplicates = False
     """
     Commands for making and repairing blacksmith items
     """
@@ -49,6 +52,9 @@ class BlacksmithCmdSet(CmdSet):
         self.add(crafting.CmdCraft())
 
 class CrafterCmdSet(CmdSet):
+    # Co-located stations (forge + workbench in one room) must not
+    # produce "More than one match for repair" — collapse duplicates.
+    duplicates = False
     """
     Commands for making and repairing bowyer and artificer items
     """

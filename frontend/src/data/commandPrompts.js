@@ -193,6 +193,10 @@ PROMPTS.disarm = _targetPrompt('disarm', 'Disarm whom?')
 PROMPTS.stagger = _targetPrompt('stagger', 'Stagger whom?')
 PROMPTS.stun = _targetPrompt('stun', 'Stun whom?')
 PROMPTS.sunder = _targetPrompt('sunder', 'Sunder whose weapon or armor?')
+PROMPTS.cleave = _targetPrompt('cleave', 'Cleave into whom?')
+// Server pushes healing as `heal` / `restore` (the real command keys).
+PROMPTS.heal = _targetPrompt('heal', 'Tend whose wounds?', '🩹')
+PROMPTS.restore = _targetPrompt('restore', 'Perform chirurgery on whom?', '🩹')
 PROMPTS.medicine = _targetPrompt('medicine', 'Apply medicine to whom?', '🩹')
 PROMPTS.chirurgery = _targetPrompt('chirurgery', 'Perform chirurgery on whom?', '🩹')
 

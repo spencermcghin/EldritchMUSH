@@ -54,8 +54,11 @@ class CmdShoot(Command):
             combatant.message("|400You are all out of arrows.|n")
             return
 
-        # Check for and error handle designated target
-        target = self.caller.search(self.target)
+        # Check for and error handle designated target — take the
+        # first match quietly (identical enemy names, see strike.py).
+        target = self.caller.search(self.target, quiet=True)
+        if isinstance(target, (list, tuple)):
+            target = target[0] if target else None
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.

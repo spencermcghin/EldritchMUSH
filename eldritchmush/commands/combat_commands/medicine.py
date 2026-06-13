@@ -67,6 +67,14 @@ class CmdMedicine(Command):
 
         target_max_bleed_points = 3 + target.db.resilience
 
+        # Turn order only applies INSIDE a fight. Out of combat, a
+        # stale combat_turn=0 from a previous battle used to block
+        # healing entirely ("wait until it is your turn" in an empty
+        # field). Reset the stale flag and proceed.
+        room_loop = combatant.caller.location.db.combat_loop or []
+        if combatant.caller not in room_loop and not combatant.caller.db.combat_turn:
+            combatant.caller.db.combat_turn = 1
+
         if combatant.hasTurn():
             # Anything from this level on, consumes the users turn.  Learn to Diagnose!
             if combatant.hasChirurgeonsKit():

@@ -180,9 +180,7 @@ def build_available_commands(character):
     # --- Always-available general commands ---
     commands.append(_cmd("look", "Look", "[<target>]", "General"))
     commands.append(_cmd("inventory", "Inventory", "", "General"))
-    commands.append(_cmd("equipment", "Equipment", "", "General"))
     commands.append(_cmd("charsheet", "Character Sheet", "", "General"))
-    commands.append(_cmd("score", "Score", "", "General"))
 
     # --- Combat commands ---
     if in_combat:
@@ -220,9 +218,6 @@ def build_available_commands(character):
                         enabled=False, reason="No arrows equipped"
                     ))
 
-                if character.db.resist:
-                    commands.append(_cmd("resist", "Resist", "", "Combat"))
-
                 # Healing in combat
                 if character.db.medicine or character.db.stabilize or character.db.battlefieldmedicine:
                     kit_ok = _has_chirurgeons_kit(character)
@@ -234,7 +229,7 @@ def build_available_commands(character):
                 if character.db.chirurgeon:
                     kit_ok = _has_chirurgeons_kit(character)
                     commands.append(_cmd(
-                        "chirurgery", "Chirurgery", "<target>", "Combat",
+                        "restore", "Chirurgery", "<target>", "Combat",
                         enabled=kit_ok,
                         reason="" if kit_ok else "No chirurgeon's kit equipped"
                     ))
@@ -271,7 +266,7 @@ def build_available_commands(character):
         if character.db.chirurgeon:
             kit_ok = _has_chirurgeons_kit(character)
             commands.append(_cmd(
-                "chirurgery", "Chirurgery", "<target>", "Healing",
+                "restore", "Chirurgery", "<target>", "Healing",
                 enabled=kit_ok,
                 reason="" if kit_ok else "No chirurgeon's kit equipped"
             ))
@@ -308,12 +303,6 @@ def build_available_commands(character):
         commands.append(_cmd("browse", "Browse", "[<merchant>]", "Shop"))
         commands.append(_cmd("buy", "Buy", "<item> from <merchant>", "Shop"))
         commands.append(_cmd("sell", "Sell", "<item> to <merchant>", "Shop"))
-
-    # --- Tracking / Perception ---
-    if character.db.tracking:
-        commands.append(_cmd("track", "Track", "", "Exploration"))
-    if character.db.perception:
-        commands.append(_cmd("perception", "Perception", "", "Exploration"))
 
     return commands
 

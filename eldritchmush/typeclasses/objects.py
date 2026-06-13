@@ -344,6 +344,8 @@ class Forge(DefaultObject):
         self.locks.add("get:false()")
         self.db.blacksmith_text = "|430Usage: \nforge <item>\nrepair <item>\nEnter the item name with underscores as in, iron_medium_weapon.|n"
         self.db.desc = "\nThis is a large forge as is used by a blacksmith in their trade. Metal items are heated here, until they are pliable enough to be molded and shaped by a mighty hammer and the smith's labor."
+        from commands.default_cmdsets import BlacksmithCmdSet
+        self.cmdset.add_default(BlacksmithCmdSet, permanent=True)
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
@@ -366,6 +368,8 @@ class BowyerWorkbench(DefaultObject):
         self.locks.add("get:false()")
         self.db.desc = "\nThis is a large workshop used by bowyers in their trade. Here wood is hewn, shaped, and laminated to become a masterfully crafted instrument of death. So too, are thin shafts wittled, their ends bound in a waxed string that to them binds the delicate feathers of a bird."
         self.db.bowyer_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_bow.|n"
+        from commands.default_cmdsets import CrafterCmdSet
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
@@ -387,6 +391,8 @@ class ArtificerWorkbench(DefaultObject):
         self.locks.add("get:false()")
         self.db.desc = "\nThis is a large workshop used by artificers in their trade. Here raw materials are wrought into core components for all manner of masterfully crafted items. Clothing, tools, and other various and sundry items pour out from behind these walls, and onto the stone and earth streets, or into the wagons of world-traveling traders."
         self.db.artificer_text = "|430Usage: \ncraft <item>\nEnter the item name with underscores as in, fine_clothing.|n"
+        from commands.default_cmdsets import CrafterCmdSet
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)
@@ -408,6 +414,8 @@ class GunsmithWorkbench(DefaultObject):
         self.locks.add("get:false()")
         self.db.desc = "\nThis is a large workshop used by gunsmiths in their trade. Metal and wood are expertly crafted and shaped into the core components of black-powder pistols. Many barrels of water surround the small structure given its penchant for setting alight."
         self.db.gunsmith_text = "|430Usage: \ncraft <item>\nrepair <item>\nEnter the item name with underscores as in, masterwork_pistol.|n"
+        from commands.default_cmdsets import CrafterCmdSet
+        self.cmdset.add_default(CrafterCmdSet, permanent=True)
 
     def return_appearance(self, looker):
         string = super().return_appearance(looker)

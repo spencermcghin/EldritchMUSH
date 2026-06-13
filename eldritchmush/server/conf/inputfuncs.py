@@ -1541,6 +1541,25 @@ def text(session, *args, **kwargs):
                                 session.msg(text=f"|400{item.key} is broken and cannot be equipped.|n")
                                 return
 
+                            # Skill gate — same rule the Armory modal
+                            # and CmdEquip enforce. Without this, the
+                            # typed path equipped skill-locked gear.
+                            req = getattr(item.db, "required_skill", None)
+                            _SKILL_LABELS = {
+                                "gunner": "Firearms",
+                                "archer": "Archery",
+                                "shields": "Shields",
+                                "melee_weapons": "Melee Weapons",
+                                "armor_proficiency": "Armor",
+                            }
+                            if req and req in _SKILL_LABELS and not (
+                                    puppet.attributes.get(req, default=0)):
+                                session.msg(text=(
+                                    f"|400You lack the skill in "
+                                    f"{_SKILL_LABELS[req]} to use "
+                                    f"{item.key}.|n"))
+                                return
+
                             # Determine target slot
                             idb = item.db
                             if getattr(idb, "is_armor", False):

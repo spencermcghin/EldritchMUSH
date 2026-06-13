@@ -937,7 +937,7 @@ link(mystvale_square, "crafters",  crafter_quarter,    "out",        None, None)
 link(mystvale_square, "town hall", town_hall,          "out",        "hall", None)
 link(mystvale_square, "garden",    herbalist_garden,   "out",        None, None)
 link(mystvale_square, "chantry",   chantry,            "out",        None, None)
-link(mystvale_square, "chirurgery", chirurgeons_guild, "out",        "heal", "o")
+link(mystvale_square, "chirurgery", chirurgeons_guild, "out",        "clinic", "o")
 link(mystvale_square, "training",  mystvale_training_yard, "out",   "train", "o")
 link(mystvale_square, "north",     manor_row,          "south",      "n",  "s")
 link(mystvale_square, "south",     south_gate,         "north",      "s",  "n")
@@ -9386,6 +9386,35 @@ _ensure_walkin_item(
     aliases=("vision", "the vision", "prophecy", "unbound vision"),
     gettable=True,
 )
+
+# ---------------------------------------------------------------------------
+# CRAFTING-STATION CMDSET RETROFIT — Forge/Bowyer/Artificer/Gunsmith
+# stations advertised forge/craft/repair but never carried the cmdsets
+# (only the Apothecary did it right). Fix already-created stations.
+# ---------------------------------------------------------------------------
+from commands.default_cmdsets import BlacksmithCmdSet, CrafterCmdSet
+_station_sets = {
+    "typeclasses.objects.Forge": BlacksmithCmdSet,
+    "typeclasses.objects.BowyerWorkbench": CrafterCmdSet,
+    "typeclasses.objects.ArtificerWorkbench": CrafterCmdSet,
+    "typeclasses.objects.GunsmithWorkbench": CrafterCmdSet,
+}
+for _path, _set in _station_sets.items():
+    for _st in ObjectDB.objects.filter(db_typeclass_path=_path):
+        _st.cmdset.add_default(_set, permanent=True)
+        print(f"  RETROFIT: {_st.key} carries {_set.__name__}")
+
+# ---------------------------------------------------------------------------
+# EXIT-ALIAS RETROFIT — the chirurgery exit's 'heal' alias shadowed the
+# heal COMMAND for anyone standing in Mystvale Square (exits outrank
+# commands). Rename the alias on already-created exits.
+# ---------------------------------------------------------------------------
+for _ex in ObjectDB.objects.filter(db_key="chirurgery",
+                                   db_location=mystvale_square.pk):
+    if "heal" in [a.lower() for a in _ex.aliases.all()]:
+        _ex.aliases.remove("heal")
+        _ex.aliases.add("clinic")
+        print("  RETROFIT: chirurgery exit alias heal -> clinic")
 
 # ---------------------------------------------------------------------------
 # GHOST FLAGS — NPCs whose dialogue triggers séance mode in the web client

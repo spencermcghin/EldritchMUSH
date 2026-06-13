@@ -24,6 +24,7 @@ class CmdChirurgery(Command):
     See also: medicine, diagnose, disengage
     """
     key = "restore"
+    aliases = ["chirurgery"]
     help_category = "Healing"
 
     def __init__(self):

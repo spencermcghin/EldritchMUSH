@@ -46,7 +46,13 @@ class CmdStrike(Command):
             combatant.message("|400You are too injured to act.|n")
             return
 
-        target = self.caller.search(self.target)
+        # Take the first match quietly: rooms routinely hold several
+        # identical enemies (3x "Rat Company Digger"), and the stock
+        # multimatch prompt was a dead end for `strike <name>` and for
+        # the web client's click-to-target.
+        target = self.caller.search(self.target, quiet=True)
+        if isinstance(target, (list, tuple)):
+            target = target[0] if target else None
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
