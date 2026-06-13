@@ -226,15 +226,34 @@ class Character(DefaultCharacter):
         looker sees when looking at this object.
         """
         text = super().return_appearance(looker)
-        isBleeding = True if not self.db.body and self.db.bleed_points else False
-        isDying = True if not self.db.bleed_points and not self.db.body else False
+        # None-safe vitals: uninitialized stats (old Merchant rows,
+        # pre-vitals objects) read as HEALTHY, not unconscious — prod's
+        # blacksmith spent weeks "succumbed to his injuries" because
+        # his body stat was never set.
+        body = self.db.body
+        total = self.db.total_body
+        bleed = self.db.bleed_points
+        initialized = body is not None and bleed is not None
+
+        isBleeding = initialized and not body and bleed
+        isDying = initialized and not body and not bleed
+        isWounded = (initialized and total
+                     and 0 < body < total)
 
         # Return
         if isBleeding:
-            return text + f"\n{self.key} |025is bleeding profusely from mutliple, serious wounds.|n"
+            return text + f"\n{self.key} |025is bleeding profusely from multiple, serious wounds.|n"
 
         elif isDying:
             return text + f"\n{self.key} |025has succumbed to their injuries and is now unconscious.|n"
+
+        elif isWounded:
+            if body >= total - 1:
+                return text + (f"\n{self.key} |025bears fresh wounds — "
+                               f"favoring them, but on their feet.|n")
+            return text + (f"\n{self.key} |025is badly hurt: bandaged "
+                           f"rough, moving carefully, clearly in need "
+                           f"of a healer.|n")
 
         else:
             return text

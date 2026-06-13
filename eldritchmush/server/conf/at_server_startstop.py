@@ -265,6 +265,22 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] moonstorm bootstrap FAILED: {exc!r}")
 
+    # Bootstrap NPC wound recovery. Idempotent.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(
+                db_key="living_world_recovery").exists():
+            create_script(
+                "typeclasses.scripts.NpcRecoveryScript",
+                key="living_world_recovery",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] NpcRecoveryScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] recovery bootstrap FAILED: {exc!r}")
+
     # Cross-check quest content against the live world. Quest targets
     # bind by substring match, so a renamed room/NPC/item silently
     # strands quests — this surfaces those as boot-time log errors

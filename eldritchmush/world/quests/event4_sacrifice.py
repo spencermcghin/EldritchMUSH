@@ -92,7 +92,9 @@ QUESTS = {
             "Two men named Henri stood trial for Eldreth's murder; the "
             "town judge let both walk. Rook of the Ironbloods has not "
             "let it go. She wants the real killer — confession in hand — "
-            "delivered to whichever justice you think fits."
+            "delivered to whichever justice you think fits. The "
+            "confession never leaves the guilty man's coat: question "
+            "the twins at the Town Hall, then take it off his body."
         ),
         "outcomes": {
             "deliver_to_cirque": {
@@ -102,8 +104,15 @@ QUESTS = {
                     "the file her own way. The Crown will not approve."
                 ),
                 "objectives": [
+                    {"type": "talk", "target": "henri", "topic": "confession",
+                     "tag": "pressed", "qty": 1,
+                     "desc": "Question the twins at the Town Hall — |wask henri about the confession|n (0/1)"},
+                    {"type": "kill", "target": "henri", "qty": 1,
+                     "tag": "confronted", "requires": "pressed",
+                     "desc": "Confront the guilty Henri — he will not be taken alive (0/1)"},
                     {"type": "gather", "target": "henri's confession", "qty": 1,
-                     "desc": "Recover Henri's confession (0/1)"},
+                     "requires": "confronted",
+                     "desc": "Take the confession from his body (0/1)"},
                     {"type": "deliver", "target": "rook of the ironbloods", "qty": 1,
                      "desc": "Hand the confession to Rook (0/1)"},
                 ],
@@ -119,8 +128,15 @@ QUESTS = {
                     "will reopen the case publicly. Slow, public, lawful."
                 ),
                 "objectives": [
+                    {"type": "talk", "target": "henri", "topic": "confession",
+                     "tag": "pressed", "qty": 1,
+                     "desc": "Question the twins at the Town Hall — |wask henri about the confession|n (0/1)"},
+                    {"type": "kill", "target": "henri", "qty": 1,
+                     "tag": "confronted", "requires": "pressed",
+                     "desc": "Confront the guilty Henri — he will not be taken alive (0/1)"},
                     {"type": "gather", "target": "henri's confession", "qty": 1,
-                     "desc": "Recover Henri's confession (0/1)"},
+                     "requires": "confronted",
+                     "desc": "Recover the confession as evidence (0/1)"},
                     {"type": "deliver", "target": "mystvale captain of the watch", "qty": 1,
                      "desc": "Hand the confession to the watch captain (0/1)"},
                 ],
@@ -144,7 +160,11 @@ QUESTS = {
                 ),
                 "objectives": [
                     {"type": "kill", "target": "henri", "qty": 1,
+                     "tag": "confronted",
                      "desc": "Confront and put down the guilty Henri (0/1)"},
+                    {"type": "gather", "target": "henri's confession", "qty": 1,
+                     "requires": "confronted",
+                     "desc": "Take the confession from his body and burn it (0/1)"},
                 ],
                 "rewards": {"silver": 15, "items": [], "reagents": {}},
                 "faction_rep": {"crown": -2, "cirque": -3, "outlaws": 2, "outsider": 2},

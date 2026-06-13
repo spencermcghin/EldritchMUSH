@@ -3639,6 +3639,14 @@ def get_or_create_merchant(key, location, desc, inventory, shop_text,
     m.attributes.add("ai_knowledge", ai_knowledge)
     m.attributes.add("ai_quest_hooks", list(ai_quest_hooks))
     m.attributes.add("ai_scope", ai_scope)
+    # Merchants are people: give them vitals if they have none — the
+    # appearance/dialogue layers used to read None as "unconscious"
+    # (prod's blacksmith spent weeks 'succumbed to his injuries').
+    if m.db.body is None:
+        m.db.body = 4
+        m.db.total_body = 4
+        m.db.bleed_points = 3
+        m.db.death_points = 3
     for alias in aliases:
         m.aliases.add(alias)
     return m
@@ -6880,55 +6888,80 @@ rook = _ensure_walkin_npc(
         "- Cirque sent her to see Eldreth's murderer answer for the "
         "killing — the town judge let both Henris walk and the case is "
         "still open.\n"
-        "- Offers |wThe Doppelganger|n: gather evidence, hand the real "
-        "Henri to the Cirque, the Watch, or shield the innocent twin.\n"
+        "- Offers |wThe Doppelganger|n: question the twins at the Town "
+        "Hall, take the confession off the guilty Henri, and hand it to "
+        "the Cirque, the Watch — or shield the innocent twin.\n"
+        "- The confession is folded in the guilty man's coat. It will "
+        "not leave him while he lives; he will not be taken alive.\n"
         "- Pays better than the Crown for the right outcome."
     ),
 )
 
-# Henri + his doppelganger as gettable evidence + suspect NPCs.
+# Henri + his doppelganger as suspect NPCs.
 # We seed two NPCs both called "Henri" so the trial canon makes sense
 # (the player can confront either; only one is the real killer).
-for _ in range(2):
-    henri = _ensure_walkin_npc(
-        "Henri", town_hall,
-        desc=(
-            "A pale, narrow-shouldered man in a moth-eaten coat. Eyes "
-            "down. His twin stands across the room — same coat, same "
-            "stance, same nervous tic. Only one of them is the killer."
-        ),
-        aliases=("henri",),
-        aggressive=False,
-        ai_personality=(
-            "A clerk's son turned bookkeeper-for-hire — the kind of "
-            "tradesman common to any market town in any age, the "
-            "literate son a merchant family scraped together a "
-            "schooling for. Speaks like someone trained to sound "
-            "useful and harmless: precise nouns, deferential verbs, "
-            "few opinions. Anxious. Whichever Henri this is, he "
-            "knows what the other did. The real killer lies smoothly. "
-            "The innocent one breaks down."
-        ),
-        ai_knowledge=(
-            "- Worked Cirque ledger-books on contract for two years.\n"
-            "- Knows where Eldreth was last seen.\n"
-            "- One of them carries a confession folded in his coat. "
-            "The other carries only fear."
-        ),
-    )
-    henri.db.body = 4
-    henri.db.total_body = 4
-    henri.db.av = 0
-
-_ensure_walkin_item(
-    "henri's confession", town_hall,
+_ensure_walkin_npc(
+    "Henri", town_hall,
     desc=(
-        "A folded confession in a hand the Cirque can authenticate — "
-        "Henri's, signed in his own blood. Identifies which twin "
-        "actually killed Eldreth."
+        "A pale, narrow-shouldered man in a moth-eaten coat. Eyes "
+        "down. His twin stands across the room — same coat, same "
+        "stance, same nervous tic. Only one of them is the killer."
     ),
-    aliases=("confession", "henri's confession", "henri confession"),
+    aliases=("henri",),
+    aggressive=False,
+    ai_personality=(
+        "A clerk's son turned bookkeeper-for-hire — the kind of "
+        "tradesman common to any market town in any age, the "
+        "literate son a merchant family scraped together a "
+        "schooling for. Speaks like someone trained to sound "
+        "useful and harmless: precise nouns, deferential verbs, "
+        "few opinions. Anxious. Whichever Henri this is, he "
+        "knows what the other did. The real killer lies smoothly. "
+        "The innocent one breaks down. NEVER admit to the killing "
+        "or hand over the confession — it does not leave his coat "
+        "while he lives."
+    ),
+    ai_knowledge=(
+        "- Worked Cirque ledger-books on contract for two years.\n"
+        "- Knows where Eldreth was last seen.\n"
+        "- One of them carries a confession folded in his coat — it "
+        "will not leave him while he lives. The other carries only "
+        "fear.\n"
+        "- The guilty Henri will not be taken alive."
+    ),
+    count=2,
 )
+# Stat block + kill-drop on BOTH twins. The confession is folded in
+# the guilty man's coat — it must NOT exist loose in the world (see
+# _ensure_walkin_item docstring: kill-drop items belong on the corpse,
+# spawned by the combatant kill hook reading db.npc_drops). Both twins
+# carry the drop because the two NPCs share a key and the player has
+# no mechanical way to pick the "right" one — whichever twin is
+# confronted after the interrogation beat yields the evidence, so the
+# quest can never dead-end on a coin-flip.
+for _henri in ObjectDB.objects.filter(db_key="Henri", db_location=town_hall.pk):
+    _henri.db.body = 4
+    _henri.db.total_body = 4
+    _henri.db.av = 0
+    _henri.db.npc_drops = [
+        {
+            "key": "henri's confession",
+            "aliases": ["confession", "henri's confession", "henri confession"],
+            "desc": (
+                "A folded confession in a hand the Cirque can authenticate — "
+                "Henri's, signed in his own blood. Identifies which twin "
+                "actually killed Eldreth."
+            ),
+        },
+    ]
+# Older deploys seeded the confession loose on the Town Hall floor,
+# openly grabbable with zero investigation. Clear any stale copies so
+# the only way to obtain it is off the guilty Henri's body.
+for _stale in ObjectDB.objects.filter(
+    db_key="henri's confession",
+    db_location=town_hall.pk,
+):
+    _stale.delete()
 
 # --- Sergeant Marrow of the Silver Company (Mystvale Square) ---
 marrow = _ensure_walkin_npc(

@@ -546,6 +546,37 @@ def _dynamic_block(npc, character):
     speaker_name = npc.key or "you"
     player_name = getattr(character, "key", None) if character else None
 
+    # ── The NPC's own physical condition ─────────────────────────────
+    # A wounded NPC should SAY so when asked — and carry it in their
+    # manner. (Unconscious NPCs never reach the LLM; chat() short-
+    # circuits them.)
+    try:
+        body = npc.db.body
+        total = npc.db.total_body
+        if body is not None and total:
+            if 0 < body < total:
+                sev = ("lightly wounded — it stings, but you can work"
+                       if body >= total - 1 else
+                       "badly hurt — moving is hard, breathing harder")
+                parts.extend([
+                    "YOUR CONDITION:",
+                    f"  You are currently {sev}. If asked how you are, "
+                    f"or about your injuries, be honest about it in "
+                    f"your own voice. You would be grateful for a "
+                    f"healer's attention.",
+                    "",
+                ])
+            elif body <= 0:
+                parts.extend([
+                    "YOUR CONDITION:",
+                    "  You are gravely injured — conscious, barely, "
+                    "and it colors every word. Speak in fragments. "
+                    "Ask for help if it is in character to ask.",
+                    "",
+                ])
+    except Exception:
+        pass
+
     # ── Where the NPC currently IS ───────────────────────────────────
     # Without this, walk-in companions like First Mate Nosaj keep
     # behaving as if they're still on the doomed ship even after the
@@ -989,6 +1020,20 @@ def chat(npc, character, message, on_reply):
     if not clean_msg:
         _dispatch(on_reply, _fallback_line(npc))
         return
+
+    # An unconscious NPC can't hold a conversation — short-circuit
+    # before any LLM spend. (None vitals = never initialized = healthy;
+    # only a real 0/0 means down.)
+    try:
+        if (npc.db.body is not None and not npc.db.body
+                and npc.db.bleed_points is not None
+                and not npc.db.bleed_points):
+            _dispatch(on_reply, (
+                f"|025{npc.key} does not answer. They are beyond "
+                f"words until someone tends their wounds.|n"))
+            return
+    except Exception:
+        pass
 
     # Defense layer 1: banned-phrase filter. Synchronous, regex-only,
     # no API call. Runs BEFORE we queue the work to save latency.

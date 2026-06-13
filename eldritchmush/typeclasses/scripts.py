@@ -375,6 +375,25 @@ class MoonstormScript(DefaultScript):
                   flush=True)
 
 
+class NpcRecoveryScript(DefaultScript):
+    """Hourly: wounded NPCs mend one body (living_world.npc_recovery_tick)."""
+
+    def at_script_creation(self):
+        self.key = "living_world_recovery"
+        self.desc = "Wounded NPCs slowly heal"
+        self.interval = 3600
+        self.start_delay = True
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from world import living_world
+            living_world.npc_recovery_tick()
+        except Exception as exc:
+            print(f"[living_world] recovery script error: {exc!r}",
+                  flush=True)
+
+
 class AdjudicatorLetterScript(DefaultScript):
     """One-shot delayed delivery of a Dark Forest letter (living_world).
 

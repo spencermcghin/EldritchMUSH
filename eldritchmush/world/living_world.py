@@ -1232,6 +1232,48 @@ def set_siege(outcome):
 
 
 # ─────────────────────────────────────────────────────────────────────────
+# NPC RECOVERY — wounded NPCs heal slowly over time
+#
+# Injuries show in an NPC's description and color their dialogue
+# (typeclasses/characters.py return_appearance + ai_npc's condition
+# block) — and they fade. Every hour an NPC not in combat recovers
+# one body; once whole, their bleed/death pools and weakness reset.
+# Vengeful antagonists mid-resurrection are left to their own script.
+# ─────────────────────────────────────────────────────────────────────────
+
+def npc_recovery_tick():
+    from evennia.objects.models import ObjectDB
+    healed = 0
+    for npc in ObjectDB.objects.filter(
+            db_typeclass_path__startswith="typeclasses.npc"):
+        try:
+            if npc.db.in_combat or npc.db.vengeful_return_pending:
+                continue
+            body = npc.db.body
+            total = npc.db.total_body
+            if body is None or not total:
+                continue
+            if body < total:
+                npc.db.body = body + 1
+                healed += 1
+                if npc.db.body >= total:
+                    npc.db.bleed_points = 3
+                    npc.db.death_points = 3
+                    npc.db.weakness = 0
+                    room = npc.location
+                    if room and any(getattr(o, "has_account", False)
+                                    for o in room.contents):
+                        room.msg_contents(
+                            f"|025{npc.key} moves easier than they "
+                            f"did — the wounds are knitting.|n")
+        except Exception:
+            continue
+    if healed:
+        _log(f"[living_world.recovery] {healed} NPC(s) mended a wound")
+    return healed
+
+
+# ─────────────────────────────────────────────────────────────────────────
 # Quest-completion aftermath dispatcher
 # ─────────────────────────────────────────────────────────────────────────
 

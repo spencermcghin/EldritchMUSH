@@ -120,14 +120,35 @@ def _sell_price(item, char=None, merchant=None):
     return max(1, int(round(int(val) * mult)))
 
 
-def _find_merchant(caller, merchant_name):
-    """Search current room for a merchant NPC matching name."""
-    matches = [
+def _merchants_in_room(caller):
+    """All merchant objects in the caller's current room."""
+    return [
         obj for obj in caller.location.contents
         if obj != caller and obj.db.shop_inventory is not None
-        and merchant_name.lower() in obj.key.lower()
     ]
-    return matches[0] if len(matches) == 1 else (matches if matches else None)
+
+
+def _resolve_merchant(caller, name=""):
+    """Resolve a single merchant in the caller's room.
+
+    Returns (merchant, error_msg) — exactly one of the two is None.
+    Never dead-ends on ambiguity: if several merchants match (e.g.
+    duplicate-keyed merchants in the same room), prefer an exact key
+    match, otherwise quietly take the first candidate. This mirrors the
+    quiet take-first search idiom used by CmdGet/strike/shoot.
+    """
+    merchants = _merchants_in_room(caller)
+    if not merchants:
+        return None, "|430There are no merchants here.|n"
+    if name:
+        name_l = name.strip().lower()
+        matches = [m for m in merchants if name_l in (m.key or "").lower()]
+        if not matches:
+            return None, f"|430You don't see a merchant named '{name}' here.|n"
+        exact = [m for m in matches if (m.key or "").lower() == name_l]
+        return (exact[0] if exact else matches[0]), None
+    # Bare command with one or more merchants present: take the first.
+    return merchants[0], None
 
 
 class CmdBrowse(Command):
@@ -152,28 +173,11 @@ class CmdBrowse(Command):
         caller = self.caller
         arg = self.args.strip()
 
-        # Find merchant(s) in room
-        merchants = [
-            obj for obj in caller.location.contents
-            if obj != caller and obj.db.shop_inventory is not None
-        ]
-
-        if not merchants:
-            caller.msg("|430There are no merchants here.|n")
+        merchant, err = _resolve_merchant(caller, arg)
+        if err:
+            caller.msg(err)
             return
 
-        if arg:
-            merchants = [m for m in merchants if arg.lower() in m.key.lower()]
-            if not merchants:
-                caller.msg(f"|430You don't see a merchant named '{arg}' here.|n")
-                return
-
-        if len(merchants) > 1:
-            names = ", ".join(m.key for m in merchants)
-            caller.msg(f"|430Please specify a merchant: {names}|n")
-            return
-
-        merchant = merchants[0]
         inventory = merchant.db.shop_inventory or []
 
         if not inventory:
@@ -203,6 +207,14 @@ class CmdBrowse(Command):
                 lines.append(f"  |x{desc}|n")
 
         lines.append("\n|xType: buy <item> from <merchant> to purchase.|n")
+
+        # If other merchants share the room, mention them rather than
+        # ever raising a multimatch wall.
+        others = [m for m in _merchants_in_room(caller) if m != merchant]
+        if others:
+            names = ", ".join(m.key for m in others)
+            lines.append(f"|xAlso trading here: {names}. Use: browse <merchant name>|n")
+
         caller.msg("\n".join(lines))
 
 
@@ -244,22 +256,11 @@ class CmdBuy(Command):
             return
 
         # Find merchant
-        merchants = [
-            obj for obj in caller.location.contents
-            if obj != caller and obj.db.shop_inventory is not None
-        ]
-        if self.merchant_name:
-            merchants = [m for m in merchants if self.merchant_name in m.key.lower()]
-
-        if not merchants:
-            caller.msg("|430There are no merchants here.|n")
-            return
-        if len(merchants) > 1:
-            names = ", ".join(m.key for m in merchants)
-            caller.msg(f"|430Please specify which merchant: {names}|n")
+        merchant, err = _resolve_merchant(caller, self.merchant_name)
+        if err:
+            caller.msg(err)
             return
 
-        merchant = merchants[0]
         inventory = merchant.db.shop_inventory or []
 
         # Find the prototype in merchant's inventory
@@ -292,11 +293,14 @@ class CmdBuy(Command):
             caller.msg(f"|400You can't afford {item_name}. It costs {price} silver; you have {silver} silver.|n")
             return
 
-        # Spawn item into caller's inventory
-        spawned = spawn(proto, location=caller)
+        # Spawn item into caller's inventory. Note: spawn() ignores a
+        # `location` kwarg, so move the spawned object explicitly.
+        spawned = spawn(proto)
         if not spawned:
             caller.msg("|400Something went wrong spawning the item. Please report this.|n")
             return
+        for obj in spawned:
+            obj.location = caller
 
         caller.db.silver -= price
         caller.msg(f"|gYou pay {price} silver and receive |w{item_name}|g.|n")
@@ -343,28 +347,20 @@ class CmdSell(Command):
             caller.msg("|430Usage: sell <item> to <merchant>|n")
             return
 
-        # Find item in inventory
-        item = caller.search(self.item_name, location=caller)
-        if not item:
+        # Find item in inventory — quiet search, take the first match so
+        # stacked identical items never raise Evennia's multimatch prompt.
+        matches = caller.search(self.item_name, location=caller, quiet=True)
+        if not matches:
+            caller.msg(f"|430You aren't carrying '{self.item_name}'.|n")
             return
+        item = matches[0]
 
         # Find merchant
-        merchants = [
-            obj for obj in caller.location.contents
-            if obj != caller and obj.db.shop_inventory is not None
-        ]
-        if self.merchant_name:
-            merchants = [m for m in merchants if self.merchant_name in m.key.lower()]
-
-        if not merchants:
-            caller.msg("|430There are no merchants here.|n")
-            return
-        if len(merchants) > 1:
-            names = ", ".join(m.key for m in merchants)
-            caller.msg(f"|430Please specify which merchant: {names}|n")
+        merchant, err = _resolve_merchant(caller, self.merchant_name)
+        if err:
+            caller.msg(err)
             return
 
-        merchant = merchants[0]
         price = _sell_price(item, char=caller, merchant=merchant)
         item_name = item.key
 
