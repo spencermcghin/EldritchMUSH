@@ -20,22 +20,24 @@ const FEATURES = [
     art: '/landing/fae.jpg',
     alt: 'Ink illustration of a masked fae lord in dark robes, carrying carved masks and a crooked staff',
     caption: 'Fig. I — a fae of the Annwyn',
-    body: `Every soul in the Vale keeps an account of you. Lie to the
-    innkeeper and the smith hears of it within the week, warped in the
-    telling. A seer dreams of your deeds and recites them back as
-    prophecy. You can confess your secrets to the priest, if it
-    comforts you — though that vault has been robbed before.`,
+    body: `The people here keep track of you. Lie to the innkeeper and
+    the smith hears about it by week's end, the story a little worse
+    each time it's told. A seer dreams about something you did and
+    repeats it back to you as prophecy. Confess to the priest if it
+    helps — but his confessional has been broken into before.`,
   },
   {
     numeral: 'II',
-    title: 'Combat is a held breath',
+    title: 'Combat with real depth',
     art: '/landing/werewolf.jpg',
     alt: 'Ink illustration of a werewolf crouched on a ridge before a full moon, a severed manacled hand in the snow',
     caption: 'Fig. II — werewolf, by moonlight',
-    body: `Turn-based, tactical, unsentimental. Blades sunder, armor
-    fails by inches, wounds go to bleeding before they go to black.
-    Somewhere out there a thing called the Withering Maw walks from
-    room to room on its own appointed rounds, and it holds a grudge.`,
+    body: `Turn-based fights you can actually think your way through.
+    Position matters. You target specific limbs, armor wears down and
+    stops protecting, and a clean hit can disarm, sunder, or stagger.
+    Take enough and you start bleeding out. A creature called the
+    Withering Maw wanders the map on its own, so the room you walk
+    into may already have teeth in it.`,
   },
   {
     numeral: 'III',
@@ -43,10 +45,12 @@ const FEATURES = [
     art: '/landing/necromancer.jpg',
     alt: 'Ink illustration of a robed necromancer wreathed in pale smoke, dead hands rising from the earth around her',
     caption: 'Fig. III — a necromancer at her work',
-    body: `Branching quests resolve in outcomes, not checkmarks. Rob
-    the forager or take the vision; either way, letters will find you
-    afterward. Factions keep score. So do certain ghosts, who can be
-    spoken with, provided you keep your nerve through the séance.`,
+    body: `Quests branch, and how they end is up to you. Rob the
+    forager, or take the vision he offers — either choice writes
+    itself into what happens next, and a letter usually arrives to
+    remind you. The houses track where you stand with them. So do a
+    few of the dead, if you can hold a séance without losing your
+    nerve.`,
   },
   {
     numeral: 'IV',
@@ -54,10 +58,11 @@ const FEATURES = [
     art: '/landing/clovis.jpg',
     alt: 'Ink illustration of a suit of armor and skull disassembled into its parts, swords fanned behind it',
     caption: 'Fig. IV — a soldier, itemized',
-    body: `Forge, fletch, brew, and barter. Sixty-six alchemical
-    recipes, eight noble houses' worth of arms and armor, and an
-    economy in silver that does not forgive bad debts. What you carry
-    is what you made, bought, or pried from something's hands.`,
+    body: `Forge weapons, fletch arrows, brew tinctures, haggle in the
+    market. There are sixty-six alchemy recipes, arms and armor for all
+    eight houses, and a silver economy that remembers what you owe.
+    Everything you carry, you made, bought, or took off something that
+    no longer needs it.`,
   },
 ]
 
@@ -75,12 +80,12 @@ const STEPS = [
   {
     n: '3',
     title: 'Cross over',
-    body: 'Make a character and pick your road into the Annwyn — by ship, with the Cirque caravan, in a noble retinue, among the Lodge scholars, or chained in the Last Walk.',
+    body: 'Make a character and choose how you arrive: by ship, riding with the Cirque caravan, in a noble retinue, among the Lodge scholars, or chained in the Last Walk.',
   },
   {
     n: '4',
     title: 'Play',
-    body: 'Prose in, world out. The story runs whether you are watching or not.',
+    body: 'Type what you do, read what happens. The world keeps moving when you log off.',
   },
 ]
 
@@ -108,11 +113,11 @@ export default function LandingPage({ onPlay }) {
               <span className="landing-title-line">moving</span>
             </h1>
             <p className="landing-lede">
-              Beyond the village of Gateway lies the walled Vale of
-              Mystvale, and beyond the Vale lies the Annwyn, which does
-              not give things back. A living text world of turn-based
-              combat, consequence, and company you will come to regret.
-              Cross, and the Annwyn takes you.
+              Past the village of Gateway stands the walled Vale of
+              Mystvale, and past the Vale waits the Annwyn. People go in.
+              Fewer come back. It's a text world you play by writing:
+              turn-based combat, choices that stick to you, and neighbors
+              you'll wish you had never met.
             </p>
             <div className="landing-cta-row">
               <button className="landing-cta" type="button" onClick={onPlay}>
@@ -142,13 +147,12 @@ export default function LandingPage({ onPlay }) {
       {/* ── What it is ── */}
       <section className="landing-what" aria-label="What EldritchMUSH is">
         <p className="landing-what-text">
-          EldritchMUSH is a multiplayer story told in prose — a MUSH, in
-          the old tongue. You write what your character does; the world
-          writes back. Its people are played by a machine intelligence
-          with a long memory: they gossip about you, dream about you,
-          carry grudges across weeks. There is no level grind and no
-          minimap. There is a village at the edge of the world, and
-          everything past it is earned.
+          EldritchMUSH is a multiplayer story you read and write in plain
+          prose. You say what your character does; the world answers. The
+          people in it gossip about you, hold grudges for weeks, and dream
+          your worst deeds back at you as prophecy. No XP bars, no minimap.
+          Just a village at the edge of everything, and a long way to go
+          before any of it belongs to you.
         </p>
       </section>
 
@@ -171,9 +175,47 @@ export default function LandingPage({ onPlay }) {
 
       {/* ── Interstitial — the world moves on its own ── */}
       <section className="landing-interstitial" aria-label="The living world">
-        <p>Roughly once a night, a moonstorm breaks over the Vale.</p>
-        <p>The Mists open passages that were not there yesterday.</p>
-        <p>Neither asks permission.</p>
+        <figure className="landing-interstitial-figure">
+          <img
+            src="/landing/mists.jpg"
+            alt="Ink illustration of two figures handing off a relic at the edge of a dark, knotted Mist that watches with many eyes"
+            loading="lazy"
+            width="1400"
+            height="906"
+          />
+        </figure>
+        <p className="landing-interstitial-lead">
+          About once a night a moonstorm rolls over the Vale, and the
+          Mists open roads that were not there the day before. Walk one
+          and you might not come out where you went in.
+        </p>
+      </section>
+
+      {/* ── World map ── */}
+      <section className="landing-map" aria-label="The world">
+        <div className="landing-map-copy">
+          <p className="landing-map-kicker">Three places, getting worse</p>
+          <h2 className="landing-map-title">Gateway, Mystvale, the Annwyn</h2>
+          <p className="landing-map-body">
+            Gateway is the village where you wash up — taverns, a market,
+            people who will sell you out. The Vale of Mystvale is the
+            walled country behind it, held by eight quarreling houses. The
+            Annwyn is what's on the far side of the Mists, and the maps of
+            it tend to be wrong on purpose.
+          </p>
+        </div>
+        <figure className="landing-map-figure">
+          <img
+            src="/landing/annwyn-map.jpg"
+            alt="Aged illustrated map of the Vale showing Duskwatch Harbour, the town of Ludavar, forested hinterlands, a knight on horseback, and a noble's coach"
+            loading="lazy"
+            width="1088"
+            height="1100"
+          />
+          <figcaption className="landing-plate-caption">
+            survey of the vale — provenance unknown
+          </figcaption>
+        </figure>
       </section>
 
       {/* ── Factions ── */}
@@ -188,13 +230,13 @@ export default function LandingPage({ onPlay }) {
           />
         </figure>
         <div className="landing-factions-copy">
-          <h2 className="landing-factions-title">Eight houses keep the Vale</h2>
+          <h2 className="landing-factions-title">Eight houses run the Vale</h2>
           <p className="landing-factions-names">
             Aragon · Bannon · Blayne · Corveaux · Hale · Innis · Richter · Rourke
           </p>
           <p className="landing-factions-body">
-            Choose carefully whose colors you stand under. They are
-            keeping score too.
+            Pick whose colors you wear with some care. Each house has a
+            long memory and a longer list of people who crossed it.
           </p>
         </div>
       </section>
@@ -213,12 +255,21 @@ export default function LandingPage({ onPlay }) {
         </ol>
 
         <div className="landing-pricing">
+          <img
+            src="/landing/wax-seal.png"
+            alt=""
+            aria-hidden="true"
+            className="landing-pricing-seal"
+            width="240"
+            height="284"
+            loading="lazy"
+          />
           <h3 className="landing-pricing-title">The toll</h3>
           <p className="landing-pricing-body">
-            The first thirty days are free — the whole game, no card up
-            front. After that it is <strong>$5 a month</strong>, paid
-            through PayPal. Cancel whenever you like; the Mists hold no
-            contracts.
+            The first thirty days cost nothing — the full game, no card
+            up front. After that it's <strong>$5 a month</strong> through
+            PayPal, and you can cancel any time. Nobody here holds you to
+            a contract.
           </p>
           <button className="landing-cta" type="button" onClick={onPlay}>
             Begin the trial
