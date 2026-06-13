@@ -147,6 +147,11 @@ function App() {
   const autoConnectAttemptedRef = useRef(false)
   useEffect(() => {
     if (autoConnectAttemptedRef.current) return
+    // The landing page is the front door: never auto-connect (and so
+    // skip the landing) until the visitor has actually entered the
+    // gate at /play. Without this, anyone with a lingering session is
+    // bounced straight past the marketing page into character select.
+    if (!gateEntered) return
     if (connectionState !== 'disconnected') return
     autoConnectAttemptedRef.current = true
     fetch('/api/webclient_session/', { credentials: 'include' })
@@ -163,7 +168,7 @@ function App() {
         }
       })
       .catch(() => { /* endpoint not deployed yet — show LoginScreen */ })
-  }, [connectionState, connect])
+  }, [connectionState, connect, gateEntered])
 
   // Entity detail panel state
   const [selectedEntity, setSelectedEntity] = useState(null)
