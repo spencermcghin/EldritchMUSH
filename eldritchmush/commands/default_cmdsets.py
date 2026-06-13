@@ -18,7 +18,7 @@ from evennia import default_cmds
 from evennia.commands.default import general, building
 from evennia import CmdSet
 from commands import combat, blacksmith, crafting, command, npc, dice, alchemy, shop, quests, account, ai_dialogue, tavyl as tavyl_cmd, duel as duel_cmd, heal as heal_cmd, learn, reputation, seal_altar, confession
-from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery
+from commands.combat_commands import strike, disengage, shoot, cleave, sunder, disarm, stagger, stun, medicine, skip, chirurgery, drag
 
 
 class RoomCmdSet(CmdSet):
@@ -153,6 +153,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(disarm.CmdDisarm())
         self.add(stun.CmdStun())
         self.add(disengage.CmdDisengage())
+        self.add(drag.Drag())
         self.add(stagger.CmdStagger())
         self.add(command.CmdGive())
         self.add(command.CmdGet())

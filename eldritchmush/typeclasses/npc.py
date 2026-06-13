@@ -1423,8 +1423,12 @@ class BanditMeleeOneHanded(Npc):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
         self.db.right_slot = [weapon]
-        # Iron medium weapon is level 1 → weaponValue(1) = 2
-        self.db.weapon_level = 2
+        # Table-aligned: db.weapon_level holds the weaponValue()
+        # bonus for the spawned weapon's actual level, same as the
+        # player equip flow.
+        from commands.combat import Helper
+        self.db.weapon_level = Helper(self).weaponValue(
+            weapon.db.level or 0)
 
     def remove_equipment(self):
         for item in list(self.contents):
@@ -1700,7 +1704,12 @@ class CrowStriker(Npc):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_MEDIUM_WEAPON", "location": self})[0]
         self.db.right_slot = [weapon]
-        self.db.weapon_level = 2
+        # Table-aligned: db.weapon_level holds the weaponValue()
+        # bonus for the spawned weapon's actual level, same as the
+        # player equip flow.
+        from commands.combat import Helper
+        self.db.weapon_level = Helper(self).weaponValue(
+            weapon.db.level or 0)
 
     def remove_equipment(self):
         for item in list(self.contents):
@@ -1810,7 +1819,12 @@ class CrowBruiser(Npc):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "IRON_LARGE_WEAPON", "location": self})[0]
         self.db.right_slot = [weapon]
-        self.db.weapon_level = 2
+        # Table-aligned: db.weapon_level holds the weaponValue()
+        # bonus for the spawned weapon's actual level, same as the
+        # player equip flow.
+        from commands.combat import Helper
+        self.db.weapon_level = Helper(self).weaponValue(
+            weapon.db.level or 0)
 
     def remove_equipment(self):
         for item in list(self.contents):
@@ -1921,7 +1935,12 @@ class CaleTheThorn(Npc):
         from evennia import spawn
         weapon = spawn({"prototype_parent": "STEEL_MEDIUM_WEAPON", "location": self})[0]
         self.db.right_slot = [weapon]
-        self.db.weapon_level = 3
+        # Table-aligned: db.weapon_level holds the weaponValue()
+        # bonus for the spawned weapon's actual level, same as the
+        # player equip flow.
+        from commands.combat import Helper
+        self.db.weapon_level = Helper(self).weaponValue(
+            weapon.db.level or 0)
 
     def remove_equipment(self):
         for item in list(self.contents):
