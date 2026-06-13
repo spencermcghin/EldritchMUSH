@@ -551,9 +551,13 @@ class Combatant:
 
         if amount > 0:
             #We have damage that made it through armor!
-            # Torso rule: a hit that deals damage >= the target's current body pool
-            # is particularly dangerous — it immediately clears all remaining body,
-            # forcing the overflow into bleed_points on the same strike.
+            # Torso rule (CONFIRMED DESIGN, 2026-06-13): a clean torso
+            # hit on an unarmored target that matches or exceeds their
+            # remaining body drops them straight into bleeding — body
+            # zeroed AND the full hit carried into bleed_points on the
+            # same strike. Deliberately lethal: torso shots are the
+            # luck factor that mimics real combat. Do not "fix" this
+            # into plain overflow math.
             if shot_location == "torso" and amount >= self.body():
                 amount = self.body() + amount  # include body in overflow to bleed
 

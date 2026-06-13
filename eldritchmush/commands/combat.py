@@ -284,7 +284,11 @@ class Helper():
 
         # Vars for melee attack_result logic
         master_of_arms = combatant.db.master_of_arms
-        weapon_level = self.weaponValue(combatant.db.weapon_level)
+        # db.weapon_level already holds the weaponValue() table bonus
+        # (set at equip / NPC arm time). Running it through the table
+        # AGAIN double-converted (steel +4 became +8). Nothing read the
+        # double-converted value, but keep the stats dict honest.
+        weapon_level = combatant.db.weapon_level or 0
         vigil = combatant.db.vigil
 
         # Penalties

@@ -215,9 +215,12 @@ class Npc(Character):
         except Exception:
             return
         self.db.right_slot = [weapon]
-        # weapon_level is fed through Helper.weaponValue() in combat; use the
-        # spawned weapon's own level so the tier table applies cleanly.
-        self.db.weapon_level = weapon.db.level or weapon.db.tier or 1
+        # Same convention as the player equip flow: db.weapon_level
+        # holds the weaponValue() TABLE BONUS (level 0 -> +0, 1 -> +2,
+        # 2 -> +4 ...), not the raw level — rollAttack adds it as-is.
+        from commands.combat import Helper
+        self.db.weapon_level = Helper(self).weaponValue(
+            weapon.db.level or 0)
 
     def command_picker(self, target):
         """Choose an action for a generic aggressive NPC's turn."""
