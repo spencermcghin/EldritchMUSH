@@ -19,12 +19,11 @@ PORT=${PORT:-8080}
 # /health is exempted below so Railway's healthcheck still passes.
 AUTH_BASIC=""
 if [ -n "$UAT_GATE_USER" ] && [ -n "$UAT_GATE_PASS" ]; then
-    # nginx natively understands the {SHA} scheme in auth_basic_user_file
-    # (ngx_crypt). Generated with stdlib hashlib so there's no apache2-
-    # utils dependency and no glibc-crypt portability surprises. Plenty
-    # for a "keep randoms out of UAT" gate (the real game login is
-    # untouched behind it).
-    HASH=$(python3 -c "import hashlib,base64,os; print('{SHA}'+base64.b64encode(hashlib.sha1(os.environ['UAT_GATE_PASS'].encode()).digest()).decode())")
+    # apr1 (Apache MD5) is implemented INSIDE nginx (ngx_crypt_apr1),
+    # so it validates regardless of the system-crypt build — unlike the
+    # {SHA} scheme, which this nginx errored on. openssl is present in
+    # the image; -stdin keeps the password out of the process list.
+    HASH=$(printf '%s' "$UAT_GATE_PASS" | openssl passwd -apr1 -stdin)
     printf '%s:%s\n' "$UAT_GATE_USER" "$HASH" > /etc/nginx/.uat_htpasswd
     chmod 600 /etc/nginx/.uat_htpasswd
     AUTH_BASIC='auth_basic "EldritchMUSH UAT - restricted"; auth_basic_user_file /etc/nginx/.uat_htpasswd;'
