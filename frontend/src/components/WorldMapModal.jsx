@@ -213,7 +213,7 @@ function anchorBox(p, nodeR, dims, side) {
 // ── Deterministic placement pass ─────────────────────────────────────
 // Runs once per (zone, layout). Returns a map id → placement:
 //   { side, box:{cx,cy,w,h}, crowded, displayName, leader }
-function placeLabels(nodes, positions, currentRoom, W, H) {
+function placeLabels(nodes, positions, W, H) {
   const placed = []           // boxes already committed
   const circles = nodes
     .map(n => {
@@ -224,11 +224,7 @@ function placeLabels(nodes, positions, currentRoom, W, H) {
     .filter(Boolean)
 
   // Importance order: current room first, then service-bearing, then
-  // graph degree (edge count) descending.
-  const degree = {}
-  nodes.forEach(n => { degree[n.id] = 0 })
-  // degree is approximated by how many other nodes share an edge —
-  // but we don't have edges here; caller passes degree via node._deg.
+  // graph degree (node._deg, annotated by the caller) descending.
   const order = [...nodes].sort((a, b) => {
     if (a.current !== b.current) return a.current ? -1 : 1
     const sa = servicesFor(a).length, sb = servicesFor(b).length
@@ -385,7 +381,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
   const placements = useMemo(() => {
     if (!layout || layout.isAllZones) return null
     return placeLabels(
-      layout.nodes, layout.positions, layout.currentRoom,
+      layout.nodes, layout.positions,
       layout.width, layout.height,
     )
   }, [layout])
@@ -479,6 +475,17 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
       return { k, tx: px - sx * k, ty: py - sy * k }
     })
   }, [layout])
+
+  // Attach the wheel handler as a NON-passive native listener so
+  // preventDefault actually suppresses page scroll. React's onWheel is
+  // registered passively, which both ignores preventDefault and logs
+  // "Unable to preventDefault inside passive event listener".
+  useEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return undefined
+    svg.addEventListener('wheel', handleWheel, { passive: false })
+    return () => svg.removeEventListener('wheel', handleWheel)
+  }, [handleWheel])
 
   const zoomBy = useCallback((factor) => {
     if (!layout) return
@@ -625,7 +632,6 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                 onPointerMove={handleSvgPointerMove}
                 onPointerUp={handleSvgPointerUp}
                 onPointerLeave={handleSvgPointerUp}
-                onWheel={handleWheel}
               >
                 <g
                   className={`map-pan-group ${reduceMotion.current ? 'no-motion' : ''}`}
