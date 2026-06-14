@@ -1,3 +1,4 @@
+import Minimap from './Minimap'
 import './CharacterStatus.css'
 
 function StatBar({ label, value, max, colorClass }) {
@@ -52,6 +53,14 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
 
   return (
     <aside className="char-status panel panel-decorated">
+      {onWorldMap && (
+        <Minimap
+          mapData={oobState.mapData}
+          currentRoomId={oobState.currentRoomId}
+          onExpand={onWorldMap}
+          sendCommand={sendCommand}
+        />
+      )}
       <div className="char-status-header">
         <span className="cinzel char-status-title">STATUS</span>
       </div>
@@ -185,11 +194,8 @@ export default function CharacterStatus({ oobState, connectionState, onChargen, 
                 Switch Character
               </button>
             )}
-            {onWorldMap && (
-              <button className="char-action-btn world-map-link" onClick={onWorldMap}>
-                ✦ World Map
-              </button>
-            )}
+            {/* World Map button removed — the minimap at the top of
+                this rail opens the full map on click. */}
             {onAdmin && (
               <button className="char-action-btn admin-link" onClick={onAdmin}>
                 Admin Dashboard

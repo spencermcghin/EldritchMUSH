@@ -277,6 +277,9 @@ function App() {
       lastCharNameRef.current = charName
       // Short delay so the character's location is stable on the server.
       setTimeout(() => sendCommand('__room_meta__'), 300)
+      // Also pull the room graph once so the minimap has data on login
+      // (room_meta keeps the live position fresh after this).
+      setTimeout(() => sendCommand('__map_ui__'), 500)
     }
   }, [oobState.characterName, connectionState, sendCommand])
 

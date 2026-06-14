@@ -99,6 +99,9 @@ export function useEvennia() {
     shopData: null,
     // Room graph data for the interactive map.
     mapData: null,
+    // Live current-room id (updated on every move via room_meta) — the
+    // minimap marker tracks this.
+    currentRoomId: null,
     // Structured crafting data from the server's crafting_data OOB event.
     // Multi-tab payload for the unified CraftingModal (blacksmith, bowyer,
     // artificer, gunsmith, alchemy).
@@ -242,6 +245,9 @@ export function useEvennia() {
         }
         case 'map_data': {
           next.mapData = { ...kwargs, ts: Date.now() }
+          // Seed the live room id from the graph snapshot too, so the
+          // minimap can place "you" before the first move.
+          if (kwargs.currentRoom != null) next.currentRoomId = kwargs.currentRoom
           break
         }
         case 'crafting_data': {
@@ -424,6 +430,9 @@ export function useEvennia() {
             }
           }
           next.roomNpcMeta = meta
+          // room_meta fires on every move and carries the room id —
+          // this is the live signal that walks the minimap marker.
+          if (kwargs.roomId != null) next.currentRoomId = kwargs.roomId
           break
         }
         case 'seal_altar_state': {
