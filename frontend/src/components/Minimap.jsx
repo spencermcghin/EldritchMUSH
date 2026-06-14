@@ -4,13 +4,15 @@ import './Minimap.css'
 /*
  * Minimap — a compact, always-on map of the player's CURRENT ZONE,
  * pinned to the top of the right rail. The room graph comes from the
- * same __map_ui__ payload the full WorldMapModal uses; the live
- * position (the gold X) tracks oobState.currentRoomId, which room_meta
- * refreshes on every move. Clicking opens the full world map.
+ * same __map_ui__ payload the full WorldMapModal uses; the gold X
+ * marks your current room and moves as you walk (room_meta refreshes
+ * oobState.currentRoomId on every move). Click to open the full map.
  *
- * The layout is computed per-zone and memoized on a stable zone
- * signature, so walking between rooms in the same zone only moves the
- * marker — the rooms themselves stay put.
+ * The whole zone is shown at once, fit into the frame with a SINGLE
+ * uniform scale (so it never squashes/distorts), and a gentle centre
+ * gravity in the layout keeps the graph compact so a stray unlinked
+ * room can't blow the view out. Layout is memoized per zone, so
+ * walking only moves the X — the rooms stay put.
  */
 
 // Muted zone tints (a quieter echo of the full map's palette).
@@ -27,12 +29,11 @@ const VIEW_H = 78
 
 // ── Service colour mapping ──────────────────────────────────────────
 // Emoji are illegible at this scale, so services are shown as tiny
-// colour-coded micro-dots instead. The colours MUST match the full
-// world map's legend so the language is learnable across surfaces:
+// colour-coded micro-dots. The colours MATCH the full world map's
+// legend so the language is learnable across surfaces:
 //   Market   gold   #d4af37   (the marketplace itself: type === 'market')
 //   Merchant green  #a3b5a8   (a shop/merchant NPC: hasMerchant)
 //   Crafting copper #c87f4a   (a forge/workbench: hasCrafting)
-// Ordered by priority — when space is tight the first one wins.
 const SERVICES = [
   { key: 'market', color: '#d4af37', has: n => n.type === 'market' },
   { key: 'merchant', color: '#a3b5a8', has: n => !!n.hasMerchant },
@@ -44,7 +45,9 @@ function servicesFor(node) {
 }
 
 // Deterministic force-directed layout (no Math.random, so the map is
-// stable across remounts), normalized into the VIEW box.
+// stable across remounts), fit into the VIEW box with ONE uniform
+// scale — never squashed. A gentle centre gravity keeps disconnected
+// rooms from drifting off and shrinking everything else.
 function layoutZone(nodes, edges) {
   const n = nodes.length
   if (!n) return {}
@@ -53,14 +56,12 @@ function layoutZone(nodes, edges) {
   const pos = {}
   nodes.forEach((node, i) => {
     const a = (i / n) * Math.PI * 2
-    // index-based radius wobble keeps initial positions distinct
-    // without randomness
     const r = 26 + (i % 5) * 4
-    pos[node.id] = { x: 50 + Math.cos(a) * r, y: 39 + Math.sin(a) * r }
+    pos[node.id] = { x: Math.cos(a) * r, y: Math.sin(a) * r }
   })
 
   const adj = edges.filter(e => pos[e.from] && pos[e.to])
-  const REP = 220, SPRING = 0.04, REST = 22, DAMP = 0.82, ITERS = 140
+  const REP = 200, SPRING = 0.04, REST = 20, DAMP = 0.82, ITERS = 170, GRAV = 0.02
   const vel = {}
   nodes.forEach(node => { vel[node.id] = { x: 0, y: 0 } })
 
@@ -68,7 +69,7 @@ function layoutZone(nodes, edges) {
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
         const a = nodes[i].id, b = nodes[j].id
-        let dx = pos[a].x - pos[b].x, dy = pos[a].y - pos[b].y
+        const dx = pos[a].x - pos[b].x, dy = pos[a].y - pos[b].y
         const d = Math.sqrt(dx * dx + dy * dy) || 0.5
         const f = REP / (d * d)
         vel[a].x += (dx / d) * f; vel[a].y += (dy / d) * f
@@ -84,20 +85,26 @@ function layoutZone(nodes, edges) {
     })
     nodes.forEach(node => {
       const v = vel[node.id]
+      // Centre gravity — pulls everything (especially orphans) inward.
+      v.x -= pos[node.id].x * GRAV
+      v.y -= pos[node.id].y * GRAV
       v.x *= DAMP; v.y *= DAMP
       pos[node.id].x += v.x; pos[node.id].y += v.y
     })
   }
 
-  // Normalize into the view box with a margin.
+  // Fit the WHOLE graph into the box with a single uniform scale,
+  // centred, with a margin — preserves the true shape (no squash).
   const xs = nodes.map(nd => pos[nd.id].x), ys = nodes.map(nd => pos[nd.id].y)
   const minX = Math.min(...xs), maxX = Math.max(...xs)
   const minY = Math.min(...ys), maxY = Math.max(...ys)
-  const M = 12
-  const sx = (maxX - minX) || 1, sy = (maxY - minY) || 1
+  const M = 9
+  const gw = (maxX - minX) || 1, gh = (maxY - minY) || 1
+  const scale = Math.min((VIEW_W - 2 * M) / gw, (VIEW_H - 2 * M) / gh)
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
   nodes.forEach(nd => {
-    pos[nd.id].x = M + ((pos[nd.id].x - minX) / sx) * (VIEW_W - 2 * M)
-    pos[nd.id].y = M + ((pos[nd.id].y - minY) / sy) * (VIEW_H - 2 * M)
+    pos[nd.id].x = VIEW_W / 2 + (pos[nd.id].x - cx) * scale
+    pos[nd.id].y = VIEW_H / 2 + (pos[nd.id].y - cy) * scale
   })
   return pos
 }
@@ -115,8 +122,6 @@ export default function Minimap({ mapData, currentRoomId, onExpand, sendCommand 
   const curNode = mapData?.nodes?.find(nd => nd.id === currentRoomId) || null
   const zone = curNode?.zone || mapData?.currentZone || null
 
-  // Stable signature: layout only recomputes when the zone or its set
-  // of rooms changes — not on every step within a zone.
   const zoneSig = useMemo(() => {
     if (!mapData?.nodes || !zone) return ''
     const ids = mapData.nodes.filter(nd => nd.zone === zone).map(nd => nd.id).sort((a, b) => a - b)
@@ -129,7 +134,6 @@ export default function Minimap({ mapData, currentRoomId, onExpand, sendCommand 
     if (!zoneNodes.length) return null
     const ids = new Set(zoneNodes.map(nd => nd.id))
     const zoneEdges = (mapData.edges || []).filter(e => ids.has(e.from) && ids.has(e.to))
-    // Dedupe bidirectional edges for cleaner lines.
     const seen = new Set(), lines = []
     zoneEdges.forEach(e => {
       const k = e.from < e.to ? `${e.from}-${e.to}` : `${e.to}-${e.from}`
@@ -170,9 +174,6 @@ export default function Minimap({ mapData, currentRoomId, onExpand, sendCommand 
                 if (!p) return null
                 const here = nd.id === currentRoomId
                 const svcs = servicesFor(nd)
-                // The current room's body is the gold X (drawn last, on
-                // top); we still render its service dots underneath so a
-                // marketplace you're standing in still reads as one.
                 return (
                   <g key={nd.id}>
                     {!here && (
@@ -182,9 +183,6 @@ export default function Minimap({ mapData, currentRoomId, onExpand, sendCommand 
                         className="minimap-node"
                       />
                     )}
-                    {/* Service micro-dots — up to three, fanned in a tiny
-                        arc above the node, colour-coded to the full map's
-                        legend. */}
                     {svcs.map((s, si) => {
                       const span = (svcs.length - 1) * 0.9
                       const off = -span / 2 + si * 0.9
