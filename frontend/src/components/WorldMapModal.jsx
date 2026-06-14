@@ -118,6 +118,25 @@ const NODE_ICONS = {
   chargen: '✦',
 }
 
+// ── Service indicators ──────────────────────────────────────────────
+// A room can advertise up to three services at once. These definitions
+// are the single source of truth shared with the legend, the node
+// badges, and the tooltip. The `color` here is the SAME mapping the
+// Minimap uses for its micro-dots, so players learn one colour language
+// across both surfaces:
+//   Market   🪙 gold   #d4af37  (the marketplace itself)
+//   Merchant ⚖  green  #a3b5a8  (a shop/merchant NPC stands here)
+//   Crafting ⚒  copper #c87f4a  (a forge or workbench is here)
+const SERVICES = [
+  { key: 'market', label: 'Market', glyph: '🪙', color: '#d4af37', has: n => n.type === 'market' },
+  { key: 'merchant', label: 'Merchant', glyph: '⚖', color: '#a3b5a8', has: n => !!n.hasMerchant },
+  { key: 'crafting', label: 'Crafting', glyph: '⚒', color: '#c87f4a', has: n => !!n.hasCrafting },
+]
+
+function servicesFor(node) {
+  return SERVICES.filter(s => s.has(node))
+}
+
 export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
   const [loading, setLoading] = useState(true)
   const [layout, setLayout] = useState(null)
@@ -226,11 +245,14 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
             </button>
           </div>
           {tab === 'rooms' && (
-            <div className="map-legend">
+            <div className="map-legend" role="img" aria-label="Map key: green X is your location; service icons mark market, merchant, and crafting rooms">
               <span className="map-legend-item"><span className="map-dot current" /> You are here</span>
-              <span className="map-legend-item"><span className="map-dot market" /> Market</span>
-              <span className="map-legend-item">🪙 Merchant</span>
-              <span className="map-legend-item">🔨 Crafting</span>
+              {SERVICES.map(s => (
+                <span key={s.key} className="map-legend-item">
+                  <span className="map-legend-glyph" style={{ color: s.color }} aria-hidden="true">{s.glyph}</span>
+                  {s.label}
+                </span>
+              ))}
             </div>
           )}
           <button className="world-map-close" onClick={onClose}>✕</button>
@@ -300,6 +322,14 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                   if (!p) return null
                   const color = colorFor(node)
                   const num = idx + 1
+                  const svcs = servicesFor(node)
+                  // Service badges ride above the node, centred and
+                  // spaced so 1–3 of them read clearly without colliding
+                  // with the circle or the number.
+                  const nodeR = node.current ? 16 : 12
+                  const badgeStep = 16
+                  const badgeY = p.y - nodeR - 9
+                  const badgeX0 = p.x - ((svcs.length - 1) * badgeStep) / 2
                   return (
                     <g
                       key={node.id}
@@ -313,7 +343,7 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                       )}
                       <circle
                         cx={p.x} cy={p.y}
-                        r={node.current ? 16 : 12}
+                        r={nodeR}
                         fill={color}
                         stroke={node.current ? '#00e5a0' : '#4a3828'}
                         strokeWidth={node.current ? 3 : 1.5}
@@ -325,6 +355,17 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                       >
                         {num}
                       </text>
+                      {/* Service badges — one glyph per available
+                          service (market / merchant / crafting). */}
+                      {svcs.map((s, si) => {
+                        const bx = badgeX0 + si * badgeStep
+                        return (
+                          <g key={s.key} className="map-node-badge" transform={`translate(${bx} ${badgeY})`}>
+                            <circle r={7} className="map-node-badge-bg" stroke={s.color} />
+                            <text className="map-node-badge-glyph" y={3.5}>{s.glyph}</text>
+                          </g>
+                        )
+                      })}
                       {/* Always-visible label for the player's
                           current location. Other nodes show name on
                           hover via the tooltip. */}
@@ -361,18 +402,12 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                         <span>You are here</span>
                       </div>
                     )}
-                    {tooltip.node.hasMerchant && (
-                      <div className="map-tooltip-row">
-                        <span className="map-tooltip-icon">🪙</span>
-                        <span>Merchant</span>
+                    {servicesFor(tooltip.node).map(s => (
+                      <div key={s.key} className="map-tooltip-row">
+                        <span className="map-tooltip-icon" style={{ color: s.color }}>{s.glyph}</span>
+                        <span>{s.label}</span>
                       </div>
-                    )}
-                    {tooltip.node.hasCrafting && (
-                      <div className="map-tooltip-row">
-                        <span className="map-tooltip-icon">🔨</span>
-                        <span>Crafting</span>
-                      </div>
-                    )}
+                    ))}
                     {tooltip.node.zone && (
                       <div className="map-tooltip-row zone">
                         <span className="map-tooltip-icon">{NODE_ICONS[tooltip.node.type] || NODE_ICONS.room}</span>
@@ -399,8 +434,16 @@ export default function WorldMapModal({ open, onClose, sendCommand, mapData }) {
                         {idx + 1}
                       </span>
                       <span className="map-key-name">{node.name}</span>
-                      {node.hasMerchant && <span className="map-key-icon">🪙</span>}
-                      {node.hasCrafting && <span className="map-key-icon">🔨</span>}
+                      {servicesFor(node).map(s => (
+                        <span
+                          key={s.key}
+                          className="map-key-icon"
+                          style={{ color: s.color }}
+                          title={s.label}
+                        >
+                          {s.glyph}
+                        </span>
+                      ))}
                       {node.current && <span className="map-key-you">YOU</span>}
                     </div>
                   ))}

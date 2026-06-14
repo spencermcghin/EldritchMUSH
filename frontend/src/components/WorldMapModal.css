@@ -94,6 +94,14 @@
   background: var(--accent-gold);
 }
 
+/* Service glyphs in the header legend — colour-matched to their
+   node badges (and to the minimap dots). */
+.map-legend-glyph {
+  font-size: 11px;
+  line-height: 1;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.7));
+}
+
 .world-map-close {
   background: none;
   border: 1px solid var(--border);
@@ -399,6 +407,24 @@
   text-anchor: middle;
   pointer-events: none;
   font-weight: 700;
+}
+
+/* Service badges riding above each node — a small dark disc ringed in
+   the service colour, with the service glyph inside. Up to three sit
+   side by side for multi-service rooms. */
+.map-node-badge {
+  pointer-events: none;
+}
+
+.map-node-badge-bg {
+  fill: rgba(12, 10, 8, 0.92);
+  stroke-width: 1.5;
+}
+
+.map-node-badge-glyph {
+  font-size: 8px;
+  text-anchor: middle;
+  fill: #fff;
 }
 
 /* Sidebar key */

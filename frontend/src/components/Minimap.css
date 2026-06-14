@@ -85,6 +85,14 @@
   stroke-width: 0.4;
 }
 
+/* Service micro-dots — colour-coded per service (gold market,
+   green merchant, copper crafting) to match the full map legend.
+   A faint dark rim keeps them legible over zone-tinted nodes. */
+.minimap-svc-dot {
+  stroke: rgba(0, 0, 0, 0.55);
+  stroke-width: 0.3;
+}
+
 .minimap-here-halo {
   fill: rgba(212, 175, 55, 0.18);
   stroke: rgba(212, 175, 55, 0.55);

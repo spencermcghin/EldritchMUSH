@@ -25,6 +25,24 @@ const ZONE_TINT = {
 const VIEW_W = 100
 const VIEW_H = 78
 
+// ── Service colour mapping ──────────────────────────────────────────
+// Emoji are illegible at this scale, so services are shown as tiny
+// colour-coded micro-dots instead. The colours MUST match the full
+// world map's legend so the language is learnable across surfaces:
+//   Market   gold   #d4af37   (the marketplace itself: type === 'market')
+//   Merchant green  #a3b5a8   (a shop/merchant NPC: hasMerchant)
+//   Crafting copper #c87f4a   (a forge/workbench: hasCrafting)
+// Ordered by priority — when space is tight the first one wins.
+const SERVICES = [
+  { key: 'market', color: '#d4af37', has: n => n.type === 'market' },
+  { key: 'merchant', color: '#a3b5a8', has: n => !!n.hasMerchant },
+  { key: 'crafting', color: '#c87f4a', has: n => !!n.hasCrafting },
+]
+
+function servicesFor(node) {
+  return SERVICES.filter(s => s.has(node))
+}
+
 // Deterministic force-directed layout (no Math.random, so the map is
 // stable across remounts), normalized into the VIEW box.
 function layoutZone(nodes, edges) {
@@ -151,14 +169,36 @@ export default function Minimap({ mapData, currentRoomId, onExpand, sendCommand 
                 const p = view.positions[nd.id]
                 if (!p) return null
                 const here = nd.id === currentRoomId
-                if (here) return null // current room drawn as the X on top
+                const svcs = servicesFor(nd)
+                // The current room's body is the gold X (drawn last, on
+                // top); we still render its service dots underneath so a
+                // marketplace you're standing in still reads as one.
                 return (
-                  <circle
-                    key={nd.id}
-                    cx={p.x} cy={p.y} r={nd.hasMerchant || nd.hasCrafting ? 2.6 : 2}
-                    fill={tint}
-                    className="minimap-node"
-                  />
+                  <g key={nd.id}>
+                    {!here && (
+                      <circle
+                        cx={p.x} cy={p.y} r={svcs.length ? 2.6 : 2}
+                        fill={tint}
+                        className="minimap-node"
+                      />
+                    )}
+                    {/* Service micro-dots — up to three, fanned in a tiny
+                        arc above the node, colour-coded to the full map's
+                        legend. */}
+                    {svcs.map((s, si) => {
+                      const span = (svcs.length - 1) * 0.9
+                      const off = -span / 2 + si * 0.9
+                      return (
+                        <circle
+                          key={s.key}
+                          cx={p.x + off} cy={p.y - 3.4}
+                          r={1.05}
+                          fill={s.color}
+                          className="minimap-svc-dot"
+                        />
+                      )
+                    })}
+                  </g>
                 )
               })}
               {cur && (
