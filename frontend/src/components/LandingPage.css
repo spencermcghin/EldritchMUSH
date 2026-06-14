@@ -195,7 +195,7 @@
 /* ── Plates (the cream bestiary cards) ── */
 
 .landing-hero-plate,
-.landing-feature-plate {
+.landing-bestiary-plate {
   margin: 0;
   justify-self: center;
   background: #ece5d3;
@@ -209,7 +209,7 @@
 .landing-hero-plate { transform: rotate(2deg); }
 
 .landing-hero-plate img,
-.landing-feature-plate img {
+.landing-bestiary-plate img {
   display: block;
   width: 100%;
   height: auto;
@@ -252,61 +252,34 @@
   color: var(--bone, #d8d3c3);
 }
 
-/* ── Features ── */
+/* one tight line of breadth — pillars, not a feature list */
+.landing-pillars {
+  max-width: 30em;
+  margin: 1.8rem 0 0 auto;       /* aligned under the asymmetric block */
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+  color: var(--accent-gold, #d4af37);
+}
 
-.landing-features {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(4rem, 9vw, 8rem);
+/* ── Bestiary strip — sparse art row ── */
+
+.landing-bestiary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2.5rem, 6vw, 4rem);
+  justify-items: center;
   padding: clamp(3rem, 7vw, 6rem) clamp(1.25rem, 5vw, 4rem);
   max-width: 1180px;
   margin: 0 auto;
   box-sizing: border-box;
 }
 
-.landing-feature {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2.25rem;
-  align-items: center;
-}
-
-.landing-feature-plate { transform: rotate(-1.6deg); }
-.landing-feature-flip .landing-feature-plate { transform: rotate(1.4deg); }
-
-.landing-feature-copy { position: relative; }
-
-.landing-feature-numeral {
-  position: absolute;
-  top: -0.55em;
-  left: -0.08em;
-  z-index: 0;
-  font-family: var(--font-display, 'Cinzel', serif);
-  font-size: clamp(6rem, 14vw, 10rem);
-  line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(212, 175, 55, 0.28);
-  pointer-events: none;
-  user-select: none;
-}
-
-.landing-feature-title {
-  position: relative;
-  z-index: 1;
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
-  letter-spacing: 0.04em;
-  padding-top: clamp(2.5rem, 6vw, 4rem);
-  margin-bottom: 1rem;
-}
-
-.landing-feature-body {
-  position: relative;
-  z-index: 1;
-  max-width: 30em;
-  margin: 0;
-  font-size: 1.15rem;
-  color: var(--bone, #d8d3c3);
-}
+.landing-bestiary-plate { max-width: min(340px, 82vw); }
+.landing-bestiary-plate:nth-child(1) { transform: rotate(-1.8deg); }
+.landing-bestiary-plate:nth-child(2) { transform: rotate(1.4deg); }
+.landing-bestiary-plate:nth-child(3) { transform: rotate(-1.1deg); }
 
 /* ── Interstitial ── */
 
@@ -442,70 +415,19 @@
   margin-bottom: 0.8rem;
 }
 
-.landing-factions-names {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent-gold, #d4af37);
-  margin: 0 0 0.9rem;
-}
-
 .landing-factions-body {
   max-width: 30em;
   margin: 0;
   font-size: 1.15rem;
 }
 
-/* ── How to start + pricing ── */
+/* ── Pricing + CTA ── */
 
 .landing-start {
   padding: clamp(3.5rem, 8vw, 6.5rem) clamp(1.25rem, 5vw, 4rem) clamp(4rem, 9vw, 7rem);
   max-width: 1180px;
   margin: 0 auto;
   box-sizing: border-box;
-}
-
-.landing-start-title {
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  margin-bottom: 2.5rem;
-}
-
-.landing-steps {
-  list-style: none;
-  margin: 0 0 3.5rem;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  counter-reset: step;
-}
-
-.landing-step { position: relative; padding-left: 3.4rem; }
-
-.landing-step-n {
-  position: absolute;
-  left: 0;
-  top: 0.1rem;
-  font-family: var(--font-display, 'Cinzel', serif);
-  font-size: 2.2rem;
-  line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(212, 175, 55, 0.6);
-}
-
-.landing-step-title {
-  font-size: 1.05rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.landing-step-body {
-  margin: 0;
-  max-width: 26em;
-  font-size: 1.08rem;
-  color: var(--bone, #d8d3c3);
 }
 
 .landing-pricing {
@@ -608,20 +530,9 @@
     max-width: 360px;
   }
 
-  .landing-feature {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  }
-
-  .landing-feature-plate { justify-self: end; max-width: 340px; }
-
-  .landing-feature-flip .landing-feature-copy { order: 2; }
-  .landing-feature-flip .landing-feature-plate { order: 1; justify-self: start; }
-
-  /* stagger the feature rows off the center line */
-  .landing-feature:nth-child(odd)  { margin-right: clamp(0rem, 4vw, 3.5rem); }
-  .landing-feature:nth-child(even) { margin-left: clamp(0rem, 4vw, 3.5rem); }
-
-  .landing-steps { grid-template-columns: repeat(2, 1fr); gap: 2.5rem 3rem; }
+  /* bestiary: three plates in a row, staggered vertically */
+  .landing-bestiary { grid-template-columns: repeat(3, 1fr); align-items: start; }
+  .landing-bestiary-plate:nth-child(2) { margin-top: clamp(2rem, 5vw, 4rem); }
 
   /* map: copy left, plate pushed off the right — intentional asymmetry */
   .landing-map {
@@ -635,6 +546,3 @@
   }
 }
 
-@media (min-width: 1100px) {
-  .landing-steps { grid-template-columns: repeat(4, 1fr); }
-}

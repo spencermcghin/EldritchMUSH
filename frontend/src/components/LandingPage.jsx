@@ -11,81 +11,28 @@ import './LandingPage.css'
  * Aesthetic: Mistbound Gothic, editorial cut — oversized Cinzel type,
  * asymmetric "bestiary plate" art cards on deep black, CSS-only grain
  * and mist. No JS animation; prefers-reduced-motion respected in CSS.
+ *
+ * Copy: marketed like a studio homepage — evocative, confident, sparse.
+ * State the novel hooks at altitude; don't dissect the systems.
  */
 
-const FEATURES = [
+// A sparse bestiary strip — the art carries it; the captions are flavor,
+// not feature copy.
+const BESTIARY = [
   {
-    numeral: 'I',
-    title: 'The world remembers you',
     art: '/landing/fae.jpg',
     alt: 'Ink illustration of a masked fae lord in dark robes, carrying carved masks and a crooked staff',
     caption: 'Fig. I — a fae of the Annwyn',
-    body: `The people here keep track of you. Lie to the innkeeper and
-    the smith hears about it by week's end, the story a little worse
-    each time it's told. A seer dreams about something you did and
-    repeats it back to you as prophecy. Confess to the priest if it
-    helps — but his confessional has been broken into before.`,
   },
   {
-    numeral: 'II',
-    title: 'Combat with real depth',
     art: '/landing/werewolf.jpg',
     alt: 'Ink illustration of a werewolf crouched on a ridge before a full moon, a severed manacled hand in the snow',
     caption: 'Fig. II — werewolf, by moonlight',
-    body: `Turn-based fights you can actually think your way through.
-    Position matters. You target specific limbs, armor wears down and
-    stops protecting, and a clean hit can disarm, sunder, or stagger.
-    Take enough and you start bleeding out. A creature called the
-    Withering Maw wanders the map on its own, so the room you walk
-    into may already have teeth in it.`,
   },
   {
-    numeral: 'III',
-    title: 'Quests with teeth',
     art: '/landing/necromancer.jpg',
     alt: 'Ink illustration of a robed necromancer wreathed in pale smoke, dead hands rising from the earth around her',
     caption: 'Fig. III — a necromancer at her work',
-    body: `Quests branch, and how they end is up to you. Rob the
-    forager, or take the vision he offers — either choice writes
-    itself into what happens next, and a letter usually arrives to
-    remind you. The houses track where you stand with them. So do a
-    few of the dead, if you can hold a séance without losing your
-    nerve.`,
-  },
-  {
-    numeral: 'IV',
-    title: 'Make, mend, trade',
-    art: '/landing/clovis.jpg',
-    alt: 'Ink illustration of a suit of armor and skull disassembled into its parts, swords fanned behind it',
-    caption: 'Fig. IV — a soldier, itemized',
-    body: `Forge weapons, fletch arrows, brew tinctures, haggle in the
-    market. There are sixty-six alchemy recipes, arms and armor for all
-    eight houses, and a silver economy that remembers what you owe.
-    Everything you carry, you made, bought, or took off something that
-    no longer needs it.`,
-  },
-]
-
-const STEPS = [
-  {
-    n: '1',
-    title: 'Arrive',
-    body: 'Open eldritchmush.com in any browser. No download, no client, no telnet incantations.',
-  },
-  {
-    n: '2',
-    title: 'Sign in',
-    body: 'One click with Google, or a plain username if you prefer the old ways.',
-  },
-  {
-    n: '3',
-    title: 'Cross over',
-    body: 'Make a character and choose how you arrive: by ship, riding with the Cirque caravan, in a noble retinue, among the Lodge scholars, or chained in the Last Walk.',
-  },
-  {
-    n: '4',
-    title: 'Play',
-    body: 'Type what you do, read what happens. The world keeps moving when you log off.',
   },
 ]
 
@@ -115,9 +62,8 @@ export default function LandingPage({ onPlay }) {
             <p className="landing-lede">
               Past the village of Gateway stands the walled Vale of
               Mystvale, and past the Vale waits the Annwyn. People go in.
-              Fewer come back. It's a text world you play by writing:
-              turn-based combat, choices that stick to you, and neighbors
-              you'll wish you had never met.
+              Fewer come back. It's a text world you play by writing — and
+              it remembers everything you do.
             </p>
             <div className="landing-cta-row">
               <button className="landing-cta" type="button" onClick={onPlay}>
@@ -144,32 +90,27 @@ export default function LandingPage({ onPlay }) {
         </div>
       </header>
 
-      {/* ── What it is ── */}
+      {/* ── What it is — one beat, stated at altitude ── */}
       <section className="landing-what" aria-label="What EldritchMUSH is">
         <p className="landing-what-text">
-          EldritchMUSH is a multiplayer story you read and write in plain
-          prose. You say what your character does; the world answers. The
-          people in it gossip about you, hold grudges for weeks, and dream
-          your worst deeds back at you as prophecy. No XP bars, no minimap.
-          Just a village at the edge of everything, and a long way to go
-          before any of it belongs to you.
+          A multiplayer story you read and write in plain prose. You say
+          what your character does; the world answers — and it holds a
+          grudge. No XP bars, no minimap. Just a village at the edge of
+          everything, and a long way to go before any of it is yours.
+        </p>
+        <p className="landing-pillars">
+          Turn-based combat, crafting and alchemy, a living economy, and
+          quests that branch on the choices you make.
         </p>
       </section>
 
-      {/* ── Features ── */}
-      <section className="landing-features" aria-label="Features">
-        {FEATURES.map((f, i) => (
-          <article className={`landing-feature${i % 2 ? ' landing-feature-flip' : ''}`} key={f.numeral}>
-            <div className="landing-feature-copy">
-              <span className="landing-feature-numeral" aria-hidden="true">{f.numeral}</span>
-              <h2 className="landing-feature-title">{f.title}</h2>
-              <p className="landing-feature-body">{f.body}</p>
-            </div>
-            <figure className="landing-feature-plate">
-              <img src={f.art} alt={f.alt} loading="lazy" width="700" height="940" />
-              <figcaption className="landing-plate-caption">{f.caption}</figcaption>
-            </figure>
-          </article>
+      {/* ── Bestiary strip — the art, sparse ── */}
+      <section className="landing-bestiary" aria-label="From the bestiary">
+        {BESTIARY.map((b) => (
+          <figure className="landing-bestiary-plate" key={b.caption}>
+            <img src={b.art} alt={b.alt} loading="lazy" width="700" height="940" />
+            <figcaption className="landing-plate-caption">{b.caption}</figcaption>
+          </figure>
         ))}
       </section>
 
@@ -185,9 +126,9 @@ export default function LandingPage({ onPlay }) {
           />
         </figure>
         <p className="landing-interstitial-lead">
-          About once a night a moonstorm rolls over the Vale, and the
-          Mists open roads that were not there the day before. Walk one
-          and you might not come out where you went in.
+          The world keeps moving when you log off. Roads open that were
+          not there the day before — walk one, and you might not come out
+          where you went in.
         </p>
       </section>
 
@@ -197,11 +138,9 @@ export default function LandingPage({ onPlay }) {
           <p className="landing-map-kicker">Three places, getting worse</p>
           <h2 className="landing-map-title">Gateway, Mystvale, the Annwyn</h2>
           <p className="landing-map-body">
-            Gateway is the village where you wash up — taverns, a market,
-            people who will sell you out. The Vale of Mystvale is the
-            walled country behind it, held by eight quarreling houses. The
-            Annwyn is what's on the far side of the Mists, and the maps of
-            it tend to be wrong on purpose.
+            A village where you wash up, a walled country held by quarreling
+            houses, and whatever waits beyond the Mists. The maps of it tend
+            to be wrong on purpose.
           </p>
         </div>
         <figure className="landing-map-figure">
@@ -219,7 +158,7 @@ export default function LandingPage({ onPlay }) {
       </section>
 
       {/* ── Factions ── */}
-      <section className="landing-factions" aria-label="The eight noble houses">
+      <section className="landing-factions" aria-label="The noble houses">
         <figure className="landing-factions-figure">
           <img
             src="/landing/faction-banners.jpg"
@@ -230,30 +169,16 @@ export default function LandingPage({ onPlay }) {
           />
         </figure>
         <div className="landing-factions-copy">
-          <h2 className="landing-factions-title">Eight houses run the Vale</h2>
-          <p className="landing-factions-names">
-            Aragon · Bannon · Blayne · Corveaux · Hale · Innis · Richter · Rourke
-          </p>
+          <h2 className="landing-factions-title">Pick whose colors you wear</h2>
           <p className="landing-factions-body">
-            Pick whose colors you wear with some care. Each house has a
-            long memory and a longer list of people who crossed it.
+            Rival houses run the Vale, and each one has a long memory and a
+            longer list of people who crossed it. Choose with care.
           </p>
         </div>
       </section>
 
-      {/* ── How to start + pricing ── */}
-      <section className="landing-start" aria-label="How to start">
-        <h2 className="landing-start-title">Crossing over</h2>
-        <ol className="landing-steps">
-          {STEPS.map((s) => (
-            <li className="landing-step" key={s.n}>
-              <span className="landing-step-n" aria-hidden="true">{s.n}</span>
-              <h3 className="landing-step-title">{s.title}</h3>
-              <p className="landing-step-body">{s.body}</p>
-            </li>
-          ))}
-        </ol>
-
+      {/* ── Pricing + CTA ── */}
+      <section className="landing-start" aria-label="Start playing">
         <div className="landing-pricing">
           <img
             src="/landing/wax-seal.png"
@@ -266,10 +191,9 @@ export default function LandingPage({ onPlay }) {
           />
           <h3 className="landing-pricing-title">The toll</h3>
           <p className="landing-pricing-body">
-            The first thirty days cost nothing — the full game, no card
-            up front. After that it's <strong>$5 a month</strong> through
-            PayPal, and you can cancel any time. Nobody here holds you to
-            a contract.
+            The first thirty days cost nothing — the full game, no card up
+            front, no download. After that it's <strong>$5 a month</strong>{' '}
+            through PayPal, and you can cancel any time.
           </p>
           <button className="landing-cta" type="button" onClick={onPlay}>
             Begin the trial
