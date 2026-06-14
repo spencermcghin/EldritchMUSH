@@ -108,7 +108,7 @@ export default function LandingPage({ onPlay }) {
         <p className="landing-what-text">
           A multiplayer story you read and write in plain prose. You say
           what your character does, and the world answers. It holds a
-          grudge. No XP bars, no minimap. Just a village at the edge of
+          grudge. No XP bars, no grind. Just a village at the edge of
           everything, and a long way to go before any of it is yours.
         </p>
         <p className="landing-pillars">
