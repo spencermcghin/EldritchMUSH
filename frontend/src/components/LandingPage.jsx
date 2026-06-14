@@ -36,6 +36,19 @@ const BESTIARY = [
   },
 ]
 
+// The eight noble houses, each with its own hanging heraldic banner
+// (transparent kite-shield art from the per-house art folders).
+const HOUSES = [
+  'Aragon',
+  'Bannon',
+  'Blayne',
+  'Corveaux',
+  'Hale',
+  'Innis',
+  'Richter',
+  'Rourke',
+]
+
 export default function LandingPage({ onPlay }) {
   return (
     <div className="landing">
@@ -139,8 +152,7 @@ export default function LandingPage({ onPlay }) {
           <h2 className="landing-map-title">Gateway, Mystvale, the Annwyn</h2>
           <p className="landing-map-body">
             A village where you wash up, a walled country held by quarreling
-            houses, and whatever waits beyond the Mists. The maps of it tend
-            to be wrong on purpose.
+            houses, and whatever waits beyond the Mists.
           </p>
         </div>
         <figure className="landing-map-figure">
@@ -159,15 +171,6 @@ export default function LandingPage({ onPlay }) {
 
       {/* ── Factions ── */}
       <section className="landing-factions" aria-label="The noble houses">
-        <figure className="landing-factions-figure">
-          <img
-            src="/landing/faction-banners.jpg"
-            alt="Eight noble house banners side by side, each bearing a shield and sigil"
-            loading="lazy"
-            width="1200"
-            height="458"
-          />
-        </figure>
         <div className="landing-factions-copy">
           <h2 className="landing-factions-title">Pick whose colors you wear</h2>
           <p className="landing-factions-body">
@@ -175,6 +178,19 @@ export default function LandingPage({ onPlay }) {
             longer list of people who crossed it. Choose with care.
           </p>
         </div>
+        <ul className="landing-factions-banners">
+          {HOUSES.map((house) => (
+            <li className="landing-factions-banner" key={house}>
+              <img
+                src={`/landing/banner-${house.toLowerCase()}.png`}
+                alt={`House ${house} banner`}
+                loading="lazy"
+                width="362"
+                height="600"
+              />
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* ── Pricing + CTA ── */}

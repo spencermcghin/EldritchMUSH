@@ -386,28 +386,72 @@
   padding: clamp(3.5rem, 8vw, 6rem) 0;
 }
 
-.landing-factions-figure {
-  margin: 0;
-  /* full-bleed band */
-  width: 100%;
-  overflow: hidden;
-  border-top: 1px solid var(--border-bright, #4a3828);
-  border-bottom: 1px solid var(--border-bright, #4a3828);
+.landing-factions-copy {
+  padding: 0 clamp(1.25rem, 5vw, 4rem);
+  max-width: 1180px;
+  margin: 0 auto 2.5rem;
+  box-sizing: border-box;
 }
 
-.landing-factions-figure img {
+/* Eight per-house banners, a single crisp row that wraps on narrow
+   screens: 8 across on desktop, 4 on tablet, 2 on phones. */
+.landing-factions-banners {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 5vw, 4rem);
+  max-width: 1180px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 1.25rem);
+  align-items: end;
+}
+
+.landing-factions-banner {
+  margin: 0;
+}
+
+.landing-factions-banner img {
   display: block;
   width: 100%;
-  height: clamp(160px, 26vw, 320px);
-  object-fit: cover;
-  filter: saturate(0.82) contrast(1.05) brightness(0.92);
+  height: clamp(150px, 22vw, 280px);
+  object-fit: contain;
+  object-position: bottom center;
+  filter: saturate(0.9) contrast(1.03) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+  transition: transform 0.25s ease, filter 0.25s ease;
 }
 
-.landing-factions-copy {
-  padding: 2.5rem clamp(1.25rem, 5vw, 4rem) 0;
-  max-width: 1180px;
-  margin: 0 auto;
-  box-sizing: border-box;
+.landing-factions-banner img:hover {
+  transform: translateY(-4px);
+  filter: saturate(1.02) contrast(1.05) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+}
+
+@media (max-width: 880px) {
+  .landing-factions-banners {
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(0.6rem, 2.5vw, 1.25rem) clamp(0.5rem, 2vw, 1rem);
+  }
+  .landing-factions-banner img {
+    height: clamp(170px, 30vw, 240px);
+  }
+}
+
+@media (max-width: 460px) {
+  .landing-factions-banners {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .landing-factions-banner img {
+    height: clamp(200px, 52vw, 260px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-factions-banner img {
+    transition: none;
+  }
+  .landing-factions-banner img:hover {
+    transform: none;
+  }
 }
 
 .landing-factions-title {
