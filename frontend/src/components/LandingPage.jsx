@@ -22,17 +22,17 @@ const BESTIARY = [
   {
     art: '/landing/fae.jpg',
     alt: 'Ink illustration of a masked fae lord in dark robes, carrying carved masks and a crooked staff',
-    caption: 'Fig. I — a fae of the Annwyn',
+    caption: 'Fig. I, a fae of the Annwyn',
   },
   {
     art: '/landing/werewolf.jpg',
     alt: 'Ink illustration of a werewolf crouched on a ridge before a full moon, a severed manacled hand in the snow',
-    caption: 'Fig. II — werewolf, by moonlight',
+    caption: 'Fig. II, a werewolf by moonlight',
   },
   {
     art: '/landing/necromancer.jpg',
     alt: 'Ink illustration of a robed necromancer wreathed in pale smoke, dead hands rising from the earth around her',
-    caption: 'Fig. III — a necromancer at her work',
+    caption: 'Fig. III, a necromancer at her work',
   },
 ]
 
@@ -62,7 +62,7 @@ export default function LandingPage({ onPlay }) {
             <p className="landing-lede">
               Past the village of Gateway stands the walled Vale of
               Mystvale, and past the Vale waits the Annwyn. People go in.
-              Fewer come back. It's a text world you play by writing — and
+              Fewer come back. It's a text world you play by writing, and
               it remembers everything you do.
             </p>
             <div className="landing-cta-row">
@@ -84,7 +84,7 @@ export default function LandingPage({ onPlay }) {
               fetchpriority="high"
             />
             <figcaption className="landing-plate-caption">
-              Fig. 0 — nethermancer, recovered from the Annwyn
+              Fig. 0, a nethermancer recovered from the Annwyn
             </figcaption>
           </figure>
         </div>
@@ -94,7 +94,7 @@ export default function LandingPage({ onPlay }) {
       <section className="landing-what" aria-label="What EldritchMUSH is">
         <p className="landing-what-text">
           A multiplayer story you read and write in plain prose. You say
-          what your character does; the world answers — and it holds a
+          what your character does, and the world answers. It holds a
           grudge. No XP bars, no minimap. Just a village at the edge of
           everything, and a long way to go before any of it is yours.
         </p>
@@ -127,8 +127,8 @@ export default function LandingPage({ onPlay }) {
         </figure>
         <p className="landing-interstitial-lead">
           The world keeps moving when you log off. Roads open that were
-          not there the day before — walk one, and you might not come out
-          where you went in.
+          not there the day before, and if you walk one, you might not
+          come out where you went in.
         </p>
       </section>
 
@@ -152,7 +152,7 @@ export default function LandingPage({ onPlay }) {
             height="1100"
           />
           <figcaption className="landing-plate-caption">
-            survey of the vale — provenance unknown
+            survey of the vale, provenance unknown
           </figcaption>
         </figure>
       </section>
@@ -191,9 +191,10 @@ export default function LandingPage({ onPlay }) {
           />
           <h3 className="landing-pricing-title">The toll</h3>
           <p className="landing-pricing-body">
-            The first thirty days cost nothing — the full game, no card up
-            front, no download. After that it's <strong>$5 a month</strong>{' '}
-            through PayPal, and you can cancel any time.
+            The first thirty days cost nothing. You get the full game, no
+            card up front and no download. After that it's{' '}
+            <strong>$5 a month</strong> through PayPal, and you can cancel
+            any time.
           </p>
           <button className="landing-cta" type="button" onClick={onPlay}>
             Begin the trial
