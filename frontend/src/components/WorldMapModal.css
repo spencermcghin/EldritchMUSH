@@ -19,7 +19,7 @@
   box-shadow:
     0 0 60px rgba(212, 175, 55, 0.15),
     inset 0 0 40px rgba(0, 0, 0, 0.6);
-  width: 900px;
+  width: 1080px;
   max-width: 95vw;
   max-height: 90vh;
   display: flex;
@@ -180,16 +180,12 @@
   min-height: 400px;
 }
 
-/* When the room map sidebar is shown, don't center vertically */
-.world-map-body.has-sidebar {
-  align-items: stretch;
-  overflow: hidden;
-}
-
-/* The SVG container for the room map should scroll independently */
+/* The SVG container for the room map — full body width; the transform
+   group owns panning so we hide overflow. */
 .map-svg-wrap {
   flex: 1;
-  overflow: auto;
+  width: 100%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,17 +224,11 @@
   background: rgba(212, 175, 55, 0.06);
 }
 
+/* Plain colored zone-swatch (no number — names carry identity now). */
 .map-tooltip-dot {
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  color: #fff;
   flex-shrink: 0;
   border: 1px solid rgba(0, 0, 0, 0.4);
   box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
@@ -342,6 +332,56 @@
 /* SVG Map */
 .map-svg {
   min-height: 400px;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.map-svg:active {
+  cursor: grabbing;
+}
+
+/* Pan/zoom transform group — animate transform changes for smooth
+   fit/zoom; disabled under reduced motion. */
+.map-pan-group {
+  transition: transform 0.25s ease;
+}
+.map-pan-group.no-motion {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-pan-group { transition: none; }
+}
+
+/* Corner pan/zoom controls */
+.map-zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-zoom-btn {
+  width: 26px;
+  height: 26px;
+  background: rgba(10, 8, 7, 0.72);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.map-zoom-btn:hover {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--text-light);
 }
 
 .map-edge {
@@ -383,7 +423,7 @@
   transition: r 0.2s;
 }
 
-.map-node:hover .map-node-circle {
+.map-node:not(.current):hover .map-node-circle {
   r: 14;
 }
 
@@ -400,13 +440,65 @@
   50% { opacity: 0.6; r: 26; }
 }
 
-.map-node-num {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  fill: #fff;
-  text-anchor: middle;
+/* No pulse under reduced motion — steady glow ring instead. */
+@media (prefers-reduced-motion: reduce) {
+  .map-node-glow {
+    animation: none;
+    opacity: 0.4;
+  }
+}
+
+/* ── Always-on cartouche name plates ── */
+.map-cartouche {
   pointer-events: none;
-  font-weight: 700;
+}
+
+.map-cartouche-text {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  fill: #d8d3c3;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.85);
+  stroke-width: 3;
+  animation: cartoucheFadeIn 0.25s ease;
+}
+
+.map-cartouche-type {
+  fill: #a3b5a8;
+}
+
+/* Crowded labels yield visually rather than mush. */
+.map-cartouche.crowded .map-cartouche-text {
+  opacity: 0.8;
+}
+
+/* Hovered / focused plate promoted to full opacity. */
+.map-cartouche.hovered .map-cartouche-text {
+  opacity: 1;
+  fill: #f0ead8;
+}
+
+.map-cartouche-pill {
+  fill: rgba(8, 6, 5, 0.88);
+  stroke: rgba(212, 175, 55, 0.4);
+  stroke-width: 1;
+}
+
+/* 1px gold leader line from circle to a displaced plate. */
+.map-cartouche-leader {
+  stroke: rgba(212, 175, 55, 0.45);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+@keyframes cartoucheFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-cartouche-text { animation: none; }
 }
 
 /* Service badges riding above each node — a small dark disc ringed in
@@ -425,97 +517,6 @@
   font-size: 8px;
   text-anchor: middle;
   fill: #fff;
-}
-
-/* Sidebar key */
-.world-map-body.has-sidebar {
-  display: flex;
-  gap: 0;
-}
-
-.map-svg {
-  flex: 1;
-}
-
-.map-key {
-  width: 200px;
-  flex-shrink: 0;
-  border-left: 1px solid var(--border);
-  background: var(--surface);
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-.map-key-title {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--accent-gold);
-  padding: 4px 12px 8px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-}
-
-.map-key-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.map-key-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  font-size: 10px;
-  transition: background 0.1s;
-}
-
-.map-key-item.current {
-  background: rgba(163, 181, 168, 0.08);
-}
-
-.map-key-num {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.map-key-name {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: var(--text-light);
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.map-key-item.current .map-key-name {
-  color: var(--phosphor);
-}
-
-.map-key-icon {
-  font-size: 10px;
-  flex-shrink: 0;
-}
-
-.map-key-you {
-  font-family: 'Cinzel', serif;
-  font-size: 7px;
-  letter-spacing: 1px;
-  color: var(--phosphor);
-  background: rgba(163, 181, 168, 0.12);
-  border: 1px solid rgba(163, 181, 168, 0.3);
-  padding: 1px 4px;
-  flex-shrink: 0;
 }
 
 /* Footer */
