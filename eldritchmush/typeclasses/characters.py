@@ -275,12 +275,17 @@ class Character(DefaultCharacter):
         self.db.tough = self.db.total_tough
 
     # Changed for AI room response
-    def at_after_move(self, source_location):
+    def at_post_move(self, source_location, move_type="move", **kwargs):
         """
-        Default is to look around after a move
-        Note:  This has been moved to room.at_object_receive
+        Called after every move. (Was `at_after_move` — but in this Evennia
+        version `move_to` calls `at_post_move`, and `at_after_move` is only a
+        deprecated alias on the parent. Overriding the old name left this whole
+        body dead, so sidebar/encounter/minimap updates never fired on a walk.)
+
+        Note: the room "look" is handled by the parent + room.at_object_receive.
         """
-        #self.execute_cmd('look')
+        # Preserve the default post-move behavior (look on arrival).
+        super().at_post_move(source_location, move_type=move_type, **kwargs)
 
         if (self.db.isLeading):
             for char in self.db.followers:
@@ -321,6 +326,15 @@ class Character(DefaultCharacter):
 
         # Push updated available commands to the web UI sidebar after every move.
         push_available_commands(self)
+
+        # Push the new room id so the minimap's "you are here" marker
+        # follows the player. The room graph itself is static and loaded
+        # once via __map_ui__; only this pointer needs live updates.
+        emit_to(
+            self,
+            "room_changed",
+            {"currentRoom": self.location.id if self.location else None},
+        )
 
         # Quest offers are no longer auto-fired on room entry — they
         # fire when the player ASKS the NPC about something (see

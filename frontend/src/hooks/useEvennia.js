@@ -250,6 +250,12 @@ export function useEvennia() {
           if (kwargs.currentRoom != null) next.currentRoomId = kwargs.currentRoom
           break
         }
+        case 'room_changed': {
+          // Lightweight per-move pointer update — moves the minimap's
+          // "you are here" marker without re-sending the whole graph.
+          if (kwargs.currentRoom != null) next.currentRoomId = kwargs.currentRoom
+          break
+        }
         case 'crafting_data': {
           next.craftingData = { ...kwargs, ts: Date.now() }
           break
