@@ -187,3 +187,13 @@
   opacity: 0.25;
   letter-spacing: 3px;
 }
+
+/* Reclaim room width on narrow viewports — the rail tightens before
+   it would crowd the prose column. */
+@media (max-width: 1100px) {
+  .cmd-sidebar { width: 220px; }
+}
+@media (max-width: 880px) {
+  .cmd-sidebar { width: 188px; }
+  .cmd-key { font-size: 14px; }
+}

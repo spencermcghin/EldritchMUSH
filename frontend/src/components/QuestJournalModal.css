@@ -136,7 +136,8 @@
 .qj-card-progress {
   color: var(--accent-gold);
   font-size: 11px;
-  font-family: monospace;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .qj-card-outcome,
 .qj-card-giver {
@@ -182,9 +183,10 @@
 }
 .qj-obj-desc { flex: 1; }
 .qj-obj-count {
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--accent-gold);
+  font-variant-numeric: tabular-nums;
 }
 
 .qj-reward {
@@ -238,10 +240,10 @@
   gap: 8px;
   padding: 6px 8px;
   background: rgba(30, 28, 22, 0.4);
-  border-left: 2px solid #5fb35f;
+  border-left: 2px solid var(--mist);
   font-size: 12px;
 }
-.qj-completed-tick { color: #5fb35f; }
+.qj-completed-tick { color: var(--mist); }
 .qj-completed-title { color: var(--text-light); flex: 1; }
 .qj-completed-outcome {
   color: var(--text-aged);

@@ -249,9 +249,9 @@
 
 .alchemy-detail-effect {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
-  color: var(--text-light);
+  color: var(--bone);
   padding: 12px 14px;
   border-left: 2px solid var(--accent-gold);
   background: rgba(212, 175, 55, 0.04);

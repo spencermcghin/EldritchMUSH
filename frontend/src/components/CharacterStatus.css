@@ -408,3 +408,12 @@
   border-color: rgba(192, 128, 96, 0.4);
   background: rgba(192, 128, 96, 0.05);
 }
+
+/* Match the command rail's narrow-viewport tightening so both rails
+   shrink together and the room column keeps its width. */
+@media (max-width: 1100px) {
+  .char-status { width: 188px; }
+}
+@media (max-width: 880px) {
+  .char-status { width: 168px; }
+}

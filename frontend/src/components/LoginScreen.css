@@ -75,11 +75,12 @@
 
 .login-subtitle {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 12px;
-  letter-spacing: 6px;
+  font-size: 14px;
+  letter-spacing: 5px;
   color: var(--bone);
   text-transform: uppercase;
-  opacity: 0.8;
+  opacity: 0.88;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.12);
 }
 
 /* Divider */
