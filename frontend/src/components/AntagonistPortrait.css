@@ -1,0 +1,88 @@
+/* ── Antagonist Portrait ──────────────────────────────────────────
+   A framed creature portrait. The gold frame + verdigris vignette are
+   baked into the PNG; here we add only layout, a faint gold rim, the
+   name plate, and ONE ambient motion (a slow mist drift) per the
+   Mistbound Gothic rules (no CRT, no scanlines, one motion). */
+
+.antagonist-portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.antagonist-portrait[onclick],
+.antagonist-portrait[title] {
+  cursor: pointer;
+}
+
+.antagonist-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  /* a hairline gold rim outside the baked frame, dimmed so prose stays
+     the brightest thing on screen */
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.35),
+    0 6px 18px rgba(0, 0, 0, 0.55);
+  background: var(--void);
+}
+
+.antagonist-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* hold the cold cast; let the figure read just under prose brightness */
+  filter: saturate(0.9) brightness(0.96);
+}
+
+/* sizes ── room column token vs. encounter hero */
+.antagonist-portrait-sm .antagonist-frame { width: 96px; height: 96px; }
+.antagonist-portrait-lg .antagonist-frame { width: 232px; height: 232px; }
+
+/* The single ambient motion: a slow verdigris mist that drifts across the
+   glass. Respects prefers-reduced-motion. */
+.antagonist-mist {
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(163, 181, 168, 0.10), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(163, 181, 168, 0.07), transparent 55%);
+  mix-blend-mode: screen;
+  animation: antagonist-mist-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes antagonist-mist-drift {
+  from { transform: translate3d(-4%, 2%, 0) scale(1.04); }
+  to   { transform: translate3d(4%, -3%, 0) scale(1.10); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .antagonist-mist { animation: none; }
+}
+
+.antagonist-name {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-gold);   /* interactive label → gold, per palette */
+  text-align: center;
+  max-width: 100%;
+}
+
+.antagonist-portrait-lg .antagonist-name {
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+/* a faint blood underglow on hover signals "danger / target" without
+   leaving the palette */
+.antagonist-portrait[title]:hover .antagonist-frame {
+  box-shadow:
+    0 0 0 1px rgba(212, 175, 55, 0.5),
+    0 0 14px rgba(139, 0, 0, 0.45),
+    0 6px 18px rgba(0, 0, 0, 0.55);
+}

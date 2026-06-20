@@ -17,6 +17,17 @@ class Npc(Character):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.is_npc = True
+        # ── Bestiary fields (data-only; see world/bestiary_prototypes.py) ──
+        # art_key resolves to a framed portrait on the web client
+        # (frontend/src/data/antagonists.js); tier is our 0-4 threat tier;
+        # special carries the manual's special-ability names as flags with
+        # no MUD mechanic yet. Defaults keep legacy NPCs unaffected.
+        if self.db.art_key is None:
+            self.db.art_key = ""
+        if self.db.tier is None:
+            self.db.tier = 0
+        if self.db.special is None:
+            self.db.special = []
 
     def telegraph_and_engage(self, character, delay=None):
         """Warn the room, give the player a window to flee, THEN attack.

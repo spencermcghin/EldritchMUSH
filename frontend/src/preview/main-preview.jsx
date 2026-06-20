@@ -10,6 +10,8 @@ import GameOutput from '../components/GameOutput.jsx'
 import NpcDialoguePanel from '../components/NpcDialoguePanel.jsx'
 import QuestOfferModal from '../components/QuestOfferModal.jsx'
 import QuestCompletedToast from '../components/QuestCompletedToast.jsx'
+import CombatEncounterPanel from '../components/CombatEncounterPanel.jsx'
+import { ANTAGONISTS } from '../data/antagonists'
 
 const ROOM_MSG = {
   content: [
@@ -112,12 +114,53 @@ const COMPLETED_QUEST = {
   npcRep: { 'curate godrick': 1 },
 }
 
+// ── Bestiary combat fixtures ──
+// Per-monster encounter payloads keyed by art_key, mirroring what the
+// server's combat_encounter_prompt OOB event carries (name/desc/artKey/
+// isBoss/tier). The label/source come straight from the antagonists.js
+// registry so the preview can't drift from the real art mapping.
+// T3+ monsters render with the gold boss frame.
+const MOB_STATS = {
+  werewolf_alpha: { hp: 30, maxHp: 30, status: 'rampaging', boss: true },
+  werewolf:       { hp: 18, maxHp: 18 },
+  wight:          { hp: 22, maxHp: 22, status: 'dextrous' },
+  revenant:       { hp: 28, maxHp: 28, boss: true },
+  risen_dead:     { hp: 12, maxHp: 12, status: 'lumbering' },
+  unhallowed_spawn:{ hp: 16, maxHp: 16 },
+  nethermancer:   { hp: 20, maxHp: 20, status: 'warded', boss: true },
+  necromancer:    { hp: 24, maxHp: 24, status: 'warded', boss: true },
+  netherphage:    { hp: 30, maxHp: 30, status: 'immune', boss: true },
+}
+
+function mobEncounter(artKey) {
+  const reg = ANTAGONISTS[artKey]
+  const s = MOB_STATS[artKey] || { hp: 20, maxHp: 20 }
+  return {
+    name: reg ? reg.label : artKey,
+    desc: reg ? `Bestiary plate: ${reg.source}` : '',
+    artKey,
+    isBoss: !!s.boss,
+    hp: s.hp,
+    maxHp: s.maxHp,
+    status: s.status,
+    myTurn: true,
+    turnOrder: [
+      { name: 'You', hp: 14, maxHp: 14, isMe: true },
+      { name: reg ? reg.label : artKey, hp: s.hp, maxHp: s.maxHp, isAntagonist: true },
+    ],
+  }
+}
+
 // ?panel=1 — NPC dialogue modal; ?offer=1 — quest offer modal (wax
 // seal accept); ?toast=1 — completed toast. Modals backdrop the page.
+// ?combat=1&mob=<art_key> — the graphical combat encounter panel facing
+//   one of the 9 bestiary monsters (default: wight).
 const Q = new URLSearchParams(window.location.search)
 const SHOW_PANEL = Q.has('panel')
 const SHOW_OFFER = Q.has('offer')
 const SHOW_TOAST = Q.has('toast')
+const SHOW_COMBAT = Q.has('combat')
+const MOB = Q.get('mob') || 'wight'
 
 function Preview() {
   return (
@@ -155,6 +198,19 @@ function Preview() {
         />
       )}
       {SHOW_TOAST && <QuestCompletedToast quest={COMPLETED_QUEST} />}
+      {SHOW_COMBAT && (
+        <CombatEncounterPanel
+          encounter={mobEncounter(MOB)}
+          actions={[
+            { key: 'strike', label: 'Strike', danger: true },
+            { key: 'cleave', label: 'Cleave', danger: true },
+            { key: 'disarm', label: 'Disarm' },
+          ]}
+          onAction={() => {}}
+          onFlee={() => {}}
+          onTargetOther={() => {}}
+        />
+      )}
     </div>
   )
 }
