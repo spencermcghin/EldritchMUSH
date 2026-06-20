@@ -278,6 +278,13 @@ if _allauth_available:
     }
 
 ######################################################################
+# Prototype modules scanned by @spawn / the spawner. Evennia's default
+# is just ["world.prototypes"]; we add the bestiary so the monster
+# prototypes (WIGHT, REVENANT, …) resolve by key in-game.
+######################################################################
+PROTOTYPE_MODULES = ["world.prototypes", "world.bestiary_prototypes"]
+
+######################################################################
 # Settings given in secret_settings.py override those in this file.
 ######################################################################
 try:
