@@ -35,11 +35,18 @@ def _push_combat_encounter_prompt(character):
             continue
         if (obj.db.body or 0) <= 0:
             continue
+        tier = obj.attributes.get("tier", default=0) or 0
         hostiles.append({
             "name": obj.key,
             "dbref": getattr(obj, "dbref", ""),
             "desc": (obj.db.desc or "")[:200],
-            "isBoss": bool(obj.attributes.get("boss_encounter", default=False)),
+            # boss when explicitly flagged OR a high-tier (T3+) bestiary mob
+            "isBoss": bool(obj.attributes.get("boss_encounter", default=False))
+                      or tier >= 3,
+            # bestiary fields → the web client's framed portrait + threat tier
+            # (art_key resolves via frontend/src/data/antagonists.js)
+            "artKey": obj.attributes.get("art_key", default="") or "",
+            "tier": tier,
         })
     if not hostiles:
         return

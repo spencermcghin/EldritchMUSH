@@ -1,0 +1,383 @@
+/* ════════════════════════════════════════════════════════════════
+   CombatEncounterPanel — Mistbound-Gothic dungeon-crawler face-off.
+   Portrait dominant, framed in gold corners with a wax-stamp motif;
+   blood bar for HP; mist for the turn indicator; danger blood for
+   attack buttons. One ambient motion only (mist-drift, defined in
+   App.css). No CRT/scanlines.
+   ════════════════════════════════════════════════════════════════ */
+
+.cep-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(
+      ellipse at center,
+      rgba(10, 8, 7, 0.86) 40%,
+      rgba(4, 3, 2, 0.97) 100%
+    );
+  backdrop-filter: blur(3px);
+  animation: fade-in 0.25s ease;
+}
+
+/* Scoped type helpers (these class names are defined per-component
+   across the app; keep ours local). */
+.cep-arena .cinzel {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.cep-arena .font-mono {
+  font-family: var(--font-mono);
+}
+
+.cep-arena {
+  position: relative;
+  width: min(440px, 94vw);
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(180deg, #16120c 0%, #0c0a07 100%);
+  border: 1px solid var(--border-bright);
+  box-shadow:
+    0 0 80px rgba(0, 0, 0, 0.85),
+    0 0 26px rgba(139, 0, 0, 0.25),
+    inset 0 0 60px rgba(0, 0, 0, 0.6);
+}
+
+.cep-arena.cep-boss {
+  border-color: var(--accent-gold);
+  box-shadow:
+    0 0 90px rgba(0, 0, 0, 0.9),
+    0 0 30px rgba(212, 175, 55, 0.22),
+    inset 0 0 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Ambient mist at the arena's lower edge — the single allowed motion. */
+.cep-mist {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 120px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    0deg,
+    rgba(163, 181, 168, 0.12) 0%,
+    transparent 100%
+  );
+  animation: mist-drift 11s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cep-mist { animation: none; opacity: 0.6; }
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.cep-header {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(90deg, rgba(139, 0, 0, 0.16), transparent);
+}
+.cep-boss .cep-header {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.1), transparent);
+}
+.cep-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--accent-gold);
+}
+.cep-status {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--blood-bright);
+  text-transform: uppercase;
+}
+
+/* ── Stage / portrait ───────────────────────────────────────────── */
+.cep-stage {
+  position: relative;
+  z-index: 3;
+  padding: 18px 18px 10px;
+  text-align: center;
+}
+
+.cep-portrait {
+  margin: 0 auto 14px;
+  width: min(300px, 76%);
+}
+
+/* The frame: dark plate, inner gold hairline, vignette. The whole
+   frame remounts on HP change (keyed in JSX) → cep-frame-hit pulse. */
+.cep-frame {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border-bright);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.18),
+    inset 0 0 40px rgba(0, 0, 0, 0.85),
+    0 8px 28px rgba(0, 0, 0, 0.7);
+  animation: cep-frame-hit 420ms ease-out;
+}
+.cep-portrait-boss .cep-frame {
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 55, 0.45),
+    inset 0 0 40px rgba(0, 0, 0, 0.8),
+    0 8px 34px rgba(0, 0, 0, 0.75),
+    0 0 18px rgba(212, 175, 55, 0.18);
+}
+@keyframes cep-frame-hit {
+  0% { box-shadow: inset 0 0 0 2px var(--blood-bright), inset 0 0 40px rgba(139,0,0,0.5), 0 0 22px rgba(204,34,17,0.5); }
+  100% { box-shadow: inset 0 0 0 1px rgba(212,175,55,0.18), inset 0 0 40px rgba(0,0,0,0.85), 0 8px 28px rgba(0,0,0,0.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cep-frame { animation: none; }
+}
+
+.cep-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  display: block;
+  filter: saturate(0.9) contrast(1.04) brightness(0.92);
+}
+
+/* Atmospheric vignette over the portrait — darkens edges, grounds it
+   in the gloom rather than reading as a clean profile photo. */
+.cep-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    transparent 42%,
+    rgba(6, 4, 3, 0.55) 78%,
+    rgba(6, 4, 3, 0.9) 100%
+  );
+}
+
+/* Gold corner marks — the wax-stamp / framed-plate motif. */
+.cep-corner {
+  position: absolute;
+  z-index: 4;
+  font-size: 12px;
+  color: var(--accent-gold);
+  opacity: 0.7;
+  line-height: 1;
+}
+.cep-corner.tl { top: 4px; left: 5px; }
+.cep-corner.tr { top: 4px; right: 5px; }
+.cep-corner.bl { bottom: 4px; left: 5px; }
+.cep-corner.br { bottom: 4px; right: 5px; }
+
+.cep-slain-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  letter-spacing: 0.3em;
+  color: var(--blood-bright);
+  background: rgba(8, 4, 3, 0.55);
+  text-shadow: 0 0 14px rgba(139, 0, 0, 0.8);
+}
+.cep-slain .cep-portrait-img { filter: grayscale(0.7) brightness(0.5); }
+
+/* ── Name / desc / HP ───────────────────────────────────────────── */
+.cep-name {
+  font-size: 23px;
+  letter-spacing: 0.06em;
+  color: var(--accent-gold);
+  text-shadow: 0 0 14px rgba(212, 175, 55, 0.3);
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+.cep-desc {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--bone);
+  margin: 0 auto 12px;
+  max-width: 34ch;
+}
+
+/* Blood bar — danger red, drains to dark; goes brighter when low. */
+.cep-blood {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  max-width: 280px;
+}
+.cep-blood-track {
+  flex: 1;
+  height: 9px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(139, 0, 0, 0.5);
+  overflow: hidden;
+}
+.cep-blood-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blood), var(--blood-bright));
+  box-shadow: 0 0 8px rgba(204, 34, 17, 0.5);
+  transition: width 0.4s ease;
+}
+.cep-blood-fill.cep-blood-low {
+  background: var(--blood-bright);
+  animation: pulse-blood 1.4s infinite;
+}
+.cep-blood-label {
+  font-size: 11px;
+  color: var(--text-aged);
+  min-width: 56px;
+  text-align: right;
+}
+
+/* ── Also-here hostiles ─────────────────────────────────────────── */
+.cep-also {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+.cep-also-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-aged);
+}
+.cep-also-chip {
+  font-size: 11px;
+  padding: 3px 9px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--text-light);
+  cursor: pointer;
+  text-transform: capitalize;
+}
+.cep-also-chip:hover {
+  border-color: var(--accent-gold);
+  background: rgba(139, 0, 0, 0.25);
+}
+
+/* ── Turn rail ──────────────────────────────────────────────────── */
+.cep-turns {
+  position: relative;
+  z-index: 3;
+  padding: 8px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cep-turn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-aged);
+}
+.cep-turn-arrow {
+  width: 14px;
+  text-align: center;
+  color: var(--mist-dim);
+}
+.cep-turn-current .cep-turn-arrow { color: var(--mist); }
+.cep-turn-name {
+  flex: 0 0 38%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+.cep-turn-current .cep-turn-name { color: var(--mist); }
+.cep-turn-me .cep-turn-name { color: var(--text-light); }
+.cep-turn-foe .cep-turn-name { color: var(--blood-bright); }
+.cep-turn .cep-blood { flex: 1; max-width: none; }
+.cep-turn .cep-blood-track { height: 5px; }
+
+/* ── Footer: turn banner + actions ──────────────────────────────── */
+.cep-footer {
+  position: relative;
+  z-index: 3;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+}
+.cep-turn-banner {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  color: var(--text-aged);
+  margin-bottom: 11px;
+  opacity: 0.7;
+}
+.cep-turn-banner.cep-turn-on {
+  color: var(--mist);
+  opacity: 1;
+  text-shadow: 0 0 12px rgba(163, 181, 168, 0.4);
+}
+
+.cep-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.cep-btn {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 9px 6px;
+  cursor: pointer;
+  color: var(--text-light);
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px solid var(--border-bright);
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  text-transform: capitalize;
+}
+.cep-btn:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.1);
+}
+.cep-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Danger attacks read as pressed-blood, echoing the wax-seal accept. */
+.cep-btn-danger {
+  border-color: rgba(204, 34, 17, 0.55);
+  background: radial-gradient(ellipse at 30% 25%, #6f1410 0%, #4a0f0a 60%, #350806 100%);
+  color: #f0d2a8;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
+}
+.cep-btn-danger:hover:not(:disabled) {
+  border-color: var(--blood-bright);
+  color: #ffe9c4;
+  background: radial-gradient(ellipse at 30% 25%, #8b1a14 0%, #5c130d 60%, #420a08 100%);
+}
+
+.cep-btn-flee {
+  grid-column: 1 / -1;
+  background: transparent;
+  color: var(--text-aged);
+  border-color: var(--border);
+}
+.cep-btn-flee:hover:not(:disabled) {
+  border-color: var(--mist);
+  color: var(--mist);
+}
