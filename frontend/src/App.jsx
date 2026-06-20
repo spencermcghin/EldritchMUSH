@@ -34,7 +34,7 @@ import QuestAcceptedToast from './components/QuestAcceptedToast'
 import QuestCompletedToast from './components/QuestCompletedToast'
 import QuestProgressToast from './components/QuestProgressToast'
 import RepChangeToast from './components/RepChangeToast'
-import CombatEncounterModal from './components/CombatEncounterModal'
+import CombatEncounterHost from './components/CombatEncounterHost'
 import SealAltarModal from './components/SealAltarModal'
 import NpcDialoguePanel from './components/NpcDialoguePanel'
 import CommandPrompt from './components/CommandPrompt'
@@ -876,9 +876,9 @@ function App() {
 
       {/* Combat encounter opt-in — fires when entering a room with
           aggressive NPCs so the player isn't shoved into a fight. */}
-      <CombatEncounterModal
+      <CombatEncounterHost
         encounter={oobState.combatEncounter}
-        onEngage={(name) => sendCommand(`strike ${name}`)}
+        onCommand={sendCommand}
         onHold={() => {}}
       />
 
