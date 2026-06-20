@@ -15,14 +15,21 @@ Design correction from review:
   * The tint is dialed LIGHT (low blend toward the duotone) so busy
     bestiary linework stays legible instead of muddying.
 
-Run from frontend/public/art/antagonists/:
+Run from frontend/tools/antagonist-pipeline/:
     python3 _pipeline.py
+Reads raw bestiary plates from ./_sources and writes the framed runtime
+portraits into frontend/public/art/antagonists/ (the only art that ships).
 """
 import os
 from PIL import Image, ImageDraw, ImageOps, ImageFilter, ImageChops
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "_sources")
+# Rendered portraits are the only runtime asset — write them into the
+# served public dir (two levels up: frontend/ -> public/art/antagonists).
+OUT_DIR = os.path.normpath(
+    os.path.join(HERE, "..", "..", "public", "art", "antagonists")
+)
 
 # Mistbound Gothic palette (from frontend/src/App.css)
 VOID   = (10, 8, 7)        # --void  : deepest shadow anchor
@@ -179,7 +186,7 @@ def make_portrait(key, cfg):
     art.paste(toned, (0, 0), inner_mask)
     canvas.alpha_composite(art, (FRAME, FRAME))
 
-    out_path = os.path.join(HERE, f"{key}-portrait.png")
+    out_path = os.path.join(OUT_DIR, f"{key}-portrait.png")
     canvas.save(out_path)
     print(f"wrote {out_path}  <- {cfg['src']} crop={cfg['crop']}")
 
