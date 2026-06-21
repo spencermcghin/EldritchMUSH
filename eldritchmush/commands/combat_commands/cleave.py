@@ -4,6 +4,7 @@ from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
+from world import monster_abilities
 
 class CmdCleave(Command):
     """
@@ -88,6 +89,9 @@ class CmdCleave(Command):
                                 else:
                                     combatant.broadcast(f"{combatant.name} |025swings ferociously|n (|030{attack_result}|n) |025at|n {victim.name} (|400{victim.av}|n)|025, but misses.|n")
 
+                                # Monster fear (db.special flag-gated; no-op
+                                # for normal attackers).
+                                monster_abilities.apply_fear(self.caller, victim.caller, self.caller.location)
                                 # Clean up
                                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                                 loop.combatTurnOff(self.caller)

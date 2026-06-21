@@ -3,6 +3,7 @@ from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
+from world import monster_abilities
 
 class CmdDisarm(Command):
     """
@@ -60,6 +61,13 @@ class CmdDisarm(Command):
 
         loop = CombatLoop(combatant.caller, target)
         loop.resolveCommand()
+
+        # Monster immunity (db.special flag-gated; no-op for normal targets).
+        if combatant.hasTurn() and monster_abilities.is_immune(target, "disarm"):
+            combatant.broadcast(monster_abilities.immunity_message(target, "disarm"))
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
+            return
 
         #TODO: Right now the loop on Disarm and Sunder look almost identical.  I feel like you probably want something different?
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):

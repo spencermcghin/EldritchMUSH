@@ -263,6 +263,15 @@ class Npc(Character):
         else disengages — preserving the original behaviour for non-combat
         NPCs. Combat subclasses override this entirely.
         """
+        # Bestiary regeneration (db.special flag-gated; no-op for NPCs
+        # without a *_regeneration / undead_resilience flag). A regenerating
+        # monster knits a little durability back at the start of each of its
+        # own turns — see world/monster_abilities.apply_regen.
+        try:
+            from world import monster_abilities
+            monster_abilities.apply_regen(self)
+        except Exception:
+            pass
         if not self.db.is_aggressive or not (self.db.right_slot or self.db.weapon_proto):
             self.execute_cmd("disengage")
             return
