@@ -69,6 +69,48 @@ export const ANTAGONISTS = {
     source: 'Bestiary/Netherphage_.jpg',
     keywords: ['netherphage', 'necrophage', 'phage', 'horror'],
   },
+
+  // ── Ghouls (Bestiary "Withered_L" plate — gaunt weeping-eyed corpse) ──
+  crypt_ghoul: {
+    portrait: '/art/antagonists/crypt_ghoul-portrait.png',
+    label: 'Crypt Ghoul',
+    source: 'Bestiary/Withered_L.jpg',
+    keywords: ['crypt ghoul', 'ghoul', 'grave-feeder', 'withered'],
+  },
+  vodnyk: {
+    portrait: '/art/antagonists/vodnyk-portrait.png',
+    label: 'Vodnyk',
+    source: 'Bestiary/Withered_L.jpg',
+    keywords: ['vodnyk', 'vodyanoy'],
+  },
+
+  // ── Risen Dead — Mortwight (Bestiary "WightHG" plate, distinct variant) ──
+  mortwight: {
+    portrait: '/art/antagonists/mortwight-portrait.png',
+    label: 'Mortwight',
+    source: 'Bestiary/WightHG.png',
+    keywords: ['mortwight', 'plague wight'],
+  },
+
+  // ── Corrupted Magisters (Bestiary "Witch" plates — corrupted casters) ──
+  plaguist: {
+    portrait: '/art/antagonists/plaguist-portrait.png',
+    label: 'Plaguist',
+    source: 'Bestiary/Witch.jpg',
+    keywords: ['plaguist', 'corrupted magister', 'plague doctor'],
+  },
+  pandemist: {
+    portrait: '/art/antagonists/pandemist-portrait.png',
+    label: 'Pandemist',
+    source: 'Bestiary/Witch.jpg',
+    keywords: ['pandemist'],
+  },
+  pestis: {
+    portrait: '/art/antagonists/pestis-portrait.png',
+    label: 'Pestis',
+    source: 'Bestiary/witch_large.jpg',
+    keywords: ['pestis', 'apostle of plague', 'witch', 'hag'],
+  },
 }
 
 // Resolve a portrait for an NPC. Preference order:

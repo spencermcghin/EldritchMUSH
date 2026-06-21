@@ -232,9 +232,161 @@ NETHERPHAGE = {
 }
 
 
+# ─────────────────────────────────────────────────────────────────────────
+# Ghouls (expansion pass — art reconciled to named Bestiary plates)
+# ─────────────────────────────────────────────────────────────────────────
+# Crypt Ghoul / Vodnyk are matched to the Bestiary "Withered_L" plate (a
+# gaunt, weeping-eyed hooded corpse) — dedicated repo art, the match the
+# manual itself proposes for these blind, plague-ridden grave-feeders.
+
+CRYPT_GHOUL = {
+    "key": "crypt ghoul",
+    "typeclass": "typeclasses.npc.Npc",
+    "desc": (
+        "A blind, plague-ridden grave-feeder with glowing green claws. It "
+        "hunts by sound, rearing back on its hind legs before it strikes."
+    ),
+    # AV 4 (Tough 4)
+    "tough": 4, "av": 0,
+    "body": 3, "bleed_points": 3, "death_points": 3,
+    # Stagger 1, Cleave 1
+    "stagger": 1, "cleave": 1,
+    "sunder": 0, "stun": 0, "disarm": 0, "resist": 0,
+    "weapon_proto": "IRON_MEDIUM_WEAPON", "weapon_level": 1,
+    "is_aggressive": True,
+    "art_key": "crypt_ghoul", "tier": 1,
+    "special": ["immune_sunder", "immune_disarm", "pestilent",
+                "no_vitals", "decomposition_instakill", "blind_sound_hunter"],
+}
+
+VODNYK = {
+    "key": "vodnyk",
+    "typeclass": "typeclasses.npc.Npc",
+    "desc": (
+        "A bigger, tougher cousin of the crypt ghoul — the same blind, "
+        "sound-hunting horror, but harder to put down and twice as vicious."
+    ),
+    # AV 6 (Tough 6)
+    "tough": 6, "av": 0,
+    "body": 3, "bleed_points": 3, "death_points": 3,
+    # Stagger 2, Cleave 2
+    "stagger": 2, "cleave": 2,
+    "sunder": 0, "stun": 0, "disarm": 0, "resist": 0,
+    "weapon_proto": "IRON_MEDIUM_WEAPON", "weapon_level": 1,
+    "is_aggressive": True,
+    "art_key": "vodnyk", "tier": 2,
+    "special": ["immune_sunder", "immune_disarm", "pestilent",
+                "no_vitals", "decomposition_instakill", "blind_sound_hunter"],
+}
+
+# ─────────────────────────────────────────────────────────────────────────
+# Risen Dead (Unhallowed) — Mortwight
+# ─────────────────────────────────────────────────────────────────────────
+# Matched to the Bestiary "WightHG" plate (a snarling, lean warrior-corpse
+# mid-swing with a glowing blade) — a distinct wight variant illustration,
+# its own dedicated portrait rather than a reuse of the base wight art.
+
+MORTWIGHT = {
+    "key": "mortwight",
+    "typeclass": "typeclasses.npc.Npc",
+    "desc": (
+        "A plague-spreading spawn of the nethermancer, wielding flail and "
+        "mace. It chains its victims to itself and shares out every wound it "
+        "takes — a crowd-control horror built to break a battle line."
+    ),
+    # AV 12 (Tough 12)
+    "tough": 12, "av": 0,
+    "body": 3, "bleed_points": 3, "death_points": 3,
+    # Stagger / Cleave / Disarm / Mass Fear at will -> represent as rank 3
+    "stagger": 3, "cleave": 3, "disarm": 3,
+    "sunder": 0, "stun": 0, "resist": 0,
+    # 2x 1H weapons (flail + mace)
+    "weapon_proto": "IRON_MEDIUM_WEAPON", "weapon_level": 1,
+    "is_aggressive": True, "boss_encounter": True,
+    "art_key": "mortwight", "tier": 3,
+    "special": ["immune_stun", "immune_disarm", "immune_sunder", "no_vitals",
+                "decomposition_x2", "lumbering", "herald_of_plague",
+                "chains_of_torment", "fueled_by_the_essence", "mass_fear"],
+}
+
+# ─────────────────────────────────────────────────────────────────────────
+# Corrupted Magisters (Plaguist line — disease casters)
+# ─────────────────────────────────────────────────────────────────────────
+# Matched to the two Bestiary "Witch" plates: Witch.jpg (a gas-masked,
+# leaping poisoner — Plaguist/Pandemist) and witch_large.jpg (a skull-faced
+# hag mid-cast — Pestis, the apex boss). Both are dedicated Bestiary
+# illustrations of corrupted casters, not placeholders.
+
+PLAGUIST = {
+    "key": "plaguist",
+    "typeclass": "typeclasses.npc.Npc",
+    "desc": (
+        "A corrupted magister whose very blood has turned to chemical poison. "
+        "It fights with two small blades and a fan of disease-tipped throwing "
+        "knives, its humanity all but eaten away by the dark magics keeping it "
+        "alive."
+    ),
+    # AV 3 (Tough 3)
+    "tough": 3, "av": 0,
+    "body": 3, "bleed_points": 3, "death_points": 3,
+    # Resist 1, Stun 1, Stagger 1
+    "resist": 1, "stun": 1, "stagger": 1,
+    "cleave": 0, "sunder": 0, "disarm": 0,
+    "weapon_proto": "IRON_SMALL_WEAPON", "weapon_level": 0,
+    "is_aggressive": True,
+    "art_key": "plaguist", "tier": 1,
+    "special": ["pestilent_l1", "cloud_of_infection_l1",
+                "loot_3_common_reagents"],
+}
+
+PANDEMIST = {
+    "key": "pandemist",
+    "typeclass": "typeclasses.npc.Npc",
+    "desc": (
+        "A stronger corrupted magister of the Plaguist line — more poison, "
+        "deeper madness, deadlier disease on every thrown blade."
+    ),
+    # AV 5 (Tough 5)
+    "tough": 5, "av": 0,
+    "body": 3, "bleed_points": 3, "death_points": 3,
+    # Resist 2, Stun 2, Stagger 2
+    "resist": 2, "stun": 2, "stagger": 2,
+    "cleave": 0, "sunder": 0, "disarm": 0,
+    "weapon_proto": "IRON_SMALL_WEAPON", "weapon_level": 0,
+    "is_aggressive": True,
+    "art_key": "pandemist", "tier": 2,
+    "special": ["pestilent_l2", "cloud_of_infection_l2",
+                "loot_3_uncommon_reagents"],
+}
+
+PESTIS = {
+    "key": "pestis",
+    "typeclass": "typeclasses.npc.Npc",
+    "desc": (
+        "The apex corrupted magister — a disease boss whose touch sows the "
+        "worst plagues in the vale. Even a killing blow releases a cloud of "
+        "infection onto the one who struck it down."
+    ),
+    # AV 9 (Tough 9)
+    "tough": 9, "av": 0,
+    "body": 3, "bleed_points": 3, "death_points": 3,
+    # Resist 3, Stun 3, Stagger 3, Cleave 3
+    "resist": 3, "stun": 3, "stagger": 3, "cleave": 3,
+    "sunder": 0, "disarm": 0,
+    "weapon_proto": "IRON_SMALL_WEAPON", "weapon_level": 0,
+    "is_aggressive": True, "boss_encounter": True,
+    "art_key": "pestis", "tier": 3,
+    "special": ["pestilent_l3", "cloud_of_infection_l3",
+                "loot_3_rare_reagents"],
+}
+
+
 # Registry of every prototype key in this module, for tooling / docs.
 BESTIARY_KEYS = [
     "WURDULAC", "WEREWOLF",
     "THE_RISEN_DEAD", "WIGHT", "REVENANT", "UNHALLOWED_SPAWN",
     "NETHERMANCER_INITIATE", "NETHERMANCER_ACOLYTE", "NETHERPHAGE",
+    # ── expansion pass ──
+    "CRYPT_GHOUL", "VODNYK", "MORTWIGHT",
+    "PLAGUIST", "PANDEMIST", "PESTIS",
 ]
