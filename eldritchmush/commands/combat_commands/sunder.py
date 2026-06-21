@@ -6,6 +6,7 @@ from evennia import utils
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
 from world.character_stats import push_character_stats
+from world import monster_abilities
 
 class CmdSunder(Command):
     """
@@ -79,6 +80,16 @@ class CmdSunder(Command):
         # Run logic for sunder command
         if not self.caller.db.combat_turn:
             self.msg("|430You need to wait until it is your turn before you are able to act.|n")
+            return
+
+        # Monster immunity (db.special flag-gated; no-op for normal targets).
+        # immune_sunder / immune_all monsters can't have their gear sundered —
+        # fizzle, consume the turn, hand the loop on.
+        if monster_abilities.is_immune(target, "sunder"):
+            self.caller.location.msg_contents(
+                monster_abilities.immunity_message(target, "sunder"))
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
             return
 
         combat_stats = h.getMeleeCombatStats(self.caller)

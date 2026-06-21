@@ -3,6 +3,7 @@ from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
+from world import monster_abilities
 
 class CmdStagger(Command):
     """
@@ -59,6 +60,13 @@ class CmdStagger(Command):
 
         loop = CombatLoop(combatant.caller, target)
         loop.resolveCommand()
+
+        # Monster immunity (db.special flag-gated; no-op for normal targets).
+        if combatant.hasTurn() and monster_abilities.is_immune(target, "stagger"):
+            combatant.broadcast(monster_abilities.immunity_message(target, "stagger"))
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
+            return
 
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.isArmed(f"|430Before you attack you must equip a weapon using the command equip <weapon>.|n"):

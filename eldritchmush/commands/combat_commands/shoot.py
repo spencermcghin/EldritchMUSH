@@ -3,6 +3,7 @@ from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combatant import Combatant
 from world.events import emit
+from world import monster_abilities
 
 class CmdShoot(Command):
     """
@@ -84,6 +85,15 @@ class CmdShoot(Command):
 
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
             if combatant.inventory.hasBow("|430You need to equip a bow before you are able to shoot, using the command equip <bow name>.|n"):
+                # Monster immunity (db.special flag-gated; no-op for normal
+                # targets). immune_ranged monsters take nothing from arrows or
+                # shot — fizzle (no ammo spent), consume the turn, hand on.
+                if monster_abilities.is_immune(victim.caller, "shoot"):
+                    combatant.broadcast(
+                        monster_abilities.immunity_message(victim.caller, "shoot"))
+                    loop.combatTurnOff(self.caller)
+                    loop.cleanup()
+                    return
                 bow_penalty = 2
                 bow_damage = 1
 

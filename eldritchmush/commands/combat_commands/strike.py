@@ -3,6 +3,7 @@ from evennia import Command
 from world.combat_loop import CombatLoop
 from commands.combatant import Combatant
 from world.events import emit
+from world import monster_abilities
 
 class CmdStrike(Command):
     """
@@ -122,6 +123,11 @@ class CmdStrike(Command):
                         "roll": attack_result,
                         "target_av": victim.av,
                     })
+                # Monster fear (db.special flag-gated; no-op for normal
+                # attackers). A flagged monster's hit sows the existing
+                # db.fear status on its victim (target_fear_N) or the whole
+                # room (mass_fear_N / sphere_of_terror).
+                monster_abilities.apply_fear(self.caller, victim.caller, self.caller.location)
                 # Clean up
                 # Set self.caller's combat_turn to 0. Can no longer use combat commands.
                 loop.combatTurnOff(self.caller)

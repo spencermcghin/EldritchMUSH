@@ -3,6 +3,7 @@ from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from typeclasses.npc import Npc
 from commands.combatant import Combatant
+from world import monster_abilities
 
 
 
@@ -63,6 +64,15 @@ class CmdStun(Command):
 
         loop = CombatLoop(combatant.caller, combatant.target)
         loop.resolveCommand()
+
+        # Monster immunity (db.special flag-gated; no-op for normal targets).
+        # immune_stun / immune_all monsters can't be stunned — fizzle the
+        # maneuver, consume the turn, hand the loop on.
+        if combatant.hasTurn() and monster_abilities.is_immune(target, "stun"):
+            combatant.broadcast(monster_abilities.immunity_message(target, "stun"))
+            loop.combatTurnOff(self.caller)
+            loop.cleanup()
+            return
 
         #TODO: Currently Disarm does Damage and Stun doesnt.  Is that intended?
         if combatant.hasTurn(f"|430You need to wait until it is your turn before you are able to act.|n"):
