@@ -4,7 +4,6 @@ import LoginScreen from './components/LoginScreen'
 import LandingPage from './components/LandingPage'
 import CharacterSelect from './components/CharacterSelect'
 import IntroScreen from './components/IntroScreen'
-import CombatTracker from './components/CombatTracker'
 import ActionToolbar from './components/ActionToolbar'
 import CommandSidebar from './components/CommandSidebar'
 import CharacterStatus from './components/CharacterStatus'
@@ -650,7 +649,10 @@ function App() {
                 />
               ) : null}
             />
-            {oobState.inCombat && <CombatTracker oobState={oobState} />}
+            {/* Combat HUD is now the sustained CombatEncounterHost panel
+                (full-screen face-off with live HP + turn order), rendered
+                near the app root. The old inline CombatTracker would sit
+                behind that overlay, so it's no longer mounted here. */}
             <ActionToolbar
               entity={selectedEntity}
               npcMeta={oobState.roomNpcMeta?.[selectedEntity?.name?.toLowerCase()] || null}
@@ -877,7 +879,7 @@ function App() {
       {/* Combat encounter opt-in — fires when entering a room with
           aggressive NPCs so the player isn't shoved into a fight. */}
       <CombatEncounterHost
-        encounter={oobState.combatEncounter}
+        oobState={oobState}
         onCommand={sendCommand}
         onHold={() => {}}
       />

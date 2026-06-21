@@ -11,6 +11,7 @@ import NpcDialoguePanel from '../components/NpcDialoguePanel.jsx'
 import QuestOfferModal from '../components/QuestOfferModal.jsx'
 import QuestCompletedToast from '../components/QuestCompletedToast.jsx'
 import CombatEncounterPanel from '../components/CombatEncounterPanel.jsx'
+import CombatEncounterHost from '../components/CombatEncounterHost.jsx'
 import { ANTAGONISTS } from '../data/antagonists'
 
 const ROOM_MSG = {
@@ -151,15 +152,53 @@ function mobEncounter(artKey) {
   }
 }
 
+// Live-combat fixture: a mock useEvennia oobState mid-fight, fed through
+// the real CombatEncounterHost so the preview exercises the actual
+// prompt→live mapping (foe identity, per-combatant HP rail, myTurn gating,
+// SLAIN). combatantHp is a 0..100 percentage, matching the OOB reducer.
+const LIVE_COMBAT_STATE = {
+  inCombat: true,
+  characterName: 'Aldric',
+  myTurn: true,
+  combatTurnOrder: ['Aldric', 'Wight', 'Risen Dead'],
+  combatantHp: { Aldric: 80, Wight: 45, 'Risen Dead': 70 },
+  // The walk-in prompt that PRECEDED this fight — the host remembers it
+  // to enrich the bare turn-order names with portrait art + boss flag.
+  combatEncounter: {
+    room: 'Raven’s Rest Graveyard',
+    ts: 1,
+    hostiles: [
+      {
+        name: 'Wight',
+        desc: 'Bestiary plate: ' + (ANTAGONISTS.wight ? ANTAGONISTS.wight.source : ''),
+        artKey: 'wight',
+        isBoss: false,
+        tier: 2,
+      },
+      {
+        name: 'Risen Dead',
+        desc: 'A shambling corpse.',
+        artKey: 'risen_dead',
+        isBoss: false,
+        tier: 1,
+      },
+    ],
+  },
+}
+
 // ?panel=1 — NPC dialogue modal; ?offer=1 — quest offer modal (wax
 // seal accept); ?toast=1 — completed toast. Modals backdrop the page.
-// ?combat=1&mob=<art_key> — the graphical combat encounter panel facing
-//   one of the 9 bestiary monsters (default: wight).
+// ?combat=1&mob=<art_key> — the static graphical combat encounter panel
+//   facing one of the 9 bestiary monsters (default: wight).
+// ?combat=live — the SUSTAINED live face-off driven through the real
+//   CombatEncounterHost from a mid-fight mock oobState.
 const Q = new URLSearchParams(window.location.search)
 const SHOW_PANEL = Q.has('panel')
 const SHOW_OFFER = Q.has('offer')
 const SHOW_TOAST = Q.has('toast')
-const SHOW_COMBAT = Q.has('combat')
+const COMBAT_MODE = Q.get('combat')
+const SHOW_COMBAT = Q.has('combat') && COMBAT_MODE !== 'live'
+const SHOW_LIVE_COMBAT = COMBAT_MODE === 'live'
 const MOB = Q.get('mob') || 'wight'
 
 function Preview() {
@@ -209,6 +248,13 @@ function Preview() {
           onAction={() => {}}
           onFlee={() => {}}
           onTargetOther={() => {}}
+        />
+      )}
+      {SHOW_LIVE_COMBAT && (
+        <CombatEncounterHost
+          oobState={LIVE_COMBAT_STATE}
+          onCommand={() => {}}
+          onHold={() => {}}
         />
       )}
     </div>
