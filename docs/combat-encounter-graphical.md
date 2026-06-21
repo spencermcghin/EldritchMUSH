@@ -185,3 +185,73 @@ cd frontend && npx vite        # then open:
 If `frontend/node_modules` is absent in a worktree, symlink the main
 repo's: `ln -s ../../frontend/node_modules ./node_modules` (adjust depth),
 then run vite as above.
+
+---
+
+## 5. SHIPPED — sustained live face-off
+
+The follow-up from §3 is now wired: the panel **persists through the whole
+fight** with live HP and turn order, instead of dismissing on engage and
+handing off to the text loop.
+
+![live face-off](img/combat-live-faceoff.png)
+
+> `/preview.html?combat=live` — a mid-fight mock `oobState` (Aldric vs a
+> Wight + Risen Dead) fed through the real `CombatEncounterHost`, so the
+> screenshot exercises the actual prompt→live mapping.
+
+### Where the state comes from
+
+`CombatEncounterHost` now takes the whole `oobState` and a `useMemo`
+derives the panel's `encounter` from it, in two modes:
+
+- **Prompt mode** — `combat_encounter_prompt` fired but `inCombat` is
+  false. Shows the opt-in walk-in face-off (engage or hold back).
+- **Live mode** — `inCombat` is true. The same mounted panel reflects:
+  - antagonist HP ← `combatantHp[primaryFoe]` (0..100 percentage from the
+    OOB reducer's `combat_start` / `combat_hit` handlers),
+  - the full `combatTurnOrder` rendered as the turn-order rail, each row
+    carrying `combatantHp[name]`, `isMe` (`name === characterName`) and
+    `isAntagonist`,
+  - `myTurn` gating the action buttons (disabled when it isn't your turn),
+  - SLAIN / zeroed bars when a foe's HP hits 0,
+  - `combat_end` (`inCombat` → false) clears the derived encounter and the
+    panel unmounts cleanly.
+
+**Fields used:** `inCombat`, `combatTurnOrder` (`[name,…]`),
+`combatantHp` (`{name: 0..100}`), `myTurn`, `characterName`, and the
+remembered `combatEncounter.hostiles` (for portrait `artKey` / `desc` /
+`isBoss`, since the turn order only carries bare names).
+
+### Transitions
+
+- **Engage** — an action button in prompt mode sends `strike <foe>`; the
+  server's `combat_start` flips `inCombat` true and the *same* panel
+  transitions to live mode (no remount).
+- **Flee** — live mode sends `disengage`; prompt mode just holds back.
+- **End** — `combat_end` resets combat state → `encounter` becomes null →
+  panel dismisses.
+
+### Antagonist identity
+
+The turn order is bare names. The player is `characterName`; every other
+name is a foe. The first foe in the order drives the portrait, enriched
+with `artKey` / `desc` / `isBoss` by matching its name against the
+remembered walk-in `hostiles`. Remaining foes appear as "ALSO HERE" chips.
+
+### CombatTracker
+
+`CombatEncounterPanel` is a full-screen fixed overlay (`z-index 1120`), so
+the old inline `CombatTracker` would sit *behind* it during combat and is
+now redundant on-screen. Its mount was removed from `App.jsx` (and the
+unused import dropped). The `CombatTracker.{jsx,css}` files are kept in the
+tree (no other importers; harmless) rather than deleted.
+
+### Files touched (this change)
+
+| File | Change |
+| --- | --- |
+| `frontend/src/components/CombatEncounterHost.jsx` | rewritten — owns prompt+live modes, derives `encounter` via `useMemo` over `oobState` |
+| `frontend/src/App.jsx` | pass `oobState` to the host; remove inline `CombatTracker` mount + import |
+| `frontend/src/preview/main-preview.jsx` | added `?combat=live` fixture driven through the real host |
+| `docs/img/combat-live-faceoff.png` | live-mode screenshot |
