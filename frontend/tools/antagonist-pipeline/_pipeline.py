@@ -96,6 +96,48 @@ PORTRAITS = {
         "crop": (0.10, 0.02, 0.90, 0.86),
         "blood": 0.16, "center": 0.42,
     },
+
+    # ── Expansion pass: name-mismatched Drive Bestiary art matched to
+    #    manual statlines by creature concept (see docs/bestiary-expansion.md).
+    #    All sources are dedicated Bestiary/ illustrations, NOT placeholders.
+
+    # Ghouls — gaunt, weeping-eyed hooded corpse (Bestiary Withered_L.jpg).
+    "crypt_ghoul": {
+        "src": "withered.jpg",
+        "crop": (0.20, 0.10, 0.78, 0.40),
+        "blood": 0.08, "center": 0.20,
+    },
+    # Vodnyk — bigger ghoul kin: tighter, more menacing crop of the same plate.
+    "vodnyk": {
+        "src": "withered.jpg",
+        "crop": (0.14, 0.00, 0.90, 0.50),
+        "blood": 0.18, "center": 0.12,
+    },
+
+    # Mortwight — snarling lean warrior-corpse, glowing blade (WightHG.png).
+    "mortwight": {
+        "src": "wight_hg.png",
+        "crop": (0.34, 0.10, 0.98, 0.74),
+        "blood": 0.16, "center": 0.18,
+    },
+
+    # Corrupted Magisters (Plaguist line) — Bestiary Witch plates: a
+    # gas-masked poisoner (Witch.jpg) + a skull-faced hag (witch_large.jpg).
+    "plaguist": {
+        "src": "witch.jpg",
+        "crop": (0.04, 0.06, 0.96, 0.62),
+        "blood": 0.10, "center": 0.18,
+    },
+    "pandemist": {
+        "src": "witch.jpg",
+        "crop": (0.06, 0.04, 0.94, 0.58),
+        "blood": 0.22, "center": 0.16,
+    },
+    "pestis": {
+        "src": "witch_large.jpg",
+        "crop": (0.10, 0.02, 0.94, 0.72),
+        "blood": 0.18, "center": 0.18,
+    },
 }
 
 
