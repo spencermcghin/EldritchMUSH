@@ -1,6 +1,11 @@
 # External uptime probe — pings prod + UAT /health every 15 minutes.
 # A failing run emails the repo owner via GitHub's workflow-failure
 # notification; the run history doubles as a free uptime log.
+#
+# Each probe retries up to 5 times (10s apart) before declaring an outage,
+# so a single transient blip — a network hiccup on the runner or a brief
+# container restart — does not fire a false-alarm failure email. Only a
+# sustained outage (~40s+) alerts.
 name: uptime
 on:
   schedule:
@@ -12,12 +17,20 @@ jobs:
     steps:
       - name: prod /health
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://eldritchmush.com/health)
-          echo "prod: $code"
-          [ "$code" = "200" ]
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://eldritchmush.com/health || echo 000)
+            echo "prod attempt $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "prod failed 5/5 attempts"; exit 1
       - name: uat /health
         if: always()
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://uat.eldritchmush.com/health)
-          echo "uat: $code"
-          [ "$code" = "200" ]
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 https://uat.eldritchmush.com/health || echo 000)
+            echo "uat attempt $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "uat failed 5/5 attempts"; exit 1
