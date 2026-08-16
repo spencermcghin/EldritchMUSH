@@ -21,7 +21,7 @@ Env vars:
                         to canned atmospheric lines.
     NPC_LLM_BASE_URL  — openai path only; default Groq.
     NPC_LLM_MODEL     — default "claude-haiku-4-5" (anthropic) or
-                        "meta-llama/llama-4-scout-17b-16e-instruct" (openai).
+                        "llama-3.3-70b-versatile" (openai/Groq).
     NPC_LLM_MAX_TOKENS— default 600
     NPC_LLM_TIMEOUT   — default 20 (seconds)
     NPC_LLM_WORKERS   — LLM worker threads (default 4). Replaces the old
@@ -50,7 +50,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
-DEFAULT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
 DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
 DEFAULT_MAX_TOKENS = 600          # ~450 words; long enough that even a
                                    # storytelling reply doesn't get cut off
