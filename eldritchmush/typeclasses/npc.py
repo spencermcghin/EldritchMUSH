@@ -104,7 +104,7 @@ class Npc(Character):
         quest givers instead hint at the tasks they can offer.
         """
         try:
-            if (self.db.is_aggressive and self.db.weapon_proto
+            if (self.db.is_aggressive
                     and not self.db.right_slot
                     and getattr(character, "has_account", False)):
                 self.make_equipment()
@@ -218,7 +218,12 @@ class Npc(Character):
         aggressive base Npc scales correctly without a bespoke subclass.
         Passive NPCs (no weapon_proto) are completely unaffected.
         """
-        proto = self.db.weapon_proto
+        # Aggressive mobs must be able to fight even if populate forgot to
+        # set a weapon_proto — fall back to a basic medium weapon so an
+        # unarmed antagonist never just stands there. Passive NPCs stay
+        # unarmed (no weapon_proto + not aggressive -> no-op).
+        proto = self.db.weapon_proto or (
+            "IRON_MEDIUM_WEAPON" if self.db.is_aggressive else None)
         if not proto or self.db.right_slot:
             return
         try:
@@ -272,7 +277,7 @@ class Npc(Character):
             monster_abilities.apply_regen(self)
         except Exception:
             pass
-        if not self.db.is_aggressive or not (self.db.right_slot or self.db.weapon_proto):
+        if not self.db.is_aggressive:
             self.execute_cmd("disengage")
             return
         if not self.db.right_slot:
