@@ -110,8 +110,9 @@ class Account(DefaultAccount):
         if getattr(self, "is_staff", False):
             return False
         try:
-            perms = list(self.permissions.all())
-            if "Admin" in perms or "Developer" in perms:
+            # Evennia stores permstrings lowercased, so compare case-insensitively.
+            perms = [str(p).lower() for p in self.permissions.all()]
+            if "admin" in perms or "developer" in perms:
                 return False
         except Exception:
             pass
