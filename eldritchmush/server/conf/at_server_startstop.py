@@ -287,8 +287,23 @@ def at_server_start():
     # instead of player-reported bugs. Never blocks startup.
     try:
         from world.quest_validation import run_and_report
-        run_and_report(check_world=True,
-                       out=lambda m: print(m, flush=True))
+        _qv_lines = []
+
+        def _qv_out(m):
+            print(m, flush=True)
+            _qv_lines.append(m)
+
+        n_quest_errors = run_and_report(check_world=True, out=_qv_out)
+        if n_quest_errors:
+            # The whole point of the validator is to catch stranded quests
+            # before players do — a log line buried in Railway deploy noise
+            # isn't enough, so email the operator (rate-limited per kind).
+            from world import telemetry
+            telemetry.alert(
+                "quest_validation",
+                f"{n_quest_errors} quest validation error(s) at boot",
+                "\n".join(_qv_lines),
+            )
     except Exception as exc:
         print(f"[at_server_start] quest validation FAILED: {exc!r}")
 
