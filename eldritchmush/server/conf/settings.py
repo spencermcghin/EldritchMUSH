@@ -306,10 +306,27 @@ if _env_secret_key:
 # secret_settings.py is known-compromised (committed to a public repo
 # before 2026-04-22). Refuse to boot if it ever resurfaces.
 _LEAKED_SECRET_KEY = 'G~RcW6"H?pmqB=#9<,_lZ+5Ji%gsAh1LbF8z(!yN'
-if globals().get("SECRET_KEY") == _LEAKED_SECRET_KEY:
+_active_secret_key = str(globals().get("SECRET_KEY") or "")
+if _active_secret_key == _LEAKED_SECRET_KEY:
     raise RuntimeError(
         "SECRET_KEY matches the value that was committed to the public "
         "EldritchMUSH repo prior to 2026-04-22. Rotate via the "
         "DJANGO_SECRET_KEY env var (Railway > Variables) or set a fresh "
         "value in a local-only secret_settings.py. Refusing to boot."
+    )
+# Also refuse framework-default placeholder keys (Evennia ships a
+# published "changeme..." default) — these enable session-cookie forgery.
+if "changeme" in _active_secret_key.lower():
+    raise RuntimeError(
+        "SECRET_KEY is a framework default placeholder. Set a real "
+        "DJANGO_SECRET_KEY env var. Refusing to boot."
+    )
+# On any deployed environment (Railway sets RAILWAY_ENVIRONMENT_NAME,
+# surfaced as DEPLOY_ENV), secret_settings.py is absent so DJANGO_SECRET_KEY
+# is the only safe source. If it's unset we'd silently fall back to a
+# default/inherited key — refuse rather than boot insecurely.
+if DEPLOY_ENV != "local" and not _env_secret_key:
+    raise RuntimeError(
+        f"DJANGO_SECRET_KEY is not set on deployed environment "
+        f"'{DEPLOY_ENV}'. Refusing to boot with a fallback SECRET_KEY."
     )
