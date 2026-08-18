@@ -120,13 +120,41 @@ if [ -n "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
     # or if FORCE_DB_SEED=1 is set (to replace a stale/empty db).
     # This copies the world data (rooms, NPCs, items, etc.) from the repo
     # so the deploy starts with the full game world intact.
+    # Per-boot backup of the live database BEFORE anything can touch it
+    # (seed/migrate). Keeps the last 7 snapshots on the volume — the only
+    # safety net against a bad migration, corruption, or an accidental
+    # FORCE_DB_SEED. Not off-box, but far better than a single live copy.
+    if [ -f "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" ]; then
+        mkdir -p "$RAILWAY_VOLUME_MOUNT_PATH/backups"
+        _bk="$RAILWAY_VOLUME_MOUNT_PATH/backups/evennia-$(date +%Y%m%d-%H%M%S).db3"
+        if command -v sqlite3 >/dev/null 2>&1; then
+            sqlite3 "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" ".backup '$_bk'" \
+                && echo "=== DB backup: $_bk ===" \
+                || echo "=== WARNING: DB backup failed ==="
+        else
+            cp "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" "$_bk" \
+                && echo "=== DB backup (cp): $_bk ==="
+        fi
+        # Retention: keep newest 7.
+        ls -1t "$RAILWAY_VOLUME_MOUNT_PATH"/backups/evennia-*.db3 2>/dev/null \
+            | tail -n +8 | xargs -r rm -f
+    fi
+
     SHOULD_SEED=0
     if [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" ]; then
         SHOULD_SEED=1
         echo "=== No database on volume — will seed ==="
     elif [ "${FORCE_DB_SEED:-0}" = "1" ]; then
-        SHOULD_SEED=1
-        echo "=== FORCE_DB_SEED=1 — replacing existing database ==="
+        # Guard: refuse to blow away a live production DB unless a second,
+        # explicit confirmation var is also set. One stray env var must not
+        # be able to destroy all player data.
+        if [ "$RAILWAY_ENVIRONMENT_NAME" = "production" ] \
+                && [ "${FORCE_DB_SEED_CONFIRM:-0}" != "1" ]; then
+            echo "=== REFUSING FORCE_DB_SEED on production without FORCE_DB_SEED_CONFIRM=1 — keeping existing DB ==="
+        else
+            SHOULD_SEED=1
+            echo "=== FORCE_DB_SEED=1 — replacing existing database (backup taken above) ==="
+        fi
     else
         echo "=== Existing database found on volume — skipping seed ==="
     fi
@@ -141,6 +169,13 @@ if [ -n "$RAILWAY_VOLUME_MOUNT_PATH" ]; then
         fi
     fi
 else
+    # On a deployed environment a missing volume means every write is lost
+    # on the next redeploy. Fail loudly instead of silently running on
+    # ephemeral disk. Local dev (no RAILWAY_ENVIRONMENT_NAME) still warns.
+    if [ -n "$RAILWAY_ENVIRONMENT_NAME" ]; then
+        echo "=== FATAL: No volume mounted on '$RAILWAY_ENVIRONMENT_NAME' — refusing to run on ephemeral disk ==="
+        exit 1
+    fi
     echo "=== WARNING: No volume mounted — database will be lost on redeploy ==="
 fi
 
@@ -400,6 +435,7 @@ evennia start 2>&1 &
 
 # Wait for both Portal (4002 WebSocket) AND Server (4005 internal web) to be up.
 echo "=== Waiting for Evennia to be ready ==="
+evennia_up=0
 for i in $(seq 1 150); do
     portal_up=0
     server_up=0
@@ -407,11 +443,34 @@ for i in $(seq 1 150); do
     nc -z 127.0.0.1 4005 2>/dev/null && server_up=1
     if [ $portal_up -eq 1 ] && [ $server_up -eq 1 ]; then
         echo "=== Evennia is fully up! (Portal+Server ready after ${i}x2s) ==="
+        evennia_up=1
         break
     fi
     echo "  waiting... portal=$portal_up server=$server_up ($i/150)"
     sleep 2
 done
 
+# If Evennia never bound its ports, exit non-zero so Railway's ON_FAILURE
+# restart policy actually fires instead of leaving a zombie container that
+# still serves the static /health 200 over a dead game.
+if [ "$evennia_up" != "1" ]; then
+    echo "=== FATAL: Evennia did not become ready within 300s — exiting for restart ==="
+    exit 1
+fi
+
 echo "=== All services running ==="
-tail -f /dev/null
+
+# Watchdog: PID 1 must exit when any core process dies, otherwise a crashed
+# Evennia (or nginx) leaves a container Railway still thinks is healthy and
+# never restarts. Poll the ports + nginx master every 15s.
+while true; do
+    sleep 15
+    if ! nc -z 127.0.0.1 4002 2>/dev/null || ! nc -z 127.0.0.1 4005 2>/dev/null; then
+        echo "=== Evennia port down — exiting for restart ==="
+        exit 1
+    fi
+    if ! pgrep -x nginx >/dev/null 2>&1; then
+        echo "=== nginx not running — exiting for restart ==="
+        exit 1
+    fi
+done
