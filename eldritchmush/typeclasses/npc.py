@@ -780,7 +780,7 @@ class GreenSoldierBow(GreenMeleeSoldierOneHanded):
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
-        if not self.db.right_slot or self.db.left_slot:
+        if not (self.db.right_slot or self.db.left_slot):
             self.execute_cmd('equip bow')
             pass
 
@@ -955,7 +955,7 @@ class BlueMeleeSoldierOneHanded(Npc):
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
-        if not self.db.right_slot or self.db.left_slot:
+        if not (self.db.right_slot or self.db.left_slot):
             self.execute_cmd('equip hardened iron medium weapon')
             pass
 
@@ -1125,7 +1125,7 @@ class BlueMeleeSoldierTwoHanded(Npc):
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
-        if not self.db.right_slot or self.db.left_slot:
+        if not (self.db.right_slot or self.db.left_slot):
             self.execute_cmd('equip hardened iron large weapon')
             pass
 
@@ -1298,7 +1298,7 @@ class BlueSoldierBow(Npc):
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
 
-        if not self.db.right_slot or self.db.left_slot:
+        if not (self.db.right_slot or self.db.left_slot):
             self.execute_cmd('equip bow')
             pass
 
@@ -1361,7 +1361,7 @@ class GreenRevenant(Npc):
         chosen_command = random.choice(flat_ams_commands)
         # Catch exceptions to running active martial skills - weakness condition
         # Make sure npc is equipped:
-        if not self.db.right_slot or left_slot:
+        if not (self.db.right_slot or self.db.left_slot):
             self.execute_cmd('equip iron medium weapon')
             pass
 
@@ -1631,7 +1631,7 @@ class SkeletonArcher(Npc):
         # Bow uses archer skill; weapon_level bonus from bow level
         bow_level = getattr(bow.db, 'level', 0) or 0
         from commands.combat import Helper
-        self.db.weapon_level = Helper().weaponValue(bow_level)
+        self.db.weapon_level = Helper(self).weaponValue(bow_level)
 
     def remove_equipment(self):
         for item in list(self.contents):
