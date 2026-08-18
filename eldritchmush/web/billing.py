@@ -206,9 +206,8 @@ def billing_return(request):
     if request.user.is_authenticated and sub_id and _paypal_configured():
         acct = _account_for_user(request.user)
         if acct:
-            acct.db.paypal_subscription_id = sub_id
-            # Active fetch — confirm the subscription is ACTIVE
-            # before we tell the user "you're subscribed".
+            # Active fetch — confirm the subscription is ACTIVE *and that it
+            # belongs to this account* before we tell the user "subscribed".
             try:
                 token = _get_access_token()
                 resp = requests.get(
@@ -221,6 +220,21 @@ def billing_return(request):
                 )
                 if resp.status_code == 200:
                     sub = resp.json()
+                    # Ownership check. create_subscription stamps custom_id
+                    # with str(acct.id); a client-supplied subscription_id is
+                    # NOT proof of ownership. Without this, any logged-in user
+                    # could claim any ACTIVE subscription id and bypass the
+                    # paywall for free.
+                    if str(sub.get("custom_id") or "") != str(acct.id):
+                        print(
+                            f"[billing_return] REJECT sub={sub_id} "
+                            f"custom_id={sub.get('custom_id')!r} != "
+                            f"acct {acct.id}",
+                            flush=True,
+                        )
+                        return HttpResponseRedirect(
+                            f"{_site_base_url(request)}/?subscribed=0")
+                    acct.db.paypal_subscription_id = sub_id
                     pp_status = (sub.get("status") or "").upper()
                     if pp_status == "ACTIVE":
                         acct.db.subscription_status = "active"

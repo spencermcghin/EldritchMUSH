@@ -169,10 +169,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(command.CmdOpen())
         self.add(command.CmdSmile())
         self.add(command.SetGender())
-        self.add(command.SetTough())
-        self.add(command.SetWeakness())
+        # SetTough / SetWeakness / SetIndomitable are chargen stat setters
+        # (see ChargenCmdset). They must NOT live in the global character
+        # cmdset — that let any player self-buff Armor Value (settough 9999)
+        # or clear the Weakness debuff (setweakness 0) at any time.
         self.add(combat.CmdBattlefieldCommander())
-        self.add(command.SetIndomitable())
         self.add(combat.CmdRally())
         self.add(command.CharSheet())
         self.add(command.CharStatus())
@@ -347,6 +348,11 @@ class ChargenCmdset(CmdSet):
         self.add(command.SetStagger())
         self.add(command.SetVigil())
         self.add(command.SetGender())
+        # Room-scoped to the ChargenRoom only (moved out of the global
+        # CharacterCmdSet — these set combat stats / clear debuffs).
+        self.add(command.SetTough())
+        self.add(command.SetWeakness())
+        self.add(command.SetIndomitable())
         self.add(command.SetStabilize())
         self.add(command.SetMedicine())
         self.add(command.SetBattleFieldMedicine())
