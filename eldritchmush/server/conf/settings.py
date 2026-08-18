@@ -163,14 +163,24 @@ def _patch_evennia_superuser():
 _patch_evennia_superuser()
 
 _volume_path = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "")
-if _volume_path:
+_database_url = os.environ.get("DATABASE_URL", "")
+if _database_url:
+    # Managed Postgres (Railway/Neon) takes precedence over the SQLite
+    # volume file — real row-level locking for concurrent play plus the
+    # provider's automated backups / point-in-time recovery.
+    import dj_database_url
+    DATABASES = {
+        "default": dj_database_url.parse(_database_url, conn_max_age=600),
+    }
+elif _volume_path:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": os.path.join(_volume_path, "evennia.db3"),
         }
     }
-    # Also persist server logs to the volume
+if _volume_path:
+    # Persist server logs to the volume regardless of DB backend.
     LOG_DIR = os.path.join(_volume_path, "logs")
     os.makedirs(LOG_DIR, exist_ok=True)
     SERVER_LOG_FILE = os.path.join(LOG_DIR, "server.log")

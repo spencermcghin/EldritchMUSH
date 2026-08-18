@@ -21,7 +21,8 @@ WORKDIR /app
 # Pinned to the versions from the last known-good production build. Rebuilds
 # are deterministic — an upstream release won't silently break a deploy that
 # had no code changes. Bump these intentionally.
-RUN pip install --no-cache-dir evennia==5.0.1 "django-allauth[socialaccount]==65.18.0"
+RUN pip install --no-cache-dir evennia==5.0.1 "django-allauth[socialaccount]==65.18.0" \
+    psycopg2-binary==2.9.10 dj-database-url==2.3.0
 
 # Copy the game code
 COPY eldritchmush/ .
