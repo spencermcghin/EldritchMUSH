@@ -469,7 +469,7 @@ while true; do
         echo "=== Evennia port down — exiting for restart ==="
         exit 1
     fi
-    if ! pgrep -x nginx >/dev/null 2>&1; then
+    if ! pgrep nginx >/dev/null 2>&1; then
         echo "=== nginx not running — exiting for restart ==="
         exit 1
     fi
