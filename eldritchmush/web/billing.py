@@ -139,6 +139,17 @@ def create_subscription(request):
     if not acct:
         return JsonResponse({"error": "no account"}, status=500)
 
+    # Refuse to create a second subscription for an already-active account.
+    # Overwriting paypal_subscription_id with a fresh (never-approved) id
+    # would orphan the live subscription's renewal/cancel webhooks and can
+    # double-bill the player.
+    if acct.db.subscription_status == "active":
+        return JsonResponse(
+            {"error": "already_subscribed",
+             "detail": "This account already has an active subscription."},
+            status=409,
+        )
+
     base = _site_base_url(request)
     body = {
         "plan_id": os.environ["PAYPAL_PLAN_ID"],
@@ -184,9 +195,17 @@ def create_subscription(request):
             {"error": "No approval link returned by PayPal"},
             status=502,
         )
-    # Store the subscription id immediately so even if the user never
-    # completes approval we have a trail.
-    acct.db.paypal_subscription_id = data.get("id")
+    # Store the new subscription id as current, and also append it to a
+    # history list so a webhook that references any prior id (e.g. the
+    # cancellation of an abandoned attempt) still resolves to this account
+    # (see _find_account_by_subscription).
+    new_sub_id = data.get("id")
+    acct.db.paypal_subscription_id = new_sub_id
+    if new_sub_id:
+        history = list(acct.db.paypal_subscription_ids or [])
+        if new_sub_id not in history:
+            history.append(new_sub_id)
+            acct.db.paypal_subscription_ids = history
     return JsonResponse({
         "subscription_id": data.get("id"),
         "approval_url": approval_url,
@@ -388,5 +407,8 @@ def _find_account_by_subscription(sub_id):
     # large, store sub_id in an indexed model field instead.
     for acct in AccountDB.objects.all():
         if acct.db.paypal_subscription_id == sub_id:
+            return acct
+        # Also match any prior id (a re-subscribe rotates the current id).
+        if sub_id in (acct.db.paypal_subscription_ids or []):
             return acct
     return None

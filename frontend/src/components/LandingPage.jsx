@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import './LandingPage.css'
 
 /*
@@ -50,6 +51,23 @@ const HOUSES = [
 ]
 
 export default function LandingPage({ onPlay }) {
+  // Deep-link support for /pricing — the paywall message and PayPal's
+  // cancel_url both point here. Scroll to the pricing block on load and, if
+  // PayPal bounced the user back with ?canceled=1, show a "no charge, try
+  // again" banner so checkout isn't a contextless dead-end at the page top.
+  const [checkoutCanceled, setCheckoutCanceled] = useState(false)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const canceled = params.get('canceled') === '1'
+    if (canceled) setCheckoutCanceled(true)
+    if (canceled || window.location.pathname === '/pricing') {
+      requestAnimationFrame(() => {
+        document
+          .getElementById('pricing')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    }
+  }, [])
   return (
     <div className="landing">
       <div className="landing-grain" aria-hidden="true" />
@@ -194,8 +212,25 @@ export default function LandingPage({ onPlay }) {
       </section>
 
       {/* ── Pricing + CTA ── */}
-      <section className="landing-start" aria-label="Start playing">
+      <section className="landing-start" aria-label="Start playing" id="pricing">
         <div className="landing-pricing">
+          {checkoutCanceled && (
+            <p
+              className="landing-pricing-canceled"
+              role="status"
+              style={{
+                color: '#d4af37',
+                border: '1px solid rgba(212,175,55,0.4)',
+                borderRadius: '4px',
+                padding: '0.6rem 0.9rem',
+                marginBottom: '1rem',
+                fontSize: '0.95rem',
+              }}
+            >
+              Checkout was canceled — no charge was made. You can begin the
+              free trial whenever you're ready.
+            </p>
+          )}
           <img
             src="/landing/wax-seal.png"
             alt=""
