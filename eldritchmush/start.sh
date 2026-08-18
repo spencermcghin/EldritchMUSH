@@ -60,6 +60,10 @@ http {
         }
         # WebSocket connections go to Evennia's dedicated WS server (port 4002)
         location /websocket {
+            # The WS URL carries the Django session id (csessid) in its
+            # query string; logging it would persist a replayable session
+            # token to the log stream. Do not log this location.
+            access_log off;
             proxy_pass http://127.0.0.1:4002;
             proxy_http_version 1.1;
             proxy_set_header Upgrade \$http_upgrade;
@@ -103,6 +107,17 @@ http {
         location / {
             root /usr/share/nginx/html;
             index index.html;
+            # Security headers. script-src 'self' is the real backstop:
+            # LLM/NPC text reaches the DOM via DOMPurify, and this stops a
+            # DOMPurify bypass from executing injected <script>. Google Fonts
+            # is the only external origin the SPA loads; PayPal is a
+            # top-level redirect (no embedded SDK), so no frame/connect grant
+            # is needed for it. wss:/ws: keep the game WebSocket working.
+            add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' wss: ws:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" always;
+            add_header X-Frame-Options "DENY" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
             try_files \$uri \$uri/ /index.html;
         }
     }
