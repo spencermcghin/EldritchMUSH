@@ -130,11 +130,46 @@ def _spend_day():
     return time.strftime("%Y-%m-%d", time.gmtime())
 
 
+def _spend_file():
+    vol = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
+    return os.path.join(vol, "llm_spend.json") if vol else "/tmp/llm_spend.json"
+
+
+def _persist_spend():
+    """Write-through today's spend so the daily cap survives a reload /
+    redeploy (module globals reset otherwise, silently zeroing the counter
+    — on a deploy-heavy day that turns a $5 cap into $5-per-deploy). Caller
+    holds _SPEND_LOCK."""
+    try:
+        with open(_spend_file(), "w", encoding="utf-8") as fp:
+            json.dump(_SPEND, fp)
+    except Exception:
+        pass
+
+
+def _load_spend():
+    """Restore today's spend at import. A stale (previous-day) file is
+    ignored so the cap still resets at UTC midnight."""
+    try:
+        with open(_spend_file(), "r", encoding="utf-8") as fp:
+            data = json.load(fp)
+        if isinstance(data, dict) and data.get("day") == _spend_day():
+            with _SPEND_LOCK:
+                _SPEND.update(
+                    day=data["day"],
+                    usd=float(data.get("usd") or 0.0),
+                    warned=bool(data.get("warned")),
+                )
+    except Exception:
+        pass
+
+
 def _spend_ok():
     with _SPEND_LOCK:
         day = _spend_day()
         if _SPEND["day"] != day:
             _SPEND.update(day=day, usd=0.0, warned=False)
+            _persist_spend()
         return _SPEND["usd"] < _budget_usd()
 
 
@@ -148,6 +183,7 @@ def _record_spend(usd):
         if _SPEND["usd"] >= _budget_usd() and not _SPEND["warned"]:
             _SPEND["warned"] = True
             tripped = True
+        _persist_spend()
     try:
         from world import telemetry
         telemetry.incr("llm.cost_usd", usd)
@@ -162,6 +198,11 @@ def _record_spend(usd):
             )
     except Exception:
         pass
+
+
+# Restore today's accumulated spend from the volume at import so a reload
+# or redeploy doesn't reset the daily cap to $0.
+_load_spend()
 
 
 # ───────────────────────────────────────────────────────────────────────────
