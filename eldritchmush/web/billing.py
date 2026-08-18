@@ -287,11 +287,21 @@ def webhook(request):
     except Exception:
         return JsonResponse({"error": "bad json"}, status=400)
 
-    # Signature verification — best-effort. PayPal supports a
-    # verify-webhook-signature endpoint. We hit it only if
-    # PAYPAL_WEBHOOK_ID is set; otherwise we log a warning and
-    # accept the event (dev mode).
+    # Signature verification. PayPal supports a verify-webhook-signature
+    # endpoint keyed on PAYPAL_WEBHOOK_ID. This is a public, state-changing
+    # endpoint, so an unverified event must NOT be trusted: if PayPal is
+    # configured at all, require the webhook id and reject when it's absent
+    # rather than silently accepting forged events.
     webhook_id = os.environ.get("PAYPAL_WEBHOOK_ID")
+    if not webhook_id:
+        if _paypal_configured():
+            print(
+                "[paypal_webhook] REJECT: PAYPAL_WEBHOOK_ID unset while "
+                "PayPal is configured — cannot verify signature.",
+                flush=True,
+            )
+            return JsonResponse({"error": "webhook not configured"}, status=503)
+        # Truly local/unconfigured dev — nothing to verify against.
     if webhook_id:
         try:
             verify_body = {
@@ -319,9 +329,10 @@ def webhook(request):
                 )
         except Exception as exc:
             print(f"[paypal_webhook] verify failed: {exc!r}", flush=True)
-            # Fail closed in live mode.
-            if (os.environ.get("PAYPAL_MODE") or "sandbox").lower() == "live":
-                return JsonResponse({"error": "verify error"}, status=400)
+            # Fail closed regardless of mode. A verification error means we
+            # cannot trust the event — sandbox is a real deployed target too,
+            # so accepting on error would allow forged subscription events.
+            return JsonResponse({"error": "verify error"}, status=400)
 
     event_type = event.get("event_type", "")
     resource = event.get("resource") or {}
