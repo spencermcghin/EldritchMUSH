@@ -484,8 +484,12 @@ while true; do
         echo "=== Evennia port down — exiting for restart ==="
         exit 1
     fi
-    if ! pgrep nginx >/dev/null 2>&1; then
-        echo "=== nginx not running — exiting for restart ==="
+    # Check nginx by its listening port, NOT pgrep: procps/pgrep is not
+    # installed in the image, so `pgrep nginx` errored every cycle and
+    # crash-looped a perfectly healthy container. nc IS installed
+    # (netcat-openbsd) and testing the port also catches a wedged master.
+    if ! nc -z 127.0.0.1 "${PORT:-8080}" 2>/dev/null; then
+        echo "=== nginx port down — exiting for restart ==="
         exit 1
     fi
 done
