@@ -197,6 +197,93 @@ fi
 echo "=== Running database migrations ==="
 evennia migrate --no-input || true
 
+# ── One-shot Postgres RESTORE (SQLite -> Postgres data migration) ──────────
+# Armed ONLY when ALL of: PG_RESTORE=1, this env matches PG_RESTORE_ENV,
+# DATABASE_URL points at Postgres, and the volume sentinel is absent. This
+# quadruple gate means a stray shared variable can never restore the wrong
+# environment or run twice. On success it loads $VOL/pg_dump.json into the
+# freshly-migrated Postgres and then BLOCKS (does not start the game or run
+# any repair/backfill blocks) so an operator can verify the data against the
+# baseline before the first boot mutates it. See docs: pg-migration plan.
+_do_restore=0
+if [ "$PG_RESTORE" = "1" ] \
+    && [ -n "$RAILWAY_ENVIRONMENT_NAME" ] \
+    && [ "$RAILWAY_ENVIRONMENT_NAME" = "$PG_RESTORE_ENV" ] \
+    && echo "${DATABASE_URL:-}" | grep -q postgres \
+    && [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/.pg_restored" ]; then
+    _do_restore=1
+elif [ "$PG_RESTORE" = "1" ] && [ -f "$RAILWAY_VOLUME_MOUNT_PATH/.pg_restored" ]; then
+    echo "=== PG_RESTORE armed but sentinel present — restore already applied, skipping ==="
+fi
+
+if [ "$_do_restore" = "1" ]; then
+    echo "=== PG RESTORE: loading dump into Postgres (one-shot) ==="
+    DUMP="$RAILWAY_VOLUME_MOUNT_PATH/pg_dump.json"
+    if [ ! -f "$DUMP" ]; then
+        echo "=== FATAL: PG_RESTORE armed but $DUMP not found ==="
+        exit 1
+    fi
+    # loaddata via a signal-suppressed, _init()-ed entrypoint — NEVER a bare
+    # `evennia loaddata`: Evennia's post_save hook (call_at_first_save) fires
+    # on every INSERT and would (a) crash on AccountDB (SESSION_HANDLER=None)
+    # and (b) re-seed at_object_creation default Attributes, corrupting db.*.
+    if PG_DUMP_PATH="$DUMP" python3 - <<'PYEOF'
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
+django.setup()
+import evennia
+evennia._init()  # SESSION_HANDLER etc. become non-None
+from django.apps import apps
+from django.db.models.signals import post_save
+from evennia.typeclasses.models import call_at_first_save
+n = 0
+for m in apps.get_models(include_auto_created=True):
+    if post_save.disconnect(call_at_first_save, sender=m):
+        n += 1
+import evennia.typeclasses.models as _tcm
+_tcm.call_at_first_save = lambda *a, **k: None  # belt-and-suspenders
+print(">>> disconnected call_at_first_save from %d senders + monkeypatched" % n, flush=True)
+
+from django.core.management import call_command
+if os.environ.get("PG_RESTORE_FLUSH") == "1":
+    print(">>> PG_RESTORE_FLUSH=1 — flushing target before load", flush=True)
+    call_command("flush", "--no-input")
+
+call_command("loaddata", os.environ["PG_DUMP_PATH"])
+print(">>> loaddata OK", flush=True)
+
+# MANDATORY: loaddata inserts explicit PKs but does NOT advance Postgres
+# sequences, so the first in-game write would PK-collide. Reset every
+# sequence (incl. m2m through-tables) to MAX(id).
+from django.db import connection
+reset = 0
+with connection.cursor() as cur:
+    for m in apps.get_models(include_auto_created=True):
+        t = m._meta.db_table
+        pk = m._meta.pk.column
+        cur.execute("SELECT pg_get_serial_sequence(%s, %s)", [t, pk])
+        row = cur.fetchone()
+        seq = row[0] if row else None
+        if seq:
+            cur.execute(
+                f'SELECT setval(%s, (SELECT COALESCE(MAX("{pk}"), 1) FROM "{t}"))',
+                [seq])
+            reset += 1
+print(">>> sequences reset: %d" % reset, flush=True)
+PYEOF
+    then
+        touch "$RAILWAY_VOLUME_MOUNT_PATH/.pg_restored"
+        echo "=== PG RESTORE COMPLETE — game NOT started. Verify counts vs baseline, then set PG_RESTORE=0 and redeploy to boot. ==="
+        # Keep the container alive (nginx still serving /health) so the
+        # operator can railway-ssh in and verify BEFORE any boot mutates the
+        # restored data. Does NOT start Evennia.
+        tail -f /dev/null
+    else
+        echo "=== PG RESTORE FAILED — sentinel NOT written, game NOT started. ==="
+        exit 1
+    fi
+fi
+
 # Create Account id=1 BEFORE evennia start.
 # check_database() in evennia_launcher.py does AccountDB.objects.get(id=1) and
 # if not found, recursively calls create_superuser() which crashes in non-TTY.
