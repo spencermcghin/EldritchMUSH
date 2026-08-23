@@ -86,10 +86,21 @@ def main():
         "TEST": {},
     }
 
-    models = [
-        m for m in apps.get_models(include_auto_created=True)
-        if m._meta.label_lower not in EXCLUDE
-    ]
+    # One entry per physical table. Evennia registers proxy typeclasses
+    # (DefaultAccount, Guest, ...) that share a concrete table; copying both
+    # the concrete model and a proxy would insert the same rows twice and
+    # violate unique constraints (e.g. accounts_accountdb.username). Dedupe
+    # by db_table and skip proxies.
+    models = []
+    _seen_tables = set()
+    for m in apps.get_models(include_auto_created=True):
+        if m._meta.label_lower in EXCLUDE or m._meta.proxy:
+            continue
+        table = m._meta.db_table
+        if table in _seen_tables:
+            continue
+        _seen_tables.add(table)
+        models.append(m)
 
     total = 0
     with transaction.atomic(using="default"):
