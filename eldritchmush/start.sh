@@ -217,60 +217,17 @@ elif [ "$PG_RESTORE" = "1" ] && [ -f "$RAILWAY_VOLUME_MOUNT_PATH/.pg_restored" ]
 fi
 
 if [ "$_do_restore" = "1" ]; then
-    echo "=== PG RESTORE: loading dump into Postgres (one-shot) ==="
-    DUMP="$RAILWAY_VOLUME_MOUNT_PATH/pg_dump.json"
-    if [ ! -f "$DUMP" ]; then
-        echo "=== FATAL: PG_RESTORE armed but $DUMP not found ==="
+    echo "=== PG RESTORE: row-copy SQLite -> Postgres (one-shot) ==="
+    if [ ! -f "$RAILWAY_VOLUME_MOUNT_PATH/evennia.db3" ]; then
+        echo "=== FATAL: PG_RESTORE armed but source $RAILWAY_VOLUME_MOUNT_PATH/evennia.db3 not found ==="
         exit 1
     fi
-    # loaddata via a signal-suppressed, _init()-ed entrypoint — NEVER a bare
-    # `evennia loaddata`: Evennia's post_save hook (call_at_first_save) fires
-    # on every INSERT and would (a) crash on AccountDB (SESSION_HANDLER=None)
-    # and (b) re-seed at_object_creation default Attributes, corrupting db.*.
-    if PG_DUMP_PATH="$DUMP" python3 - <<'PYEOF'
-import os, django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'server.conf.settings')
-django.setup()
-import evennia
-evennia._init()  # SESSION_HANDLER etc. become non-None
-from django.apps import apps
-from django.db.models.signals import post_save
-from evennia.typeclasses.models import call_at_first_save
-n = 0
-for m in apps.get_models(include_auto_created=True):
-    if post_save.disconnect(call_at_first_save, sender=m):
-        n += 1
-import evennia.typeclasses.models as _tcm
-_tcm.call_at_first_save = lambda *a, **k: None  # belt-and-suspenders
-print(">>> disconnected call_at_first_save from %d senders + monkeypatched" % n, flush=True)
-
-from django.core.management import call_command
-if os.environ.get("PG_RESTORE_FLUSH") == "1":
-    print(">>> PG_RESTORE_FLUSH=1 — flushing target before load", flush=True)
-    call_command("flush", "--no-input")
-
-call_command("loaddata", os.environ["PG_DUMP_PATH"])
-print(">>> loaddata OK", flush=True)
-
-# MANDATORY: loaddata inserts explicit PKs but does NOT advance Postgres
-# sequences, so the first in-game write would PK-collide. Reset every
-# sequence (incl. m2m through-tables) to MAX(id).
-from django.db import connection
-reset = 0
-with connection.cursor() as cur:
-    for m in apps.get_models(include_auto_created=True):
-        t = m._meta.db_table
-        pk = m._meta.pk.column
-        cur.execute("SELECT pg_get_serial_sequence(%s, %s)", [t, pk])
-        row = cur.fetchone()
-        seq = row[0] if row else None
-        if seq:
-            cur.execute(
-                f'SELECT setval(%s, (SELECT COALESCE(MAX("{pk}"), 1) FROM "{t}"))',
-                [seq])
-            reset += 1
-print(">>> sequences reset: %d" % reset, flush=True)
-PYEOF
+    # Row-copy via server/conf/pg_rowcopy.py — reads the source SQLite through
+    # a second ORM connection and bulk_creates into Postgres, preserving
+    # Evennia's pickled Attribute values byte-for-byte. Do NOT use dumpdata/
+    # loaddata: its JSON path corrupts PickledObjectField values (they come
+    # back as raw base64-pickle strings Evennia can't deserialize).
+    if python3 /app/server/conf/pg_rowcopy.py
     then
         touch "$RAILWAY_VOLUME_MOUNT_PATH/.pg_restored"
         echo "=== PG RESTORE COMPLETE — game NOT started. Verify counts vs baseline, then set PG_RESTORE=0 and redeploy to boot. ==="
