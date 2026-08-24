@@ -217,6 +217,31 @@ class TelemetryHeartbeatScript(DefaultScript):
             print(f"[telemetry] heartbeat script error: {exc!r}", flush=True)
 
 
+class PgBackupScript(DefaultScript):
+    """Daily gzipped pg_dump to the app volume (server/conf/pg_backup.py).
+
+    Railway's native volume backups are plan-gated, so this is the free
+    fallback: once a day it dumps the Postgres DB to
+    $VOLUME/pg_backups/ (a different physical volume than the Postgres
+    data) and prunes to the newest 14. No-op on SQLite. Bootstrapped at
+    server start.
+    """
+
+    def at_script_creation(self):
+        self.key = "pg_backup"
+        self.desc = "Daily Postgres backup (gzipped pg_dump to volume)"
+        self.interval = 86400     # 24 hours
+        self.start_delay = True   # don't dump immediately on every restart
+        self.persistent = True
+
+    def at_repeat(self):
+        try:
+            from server.conf import pg_backup
+            pg_backup.run_backup(reason="daily-script")
+        except Exception as exc:
+            print(f"[pg_backup] script error: {exc!r}", flush=True)
+
+
 class GossipScript(DefaultScript):
     """Nightly-ish rumor propagation (world/living_world.py).
 

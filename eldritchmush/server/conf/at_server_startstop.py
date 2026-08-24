@@ -171,6 +171,22 @@ def at_server_start():
     except Exception as exc:
         print(f"[at_server_start] telemetry bootstrap FAILED: {exc!r}")
 
+    # Daily Postgres backup script (free fallback for plan-gated Railway
+    # native backups). No-op on SQLite.
+    try:
+        from evennia.scripts.models import ScriptDB
+        from evennia import create_script
+        if not ScriptDB.objects.filter(db_key="pg_backup").exists():
+            create_script(
+                "typeclasses.scripts.PgBackupScript",
+                key="pg_backup",
+                persistent=True,
+                autostart=True,
+            )
+            print("[at_server_start] PgBackupScript bootstrapped")
+    except Exception as exc:
+        print(f"[at_server_start] pg_backup bootstrap FAILED: {exc!r}")
+
     # Bootstrap the gossip ticker (world/living_world.py). Idempotent.
     try:
         from evennia.scripts.models import ScriptDB

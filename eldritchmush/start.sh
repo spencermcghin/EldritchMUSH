@@ -197,6 +197,15 @@ fi
 echo "=== Running database migrations ==="
 evennia migrate --no-input || true
 
+# Per-boot Postgres backup (gzipped pg_dump to the app volume). No-op on
+# SQLite or when not restoring. The daily PgBackupScript handles cadence
+# between deploys; this catches every deploy. Skipped during a RESTORE run
+# (nothing meaningful to dump yet). Non-fatal.
+if echo "${DATABASE_URL:-}" | grep -q postgres && [ "$PG_RESTORE" != "1" ]; then
+    echo "=== Postgres backup (per-boot) ==="
+    python3 /app/server/conf/pg_backup.py || echo "=== WARNING: per-boot pg backup failed (non-fatal) ==="
+fi
+
 # ── One-shot Postgres RESTORE (SQLite -> Postgres data migration) ──────────
 # Armed ONLY when ALL of: PG_RESTORE=1, this env matches PG_RESTORE_ENV,
 # DATABASE_URL points at Postgres, and the volume sentinel is absent. This
