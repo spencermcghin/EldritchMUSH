@@ -12,8 +12,17 @@ RUN npm run build
 ## Stage 2: Evennia game server
 FROM python:3.11-slim
 
+# postgresql-client-18: Railway's Postgres server is v18, and pg_dump
+# refuses to dump a newer server than itself — Debian ships only v17, so
+# pull the matching client from the official PGDG apt repo.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc nginx netcat-openbsd psmisc postgresql-client \
+    gcc nginx netcat-openbsd psmisc curl ca-certificates \
+    && install -d /usr/share/postgresql-common/pgdg \
+    && curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+        -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+    && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main" \
+        > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update && apt-get install -y --no-install-recommends postgresql-client-18 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
