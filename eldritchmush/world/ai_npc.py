@@ -21,7 +21,13 @@ Env vars:
                         to canned atmospheric lines.
     NPC_LLM_BASE_URL  — openai path only; default Groq.
     NPC_LLM_MODEL     — default "claude-haiku-4-5" (anthropic) or
-                        "llama-3.3-70b-versatile" (openai/Groq).
+                        "openai/gpt-oss-120b" (openai/Groq).
+    NPC_LLM_FALLBACK_MODELS — openai path only; comma-separated models to
+                        try (in order) when NPC_LLM_MODEL is decommissioned
+                        or returns an empty reply. Providers (esp. Groq)
+                        retire models often; this keeps NPCs talking and
+                        emails the operator so the list can be refreshed.
+                        Default "openai/gpt-oss-120b,openai/gpt-oss-20b".
     NPC_LLM_MAX_TOKENS— default 600
     NPC_LLM_TIMEOUT   — default 20 (seconds)
     NPC_LLM_WORKERS   — LLM worker threads (default 4). Replaces the old
@@ -50,7 +56,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
-DEFAULT_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_MODEL = "openai/gpt-oss-120b"
+DEFAULT_FALLBACK_MODELS = "openai/gpt-oss-120b,openai/gpt-oss-20b"
 DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5"
 DEFAULT_MAX_TOKENS = 600          # ~450 words; long enough that even a
                                    # storytelling reply doesn't get cut off
@@ -869,6 +876,105 @@ def _call_anthropic(npc, character, message):
     return reply
 
 
+def _is_reasoning_model(model):
+    """True for models that emit hidden reasoning tokens (Groq's gpt-oss /
+    OpenAI o-series). These consume the whole max_tokens budget on reasoning
+    and return EMPTY content unless we cap it with reasoning_effort=low."""
+    m = (model or "").lower()
+    return "gpt-oss" in m or m.startswith("o1") or m.startswith("o3") or m.startswith("o4")
+
+
+def _model_candidates():
+    """[configured model] + fallbacks, deduped in order. Walking this chain
+    keeps NPCs talking when a provider retires the primary model."""
+    primary = _model()
+    raw = _env("NPC_LLM_FALLBACK_MODELS", DEFAULT_FALLBACK_MODELS)
+    out, seen = [], set()
+    for m in [primary] + [x.strip() for x in raw.split(",")]:
+        if m and m not in seen:
+            seen.add(m)
+            out.append(m)
+    return out
+
+
+def _model_gone(exc):
+    """True when an HTTPError means 'this model no longer exists' (404
+    model_not_found or 400 decommissioned) — the signal to try the next
+    candidate rather than fail."""
+    if not isinstance(exc, urllib.error.HTTPError) or exc.code not in (400, 404):
+        return False
+    try:
+        body = exc.read().decode("utf-8", "replace").lower()
+    except Exception:
+        body = ""
+    return ("does not exist" in body or "decommission" in body
+            or "not found" in body or "model_not_found" in body)
+
+
+def _openai_chat(messages, max_tokens, temperature):
+    """POST to the OpenAI-compatible endpoint, walking the model fallback
+    chain. Returns (reply, usage_dict). Skips to the next candidate when a
+    model is decommissioned or returns empty content; emails the operator
+    the first time it has to fall back off the configured primary. Raises
+    only if EVERY candidate is exhausted (callers then serve canned lines)."""
+    base_url = _env("NPC_LLM_BASE_URL", DEFAULT_BASE_URL).rstrip("/")
+    url = f"{base_url}/chat/completions"
+    timeout = int(_env("NPC_LLM_TIMEOUT", DEFAULT_TIMEOUT))
+    candidates = _model_candidates()
+    last_err = None
+    for i, model in enumerate(candidates):
+        payload = {
+            "model": model,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+        if _is_reasoning_model(model):
+            payload["reasoning_effort"] = "low"
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {_env('NPC_LLM_API_KEY')}",
+                "User-Agent": "EldritchMUSH/1.0",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            reply = (data["choices"][0]["message"].get("content") or "").strip()
+            if not reply:
+                raise RuntimeError(f"empty content from {model}")
+        except urllib.error.HTTPError as exc:
+            if _model_gone(exc):
+                last_err = exc
+                print(f"[ai_npc] model {model!r} decommissioned; "
+                      f"trying next fallback", flush=True)
+                continue
+            raise
+        except RuntimeError as exc:
+            last_err = exc
+            print(f"[ai_npc] {exc}; trying next fallback", flush=True)
+            continue
+        if i > 0:
+            # We're off the configured primary — surface it so the operator
+            # updates NPC_LLM_MODEL before the fallback list runs dry too.
+            try:
+                from world import telemetry
+                telemetry.alert(
+                    "llm_model_fallback",
+                    f"NPC LLM fell back to {model!r}",
+                    f"NPC_LLM_MODEL ({candidates[0]!r}) is unavailable; now "
+                    f"serving NPC dialogue from {model!r}. Update "
+                    f"NPC_LLM_MODEL / NPC_LLM_FALLBACK_MODELS to current "
+                    f"provider models.")
+            except Exception:
+                pass
+        return reply, (data.get("usage") or {})
+    raise last_err or RuntimeError("no NPC LLM model available")
+
+
 def _call_openai(npc, character, message):
     """Legacy OpenAI-compatible path (Groq etc.) via raw HTTP."""
     system_prompt = _build_system_prompt(npc, character=character)
@@ -883,29 +989,11 @@ def _call_openai(npc, character, message):
         "content": f"[{speaker}, in-character] {message}",
     })
 
-    base_url = _env("NPC_LLM_BASE_URL", DEFAULT_BASE_URL).rstrip("/")
-    url = f"{base_url}/chat/completions"
-    payload = {
-        "model": _model(),
-        "messages": messages,
-        "max_tokens": int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS)),
-        "temperature": 0.85,
-    }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {_env('NPC_LLM_API_KEY')}",
-            "User-Agent": "EldritchMUSH/1.0",
-        },
-    )
-    timeout = int(_env("NPC_LLM_TIMEOUT", DEFAULT_TIMEOUT))
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    reply = data["choices"][0]["message"]["content"].strip()
+    reply, usage = _openai_chat(
+        messages,
+        int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS)),
+        0.85)
     try:
-        usage = data.get("usage") or {}
         total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
         _record_spend(total * _OPENAI_FLAT_PRICE / 1_000_000)
         from world import telemetry
@@ -968,30 +1056,13 @@ def _generate_anthropic(system_text, user_text, max_tokens, temperature):
 
 
 def _generate_openai(system_text, user_text, max_tokens, temperature):
-    base_url = _env("NPC_LLM_BASE_URL", DEFAULT_BASE_URL).rstrip("/")
-    url = f"{base_url}/chat/completions"
-    payload = {
-        "model": _model(),
-        "messages": [
+    text, data_usage = _openai_chat(
+        [
             {"role": "system", "content": system_text},
             {"role": "user", "content": user_text},
         ],
-        "max_tokens": max_tokens,
-        "temperature": temperature,
-    }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {_env('NPC_LLM_API_KEY')}",
-            "User-Agent": "EldritchMUSH/1.0",
-        },
-    )
-    timeout = int(_env("NPC_LLM_TIMEOUT", DEFAULT_TIMEOUT))
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
-    text = data["choices"][0]["message"]["content"].strip()
+        max_tokens, temperature)
+    data = {"usage": data_usage}
     try:
         usage = data.get("usage") or {}
         total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
