@@ -75,6 +75,912 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 # Legacy prototypes removed — all items are defined in the sections below,
 # sourced from the EldritchMUSH crafting spreadsheet.
 
+# =====================================================================
+# BLACKSMITH — Level 0 (Iron tier, base crafting)
+# =====================================================================
+
+IRON_SMALL_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Small Weapon",
+"aliases": ["iron small weapon"],
+"craft_source": "blacksmith",
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 0,
+"cloth": 0,
+"value_copper": 50,
+"value_silver": 5,
+"value_gold": 0.5,
+"material_value": 1,
+"required_skill": "melee_weapons",
+"level": 0,
+"damage": 1,
+}
+
+IRON_MEDIUM_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Medium Weapon",
+"aliases": ["iron medium weapon"],
+"craft_source": "blacksmith",
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": 0.7,
+"material_value": 1,
+"required_skill": "melee_weapons",
+"level": 0,
+"damage": 1,
+}
+
+IRON_LARGE_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Iron Large Weapon",
+"aliases": ["iron large weapon"],
+"craft_source": "blacksmith",
+"iron_ingots": 4,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": 0.9,
+"material_value": 1,
+"required_skill": "melee_weapons",
+"level": 0,
+"damage": 2,
+"twohanded": True,
+}
+
+IRON_SHIELD = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Iron Shield",
+"aliases": ["iron shield"],
+"craft_source": "blacksmith",
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 60,
+"value_silver": 6,
+"value_gold": 0.6,
+"material_value": 1,
+"required_skill": "shields",
+"level": 0,
+"is_shield": True,
+}
+
+IRON_CHAIN_SHIRT = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Iron Chain Shirt",
+"aliases": ["iron chain shirt"],
+"craft_source": "blacksmith",
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 60,
+"value_silver": 6,
+"value_gold": 0.6,
+"material_value": 1,
+"required_skill": "armor_proficiency",
+"level": 0,
+"is_armor": True,
+}
+
+IRON_COAT_OF_PLATES = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Iron Coat of Plates",
+"aliases": ["iron coat of plates"],
+"craft_source": "blacksmith",
+"iron_ingots": 2,
+"refined_wood": 0,
+"leather": 4,
+"cloth": 0,
+"value_copper": 90,
+"value_silver": 9,
+"value_gold": 0.9,
+"material_value": 3,
+"required_skill": "armor_proficiency",
+"level": 0,
+"is_armor": True,
+}
+
+# =====================================================================
+# BLACKSMITH — Level 1 (Hardened Iron tier)
+# =====================================================================
+
+PATCH_KIT = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Patch Kit",
+"aliases": ["patch kit"],
+"craft_source": "blacksmith",
+"iron_ingots": 1,
+"refined_wood": 0,
+"leather": 0,
+"cloth": 1,
+"value_copper": 70,
+"value_silver": 7,
+"value_gold": 0.7,
+"level": 1,
+}
+
+HARDENED_IRON_SMALL_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Hardened Iron Small Weapon",
+"aliases": ["hardened iron small weapon"],
+"craft_source": "blacksmith",
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"material_value": 2,
+"required_skill": "melee_weapons",
+"level": 1,
+"damage": 1,
+}
+
+HARDENED_IRON_MEDIUM_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Hardened Iron Medium Weapon",
+"aliases": ["hardened iron medium weapon"],
+"craft_source": "blacksmith",
+"iron_ingots": 5,
+"refined_wood": 2,
+"leather": 2,
+"cloth": 0,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"material_value": 2,
+"required_skill": "melee_weapons",
+"level": 1,
+"damage": 1,
+}
+
+HARDENED_IRON_LARGE_WEAPON = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Hardened Iron Large Weapon",
+"aliases": ["hardened iron large weapon"],
+"craft_source": "blacksmith",
+"iron_ingots": 8,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+"value_copper": 160,
+"value_silver": 16,
+"value_gold": 1.6,
+"material_value": 2,
+"required_skill": "melee_weapons",
+"level": 1,
+"damage": 2,
+"twohanded": True,
+}
+
+HARDENED_IRON_SHIELD = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Hardened Iron Shield",
+"aliases": ["hardened iron shield"],
+"craft_source": "blacksmith",
+"iron_ingots": 2,
+"refined_wood": 2,
+"leather": 2,
+"cloth": 0,
+"value_copper": 110,
+"value_silver": 11,
+"value_gold": 1.1,
+"material_value": 2,
+"required_skill": "shields",
+"level": 1,
+"is_shield": True,
+}
+
+HARDENED_IRON_CHAIN_SHIRT = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Hardened Iron Chain Shirt",
+"aliases": ["hardened iron chain shirt"],
+"craft_source": "blacksmith",
+"iron_ingots": 3,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+"value_copper": 110,
+"value_silver": 11,
+"value_gold": 1.1,
+"material_value": 2,
+"required_skill": "armor_proficiency",
+"level": 1,
+"is_armor": True,
+}
+
+HARDENED_IRON_COAT_OF_PLATES = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Hardened Iron Coat of Plates",
+"aliases": ["hardened iron coat of plates"],
+"craft_source": "blacksmith",
+"iron_ingots": 4,
+"refined_wood": 0,
+"leather": 7,
+"cloth": 0,
+"value_copper": 160,
+"value_silver": 16,
+"value_gold": 1.6,
+"material_value": 4,
+"required_skill": "armor_proficiency",
+"level": 1,
+"is_armor": True,
+}
+
+HARDENED_IRON_PLATEMAIL = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Hardened Iron Plate Armor",
+"aliases": ["hardened iron plate armor", "hardened iron platemail"],
+"craft_source": "blacksmith",
+"iron_ingots": 8,
+"refined_wood": 2,
+"leather": 2,
+"cloth": 2,
+"value_copper": 190,
+"value_silver": 19,
+"value_gold": 1.9,
+"material_value": 6,
+"required_skill": "armor_proficiency",
+"level": 1,
+"is_armor": True,
+}
+
+# =====================================================================
+# ARTIFICER — Level 1 Kits
+# =====================================================================
+
+APOTHECARY_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Apothecary Kit",
+"aliases": ["apothecary kit"],
+"craft_source": "artificer",
+"type": "apothecary",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 1,
+"refined_wood": 2,
+"leather": 0,
+"cloth": 2,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+ARTIFICER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Artificer Kit",
+"aliases": ["artificer kit"],
+"craft_source": "artificer",
+"type": "artificer",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 0,
+"refined_wood": 2,
+"leather": 1,
+"cloth": 2,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+BLACKSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Blacksmith Kit",
+"aliases": ["blacksmith kit"],
+"craft_source": "artificer",
+"type": "blacksmith",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 2,
+"refined_wood": 1,
+"leather": 2,
+"cloth": 0,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+AURON_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Auron Kit",
+"aliases": ["auron kit"],
+"craft_source": "artificer",
+"type": "auron",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 2,
+"refined_wood": 2,
+"leather": 0,
+"cloth": 1,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+BOWYER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Bowyer Kit",
+"aliases": ["bowyer kit"],
+"craft_source": "artificer",
+"type": "bowyer",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 0,
+"refined_wood": 3,
+"leather": 2,
+"cloth": 0,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+GUNSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Gunsmith Kit",
+"aliases": ["gunsmith kit"],
+"craft_source": "artificer",
+"type": "gunsmith",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 3,
+"refined_wood": 1,
+"leather": 1,
+"cloth": 0,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+CHIRURGEON_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Chirurgeon's Kit",
+"aliases": ["chirurgeon kit", "chirurgeons kit"],
+"craft_source": "artificer",
+"type": "chirurgeon",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 1,
+"refined_wood": 1,
+"leather": 0,
+"cloth": 3,
+"value_copper": 100,
+"value_silver": 10,
+"value_gold": 1,
+"level": 1,
+}
+
+# =====================================================================
+# ARTIFICER — Level 1 Items (gloves, boots, clothing, cloaks)
+# =====================================================================
+
+DUELIST_GLOVES = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Duelist Gloves",
+"aliases": ["duelist gloves"],
+"craft_source": "artificer",
+"hand_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 5,
+"cloth": 4,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"resist": 1,
+"level": 1,
+}
+
+STALWART_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Stalwart Boots",
+"aliases": ["stalwart boots"],
+"craft_source": "artificer",
+"foot_slot": True,
+"iron_ingots": 2,
+"refined_wood": 0,
+"leather": 5,
+"cloth": 2,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"resist": 1,
+"level": 1,
+}
+
+LIGHT_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Light Boots",
+"aliases": ["light boots"],
+"craft_source": "artificer",
+"foot_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 5,
+"cloth": 4,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"resist": 1,
+"level": 1,
+}
+
+FINE_CLOTHING = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Fine Clothing",
+"aliases": ["fine clothing"],
+"craft_source": "artificer",
+"clothing_slot": True,
+"iron_ingots": 2,
+"refined_wood": 0,
+"leather": 2,
+"cloth": 5,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"influential": 0,
+"level": 1,
+}
+
+HIGHWAYMAN_CLOAK = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Highwayman's Cloak",
+"aliases": ["highwayman cloak", "highwaymans cloak"],
+"craft_source": "artificer",
+"cloak_slot": True,
+"iron_ingots": 2,
+"refined_wood": 0,
+"leather": 2,
+"cloth": 5,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"espionage": 2,
+"level": 1,
+}
+
+# =====================================================================
+# ARTIFICER — Level 2 Items
+# =====================================================================
+
+SHADOW_MANTLE = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Shadow Mantle",
+"aliases": ["shadow mantle"],
+"craft_source": "artificer",
+"cloak_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 3,
+"cloth": 10,
+"value_copper": 210,
+"value_silver": 21,
+"value_gold": 2.1,
+"espionage": 4,
+"level": 2,
+}
+
+FINE_DUELIST_GLOVES = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Fine Duelist Gloves",
+"aliases": ["fine duelist gloves"],
+"craft_source": "artificer",
+"hand_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 7,
+"cloth": 6,
+"value_copper": 210,
+"value_silver": 21,
+"value_gold": 2.1,
+"resist": 2,
+"level": 2,
+}
+
+SWORDDANCER_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Sworddancer Boots",
+"aliases": ["sworddancer boots"],
+"craft_source": "artificer",
+"foot_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 7,
+"cloth": 6,
+"value_copper": 210,
+"value_silver": 21,
+"value_gold": 2.1,
+"resist": 2,
+"level": 2,
+}
+
+HUNTER_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Hunter Boots",
+"aliases": ["hunter boots"],
+"craft_source": "artificer",
+"foot_slot": True,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 7,
+"cloth": 3,
+"value_copper": 210,
+"value_silver": 21,
+"value_gold": 2.1,
+"resist": 2,
+"level": 2,
+}
+
+COURTIER_CLOTHING = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Courtier Clothing",
+"aliases": ["courtier clothing"],
+"craft_source": "artificer",
+"clothing_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 3,
+"cloth": 10,
+"value_copper": 210,
+"value_silver": 21,
+"value_gold": 2.1,
+"influential": 2,
+"level": 2,
+}
+
+# =====================================================================
+# ARTIFICER — Level 3 Items
+# =====================================================================
+
+DARK_SILK_CLOAK = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Dark Silk Cloak",
+"aliases": ["dark silk cloak"],
+"craft_source": "artificer",
+"cloak_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 8,
+"cloth": 9,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"espionage": 6,
+"level": 3,
+}
+
+NOBLE_FINERY = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Noble Finery",
+"aliases": ["noble finery"],
+"craft_source": "artificer",
+"clothing_slot": True,
+"iron_ingots": 2,
+"refined_wood": 0,
+"leather": 7,
+"cloth": 9,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"influential": 3,
+"level": 3,
+}
+
+MASTER_DUELIST_GLOVES = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Master Duelist Gloves",
+"aliases": ["master duelist gloves"],
+"craft_source": "artificer",
+"hand_slot": True,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 10,
+"cloth": 6,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"resist": 3,
+"level": 3,
+}
+
+KNIGHT_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Knight Boots",
+"aliases": ["knight boots"],
+"craft_source": "artificer",
+"foot_slot": True,
+"iron_ingots": 3,
+"refined_wood": 0,
+"leather": 10,
+"cloth": 4,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"resist": 3,
+"level": 3,
+}
+
+THIEF_BOOTS = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Thief Boots",
+"aliases": ["thief boots"],
+"craft_source": "artificer",
+"foot_slot": True,
+"iron_ingots": 0,
+"refined_wood": 0,
+"leather": 9,
+"cloth": 8,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"resist": 3,
+"level": 3,
+}
+
+MASTERWORK_APOTHECARY_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Apothecary Kit",
+"aliases": ["masterwork apothecary kit"],
+"craft_source": "artificer",
+"type": "apothecary",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 0,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 5,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"level": 3,
+}
+
+MASTERWORK_ARTIFICER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Artificer Kit",
+"aliases": ["masterwork artificer kit"],
+"craft_source": "artificer",
+"type": "artificer",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 0,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 5,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"level": 3,
+}
+
+MASTERWORK_BLACKSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Blacksmith Kit",
+"aliases": ["masterwork blacksmith kit"],
+"craft_source": "artificer",
+"type": "blacksmith",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 4,
+"refined_wood": 4,
+"leather": 4,
+"cloth": 0,
+"value_copper": 290,
+"value_silver": 29,
+"value_gold": 2.9,
+"level": 3,
+}
+
+MASTERWORK_BOWYER_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Bowyer Kit",
+"aliases": ["masterwork bowyer kit"],
+"craft_source": "artificer",
+"type": "bowyer",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 5,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 0,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"level": 3,
+}
+
+MASTERWORK_GUNSMITH_KIT = {
+"typeclass": "typeclasses.objects.ArtificerObject",
+"key": "Masterwork Gunsmith Kit",
+"aliases": ["masterwork gunsmith kit"],
+"craft_source": "artificer",
+"type": "gunsmith",
+"kit_slot": True,
+"uses": 10,
+"iron_ingots": 8,
+"refined_wood": 5,
+"leather": 5,
+"cloth": 5,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
+"level": 3,
+}
+
+# =====================================================================
+# BOWYER — Base items (arrows, bows)
+# =====================================================================
+
+ARROWS = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Arrows",
+"aliases": ["arrows"],
+"craft_source": "bowyer",
+"iron_ingots": 1,
+"refined_wood": 2,
+"leather": 0,
+"cloth": 0,
+"value_copper": 80,
+"value_silver": 8,
+"value_gold": 0.8,
+"arrow_slot": True,
+"quantity": 10,
+"level": 1,
+}
+
+BOW = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Bow",
+"aliases": ["bow"],
+"craft_source": "bowyer",
+"iron_ingots": 0,
+"refined_wood": 5,
+"leather": 1,
+"cloth": 0,
+"value_copper": 110,
+"value_silver": 11,
+"value_gold": 1.1,
+"material_value": 2,
+"required_skill": "archer",
+"level": 1,
+"is_bow": True,
+"twohanded": True,
+}
+
+MASTERWORK_BOW = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Masterwork Bow",
+"aliases": ["masterwork bow"],
+"craft_source": "bowyer",
+"iron_ingots": 0,
+"refined_wood": 9,
+"leather": 3,
+"cloth": 0,
+"value_copper": 240,
+"value_silver": 24,
+"value_gold": 2.4,
+"material_value": 3,
+"required_skill": "archer",
+"level": 3,
+"is_bow": True,
+"twohanded": True,
+}
+
+# =====================================================================
+# GUNSMITH — Base items (bullets, pistols)
+# =====================================================================
+
+BULLETS = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Bullets",
+"aliases": ["bullets"],
+"craft_source": "gunsmith",
+"iron_ingots": 6,
+"refined_wood": 3,
+"leather": 0,
+"cloth": 0,
+"value_copper": 140,
+"value_silver": 14,
+"value_gold": 1.4,
+"bullet_slot": True,
+"quantity": 3,
+"level": 1,
+}
+
+PISTOL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Crude Pistol",
+"aliases": ["crude pistol", "pistol"],
+"craft_source": "gunsmith",
+"iron_ingots": 9,
+"refined_wood": 7,
+"leather": 0,
+"cloth": 0,
+"value_copper": 240,
+"value_silver": 24,
+"value_gold": 2.4,
+"material_value": 2,
+"required_skill": "gunner",
+"level": 1,
+"is_pistol": True,
+}
+
+MASTERWORK_PISTOL = {
+"typeclass": "typeclasses.objects.WeaponObject",
+"key": "Masterwork Pistol",
+"aliases": ["masterwork pistol"],
+"craft_source": "gunsmith",
+"iron_ingots": 15,
+"refined_wood": 13,
+"leather": 0,
+"cloth": 0,
+"value_copper": 400,
+"value_silver": 40,
+"value_gold": 4,
+"material_value": 3,
+"required_skill": "gunner",
+"level": 3,
+"is_pistol": True,
+}
+
+# =====================================================================
+# BLACKSMITH — Level 2 (Steel tier, additional items)
+# =====================================================================
+
+STEEL_PLATEMAIL = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Steel Plate Armor",
+"aliases": ["steel plate armor", "steel platemail"],
+"craft_source": "blacksmith",
+"iron_ingots": 8,
+"refined_wood": 3,
+"leather": 3,
+"cloth": 3,
+"value_copper": 250,
+"value_silver": 25,
+"value_gold": 2.5,
+"material_value": 8,
+"required_skill": "armor_proficiency",
+"level": 2,
+"is_armor": True,
+}
+
+# =====================================================================
+# BLACKSMITH — Level 3 (Masterwork Steel tier, additional items)
+# =====================================================================
+
+MASTERWORK_STEEL_PLATEMAIL = {
+"typeclass": "typeclasses.objects.BlacksmithObject",
+"key": "Masterwork Steel Plate Mail",
+"aliases": ["masterwork steel plate mail", "masterwork steel platemail"],
+"craft_source": "blacksmith",
+"iron_ingots": 10,
+"refined_wood": 3,
+"leather": 3,
+"cloth": 4,
+"value_copper": 320,
+"value_silver": 32,
+"value_gold": 3.2,
+"material_value": 12,
+"required_skill": "armor_proficiency",
+"level": 3,
+"is_armor": True,
+}
+
 
 """
 =====================================================================
