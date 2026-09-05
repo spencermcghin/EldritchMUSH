@@ -1420,5 +1420,19 @@ class CmdQuest(Command):
             return
 
         qdef = QUESTS[found_key]
+
+        # Stop any timed-rescue deadlines armed for this quest, the same way
+        # fail_quest does. Without this the scripts outlived the state: on
+        # re-accept, _arm_deadlines saw them as already armed and skipped
+        # arming fresh ones, so the stale timers fired against the new run and
+        # marked its rescue beats failed before the player was even briefed.
+        # Repeated abandon/accept cycles also accumulated live scripts.
+        try:
+            for s in _deadline_scripts(caller):
+                if s.db.quest_key == found_key:
+                    s.stop()
+        except Exception:
+            pass
+
         del caller.db.quests[found_key]
         caller.msg(f"|yAbandoned quest: {qdef['title']}|n")

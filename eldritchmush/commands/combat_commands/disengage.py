@@ -29,7 +29,10 @@ class CmdDisengage(Command):
     help_category = "Combat"
 
     def parse(self):
-        self.combat_loop = self.caller.location.db.combat_loop
+        # `or []`: a room whose combat_loop attribute was never set (or
+        # was cleared) made these raise TypeError on the membership
+        # test below.
+        self.combat_loop = self.caller.location.db.combat_loop or []
 
     def func(self):
         # Check if it is player's combat_turn
@@ -39,8 +42,12 @@ class CmdDisengage(Command):
             if self.caller in self.combat_loop:
                 self.caller.location.msg_contents(f"{self.caller.key} |025breaks away from combat.|n")
                 emit(self.caller.location, "combat_disengage", {"character": self.caller.key})
-                # Instantiate combat loop class
-                loop = CombatLoop(self.caller, target=None)
+                # Note our slot BEFORE leaving, so the turn can be handed
+                # on from the combatant ahead of us (same approach as drag).
+                # Running cleanup() as a caller who is no longer in the loop
+                # used to raise ValueError out of CombatLoop.isLast(),
+                # freezing the fight for everyone still in it.
+                my_index = self.combat_loop.index(self.caller)
                 # Run cleanup to move to next target
                 self.combat_loop.remove(self.caller)
                 # Reset stats
@@ -60,7 +67,11 @@ class CmdDisengage(Command):
                     emit(self.caller.location, "combat_end", {"reason": "all_disengaged"})
                     return
                 else:
-                    loop.cleanup()
+                    # Hand the turn on from the slot before the one we
+                    # vacated, so cleanup() runs as a caller still in the
+                    # loop and the round order is preserved.
+                    prev_char = self.combat_loop[(my_index - 1) % len(self.combat_loop)]
+                    CombatLoop(prev_char).cleanup()
 
             else:
                 self.msg(f"|400You are not part of the combat loop for {self.caller.location}.|n")

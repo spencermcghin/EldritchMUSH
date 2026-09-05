@@ -6,6 +6,7 @@ import math
 # Local imports
 from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
+from world.prototype_values import proto_int, proto_str
 from commands import command
 from commands.combatant import Combatant
 from evennia.utils import evmenu
@@ -77,7 +78,10 @@ class CmdCraft(Command):
 
         prototype_data = prototype[0]
 
-        craft_source = prototype_data.get("craft_source", "")
+        # proto_int/proto_str: values live in the normalized `attrs` list,
+        # so plain .get() returned "" here and `craft` refused every
+        # recipe at the kit check even with the right kit equipped.
+        craft_source = proto_str(prototype_data, "craft_source", "")
 
         # Check for correct kit in caller kit slot.
         kit = caller.db.kit_slot[0] if caller.db.kit_slot else None
@@ -97,7 +101,7 @@ class CmdCraft(Command):
             return
 
         # Skill-level gating
-        item_level = prototype_data.get("level", 0)
+        item_level = proto_int(prototype_data, "level", 0)
         if craft_skill_level < item_level and not caller.is_superuser:
             label = LEVEL_LABELS.get(item_level, str(item_level))
             self.msg(
@@ -124,10 +128,10 @@ class CmdCraft(Command):
         }
 
         item_requirements = {
-            "iron_ingots": prototype_data.get("iron_ingots", 0),
-            "refined_wood": prototype_data.get("refined_wood", 0),
-            "leather": prototype_data.get("leather", 0),
-            "cloth": prototype_data.get("cloth", 0)
+            "iron_ingots": proto_int(prototype_data, "iron_ingots", 0),
+            "refined_wood": proto_int(prototype_data, "refined_wood", 0),
+            "leather": proto_int(prototype_data, "leather", 0),
+            "cloth": proto_int(prototype_data, "cloth", 0)
         }
 
         requirements_checker = [
@@ -227,8 +231,8 @@ class CmdRepair(Command):
                 # Get search response
                 prototype_data = prototype[0]
 
-                craft_source = prototype_data.get("craft_source", "")
-                material_value = prototype_data.get("material_value")
+                craft_source = proto_str(prototype_data, "craft_source", "")
+                material_value = proto_int(prototype_data, "material_value", 0)
 
                 if not material_value:
                     self.msg(f"{item.key} cannot be repaired.")
@@ -243,6 +247,12 @@ class CmdRepair(Command):
                     item.db.broken = False
                     item.db.patched = False
                     item.db.material_value = material_value
+                    # Refill the armor pool this piece hands back on equip.
+                    # Without this, repairing worn armor restored its
+                    # material_value but the character still got the drained
+                    # value when they put it back on.
+                    from world import equip_bonuses
+                    equip_bonuses.reset_armor(item, wearer=self.caller)
                     self.msg(f"You repair the {item}.")
                 else:
                     self.msg("|430You cannot repair this item|n.")

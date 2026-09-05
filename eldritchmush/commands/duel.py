@@ -43,9 +43,21 @@ def _charge(char, coin, amount):
 
 
 def _get_npc_in_room(caller, name):
+    """Return a single match for `name` in the caller's room, or None.
+
+    quiet=True makes search() return a LIST. This helper returned it
+    unwrapped, so every caller then did npc.attributes.get(...) on a list
+    and raised AttributeError — `duel <anyone>` tracebacked without
+    exception, making the whole duel system unreachable. (An unknown name
+    returned an empty list, which is falsy, so only the valid-target path
+    ever crashed.)
+    """
     if not caller.location:
         return None
-    return caller.search(name, location=caller.location, quiet=True)
+    matches = caller.search(name, location=caller.location, quiet=True)
+    if isinstance(matches, (list, tuple)):
+        return matches[0] if matches else None
+    return matches
 
 
 def resolve_duel(loser):

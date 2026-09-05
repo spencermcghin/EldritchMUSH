@@ -45,8 +45,12 @@ class CmdChirurgery(Command):
             combatant.message("|400You are too injured to act.|n")
             return
 
-        # Get target if there is one
+        # Get target if there is one. Build the Combatant only AFTER the
+        # null check: a bad name ("heal asdf") returned None and
+        # Combatant(None) raised AttributeError on .key before any guard ran.
         target = self.caller.search(self.target)
+        if not target:
+            return
         victim = Combatant(target)
 
         # Pass all checks now execute command.

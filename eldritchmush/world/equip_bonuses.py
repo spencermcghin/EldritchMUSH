@@ -171,3 +171,164 @@ def summary_for(character):
     """
     store = character.attributes.get("equip_modifiers", default=None) or {}
     return {k: dict(v) for k, v in dict(store).items()}
+
+
+# ---------------------------------------------------------------------------
+# Armor durability
+# ---------------------------------------------------------------------------
+# Combat subtracts absorbed damage from the *character's* db.armor pool
+# (Combatant.takeArmorDamage -> alternateDamage("armor")), while equip used
+# to reset that pool to the item's pristine db.material_value. Unequipping
+# and re-equipping the same breastplate therefore refilled it for free, with
+# no turn cost and no in-combat check — repeatable every round.
+#
+# These helpers keep the worn-down state on the item itself, in
+# db.armor_remaining, so the pool a player gets back is whatever their armor
+# had left. Repair restores it (see reset_armor).
+
+def current_armor_value(item):
+    """Absorption this armor piece has left.
+
+    Falls back to the prototype's material_value for armor that predates
+    armor_remaining, so existing gear keeps working unchanged.
+    """
+    if not item or not getattr(item, "db", None):
+        return 0
+
+    remaining = item.attributes.get("armor_remaining", default=None)
+    if remaining is None:
+        remaining = getattr(item.db, "material_value", 0) or 0
+
+    try:
+        return max(0, int(remaining))
+    except (TypeError, ValueError):
+        return 0
+
+
+def store_armor_value(item, value):
+    """Persist the character's remaining armor pool back onto the item."""
+    if not item or not getattr(item, "db", None):
+        return
+    try:
+        value = max(0, int(value))
+    except (TypeError, ValueError):
+        value = 0
+    item.attributes.add("armor_remaining", value)
+
+
+def reset_armor(item, wearer=None):
+    """Restore an armor piece to full absorption (used by repair).
+
+    Pass `wearer` when the piece may currently be worn: the live db.armor
+    pool has to be refreshed too, otherwise repairing armor you are wearing
+    restores the item but leaves you with the drained pool until you take it
+    off and put it back on.
+    """
+    if not item or not getattr(item, "db", None):
+        return
+
+    full = getattr(item.db, "material_value", 0) or 0
+    item.attributes.add("armor_remaining", full)
+
+    if wearer is not None and is_equipped(wearer, item):
+        wearer.db.armor = full
+        try:
+            tough = getattr(wearer.db, "tough", 0) or 0
+            armor_specialist = 1 if getattr(wearer.db, "armor_specialist", False) else 0
+            indomitable = getattr(wearer.db, "indomitable", 0) or 0
+            wearer.db.av = full + tough + armor_specialist + indomitable
+        except Exception:
+            pass
+
+
+# ---------------------------------------------------------------------------
+# Force-unequip
+# ---------------------------------------------------------------------------
+# Selling, giving or dropping an item never went through the unequip path, so
+# a worn breastplate could leave the character's inventory with its AV still
+# applied and a stale reference sitting in db.body_slot. The recipient could
+# then equip the same piece for a second copy of the bonus, while the original
+# owner kept theirs and could no longer unequip (the search is scoped to their
+# own inventory, and the item is gone).
+#
+# Call this before any transfer that removes an item from a character.
+
+SLOT_NAMES = (
+    "right_slot", "left_slot", "body_slot", "hand_slot", "foot_slot",
+    "clothing_slot", "cloak_slot", "kit_slot", "arrow_slot", "bullet_slot",
+)
+
+
+def is_equipped(character, item):
+    """True if `item` currently occupies any of the character's slots."""
+    if character is None or item is None:
+        return False
+    for slot in SLOT_NAMES:
+        contents = character.attributes.get(slot, default=None)
+        if contents and item in contents:
+            return True
+    return False
+
+
+def force_unequip(character, item):
+    """Remove `item` from every slot and reverse the stats it granted.
+
+    Safe to call on an item that is not equipped (returns False). Returns
+    True if the item was removed from at least one slot.
+    """
+    if character is None or item is None:
+        return False
+
+    removed = False
+    for slot in SLOT_NAMES:
+        contents = character.attributes.get(slot, default=None)
+        if not contents or item not in contents:
+            continue
+        while item in contents:
+            contents.remove(item)
+        removed = True
+
+    if not removed:
+        return False
+
+    idb = getattr(item, "db", None)
+
+    # Weapon bonus is derived from whatever is left in hand.
+    if idb is not None and (getattr(idb, "damage", 0) or getattr(idb, "twohanded", False)):
+        character.db.weapon_level = 0
+
+    # Armor: bank remaining absorption on the piece, then clear the pool.
+    if idb is not None and getattr(idb, "is_armor", False):
+        store_armor_value(item, getattr(character.db, "armor", 0) or 0)
+        character.db.armor = 0
+
+    # Gloves / boots carry a flat resist that the equip path added directly.
+    if idb is not None and getattr(idb, "resist", 0):
+        current = getattr(character.db, "resist", 0) or 0
+        character.db.resist = max(0, current - (getattr(idb, "resist", 0) or 0))
+
+    # Clothing / cloak influence and espionage, same pattern.
+    if idb is not None and getattr(idb, "influential", 0):
+        current = getattr(character.db, "influential", 0) or 0
+        character.db.influential = max(0, current - (getattr(idb, "influential", 0) or 0))
+    if idb is not None and getattr(idb, "espionage", 0):
+        current = getattr(character.db, "espionage", 0) or 0
+        character.db.espionage = max(0, current - (getattr(idb, "espionage", 0) or 0))
+
+    # Reverse any prototype-declared equip_bonus deltas.
+    try:
+        remove(character, item)
+    except Exception:
+        pass
+
+    # Recompute armor value from what is still worn.
+    try:
+        armor = getattr(character.db, "armor", 0) or 0
+        tough = getattr(character.db, "tough", 0) or 0
+        armor_specialist = 1 if getattr(character.db, "armor_specialist", False) else 0
+        indomitable = getattr(character.db, "indomitable", 0) or 0
+        character.db.av = armor + tough + armor_specialist + indomitable
+    except Exception:
+        pass
+
+    return True

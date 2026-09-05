@@ -17,36 +17,75 @@ Currency: characters use db.silver (silver dragons) as the primary shop currency
 from evennia import Command
 from evennia import spawn
 from evennia.prototypes import prototypes as proto_utils
+from world.prototype_values import proto_value as _proto_value
 
 
 def _get_proto(key):
-    """Return the first prototype dict matching key (case-insensitive), or None."""
-    key_lower = key.strip().lower()
-    results = proto_utils.search_prototype(key_lower)
-    if results:
-        return results[0]
-    # Fallback: try exact uppercase key
-    results = proto_utils.search_prototype(key.upper())
-    if results:
-        return results[0]
-    return None
+    """Return the prototype dict for `key`, or None.
+
+    search_prototype() does a SUBSTRING match, so a shop_inventory entry of
+    "IRON" silently resolved to whichever of the 29 matching prototypes came
+    back first and sold that instead. Prefer an exact prototype_key match and
+    only fall back to the fuzzy result when nothing matches exactly.
+    """
+    if not isinstance(key, str):
+        # A builder typo (@set merchant/shop_inventory = [None]) used to raise
+        # AttributeError out of browse/buy and brick the merchant for everyone.
+        return None
+
+    key_stripped = key.strip()
+    if not key_stripped:
+        return None
+
+    results = proto_utils.search_prototype(key_stripped.lower()) or []
+    if not results:
+        results = proto_utils.search_prototype(key_stripped.upper()) or []
+    if not results:
+        return None
+
+    wanted = key_stripped.upper()
+    for proto in results:
+        if str(proto.get("prototype_key", "")).upper() == wanted:
+            return proto
+    return results[0]
+
+
+def _as_int(value, default=0):
+    """Best-effort int for a db value that may be None, a float or a string."""
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _base_buy_price(proto):
     """Return base buy price in silver from a prototype dict (no rep modifier)."""
-    if proto.get("value_silver"):
-        return int(proto["value_silver"])
-    if proto.get("value_copper"):
-        return max(1, int(proto["value_copper"]) // 10)
+    silver = _proto_value(proto, "value_silver", 0)
+    if silver:
+        return int(silver)
+    copper = _proto_value(proto, "value_copper", 0)
+    if copper:
+        return max(1, int(copper) // 10)
     return 1
 
 
 def _base_sell_price(item):
-    """Return base sell price (50% of value) from a spawned item object."""
+    """Return base sell price (50% of value) from a spawned item object.
+
+    Worthless items are worth 0, not 1. The old max(1, ...) floor minted
+    silver from anything with no value set — quest tokens, Tavyl cards,
+    writs — and made the `price == 0` "no interest" branch in CmdSell
+    unreachable.
+    """
     val = item.db.value_silver or 0
     if not val:
         val = (item.db.value_copper or 0) // 10
-    return max(1, int(val) // 2)
+    val = int(val)
+    if val <= 0:
+        return 0
+    return max(1, val // 2)
 
 
 def _rep_with(char, merchant):
@@ -112,16 +151,27 @@ def _sell_price(item, char=None, merchant=None):
     val = item.db.value_silver or 0
     if not val:
         val = (item.db.value_copper or 0) // 10
+    val = int(val)
     if char is None or merchant is None:
         return _base_sell_price(item)
     mult = _sell_multiplier(_rep_with(char, merchant))
     if mult is None:
         return None
-    return max(1, int(round(int(val) * mult)))
+    # A worthless item stays worthless at every reputation level — the
+    # max(1, ...) floor here used to pay 1 silver for anything.
+    if val <= 0:
+        return 0
+    return max(1, int(round(val * mult)))
 
 
 def _merchants_in_room(caller):
-    """All merchant objects in the caller's current room."""
+    """All merchant objects in the caller's current room.
+
+    location can legitimately be None (a character between rooms, or parked
+    OOC), which used to raise AttributeError out of every buy/sell/browse.
+    """
+    if caller is None or caller.location is None:
+        return []
     return [
         obj for obj in caller.location.contents
         if obj != caller and obj.db.shop_inventory is not None
@@ -288,7 +338,10 @@ class CmdBuy(Command):
             return
 
         # Check funds
-        silver = caller.db.silver or 0
+        # Coerce rather than compare directly: a corrupt purse (a string
+        # written by a builder or a bad migration) used to raise TypeError
+        # from the `silver < price` comparison below.
+        silver = _as_int(caller.db.silver)
         if silver < price:
             caller.msg(f"|400You can't afford {item_name}. It costs {price} silver; you have {silver} silver.|n")
             return
@@ -374,7 +427,13 @@ class CmdSell(Command):
             caller.msg(f"|430{merchant.key} has no interest in {item_name}.|n")
             return
 
-        # Complete the transaction
+        # Complete the transaction. Strip the item off any slot it occupies
+        # first — selling worn armor used to leave its AV applied and a dead
+        # reference in body_slot that could never be unequipped.
+        from world import equip_bonuses
+        if equip_bonuses.force_unequip(caller, item):
+            caller.msg(f"|430You remove {item_name} before handing it over.|n")
+
         caller.db.silver = (caller.db.silver or 0) + price
         item.delete()
         caller.msg(f"|gYou sell |w{item_name}|g to {merchant.key} for {price} silver.|n")

@@ -45,17 +45,55 @@ def _find_dealer_in_room(caller):
     return None
 
 
-def _find_player_seat(caller):
-    """Return the table/dealer the caller is currently seated at, or None."""
-    if not caller.location:
+def _find_player_seat(caller, anywhere=False):
+    """Return the dealer whose table the caller is seated at, or None.
+
+    With anywhere=True, search the whole database rather than just the
+    caller's room. Room-only lookup meant a player who walked out mid-hand
+    had no seat, so `tavyl leave` answered "You're not at a Tavyl table."
+    and the dealer's table stayed `started` forever — blocking every other
+    player, with no timeout and no staff command to clear it.
+    """
+    if not anywhere and caller.location:
+        for obj in caller.location.contents:
+            table = obj.attributes.get("tavyl_table", default=None)
+            if table and str(caller.id) in table.get("players", []):
+                return obj
         return None
-    for obj in caller.location.contents:
+
+    # Global sweep over live tables.
+    from evennia.typeclasses.attributes import Attribute
+    from evennia.objects.models import ObjectDB
+    try:
+        seats = ObjectDB.objects.filter(
+            db_attributes__db_key="tavyl_table").distinct()
+    except Exception:
+        seats = []
+    for obj in seats:
         table = obj.attributes.get("tavyl_table", default=None)
-        if not table:
-            continue
-        if str(caller.id) in table.get("players", []):
+        if table and str(caller.id) in table.get("players", []):
             return obj
     return None
+
+
+# A table whose seated player has been gone this long can be reclaimed by the
+# next person who sits. world/tavyl.py has always recorded started_ts for this
+# and nothing ever read it, so a player who logged out mid-hand (their cards
+# are deleted on unpuppet, but the table is deliberately kept) blocked the
+# dealer permanently.
+STALE_TABLE_SECONDS = 20 * 60
+
+
+def _table_is_stale(table):
+    """True if the table has been running longer than STALE_TABLE_SECONDS."""
+    import time as _time
+    try:
+        started = int(table.get("started_ts") or 0)
+    except (TypeError, ValueError):
+        return False
+    if not started:
+        return False
+    return (_time.time() - started) > STALE_TABLE_SECONDS
 
 
 def _spawn_card_to(player, card_type):
@@ -256,6 +294,11 @@ def _dealer_take_turn(dealer):
         _broadcast(dealer, f"|c{dealer.key}|n plays |y{_t.card_display_name(card_type)}|n.")
         _apply_effect(dealer, table, dealer, card_type, target=t_obj)
         if _t.is_over(table):
+            # Persist before bailing so the caller sees the finished state.
+            # _maybe_dealer_turn settles the pot; the plain `return` here
+            # used to leave the table `started` with the stake destroyed and
+            # the player stuck on "It's not your turn."
+            dealer.attributes.add("tavyl_table", table)
             return
 
     # End turn by drawing.
@@ -455,7 +498,32 @@ class CmdTavyl(Command):
         if not dealer.attributes.get("tavyl_dealer", default=False):
             caller.msg(f"{dealer.key} doesn't run a Tavyl table.")
             return
+        # Refuse a second simultaneous seat: sitting at two dealers charged
+        # the stake twice and, because _materialize_hand wipes the player's
+        # cards, left them holding the wrong game's hand while the other
+        # table sat wedged.
+        other_seat = _find_player_seat(caller, anywhere=True)
+        if other_seat and other_seat != dealer:
+            other_table = other_seat.attributes.get("tavyl_table", default=None)
+            if other_table and not _t.is_over(other_table):
+                caller.msg(
+                    f"|430You're already seated at {other_seat.key}'s table. "
+                    f"Finish or leave that game first.|n")
+                return
+
         existing = dealer.attributes.get("tavyl_table", default=None)
+        if existing and existing.get("started") and not _t.is_over(existing) \
+                and _table_is_stale(existing) \
+                and str(caller.id) not in existing.get("players", []):
+            # Abandoned by whoever was sitting here — reclaim it.
+            for _pid in existing.get("players", []):
+                _obj = _player_obj(existing, _pid)
+                if _obj:
+                    _clear_player_cards(_obj)
+            dealer.attributes.remove("tavyl_table")
+            existing = None
+            caller.msg("|x(Clearing an abandoned table.)|n")
+
         if existing and existing.get("started") and not _t.is_over(existing):
             if str(caller.id) in existing.get("players", []):
                 # Player is already seated — re-sync their hand and re-push
@@ -693,7 +761,9 @@ class CmdTavyl(Command):
 
     def _leave(self):
         caller = self.caller
-        seat = _find_player_seat(caller)
+        # anywhere=True: folding must work even if the player has walked out
+        # of the dealer's room, otherwise the table can never be released.
+        seat = _find_player_seat(caller, anywhere=True)
         if not seat:
             caller.msg("You're not at a Tavyl table.")
             return
@@ -721,7 +791,20 @@ class CmdTavyl(Command):
             except Exception:
                 pass
         else:
-            _broadcast(seat, "|x(Tavyl ends with no winner.)|n")
+            # No winner: the Fate deck ran dry. Return every stake rather
+            # than destroying the pot — the house should not collect on a
+            # game that simply could not be finished.
+            stake = table.get("stake", 1)
+            for pid in table.get("players", []):
+                obj = _player_obj(table, pid)
+                if obj:
+                    obj.db.silver = (obj.db.silver or 0) + stake
+                    try:
+                        obj.msg(f"|xThe Fate deck is spent. Your {stake} "
+                                f"silver stake is returned.|n")
+                    except Exception:
+                        pass
+            _broadcast(seat, "|x(The Fate deck is spent — the round is a draw.)|n")
         # Clear table state and player cards
         for pid in table.get("players", []):
             obj = _player_obj(table, pid)

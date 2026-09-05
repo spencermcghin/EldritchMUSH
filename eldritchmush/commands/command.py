@@ -15,6 +15,7 @@ from commands import combat
 from commands.fortunestrings import FORTUNE_STRINGS
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.prototypes import prototypes
+from world.prototype_values import find_prototype
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 # Lazy-imported in CmdOpenBox.func() to avoid circular import:
@@ -242,7 +243,8 @@ class CmdGet(Command):
             qty = None
         else:
             qty = int(self.args_list[0])
-            item = self.args_list[1]
+            # "get 5" with no item name used to raise IndexError here.
+            item = self.args_list[1] if len(self.args_list) > 1 else ""
 
         self.target = self.args_list[-1]
         self.item = item
@@ -493,6 +495,14 @@ class CmdGive(Command):
             if not to_give.at_before_give(self.caller, target):
                 return
 
+            # Strip the item off any slot before it leaves. Giving away worn
+            # armor used to keep the giver's AV applied (with a stale slot
+            # reference they could no longer unequip) while the recipient
+            # equipped the same piece for a second copy of the bonus.
+            from world import equip_bonuses
+            if equip_bonuses.force_unequip(self.caller, to_give):
+                self.caller.msg(f"|430You remove {to_give.key} before handing it over.|n")
+
             # give object
             self.caller.msg("You give %s to %s." % (to_give.key, target.key))
             to_give.move_to(target, quiet=True)
@@ -644,15 +654,19 @@ class CmdEquip(Command):
 
         if item:
             # Check if the item is of armor type
-            item_lower = item.key.lower().replace(" ", "_")
-
-            try:
-                prototype = prototypes.search_prototype(item_lower, require_single=True)
-            except KeyError:
+            # Resolve the prototype via find_prototype rather than a raw
+            # key.lower().replace(" ", "_"): that derivation fails on any
+            # key with punctuation ("Chirurgeon's Kit" -> "chirurgeon's_kit",
+            # which matches nothing), and the bare `return` below meant equip
+            # silently did nothing — no message, no slot change. That alone
+            # disabled every healing command, since they all require an
+            # equipped chirurgeon's kit.
+            prototype_data = find_prototype(item, prototypes.search_prototype)
+            if prototype_data is None:
+                self.caller.msg(
+                    f"|430You can't work out how to equip {item.key}.|n")
                 return
             else:
-                # Get search response
-                prototype_data = prototype[0]
 
                 # Get item attributes and who makes it.
                 item_data = prototype_data['attrs']
@@ -660,7 +674,10 @@ class CmdEquip(Command):
                 indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
 
                 # Do some skill checks
-                if indexOfRequired:
+                # `is not None`: index 0 is falsy, so a prototype whose
+                # required_skill happened to sit first had its skill
+                # check skipped entirely.
+                if indexOfRequired is not None:
                     required_skill = item_data[indexOfRequired][1]
 
                     if required_skill == "gunner" and not self.caller.db.gunner:
@@ -739,23 +756,30 @@ class CmdEquip(Command):
 
                 # Equip armor
                 elif item.db.is_armor and not self.caller.db.body_slot:
-                    self.caller.db.body_slot.append(item)
-                    self.caller.db.armor = item.db.material_value
+                    from world import equip_bonuses
 
-                    # Add extra points from indomitable if armor still has material_value
-                    if item.db.material_value > 0 and self.caller.db.indomitable:
-                        self.caller.db.armor += self.caller.db.indomitable
+                    self.caller.db.body_slot.append(item)
+                    # Restore whatever absorption this piece has LEFT, not its
+                    # pristine material_value. Combat drains db.armor, so
+                    # resetting to full here let a player unequip/re-equip mid
+                    # fight to refill their armor for free, every round.
+                    self.caller.db.armor = equip_bonuses.current_armor_value(item)
 
                     self.msg(f"You don {item.key}.")
                     self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
 
                     # Get vals for armor value calc
                     armor_value = self.caller.db.armor
-                    indomitable = self.caller.db.indomitable
+                    indomitable = self.caller.db.indomitable or 0
                     tough = self.caller.db.tough
                     armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-                    # Add them up and set the curent armor value in the database
+                    # Add them up and set the curent armor value in the database.
+                    # indomitable is counted once, here. It used to also be
+                    # folded into db.armor above, so AV was inflated by it
+                    # twice at equip and then silently lost the duplicate on
+                    # the first hit, when Combatant.updateAv recomputed from
+                    # armor + tough + armor_specialist.
                     currentArmorValue = armor_value + tough + armor_specialist + indomitable
                     self.caller.db.av = currentArmorValue
 
@@ -903,15 +927,24 @@ class CmdUnequip(Command):
 
             # Check to see if right hand is empty.
             elif self.caller.db.body_slot and item in self.caller.db.body_slot:
+                from world import equip_bonuses
+
                 self.caller.db.body_slot.remove(item)
+                # Bank the absorption this piece has left onto the item, so
+                # re-equipping it restores the worn-down value rather than a
+                # full pool. Repair is what refills it.
+                equip_bonuses.store_armor_value(item, self.caller.db.armor)
                 # Item is armor, decrement from av
                 self.caller.db.armor = 0
                 # Get vals for armor value calc
                 armor_value = self.caller.db.armor
                 tough = self.caller.db.tough
                 armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                # Add them up and set the curent armor value in the database
-                currentArmorValue = armor_value + tough + armor_specialist
+                indomitable = self.caller.db.indomitable or 0
+                # Add them up and set the curent armor value in the database.
+                # indomitable is part of the total everywhere else; omitting
+                # it here made AV jump around on equip/unequip.
+                currentArmorValue = armor_value + tough + armor_specialist + indomitable
                 self.caller.db.av = currentArmorValue
                 # Return armor value to console.
                 self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
@@ -2108,7 +2141,11 @@ class CmdThrow(Command):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
-        h = Helper()
+        # Helper lives in commands/combat.py, was never imported here, and
+        # takes the caller — `Helper()` raised NameError every time these
+        # ran (they are live in the knife-throwing and hammer rooms).
+        from commands.combat import Helper
+        h = Helper(self.caller)
         args = self.args
 
         err_msg = "|430Usage: throw dagger|n"
@@ -2234,7 +2271,11 @@ class CmdSwing(Command):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
-        h = Helper()
+        # Helper lives in commands/combat.py, was never imported here, and
+        # takes the caller — `Helper()` raised NameError every time these
+        # ran (they are live in the knife-throwing and hammer rooms).
+        from commands.combat import Helper
+        h = Helper(self.caller)
         args = self.args
 
         err_msg = "|430Usage: swing hammer|n"
@@ -3196,6 +3237,12 @@ class CmdUnfollowForce(Command):
         else:
 
             target = caller.search(self.target, global_search=True)
+
+            # search() returns None for an unknown name and only prints its
+            # own "not found" line; without this guard the followers access
+            # below raised AttributeError on None.
+            if not target:
+                return
 
             # Try removing them from the target's followers array.
             try:

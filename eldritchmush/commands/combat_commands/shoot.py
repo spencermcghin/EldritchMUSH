@@ -75,9 +75,17 @@ class CmdShoot(Command):
 
         victim = combatant.getVictim(self.target)
 
+        if not victim:
+            combatant.message("|430Please designate an appropriate target.|n")
+            return
+
         if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutilate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
+            # Resolve the loop before bailing: if that corpse was the last
+            # standing NPC, combat has to end here, or the survivors stay
+            # flagged in_combat with their exits locked.
+            CombatLoop(combatant.caller, None).endIfNpcsDefeated()
             return
 
         loop = CombatLoop(combatant.caller, combatant.target)

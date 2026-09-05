@@ -26,7 +26,10 @@ class CmdSkip(Command):
 
     def parse(self):
 
-        self.combat_loop = self.caller.location.db.combat_loop
+        # `or []`: a room whose combat_loop attribute was never set (or
+        # was cleared) made these raise TypeError on the membership
+        # test below.
+        self.combat_loop = self.caller.location.db.combat_loop or []
 
     def func(self):
         combatant = self.caller
