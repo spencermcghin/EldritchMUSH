@@ -10,6 +10,10 @@ from commands import command
 from commands.combatant import Combatant
 from evennia.utils import evmenu
 
+
+CRAFTING_FEES = {0: 3, 1: 5, 2: 8, 3: 12}
+LEVEL_LABELS = {0: "0", 1: "I", 2: "II", 3: "III"}
+
 """
 Crafting Commands
 """
@@ -23,11 +27,13 @@ class CmdCraft(Command):
 
     Available at: Artificer Workbench, Bowyer Workbench, Gunsmith Workbench.
     The items you can craft depend on your trained skill:
-      artificer   — gadgets, mechanical items
-      bowyer      — bows and crossbows
-      gunsmith    — firearms and related components
+      artificer   — kits, clothing, accessories, locks
+      bowyer      — bows, arrows
+      gunsmith    — pistols, bullets
 
-    Requires: appropriate skill ≥ 1, workbench in the room, raw materials.
+    Crafting fees (silver): Level 0=3, I=5, II=8, III=12
+
+    Requires: appropriate skill >= item level, workbench, kit equipped, materials + silver fee.
 
     See also: forge, repair, brew
     """
@@ -40,16 +46,19 @@ class CmdCraft(Command):
         self.item = self.args.strip()
 
     def func(self):
+        caller = self.caller
 
-        if self.caller.db.blacksmith:
-            pass
-        elif self.caller.db.bowyer:
-            pass
-        elif self.caller.db.artificer:
-            pass
-        elif self.caller.db.gunsmith:
-            pass
-        else:
+        # Determine which craft skill the caller has
+        craft_skill_name = None
+        craft_skill_level = 0
+        for skill in ("blacksmith", "bowyer", "artificer", "gunsmith"):
+            val = getattr(caller.db, skill, 0) or 0
+            if val > 0:
+                craft_skill_name = skill
+                craft_skill_level = val
+                break
+
+        if not craft_skill_name:
             self.msg(f"|400You don't have the proper skills to create a {self.item}.|n")
             return
 
@@ -64,73 +73,94 @@ class CmdCraft(Command):
             prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
             self.msg("|430Item not found, or more than one match. Please try again.|n")
+            return
+
+        prototype_data = prototype[0]
+
+        craft_source = prototype_data.get("craft_source", "")
+
+        # Check for correct kit in caller kit slot.
+        kit = caller.db.kit_slot[0] if caller.db.kit_slot else None
+        kit_type = getattr(kit.db, "type", None) if kit else None
+        kit_uses = getattr(kit.db, "uses", 0) if kit else 0
+
+        if not kit:
+            self.msg(f"|430Please equip the kit needed to craft a {self.item}.|n")
+            return
+
+        if kit_uses <= 0 and (craft_source == kit_type):
+            self.msg(f"|400Your {kit} is out of uses.|n")
+            return
+
+        if craft_source != kit_type:
+            self.msg(f"|430Please equip the correct kit before attempting to craft your item.|n")
+            return
+
+        # Skill-level gating
+        item_level = prototype_data.get("level", 0)
+        if craft_skill_level < item_level and not caller.is_superuser:
+            label = LEVEL_LABELS.get(item_level, str(item_level))
+            self.msg(
+                f"|400Your {craft_skill_name.title()} skill (level {craft_skill_level}) is too low "
+                f"to craft this item (requires level {label}).|n"
+            )
+            return
+
+        # Crafting fee
+        fee = CRAFTING_FEES.get(item_level, 5)
+        silver = caller.db.silver or 0
+        if silver < fee and not caller.is_superuser:
+            self.msg(
+                f"|400Crafting this item costs {fee} silver in crafting fees. "
+                f"You only have {silver} silver.|n"
+            )
+            return
+
+        character_resources = {
+            "iron_ingots": caller.db.iron_ingots,
+            "cloth": caller.db.cloth,
+            "refined_wood": caller.db.refined_wood,
+            "leather": caller.db.leather
+        }
+
+        item_requirements = {
+            "iron_ingots": prototype_data.get("iron_ingots", 0),
+            "refined_wood": prototype_data.get("refined_wood", 0),
+            "leather": prototype_data.get("leather", 0),
+            "cloth": prototype_data.get("cloth", 0)
+        }
+
+        requirements_checker = [
+            character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
+            character_resources["refined_wood"] >= item_requirements["refined_wood"],
+            character_resources["leather"] >= item_requirements["leather"],
+            character_resources["cloth"] >= item_requirements["cloth"]
+        ]
+
+        if all(requirements_checker) or caller.is_superuser:
+            # Deduct resources
+            caller.db.iron_ingots -= item_requirements["iron_ingots"]
+            caller.db.refined_wood -= item_requirements["refined_wood"]
+            caller.db.leather -= item_requirements["leather"]
+            caller.db.cloth -= item_requirements["cloth"]
+            # Deduct crafting fee
+            caller.db.silver -= fee
+
+            item = spawn(prototype[0])
+            item[0].move_to(caller, quiet=True)
+
+            # Decrement kit uses
+            kit.db.uses -= 1
+
+            item_name = prototype_data.get("key", self.item)
+            self.msg(f"|230You craft a |w{item_name}|230 (crafting fee: {fee} silver).|n")
+            if caller.location:
+                caller.location.msg_contents(
+                    f"|230{caller.key} works carefully at the workbench, producing a {item_name}.|n",
+                    exclude=caller,
+                )
         else:
-            # Get search response
-            prototype_data = prototype[0]
-
-            # Get item attributes and who makes it.
-            item_data = prototype_data['attrs']
-            craft_source = item_data[0][1]
-
-            # Check for correct kit in caller kit slot.
-            kit = self.caller.db.kit_slot[0] if self.caller.db.kit_slot else []
-            kit_type = kit.db.type if kit else []
-            kit_uses = kit.db.uses if kit else 0
-
-            if not kit:
-                self.msg(f"|430Please equip the kit needed to craft a {self.item}.")
-                return
-
-            if kit_uses <= 0 and (craft_source == kit_type):
-                self.msg(f"|400Your {kit} is out of uses.|n")
-                return
-
-            # Passed checks. Make item.
-            # Check for items in callers inventory.
-            if craft_source == kit_type:
-                character_resources = {
-                "iron_ingots": self.caller.db.iron_ingots,
-                "cloth": self.caller.db.cloth,
-                "refined_wood": self.caller.db.refined_wood,
-                "leather": self.caller.db.leather
-                }
-
-                # Get item requirements
-                item_requirements = {
-                "iron_ingots": item_data[2][1],
-                "refined_wood": item_data[3][1],
-                "leather": item_data[4][1],
-                "cloth": item_data[5][1]
-                }
-
-                requirements_checker = [
-                character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
-                character_resources["refined_wood"] >= item_requirements["refined_wood"],
-                character_resources["leather"] >= item_requirements["leather"],
-                character_resources["cloth"] >= item_requirements["cloth"]
-                ]
-
-                # Check that all conditions in above list are true.
-
-                if all(requirements_checker) or self.caller.is_superuser:
-                    self.msg(f"You craft a {self.item}")
-                    # Get required resources and decrement from player totals.
-                    self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-                    self.caller.db.refined_wood -= item_requirements["refined_wood"]
-                    self.caller.db.leather -= item_requirements["leather"]
-                    self.caller.db.cloth -= item_requirements["cloth"]
-                           #
-                    item = spawn(prototype[0])
-                    item[0].move_to(self.caller, quiet=True)
-
-                    # Decrement the kit of one use.
-                    # kit.db.uses -= 1
-
-                else:
-                    self.msg(f"|400You don't have the required resources.|n")
-            else:
-                self.msg(f"|430Please equip the correct kit before attempting to craft your item.|n")
-                return
+            self.msg(f"|400You don't have the required resources.|n")
 
 
 class CmdRepair(Command):
@@ -144,7 +174,7 @@ class CmdRepair(Command):
     material value.  Can be used at any crafting workbench by a character
     with the matching craft skill.
 
-    Requires: matching skill (blacksmith/bowyer/etc.) ≥ 1, workbench in room.
+    Requires: matching skill (blacksmith/bowyer/etc.) >= 1, workbench in room.
 
     See also: craft, patch, forge
     """
@@ -197,14 +227,10 @@ class CmdRepair(Command):
                 # Get search response
                 prototype_data = prototype[0]
 
-                # Get item attributes and who makes it.
-                item_data = prototype_data['attrs']
-                craft_source = item_data[0][1]
+                craft_source = prototype_data.get("craft_source", "")
+                material_value = prototype_data.get("material_value")
 
-                # Make sure item has material value attribute.
-                if item_data[9][0] == "material_value":
-                    material_value = item_data[9][1]
-                else:
+                if not material_value:
                     self.msg(f"{item.key} cannot be repaired.")
                     return
 
