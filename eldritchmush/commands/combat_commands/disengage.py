@@ -29,7 +29,10 @@ class CmdDisengage(Command):
     help_category = "Combat"
 
     def parse(self):
-        self.combat_loop = self.caller.location.db.combat_loop
+        # `or []`: a room whose combat_loop attribute was never set (or
+        # was cleared) made these raise TypeError on the membership
+        # test below.
+        self.combat_loop = self.caller.location.db.combat_loop or []
 
     def func(self):
         # Check if it is player's combat_turn

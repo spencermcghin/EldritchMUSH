@@ -520,7 +520,15 @@ class Combatant:
         return remaining_damage
 
     def updateAv(self):
-        self.caller.db.av = self.caller.db.armor + self.caller.db.tough + self.caller.db.armor_specialist
+        # indomitable belongs in the total. Equip added it, this recompute
+        # (which runs on the first AV hit) dropped it, so an Indomitable
+        # character advertised more AV than they actually had and lost the
+        # difference the moment they were struck.
+        armor = self.caller.db.armor or 0
+        tough = self.caller.db.tough or 0
+        armor_specialist = 1 if self.caller.db.armor_specialist else 0
+        indomitable = self.caller.db.indomitable or 0
+        self.caller.db.av = armor + tough + armor_specialist + indomitable
 
 
     def takeAvDamage(self,amount):

@@ -774,7 +774,14 @@ def text(session, *args, **kwargs):
                                                 results = proto_utils.search_prototype(proto_key.upper())
                                             if results:
                                                 proto = results[0]
-                                                price = int(proto.get("value_silver", 0)) or max(1, int(proto.get("value_copper", 0)) // 10)
+                                                # Price through commands/shop.py: reading
+                                                # value_silver off the searched (normalized)
+                                                # prototype always returned None, so the modal
+                                                # advertised 1 silver for everything, and it
+                                                # ignored reputation entirely — including the
+                                                # merchant's refusal at rep <= -10.
+                                                from commands import shop as _shop
+                                                price = _shop._buy_price(proto, char=puppet, merchant=m)
                                                 proto_name = proto.get("key", proto_key)
                                                 # Enrich with Item Effect text from the
                                                 # Schematics master (CSV), since prototypes
@@ -810,11 +817,15 @@ def text(session, *args, **kwargs):
                                     })
                                 # Player's sellable inventory
                                 sell_items = []
+                                from commands import shop as _shop
+                                _sell_merchant = merchants[0] if merchants else None
                                 for item in puppet.contents:
-                                    val = getattr(item.db, "value_silver", 0) or 0
-                                    if not val:
-                                        val = (getattr(item.db, "value_copper", 0) or 0) // 10
-                                    sell_price = max(1, int(val) // 2) if val else 0
+                                    # Same helper the sale itself uses, so the
+                                    # advertised payout matches what is paid.
+                                    sell_price = _shop._sell_price(
+                                        item, char=puppet, merchant=_sell_merchant)
+                                    if sell_price is None:
+                                        continue    # merchant refuses this player
                                     sell_items.append({
                                         "name": item.key,
                                         "sellPrice": sell_price,
@@ -919,7 +930,13 @@ def text(session, *args, **kwargs):
                         puppet = getattr(session, "puppet", None)
                         if puppet:
                             item_name = stripped[len("__sell__ "):].strip()
-                            item = puppet.search(item_name, location=puppet)
+                            # Quiet take-first, matching CmdSell: a non-quiet
+                            # search returned None on a multimatch, so holding
+                            # two of the same item made it unsellable from the
+                            # web client with a confusing "you don't have" line.
+                            item = puppet.search(item_name, location=puppet, quiet=True)
+                            if isinstance(item, (list, tuple)):
+                                item = item[0] if item else None
                             if not item:
                                 session.msg(text=f"|430You don't have '{item_name}'.|n")
                                 return
@@ -1171,9 +1188,11 @@ def text(session, *args, **kwargs):
                                 if kit2 and getattr(kit2.db, "type", None) == "apothecary":
                                     has_kit2 = (getattr(kit2.db, "uses", 0) or 0) > 0
 
-                                known2 = puppet.db.known_recipes
-                                if not isinstance(known2, set):
-                                    known2 = set()
+                                # via recipe_book: the isinstance(_, set) check
+                                # here emptied the modal's recipe list after
+                                # every successful brew.
+                                from world import recipe_book
+                                known2 = recipe_book.known_recipes(puppet)
                                 if is_su:
                                     recipe_keys2 = set(all_protos.keys())
                                 else:
