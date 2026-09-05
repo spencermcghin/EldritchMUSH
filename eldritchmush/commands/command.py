@@ -493,6 +493,14 @@ class CmdGive(Command):
             if not to_give.at_before_give(self.caller, target):
                 return
 
+            # Strip the item off any slot before it leaves. Giving away worn
+            # armor used to keep the giver's AV applied (with a stale slot
+            # reference they could no longer unequip) while the recipient
+            # equipped the same piece for a second copy of the bonus.
+            from world import equip_bonuses
+            if equip_bonuses.force_unequip(self.caller, to_give):
+                self.caller.msg(f"|430You remove {to_give.key} before handing it over.|n")
+
             # give object
             self.caller.msg("You give %s to %s." % (to_give.key, target.key))
             to_give.move_to(target, quiet=True)
@@ -739,23 +747,30 @@ class CmdEquip(Command):
 
                 # Equip armor
                 elif item.db.is_armor and not self.caller.db.body_slot:
-                    self.caller.db.body_slot.append(item)
-                    self.caller.db.armor = item.db.material_value
+                    from world import equip_bonuses
 
-                    # Add extra points from indomitable if armor still has material_value
-                    if item.db.material_value > 0 and self.caller.db.indomitable:
-                        self.caller.db.armor += self.caller.db.indomitable
+                    self.caller.db.body_slot.append(item)
+                    # Restore whatever absorption this piece has LEFT, not its
+                    # pristine material_value. Combat drains db.armor, so
+                    # resetting to full here let a player unequip/re-equip mid
+                    # fight to refill their armor for free, every round.
+                    self.caller.db.armor = equip_bonuses.current_armor_value(item)
 
                     self.msg(f"You don {item.key}.")
                     self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
 
                     # Get vals for armor value calc
                     armor_value = self.caller.db.armor
-                    indomitable = self.caller.db.indomitable
+                    indomitable = self.caller.db.indomitable or 0
                     tough = self.caller.db.tough
                     armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
 
-                    # Add them up and set the curent armor value in the database
+                    # Add them up and set the curent armor value in the database.
+                    # indomitable is counted once, here. It used to also be
+                    # folded into db.armor above, so AV was inflated by it
+                    # twice at equip and then silently lost the duplicate on
+                    # the first hit, when Combatant.updateAv recomputed from
+                    # armor + tough + armor_specialist.
                     currentArmorValue = armor_value + tough + armor_specialist + indomitable
                     self.caller.db.av = currentArmorValue
 
@@ -903,7 +918,13 @@ class CmdUnequip(Command):
 
             # Check to see if right hand is empty.
             elif self.caller.db.body_slot and item in self.caller.db.body_slot:
+                from world import equip_bonuses
+
                 self.caller.db.body_slot.remove(item)
+                # Bank the absorption this piece has left onto the item, so
+                # re-equipping it restores the worn-down value rather than a
+                # full pool. Repair is what refills it.
+                equip_bonuses.store_armor_value(item, self.caller.db.armor)
                 # Item is armor, decrement from av
                 self.caller.db.armor = 0
                 # Get vals for armor value calc

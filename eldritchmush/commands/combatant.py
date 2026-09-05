@@ -305,9 +305,16 @@ class Combatant:
         return self.isTwoHanded()
 
     def isTwoHanded(self):
-        two_handed = self.getRightHand() == self.getLeftHand()
+        # Empty slots come through as [] (combat.getMeleeCombatStats), and
+        # [] == [] is True — which made an unarmed combatant read as wielding
+        # a two-handed weapon. That let empty hands satisfy cleave's
+        # two-handed requirement and made empty-handed victims "immune" to
+        # disarm. Require a real object in the right hand first.
+        right_hand = self.getRightHand()
+        if not right_hand:
+            return False
 
-        return two_handed
+        return right_hand == self.getLeftHand()
 
     @property
     def av(self):
@@ -387,9 +394,28 @@ class Combatant:
         return
 
     def getVictim(self, target):
-        # Get target if there is one
-        self.target = self.caller.search(target)
-        return Combatant(self.target)
+        """Resolve `target` to a Combatant, or None if nothing matches.
+
+        Every attack verb (strike, shoot, cleave, disarm, stagger, stun,
+        sunder) funnels through here with the raw argument string. The
+        search used to be non-quiet, so a room holding several identically
+        named enemies — three "Rat Company Digger" is normal — printed the
+        stock multimatch prompt and returned None, and Combatant(None) then
+        raised AttributeError on .key before the turn was even spent.
+
+        Take the first match quietly instead, matching what strike/shoot
+        already do when they pre-resolve the target for their own checks.
+        Callers must handle a None return.
+        """
+        found = self.caller.search(target, quiet=True)
+        if isinstance(found, (list, tuple)):
+            found = found[0] if found else None
+
+        self.target = found
+        if not found:
+            return None
+
+        return Combatant(found)
 
     def getDamage(self):
         """Return damage for this attack based on the equipped weapon's damage stat."""

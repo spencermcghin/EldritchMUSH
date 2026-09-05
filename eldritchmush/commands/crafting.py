@@ -217,6 +217,12 @@ class CmdRepair(Command):
                     item.db.broken = False
                     item.db.patched = False
                     item.db.material_value = material_value
+                    # Refill the armor pool this piece hands back on equip.
+                    # Without this, repairing worn armor restored its
+                    # material_value but the character still got the drained
+                    # value when they put it back on.
+                    from world import equip_bonuses
+                    equip_bonuses.reset_armor(item, wearer=self.caller)
                     self.msg(f"You repair the {item}.")
                 else:
                     self.msg("|430You cannot repair this item|n.")

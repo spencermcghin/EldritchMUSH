@@ -135,9 +135,10 @@ class CombatLoop:
 	def isLast(self):
 		# Check to see if caller is last in the combat_loop
 		loopLength = self.getLoopLength()
-		if self.combat_loop.index(self.caller) + 1 == loopLength:
-			return True
-		else:
+		try:
+			return self.combat_loop.index(self.caller) + 1 == loopLength
+		except ValueError:
+			# Caller is no longer in the loop — see nextInOrder().
 			return False
 
 	def goToNext(self):
@@ -148,6 +149,30 @@ class CombatLoop:
 		# searchCharacter = self.caller.search(nextTurnCharacter)
 		return nextTurnCharacter
 
+	def nextInOrder(self):
+		"""The combatant whose turn follows the caller's.
+
+		The caller is not guaranteed to still be in the loop. disengage
+		and drag both remove themselves before handing the turn on, and
+		the absent-combatant sweep at the top of cleanup() drops anyone
+		who left the room — including, potentially, the caller.
+
+		isLast() and goToNext() both used to call combat_loop.index(caller)
+		unguarded, so an absent caller raised ValueError out of cleanup().
+		Nothing after that ran: no one was given combat_turn, and every
+		remaining combatant sat at turn 0 with the fight frozen. Now an
+		absent caller restarts the round from the top of the order.
+		"""
+		if not self.combat_loop:
+			return None
+
+		try:
+			index = self.combat_loop.index(self.caller)
+		except ValueError:
+			return self.combat_loop[0]
+
+		return self.combat_loop[(index + 1) % len(self.combat_loop)]
+
 	def goToFirst(self):
 		firstCharacter = self.combat_loop[0]
 
@@ -156,6 +181,36 @@ class CombatLoop:
 	def isDying(self, combatant):
 		dying = True if combatant.db.bleed_points == 0 else False
 		return dying
+
+	def endIfNpcsDefeated(self):
+		"""End the fight if every NPC left in the loop is down.
+
+		Returns True when combat was ended. Called from cleanup(), and also
+		from the attack verbs' "target is already dead" branch — that branch
+		returns early without resolving the loop, so without this the last
+		survivor stayed flagged in_combat (exits locked by the
+		traverse:attr(in_combat,0) lock) with no combat_end event, and the
+		only way out was to discover `disengage`.
+		"""
+		if not self.combat_loop:
+			return False
+
+		bots = [c for c in self.combat_loop if utils.inherits_from(c, Npc)]
+		if not bots or not all(self.isDying(bot) for bot in bots):
+			return False
+
+		survivors = list(self.combat_loop)
+		for char in survivors:
+			self.combatTurnOn(char)
+			char.db.in_combat = 0
+		self.combat_loop.clear()
+		self.current_room.msg_contents(
+			f"|025All NPC combatants are now unable to act. "
+			f"Combat is now over for the {self.current_room}.|n")
+		emit(self.current_room, "combat_end", {"reason": "npcs_defeated"})
+		for char in survivors:
+			push_available_commands(char)
+		return True
 
 	def resolveCommand(self):
 		loopLength = self.getLoopLength()
@@ -272,9 +327,19 @@ class CombatLoop:
 		# Check for number of elements in the combat loop
 		if self.getLoopLength() > 1:
 
+			# If every NPC still in the loop is down, the players have won.
+			# This has to run BEFORE the skip-turn scan below: that scan
+			# passes over anyone who is dying, so by the time it settles on
+			# a combatant, nextCharacter is by definition NOT dying — which
+			# made the identical check inside the NPC resolver further down
+			# unreachable. Killing the last NPC left the survivors flagged
+			# in_combat forever (exits locked) with no combat_end event.
+			if self.endIfNpcsDefeated():
+				return
+
 			# If no character at next index (current character is last),
 			# go back to beginning of combat_loop and prompt character for input.
-			nextCharacter = self.goToFirst() if self.isLast() else self.goToNext()
+			nextCharacter = self.nextInOrder()
 
 			# Iterate through combat_loop until finding a character who can act.
 			# Guard with a counter to prevent infinite loops when all combatants are incapacitated.

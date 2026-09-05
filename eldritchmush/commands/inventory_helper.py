@@ -22,7 +22,11 @@ class Inventory:
     def hasBow(self, message = None):
         right_hand = self.parent.getRightHand()
 
-        if (right_hand == self.parent.getLeftHand()) and right_hand.db.is_bow:
+        # Empty slots are represented as [] (see combat.getMeleeCombatStats),
+        # and [] == [] is True — so an unarmed character used to pass the
+        # "same item in both hands" test and then blow up on [].db.is_bow.
+        # Require an actual object before comparing hands.
+        if right_hand and (right_hand == self.parent.getLeftHand()) and right_hand.db.is_bow:
             return right_hand
 
         if message:
@@ -31,8 +35,9 @@ class Inventory:
         return None
 
     def useArrows(self, value = 1):
+        """Consume `value` arrows from the equipped quiver."""
         arrows = self.caller.db.arrow_slot[0]
-        arrows.db.quantity += value
+        arrows.db.quantity = max(0, (arrows.db.quantity or 0) - value)
 
     @property
     def arrowQuantity(self):

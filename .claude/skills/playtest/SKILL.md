@@ -34,11 +34,11 @@ The harness lives at `.claude/skills/playtest/playtest.py`. It runs inside Evenn
 - **Do not run destructive scenarios on production.** The harness creates a persistent `Playtester` character and can mutate inventory/stats.
 - **Preferred:** start the local server first (`cd eldritchmush && evennia start`) so logs stream, then run scenarios.
 
-### The `evennia shell --cmd` incantation
+### The `evennia shell -c` incantation
 
 ```bash
 cd eldritchmush
-evennia shell --cmd "
+evennia shell -c "
 import sys
 sys.path.insert(0, '../.claude/skills/playtest')
 from playtest import Harness, SCENARIOS
@@ -57,7 +57,7 @@ That prints a step-by-step trace ending in `PASS` or `FAIL`. Exceptions land in 
 For a feature that doesn't have a pre-baked scenario, drive the harness directly:
 
 ```bash
-evennia shell --cmd "
+evennia shell -c "
 import sys; sys.path.insert(0, '../.claude/skills/playtest')
 from playtest import Harness
 h = Harness()
@@ -82,7 +82,7 @@ h.teardown()
    ```bash
    cd eldritchmush && evennia start  # idempotent
    ```
-4. **Run the scenario.** Use the `evennia shell --cmd` incantation above.
+4. **Run the scenario.** Use the `evennia shell -c` incantation above.
 5. **If it fails:** read the trace. `EXCEPTION` lines point at a Python error (stack trace included). `!!` on a step means that step tripped a check (exception, `|400` error color, empty payload, etc.). New tracebacks in server logs are shown at the end.
 6. **Triage, don't fix-from-memory.** If the failure is in code you last touched, read the file at the line number before editing. If the failure is in code you haven't touched, tell the user — don't speculate.
 7. **Report concisely.** "Scenario `crafting-modal` passed. Tabs rendered for all 5 skills. No new tracebacks." Or: "Failed at step 3 (`__craft_item__ IRON_MEDIUM_WEAPON`) — `KeyError: 'kit_slot'` in `crafting_ui.py:112`. Full trace: ..."
@@ -105,7 +105,7 @@ Write scenarios that **cover the path a player would take**, not just the handle
 - **Prototype keys are case-sensitive** for Evennia's spawner — use UPPERCASE (`IRON_MEDIUM_WEAPON`, not lowercase).
 - **OOB handlers expect stripped, lowercased input** in `inputfuncs.py`. `h.run_oob("__Crafting_UI__")` will not match.
 - **Superuser bypass** — the `Playtester` character has `Developer` permission, so skill gates, recipe-knowledge gates, and material checks are bypassed in many handlers. Tests should still exercise the logic; if a handler has a `is_superuser` shortcut, note in your report that the non-SU path wasn't tested.
-- **`evennia shell` vs `evennia shell --cmd`** — the `--cmd` variant runs and exits; the bare command opens an interactive REPL. The harness is designed for `--cmd`.
+- **`evennia shell` vs `evennia shell -c`** — the `-c` variant runs and exits; the bare command opens an interactive REPL. The harness is designed for `-c`. (There is no `--cmd` flag; passing one makes the launcher print its usage and exit without running anything.)
 - **Server state persists** — if the tester ends up bleeding, dead, or in combat from a previous run, teleport them back to the Crafter's Quarter at the start of the next scenario. `goto` does this.
 
 ## UI harness (Playwright + headless Chromium)

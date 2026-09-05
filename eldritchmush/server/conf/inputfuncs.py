@@ -878,15 +878,32 @@ def text(session, *args, **kwargs):
                                 session.msg(text=f"|430{merchant.key} doesn't sell '{item_name}'.|n")
                                 return
 
-                            price = int(matched_proto.get("value_silver", 0)) or max(1, int(matched_proto.get("value_copper", 0)) // 10)
+                            # Price through commands/shop.py so the modal and
+                            # the text command agree — this handler used to
+                            # charge the flat base price, ignoring both the
+                            # reputation discount and the merchant's refusal
+                            # to trade at rep <= -10.
+                            from commands import shop as _shop
+
+                            price = _shop._buy_price(matched_proto, char=puppet, merchant=merchant)
+                            if price is None:
+                                session.msg(text=(
+                                    f"|430{merchant.key} refuses to trade with you.|n"))
+                                return
                             silver = getattr(puppet.db, "silver", 0) or 0
 
                             if silver < price:
                                 session.msg(text=f"|400You can't afford {matched_proto['key']}. It costs {price} silver; you have {silver}.|n")
                                 return
 
-                            spawned = ev_spawn(matched_proto, location=puppet)
+                            # spawn() ignores a `location` kwarg on Evennia
+                            # 5.0.1, so the item was created at location=None
+                            # and the player was charged for nothing. Move it
+                            # explicitly, as commands/shop.py does.
+                            spawned = ev_spawn(matched_proto)
                             if spawned:
+                                for _obj in spawned:
+                                    _obj.location = puppet
                                 puppet.db.silver = silver - price
                                 session.msg(text=f"|gYou pay {price} silver and receive |w{matched_proto['key']}|g.|n")
                                 diag_write("BUY DONE", item=matched_proto['key'], price=price)
@@ -915,14 +932,27 @@ def text(session, *args, **kwargs):
                                 session.msg(text="|430There are no merchants here.|n")
                                 return
                             merchant = merchants[0]
-                            val = getattr(item.db, "value_silver", 0) or 0
-                            if not val:
-                                val = (getattr(item.db, "value_copper", 0) or 0) // 10
-                            sell_price = max(1, int(val) // 2) if val else 0
+                            # Price through commands/shop.py so the modal and
+                            # the text command agree: reputation multipliers
+                            # and the merchant's refusal at rep <= -10 used to
+                            # apply only to `sell`, never to this handler.
+                            from commands import shop as _shop
+                            from world import equip_bonuses
+
+                            sell_price = _shop._sell_price(item, char=puppet, merchant=merchant)
+                            if sell_price is None:
+                                session.msg(text=(
+                                    f"|430{merchant.key} won't take a thing from your hand. "
+                                    f"You've worn out your welcome here.|n"))
+                                return
                             if sell_price == 0:
                                 session.msg(text=f"|430{merchant.key} has no interest in {item.key}.|n")
                                 return
                             item_key = item.key
+                            # Strip it off any slot first, so worn armor can't
+                            # be sold with its AV still applied.
+                            if equip_bonuses.force_unequip(puppet, item):
+                                session.msg(text=f"|430You remove {item_key} before handing it over.|n")
                             item.delete()
                             puppet.db.silver = (getattr(puppet.db, "silver", 0) or 0) + sell_price
                             session.msg(text=f"|gYou sell |w{item_key}|g to {merchant.key} for {sell_price} silver.|n")
@@ -960,9 +990,10 @@ def text(session, *args, **kwargs):
                                     all_protos[proto_key] = obj
 
                             # Get known recipes
-                            known = puppet.db.known_recipes
-                            if not isinstance(known, set):
-                                known = set()
+                            # via recipe_book: db.known_recipes is a _SaverSet, not a
+                            # set subclass, so isinstance() read every book as empty.
+                            from world import recipe_book
+                            known = recipe_book.known_recipes(puppet)
                             # Superusers see all recipes
                             is_su = getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)
                             if is_su:
@@ -1060,9 +1091,10 @@ def text(session, *args, **kwargs):
                             # Recipe known check
                             is_su = getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)
                             if not is_su:
-                                known = puppet.db.known_recipes
-                                if not isinstance(known, set):
-                                    known = set()
+                                # via recipe_book: db.known_recipes is a _SaverSet, not a
+                                # set subclass, so isinstance() read every book as empty.
+                                from world import recipe_book
+                                known = recipe_book.known_recipes(puppet)
                                 substance_name = proto.get("key", "")
                                 if recipe_key not in known and substance_name.lower() not in {r.lower() for r in known}:
                                     session.msg(text=f"|400You don't know this recipe.|n")
@@ -1317,9 +1349,10 @@ def text(session, *args, **kwargs):
                                     if isinstance(obj, dict) and obj.get("craft_source") == "apothecary":
                                         all_protos[name.upper()] = obj
 
-                                known = puppet.db.known_recipes
-                                if not isinstance(known, set):
-                                    known = set()
+                                # via recipe_book: db.known_recipes is a _SaverSet, not a
+                                # set subclass, so isinstance() read every book as empty.
+                                from world import recipe_book
+                                known = recipe_book.known_recipes(puppet)
                                 is_su = getattr(puppet, "account", None) and getattr(puppet.account, "is_superuser", False)
                                 if is_su:
                                     recipe_keys = set(all_protos.keys())
@@ -1474,6 +1507,8 @@ def text(session, *args, **kwargs):
                                     elif hasattr(old_item, "db") and getattr(old_item.db, "damage", 0):
                                         puppet.db.weapon_level = 0
                                     if hasattr(old_item, "db") and getattr(old_item.db, "is_armor", False):
+                                        from world import equip_bonuses
+                                        equip_bonuses.store_armor_value(old_item, puppet.db.armor)
                                         puppet.db.armor = 0
                                         tough = getattr(puppet.db, "tough", 0) or 0
                                         armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
@@ -1504,6 +1539,8 @@ def text(session, *args, **kwargs):
                                             if getattr(item.db, "damage", 0):
                                                 puppet.db.weapon_level = 0
                                             if getattr(item.db, "is_armor", False):
+                                                from world import equip_bonuses
+                                                equip_bonuses.store_armor_value(item, puppet.db.armor)
                                                 puppet.db.armor = 0
                                                 tough = getattr(puppet.db, "tough", 0) or 0
                                                 armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
@@ -1611,6 +1648,10 @@ def text(session, *args, **kwargs):
                                 if hasattr(old, "db") and getattr(old.db, "damage", 0):
                                     puppet.db.weapon_level = 0
                                 if hasattr(old, "db") and getattr(old.db, "is_armor", False):
+                                    # Bank remaining absorption on the piece
+                                    # coming off — see equip_bonuses.
+                                    from world import equip_bonuses
+                                    equip_bonuses.store_armor_value(old, puppet.db.armor)
                                     puppet.db.armor = 0
 
                             # Equip the new item
@@ -1633,7 +1674,11 @@ def text(session, *args, **kwargs):
                                 h = combat.Helper(puppet)
                                 puppet.db.weapon_level = h.weaponValue(idb.level)
                             if getattr(idb, "is_armor", False):
-                                puppet.db.armor = getattr(idb, "material_value", 0) or 0
+                                # Restore what this piece has LEFT, not a full
+                                # pool: combat drains db.armor, so refilling
+                                # here made unequip/re-equip a free repair.
+                                from world import equip_bonuses
+                                puppet.db.armor = equip_bonuses.current_armor_value(item)
                                 armor = puppet.db.armor
                                 tough = getattr(puppet.db, "tough", 0) or 0
                                 armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0

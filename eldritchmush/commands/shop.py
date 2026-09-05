@@ -42,11 +42,20 @@ def _base_buy_price(proto):
 
 
 def _base_sell_price(item):
-    """Return base sell price (50% of value) from a spawned item object."""
+    """Return base sell price (50% of value) from a spawned item object.
+
+    Worthless items are worth 0, not 1. The old max(1, ...) floor minted
+    silver from anything with no value set — quest tokens, Tavyl cards,
+    writs — and made the `price == 0` "no interest" branch in CmdSell
+    unreachable.
+    """
     val = item.db.value_silver or 0
     if not val:
         val = (item.db.value_copper or 0) // 10
-    return max(1, int(val) // 2)
+    val = int(val)
+    if val <= 0:
+        return 0
+    return max(1, val // 2)
 
 
 def _rep_with(char, merchant):
@@ -112,12 +121,17 @@ def _sell_price(item, char=None, merchant=None):
     val = item.db.value_silver or 0
     if not val:
         val = (item.db.value_copper or 0) // 10
+    val = int(val)
     if char is None or merchant is None:
         return _base_sell_price(item)
     mult = _sell_multiplier(_rep_with(char, merchant))
     if mult is None:
         return None
-    return max(1, int(round(int(val) * mult)))
+    # A worthless item stays worthless at every reputation level — the
+    # max(1, ...) floor here used to pay 1 silver for anything.
+    if val <= 0:
+        return 0
+    return max(1, int(round(val * mult)))
 
 
 def _merchants_in_room(caller):
@@ -374,7 +388,13 @@ class CmdSell(Command):
             caller.msg(f"|430{merchant.key} has no interest in {item_name}.|n")
             return
 
-        # Complete the transaction
+        # Complete the transaction. Strip the item off any slot it occupies
+        # first — selling worn armor used to leave its AV applied and a dead
+        # reference in body_slot that could never be unequipped.
+        from world import equip_bonuses
+        if equip_bonuses.force_unequip(caller, item):
+            caller.msg(f"|430You remove {item_name} before handing it over.|n")
+
         caller.db.silver = (caller.db.silver or 0) + price
         item.delete()
         caller.msg(f"|gYou sell |w{item_name}|g to {merchant.key} for {price} silver.|n")
