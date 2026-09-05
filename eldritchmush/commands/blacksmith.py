@@ -8,6 +8,8 @@ from commands import command
 from evennia.utils import evmenu
 
 
+CRAFTING_FEES = {0: 3, 1: 5, 2: 8, 3: 12}
+LEVEL_LABELS = {0: "0", 1: "I", 2: "II", 3: "III"}
 
 """
 Crafting Commands
@@ -24,12 +26,13 @@ class CmdForge(Command):
     inventory to create weapons and armor.  Higher blacksmith skill levels
     unlock higher tier recipes.
 
-    Examples:
-      forge iron sword
-      forge iron medium armor
-      forge iron medium weapon
+    Crafting fees (silver): Level 0=3, I=5, II=8, III=12
 
-    Requires: blacksmith skill ≥ 1, forge in room, iron ingots.
+    Examples:
+      forge iron medium weapon
+      forge hardened iron shield
+
+    Requires: blacksmith skill >= item level, forge in room, materials + silver fee.
 
     See also: craft, repair, patch
     """
@@ -44,9 +47,8 @@ class CmdForge(Command):
     def func(self):
         use_err_msg = "|540Usage: forge <item>|n"
 
-        # Do all checks
         if not self.caller.db.blacksmith:
-            self.msg("|400You are not trained in how to properly utilze a forge. Please find a blacksmith.|n")
+            self.msg("|400You are not trained in how to properly utilize a forge. Please find a blacksmith.|n")
             return
 
         if not self.item:
@@ -58,46 +60,70 @@ class CmdForge(Command):
             prototype = prototypes.search_prototype(self.item, require_single=True)
         except KeyError:
             self.msg("Item not found, or more than one match. Please try again.")
-        else:
-            # Get search response
-            prototype_data = prototype[0]
+            return
 
-            # Check for items in callers inventory.
-            character_resources = {
+        prototype_data = prototype[0]
+
+        # Skill-level gating
+        item_level = prototype_data.get("level", 0)
+        blacksmith_level = self.caller.db.blacksmith or 0
+        if blacksmith_level < item_level and not self.caller.is_superuser:
+            label = LEVEL_LABELS.get(item_level, str(item_level))
+            self.msg(
+                f"|400Your Blacksmith skill (level {blacksmith_level}) is too low "
+                f"to forge this item (requires level {label}).|n"
+            )
+            return
+
+        # Crafting fee
+        fee = CRAFTING_FEES.get(item_level, 5)
+        silver = self.caller.db.silver or 0
+        if silver < fee and not self.caller.is_superuser:
+            self.msg(
+                f"|400Forging this item costs {fee} silver in crafting fees. "
+                f"You only have {silver} silver.|n"
+            )
+            return
+
+        character_resources = {
             "iron_ingots": self.caller.db.iron_ingots,
             "cloth": self.caller.db.cloth,
             "refined_wood": self.caller.db.refined_wood,
             "leather": self.caller.db.leather
-            }
+        }
 
-            # Get item requirements
-            item_data = prototype_data['attrs']
-            item_requirements = {
-            "iron_ingots": item_data[1][1],
-            "refined_wood": item_data[2][1],
-            "leather": item_data[3][1],
-            "cloth": item_data[4][1]
-            }
+        item_requirements = {
+            "iron_ingots": prototype_data.get("iron_ingots", 0),
+            "refined_wood": prototype_data.get("refined_wood", 0),
+            "leather": prototype_data.get("leather", 0),
+            "cloth": prototype_data.get("cloth", 0)
+        }
 
-            requirements_checker = [
+        requirements_checker = [
             character_resources["iron_ingots"] >= item_requirements["iron_ingots"],
             character_resources["refined_wood"] >= item_requirements["refined_wood"],
             character_resources["leather"] >= item_requirements["leather"],
             character_resources["cloth"] >= item_requirements["cloth"]
-            ]
+        ]
 
-            # Check that all conditions in above list are true.
+        if all(requirements_checker) or self.caller.is_superuser:
+            # Deduct resources
+            self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
+            self.caller.db.refined_wood -= item_requirements["refined_wood"]
+            self.caller.db.leather -= item_requirements["leather"]
+            self.caller.db.cloth -= item_requirements["cloth"]
+            # Deduct crafting fee
+            self.caller.db.silver -= fee
 
-            if all(requirements_checker) or self.caller.is_superuser:
-                self.msg(f"You forge a {self.item}")
-                # Get required resources and decrement from player totals.
-                self.caller.db.iron_ingots -= item_requirements["iron_ingots"]
-                self.caller.db.refined_wood -= item_requirements["refined_wood"]
-                self.caller.db.leather -= item_requirements["leather"]
-                self.caller.db.cloth -= item_requirements["cloth"]
+            blacksmith_item = spawn(prototype[0])
+            blacksmith_item[0].move_to(self.caller, quiet=True)
 
-                blacksmith_item = spawn(prototype[0])
-                blacksmith_item[0].move_to(self.caller, quiet=True)
-
-            else:
-                self.msg(f"|400You don't have the required resources.|n")
+            item_name = prototype_data.get("key", self.item)
+            self.msg(f"|230You forge a |w{item_name}|230 (crafting fee: {fee} silver).|n")
+            if self.caller.location:
+                self.caller.location.msg_contents(
+                    f"|230{self.caller.key} works the forge, producing a {item_name}.|n",
+                    exclude=self.caller,
+                )
+        else:
+            self.msg(f"|400You don't have the required resources.|n")
