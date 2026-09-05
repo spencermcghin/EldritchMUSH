@@ -251,8 +251,26 @@ def eliminate(table, player):
     table["hands"][player] = []
 
 
+def deck_exhausted(table):
+    """True when the Fate deck is empty and no elimination remains possible.
+
+    A 2-player table is dealt one Pestilence (max(1, num_players - 1)) while
+    BOTH seats start holding a Bonesman, so the first draw is cured and the
+    only Pestilence goes to the Crypt for good. From then on every turn is
+    "deck exhausted", the turn just ping-pongs, and the round can never end:
+    a player could never win a straight two-hander, and the house collected
+    every abandoned pot. Treat an empty deck as a terminal draw instead.
+    """
+    if table.get("fate_deck"):
+        return False
+    for hand in (table.get("hands") or {}).values():
+        if PESTILENCE in (hand or []):
+            return False
+    return True
+
+
 def is_over(table):
-    return len(table["alive"]) <= 1
+    return len(table["alive"]) <= 1 or deck_exhausted(table)
 
 
 def winner(table):

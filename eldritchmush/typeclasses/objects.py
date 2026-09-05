@@ -733,6 +733,20 @@ class TavylCard(Object):
         self.locks.add("get:false();drop:false()")
         self.db.card_type = "blank"
 
+    def at_before_give(self, giver, getter, **kwargs):
+        """Refuse to be handed to anyone.
+
+        The get/drop locks above are not consulted by `give`, so a player
+        could park cards in a container or on another character, where
+        _clear_player_cards (which only walks the player's own contents)
+        could not reap them. Sitting again then re-dealt a full hand, so the
+        stashed cards were pure duplicates — unbounded, and permanent since
+        nothing ever cleans cards outside a player's inventory.
+        """
+        if giver:
+            giver.msg("|430You can't hand over a Tavyl card.|n")
+        return False
+
     def return_appearance(self, looker, **kwargs):
         from world.tavyl import card_display_name, card_effect_text
         ct = self.db.card_type or "blank"
