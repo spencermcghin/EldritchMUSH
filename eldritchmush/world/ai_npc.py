@@ -34,7 +34,24 @@ Env vars:
                         unbounded thread-per-request model.
     NPC_LLM_DAILY_BUDGET_USD — hard daily spend cap (default 5.0).
                         When exhausted, NPCs return canned lines until
-                        midnight UTC. In-memory; resets on reload.
+                        midnight UTC. Every call (chat, world systems,
+                        moderation) is priced from world/ai_pricing.py at
+                        the rates of the model that ran. Saved to
+                        $RAILWAY_VOLUME_MOUNT_PATH/llm_spend.json so it
+                        survives reloads, restarts and redeploys; if that
+                        file can't be read or written, the budget is
+                        treated as exhausted.
+    NPC_LLM_GLOBAL_HOURLY_LIMIT — AI calls per rolling hour across ALL
+                        accounts and world systems (default 300).
+    NPC_AI_REQUIRE_VERIFIED — "1" (default): only accounts with a verified
+                        email or a Google sign-in get AI chat and AI
+                        fortunes; others get canned lines. "0" turns the
+                        check off (local dev only).
+
+    NPC_LLM_MODEL (and every NPC_LLM_FALLBACK_MODELS entry) must have a
+    row in world/ai_pricing.PRICES. An unpriced primary model disables
+    all AI calls (canned lines, loud log, admin alert); an unpriced
+    fallback model is skipped.
 
 NPC attributes (set via populate scripts):
     ai_personality    — system prompt fragment describing voice/mood
@@ -52,6 +69,7 @@ import time
 import threading
 import urllib.error
 import urllib.request
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -70,11 +88,10 @@ RATE_LIMIT_MSGS = 30        # max messages
 RATE_LIMIT_WINDOW = 3600    # per 3600 seconds (1 hour)
 MAX_USER_MESSAGE = 600      # chars — caps prompt-injection / context abuse
 
-# Haiku 4.5 pricing ($/MTok) for the spend cap. The openai path uses
-# a flat conservative estimate since provider pricing varies.
-_PRICE_IN, _PRICE_OUT = 1.00, 5.00
-_PRICE_CACHE_WRITE, _PRICE_CACHE_READ = 1.25, 0.10
-_OPENAI_FLAT_PRICE = 0.50  # $/MTok, both directions, rough
+# Prices for the spend cap live in world/ai_pricing.py, per model.
+# When a provider omits usage, charge as if the prompt were this many
+# input tokens and the reply used all of max_tokens (overestimate).
+_MISSING_USAGE_INPUT_TOKENS = 16000
 
 CANNED_FALLBACKS = [
     "{name} regards you silently for a long moment, then turns away.",
@@ -92,7 +109,9 @@ def _env(key, default=None):
 def _enabled():
     if _env("NPC_LLM_ENABLED", "1") == "0":
         return False
-    return bool(_env("NPC_LLM_API_KEY"))
+    if not _env("NPC_LLM_API_KEY"):
+        return False
+    return _config_error() is None
 
 
 def _provider():
@@ -113,17 +132,57 @@ def _model():
     return _env("NPC_LLM_MODEL", DEFAULT_MODEL)
 
 
+def _config_error():
+    """Return why the AI layer must not start, or None when it may.
+    The only check today: the configured model must have a price row,
+    so the spend cap is never computed at some other model's rates."""
+    from world import ai_pricing
+    model = _model()
+    if not ai_pricing.is_priced(model):
+        return (f"NPC_LLM_MODEL={model!r} has no price in "
+                f"world/ai_pricing.py; AI calls are OFF until it is added "
+                f"or NPC_LLM_MODEL is changed to a listed model")
+    return None
+
+
+def _check_config_at_start():
+    """Run once at import: refuse to start the AI layer on an unpriced
+    model, loudly. The game itself keeps running on canned lines."""
+    if _env("NPC_LLM_ENABLED", "1") == "0" or not _env("NPC_LLM_API_KEY"):
+        return
+    err = _config_error()
+    if not err:
+        return
+    print(f"[ai_npc] REFUSING TO START AI: {err}", flush=True)
+    try:
+        from world import telemetry
+        telemetry.alert("llm_unpriced_model", "NPC AI refused to start", err)
+    except Exception:
+        pass
+
+
 def _fallback_line(npc):
     return random.choice(CANNED_FALLBACKS).format(name=npc.key)
 
 
 # ───────────────────────────────────────────────────────────────────────────
-# Daily spend cap — in-memory, resets at UTC midnight (and on reload).
+# Daily spend cap — resets at UTC midnight, persisted to the volume.
 # A kill switch, not an accounting system: protects against runaway
 # loops and hostile traffic, not against precise budget drift.
+#
+# Persistence: $RAILWAY_VOLUME_MOUNT_PATH/llm_spend.json, written
+# atomically (temp file + rename) after every charge. start.sh refuses to
+# boot a deployed environment without the volume, so the counter
+# survives reloads, restarts and redeploys. If the store can't be read
+# (corrupt or unreadable file, or a deployed environment with no volume)
+# or can't be written, the cap FAILS CLOSED: the budget counts as
+# exhausted and NPCs serve canned lines until the store works again.
 # ───────────────────────────────────────────────────────────────────────────
 _SPEND_LOCK = threading.Lock()
 _SPEND = {"day": None, "usd": 0.0, "warned": False}
+# ok=False means the store is broken and the budget reads as exhausted.
+_STORE = {"ok": True, "error": None, "last_retry": 0.0}
+_STORE_RETRY_SECONDS = 60
 
 
 def _budget_usd():
@@ -137,46 +196,123 @@ def _spend_day():
     return time.strftime("%Y-%m-%d", time.gmtime())
 
 
+def _deployed():
+    return bool(os.environ.get("RAILWAY_ENVIRONMENT_NAME"))
+
+
 def _spend_file():
     vol = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
-    return os.path.join(vol, "llm_spend.json") if vol else "/tmp/llm_spend.json"
+    if vol:
+        return os.path.join(vol, "llm_spend.json")
+    if _deployed():
+        return None  # deployed with no volume: no durable store
+    return "/tmp/llm_spend.json"  # local dev only
+
+
+def _store_failed(reason):
+    """Mark the store broken (budget reads as exhausted). Caller holds
+    _SPEND_LOCK, so the alert goes out on its own thread: alert() builds a
+    telemetry snapshot that takes _SPEND_LOCK and would deadlock here."""
+    first = _STORE["ok"]
+    _STORE.update(ok=False, error=reason)
+    if first:
+        print(f"[ai_npc] SPEND STORE FAILED, treating budget as exhausted: "
+              f"{reason}", flush=True)
+        try:
+            from world import telemetry
+            threading.Thread(
+                target=telemetry.alert,
+                args=("llm_spend_store_failed",
+                      "LLM spend store unavailable; AI calls blocked",
+                      f"{reason}. NPCs serve canned lines until "
+                      f"llm_spend.json on the volume can be read and "
+                      f"written."),
+                daemon=True,
+            ).start()
+        except Exception:
+            pass
 
 
 def _persist_spend():
-    """Write-through today's spend so the daily cap survives a reload /
-    redeploy (module globals reset otherwise, silently zeroing the counter
-    — on a deploy-heavy day that turns a $5 cap into $5-per-deploy). Caller
-    holds _SPEND_LOCK."""
+    """Write-through today's spend, atomically. Caller holds _SPEND_LOCK.
+    Returns True on success; on failure the store is marked broken."""
+    path = _spend_file()
+    if not path:
+        _store_failed("no RAILWAY_VOLUME_MOUNT_PATH on a deployed environment")
+        return False
+    tmp = f"{path}.tmp"
     try:
-        with open(_spend_file(), "w", encoding="utf-8") as fp:
+        with open(tmp, "w", encoding="utf-8") as fp:
             json.dump(_SPEND, fp)
-    except Exception:
-        pass
+            fp.flush()
+            os.fsync(fp.fileno())
+        os.replace(tmp, path)
+        return True
+    except Exception as exc:
+        _store_failed(f"cannot write {path}: {type(exc).__name__}: {exc}")
+        return False
 
 
 def _load_spend():
-    """Restore today's spend at import. A stale (previous-day) file is
-    ignored so the cap still resets at UTC midnight."""
-    try:
-        with open(_spend_file(), "r", encoding="utf-8") as fp:
-            data = json.load(fp)
-        if isinstance(data, dict) and data.get("day") == _spend_day():
-            with _SPEND_LOCK:
-                _SPEND.update(
-                    day=data["day"],
-                    usd=float(data.get("usd") or 0.0),
-                    warned=bool(data.get("warned")),
-                )
-    except Exception:
-        pass
+    """Restore today's spend from the store. A previous-day file is
+    ignored so the cap still resets at UTC midnight. A missing file is a
+    fresh store. Anything else that goes wrong marks the store broken.
+    Never lowers the in-memory figure. Returns True when the store is
+    usable."""
+    path = _spend_file()
+    with _SPEND_LOCK:
+        if not path:
+            _store_failed(
+                "no RAILWAY_VOLUME_MOUNT_PATH on a deployed environment")
+            return False
+        try:
+            with open(path, "r", encoding="utf-8") as fp:
+                data = json.load(fp)
+            if not isinstance(data, dict):
+                raise ValueError("spend file is not a JSON object")
+            if data.get("day") == _spend_day():
+                usd = float(data.get("usd") or 0.0)
+                if _SPEND["day"] != data["day"] or usd > _SPEND["usd"]:
+                    _SPEND.update(day=data["day"], usd=usd,
+                                  warned=bool(data.get("warned")))
+        except FileNotFoundError:
+            pass
+        except Exception as exc:
+            _store_failed(f"cannot read {path}: {type(exc).__name__}: {exc}")
+            return False
+        _STORE.update(ok=True, error=None)
+        return True
+
+
+def _store_ok():
+    """True when the spend store is usable. While broken, retry at most
+    once a minute: re-read (keeping the higher figure) and re-write."""
+    if _STORE["ok"]:
+        return True
+    now = time.time()
+    if now - _STORE["last_retry"] < _STORE_RETRY_SECONDS:
+        return False
+    _STORE["last_retry"] = now
+    if not _load_spend():
+        return False
+    with _SPEND_LOCK:
+        if _SPEND["day"] is None:
+            _SPEND.update(day=_spend_day(), usd=0.0, warned=False)
+        if not _persist_spend():
+            return False
+    print("[ai_npc] spend store recovered", flush=True)
+    return True
 
 
 def _spend_ok():
+    if not _store_ok():
+        return False
     with _SPEND_LOCK:
         day = _spend_day()
         if _SPEND["day"] != day:
             _SPEND.update(day=day, usd=0.0, warned=False)
-            _persist_spend()
+            if not _persist_spend():
+                return False
         return _SPEND["usd"] < _budget_usd()
 
 
@@ -207,9 +343,74 @@ def _record_spend(usd):
         pass
 
 
+def charge(model, input_tokens=0, output_tokens=0,
+           cache_write_tokens=0, cache_read_tokens=0):
+    """Price one call at *model*'s rates and add it to today's spend.
+    Returns the dollar amount. An unpriced model is charged as the most
+    expensive row in the table (it should never have been called)."""
+    from world import ai_pricing
+    try:
+        usd = ai_pricing.cost_usd(model, input_tokens, output_tokens,
+                                  cache_write_tokens, cache_read_tokens)
+    except ai_pricing.UnknownModelError:
+        worst = max(ai_pricing.PRICES.values(), key=lambda r: r[1])
+        usd = (
+            (input_tokens or 0) * worst[0] + (output_tokens or 0) * worst[1]
+            + (cache_write_tokens or 0) * worst[2]
+            + (cache_read_tokens or 0) * worst[3]
+        ) / 1_000_000
+        print(f"[ai_npc] charged unpriced model {model!r} at the highest "
+              f"listed rate", flush=True)
+    _record_spend(usd)
+    return usd
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# Global hourly cap — all accounts, all AI calls (chat, fortunes, world
+# systems). In memory; the daily budget above is the durable backstop.
+# ───────────────────────────────────────────────────────────────────────────
+_GLOBAL_WINDOW = 3600
+_GLOBAL_LOCK = threading.Lock()
+_GLOBAL_HITS = deque()
+
+
+def _global_limit():
+    try:
+        return max(0, int(_env("NPC_LLM_GLOBAL_HOURLY_LIMIT", "300")))
+    except ValueError:
+        return 300
+
+
+def _global_rate_ok():
+    """Take one slot from the global hourly cap. False when it is full."""
+    now = time.time()
+    limit = _global_limit()
+    with _GLOBAL_LOCK:
+        while _GLOBAL_HITS and now - _GLOBAL_HITS[0] >= _GLOBAL_WINDOW:
+            _GLOBAL_HITS.popleft()
+        if len(_GLOBAL_HITS) >= limit:
+            full = True
+        else:
+            _GLOBAL_HITS.append(now)
+            full = False
+    if full:
+        try:
+            from world import telemetry
+            telemetry.incr("llm.global_rate_blocked")
+            telemetry.alert(
+                "llm_global_hourly_cap",
+                f"NPC AI global hourly cap reached ({limit} calls/hour)",
+                "NPCs serve canned lines until the rolling hour frees up. "
+                "Raise NPC_LLM_GLOBAL_HOURLY_LIMIT if this is real traffic.")
+        except Exception:
+            pass
+    return not full
+
+
 # Restore today's accumulated spend from the volume at import so a reload
 # or redeploy doesn't reset the daily cap to $0.
 _load_spend()
+_check_config_at_start()
 
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -835,9 +1036,11 @@ def _call_anthropic(npc, character, message):
     })
 
     client = _anthropic_client()
+    model = _model()
+    max_tokens = int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS))
     resp = client.messages.create(
-        model=_model(),
-        max_tokens=int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS)),
+        model=model,
+        max_tokens=max_tokens,
         temperature=0.85,
         system=system,
         messages=messages,
@@ -846,18 +1049,12 @@ def _call_anthropic(npc, character, message):
         block.text for block in resp.content if block.type == "text"
     ).strip()
 
-    # Spend tracking + cache visibility.
+    # Spend tracking + cache visibility. Charged at the requested
+    # model's rates (the one this request named, not Haiku by default).
+    usage, cache_w, cache_r = _anthropic_usage(resp, max_tokens)
+    usd = charge(model, usage["in"], usage["out"], cache_w, cache_r)
     try:
         u = resp.usage
-        cache_w = getattr(u, "cache_creation_input_tokens", 0) or 0
-        cache_r = getattr(u, "cache_read_input_tokens", 0) or 0
-        usd = (
-            u.input_tokens * _PRICE_IN
-            + u.output_tokens * _PRICE_OUT
-            + cache_w * _PRICE_CACHE_WRITE
-            + cache_r * _PRICE_CACHE_READ
-        ) / 1_000_000
-        _record_spend(usd)
         from world import telemetry
         telemetry.incr("llm.calls")
         telemetry.incr("llm.input_tokens", u.input_tokens)
@@ -887,12 +1084,17 @@ def _is_reasoning_model(model):
 def _model_candidates():
     """[configured model] + fallbacks, deduped in order. Walking this chain
     keeps NPCs talking when a provider retires the primary model."""
+    from world import ai_pricing
     primary = _model()
     raw = _env("NPC_LLM_FALLBACK_MODELS", DEFAULT_FALLBACK_MODELS)
     out, seen = [], set()
     for m in [primary] + [x.strip() for x in raw.split(",")]:
         if m and m not in seen:
             seen.add(m)
+            if not ai_pricing.is_priced(m):
+                print(f"[ai_npc] skipping model {m!r}: no price in "
+                      f"world/ai_pricing.py", flush=True)
+                continue
             out.append(m)
     return out
 
@@ -913,7 +1115,8 @@ def _model_gone(exc):
 
 def _openai_chat(messages, max_tokens, temperature):
     """POST to the OpenAI-compatible endpoint, walking the model fallback
-    chain. Returns (reply, usage_dict). Skips to the next candidate when a
+    chain. Returns (reply, usage_dict, model). Every attempt that gets a
+    response is charged at that model's rates. Skips to the next candidate when a
     model is decommissioned or returns empty content; emails the operator
     the first time it has to fall back off the configured primary. Raises
     only if EVERY candidate is exhausted (callers then serve canned lines)."""
@@ -943,6 +1146,7 @@ def _openai_chat(messages, max_tokens, temperature):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
+            _charge_openai_usage(model, data.get("usage"), max_tokens)
             reply = (data["choices"][0]["message"].get("content") or "").strip()
             if not reply:
                 raise RuntimeError(f"empty content from {model}")
@@ -971,8 +1175,17 @@ def _openai_chat(messages, max_tokens, temperature):
                     f"provider models.")
             except Exception:
                 pass
-        return reply, (data.get("usage") or {})
+        return reply, (data.get("usage") or {}), model
     raise last_err or RuntimeError("no NPC LLM model available")
+
+
+def _charge_openai_usage(model, usage, max_tokens):
+    """Charge one OpenAI-compatible response at *model*'s rates. Missing
+    usage is charged as a large prompt plus a full-length reply."""
+    if not isinstance(usage, dict) or not usage:
+        return charge(model, _MISSING_USAGE_INPUT_TOKENS, max_tokens)
+    return charge(model, usage.get("prompt_tokens") or 0,
+                  usage.get("completion_tokens") or 0)
 
 
 def _call_openai(npc, character, message):
@@ -989,13 +1202,11 @@ def _call_openai(npc, character, message):
         "content": f"[{speaker}, in-character] {message}",
     })
 
-    reply, usage = _openai_chat(
+    reply, usage, _used_model = _openai_chat(
         messages,
         int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS)),
         0.85)
     try:
-        total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
-        _record_spend(total * _OPENAI_FLAT_PRICE / 1_000_000)
         from world import telemetry
         telemetry.incr("llm.calls")
         telemetry.incr("llm.input_tokens", usage.get("prompt_tokens") or 0)
@@ -1021,10 +1232,25 @@ def _call_llm(npc, character, message):
     return reply
 
 
+def _anthropic_usage(resp, max_tokens):
+    """({"in", "out"}, cache_write, cache_read) from an Anthropic reply.
+    Missing usage is charged as a large prompt plus a full-length reply."""
+    u = getattr(resp, "usage", None)
+    if u is None:
+        return ({"in": _MISSING_USAGE_INPUT_TOKENS, "out": max_tokens}, 0, 0)
+    return (
+        {"in": getattr(u, "input_tokens", 0) or 0,
+         "out": getattr(u, "output_tokens", 0) or 0},
+        getattr(u, "cache_creation_input_tokens", 0) or 0,
+        getattr(u, "cache_read_input_tokens", 0) or 0,
+    )
+
+
 def _generate_anthropic(system_text, user_text, max_tokens, temperature):
     client = _anthropic_client()
+    model = _model()
     resp = client.messages.create(
-        model=_model(),
+        model=model,
         max_tokens=max_tokens,
         temperature=temperature,
         system=[{"type": "text", "text": system_text,
@@ -1034,17 +1260,10 @@ def _generate_anthropic(system_text, user_text, max_tokens, temperature):
     text = "".join(
         block.text for block in resp.content if block.type == "text"
     ).strip()
+    usage, cache_w, cache_r = _anthropic_usage(resp, max_tokens)
+    charge(model, usage["in"], usage["out"], cache_w, cache_r)
     try:
         u = resp.usage
-        cache_w = getattr(u, "cache_creation_input_tokens", 0) or 0
-        cache_r = getattr(u, "cache_read_input_tokens", 0) or 0
-        usd = (
-            u.input_tokens * _PRICE_IN
-            + u.output_tokens * _PRICE_OUT
-            + cache_w * _PRICE_CACHE_WRITE
-            + cache_r * _PRICE_CACHE_READ
-        ) / 1_000_000
-        _record_spend(usd)
         from world import telemetry
         telemetry.incr("llm.calls")
         telemetry.incr("llm.generate_calls")
@@ -1056,17 +1275,13 @@ def _generate_anthropic(system_text, user_text, max_tokens, temperature):
 
 
 def _generate_openai(system_text, user_text, max_tokens, temperature):
-    text, data_usage = _openai_chat(
+    text, _usage, _used_model = _openai_chat(
         [
             {"role": "system", "content": system_text},
             {"role": "user", "content": user_text},
         ],
         max_tokens, temperature)
-    data = {"usage": data_usage}
     try:
-        usage = data.get("usage") or {}
-        total = (usage.get("prompt_tokens") or 0) + (usage.get("completion_tokens") or 0)
-        _record_spend(total * _OPENAI_FLAT_PRICE / 1_000_000)
         from world import telemetry
         telemetry.incr("llm.calls")
         telemetry.incr("llm.generate_calls")
@@ -1086,6 +1301,8 @@ def generate_sync(system_text, user_text, max_tokens=400, temperature=0.9):
     use generate() for that.
     """
     if not _enabled() or not _spend_ok():
+        return None
+    if not _global_rate_ok():
         return None
     try:
         if _provider() == "anthropic":
@@ -1152,6 +1369,18 @@ def chat(npc, character, message, on_reply):
     from world import telemetry
     telemetry.incr("npc.chat_requests")
 
+    # Defense layer 0: only accounts with a verified email or a Google
+    # sign-in reach the paid model. Throwaway accounts get canned lines.
+    account = getattr(character, "account", None)
+    if not ai_safety.account_ai_eligible(account):
+        telemetry.incr("safety.unverified_account")
+        reply = _fallback_line(npc)
+        ai_safety.audit_log(
+            npc, character, clean_msg, reply, flags=["unverified_account"]
+        )
+        _dispatch(on_reply, reply)
+        return
+
     banned_hit = ai_safety.check_banned(clean_msg)
     if banned_hit:
         telemetry.incr("safety.banned_phrase")
@@ -1165,7 +1394,6 @@ def chat(npc, character, message, on_reply):
 
     # Defense layer 2: per-account global rate limit. Stacks on the
     # per-char-per-NPC limit below.
-    account = getattr(character, "account", None)
     acct_ok, acct_retry = ai_safety.check_account_rate(account)
     if not acct_ok:
         telemetry.incr("safety.rate_limited_account")
@@ -1184,6 +1412,15 @@ def chat(npc, character, message, on_reply):
         reply = _fallback_line(npc)
         ai_safety.audit_log(
             npc, character, clean_msg, reply, flags=["budget_exhausted"]
+        )
+        _dispatch(on_reply, reply)
+        return
+
+    # Defense layer 2c: global hourly cap across every account.
+    if _enabled() and not _global_rate_ok():
+        reply = _fallback_line(npc)
+        ai_safety.audit_log(
+            npc, character, clean_msg, reply, flags=["global_rate_limited"]
         )
         _dispatch(on_reply, reply)
         return

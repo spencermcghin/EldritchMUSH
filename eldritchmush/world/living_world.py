@@ -421,9 +421,7 @@ def _fortune_digest(char):
 def true_fortune(char, on_reply):
     """Generate a fortune for *char*. on_reply(text) always receives a
     displayable string (LLM fortune or canned fallback)."""
-    from world import ai_npc
-
-    digest = _fortune_digest(char)
+    from world import ai_npc, ai_safety
 
     def _wrap(text):
         fortune = (text or "").strip()
@@ -438,6 +436,25 @@ def true_fortune(char, on_reply):
             pass
         on_reply(fortune)
 
+    # Same gates as NPC chat: only verified / Google accounts reach the
+    # paid model, and every pull counts against the per-account hourly
+    # limit (on top of the per-character FORTUNE_COOLDOWN). A refused
+    # pull still gets a canned fortune, with no AI call.
+    account = getattr(char, "account", None)
+    if not ai_safety.account_ai_eligible(account):
+        _wrap(None)
+        return
+    acct_ok, _retry = ai_safety.check_account_rate(account)
+    if not acct_ok:
+        try:
+            from world import telemetry
+            telemetry.incr("safety.rate_limited_account")
+        except Exception:
+            pass
+        _wrap(None)
+        return
+
+    digest = _fortune_digest(char)
     user_text = (
         f"The petitioner is {char.key}. True facts: {digest}.\n"
         f"Write their fortune."

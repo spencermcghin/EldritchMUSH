@@ -1,8 +1,14 @@
 """
 Safety layer for AI NPC dialogue.
 
-Four defenses, all gated by env vars so any individual layer can be
+Five defenses, all gated by env vars so any individual layer can be
 disabled without code changes:
+
+0) Verified accounts only (on unless NPC_AI_REQUIRE_VERIFIED=0)
+   Only an account with a verified email address or a Google sign-in
+   (allauth EmailAddress.verified / SocialAccount provider "google"),
+   or a superuser, reaches the paid model. Free throwaway accounts get
+   canned lines, so N fake accounts no longer mean N x the rate limit.
 
 1) Banned-phrase filter (always on)
    Regex patterns catch obvious prompt-injection framings like
@@ -19,7 +25,10 @@ disabled without code changes:
 3) Llama Guard moderation (optional; enabled if NPC_LLM_MODERATE=1)
    Sends the user message to Groq's llama-guard-4-12b model to check
    for unsafe content (hate, sexual, violence-against-person, etc.).
-   Flagged messages never hit the main LLM.
+   Flagged messages never hit the main LLM. Needs its own
+   NPC_MODERATE_API_KEY (the main NPC_LLM_API_KEY is never sent to the
+   moderation provider); without one, moderation stays off and a
+   warning is logged. Each call is charged against the daily budget.
 
 4) Audit log (always on)
    Every conversation turn — whether completed, refused, rate-limited,
@@ -28,9 +37,10 @@ disabled without code changes:
    /api/npc_audit/ (admin-only).
 
 Env vars:
-    NPC_LLM_API_KEY          — fallback moderation key (same as ai_npc)
-    NPC_MODERATE_API_KEY     — Groq key for Llama Guard when the main
-                               dialogue provider is Anthropic
+    NPC_MODERATE_API_KEY     — Groq key for Llama Guard. Required for
+                               moderation; never falls back to
+                               NPC_LLM_API_KEY
+    NPC_AI_REQUIRE_VERIFIED  — "1" (default) or "0"
     NPC_MODERATE_BASE_URL    — default "https://api.groq.com/openai/v1"
     NPC_LLM_MODERATE         — "1" to enable Llama Guard (default "0")
     NPC_LLM_MODERATE_MODEL   — default "llama-guard-4-12b" (Groq)
@@ -43,8 +53,49 @@ import json
 import os
 import re
 import time
+import threading
 import urllib.error
 import urllib.request
+
+
+# ---------------------------------------------------------------------------
+# 0. Verified accounts only
+# ---------------------------------------------------------------------------
+def _require_verified():
+    return os.environ.get("NPC_AI_REQUIRE_VERIFIED", "1") != "0"
+
+
+def account_ai_eligible(account):
+    """True when *account* may trigger paid AI calls: it has a verified
+    email address or a Google sign-in, or it is a superuser. No account
+    (an unpuppeted character, an NPC) is never eligible. Any lookup
+    error counts as not eligible."""
+    if not _require_verified():
+        return True
+    if account is None:
+        return False
+    try:
+        if getattr(account, "is_superuser", False):
+            return True
+        uid = getattr(account, "id", None)
+        if uid is None:
+            return False
+    except Exception:
+        return False
+    try:
+        from allauth.account.models import EmailAddress
+        if EmailAddress.objects.filter(user_id=uid, verified=True).exists():
+            return True
+    except Exception:
+        pass
+    try:
+        from allauth.socialaccount.models import SocialAccount
+        if SocialAccount.objects.filter(user_id=uid,
+                                        provider="google").exists():
+            return True
+    except Exception:
+        pass
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -117,12 +168,22 @@ def check_account_rate(account):
 # 3. Llama Guard moderation (input only, optional)
 # ---------------------------------------------------------------------------
 def _moderation_key():
-    """Moderation runs against Groq's Llama Guard, which needs a Groq
-    key. With the main dialogue provider now on Anthropic, the keys can
-    differ — NPC_MODERATE_API_KEY takes precedence, falling back to
-    NPC_LLM_API_KEY for single-provider setups."""
-    return (os.environ.get("NPC_MODERATE_API_KEY")
-            or os.environ.get("NPC_LLM_API_KEY"))
+    """Moderation runs against Groq's Llama Guard and needs its own key.
+    There is deliberately NO fallback to NPC_LLM_API_KEY: that would send
+    the main (possibly Anthropic) key to a third party as a Bearer token."""
+    return os.environ.get("NPC_MODERATE_API_KEY") or None
+
+
+_MOD_WARNED = set()
+_MOD_WARN_LOCK = threading.Lock()
+
+
+def _warn_once(kind, text):
+    with _MOD_WARN_LOCK:
+        if kind in _MOD_WARNED:
+            return
+        _MOD_WARNED.add(kind)
+    print(f"[ai_safety] WARNING: {text}", flush=True)
 
 
 def _moderation_base_url():
@@ -131,9 +192,23 @@ def _moderation_base_url():
 
 
 def moderation_enabled():
-    return os.environ.get("NPC_LLM_MODERATE", "0") == "1" and bool(
-        _moderation_key()
-    )
+    if os.environ.get("NPC_LLM_MODERATE", "0") != "1":
+        return False
+    if not _moderation_key():
+        _warn_once(
+            "no_key",
+            "NPC_LLM_MODERATE=1 but NPC_MODERATE_API_KEY is not set; "
+            "moderation is DISABLED (the main NPC_LLM_API_KEY is never "
+            "sent to the moderation provider).")
+        return False
+    from world import ai_pricing
+    if not ai_pricing.is_priced(_moderation_model()):
+        _warn_once(
+            "unpriced",
+            f"NPC_LLM_MODERATE_MODEL={_moderation_model()!r} has no price "
+            f"in world/ai_pricing.py; moderation is DISABLED.")
+        return False
+    return True
 
 
 def _moderation_model():
@@ -169,6 +244,7 @@ def check_moderation(text):
         )
         with urllib.request.urlopen(req, timeout=8) as resp:
             data = json.loads(resp.read().decode("utf-8"))
+        _charge_moderation(data.get("usage"), len(text))
         reply = (
             data.get("choices", [{}])[0].get("message", {}).get("content", "")
         ).strip()
@@ -192,6 +268,23 @@ def check_moderation(text):
             flush=True,
         )
         return True, None
+
+
+def _charge_moderation(usage, text_len):
+    """Count a moderation call against the shared daily budget."""
+    try:
+        from world import ai_npc
+        if isinstance(usage, dict) and usage:
+            ai_npc.charge(_moderation_model(),
+                          usage.get("prompt_tokens") or 0,
+                          usage.get("completion_tokens") or 0)
+        else:
+            # No usage reported: charge a generous estimate (Llama Guard's
+            # own prompt template is a few hundred tokens).
+            ai_npc.charge(_moderation_model(), 1000 + text_len, 32)
+    except Exception as exc:
+        print(f"[ai_safety] could not charge moderation call: {exc!r}",
+              flush=True)
 
 
 # ---------------------------------------------------------------------------
