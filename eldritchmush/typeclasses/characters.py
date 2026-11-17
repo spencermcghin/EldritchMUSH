@@ -373,9 +373,21 @@ class Character(DefaultCharacter):
             is_admin = bool(account and (account.is_superuser or account.check_permstring("Admin") or account.check_permstring("Builder")))
         except Exception:
             is_admin = False
+        # Email verification state, so the UI can offer a "send me a
+        # verification link" button (AI NPC chat needs a verified email
+        # or a Google sign-in).
+        try:
+            from world import email_verification
+            verify_needed = bool(account) and \
+                email_verification.needs_verification(account)
+            email_on_file = bool(account and (account.email or "").strip())
+        except Exception:
+            verify_needed, email_on_file = False, False
         emit_to(self, "account_info", {
             "character": self.key,
             "is_admin": is_admin,
+            "verify_needed": verify_needed,
+            "email_on_file": email_on_file,
         })
         # Push character vitals so the sidebar panel populates on login.
         try:

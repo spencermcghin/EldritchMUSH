@@ -277,6 +277,8 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         # Override default charcreate so new characters spawn in the
         # ChargenRoom (so the React ChargenWizard fires automatically).
         self.add(account.CmdCharCreate())
+        # `verify` — send an email verification link (unlocks AI NPCs).
+        self.add(account.CmdVerify())
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """

@@ -47,6 +47,8 @@ export function useEvennia() {
   const [oobState, setOobState] = useState({
     availableCommands: [],
     isAdmin: false,
+    verifyNeeded: false,
+    emailOnFile: false,
     inCombat: false,
     combatTurnOrder: [],
     myTurn: false,
@@ -200,6 +202,8 @@ export function useEvennia() {
         }
         case 'account_info': {
           next.isAdmin = !!kwargs.is_admin
+          next.verifyNeeded = !!kwargs.verify_needed
+          next.emailOnFile = !!kwargs.email_on_file
           if (kwargs.character) {
             next.characterName = kwargs.character
             // account_info is emitted from at_post_puppet — receiving

@@ -116,14 +116,31 @@ def snapshot():
 
 
 def alert(kind, subject, body):
-    """Loud print + admin email, rate-limited per alert kind."""
-    print(f"[telemetry] ALERT ({kind}): {subject} — {body}", flush=True)
+    """Loud print + admin email, rate-limited per alert kind.
+
+    The cooldown is checked first: inside the cooldown nothing is printed
+    or sent. The email (and the snapshot it carries) goes out on a daemon
+    thread, so a caller on the reactor thread, or one holding the
+    ai_npc spend lock, never waits on Resend. Returns True when an alert
+    was sent (queued), False when the cooldown suppressed it."""
     now = time.time()
     with _LOCK:
         last = _ALERT_SENT.get(kind, 0)
         if now - last < _ALERT_COOLDOWN:
-            return
+            return False
         _ALERT_SENT[kind] = now
+    print(f"[telemetry] ALERT ({kind}): {subject} — {body}", flush=True)
+    try:
+        threading.Thread(
+            target=_send_alert_email, args=(subject, body),
+            name=f"telemetry-alert-{kind}", daemon=True,
+        ).start()
+    except Exception as exc:
+        print(f"[telemetry] alert email failed: {exc!r}", flush=True)
+    return True
+
+
+def _send_alert_email(subject, body):
     try:
         from world.email import send_email, ADMIN_EMAIL
         send_email(

@@ -1,0 +1,11 @@
+{% autoescape off %}Welcome to EldritchMUSH.
+
+Please verify your email address by opening this link:
+
+{{ activate_url }}
+
+The link expires in 3 days. Until your email is verified, NPCs in the game only give short stock replies. You can ask for a new link at any time by typing verify in the game.
+
+If you didn't create an account, you can ignore this email.
+
+EldritchMUSH{% endautoescape %}
