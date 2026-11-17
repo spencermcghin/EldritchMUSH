@@ -109,15 +109,32 @@ actually sent.
   mail such as password resets, character approvals, admin alerts)
   counts against one daily cap, `EMAIL_DAILY_LIMIT` (default 60, below
   Resend's free 100 a day), and one hourly cap, `EMAIL_HOURLY_LIMIT`
-  (default 20). The last 5 daily slots are kept for mail to
-  `ADMIN_EMAIL`. The count is saved in `mail_quota.json` on the volume;
-  if that file can't be read or written, no mail is sent. allauth only
-  mails addresses that belong to an account
-  (`ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False`), password resets are limited
-  to 10 an hour per IP and 3 an hour per address, and sign-ups to 5 an
-  hour per IP. Client IPs come from `X-Forwarded-For` with
-  `ALLAUTH_TRUSTED_PROXY_COUNT = 2` on Railway (Railway's edge, then the
-  container's nginx) and 0 locally.
+  (default 20). Mail to `ADMIN_EMAIL` can use the last 5 daily slots and
+  skips the hourly cap, so alerts still get out. Hitting either cap
+  emails the admin. The count is saved in `mail_quota.json` on the
+  volume, guarded by a lock file (`mail_quota.lock`); if it can't be read
+  or written, no mail is sent. A corrupt file is rewritten as "today is
+  full", so mail resumes the next UTC day.
+- allauth only mails addresses that belong to an account
+  (`ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False`). Password resets are limited
+  to 10 an hour per IP and 3 an hour per address, sign-ups to 5 an hour
+  per IP, and changes on the account email page to 3 an hour and 6 a day
+  per account. An account can hold at most 2 addresses. If an email
+  can't be sent, allauth's pages carry on (a sign-up still completes)
+  and show "We couldn't send the email right now. Please try again
+  later."
+- Client IPs for those limits come from the `X-Real-IP` header on
+  Railway: Railway's edge sets it, and the container's nginx passes it
+  through unchanged (`start.sh`). Locally, and if the header is ever
+  missing, the connection address is used. Override with
+  `ALLAUTH_TRUSTED_CLIENT_IP_HEADER` (empty for none). To check the
+  proxy setup on uat, set `LOG_CLIENT_IP_HEADERS=1`: the next allauth
+  request logs `X-Real-IP` and `X-Forwarded-For` once (look for
+  `[client_ip]` in the logs), then remove the variable.
+- **One account per verified address.** An address can be verified on
+  only one account, so alt accounts that share an email address can
+  verify it on only one of them; the others need their own address (or
+  Google sign-in).
 - Emails go through Resend (`RESEND_API_KEY`), from
   `noreply@eldritchmush.com`. Links point at `SITE_BASE_URL`, which
   defaults to `https://eldritchmush.com` on production,
@@ -162,7 +179,8 @@ actually sent.
 | `RESEND_API_KEY` | none | Sends verification and alert emails. Without it, emails are logged and skipped. |
 | `EMAIL_DAILY_LIMIT` | `60` | Emails per UTC day for the whole game (all kinds); the last 5 are kept for the admin. |
 | `EMAIL_HOURLY_LIMIT` | `20` | Emails per rolling hour for the whole game. |
-| `ALLAUTH_TRUSTED_PROXY_COUNT` | `2` on Railway, `0` locally | Proxies in front of Django, for allauth's per-IP limits. |
+| `ALLAUTH_TRUSTED_CLIENT_IP_HEADER` | `X-Real-IP` on Railway, none locally | Header allauth reads the client IP from, for its per-IP limits. |
+| `LOG_CLIENT_IP_HEADERS` | `0` | `1` logs the client-IP headers once, to check the proxy setup. |
 
 To use a model that isn't in `world/ai_pricing.py`, add its row first,
 with the provider's current published price.
@@ -176,6 +194,15 @@ Remove `temperature` from the calls in `world/ai_npc.py` before
 switching to one of them. `requirements.txt` pins `anthropic<1`: from
 1.0 the Python SDK no longer accepts `temperature`, and 2.0 moves to API
 version 2026-10-21, which rejects it on every model.
+
+**The Docker image ignores `requirements.txt`.** The `Dockerfile`
+installs its own pinned list (Evennia, django-allauth 65.18.0, psycopg2,
+dj-database-url), and it doesn't include `anthropic`. Production and uat
+run NPCs on Groq (`NPC_LLM_MODEL=openai/gpt-oss-120b`), which uses plain
+HTTP and needs no SDK. Before switching an environment to Anthropic, add
+`"anthropic>=0.69,<1"` to the Dockerfile's `pip install` line; until
+then, Anthropic calls fail at import and NPCs give canned lines (nothing
+is charged).
 
 ## Owner steps (outside the code)
 

@@ -257,18 +257,21 @@ if _allauth_available:
     ACCOUNT_RATE_LIMITS = {
         "reset_password": "10/h/ip,3/h/key",
         "signup": "5/h/ip",
+        # Adding / re-sending addresses from the account email page.
+        "manage_email": "3/h/user,6/d/user",
     }
-    # Client IP for those rate limits. Deployed requests pass through two
-    # proxies we trust: Railway's edge (sets X-Forwarded-For to the
-    # client) and the nginx in this container (appends the edge's
-    # address), so the client is the second entry from the right.
-    # Locally there is no proxy. Override with ALLAUTH_TRUSTED_PROXY_COUNT.
-    try:
-        ALLAUTH_TRUSTED_PROXY_COUNT = int(os.environ.get(
-            "ALLAUTH_TRUSTED_PROXY_COUNT",
-            "2" if os.environ.get("RAILWAY_ENVIRONMENT_NAME") else "0"))
-    except ValueError:
-        ALLAUTH_TRUSTED_PROXY_COUNT = 0
+    # One address to verify plus one to switch to.
+    ACCOUNT_MAX_EMAIL_ADDRESSES = 2
+    # Client IP for those rate limits. On Railway, the edge proxy sets
+    # X-Real-IP to the connecting client; the nginx in this container
+    # passes it through unchanged (start.sh). Locally there is no proxy,
+    # so REMOTE_ADDR is used. Override with ALLAUTH_TRUSTED_CLIENT_IP_HEADER
+    # (empty = none). Check on uat with LOG_CLIENT_IP_HEADERS=1, which logs
+    # both headers once (web/allauth_adapters.py).
+    ALLAUTH_TRUSTED_CLIENT_IP_HEADER = os.environ.get(
+        "ALLAUTH_TRUSTED_CLIENT_IP_HEADER",
+        "X-Real-IP" if os.environ.get("RAILWAY_ENVIRONMENT_NAME") else "",
+    ) or None
     # Only log in / connect a Google account to an existing local account
     # by email when that local address is VERIFIED (see the adapter).
     SOCIALACCOUNT_ADAPTER = "web.allauth_adapters.SocialAccountAdapter"

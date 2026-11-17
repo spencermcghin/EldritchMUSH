@@ -82,18 +82,27 @@ http {
             proxy_set_header Host \$host;
             proxy_set_header X-Forwarded-Proto \$scheme;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            # Railway's edge sets X-Real-IP to the client; pass it on
+            # unchanged (allauth's per-IP rate limits read it).
+            proxy_set_header X-Real-IP \$http_x_real_ip;
         }
         location /accounts {
             proxy_pass http://127.0.0.1:4001;
             proxy_set_header Host \$host;
             proxy_set_header X-Forwarded-Proto \$scheme;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            # Railway's edge sets X-Real-IP to the client; pass it on
+            # unchanged (allauth's per-IP rate limits read it).
+            proxy_set_header X-Real-IP \$http_x_real_ip;
         }
         location /api {
             proxy_pass http://127.0.0.1:4001;
             proxy_set_header Host \$host;
             proxy_set_header X-Forwarded-Proto \$scheme;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            # Railway's edge sets X-Real-IP to the client; pass it on
+            # unchanged (allauth's per-IP rate limits read it).
+            proxy_set_header X-Real-IP \$http_x_real_ip;
         }
         location /static {
             proxy_pass http://127.0.0.1:4001;

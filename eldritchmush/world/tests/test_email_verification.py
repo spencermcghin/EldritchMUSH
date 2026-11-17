@@ -340,9 +340,8 @@ class ResendBackendTests(SimpleTestCase):
                              connection=quiet).send(), 0)
 
 
-class SharedMailQuotaTests(SimpleTestCase):
-    """world.email.send_email_result: one daily + hourly cap for all mail,
-    saved on the volume, failing closed."""
+class _MailQuotaBase(SimpleTestCase):
+    """Temp volume, a fake Resend key and a fake urlopen."""
 
     def setUp(self):
         import tempfile
@@ -384,6 +383,11 @@ class SharedMailQuotaTests(SimpleTestCase):
 
     def _send(self, to="p@example.com"):
         return self.wemail.send_email_result(to, "s", "<p>b</p>")
+
+
+class SharedMailQuotaTests(_MailQuotaBase):
+    """world.email.send_email_result: one daily + hourly cap for all mail,
+    saved on the volume, failing closed."""
 
     def test_daily_cap_with_admin_reserve(self):
         os.environ["EMAIL_DAILY_LIMIT"] = "7"  # 2 for players, 5 reserved
@@ -438,7 +442,28 @@ class AllauthMailSettingsTests(SimpleTestCase):
         self.assertEqual(rls["reset_password"], "10/h/ip,3/h/key")
         self.assertEqual(rls["signup"], "5/h/ip")
         self.assertEqual(rls["login"], "30/m/ip")  # defaults kept
-        self.assertEqual(settings.ALLAUTH_TRUSTED_PROXY_COUNT, 0)  # local
+        self.assertEqual(rls["manage_email"], "3/h/user,6/d/user")
+        self.assertEqual(settings.ACCOUNT_MAX_EMAIL_ADDRESSES, 2)
+        self.assertIsNone(settings.ALLAUTH_TRUSTED_CLIENT_IP_HEADER)  # local
+
+    def test_client_ip_falls_back_and_logs_once(self):
+        from django.test import RequestFactory
+        from web import allauth_adapters
+        allauth_adapters._IP_LOGGED["done"] = False
+        req = RequestFactory().get("/", HTTP_X_FORWARDED_FOR="1.2.3.4",
+                                   HTTP_X_REAL_IP="5.6.7.8",
+                                   REMOTE_ADDR="10.0.0.1")
+        adapter = allauth_adapters.AccountAdapter()
+        with override_settings(ALLAUTH_TRUSTED_CLIENT_IP_HEADER="X-Real-IP"), \
+                mock.patch.dict(os.environ, {"LOG_CLIENT_IP_HEADERS": "1"}), \
+                mock.patch("builtins.print") as pr:
+            self.assertEqual(adapter.get_client_ip(req), "5.6.7.8")
+            adapter.get_client_ip(req)
+            no_header = RequestFactory().get("/", REMOTE_ADDR="10.0.0.2")
+            self.assertEqual(adapter.get_client_ip(no_header), "10.0.0.2")
+        logged = [c for c in pr.call_args_list if "X-Real-IP='5.6.7.8'" in str(c)]
+        self.assertEqual(len(logged), 1)
+        self.assertIn("X-Forwarded-For='1.2.3.4'", str(logged[0]))
 
 
 class GoogleEmailAuthenticationTests(EvenniaTest):
@@ -527,3 +552,94 @@ class GoogleEmailAuthenticationTests(EvenniaTest):
         login = self._login()
         login._lookup_by_email()
         self.assertEqual(login.user.id, self.account.id)
+
+
+class QuotaCorruptionRecoveryTests(_MailQuotaBase):
+
+    def test_corrupt_file_rewritten_as_full_then_resumes_next_day(self):
+        import json
+        path = os.path.join(self.tmp, "mail_quota.json")
+        with open(path, "w") as fp:
+            fp.write("{nope")
+        self.assertEqual(self._send(), (False, "store_error"))
+        with open(path) as fp:
+            data = json.load(fp)
+        self.assertEqual(data["count"], self.wemail.mail_daily_limit())
+        # Rest of today: full, even for admin mail.
+        self.assertEqual(self._send(), (False, "daily_cap"))
+        self.assertEqual(self.posts, [])
+        # Next UTC day: mail resumes.
+        with mock.patch.object(self.wemail.time, "strftime",
+                               return_value="2999-01-01"):
+            self.assertEqual(self._send(), (True, None))
+
+    def test_admin_mail_skips_hourly_cap(self):
+        os.environ["EMAIL_HOURLY_LIMIT"] = "1"
+        self.assertEqual(self._send(), (True, None))
+        self.assertEqual(self._send(), (False, "hourly_cap"))
+        self.assertEqual(self._send(self.wemail.ADMIN_EMAIL), (True, None))
+
+    def test_hourly_cap_alerts(self):
+        from world import telemetry
+        os.environ["EMAIL_HOURLY_LIMIT"] = "0"
+        self._send()
+        kinds = [c.args[0] for c in telemetry.alert.call_args_list]
+        self.assertIn("email_hourly_cap", kinds)
+
+    def test_lock_file_used(self):
+        self._send()
+        self.assertTrue(os.path.exists(
+            os.path.join(self.tmp, "mail_quota.lock")))
+
+
+class AllauthPagesSurviveMailFailureTests(EvenniaTest):
+    """When mail can't be sent, allauth pages carry on with a warning
+    instead of a 500."""
+
+    def setUp(self):
+        super().setUp()
+        self._env = mock.patch.dict(os.environ, {
+            "SITE_BASE_URL": "https://game.example.test"})
+        self._env.start()
+        from world.email import EmailNotSent
+        self._send = mock.patch(
+            "django.core.mail.EmailMultiAlternatives.send",
+            side_effect=EmailNotSent("daily_cap"))
+        self._send.start()
+
+    def tearDown(self):
+        self._send.stop()
+        self._env.stop()
+        super().tearDown()
+
+    def _messages(self, resp):
+        from django.contrib.messages import get_messages
+        return [str(m) for m in get_messages(resp.wsgi_request)]
+
+    def test_signup(self):
+        from django.contrib.auth import get_user_model
+        from web.allauth_adapters import MAIL_FAILED_TEXT
+        resp = self.client.post("/accounts/signup/", {
+            "email": "newplayer@example.com", "username": "newplayer",
+            "password1": "a-long-test-password-123",
+            "password2": "a-long-test-password-123"})
+        self.assertEqual(resp.status_code, 302, getattr(resp, "content", b"")[:500])
+        user = get_user_model().objects.get(username="newplayer")
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
+        msgs = self._messages(resp)
+        self.assertIn(MAIL_FAILED_TEXT, msgs)
+        self.assertFalse(any("sent" in m.lower() and "confirm" in m.lower()
+                             for m in msgs if m != MAIL_FAILED_TEXT))
+
+    def test_password_reset(self):
+        from allauth.account.models import EmailAddress
+        from web.allauth_adapters import MAIL_FAILED_TEXT
+        self.account.email = "player.one@example.com"
+        self.account.save()
+        EmailAddress.objects.create(user=self.account,
+                                    email="player.one@example.com",
+                                    verified=True, primary=True)
+        resp = self.client.post("/accounts/password/reset/",
+                                {"email": "player.one@example.com"})
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(MAIL_FAILED_TEXT, self._messages(resp))

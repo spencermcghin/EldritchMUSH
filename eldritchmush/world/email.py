@@ -40,7 +40,9 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "contact@eldritchmush.com")
 # redeploys keep it, and it FAILS CLOSED: if the file can't be read or
 # written (or a deployed environment has no volume), nothing is sent.
 # The last MAIL_ADMIN_RESERVE slots of the day are kept for mail to
-# ADMIN_EMAIL, so a flood of sign-up mail can't silence the admin alerts.
+# ADMIN_EMAIL, and admin mail skips the hourly cap, so a flood of sign-up
+# mail can't silence the admin alerts. A flock on mail_quota.lock guards
+# the read-modify-write; a corrupt file is rewritten as "today is full".
 # Counts recipients (to + cc + bcc), which is how Resend counts.
 MAIL_ADMIN_RESERVE = 5
 _QUOTA_LOCK = threading.Lock()
@@ -79,55 +81,121 @@ def _quota_file():
     return "/tmp/mail_quota.json"
 
 
+class _CorruptQuota(ValueError):
+    pass
+
+
 def _read_quota(path):
-    """Today's quota record. Missing file = fresh. Raises on a bad file."""
+    """Today's quota record. Missing file = fresh. Raises _CorruptQuota on
+    a file that can't be parsed, OSError on one that can't be read."""
     today = time.strftime("%Y-%m-%d", time.gmtime())
     try:
         with open(path, "r", encoding="utf-8") as fp:
-            data = json.load(fp)
+            raw = fp.read()
     except FileNotFoundError:
-        data = {}
-    if not isinstance(data, dict):
-        raise ValueError("mail quota file is not a JSON object")
-    now = time.time()
-    hour = [float(t) for t in data.get("hour", []) if now - float(t) < 3600]
+        raw = ""
+    try:
+        data = json.loads(raw) if raw.strip() else {}
+        if not isinstance(data, dict):
+            raise ValueError("not a JSON object")
+        now = time.time()
+        hour = [float(t) for t in data.get("hour", [])
+                if now - float(t) < 3600]
+        count = int(data.get("count") or 0)
+    except Exception as exc:
+        raise _CorruptQuota(str(exc))
     if data.get("day") != today:
         return {"day": today, "count": 0, "hour": hour}
-    return {"day": today, "count": int(data.get("count") or 0), "hour": hour}
+    return {"day": today, "count": count, "hour": hour}
 
 
 def _write_quota(path, data):
-    tmp = f"{path}.tmp"
-    with open(tmp, "w", encoding="utf-8") as fp:
-        json.dump(data, fp)
-        fp.flush()
-        os.fsync(fp.fileno())
-    os.replace(tmp, path)
+    """Atomic write: a temp file in the same directory, then rename."""
+    import tempfile
+    fd, tmp = tempfile.mkstemp(prefix=".mail_quota.", suffix=".tmp",
+                               dir=os.path.dirname(path) or ".")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fp:
+            json.dump(data, fp)
+            fp.flush()
+            os.fsync(fp.fileno())
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+class _QuotaLock:
+    """Thread lock plus an flock on mail_quota.lock beside the store, so
+    read-modify-write is safe across threads and processes."""
+
+    def __init__(self, path):
+        self.lock_path = os.path.join(os.path.dirname(path) or ".",
+                                      "mail_quota.lock")
+        self.fp = None
+
+    def __enter__(self):
+        _QUOTA_LOCK.acquire()
+        try:
+            import fcntl
+            self.fp = open(self.lock_path, "a")
+            fcntl.flock(self.fp.fileno(), fcntl.LOCK_EX)
+        except Exception:
+            if self.fp:
+                self.fp.close()
+            self.fp = None
+            _QUOTA_LOCK.release()
+            raise
+        return self
+
+    def __exit__(self, *exc):
+        try:
+            import fcntl
+            fcntl.flock(self.fp.fileno(), fcntl.LOCK_UN)
+            self.fp.close()
+        finally:
+            _QUOTA_LOCK.release()
+        return False
 
 
 def _reserve(n, to_admin):
-    """Take n slots. Returns None on success, else the refusal reason."""
+    """Take n slots. Returns None on success, else the refusal reason.
+
+    Mail to ADMIN_EMAIL may use the last MAIL_ADMIN_RESERVE daily slots
+    and isn't held to the hourly cap. A corrupt store refuses this send
+    and is rewritten as "today is full", so mail resumes next UTC day."""
     path = _quota_file()
     if not path:
         return "store_error"
-    with _QUOTA_LOCK:
-        try:
-            data = _read_quota(path)
+    try:
+        with _QuotaLock(path):
+            try:
+                data = _read_quota(path)
+            except _CorruptQuota as exc:
+                print(f"[email] MAIL QUOTA FILE CORRUPT ({exc}); not "
+                      f"sending, and treating today as full", flush=True)
+                _write_quota(path, {
+                    "day": time.strftime("%Y-%m-%d", time.gmtime()),
+                    "count": mail_daily_limit(), "hour": []})
+                return "store_error"
             limit = mail_daily_limit()
             if not to_admin:
                 limit = max(0, limit - MAIL_ADMIN_RESERVE)
             if data["count"] + n > limit:
                 return "daily_cap"
-            if len(data["hour"]) + n > mail_hourly_limit():
+            if not to_admin and len(data["hour"]) + n > mail_hourly_limit():
                 return "hourly_cap"
             data["count"] += n
             data["hour"].extend([time.time()] * n)
             _write_quota(path, data)
             return None
-        except Exception as exc:
-            print(f"[email] MAIL QUOTA STORE FAILED, not sending: "
-                  f"{type(exc).__name__}: {exc}", flush=True)
-            return "store_error"
+    except Exception as exc:
+        print(f"[email] MAIL QUOTA STORE FAILED, not sending: "
+              f"{type(exc).__name__}: {exc}", flush=True)
+        return "store_error"
 
 
 def _release(n):
@@ -135,14 +203,14 @@ def _release(n):
     path = _quota_file()
     if not path:
         return
-    with _QUOTA_LOCK:
-        try:
+    try:
+        with _QuotaLock(path):
             data = _read_quota(path)
             data["count"] = max(0, data["count"] - n)
             data["hour"] = data["hour"][:-n] if n else data["hour"]
             _write_quota(path, data)
-        except Exception:
-            pass
+    except Exception:
+        pass
 
 
 def _as_list(value):
@@ -177,15 +245,23 @@ def send_email_result(to, subject, html_body, text_body=None,
     if refused:
         diag_write("EMAIL BLOCKED", reason=refused, subject=subject)
         print(f"[email] not sent ({refused}): {subject}", flush=True)
-        if refused == "daily_cap" and not to_admin:
+        if refused in ("daily_cap", "hourly_cap") and not to_admin:
             try:
                 from world import telemetry
-                telemetry.alert(
-                    "email_daily_cap",
-                    f"Daily email cap reached ({mail_daily_limit()})",
-                    "Verification and other player emails stop until UTC "
-                    "midnight. Raise EMAIL_DAILY_LIMIT only if the Resend "
-                    "plan allows it.")
+                if refused == "daily_cap":
+                    telemetry.alert(
+                        "email_daily_cap",
+                        f"Daily email cap reached ({mail_daily_limit()})",
+                        "Verification and other player emails stop until "
+                        "UTC midnight. Raise EMAIL_DAILY_LIMIT only if the "
+                        "Resend plan allows it.")
+                else:
+                    telemetry.alert(
+                        "email_hourly_cap",
+                        f"Hourly email cap reached ({mail_hourly_limit()})",
+                        "Player emails pause until the rolling hour frees "
+                        "up. A burst like this can mean someone is "
+                        "triggering emails on purpose.")
             except Exception:
                 pass
         return False, refused
