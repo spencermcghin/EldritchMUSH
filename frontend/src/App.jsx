@@ -37,6 +37,7 @@ import CombatEncounterHost from './components/CombatEncounterHost'
 import SealAltarModal from './components/SealAltarModal'
 import NpcDialoguePanel from './components/NpcDialoguePanel'
 import CommandPrompt from './components/CommandPrompt'
+import VerifyEmailBanner from './components/VerifyEmailBanner'
 import { PROMPTS, getPromptForCommand } from './data/commandPrompts'
 import './App.css'
 
@@ -703,6 +704,15 @@ function App() {
             }}
           />
         </div>
+      )}
+
+      {/* Email verification prompt for unverified password players. */}
+      {isConnected && !oobState.atCharacterSelect && !oobState.inChargen
+        && oobState.verifyNeeded && (
+        <VerifyEmailBanner
+          emailOnFile={oobState.emailOnFile}
+          sendCommand={sendCommand}
+        />
       )}
 
       {/* Inspect inline panel is rendered INSIDE RoomView via the

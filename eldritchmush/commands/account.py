@@ -174,3 +174,31 @@ class CmdCharCreate(default_account.CmdCharCreate):
             "dbref": "#%i" % new_character.id,
         })
         _diag(f"success path complete for {new_character.key}")
+
+
+class CmdVerify(default_account.COMMAND_DEFAULT_CLASS):
+    """
+    Verify your email address.
+
+    Usage:
+      verify
+      verify <email address>
+
+    Sends a verification link to the email address on your account, or
+    to a new address you give. Open the link to finish. NPCs only give
+    short stock replies until your email is verified (or you sign in
+    with Google).
+    """
+
+    key = "verify"
+    aliases = ["verifyemail"]
+    locks = "cmd:all()"
+    help_category = "General"
+    account_caller = True
+
+    def func(self):
+        from world import email_verification
+        account = self.account or self.caller
+        email = (self.args or "").strip() or None
+        email_verification.request_verification(
+            account, email=email, reply=self.msg)

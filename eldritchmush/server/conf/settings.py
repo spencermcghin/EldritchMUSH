@@ -239,8 +239,19 @@ if _allauth_available:
         "allauth.account.auth_backends.AuthenticationBackend",
     ]
 
-    # Allauth account behavior
-    ACCOUNT_EMAIL_VERIFICATION = "none"
+    # Allauth account behavior.
+    # "optional": new sign-ups get a verification email, but nobody is
+    # locked out while unverified (existing players keep logging in).
+    # A verified email (or a Google sign-in) is what unlocks AI NPC chat;
+    # see world/email_verification.py and the in-game `verify` command.
+    ACCOUNT_EMAIL_VERIFICATION = "optional"
+    ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+    ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
+    ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
+    ACCOUNT_ADAPTER = "web.allauth_adapters.AccountAdapter"
+    # Only log in / connect a Google account to an existing local account
+    # by email when that local address is VERIFIED (see the adapter).
+    SOCIALACCOUNT_ADAPTER = "web.allauth_adapters.SocialAccountAdapter"
     ACCOUNT_LOGIN_METHODS = {"username", "email"}
     ACCOUNT_SIGNUP_FIELDS = ["email*", "username*"]
     SOCIALACCOUNT_AUTO_SIGNUP = True
@@ -248,7 +259,10 @@ if _allauth_available:
     # A verified Google email that matches an EXISTING local account
     # logs straight into that account instead of bouncing the user to
     # the "complete sign up" interstitial (the email-collision case:
-    # e.g. the seeded admin account shares the owner's gmail).
+    # e.g. the seeded admin account shares the owner's gmail). Only when
+    # the local address is verified: SocialAccountAdapter enforces that,
+    # so a password account registered with someone else's Gmail can't
+    # capture their Google sign-in.
     SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
     SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
     # Force allauth to build callback URLs with https://. Twisted's
@@ -286,6 +300,13 @@ if _allauth_available:
             "AUTH_PARAMS": {"access_type": "online"},
         },
     }
+
+######################################################################
+# Outgoing email (allauth verification links, Django mail) goes through
+# the game's Resend setup (world/email.py, RESEND_API_KEY).
+######################################################################
+EMAIL_BACKEND = "world.email_backend.ResendEmailBackend"
+DEFAULT_FROM_EMAIL = "EldritchMUSH <noreply@eldritchmush.com>"
 
 ######################################################################
 # Prototype modules scanned by @spawn / the spawner. Evennia's default

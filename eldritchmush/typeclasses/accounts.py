@@ -122,6 +122,20 @@ class Account(DefaultAccount):
             return False
         return True
 
+    # ── Email verification note ─────────────────────────────────────
+
+    def at_post_login(self, session=None, **kwargs):
+        """After login, tell an unverified password player that NPCs give
+        stock replies until they verify, and how (`verify`)."""
+        super().at_post_login(session=session, **kwargs)
+        try:
+            from world import email_verification
+            note = email_verification.login_note(self)
+            if note:
+                self.msg(note, session=session)
+        except Exception as exc:
+            print(f"[accounts] verify note failed: {exc!r}", flush=True)
+
     # ── Puppet gate ──────────────────────────────────────────────────
 
     def puppet_object(self, session, obj):

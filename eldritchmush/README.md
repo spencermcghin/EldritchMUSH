@@ -50,29 +50,70 @@ call a paid LLM: Anthropic Claude or Groq. The code lives in
 ## Limits, in the order they apply
 
 1. **Verified accounts only.** An account needs a verified email address
-   or a Google sign-in (or superuser status) before chat or the fortune
-   cabinet reach the model. Every other account gets canned NPC lines and
-   canned fortunes. Email/password sign-ups have no verification email
-   today, so in practice that means Google. An admin can mark an address
-   verified in Django admin (Accounts → Email addresses), and a player can
-   sign in with Google using the same email address to link it.
+   or a Google sign-in (or superuser status) before chat, the fortune
+   cabinet or the Adjudicator's letters reach the model. Every other
+   account gets canned NPC lines, canned fortunes and canned letters,
+   plus the hint "Verify your email to talk with NPCs. Check your inbox or
+   type `verify`." See "Email verification" below.
 2. **Per account:** 100 AI calls an hour across all of the account's
    characters, chat and fortune pulls together.
 3. **Per character per NPC:** 30 messages an hour; fortune pulls have a
    120-second cooldown per character.
-4. **Global:** 300 AI calls an hour across every account and the
-   scheduled jobs.
+4. **Global:** 300 provider calls an hour across every account and the
+   scheduled jobs. Each request counts, including moderation and each
+   fallback-model attempt, and the slot is taken just before the request
+   goes out.
 5. **Daily budget:** $5.00 a day (UTC). Each call is priced at the rates
    of the model that actually ran (input, output, cache write and cache
    read tokens), from the table in `world/ai_pricing.py`. Moderation calls
-   count too. When the budget is used up, NPCs give canned lines until
-   UTC midnight and the admin gets one email.
+   count too. A request that times out or fails after it was sent is
+   charged as a large prompt plus a full-length reply, since the provider
+   may have billed it; a plain rejection (400, 401, 403, 404, 429) is not
+   charged. The budget is checked again just before every request
+   (including between fallback attempts), and the Anthropic client makes
+   no automatic retries, so nothing slips past it. When the budget is
+   used up, NPCs give canned lines until UTC midnight and the admin gets
+   one email.
 
 The daily total is saved after every call to `llm_spend.json` on the
 Railway volume (`$RAILWAY_VOLUME_MOUNT_PATH`), so reloads, restarts and
 redeploys keep it. `start.sh` will not boot a deployed environment
 without the volume. If the file can't be read or written, the budget
 counts as used up (canned lines, admin email) until it works again.
+The counter assumes a single game process writes it (Evennia's Server
+process). Don't run two game servers against the same volume: each
+would keep its own total and overwrite the other's file.
+
+Admin alert emails go out on a background thread and at most once per
+6 hours per kind; the `ALERT` log line is printed only when an email is
+actually sent.
+
+## Email verification
+
+- New sign-ups through the web form get a verification email
+  (`ACCOUNT_EMAIL_VERIFICATION = "optional"`: nobody is locked out while
+  unverified). Google sign-ins count as verified.
+- In the game, `verify` sends a link to the address on the account, and
+  `verify you@example.com` sets a new address and sends a link to it.
+  Unverified players see a note at login and, in the web client, a
+  "Send me a verification link" box. Limits: one email per account every
+  10 minutes, 5 a day, and 60 an hour for the whole game.
+- Emails go through Resend (`RESEND_API_KEY`), from
+  `noreply@eldritchmush.com`. Links point at `SITE_BASE_URL`, which
+  defaults to `https://eldritchmush.com` on production,
+  `https://uat.eldritchmush.com` on uat and `http://localhost:4001`
+  locally. Set it if a host differs.
+- An admin can also mark an address verified in Django admin (Accounts →
+  Email addresses).
+- One-off backfill for existing accounts (not run automatically): from
+  `eldritchmush/` inside the deployed container,
+  `python scripts/send_verification_emails.py` lists who would get an
+  email; add `--send` to send (default at most 50 per run, 1 second
+  apart; each account gets one backfill email at most). Resend's free
+  plan allows 100 emails a day.
+- Google sign-in only logs into, or links to, an existing password
+  account with the same email when that account's address is verified.
+  An unverified password account can't capture someone's Google login.
 
 ## Environment variables
 
@@ -94,9 +135,21 @@ counts as used up (canned lines, admin email) until it works again.
 | `NPC_MODERATE_API_KEY` | none | Groq key for moderation. Required: the main `NPC_LLM_API_KEY` is never sent to the moderation provider. With moderation on and no key, moderation stays off and a warning is logged. |
 | `NPC_MODERATE_BASE_URL` | `https://api.groq.com/openai/v1` | Moderation endpoint. |
 | `NPC_LLM_MODERATE_MODEL` | `llama-guard-4-12b` | Must have a price row, or moderation stays off. |
+| `SITE_BASE_URL` | per environment (see "Email verification") | Host used in verification links. |
+| `RESEND_API_KEY` | none | Sends verification and alert emails. Without it, emails are logged and skipped. |
 
 To use a model that isn't in `world/ai_pricing.py`, add its row first,
 with the provider's current published price.
+
+**Temperature.** The NPC code sends `temperature` (0.85 to 1.0) with
+every call. These listed models reject a non-default temperature with
+HTTP 400, so NPCs would only give canned lines on them:
+`claude-haiku-5-5`, `claude-sonnet-5`, `claude-sonnet-5-5`,
+`claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5`, `claude-opus-5-5`.
+Remove `temperature` from the calls in `world/ai_npc.py` before
+switching to one of them. (From Anthropic API version 2026-10-21, every
+model rejects it; the installed SDK version decides which API version is
+sent.)
 
 ## Owner steps (outside the code)
 

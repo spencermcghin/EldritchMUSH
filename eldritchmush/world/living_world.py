@@ -256,8 +256,10 @@ def _schedule_letter(char, index):
 
 def deliver_letter(char, index):
     """Generate + spawn letter *index* into the player's inventory,
-    then schedule the next. Called by AdjudicatorLetterScript."""
-    from world import ai_npc
+    then schedule the next. Called by AdjudicatorLetterScript.
+    Only an account with a verified email or Google sign-in gets an AI
+    letter; others get the canned letter, with no AI call."""
+    from world import ai_npc, ai_safety
 
     def _on_reply(text, char=char, index=index):
         try:
@@ -278,6 +280,11 @@ def deliver_letter(char, index):
                      f"factions of the Annwyn (notably {worst}).")
     except Exception:
         pass
+    if not ai_safety.account_ai_eligible(
+            ai_safety.account_for_character(char)):
+        _on_reply(None)
+        return
+
     user_text = (
         f"Write letter number {index + 1} of 3 to the mortal "
         f"'{char.key}', who ate a sacred fae mushroom at the Thornwood "
@@ -443,6 +450,8 @@ def true_fortune(char, on_reply):
     account = getattr(char, "account", None)
     if not ai_safety.account_ai_eligible(account):
         _wrap(None)
+        from world import email_verification
+        email_verification.send_hint(char)
         return
     acct_ok, _retry = ai_safety.check_account_rate(account)
     if not acct_ok:

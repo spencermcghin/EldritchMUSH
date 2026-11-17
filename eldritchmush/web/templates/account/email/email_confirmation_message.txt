@@ -1,0 +1,11 @@
+{% autoescape off %}Hello{% if account_name %} {{ account_name }}{% endif %},
+
+Someone, probably you, asked to verify this email address for an EldritchMUSH account. Open this link to finish:
+
+{{ activate_url }}
+
+The link expires in 3 days. Once your email is verified, NPCs in the game will talk with you.
+
+If you didn't ask for this, you can ignore this email. Nothing changes unless the link is opened.
+
+EldritchMUSH{% endautoescape %}

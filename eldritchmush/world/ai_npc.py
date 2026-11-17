@@ -41,8 +41,11 @@ Env vars:
                         survives reloads, restarts and redeploys; if that
                         file can't be read or written, the budget is
                         treated as exhausted.
-    NPC_LLM_GLOBAL_HOURLY_LIMIT — AI calls per rolling hour across ALL
-                        accounts and world systems (default 300).
+    NPC_LLM_GLOBAL_HOURLY_LIMIT — provider requests per rolling hour across
+                        ALL accounts and world systems (default 300).
+                        Moderation and every fallback attempt count; the
+                        slot is taken in begin_call(), just before each
+                        request, which also re-checks the daily budget.
     NPC_AI_REQUIRE_VERIFIED — "1" (default): only accounts with a verified
                         email or a Google sign-in get AI chat and AI
                         fortunes; others get canned lines. "0" turns the
@@ -171,7 +174,10 @@ def _fallback_line(npc):
 # loops and hostile traffic, not against precise budget drift.
 #
 # Persistence: $RAILWAY_VOLUME_MOUNT_PATH/llm_spend.json, written
-# atomically (temp file + rename) after every charge. start.sh refuses to
+# atomically (temp file + rename) after every charge. The counter assumes
+# ONE writer process (Evennia's Server process; the Portal makes no AI
+# calls). Two game processes sharing the volume would each keep their own
+# in-memory total and overwrite each other's file. start.sh refuses to
 # boot a deployed environment without the volume, so the counter
 # survives reloads, restarts and redeploys. If the store can't be read
 # (corrupt or unreadable file, or a deployed environment with no volume)
@@ -211,8 +217,8 @@ def _spend_file():
 
 def _store_failed(reason):
     """Mark the store broken (budget reads as exhausted). Caller holds
-    _SPEND_LOCK, so the alert goes out on its own thread: alert() builds a
-    telemetry snapshot that takes _SPEND_LOCK and would deadlock here."""
+    _SPEND_LOCK; that is safe because telemetry.alert() builds its
+    snapshot (which takes _SPEND_LOCK) on its own email thread."""
     first = _STORE["ok"]
     _STORE.update(ok=False, error=reason)
     if first:
@@ -220,15 +226,11 @@ def _store_failed(reason):
               f"{reason}", flush=True)
         try:
             from world import telemetry
-            threading.Thread(
-                target=telemetry.alert,
-                args=("llm_spend_store_failed",
-                      "LLM spend store unavailable; AI calls blocked",
-                      f"{reason}. NPCs serve canned lines until "
-                      f"llm_spend.json on the volume can be read and "
-                      f"written."),
-                daemon=True,
-            ).start()
+            telemetry.alert(
+                "llm_spend_store_failed",
+                "LLM spend store unavailable; AI calls blocked",
+                f"{reason}. NPCs serve canned lines until llm_spend.json "
+                f"on the volume can be read and written.")
         except Exception:
             pass
 
@@ -405,6 +407,51 @@ def _global_rate_ok():
         except Exception:
             pass
     return not full
+
+
+class AICallRefused(Exception):
+    """Raised by begin_call() when a provider call must not be made.
+    reason is "budget_exhausted" or "global_rate_limited"."""
+
+    def __init__(self, reason):
+        super().__init__(reason)
+        self.reason = reason
+
+
+def begin_call():
+    """Gate EVERY provider request (chat, world systems, each fallback
+    attempt, moderation): the daily budget must have room, then one slot
+    of the global hourly cap is taken. Raises AICallRefused otherwise."""
+    if not _spend_ok():
+        try:
+            from world import telemetry
+            telemetry.incr("llm.budget_blocked")
+        except Exception:
+            pass
+        raise AICallRefused("budget_exhausted")
+    if not _global_rate_ok():
+        raise AICallRefused("global_rate_limited")
+
+
+# Errors that mean the provider rejected the request before doing any
+# billable work. Everything else after a request was sent (timeouts,
+# dropped connections, 5xx) is charged at the missing-usage estimate,
+# because the provider may have run (and billed) it anyway.
+_UNBILLED_HTTP_CODES = (400, 401, 403, 404, 409, 413, 422, 429)
+
+
+def _anthropic_error_unbilled(exc):
+    code = getattr(exc, "status_code", None)
+    return code in _UNBILLED_HTTP_CODES
+
+
+def _charge_failed_attempt(model, max_tokens, input_tokens=None):
+    """Charge one attempt that may have been billed but returned no usage."""
+    try:
+        return charge(model, input_tokens or _MISSING_USAGE_INPUT_TOKENS,
+                      max_tokens)
+    except Exception:
+        return 0.0
 
 
 # Restore today's accumulated spend from the volume at import so a reload
@@ -1010,7 +1057,9 @@ def _anthropic_client():
             _ANTH_CLIENT = anthropic.Anthropic(
                 api_key=_env("NPC_LLM_API_KEY"),
                 timeout=float(_env("NPC_LLM_TIMEOUT", DEFAULT_TIMEOUT)),
-                max_retries=1,
+                # No SDK-side retries: every attempt must pass begin_call()
+                # and be charged, and hidden retries would bypass both.
+                max_retries=0,
             )
         return _ANTH_CLIENT
 
@@ -1038,9 +1087,8 @@ def _call_anthropic(npc, character, message):
     client = _anthropic_client()
     model = _model()
     max_tokens = int(_env("NPC_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS))
-    resp = client.messages.create(
-        model=model,
-        max_tokens=max_tokens,
+    resp = _anthropic_create(
+        client, model, max_tokens,
         temperature=0.85,
         system=system,
         messages=messages,
@@ -1143,23 +1191,39 @@ def _openai_chat(messages, max_tokens, temperature):
                 "User-Agent": "EldritchMUSH/1.0",
             },
         )
+        # Budget + global cap are re-checked before EVERY attempt, so a
+        # fallback walk can't run past an exhausted budget.
+        begin_call()
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            _charge_openai_usage(model, data.get("usage"), max_tokens)
-            reply = (data["choices"][0]["message"].get("content") or "").strip()
-            if not reply:
-                raise RuntimeError(f"empty content from {model}")
+                raw = resp.read()
         except urllib.error.HTTPError as exc:
+            if exc.code not in _UNBILLED_HTTP_CODES:
+                _charge_failed_attempt(model, max_tokens)
             if _model_gone(exc):
                 last_err = exc
                 print(f"[ai_npc] model {model!r} decommissioned; "
                       f"trying next fallback", flush=True)
                 continue
             raise
-        except RuntimeError as exc:
-            last_err = exc
-            print(f"[ai_npc] {exc}; trying next fallback", flush=True)
+        except Exception:
+            # Timeout or dropped connection after the request went out.
+            _charge_failed_attempt(model, max_tokens)
+            raise
+        try:
+            data = json.loads(raw.decode("utf-8"))
+        except Exception:
+            _charge_failed_attempt(model, max_tokens)
+            raise
+        _charge_openai_usage(model, data.get("usage"), max_tokens)
+        try:
+            reply = (data["choices"][0]["message"].get("content")
+                     or "").strip()
+        except (KeyError, IndexError, TypeError, AttributeError):
+            reply = ""
+        if not reply:
+            last_err = RuntimeError(f"empty content from {model}")
+            print(f"[ai_npc] {last_err}; trying next fallback", flush=True)
             continue
         if i > 0:
             # We're off the configured primary — surface it so the operator
@@ -1246,12 +1310,24 @@ def _anthropic_usage(resp, max_tokens):
     )
 
 
+def _anthropic_create(client, model, max_tokens, **kwargs):
+    """One gated, charged Anthropic request. begin_call() first; if the
+    request fails after it may have been sent, charge the estimate."""
+    begin_call()
+    try:
+        return client.messages.create(
+            model=model, max_tokens=max_tokens, **kwargs)
+    except Exception as exc:
+        if not _anthropic_error_unbilled(exc):
+            _charge_failed_attempt(model, max_tokens)
+        raise
+
+
 def _generate_anthropic(system_text, user_text, max_tokens, temperature):
     client = _anthropic_client()
     model = _model()
-    resp = client.messages.create(
-        model=model,
-        max_tokens=max_tokens,
+    resp = _anthropic_create(
+        client, model, max_tokens,
         temperature=temperature,
         system=[{"type": "text", "text": system_text,
                  "cache_control": {"type": "ephemeral"}}],
@@ -1302,14 +1378,15 @@ def generate_sync(system_text, user_text, max_tokens=400, temperature=0.9):
     """
     if not _enabled() or not _spend_ok():
         return None
-    if not _global_rate_ok():
-        return None
     try:
         if _provider() == "anthropic":
             return _generate_anthropic(
                 system_text, user_text, max_tokens, temperature)
         return _generate_openai(
             system_text, user_text, max_tokens, temperature)
+    except AICallRefused as exc:
+        print(f"[ai_npc.generate] skipped: {exc.reason}", flush=True)
+        return None
     except Exception as exc:
         try:
             from world import telemetry
@@ -1378,7 +1455,13 @@ def chat(npc, character, message, on_reply):
         ai_safety.audit_log(
             npc, character, clean_msg, reply, flags=["unverified_account"]
         )
-        _dispatch(on_reply, reply)
+
+        def _reply_then_hint(text, character=character):
+            on_reply(text)
+            from world import email_verification
+            email_verification.send_hint(character)
+
+        _dispatch(_reply_then_hint, reply)
         return
 
     banned_hit = ai_safety.check_banned(clean_msg)
@@ -1416,14 +1499,8 @@ def chat(npc, character, message, on_reply):
         _dispatch(on_reply, reply)
         return
 
-    # Defense layer 2c: global hourly cap across every account.
-    if _enabled() and not _global_rate_ok():
-        reply = _fallback_line(npc)
-        ai_safety.audit_log(
-            npc, character, clean_msg, reply, flags=["global_rate_limited"]
-        )
-        _dispatch(on_reply, reply)
-        return
+    # The global hourly cap (and a re-check of the budget) is applied by
+    # begin_call() just before each provider request, inside _run.
 
     print(
         f"[ai_npc.chat] start npc={getattr(npc,'key','?')!r} "
@@ -1457,9 +1534,15 @@ def chat(npc, character, message, on_reply):
                     _dispatch(on_reply, msg)
                     return
 
+                # Re-check the budget now that we hold the NPC lock: other
+                # calls may have spent it while this one was queued.
+                if not _spend_ok():
+                    raise AICallRefused("budget_exhausted")
+
                 # Defense layer 3: Llama Guard moderation (optional, gated
                 # by NPC_LLM_MODERATE=1). Extra API call but catches hate /
                 # violence / sexual content before the main LLM even sees it.
+                # It passes through begin_call() like any provider call.
                 mod_ok, mod_cat = ai_safety.check_moderation(clean_msg)
                 if not mod_ok:
                     refusal = ai_safety.canned_refusal(npc)
@@ -1473,6 +1556,11 @@ def chat(npc, character, message, on_reply):
                 reply = _call_llm(npc, character, clean_msg)
                 _save_history(npc, character, clean_msg, reply)
             ai_safety.audit_log(npc, character, clean_msg, reply, flags=[])
+            _dispatch(on_reply, reply)
+        except AICallRefused as exc:
+            reply = _fallback_line(npc)
+            ai_safety.audit_log(
+                npc, character, clean_msg, reply, flags=[exc.reason])
             _dispatch(on_reply, reply)
         except urllib.error.HTTPError as exc:
             try:

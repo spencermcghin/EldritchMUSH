@@ -315,11 +315,13 @@ class VerifiedAccountTests(_AIEnvMixin, EvenniaTest):
     def test_no_account_not_eligible(self):
         self.assertFalse(ai_safety.account_ai_eligible(None))
 
-    def test_unverified_chat_gets_canned_line_without_ai_call(self):
+    def test_unverified_chat_gets_canned_line_and_hint_without_ai_call(self):
+        from world import email_verification
         os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
         npc = SimpleNamespace(key="Gerald", id=99,
                               db=SimpleNamespace(body=None, bleed_points=None))
-        char = SimpleNamespace(key="Tester", id=7, account=self.account)
+        char = SimpleNamespace(key="Tester", id=7, account=self.account,
+                               msg=mock.Mock())
         replies = []
         with mock.patch.object(ai_npc, "_call_llm") as call_llm, \
                 mock.patch.object(ai_npc._EXECUTOR, "submit") as submit:
@@ -329,6 +331,8 @@ class VerifiedAccountTests(_AIEnvMixin, EvenniaTest):
         self.assertEqual(len(replies), 1)
         canned = [c.format(name="Gerald") for c in ai_npc.CANNED_FALLBACKS]
         self.assertIn(replies[0], canned)
+        char.msg.assert_called_once()
+        self.assertIn(email_verification.VERIFY_HINT, char.msg.call_args[0][0])
 
     def test_verified_chat_is_queued(self):
         os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
@@ -341,12 +345,44 @@ class VerifiedAccountTests(_AIEnvMixin, EvenniaTest):
         submit.assert_called_once()
 
     def test_unverified_fortune_is_canned(self):
-        char = SimpleNamespace(key="Tester", account=self.account)
+        char = SimpleNamespace(key="Tester", account=self.account,
+                               msg=mock.Mock())
         out = []
         with mock.patch.object(ai_npc, "generate") as gen:
             living_world.true_fortune(char, out.append)
         gen.assert_not_called()
         self.assertIn(out[0], living_world.FORTUNE_FALLBACKS)
+        char.msg.assert_called_once()
+
+    def _letter_char(self, account_for_lock):
+        return SimpleNamespace(
+            key="Thief", account=None,
+            locks=SimpleNamespace(
+                get=lambda k: (f"puppet:id(50) or pid({account_for_lock.id})"
+                               f" or perm(Developer)")),
+            db=SimpleNamespace(faction_rep={}))
+
+    def test_unverified_letter_is_canned(self):
+        char = self._letter_char(self.account)
+        with mock.patch.object(ai_npc, "generate") as gen, \
+                mock.patch.object(living_world, "_spawn_letter") as spawn, \
+                mock.patch.object(living_world, "_schedule_letter"):
+            living_world.deliver_letter(char, 0)
+        gen.assert_not_called()
+        body = spawn.call_args[0][2]
+        self.assertEqual(body,
+                         living_world._CANNED_LETTERS[0].format(name="Thief"))
+
+    def test_verified_letter_uses_ai_even_when_offline(self):
+        self._verify_email()
+        char = self._letter_char(self.account)  # not puppeted
+        self.assertEqual(ai_safety.account_for_character(char).id,
+                         self.account.id)
+        with mock.patch.object(ai_npc, "generate") as gen, \
+                mock.patch.object(living_world, "_spawn_letter"), \
+                mock.patch.object(living_world, "_schedule_letter"):
+            living_world.deliver_letter(char, 0)
+        gen.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
@@ -382,23 +418,120 @@ class GlobalHourlyCapTests(_AIEnvMixin, SimpleTestCase):
         self.assertEqual(client.messages.create.call_count, 1)
 
 
-class GlobalCapChatTests(_AIEnvMixin, EvenniaTest):
+class _InlineChatMixin:
+    """Runs ai_npc.chat()'s worker inline with a fake Anthropic client
+    and the prompt/history plumbing stubbed out."""
+
+    def setUp(self):
+        super().setUp()
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
+        os.environ["NPC_AI_REQUIRE_VERIFIED"] = "0"
+        self.client = mock.Mock()
+        self.client.messages.create.return_value = _anthropic_response(
+            "claude-haiku-4-5", 1_000, 50)
+        self._patches = [
+            mock.patch.object(ai_npc, "_anthropic_client",
+                              return_value=self.client),
+            mock.patch.object(ai_npc, "_build_prompt_blocks",
+                              return_value=("static", "npc", "")),
+            mock.patch.object(ai_npc, "_get_history", return_value=[]),
+            mock.patch.object(ai_npc, "_save_history"),
+            mock.patch.object(ai_npc, "_rate_check", return_value=(True, 0)),
+        ]
+        for p in self._patches:
+            p.start()
+        self.npc = SimpleNamespace(
+            key="Gerald", id=99,
+            db=SimpleNamespace(body=None, bleed_points=None))
+
+    def tearDown(self):
+        for p in self._patches:
+            p.stop()
+        super().tearDown()
+
+    def chat_inline(self, char, text="Evening"):
+        replies = []
+        with mock.patch.object(ai_npc._EXECUTOR, "submit",
+                               side_effect=lambda fn: fn()):
+            ai_npc.chat(self.npc, char, text, replies.append)
+        return replies
+
+
+class GlobalCapChatTests(_InlineChatMixin, _AIEnvMixin, EvenniaTest):
 
     def test_chat_from_many_accounts_hits_global_cap(self):
-        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
         os.environ["NPC_LLM_GLOBAL_HOURLY_LIMIT"] = "2"
-        os.environ["NPC_AI_REQUIRE_VERIFIED"] = "0"
-        npc = SimpleNamespace(key="Gerald", id=99,
-                              db=SimpleNamespace(body=None, bleed_points=None))
         chars = [SimpleNamespace(key=f"C{i}", id=i, account=acct)
                  for i, acct in enumerate([self.account, self.account2,
                                            self.account, self.account2])]
+        replies = [self.chat_inline(c)[0] for c in chars]
+        self.assertEqual(self.client.messages.create.call_count, 2)
+        canned = [c.format(name="Gerald") for c in ai_npc.CANNED_FALLBACKS]
+        self.assertEqual(replies[:2], ["Aye.", "Aye."])
+        self.assertIn(replies[2], canned)
+        self.assertIn(replies[3], canned)
+
+    def test_slot_taken_at_provider_call_not_before_npc_limit(self):
+        os.environ["NPC_LLM_GLOBAL_HOURLY_LIMIT"] = "1"
+        char = SimpleNamespace(key="C", id=1, account=self.account)
+        with mock.patch.object(ai_npc, "_rate_check",
+                               return_value=(False, 5)):
+            self.chat_inline(char)  # refused by the per-NPC limit
+        self.assertEqual(len(ai_npc._GLOBAL_HITS), 0)
+        self.assertEqual(self.chat_inline(char), ["Aye."])
+
+    def test_moderation_takes_its_own_slot(self):
+        os.environ["NPC_LLM_GLOBAL_HOURLY_LIMIT"] = "1"
+        os.environ["NPC_LLM_MODERATE"] = "1"
+        os.environ["NPC_MODERATE_API_KEY"] = _FAKE_GROQ_KEY
+        payload = {"choices": [{"message": {"content": "safe"}}],
+                   "usage": {"prompt_tokens": 10, "completion_tokens": 1}}
+        char = SimpleNamespace(key="C", id=1, account=self.account)
+        with mock.patch("urllib.request.urlopen",
+                        return_value=_FakeHTTPResponse(payload)):
+            replies = self.chat_inline(char)
+        # Moderation used the only slot, so the main call was refused.
+        self.client.messages.create.assert_not_called()
+        canned = [c.format(name="Gerald") for c in ai_npc.CANNED_FALLBACKS]
+        self.assertIn(replies[0], canned)
+
+
+class BudgetRecheckTests(_InlineChatMixin, _AIEnvMixin, EvenniaTest):
+
+    def test_budget_spent_while_queued_blocks_the_call(self):
+        os.environ["NPC_LLM_DAILY_BUDGET_USD"] = "1.0"
+        char = SimpleNamespace(key="C", id=1, account=self.account)
+        queued = []
         replies = []
-        with mock.patch.object(ai_npc._EXECUTOR, "submit") as submit:
-            for c in chars:
-                ai_npc.chat(npc, c, "Evening", replies.append)
-        self.assertEqual(submit.call_count, 2)
-        self.assertEqual(len(replies), 2)  # the two refused get canned lines
+        with mock.patch.object(ai_npc._EXECUTOR, "submit",
+                               side_effect=queued.append):
+            ai_npc.chat(self.npc, char, "Evening", replies.append)
+        self.assertEqual(len(queued), 1)
+        ai_npc.charge("claude-haiku-4-5", 1_000_000, 0)  # $1: budget gone
+        queued[0]()
+        self.client.messages.create.assert_not_called()
+        canned = [c.format(name="Gerald") for c in ai_npc.CANNED_FALLBACKS]
+        self.assertIn(replies[0], canned)
+
+    def test_budget_rechecked_between_fallback_attempts(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_GROQ_KEY
+        os.environ["NPC_LLM_PROVIDER"] = "openai"
+        os.environ["NPC_LLM_MODEL"] = "openai/gpt-oss-120b"
+        os.environ["NPC_LLM_FALLBACK_MODELS"] = "openai/gpt-oss-20b"
+        os.environ["NPC_LLM_DAILY_BUDGET_USD"] = "0.10"
+        calls = []
+
+        def fake_urlopen(req, timeout=None):
+            calls.append(json.loads(req.data.decode("utf-8"))["model"])
+            # Empty reply that costs more than the whole budget.
+            return _FakeHTTPResponse({
+                "choices": [{"message": {"content": ""}}],
+                "usage": {"prompt_tokens": 1_000_000,
+                          "completion_tokens": 0}})
+
+        with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            self.assertIsNone(ai_npc.generate_sync("s", "u"))
+        self.assertEqual(calls, ["openai/gpt-oss-120b"])
 
 
 # ---------------------------------------------------------------------------
@@ -486,3 +619,134 @@ class ModerationKeyTests(_AIEnvMixin, SimpleTestCase):
         os.environ["NPC_MODERATE_API_KEY"] = _FAKE_GROQ_KEY
         os.environ["NPC_LLM_MODERATE_MODEL"] = "unpriced-guard"
         self.assertFalse(ai_safety.moderation_enabled())
+
+
+# ---------------------------------------------------------------------------
+# Review fixes: failed attempts charged, no hidden retries, alerts, tiers
+# ---------------------------------------------------------------------------
+class FailedAttemptChargeTests(_AIEnvMixin, SimpleTestCase):
+
+    def _estimate(self, model, max_tokens):
+        return ai_pricing.cost_usd(
+            model, ai_npc._MISSING_USAGE_INPUT_TOKENS, max_tokens)
+
+    def test_anthropic_timeout_is_charged(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
+        client = mock.Mock()
+        client.messages.create.side_effect = TimeoutError("read timed out")
+        with mock.patch.object(ai_npc, "_anthropic_client",
+                               return_value=client):
+            self.assertIsNone(ai_npc.generate_sync("s", "u", max_tokens=200))
+        self.assertAlmostEqual(self.spend_today(),
+                               self._estimate("claude-haiku-4-5", 200))
+
+    def test_anthropic_rejected_request_is_not_charged(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
+
+        class BadRequest(Exception):
+            status_code = 400
+
+        client = mock.Mock()
+        client.messages.create.side_effect = BadRequest("nope")
+        with mock.patch.object(ai_npc, "_anthropic_client",
+                               return_value=client):
+            self.assertIsNone(ai_npc.generate_sync("s", "u"))
+        self.assertEqual(self.spend_today(), 0.0)
+
+    def test_anthropic_client_has_no_hidden_retries(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
+        with mock.patch.object(ai_npc, "_ANTH_CLIENT", None), \
+                mock.patch("anthropic.Anthropic") as ctor:
+            ai_npc._anthropic_client()
+        self.assertEqual(ctor.call_args.kwargs["max_retries"], 0)
+
+    def _groq_env(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_GROQ_KEY
+        os.environ["NPC_LLM_PROVIDER"] = "openai"
+        os.environ["NPC_LLM_MODEL"] = "openai/gpt-oss-120b"
+        os.environ["NPC_LLM_FALLBACK_MODELS"] = ""
+
+    def test_groq_timeout_is_charged(self):
+        import socket
+        self._groq_env()
+        with mock.patch("urllib.request.urlopen",
+                        side_effect=socket.timeout("timed out")):
+            self.assertIsNone(ai_npc.generate_sync("s", "u", max_tokens=100))
+        self.assertAlmostEqual(self.spend_today(),
+                               self._estimate("openai/gpt-oss-120b", 100))
+
+    def _http_error(self, code):
+        import io
+        import urllib.error
+        return urllib.error.HTTPError(
+            "https://api.groq.com/openai/v1/chat/completions", code, "err",
+            {}, io.BytesIO(b"{}"))
+
+    def test_groq_server_error_is_charged(self):
+        self._groq_env()
+        with mock.patch("urllib.request.urlopen",
+                        side_effect=self._http_error(503)):
+            self.assertIsNone(ai_npc.generate_sync("s", "u", max_tokens=100))
+        self.assertAlmostEqual(self.spend_today(),
+                               self._estimate("openai/gpt-oss-120b", 100))
+
+    def test_groq_rate_limit_is_not_charged(self):
+        self._groq_env()
+        with mock.patch("urllib.request.urlopen",
+                        side_effect=self._http_error(429)):
+            self.assertIsNone(ai_npc.generate_sync("s", "u"))
+        self.assertEqual(self.spend_today(), 0.0)
+
+    def test_moderation_timeout_is_charged(self):
+        import socket
+        os.environ["NPC_LLM_MODERATE"] = "1"
+        os.environ["NPC_MODERATE_API_KEY"] = _FAKE_GROQ_KEY
+        with mock.patch("urllib.request.urlopen",
+                        side_effect=socket.timeout("timed out")):
+            self.assertEqual(ai_safety.check_moderation("hi"), (True, None))
+        self.assertAlmostEqual(
+            self.spend_today(),
+            ai_pricing.cost_usd("llama-guard-4-12b", 1002, 32))
+
+
+class TelemetryAlertTests(SimpleTestCase):
+
+    def setUp(self):
+        telemetry._ALERT_SENT.pop("test_kind", None)
+
+    def tearDown(self):
+        telemetry._ALERT_SENT.pop("test_kind", None)
+
+    def test_cooldown_checked_first_and_email_sent_off_thread(self):
+        with mock.patch.object(telemetry.threading, "Thread") as thread, \
+                mock.patch("builtins.print") as pr:
+            self.assertTrue(telemetry.alert("test_kind", "subj", "body"))
+            self.assertFalse(telemetry.alert("test_kind", "subj", "body"))
+        self.assertEqual(thread.call_count, 1)
+        thread.return_value.start.assert_called_once()
+        self.assertEqual(thread.call_args.kwargs["target"],
+                         telemetry._send_alert_email)
+        alert_lines = [c for c in pr.call_args_list
+                       if "ALERT (test_kind)" in str(c)]
+        self.assertEqual(len(alert_lines), 1)
+
+
+class LongPromptTierTests(SimpleTestCase):
+
+    def test_haiku_5_5_short_prompt(self):
+        self.assertAlmostEqual(
+            ai_pricing.cost_usd("claude-haiku-5-5", 100_000, 1_000_000),
+            (100_000 * 0.10 + 1_000_000 * 0.50) / 1_000_000)
+
+    def test_haiku_5_5_long_prompt_counts_cache_tokens(self):
+        usd = ai_pricing.cost_usd("claude-haiku-5-5", input_tokens=50_000,
+                                  output_tokens=1_000,
+                                  cache_write_tokens=30_000,
+                                  cache_read_tokens=30_000)
+        expected = (50_000 * 0.50 + 1_000 * 2.50 + 30_000 * 0.625
+                    + 30_000 * 0.05) / 1_000_000
+        self.assertAlmostEqual(usd, expected)
+
+    def test_other_models_have_no_tier(self):
+        self.assertEqual(ai_pricing.price_for("claude-haiku-4-5", 500_000),
+                         ai_pricing.PRICES["claude-haiku-4-5"])

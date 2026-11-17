@@ -98,6 +98,27 @@ def account_ai_eligible(account):
     return False
 
 
+_PID_LOCK = re.compile(r"\bpid\((\d+)\)")
+
+
+def account_for_character(char):
+    """The account that owns *char*, even while it is not puppeted.
+    Evennia clears char.account on unpuppet, so fall back to the pid(N)
+    in the character's puppet lock (set at character creation)."""
+    acct = getattr(char, "account", None)
+    if acct is not None:
+        return acct
+    try:
+        lockstr = char.locks.get("puppet") or ""
+        m = _PID_LOCK.search(lockstr)
+        if not m:
+            return None
+        from evennia.accounts.models import AccountDB
+        return AccountDB.objects.filter(id=int(m.group(1))).first()
+    except Exception:
+        return None
+
+
 # ---------------------------------------------------------------------------
 # 1. Banned-phrase filter
 # ---------------------------------------------------------------------------
@@ -224,6 +245,12 @@ def check_moderation(text):
     """
     if not moderation_enabled():
         return True, None
+    # Moderation is a paid provider call like any other: it needs room in
+    # the daily budget and a slot of the global hourly cap. AICallRefused
+    # propagates to the caller (chat serves a canned line).
+    from world import ai_npc
+    ai_npc.begin_call()
+    sent = False
     try:
         base_url = _moderation_base_url().rstrip("/")
         url = f"{base_url}/chat/completions"
@@ -242,9 +269,11 @@ def check_moderation(text):
                 "User-Agent": "EldritchMUSH/1.0",
             },
         )
+        sent = True
         with urllib.request.urlopen(req, timeout=8) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         _charge_moderation(data.get("usage"), len(text))
+        sent = False  # charged
         reply = (
             data.get("choices", [{}])[0].get("message", {}).get("content", "")
         ).strip()
@@ -260,6 +289,11 @@ def check_moderation(text):
         # Unknown reply shape — fail open
         return True, None
     except Exception as exc:
+        # A request that went out may have been billed: charge the
+        # estimate unless the provider plainly rejected it (4xx).
+        if sent and not (isinstance(exc, urllib.error.HTTPError)
+                         and exc.code in ai_npc._UNBILLED_HTTP_CODES):
+            _charge_moderation(None, len(text))
         # Network error, timeout, etc. — fail open, but LOUDLY: an
         # operator who enabled moderation should know it isn't running.
         print(
