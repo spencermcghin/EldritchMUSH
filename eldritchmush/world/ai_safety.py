@@ -289,10 +289,9 @@ def check_moderation(text):
         # Unknown reply shape — fail open
         return True, None
     except Exception as exc:
-        # A request that went out may have been billed: charge the
-        # estimate unless the provider plainly rejected it (4xx).
-        if sent and not (isinstance(exc, urllib.error.HTTPError)
-                         and exc.code in ai_npc._UNBILLED_HTTP_CODES):
+        # A request that went out and then timed out or broke may have
+        # been billed: charge the estimate (see ai_npc.maybe_billed).
+        if sent and ai_npc.maybe_billed(exc):
             _charge_moderation(None, len(text))
         # Network error, timeout, etc. — fail open, but LOUDLY: an
         # operator who enabled moderation should know it isn't running.

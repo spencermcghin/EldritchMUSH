@@ -1,3 +1,6 @@
 evennia
 django-allauth[socialaccount]>=0.58
-anthropic>=0.69
+# <1: from 1.0 the SDK no longer accepts the `temperature` argument the
+# NPC calls send (2.0 also moves to API version 2026-10-21, which rejects
+# it on every model). See eldritchmush/README.md before upgrading.
+anthropic>=0.69,<1

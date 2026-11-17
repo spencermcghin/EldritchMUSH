@@ -41,6 +41,8 @@ def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.conf.settings")
     import django
     django.setup()
+    import evennia
+    evennia._init()
 
     from world.email_verification import send_bulk
     send_bulk(limit=args.limit, delay=args.delay, send=args.send)

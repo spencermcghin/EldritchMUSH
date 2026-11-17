@@ -433,16 +433,37 @@ def begin_call():
         raise AICallRefused("global_rate_limited")
 
 
-# Errors that mean the provider rejected the request before doing any
-# billable work. Everything else after a request was sent (timeouts,
-# dropped connections, 5xx) is charged at the missing-usage estimate,
-# because the provider may have run (and billed) it anyway.
-_UNBILLED_HTTP_CODES = (400, 401, 403, 404, 409, 413, 422, 429)
+def maybe_billed(exc):
+    """True when *exc* happened after the request may have reached the
+    provider and run: a timeout, a connection dropped mid-request, a 5xx
+    or 408. Those attempts are charged at the missing-usage estimate.
 
-
-def _anthropic_error_unbilled(exc):
+    Not charged: 4xx rejections, and errors raised before anything was
+    sent (TypeError, ValueError, a missing key or other config error, a
+    DNS failure or refused connection). The Anthropic SDK can't tell a
+    connection that never opened from one that broke mid-request, so its
+    APIConnectionError counts as possibly billed."""
+    import http.client
+    import socket
     code = getattr(exc, "status_code", None)
-    return code in _UNBILLED_HTTP_CODES
+    if code is None and isinstance(exc, urllib.error.HTTPError):
+        code = exc.code
+    if code is not None:
+        return code >= 500 or code == 408
+    try:
+        import anthropic
+        if isinstance(exc, anthropic.APIConnectionError):
+            return True  # includes APITimeoutError
+    except Exception:
+        pass
+    if isinstance(exc, urllib.error.URLError):
+        reason = getattr(exc, "reason", None)
+        return isinstance(reason, (TimeoutError, socket.timeout,
+                                   ConnectionResetError,
+                                   ConnectionAbortedError, BrokenPipeError))
+    return isinstance(exc, (TimeoutError, socket.timeout,
+                            ConnectionResetError, ConnectionAbortedError,
+                            BrokenPipeError, http.client.HTTPException))
 
 
 def _charge_failed_attempt(model, max_tokens, input_tokens=None):
@@ -1198,7 +1219,7 @@ def _openai_chat(messages, max_tokens, temperature):
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 raw = resp.read()
         except urllib.error.HTTPError as exc:
-            if exc.code not in _UNBILLED_HTTP_CODES:
+            if maybe_billed(exc):
                 _charge_failed_attempt(model, max_tokens)
             if _model_gone(exc):
                 last_err = exc
@@ -1206,9 +1227,11 @@ def _openai_chat(messages, max_tokens, temperature):
                       f"trying next fallback", flush=True)
                 continue
             raise
-        except Exception:
-            # Timeout or dropped connection after the request went out.
-            _charge_failed_attempt(model, max_tokens)
+        except Exception as exc:
+            # A timeout or dropped connection after the request went out
+            # may have been billed; a pre-send error was not.
+            if maybe_billed(exc):
+                _charge_failed_attempt(model, max_tokens)
             raise
         try:
             data = json.loads(raw.decode("utf-8"))
@@ -1318,7 +1341,7 @@ def _anthropic_create(client, model, max_tokens, **kwargs):
         return client.messages.create(
             model=model, max_tokens=max_tokens, **kwargs)
     except Exception as exc:
-        if not _anthropic_error_unbilled(exc):
+        if maybe_billed(exc):
             _charge_failed_attempt(model, max_tokens)
         raise
 

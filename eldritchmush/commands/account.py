@@ -185,9 +185,9 @@ class CmdVerify(default_account.COMMAND_DEFAULT_CLASS):
       verify <email address>
 
     Sends a verification link to the email address on your account, or
-    to a new address you give. Open the link to finish. NPCs only give
-    short stock replies until your email is verified (or you sign in
-    with Google).
+    switches your account to a new address you give and sends the link
+    there. Open the link to finish. NPCs only give short stock replies
+    until your email is verified.
     """
 
     key = "verify"

@@ -93,6 +93,14 @@ def at_server_start():
     # wrong typeclass binding. Must run before any login attempts.
     _migrate_oauth_account_typeclasses()
 
+    # Name the Django Site "Eldritch MUSH" with this environment's domain,
+    # so allauth's emails and pages don't say "example.com".
+    try:
+        from world.email_verification import sync_site
+        sync_site()
+    except Exception as exc:
+        print(f"[at_server_start] sync_site failed: {exc!r}", flush=True)
+
     def _keepalive():
         try:
             for session in SESSIONS.all():

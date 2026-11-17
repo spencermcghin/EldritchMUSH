@@ -288,14 +288,20 @@ def text(session, *args, **kwargs):
                                     except Exception as exc:
                                         diag_write("FINISH_CHARGEN purse failed", exc=str(exc))
 
-                                    # Send approval email to admin
+                                    # Send approval email to admin, on a worker
+                                    # thread so the reactor never waits on Resend.
                                     try:
+                                        from twisted.internet import threads
                                         from world.email import send_approval_request
                                         acct_email = getattr(account, "email", "") or ""
-                                        send_approval_request(
+                                        d = threads.deferToThread(
+                                            send_approval_request,
                                             puppet.key, account.username,
-                                            acct_email, skills_summary
+                                            acct_email, skills_summary,
                                         )
+                                        d.addErrback(lambda f: diag_write(
+                                            "FINISH_CHARGEN email failed",
+                                            exc=str(f.value)))
                                     except Exception as exc:
                                         diag_write("FINISH_CHARGEN email failed", exc=str(exc))
 

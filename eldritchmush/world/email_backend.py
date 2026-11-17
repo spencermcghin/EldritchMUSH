@@ -27,9 +27,12 @@ def text_to_html(text):
 
 
 class ResendEmailBackend(BaseEmailBackend):
+    """cc and bcc go to Resend's own cc / bcc fields. With
+    fail_silently=False (Django's default) a message that isn't sent
+    raises world.email.EmailNotSent, like Django's SMTP backend raises."""
 
     def send_messages(self, email_messages):
-        from world.email import send_email
+        from world.email import EmailNotSent, send_email_result
         sent = 0
         for message in email_messages or []:
             html_body = None
@@ -42,17 +45,19 @@ class ResendEmailBackend(BaseEmailBackend):
                 text_body = message.body
             if html_body is None:
                 html_body = text_to_html(text_body)
-            recipients = list(message.to or []) + list(message.cc or []) \
-                + list(message.bcc or [])
-            if not recipients:
+            if not (message.to or message.cc or message.bcc):
                 continue
-            ok = False
             try:
-                ok = send_email(recipients, message.subject, html_body,
-                                text_body=text_body)
+                ok, reason = send_email_result(
+                    list(message.to or []), message.subject, html_body,
+                    text_body=text_body, cc=list(message.cc or []),
+                    bcc=list(message.bcc or []))
             except Exception:
                 if not self.fail_silently:
                     raise
+                continue
             if ok:
                 sent += 1
+            elif not self.fail_silently:
+                raise EmailNotSent(reason)
         return sent

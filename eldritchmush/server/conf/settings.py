@@ -249,6 +249,26 @@ if _allauth_available:
     ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/"
     ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
     ACCOUNT_ADAPTER = "web.allauth_adapters.AccountAdapter"
+    # Web mail now really goes out (through Resend, inside the shared
+    # daily mail cap in world/email.py), so keep allauth from mailing
+    # strangers and tighten the mail-triggering views. These keys are
+    # merged over allauth's defaults.
+    ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False
+    ACCOUNT_RATE_LIMITS = {
+        "reset_password": "10/h/ip,3/h/key",
+        "signup": "5/h/ip",
+    }
+    # Client IP for those rate limits. Deployed requests pass through two
+    # proxies we trust: Railway's edge (sets X-Forwarded-For to the
+    # client) and the nginx in this container (appends the edge's
+    # address), so the client is the second entry from the right.
+    # Locally there is no proxy. Override with ALLAUTH_TRUSTED_PROXY_COUNT.
+    try:
+        ALLAUTH_TRUSTED_PROXY_COUNT = int(os.environ.get(
+            "ALLAUTH_TRUSTED_PROXY_COUNT",
+            "2" if os.environ.get("RAILWAY_ENVIRONMENT_NAME") else "0"))
+    except ValueError:
+        ALLAUTH_TRUSTED_PROXY_COUNT = 0
     # Only log in / connect a Google account to an existing local account
     # by email when that local address is VERIFIED (see the adapter).
     SOCIALACCOUNT_ADAPTER = "web.allauth_adapters.SocialAccountAdapter"

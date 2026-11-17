@@ -6,56 +6,98 @@ sign-in (world/ai_safety.account_ai_eligible). This module lets a
 password player verify their address from inside the game:
 
     verify                    send a link to the address on the account
-    verify you@example.com    set that address on the account, then send
+    verify you@example.com    switch the account to that address, then send
 
 Links are ordinary django-allauth confirmation links
 (/accounts/confirm-email/<key>/), sent through the game's Resend setup
 (world/email_backend.py). Clicking one marks the allauth EmailAddress
-verified, which is what the AI gate checks.
+verified, which is what the AI gate checks. On confirmation, the address
+is removed from every OTHER account's unverified rows
+(web/allauth_adapters.AccountAdapter.confirm_email), so nobody can park
+on someone else's address.
 
 Limits on sending, so the command can't be used to spam an inbox or burn
 the Resend quota:
+    - the account must be at least VERIFY_MIN_ACCOUNT_AGE seconds old
+      (10 minutes) or already have a character
     - one email per account every VERIFY_COOLDOWN seconds (10 minutes)
     - VERIFY_DAILY_MAX emails per account per rolling day (5)
-    - VERIFY_GLOBAL_HOURLY_MAX emails per hour for the whole game (60)
+    - the shared daily and hourly caps on ALL game mail (world/email.py)
+A send that fails gives the account's slot back.
 
 send_bulk() is the one-off backfill for existing accounts; run it with
 scripts/send_verification_emails.py (dry run unless --send is given).
 """
 import os
 import re
-import threading
 import time
-from collections import deque
+from urllib.parse import urlsplit
 
 VERIFY_HINT = ("Verify your email to talk with NPCs. "
                "Check your inbox or type `verify`.")
 
 VERIFY_COOLDOWN = 600
 VERIFY_DAILY_MAX = 5
-VERIFY_GLOBAL_HOURLY_MAX = 60
+VERIFY_MIN_ACCOUNT_AGE = 600
 
 _SENDS_ATTR = "email_verify_sends"
 _BULK_ATTR = "email_verify_bulk_sent"
-_GLOBAL_LOCK = threading.Lock()
-_GLOBAL_SENDS = deque()
 
 _DEFAULT_BASE_URLS = {
     "production": "https://eldritchmush.com",
     "prod": "https://eldritchmush.com",
     "uat": "https://uat.eldritchmush.com",
 }
+_LOCAL_BASE_URL = "http://localhost:4001"
+
+
+class SiteURLNotConfigured(RuntimeError):
+    """A deployed environment has no known public URL for links."""
 
 
 def site_base_url():
-    """Where confirmation links point. SITE_BASE_URL wins; otherwise a
-    default for the Railway environment; localhost for local dev."""
+    """Where confirmation links point.
+
+    SITE_BASE_URL wins. Otherwise production and uat use their public
+    hosts, and local dev (no RAILWAY_ENVIRONMENT_NAME) uses localhost.
+    Any other deployed environment without SITE_BASE_URL raises
+    SiteURLNotConfigured (logged loudly) instead of mailing localhost
+    links."""
     explicit = (os.environ.get("SITE_BASE_URL") or "").strip().rstrip("/")
     if explicit:
         return explicit
-    env = (os.environ.get("RAILWAY_ENVIRONMENT_NAME")
-           or os.environ.get("DEPLOY_ENV") or "local").lower()
-    return _DEFAULT_BASE_URLS.get(env, "http://localhost:4001")
+    railway_env = (os.environ.get("RAILWAY_ENVIRONMENT_NAME") or "").lower()
+    if railway_env:
+        if railway_env in _DEFAULT_BASE_URLS:
+            return _DEFAULT_BASE_URLS[railway_env]
+        print(f"[email_verification] SITE_BASE_URL is not set on deployed "
+              f"environment {railway_env!r}; refusing to send "
+              f"verification links.", flush=True)
+        raise SiteURLNotConfigured(railway_env)
+    env = (os.environ.get("DEPLOY_ENV") or "local").lower()
+    return _DEFAULT_BASE_URLS.get(env, _LOCAL_BASE_URL)
+
+
+def sync_site():
+    """Point the Django Site (used by allauth's emails and pages) at this
+    environment: name "Eldritch MUSH", domain from site_base_url(). Run at
+    server start. Never raises."""
+    try:
+        from django.conf import settings
+        from django.contrib.sites.models import Site
+        domain = urlsplit(site_base_url()).netloc
+        if not domain:
+            return
+        site, _ = Site.objects.get_or_create(
+            id=getattr(settings, "SITE_ID", 1),
+            defaults={"domain": domain, "name": "Eldritch MUSH"})
+        if site.domain != domain or site.name != "Eldritch MUSH":
+            site.domain, site.name = domain, "Eldritch MUSH"
+            site.save()
+        Site.objects.clear_cache()
+    except Exception as exc:
+        print(f"[email_verification] could not set the Django Site: "
+              f"{exc!r}", flush=True)
 
 
 # ---------------------------------------------------------------------------
@@ -130,20 +172,46 @@ def _valid_email(addr):
 
 
 def _address_taken(addr, account):
-    """True when another account already uses *addr*."""
+    """True when another account has *addr* VERIFIED, or is a Google
+    account using it. Unverified claims by other accounts don't count:
+    whoever verifies first owns the address (see confirm_email cleanup)."""
     from django.contrib.auth import get_user_model
     from allauth.account.models import EmailAddress
     User = get_user_model()
-    if (User.objects.filter(email__iexact=addr)
-            .exclude(id=account.id).exists()):
+    if (EmailAddress.objects.filter(email__iexact=addr, verified=True)
+            .exclude(user_id=account.id).exists()):
         return True
-    return (EmailAddress.objects.filter(email__iexact=addr)
-            .exclude(user_id=account.id).exists())
+    return (User.objects.filter(email__iexact=addr,
+                                socialaccount__provider="google")
+            .exclude(id=account.id).exists())
+
+
+def _account_old_enough(account):
+    """New accounts must wait VERIFY_MIN_ACCOUNT_AGE, unless they have
+    already made a character."""
+    try:
+        chars = account.characters.all()
+    except Exception:
+        chars = account.db._playable_characters or []
+    if chars:
+        return True
+    created = getattr(account, "date_created", None) \
+        or getattr(account, "db_date_created", None)
+    if created is None:
+        return False
+    try:
+        return time.time() - created.timestamp() >= VERIFY_MIN_ACCOUNT_AGE
+    except Exception:
+        return False
+
+
+def _recent_sends(account, now):
+    return [t for t in (account.attributes.get(_SENDS_ATTR, default=None)
+                        or []) if now - t < 86400]
 
 
 def _account_limit_message(account, now):
-    sends = [t for t in (account.attributes.get(_SENDS_ATTR, default=None)
-                         or []) if now - t < 86400]
+    sends = _recent_sends(account, now)
     if sends and now - sends[-1] < VERIFY_COOLDOWN:
         wait = int((VERIFY_COOLDOWN - (now - sends[-1])) / 60) + 1
         return ("We just sent you a link. Check your inbox (and spam "
@@ -154,25 +222,41 @@ def _account_limit_message(account, now):
     return None
 
 
-def _take_global_slot(now):
-    with _GLOBAL_LOCK:
-        while _GLOBAL_SENDS and now - _GLOBAL_SENDS[0] >= 3600:
-            _GLOBAL_SENDS.popleft()
-        if len(_GLOBAL_SENDS) >= VERIFY_GLOBAL_HOURLY_MAX:
-            return False
-        _GLOBAL_SENDS.append(now)
-        return True
-
-
 def _record_send(account, now):
-    sends = [t for t in (account.attributes.get(_SENDS_ATTR, default=None)
-                         or []) if now - t < 86400]
+    sends = _recent_sends(account, now)
     sends.append(now)
     account.attributes.add(_SENDS_ATTR, sends)
 
 
+def _release_send(account, stamp):
+    """Give back the per-account slot taken for a send that failed."""
+    sends = [t for t in (account.attributes.get(_SENDS_ATTR, default=None)
+                         or []) if t != stamp]
+    account.attributes.add(_SENDS_ATTR, sends)
+
+
+def _switch_address(account, addr):
+    """Make *addr* the account's primary address: drop the account's other
+    UNVERIFIED rows, create the row if needed, set it primary and keep
+    User.email in sync. Returns the EmailAddress."""
+    from allauth.account.models import EmailAddress
+    (EmailAddress.objects.filter(user_id=account.id, verified=False)
+     .exclude(email__iexact=addr).delete())
+    email_address = EmailAddress.objects.filter(
+        user_id=account.id, email__iexact=addr).first()
+    if email_address is None:
+        email_address = EmailAddress.objects.create(
+            user=account, email=addr, verified=False, primary=False)
+    email_address.set_as_primary()  # unsets others, writes User.email
+    if (account.email or "").lower() != addr:
+        account.email = addr
+        account.save(update_fields=["email"])
+    return email_address
+
+
 def build_message(account, email_address):
-    """Render the confirmation email for an allauth EmailAddress."""
+    """Render the confirmation email for an allauth EmailAddress.
+    Raises SiteURLNotConfigured when links can't be built."""
     from allauth.account.adapter import get_adapter
     from allauth.account.models import EmailConfirmationHMAC
     adapter = get_adapter()
@@ -189,15 +273,29 @@ def build_message(account, email_address):
         "account/email/email_confirmation", email_address.email, ctx)
 
 
+class Prepared:
+    """A verification email ready to send, plus what to say afterwards."""
+
+    def __init__(self, account, addr, message, stamp):
+        self.account = account
+        self.addr = addr
+        self.message = message
+        self.stamp = stamp
+
+    def sent_text(self):
+        return (f"We sent a verification link to {self.addr}. Open it "
+                f"within 3 days to finish. Check your spam folder if it "
+                f"doesn't arrive.")
+
+
 def prepare(account, email=None, bulk=False):
     """Validate, rate-limit, attach the address and render the email.
 
-    Returns (message_for_player, email_message_or_None). Sending is left
-    to the caller so the HTTP call can run off the reactor thread.
-    bulk=True skips the per-account limits (send_bulk has its own).
+    Returns (refusal_text, None) when nothing should be sent, or
+    (None, Prepared) when an email is ready. Sending is left to the caller
+    so the HTTP call can run off the reactor thread. bulk=True skips the
+    per-account limits and age gate (send_bulk has its own rules).
     """
-    from allauth.account.models import EmailAddress
-
     status = email_status(account)
     if status in ("verified", "google"):
         return ("Your email is already verified. NPCs will talk with "
@@ -212,52 +310,58 @@ def prepare(account, email=None, bulk=False):
     if not _valid_email(addr):
         return (f"That doesn't look like an email address: {addr}", None)
     if _address_taken(addr, account):
-        return ("That address is already used by another account. Type "
-                "|wverify you@example.com|n with an address only you use, "
-                "or sign in with Google.", None)
+        return ("That address is already verified on another account. "
+                "Type |wverify you@example.com|n with an address only you "
+                "use.", None)
 
     now = time.time()
     if not bulk:
+        if not _account_old_enough(account):
+            return ("New accounts can ask for a verification link after "
+                    "10 minutes, or as soon as you've made a character.",
+                    None)
         limited = _account_limit_message(account, now)
         if limited:
             return (limited, None)
-    if not _take_global_slot(now):
-        return ("We can't send more verification emails right now. "
-                "Please try again in an hour.", None)
 
-    if (getattr(account, "email", "") or "").lower() != addr:
-        account.email = addr
-        account.save(update_fields=["email"])
-    email_address = EmailAddress.objects.filter(
-        user_id=account.id, email__iexact=addr).first()
-    if email_address is None:
-        has_primary = EmailAddress.objects.filter(
-            user_id=account.id, primary=True).exists()
-        email_address = EmailAddress.objects.create(
-            user=account, email=addr, verified=False,
-            primary=not has_primary)
+    try:
+        site_base_url()
+    except SiteURLNotConfigured:
+        return ("Verification emails aren't set up on this server yet. "
+                "Please tell a game admin.", None)
 
+    email_address = _switch_address(account, addr)
     message = build_message(account, email_address)
-    _record_send(account, now)
-    return (f"We're sending a verification link to {addr}. Open it within "
-            f"3 days to finish. Check your spam folder if it doesn't "
-            f"arrive.", message)
+    if not bulk:
+        _record_send(account, now)
+    return (None, Prepared(account, addr, message, now))
+
+
+def _failure_text(exc):
+    reason = getattr(exc, "reason", None)
+    if reason in ("daily_cap", "hourly_cap"):
+        return ("|rThe game has sent all the email it can for now. Please "
+                "type |wverify|r again later.|n")
+    return ("|rThe verification email didn't go out. Please try again "
+            "later.|n")
 
 
 def request_verification(account, email=None, reply=None):
     """`verify` command entry point. Prepares synchronously (fast ORM
-    work) and sends on a worker thread; reply(text) runs on the reactor
-    thread afterwards if the send fails."""
-    text, message = prepare(account, email=email)
-    if reply:
-        reply(text)
-    if message is None:
+    work), sends on a worker thread, and replies only once the send
+    result is known. A failed send gives the account's slot back."""
+    say = reply or (lambda _t: None)
+    refusal, prepared = prepare(account, email=email)
+    if prepared is None:
+        say(refusal)
         return False
 
-    def _failed(_result=None):
-        if reply:
-            reply("|rThe verification email didn't go out. Please try "
-                  "again later.|n")
+    def _done(_count):
+        say(prepared.sent_text())
+
+    def _failed(exc):
+        _release_send(account, prepared.stamp)
+        say(_failure_text(exc))
 
     try:
         from twisted.internet import reactor, threads
@@ -266,17 +370,17 @@ def request_verification(account, email=None, reply=None):
         running = False
     if running:
         # In the game: the Resend HTTP call runs on a worker thread so the
-        # reactor never waits on it; the callback returns to the reactor.
-        d = threads.deferToThread(message.send)
-        d.addCallbacks(lambda sent: None if sent else _failed(),
-                       lambda _f: _failed())
+        # reactor never waits on it; callbacks come back to the reactor.
+        d = threads.deferToThread(prepared.message.send)
+        d.addCallbacks(_done, lambda failure: _failed(failure.value))
         return True
     # No reactor (shell, script, tests): send inline.
     try:
-        if not message.send():
-            _failed()
-    except Exception:
-        _failed()
+        count = prepared.message.send()
+    except Exception as exc:
+        _failed(exc)
+        return False
+    _done(count)
     return True
 
 
@@ -310,9 +414,10 @@ def bulk_candidates():
 
 def send_bulk(limit=50, delay=1.0, send=False, out=print):
     """Send one verification email to each candidate, at most *limit* per
-    run, *delay* seconds apart (Resend allows about 2 a second; its free
-    plan allows 100 a day). Dry run unless send=True. Returns the number
-    sent (or that would be sent)."""
+    run, *delay* seconds apart. Every email also counts against the shared
+    daily mail cap (world/email.py), so a run stops sending once that is
+    used up. Dry run unless send=True. Returns the number sent (or that
+    would be sent)."""
     candidates = bulk_candidates()
     out(f"{len(candidates)} unverified account(s) with an email address; "
         f"this run handles up to {limit}.")
@@ -322,15 +427,22 @@ def send_bulk(limit=50, delay=1.0, send=False, out=print):
             out(f"  would send to account #{account.id} ({account.username})")
             done += 1
             continue
-        text, message = prepare(account, bulk=True)
-        if message is None:
-            out(f"  skipped #{account.id}: {text}")
+        refusal, prepared = prepare(account, bulk=True)
+        if prepared is None:
+            out(f"  skipped #{account.id}: {refusal}")
             continue
         try:
-            sent = message.send()
+            sent = prepared.message.send()
         except Exception as exc:
             sent = 0
-            out(f"  failed #{account.id}: {type(exc).__name__}")
+            reason = getattr(exc, "reason", None) or type(exc).__name__
+            out(f"  failed #{account.id}: {reason}")
+            if reason in ("daily_cap", "hourly_cap"):
+                out("  stopping: the shared mail cap is used up")
+                break
+        else:
+            if not sent:
+                out(f"  failed #{account.id}: not sent")
         if sent:
             account.attributes.add(_BULK_ATTR, time.time())
             done += 1

@@ -36,11 +36,15 @@ class _VerifyBase(EvenniaTest):
         })
         self._env.start()
         os.environ.pop("NPC_AI_REQUIRE_VERIFIED", None)
-        with email_verification._GLOBAL_LOCK:
-            email_verification._GLOBAL_SENDS.clear()
+        os.environ.pop("RAILWAY_ENVIRONMENT_NAME", None)
+        # Test accounts are seconds old; the age gate has its own test.
+        self._age = mock.patch.object(
+            email_verification, "VERIFY_MIN_ACCOUNT_AGE", 0)
+        self._age.start()
         mail.outbox = []
 
     def tearDown(self):
+        self._age.stop()
         self._env.stop()
         super().tearDown()
 
@@ -87,15 +91,54 @@ class VerifyFlowTests(_VerifyBase):
                 email_verification.request_verification(self.account)
         self.assertEqual(len(mail.outbox), email_verification.VERIFY_DAILY_MAX)
 
-    def test_global_hourly_cap(self):
+    def test_new_account_must_wait(self):
         with mock.patch.object(email_verification,
-                               "VERIFY_GLOBAL_HOURLY_MAX", 1):
-            email_verification.request_verification(self.account)
+                               "VERIFY_MIN_ACCOUNT_AGE", 3600):
             replies = []
             email_verification.request_verification(
-                self.account2, reply=replies.append)
+                self.account, reply=replies.append)
+            self.assertEqual(mail.outbox, [])
+            self.assertIn("after 10 minutes", replies[0])
+            # Having a character lifts the wait.
+            self.account.characters.add(self.char1)
+            email_verification.request_verification(self.account)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn("try again in an hour", replies[0])
+
+    def test_failed_send_releases_slot_and_replies_after(self):
+        from world.email import EmailNotSent
+        replies = []
+        with mock.patch("django.core.mail.EmailMultiAlternatives.send",
+                        side_effect=EmailNotSent("daily_cap")):
+            email_verification.request_verification(
+                self.account, reply=replies.append)
+        self.assertEqual(len(replies), 1)  # only the result, nothing before
+        self.assertIn("sent all the email it can", replies[0])
+        self.assertEqual(
+            self.account.attributes.get("email_verify_sends"), [])
+        # The cooldown was given back, so a retry goes straight out.
+        email_verification.request_verification(self.account)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_site_url_required_on_unknown_deployed_env(self):
+        os.environ.pop("SITE_BASE_URL")
+        os.environ["RAILWAY_ENVIRONMENT_NAME"] = "staging"
+        with self.assertRaises(email_verification.SiteURLNotConfigured):
+            email_verification.site_base_url()
+        replies = []
+        email_verification.request_verification(
+            self.account, reply=replies.append)
+        self.assertEqual(mail.outbox, [])
+        self.assertIn("aren't set up", replies[0])
+        os.environ["RAILWAY_ENVIRONMENT_NAME"] = "uat"
+        self.assertEqual(email_verification.site_base_url(),
+                         "https://uat.eldritchmush.com")
+
+    def test_sync_site(self):
+        from django.contrib.sites.models import Site
+        email_verification.sync_site()
+        site = Site.objects.get_current()
+        self.assertEqual(site.name, "Eldritch MUSH")
+        self.assertEqual(site.domain, "game.example.test")
 
     def test_verify_new_address(self):
         self.account.email = ""
@@ -108,13 +151,50 @@ class VerifyFlowTests(_VerifyBase):
         self.assertEqual(self.account.email, "new.address@example.com")
         self.assertEqual(mail.outbox[0].to, ["new.address@example.com"])
 
-    def test_address_of_another_account_refused(self):
+    def test_verified_address_of_another_account_refused(self):
+        from allauth.account.models import EmailAddress
+        EmailAddress.objects.create(user=self.account2,
+                                    email="player.two@example.com",
+                                    verified=True, primary=True)
         replies = []
         email_verification.request_verification(
             self.account, email="player.two@example.com",
             reply=replies.append)
         self.assertEqual(mail.outbox, [])
-        self.assertIn("already used by another account", replies[0])
+        self.assertIn("already verified on another account", replies[0])
+        self.assertNotIn("Google", replies[0])
+
+    def test_unverified_claim_is_not_a_squat(self):
+        # account2 merely typed the address; account (the real owner)
+        # can still verify it, and doing so removes account2's claim.
+        from allauth.account.models import EmailAddress
+        EmailAddress.objects.create(user=self.account2,
+                                    email="player.two@example.com",
+                                    verified=False, primary=True)
+        email_verification.request_verification(
+            self.account, email="player.two@example.com")
+        self.assertEqual(mail.outbox[0].to, ["player.two@example.com"])
+        path = self._link(mail.outbox[0]).replace(
+            "https://game.example.test", "")
+        self.client.post(path)
+        self.assertEqual(email_verification.email_status(self.account),
+                         "verified")
+        self.assertFalse(EmailAddress.objects.filter(
+            user=self.account2, email="player.two@example.com").exists())
+        self.account2.refresh_from_db()
+        self.assertEqual(self.account2.email, "")
+
+    def test_switching_address_drops_old_unverified_rows(self):
+        from allauth.account.models import EmailAddress
+        email_verification.request_verification(self.account)
+        with mock.patch.object(email_verification, "VERIFY_COOLDOWN", 0):
+            email_verification.request_verification(
+                self.account, email="second@example.com")
+        rows = list(EmailAddress.objects.filter(user=self.account))
+        self.assertEqual([(r.email, r.primary) for r in rows],
+                         [("second@example.com", True)])
+        self.account.refresh_from_db()
+        self.assertEqual(self.account.email, "second@example.com")
 
     def test_bad_address_refused(self):
         replies = []
@@ -179,6 +259,45 @@ class BulkBackfillTests(_VerifyBase):
         self.assertEqual(n, 1)
         self.assertEqual(mail.outbox[0].to, ["player.one@example.com"])
 
+    def test_bulk_email_has_working_link(self):
+        with mock.patch("time.sleep"):
+            email_verification.send_bulk(limit=1, send=True,
+                                         out=lambda *_: None)
+        link = self._link(mail.outbox[0])
+        self.assertTrue(link.startswith(
+            "https://game.example.test/accounts/confirm-email/"))
+        self.client.post(link.replace("https://game.example.test", ""))
+        self.assertEqual(email_verification.email_status(self.account),
+                         "verified")
+
+    def test_failed_send_is_reported(self):
+        out = []
+        with mock.patch("time.sleep"), \
+                mock.patch("django.core.mail.EmailMultiAlternatives.send",
+                           return_value=0):
+            n = email_verification.send_bulk(limit=1, send=True,
+                                             out=out.append)
+        self.assertEqual(n, 0)
+        self.assertTrue(any("failed #" in line for line in out))
+
+    def test_script_initialises_evennia_and_defaults_to_dry_run(self):
+        import importlib.util
+        import sys
+        path = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))),
+            "scripts", "send_verification_emails.py")
+        spec = importlib.util.spec_from_file_location("svm_script", path)
+        script = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(script)
+        with mock.patch.object(sys, "argv", ["send_verification_emails.py"]), \
+                mock.patch("django.setup") as setup, \
+                mock.patch("evennia._init") as init, \
+                mock.patch("world.email_verification.send_bulk") as bulk:
+            script.main()
+        setup.assert_called_once()
+        init.assert_called_once()
+        self.assertEqual(bulk.call_args.kwargs["send"], False)
+
     def test_shared_address_skipped(self):
         self.account2.email = "PLAYER.ONE@example.com"
         self.account2.save()
@@ -188,26 +307,138 @@ class BulkBackfillTests(_VerifyBase):
 class ResendBackendTests(SimpleTestCase):
 
     @override_settings(EMAIL_BACKEND="world.email_backend.ResendEmailBackend")
-    def test_sends_text_and_html_through_resend(self):
+    def test_sends_text_html_cc_bcc_through_resend(self):
         from django.core.mail import EmailMultiAlternatives
-        with mock.patch("world.email.send_email",
-                        return_value=True) as send:
+        with mock.patch("world.email.send_email_result",
+                        return_value=(True, None)) as send:
             msg = EmailMultiAlternatives(
                 "Verify", "Open this link:\n\nhttps://x.test/confirm/abc/",
-                "noreply@eldritchmush.com", ["p@example.com"])
+                "noreply@eldritchmush.com", ["p@example.com"],
+                cc=["c@example.com"], bcc=["b@example.com"])
             self.assertEqual(msg.send(), 1)
         to, subject, html_body = send.call_args[0]
         self.assertEqual(to, ["p@example.com"])
         self.assertEqual(subject, "Verify")
         self.assertIn('<a href="https://x.test/confirm/abc/">', html_body)
-        self.assertIn("Open this link:", send.call_args.kwargs["text_body"])
+        kw = send.call_args.kwargs
+        self.assertIn("Open this link:", kw["text_body"])
+        self.assertEqual(kw["cc"], ["c@example.com"])
+        self.assertEqual(kw["bcc"], ["b@example.com"])
 
     @override_settings(EMAIL_BACKEND="world.email_backend.ResendEmailBackend")
-    def test_failed_send_counts_zero(self):
-        from django.core.mail import EmailMessage
-        with mock.patch("world.email.send_email", return_value=False):
+    def test_failed_send_raises_unless_fail_silently(self):
+        from django.core.mail import EmailMessage, get_connection
+        from world.email import EmailNotSent
+        with mock.patch("world.email.send_email_result",
+                        return_value=(False, "daily_cap")):
+            with self.assertRaises(EmailNotSent) as ctx:
+                EmailMessage("s", "b", None, ["p@example.com"]).send()
+            self.assertEqual(ctx.exception.reason, "daily_cap")
+            quiet = get_connection(fail_silently=True)
             self.assertEqual(
-                EmailMessage("s", "b", None, ["p@example.com"]).send(), 0)
+                EmailMessage("s", "b", None, ["p@example.com"],
+                             connection=quiet).send(), 0)
+
+
+class SharedMailQuotaTests(SimpleTestCase):
+    """world.email.send_email_result: one daily + hourly cap for all mail,
+    saved on the volume, failing closed."""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.mkdtemp(prefix="mail_quota_test_")
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("RAILWAY_ENVIRONMENT_NAME", "EMAIL_DAILY_LIMIT",
+                            "EMAIL_HOURLY_LIMIT")}
+        env["RAILWAY_VOLUME_MOUNT_PATH"] = self.tmp
+        self._env = mock.patch.dict(os.environ, env, clear=True)
+        self._env.start()
+        from world import email as wemail
+        self.wemail = wemail
+        self._key = mock.patch.object(wemail, "RESEND_API_KEY",
+                                      "re_test_not_a_real_key")
+        self._key.start()
+        self.posts = []
+
+        class _Resp:
+            def read(self_inner):
+                return b'{"id": "test"}'
+
+        def fake_urlopen(req, timeout=None):
+            self.posts.append(req)
+            return _Resp()
+
+        self._urlopen = mock.patch("urllib.request.urlopen",
+                                   side_effect=fake_urlopen)
+        self._urlopen.start()
+        self._alert = mock.patch("world.telemetry.alert")
+        self._alert.start()
+
+    def tearDown(self):
+        import shutil
+        self._alert.stop()
+        self._urlopen.stop()
+        self._key.stop()
+        self._env.stop()
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _send(self, to="p@example.com"):
+        return self.wemail.send_email_result(to, "s", "<p>b</p>")
+
+    def test_daily_cap_with_admin_reserve(self):
+        os.environ["EMAIL_DAILY_LIMIT"] = "7"  # 2 for players, 5 reserved
+        self.assertEqual(self._send(), (True, None))
+        self.assertEqual(self._send(), (True, None))
+        self.assertEqual(self._send(), (False, "daily_cap"))
+        self.assertEqual(self._send(self.wemail.ADMIN_EMAIL), (True, None))
+        self.assertEqual(len(self.posts), 3)
+
+    def test_hourly_burst_cap(self):
+        os.environ["EMAIL_HOURLY_LIMIT"] = "2"
+        self._send()
+        self._send()
+        self.assertEqual(self._send(), (False, "hourly_cap"))
+
+    def test_count_survives_restart_and_counts_recipients(self):
+        os.environ["EMAIL_DAILY_LIMIT"] = "8"
+        self.wemail.send_email_result(["a@x.test", "b@x.test"], "s", "h",
+                                      cc=["c@x.test"])
+        with open(os.path.join(self.tmp, "mail_quota.json")) as fp:
+            import json
+            self.assertEqual(json.load(fp)["count"], 3)
+        # 3 used + 3 limit for players (8 - 5 reserve) = full.
+        self.assertEqual(self._send(), (False, "daily_cap"))
+
+    def test_corrupt_store_fails_closed(self):
+        with open(os.path.join(self.tmp, "mail_quota.json"), "w") as fp:
+            fp.write("{nope")
+        self.assertEqual(self._send(), (False, "store_error"))
+        self.assertEqual(self.posts, [])
+
+    def test_deployed_without_volume_fails_closed(self):
+        del os.environ["RAILWAY_VOLUME_MOUNT_PATH"]
+        os.environ["RAILWAY_ENVIRONMENT_NAME"] = "production"
+        self.assertEqual(self._send(), (False, "store_error"))
+
+    def test_failed_send_gives_slot_back(self):
+        os.environ["EMAIL_DAILY_LIMIT"] = "6"  # 1 player slot
+        with mock.patch("urllib.request.urlopen",
+                        side_effect=OSError("down")):
+            self.assertEqual(self._send(), (False, "provider_error"))
+        self.assertEqual(self._send(), (True, None))
+
+
+class AllauthMailSettingsTests(SimpleTestCase):
+
+    def test_settings(self):
+        from django.conf import settings
+        from allauth.account import app_settings
+        self.assertFalse(settings.ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS)
+        rls = app_settings.RATE_LIMITS
+        self.assertEqual(rls["reset_password"], "10/h/ip,3/h/key")
+        self.assertEqual(rls["signup"], "5/h/ip")
+        self.assertEqual(rls["login"], "30/m/ip")  # defaults kept
+        self.assertEqual(settings.ALLAUTH_TRUSTED_PROXY_COUNT, 0)  # local
 
 
 class GoogleEmailAuthenticationTests(EvenniaTest):
@@ -266,6 +497,18 @@ class GoogleEmailAuthenticationTests(EvenniaTest):
         self.assertTrue(
             self._adapter().can_authenticate_by_email(login,
                                                       "Victim@Gmail.com"))
+
+    def test_mixed_case_verified_row_does_not_count(self):
+        # allauth's own lookup matches lowercased addresses exactly, so a
+        # row it wouldn't find must not unlock email authentication.
+        from allauth.account.models import EmailAddress
+        EmailAddress.objects.create(user=self.account,
+                                    email="Victim@Gmail.com",
+                                    verified=True, primary=True)
+        login = SimpleNamespace(provider=self._provider_stub())
+        self.assertFalse(
+            self._adapter().can_authenticate_by_email(login,
+                                                      "victim@gmail.com"))
 
     def test_lookup_by_email_skips_unverified_account(self):
         from allauth.account.models import EmailAddress

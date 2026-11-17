@@ -750,3 +750,51 @@ class LongPromptTierTests(SimpleTestCase):
     def test_other_models_have_no_tier(self):
         self.assertEqual(ai_pricing.price_for("claude-haiku-4-5", 500_000),
                          ai_pricing.PRICES["claude-haiku-4-5"])
+
+
+class PreSendErrorTests(_AIEnvMixin, SimpleTestCase):
+    """Errors raised before anything reached the provider aren't charged."""
+
+    def test_anthropic_value_error_not_charged(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
+        client = mock.Mock()
+        client.messages.create.side_effect = ValueError("bad argument")
+        with mock.patch.object(ai_npc, "_anthropic_client",
+                               return_value=client):
+            self.assertIsNone(ai_npc.generate_sync("s", "u"))
+        self.assertEqual(self.spend_today(), 0.0)
+
+    def test_anthropic_auth_error_not_charged(self):
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_ANTHROPIC_KEY
+
+        class AuthError(Exception):
+            status_code = 401
+
+        client = mock.Mock()
+        client.messages.create.side_effect = AuthError("bad key")
+        with mock.patch.object(ai_npc, "_anthropic_client",
+                               return_value=client):
+            self.assertIsNone(ai_npc.generate_sync("s", "u"))
+        self.assertEqual(self.spend_today(), 0.0)
+
+    def test_groq_refused_connection_not_charged(self):
+        import urllib.error
+        os.environ["NPC_LLM_API_KEY"] = _FAKE_GROQ_KEY
+        os.environ["NPC_LLM_PROVIDER"] = "openai"
+        os.environ["NPC_LLM_FALLBACK_MODELS"] = ""
+        with mock.patch("urllib.request.urlopen",
+                        side_effect=urllib.error.URLError(
+                            ConnectionRefusedError("refused"))):
+            self.assertIsNone(ai_npc.generate_sync("s", "u"))
+        self.assertEqual(self.spend_today(), 0.0)
+
+    def test_maybe_billed_classification(self):
+        import socket
+        import urllib.error
+        self.assertTrue(ai_npc.maybe_billed(socket.timeout()))
+        self.assertTrue(ai_npc.maybe_billed(ConnectionResetError()))
+        self.assertTrue(ai_npc.maybe_billed(
+            urllib.error.URLError(socket.timeout())))
+        self.assertFalse(ai_npc.maybe_billed(TypeError()))
+        self.assertFalse(ai_npc.maybe_billed(
+            urllib.error.URLError(socket.gaierror())))

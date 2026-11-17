@@ -94,15 +94,38 @@ actually sent.
   (`ACCOUNT_EMAIL_VERIFICATION = "optional"`: nobody is locked out while
   unverified). Google sign-ins count as verified.
 - In the game, `verify` sends a link to the address on the account, and
-  `verify you@example.com` sets a new address and sends a link to it.
+  `verify you@example.com` switches the account to a new address (its
+  other unverified addresses are dropped) and sends a link to it.
   Unverified players see a note at login and, in the web client, a
-  "Send me a verification link" box. Limits: one email per account every
-  10 minutes, 5 a day, and 60 an hour for the whole game.
+  "Send me a verification link" box. Limits: the account must be 10
+  minutes old or have a character; one email per account every 10
+  minutes and 5 a day; and the shared mail caps below. A send that fails
+  doesn't use up the player's slot, and the player is told the result.
+- An address counts as taken only when another account has it verified
+  or signs in with Google using it. Typing someone else's address does
+  not block them: whoever verifies first owns it, and verifying removes
+  the address from every other account's unverified entries.
+- **Shared mail caps.** All game mail (verification links, allauth web
+  mail such as password resets, character approvals, admin alerts)
+  counts against one daily cap, `EMAIL_DAILY_LIMIT` (default 60, below
+  Resend's free 100 a day), and one hourly cap, `EMAIL_HOURLY_LIMIT`
+  (default 20). The last 5 daily slots are kept for mail to
+  `ADMIN_EMAIL`. The count is saved in `mail_quota.json` on the volume;
+  if that file can't be read or written, no mail is sent. allauth only
+  mails addresses that belong to an account
+  (`ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False`), password resets are limited
+  to 10 an hour per IP and 3 an hour per address, and sign-ups to 5 an
+  hour per IP. Client IPs come from `X-Forwarded-For` with
+  `ALLAUTH_TRUSTED_PROXY_COUNT = 2` on Railway (Railway's edge, then the
+  container's nginx) and 0 locally.
 - Emails go through Resend (`RESEND_API_KEY`), from
   `noreply@eldritchmush.com`. Links point at `SITE_BASE_URL`, which
   defaults to `https://eldritchmush.com` on production,
   `https://uat.eldritchmush.com` on uat and `http://localhost:4001`
-  locally. Set it if a host differs.
+  locally. Any other Railway environment must set `SITE_BASE_URL`, or
+  the game logs an error and sends no links. At startup the Django Site
+  is renamed "Eldritch MUSH" with this domain, so allauth's emails and
+  pages don't say "example.com".
 - An admin can also mark an address verified in Django admin (Accounts →
   Email addresses).
 - One-off backfill for existing accounts (not run automatically): from
@@ -137,6 +160,9 @@ actually sent.
 | `NPC_LLM_MODERATE_MODEL` | `llama-guard-4-12b` | Must have a price row, or moderation stays off. |
 | `SITE_BASE_URL` | per environment (see "Email verification") | Host used in verification links. |
 | `RESEND_API_KEY` | none | Sends verification and alert emails. Without it, emails are logged and skipped. |
+| `EMAIL_DAILY_LIMIT` | `60` | Emails per UTC day for the whole game (all kinds); the last 5 are kept for the admin. |
+| `EMAIL_HOURLY_LIMIT` | `20` | Emails per rolling hour for the whole game. |
+| `ALLAUTH_TRUSTED_PROXY_COUNT` | `2` on Railway, `0` locally | Proxies in front of Django, for allauth's per-IP limits. |
 
 To use a model that isn't in `world/ai_pricing.py`, add its row first,
 with the provider's current published price.
@@ -147,9 +173,9 @@ HTTP 400, so NPCs would only give canned lines on them:
 `claude-haiku-5-5`, `claude-sonnet-5`, `claude-sonnet-5-5`,
 `claude-opus-4-7`, `claude-opus-4-8`, `claude-opus-5`, `claude-opus-5-5`.
 Remove `temperature` from the calls in `world/ai_npc.py` before
-switching to one of them. (From Anthropic API version 2026-10-21, every
-model rejects it; the installed SDK version decides which API version is
-sent.)
+switching to one of them. `requirements.txt` pins `anthropic<1`: from
+1.0 the Python SDK no longer accepts `temperature`, and 2.0 moves to API
+version 2026-10-21, which rejects it on every model.
 
 ## Owner steps (outside the code)
 
