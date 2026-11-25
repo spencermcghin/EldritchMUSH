@@ -4,7 +4,7 @@ from world.combat_loop import CombatLoop
 from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
-from commands.combatant import Combatant
+from commands.combatant import Combatant, find_combat_target
 from world.character_stats import push_character_stats
 from world import monster_abilities
 
@@ -47,12 +47,11 @@ class CmdSunder(Command):
             return
 
         # Check for and error handle designated target
-        # Take the first match quietly: a room routinely holds several
+        # Search quietly: a room routinely holds several
         # identically named enemies (3x "Rat Company Digger"), and the
         # stock multimatch prompt made this verb unusable against them.
-        target = self.caller.search(self.target, quiet=True)
-        if isinstance(target, (list, tuple)):
-            target = target[0] if target else None
+        # Prefer a living match over a same-named corpse.
+        target = find_combat_target(self.caller, self.target)
 
         if not target:
             combatant.message("|430Please designate an appropriate target.|n")
@@ -62,7 +61,7 @@ class CmdSunder(Command):
             self.msg("|400You can't sunder your own gear.|n")
             return
 
-        victim = combatant.getVictim(self.target)
+        victim = combatant.getVictim(target)
 
         if not victim:
             combatant.message("|430Please designate an appropriate target.|n")

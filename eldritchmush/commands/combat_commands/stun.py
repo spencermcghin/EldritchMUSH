@@ -2,7 +2,7 @@
 from evennia import Command, utils
 from world.combat_loop import CombatLoop
 from typeclasses.npc import Npc
-from commands.combatant import Combatant
+from commands.combatant import Combatant, find_combat_target
 from world import monster_abilities
 
 
@@ -47,12 +47,11 @@ class CmdStun(Command):
 
         # Get target if there is one
         # Check for and error handle designated target
-        # Take the first match quietly: a room routinely holds several
+        # Search quietly: a room routinely holds several
         # identically named enemies (3x "Rat Company Digger"), and the
         # stock multimatch prompt made this verb unusable against them.
-        target = self.caller.search(self.target, quiet=True)
-        if isinstance(target, (list, tuple)):
-            target = target[0] if target else None
+        # Prefer a living match over a same-named corpse.
+        target = find_combat_target(self.caller, self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
@@ -60,7 +59,7 @@ class CmdStun(Command):
             combatant.message("|430Please designate an appropriate target.|n")
             return
 
-        victim = combatant.getVictim(self.target)
+        victim = combatant.getVictim(target)
 
         if not victim:
             combatant.message("|430Please designate an appropriate target.|n")

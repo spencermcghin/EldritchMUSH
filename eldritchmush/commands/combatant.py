@@ -9,6 +9,33 @@ from world.character_stats import push_character_stats
 from evennia import utils as ev_utils
 
 
+def find_combat_target(caller, name):
+    """Resolve an attack verb's target name to one object, or None.
+
+    Rooms routinely hold several identically named enemies (three "Rat
+    Company Digger"), so the stock multimatch prompt is a dead end. Search
+    quietly and, when several objects share the name, prefer one that is
+    still alive (bleed_points left) and isn't the attacker, so a corpse
+    from the last fight doesn't soak up the swing. Falls back to the first
+    match, which lets the verbs report "already dead" as before.
+    """
+    found = caller.search(name, quiet=True)
+    if not isinstance(found, (list, tuple)):
+        return found
+    if not found:
+        return None
+    for obj in found:
+        if obj is caller:
+            continue
+        try:
+            alive = bool(obj.attributes.get("bleed_points", default=0))
+        except Exception:
+            alive = False
+        if alive:
+            return obj
+    return found[0]
+
+
 class Combatant:
     """
     A helper class used to ease readability and flow of combat functions
@@ -396,20 +423,17 @@ class Combatant:
     def getVictim(self, target):
         """Resolve `target` to a Combatant, or None if nothing matches.
 
-        Every attack verb (strike, shoot, cleave, disarm, stagger, stun,
-        sunder) funnels through here with the raw argument string. The
-        search used to be non-quiet, so a room holding several identically
-        named enemies — three "Rat Company Digger" is normal — printed the
-        stock multimatch prompt and returned None, and Combatant(None) then
-        raised AttributeError on .key before the turn was even spent.
+        `target` may be an already-resolved object (preferred: the attack
+        verbs resolve it once with find_combat_target and pass it in, so
+        their own checks and the victim are the same object) or the raw
+        argument string, which is resolved the same way.
 
-        Take the first match quietly instead, matching what strike/shoot
-        already do when they pre-resolve the target for their own checks.
         Callers must handle a None return.
         """
-        found = self.caller.search(target, quiet=True)
-        if isinstance(found, (list, tuple)):
-            found = found[0] if found else None
+        if isinstance(target, str):
+            found = find_combat_target(self.caller, target)
+        else:
+            found = target
 
         self.target = found
         if not found:
