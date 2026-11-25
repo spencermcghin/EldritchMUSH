@@ -80,8 +80,8 @@ def _find_player_seat(caller, anywhere=False):
 # has stopped playing. Staleness runs from the last thing the player did at
 # the table (last_ts, refreshed on every play/draw/pass and on resuming), not
 # from the deal, so a long game in progress is never wiped. A player who has
-# walked away or gone offline frees the table sooner. Whoever is cleared off
-# gets their stake back (see _refund_stakes).
+# walked away or gone offline frees the table sooner and forfeits the stake,
+# like `tavyl leave`; only an idle player still at the table is refunded.
 STALE_TABLE_SECONDS = 20 * 60
 AWAY_GRACE_SECONDS = 2 * 60
 
@@ -122,40 +122,45 @@ def _refund_stakes(table, dealer, reason):
 
 
 def _table_is_stale(table, dealer):
-    """True if the seated player has stopped playing this table.
+    """Why the table can be reclaimed, or None if it can't.
 
-    Idle (no play/draw/pass) for STALE_TABLE_SECONDS, or idle for
-    AWAY_GRACE_SECONDS while the seated player is offline, gone, or no
-    longer in the dealer's room.
+    "idle":  every seated player is still online and in the dealer's room
+             but nobody has played, drawn or passed for STALE_TABLE_SECONDS.
+             Nobody walked out, so their stake is refunded.
+    "away":  a seated player has gone offline or left the room and the
+             table has been idle for AWAY_GRACE_SECONDS. That is the same
+             as `tavyl leave`: the stake is forfeit. Refunding it let a
+             losing player log out (or have an alt sit down) to get their
+             money back while a win still paid the full pot.
     """
     import time as _time
     try:
         last = int(table.get("last_ts") or table.get("started_ts") or 0)
     except (TypeError, ValueError):
-        return False
+        return None
     if not last:
-        return False
+        return None
     idle = _time.time() - last
-    if idle > STALE_TABLE_SECONDS:
-        return True
     if idle < AWAY_GRACE_SECONDS:
-        return False
+        return None
     dealer_id = str(dealer.id) if dealer is not None else None
     for pid in table.get("players", []):
         if pid == dealer_id:
             continue
         obj = _player_obj(table, pid)
         if obj is None:
-            return True
+            return "away"
         try:
             online = bool(obj.sessions.count())
         except Exception:
             online = False
         if not online:
-            return True
+            return "away"
         if dealer is not None and obj.location != dealer.location:
-            return True
-    return False
+            return "away"
+    if idle > STALE_TABLE_SECONDS:
+        return "idle"
+    return None
 
 
 def _spawn_card_to(player, card_type):
@@ -574,14 +579,26 @@ class CmdTavyl(Command):
                 return
 
         existing = dealer.attributes.get("tavyl_table", default=None)
+        stale = None
         if existing and existing.get("started") and not _t.is_over(existing) \
-                and _table_is_stale(existing, dealer) \
                 and str(caller.id) not in existing.get("players", []):
-            # Abandoned by whoever was sitting here — reclaim it, and give
-            # the seated player their stake back rather than letting it
-            # vanish with the table.
-            _refund_stakes(existing, dealer,
-                           f"Your abandoned game at {dealer.key}'s table was cleared.")
+            stale = _table_is_stale(existing, dealer)
+        if stale:
+            # Reclaim it. A player still sitting here who simply went idle
+            # gets the stake back; one who walked away or logged out
+            # forfeits it, exactly as `tavyl leave` would.
+            if stale == "idle":
+                _refund_stakes(existing, dealer,
+                               f"Your idle game at {dealer.key}'s table was cleared.")
+            else:
+                for _pid in _stake_payers(existing, dealer):
+                    _obj = _player_obj(existing, _pid)
+                    if _obj:
+                        try:
+                            _obj.msg(f"|xYou left your game at {dealer.key}'s table "
+                                     f"and it was cleared. Your stake is forfeit.|n")
+                        except Exception:
+                            pass
             for _pid in existing.get("players", []):
                 _obj = _player_obj(existing, _pid)
                 if _obj:
