@@ -84,7 +84,17 @@ def prototype_key_candidates(obj):
     """
     candidates = []
 
-    # Evennia records the prototype an object was spawned from; trust it first.
+    # spawn() tags every object with the prototype it came from
+    # (category "from_prototype"); that is the most reliable key.
+    try:
+        tagged = obj.tags.get(category="from_prototype", return_list=True) or []
+    except Exception:
+        tagged = []
+    for value in tagged:
+        if value and isinstance(value, str):
+            candidates.append(value)
+
+    # Older code may also have stored it as an attribute.
     for attr in ("prototype_key", "prototype"):
         try:
             value = obj.attributes.get(attr, default=None)
@@ -121,22 +131,40 @@ def prototype_key_candidates(obj):
     return ordered
 
 
+def exact_prototype(key, search_prototype):
+    """Return the prototype whose prototype_key equals `key`, or None.
+
+    search_prototype() falls back to a SUBSTRING match when there is no
+    exact key, so taking results[0] could hand back an unrelated prototype
+    ("sword" -> whichever *_sword* came first). Only an exact,
+    case-insensitive prototype_key match is accepted here.
+    """
+    if not isinstance(key, str):
+        return None
+    key = key.strip()
+    if not key:
+        return None
+    wanted = key.lower()
+    for variant in (wanted, key.upper()):
+        try:
+            results = search_prototype(variant) or []
+        except Exception:
+            results = []
+        for proto in results:
+            if str(proto.get("prototype_key", "")).lower() == wanted:
+                return proto
+    return None
+
+
 def find_prototype(obj, search_prototype):
     """Resolve the prototype dict for a spawned object, or None.
 
     `search_prototype` is passed in so this module stays import-light.
-    Tries each candidate key, preferring an exact prototype_key match.
+    Tries each candidate key and requires an exact prototype_key match; a
+    fuzzy substring hit is never accepted.
     """
     for candidate in prototype_key_candidates(obj):
-        try:
-            results = search_prototype(candidate)
-        except Exception:
-            results = None
-        if not results:
-            continue
-        wanted = candidate.upper()
-        for proto in results:
-            if str(proto.get("prototype_key", "")).upper() == wanted:
-                return proto
-        return results[0]
+        proto = exact_prototype(candidate, search_prototype)
+        if proto is not None:
+            return proto
     return None

@@ -769,11 +769,12 @@ def text(session, *args, **kwargs):
                                     items = []
                                     for proto_key in (m.db.shop_inventory or []):
                                         try:
-                                            results = proto_utils.search_prototype(proto_key.lower())
-                                            if not results:
-                                                results = proto_utils.search_prototype(proto_key.upper())
-                                            if results:
-                                                proto = results[0]
+                                            # Same exact-key lookup as the text
+                                            # `browse`; results[0] of a fuzzy
+                                            # search could list the wrong item.
+                                            from commands import shop as _shop_lookup
+                                            proto = _shop_lookup._get_proto(proto_key)
+                                            if proto:
                                                 # Price through commands/shop.py: reading
                                                 # value_silver off the searched (normalized)
                                                 # prototype always returned None, so the modal
@@ -879,10 +880,12 @@ def text(session, *args, **kwargs):
                             from evennia.prototypes import prototypes as proto_utils
                             from evennia import spawn as ev_spawn
                             matched_proto = None
+                            from commands import shop as _shop_lookup
                             for proto_key in (merchant.db.shop_inventory or []):
-                                results = proto_utils.search_prototype(proto_key.lower()) or proto_utils.search_prototype(proto_key.upper())
-                                if results and item_name in results[0].get("key", "").lower():
-                                    matched_proto = results[0]
+                                # Exact-key lookup, same as the text `buy`.
+                                proto = _shop_lookup._get_proto(proto_key)
+                                if proto and item_name in proto.get("key", "").lower():
+                                    matched_proto = proto
                                     break
 
                             if not matched_proto:

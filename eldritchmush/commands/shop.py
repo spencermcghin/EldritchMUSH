@@ -18,6 +18,7 @@ from evennia import Command
 from evennia import spawn
 from evennia.prototypes import prototypes as proto_utils
 from world.prototype_values import proto_value as _proto_value
+from world.prototype_values import exact_prototype as _exact_prototype
 
 
 def _get_proto(key):
@@ -25,8 +26,12 @@ def _get_proto(key):
 
     search_prototype() does a SUBSTRING match, so a shop_inventory entry of
     "IRON" silently resolved to whichever of the 29 matching prototypes came
-    back first and sold that instead. Prefer an exact prototype_key match and
-    only fall back to the fuzzy result when nothing matches exactly.
+    back first and sold that instead. Take an exact prototype_key match. A
+    fuzzy hit is accepted only when it is the single result, which is what
+    the old search_prototype(..., require_single=True) calls allowed.
+
+    The web shop handlers (server/conf/inputfuncs.py) use this too, so the
+    modal and the text commands always resolve the same prototype.
     """
     if not isinstance(key, str):
         # A builder typo (@set merchant/shop_inventory = [None]) used to raise
@@ -37,17 +42,16 @@ def _get_proto(key):
     if not key_stripped:
         return None
 
+    proto = _exact_prototype(key_stripped, proto_utils.search_prototype)
+    if proto is not None:
+        return proto
+
     results = proto_utils.search_prototype(key_stripped.lower()) or []
     if not results:
         results = proto_utils.search_prototype(key_stripped.upper()) or []
-    if not results:
-        return None
-
-    wanted = key_stripped.upper()
-    for proto in results:
-        if str(proto.get("prototype_key", "")).upper() == wanted:
-            return proto
-    return results[0]
+    if len(results) == 1:
+        return results[0]
+    return None
 
 
 def _as_int(value, default=0):
