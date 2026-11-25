@@ -25,6 +25,15 @@ from evennia.objects.models import ObjectDB
 
 COIN_TO_SILVER = {"copper": 0.1, "silver": 1, "gold": 20}
 
+# An NPC never pays a real stake, and `medicine` can heal it back up, so an
+# unlimited payout let a player farm the same duellist for coin. A player is
+# paid the NPC's share at most once per real day per NPC; any other win just
+# returns their own stake.
+NPC_REWARD_COOLDOWN = 24 * 60 * 60
+
+# A duel nobody finishes stops blocking the NPC after this long.
+DUEL_TIMEOUT = 10 * 60
+
 
 def _purse(char, coin):
     return getattr(char.db, coin, 0) or 0
@@ -60,6 +69,66 @@ def _get_npc_in_room(caller, name):
     return matches
 
 
+def _now():
+    import time
+    return time.time()
+
+
+def _is_expired(duel):
+    try:
+        started = float(duel.get("started_ts") or 0)
+    except (TypeError, ValueError, AttributeError):
+        started = 0
+    # Duels stamped before started_ts existed count as expired, so a
+    # leftover from before this change can't block an NPC forever.
+    return (not started) or (_now() - started) > DUEL_TIMEOUT
+
+
+def _abandon(char):
+    """Clear an expired duel on `char` and its opponent.
+
+    Walking away from a duel counts as yielding: the stake already on the
+    table is not returned. Refunding it would let a player who is losing
+    simply wait out the timer instead of paying up.
+    """
+    duel = char.attributes.get("duel", default=None)
+    if not duel:
+        return
+    other = None
+    try:
+        other = ObjectDB.objects.get(id=int(duel.get("opponent_dbref")))
+    except Exception:
+        other = None
+    wager = int(duel.get("wager", 0) or 0)
+    coin = duel.get("wager_coin", "silver")
+    for ch in (char, other):
+        if ch is None or not getattr(ch, "has_account", False):
+            continue
+        if ch.attributes.get("duel", default=None):
+            try:
+                ch.msg(f"|xYour unfinished duel has lapsed and counts as a "
+                       f"yield. Your {wager} {coin} stake stays on the table.|n")
+            except Exception:
+                pass
+    _clear(char, other)
+
+
+def _npc_reward_ready(winner, npc):
+    """True (and records the payout) if `winner` may take `npc`'s share."""
+    ledger = dict(winner.attributes.get("duel_npc_rewards", default=None) or {})
+    key = str(npc.id)
+    now = _now()
+    try:
+        last = float(ledger.get(key) or 0)
+    except (TypeError, ValueError):
+        last = 0
+    if last and (now - last) < NPC_REWARD_COOLDOWN:
+        return False
+    ledger[key] = now
+    winner.attributes.add("duel_npc_rewards", ledger)
+    return True
+
+
 def resolve_duel(loser):
     """Called from combatant.takeDamage when a combatant's bleed_points
     hits 0. If that combatant was in a duel, pay out, fire quest hook,
@@ -80,8 +149,21 @@ def resolve_duel(loser):
     wager = int(duel.get("wager", 0) or 0)
     coin = duel.get("wager_coin", "silver")
 
-    # Winner takes both stakes (their own returned + loser's forfeited)
-    total = wager * 2
+    # Winner takes both stakes (their own returned + loser's forfeited).
+    # Against an NPC the second stake is minted (the NPC never paid it), so
+    # a player beating an NPC gets it only once per NPC_REWARD_COOLDOWN.
+    npc_loser = not getattr(loser, "has_account", False)
+    player_winner = getattr(opponent, "has_account", False)
+    if player_winner and npc_loser and not _npc_reward_ready(opponent, loser):
+        total = wager
+        try:
+            opponent.msg(
+                f"|x{loser.key} has already paid out to you today. You take "
+                f"back only your own stake.|n")
+        except Exception:
+            pass
+    else:
+        total = wager * 2
     _pay(opponent, coin, total)
 
     # Broadcast and notify
@@ -152,6 +234,9 @@ class CmdDuel(Command):
     the encounter. Both sides put the wager on the table up front;
     whoever falls to bleeding first yields and the winner takes the
     pot. Then `strike <npc>` as normal to begin the fight.
+
+    Beating the same NPC again within a day returns only your own stake.
+    A duel left unfinished for 10 minutes lapses and counts as a yield.
     """
 
     key = "duel"
@@ -174,10 +259,19 @@ class CmdDuel(Command):
         if not npc.attributes.get("duel_ready", default=False):
             caller.msg(f"{npc.key} isn't taking challenges.")
             return
-        if caller.attributes.get("duel", default=None):
+        mine = caller.attributes.get("duel", default=None)
+        if mine and _is_expired(mine):
+            _abandon(caller)
+            mine = None
+        if mine:
             caller.msg("You're already in a duel. `duel yield` to forfeit it.")
             return
-        if npc.attributes.get("duel", default=None):
+        theirs = npc.attributes.get("duel", default=None)
+        if theirs and _is_expired(theirs):
+            # Abandoned: free the NPC for everyone else.
+            _abandon(npc)
+            theirs = None
+        if theirs:
             caller.msg(f"{npc.key} is already committed to another duel.")
             return
 
@@ -203,6 +297,7 @@ class CmdDuel(Command):
             "wager": wager,
             "wager_coin": coin,
             "room_id": caller.location.id if caller.location else None,
+            "started_ts": _now(),
         }
         caller.attributes.add("duel", info)
         npc.attributes.add("duel", {
@@ -211,6 +306,7 @@ class CmdDuel(Command):
             "wager": wager,
             "wager_coin": coin,
             "room_id": caller.location.id if caller.location else None,
+            "started_ts": info["started_ts"],
         })
 
         caller.location.msg_contents(
