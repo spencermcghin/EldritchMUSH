@@ -6,7 +6,7 @@ import math
 # Local imports
 from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
-from world.prototype_values import proto_int, proto_str
+from world.prototype_values import proto_int, proto_str, find_prototype
 from commands import command
 from commands.combatant import Combatant
 from evennia.utils import evmenu
@@ -225,11 +225,14 @@ class CmdRepair(Command):
                     combatant.message(f"|430You cannot use this ability for another {math.floor(seconds_left/60)} minutes and {seconds_left % 60} seconds.|n")
                     return
 
-                item_lower = item.key.lower().replace(" ", "_")
-                prototype = prototypes.search_prototype(item_lower, require_single=True)
-
-                # Get search response
-                prototype_data = prototype[0]
+                # Exact-key lookup. The old search_prototype(...,
+                # require_single=True) sat outside the try and raised KeyError
+                # on no match or several, and repair is the only thing that
+                # clears db.patched, so such a piece was stuck for good.
+                prototype_data = find_prototype(item, prototypes.search_prototype)
+                if prototype_data is None:
+                    self.msg(f"|430You can't work out how to repair {item.key}.|n")
+                    return
 
                 craft_source = proto_str(prototype_data, "craft_source", "")
                 material_value = proto_int(prototype_data, "material_value", 0)
