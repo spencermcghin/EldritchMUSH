@@ -16,7 +16,26 @@ from typeclasses.npc import Npc
 import random
 
 
-class Object(DefaultObject):
+class EquipmentReleaseMixin:
+    """Unequip an item from its holder before it is deleted.
+
+    Deleting an object (selling it to a merchant, a consumed item, a quest
+    sweep with no NPC to receive it) does not move it, so the holder's
+    at_object_leave never fires. Without this the holder kept the item's
+    AV and stats and a dead reference in the slot. Must come before
+    DefaultObject in the bases so it runs ahead of the default hook.
+    """
+
+    def at_object_delete(self):
+        try:
+            from world import equip_bonuses
+            equip_bonuses.release_from_holder(self)
+        except Exception:
+            pass
+        return super().at_object_delete()
+
+
+class Object(EquipmentReleaseMixin, DefaultObject):
     """
     This is the root typeclass object, implementing an in-game Evennia
     game object, such as having a location, being able to be
@@ -423,7 +442,7 @@ class GunsmithWorkbench(DefaultObject):
             string += f"\n\n{self.db.gunsmith_text}"
         return string
 
-class BlacksmithObject(DefaultObject):
+class BlacksmithObject(EquipmentReleaseMixin, DefaultObject):
 
     def at_object_creation(self):
         self.db.level = 0
@@ -465,7 +484,7 @@ class WeaponObject(BlacksmithObject):
             looker.msg(f"Durability (sunders received before broken): {self.db.material_value}")
 
 
-class ArtificerObject(DefaultObject):
+class ArtificerObject(EquipmentReleaseMixin, DefaultObject):
     def at_object_creation(self):
         self.db.uses = 0
         self.db.level = 0
@@ -530,7 +549,7 @@ class Container(DefaultObject):
 Alchemy Objects
 """
 
-class ConsumableObject(DefaultObject):
+class ConsumableObject(EquipmentReleaseMixin, DefaultObject):
     """
     An alchemical consumable (potion, decoction, poison, drug, etc.)
     Spawned by the alchemy crafting system from alchemy_prototypes.py.

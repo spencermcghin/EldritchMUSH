@@ -544,15 +544,11 @@ class Combatant:
         return remaining_damage
 
     def updateAv(self):
-        # indomitable belongs in the total. Equip added it, this recompute
-        # (which runs on the first AV hit) dropped it, so an Indomitable
-        # character advertised more AV than they actually had and lost the
-        # difference the moment they were struck.
-        armor = self.caller.db.armor or 0
-        tough = self.caller.db.tough or 0
-        armor_specialist = 1 if self.caller.db.armor_specialist else 0
-        indomitable = self.caller.db.indomitable or 0
-        self.caller.db.av = armor + tough + armor_specialist + indomitable
+        # Same formula as every equip/unequip path. Indomitable is folded
+        # into db.armor while armor is worn (equip_bonuses.don_armor), so it
+        # drains with the armor above and is not a separate, undrainable term.
+        from world.equip_bonuses import recompute_av
+        recompute_av(self.caller)
 
 
     def takeAvDamage(self,amount):

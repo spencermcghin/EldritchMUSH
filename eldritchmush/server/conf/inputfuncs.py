@@ -1530,11 +1530,7 @@ def text(session, *args, **kwargs):
                                         puppet.db.weapon_level = 0
                                     if hasattr(old_item, "db") and getattr(old_item.db, "is_armor", False):
                                         from world import equip_bonuses
-                                        equip_bonuses.store_armor_value(old_item, puppet.db.armor)
-                                        puppet.db.armor = 0
-                                        tough = getattr(puppet.db, "tough", 0) or 0
-                                        armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
-                                        puppet.db.av = tough + armor_specialist
+                                        equip_bonuses.doff_armor(puppet, old_item)
                                     session.msg(text=f"You unequip {getattr(old_item, 'key', str(old_item))}.")
                                 else:
                                     session.msg(text=f"Nothing equipped in that slot.")
@@ -1562,11 +1558,7 @@ def text(session, *args, **kwargs):
                                                 puppet.db.weapon_level = 0
                                             if getattr(item.db, "is_armor", False):
                                                 from world import equip_bonuses
-                                                equip_bonuses.store_armor_value(item, puppet.db.armor)
-                                                puppet.db.armor = 0
-                                                tough = getattr(puppet.db, "tough", 0) or 0
-                                                armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
-                                                puppet.db.av = tough + armor_specialist
+                                                equip_bonuses.doff_armor(puppet, item)
                                             break
                                     if removed:
                                         session.msg(text=f"You unequip {item.key}.")
@@ -1673,8 +1665,7 @@ def text(session, *args, **kwargs):
                                     # Bank remaining absorption on the piece
                                     # coming off — see equip_bonuses.
                                     from world import equip_bonuses
-                                    equip_bonuses.store_armor_value(old, puppet.db.armor)
-                                    puppet.db.armor = 0
+                                    equip_bonuses.doff_armor(puppet, old)
 
                             # Equip the new item
                             if getattr(idb, "twohanded", False):
@@ -1699,13 +1690,9 @@ def text(session, *args, **kwargs):
                                 # Restore what this piece has LEFT, not a full
                                 # pool: combat drains db.armor, so refilling
                                 # here made unequip/re-equip a free repair.
+                                # Same helper as the text `equip`.
                                 from world import equip_bonuses
-                                puppet.db.armor = equip_bonuses.current_armor_value(item)
-                                armor = puppet.db.armor
-                                tough = getattr(puppet.db, "tough", 0) or 0
-                                armor_specialist = 1 if getattr(puppet.db, "armor_specialist", False) else 0
-                                indomitable = getattr(puppet.db, "indomitable", 0) or 0
-                                puppet.db.av = armor + tough + armor_specialist + indomitable
+                                equip_bonuses.don_armor(puppet, item)
 
                             session.msg(text=f"You equip {item.key}.")
                             if puppet.location:

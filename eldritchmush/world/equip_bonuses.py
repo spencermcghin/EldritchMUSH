@@ -186,59 +186,124 @@ def summary_for(character):
 # db.armor_remaining, so the pool a player gets back is whatever their armor
 # had left. Repair restores it (see reset_armor).
 
-def current_armor_value(item):
-    """Absorption this armor piece has left.
+def _int(value, default=0):
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return default
 
-    Falls back to the prototype's material_value for armor that predates
+
+def _is_armor(item):
+    idb = getattr(item, "db", None)
+    return bool(idb is not None and getattr(idb, "is_armor", False))
+
+
+def current_armor_value(item):
+    """Absorption this armor piece has left, never above its material_value.
+
+    Falls back to the item's material_value for armor that predates
     armor_remaining, so existing gear keeps working unchanged.
     """
     if not item or not getattr(item, "db", None):
         return 0
 
+    full = max(0, _int(getattr(item.db, "material_value", 0)))
     remaining = item.attributes.get("armor_remaining", default=None)
     if remaining is None:
-        remaining = getattr(item.db, "material_value", 0) or 0
-
-    try:
-        return max(0, int(remaining))
-    except (TypeError, ValueError):
-        return 0
+        return full
+    return max(0, min(full, _int(remaining)))
 
 
 def store_armor_value(item, value):
-    """Persist the character's remaining armor pool back onto the item."""
-    if not item or not getattr(item, "db", None):
-        return
-    try:
-        value = max(0, int(value))
-    except (TypeError, ValueError):
-        value = 0
-    item.attributes.add("armor_remaining", value)
+    """Persist an armor pool back onto the item, capped at material_value.
 
-
-def reset_armor(item, wearer=None):
-    """Restore an armor piece to full absorption (used by repair).
-
-    Pass `wearer` when the piece may currently be worn: the live db.armor
-    pool has to be refreshed too, otherwise repairing armor you are wearing
-    restores the item but leaves you with the drained pool until you take it
-    off and put it back on.
+    The cap means indomitable (or anything else above the piece's own
+    material_value) is never banked on the item. That also covers legacy
+    characters whose db.armor already had indomitable folded in.
     """
     if not item or not getattr(item, "db", None):
         return
+    full = max(0, _int(getattr(item.db, "material_value", 0)))
+    value = max(0, min(full, _int(value)))
+    item.attributes.add("armor_remaining", value)
 
-    full = getattr(item.db, "material_value", 0) or 0
+
+def recompute_av(character):
+    """Set and return db.av from the absorbable pools.
+
+    AV = armor + tough + armor_specialist. Indomitable is not a separate
+    term: while armor is worn it is folded into db.armor (see don_armor),
+    so it absorbs hits and drains with the armor, and it does nothing with
+    no armor on. Every equip/unequip path (text, web, give, sell, drop)
+    and Combatant.updateAv go through here so AV never depends on which
+    client was used.
+    """
+    cdb = character.db
+    armor = _int(getattr(cdb, "armor", 0))
+    tough = _int(getattr(cdb, "tough", 0))
+    armor_specialist = 1 if getattr(cdb, "armor_specialist", 0) else 0
+    av = armor + tough + armor_specialist
+    cdb.av = av
+    return av
+
+
+def don_armor(character, item):
+    """Load the character's armor pool from `item` as it goes on.
+
+    The pool is whatever absorption the piece has left plus the wearer's
+    indomitable, which only applies while the armor still has absorption
+    (the pre-durability rule was "only if material_value > 0"). The amount
+    of indomitable added is recorded so doff_armor can bank only the
+    piece's own share.
+    """
+    remaining = current_armor_value(item)
+    indomitable = _int(getattr(character.db, "indomitable", 0)) if remaining > 0 else 0
+    character.db.armor = remaining + indomitable
+    character.db.armor_indomitable = indomitable
+    return recompute_av(character)
+
+
+def worn_armor_remaining(character, item):
+    """What `item` has left right now, reading the live pool if it is worn."""
+    if character is not None and is_equipped(character, item):
+        pool = _int(getattr(character.db, "armor", 0))
+        indomitable = _int(getattr(character.db, "armor_indomitable", 0))
+        full = max(0, _int(getattr(item.db, "material_value", 0)))
+        return max(0, min(full, pool - indomitable))
+    return current_armor_value(item)
+
+
+def doff_armor(character, item):
+    """Bank the pool back onto `item` and clear it from the character.
+
+    Hits drain the piece's own share first; the indomitable share is what
+    is left last. So the item keeps pool - indomitable, capped at its
+    material_value. Re-equipping then gives back exactly what was banked
+    plus indomitable (if anything is left), never a free refill.
+    """
+    pool = _int(getattr(character.db, "armor", 0))
+    indomitable = _int(getattr(character.db, "armor_indomitable", 0))
+    store_armor_value(item, pool - indomitable)
+    character.db.armor = 0
+    character.db.armor_indomitable = 0
+    return recompute_av(character)
+
+
+def reset_armor(item, wearer=None):
+    """Restore an armor piece to full absorption (repair and patch kit).
+
+    Only armor is touched: repairing a sword or shield must not write
+    armor_remaining or the wearer's pool. Pass `wearer` when the piece may
+    currently be worn, so the live pool is refreshed too.
+    """
+    if not item or not getattr(item, "db", None) or not _is_armor(item):
+        return
+
+    full = max(0, _int(getattr(item.db, "material_value", 0)))
     item.attributes.add("armor_remaining", full)
 
     if wearer is not None and is_equipped(wearer, item):
-        wearer.db.armor = full
-        try:
-            tough = getattr(wearer.db, "tough", 0) or 0
-            armor_specialist = 1 if getattr(wearer.db, "armor_specialist", False) else 0
-            indomitable = getattr(wearer.db, "indomitable", 0) or 0
-            wearer.db.av = full + tough + armor_specialist + indomitable
-        except Exception:
-            pass
+        don_armor(wearer, item)
 
 
 # ---------------------------------------------------------------------------
@@ -298,9 +363,8 @@ def force_unequip(character, item):
         character.db.weapon_level = 0
 
     # Armor: bank remaining absorption on the piece, then clear the pool.
-    if idb is not None and getattr(idb, "is_armor", False):
-        store_armor_value(item, getattr(character.db, "armor", 0) or 0)
-        character.db.armor = 0
+    if _is_armor(item):
+        doff_armor(character, item)
 
     # Gloves / boots carry a flat resist that the equip path added directly.
     if idb is not None and getattr(idb, "resist", 0):
@@ -323,12 +387,34 @@ def force_unequip(character, item):
 
     # Recompute armor value from what is still worn.
     try:
-        armor = getattr(character.db, "armor", 0) or 0
-        tough = getattr(character.db, "tough", 0) or 0
-        armor_specialist = 1 if getattr(character.db, "armor_specialist", False) else 0
-        indomitable = getattr(character.db, "indomitable", 0) or 0
-        character.db.av = armor + tough + armor_specialist + indomitable
+        recompute_av(character)
     except Exception:
         pass
 
+    return True
+
+
+def release_from_holder(item, notify=True):
+    """Force-unequip `item` from whoever holds it, if it is equipped.
+
+    Used by the leave/delete hooks so any path that takes an equipped item
+    away (stock drop, put, quest sweeps, item.delete()) reverses its stats.
+    Explicit force_unequip calls made earlier in give/sell leave nothing
+    in the slots, so this is a no-op for them and nothing is reversed twice.
+    """
+    holder = getattr(item, "location", None)
+    if holder is None or not is_equipped(holder, item):
+        return False
+    if not force_unequip(holder, item):
+        return False
+    if notify:
+        try:
+            holder.msg(f"|430You are no longer using {item.key}.|n")
+        except Exception:
+            pass
+    try:
+        from world.character_stats import push_character_stats
+        push_character_stats(holder)
+    except Exception:
+        pass
     return True
