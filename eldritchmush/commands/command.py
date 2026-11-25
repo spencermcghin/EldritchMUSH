@@ -2951,9 +2951,12 @@ class CmdPatch(Command):
                 self.msg("This item cannot be patched or you have entered an incorrect spelling.")
                 return
 
-            # Check if the item has been patched already.
+            # One patch per piece. The same db.patched flag covers both kinds
+            # of damage (sundered material_value and drained armor), so a
+            # patch kit can't be spammed to refill armor every fight. Only a
+            # crafter's `repair` (CmdRepair) clears the flag.
             if inv_item.db.patched:
-                self.msg(f"{inv_item} has been patched already. You will have to take it to a blacksmith to be repaired.")
+                self.msg(f"{inv_item} has already been patched once. It needs a smith's repair before a patch kit will help again.")
                 return
 
             # Damaged = sundered below its prototype material_value, or (for
