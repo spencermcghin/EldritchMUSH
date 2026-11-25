@@ -74,14 +74,65 @@ def _now():
     return time.time()
 
 
-def _is_expired(duel):
+def _last_activity(duel):
     try:
-        started = float(duel.get("started_ts") or 0)
+        return max(float(duel.get("started_ts") or 0), float(duel.get("last_ts") or 0))
     except (TypeError, ValueError, AttributeError):
-        started = 0
-    # Duels stamped before started_ts existed count as expired, so a
-    # leftover from before this change can't block an NPC forever.
-    return (not started) or (_now() - started) > DUEL_TIMEOUT
+        return 0
+
+
+def _in_combat_loop(char):
+    """True if `char` is in its room's combat loop right now."""
+    if char is None:
+        return False
+    room = getattr(char, "location", None)
+    try:
+        loop = room.attributes.get("combat_loop", default=None) if room else None
+    except Exception:
+        loop = None
+    return bool(loop) and char in loop
+
+
+def touch_duel(char):
+    """Record duel activity on `char` and its opponent (called on each hit)."""
+    duel = char.attributes.get("duel", default=None)
+    if not duel:
+        return
+    now = _now()
+    sides = [char]
+    try:
+        sides.append(ObjectDB.objects.get(id=int(duel.get("opponent_dbref"))))
+    except Exception:
+        pass
+    for ch in sides:
+        d = ch.attributes.get("duel", default=None)
+        if d:
+            d = dict(d)
+            d["last_ts"] = now
+            ch.attributes.add("duel", d)
+
+
+def _is_expired(duel, holder=None):
+    """True if this duel has lapsed.
+
+    A duel lapses only when nothing has happened in it for DUEL_TIMEOUT
+    (started_ts, refreshed to last_ts on every hit) AND neither duellist is
+    in a combat loop. A fight still going, however long, never lapses.
+    Duels stamped before started_ts existed count as idle.
+    """
+    last = _last_activity(duel)
+    if last and (_now() - last) <= DUEL_TIMEOUT:
+        return False
+    if holder is not None:
+        if _in_combat_loop(holder):
+            return False
+        try:
+            other = ObjectDB.objects.get(id=int(duel.get("opponent_dbref")))
+        except Exception:
+            other = None
+        if _in_combat_loop(other):
+            return False
+    return True
 
 
 def _abandon(char):
@@ -236,7 +287,7 @@ class CmdDuel(Command):
     pot. Then `strike <npc>` as normal to begin the fight.
 
     Beating the same NPC again within a day returns only your own stake.
-    A duel left unfinished for 10 minutes lapses and counts as a yield.
+    A duel with no fighting for 10 minutes lapses and counts as a yield.
     """
 
     key = "duel"
@@ -260,14 +311,14 @@ class CmdDuel(Command):
             caller.msg(f"{npc.key} isn't taking challenges.")
             return
         mine = caller.attributes.get("duel", default=None)
-        if mine and _is_expired(mine):
+        if mine and _is_expired(mine, caller):
             _abandon(caller)
             mine = None
         if mine:
             caller.msg("You're already in a duel. `duel yield` to forfeit it.")
             return
         theirs = npc.attributes.get("duel", default=None)
-        if theirs and _is_expired(theirs):
+        if theirs and _is_expired(theirs, npc):
             # Abandoned: free the NPC for everyone else.
             _abandon(npc)
             theirs = None

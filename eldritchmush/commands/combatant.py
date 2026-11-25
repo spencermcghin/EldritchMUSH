@@ -582,6 +582,13 @@ class Combatant:
                 pass
             return 0
         struck = amount  # pre-armor hit size, for the client hit-flash
+        # Keep an ongoing duel from lapsing (commands/duel.py DUEL_TIMEOUT).
+        try:
+            if self.caller.attributes.has("duel"):
+                from commands.duel import touch_duel
+                touch_duel(self.caller)
+        except Exception:
+            pass
         if self.av and (not skip_av):
             amount = self.takeAvDamage(amount)
 
