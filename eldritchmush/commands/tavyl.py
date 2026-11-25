@@ -76,24 +76,86 @@ def _find_player_seat(caller, anywhere=False):
     return None
 
 
-# A table whose seated player has been gone this long can be reclaimed by the
-# next person who sits. world/tavyl.py has always recorded started_ts for this
-# and nothing ever read it, so a player who logged out mid-hand (their cards
-# are deleted on unpuppet, but the table is deliberately kept) blocked the
-# dealer permanently.
+# A table can be reclaimed by the next person who sits once its seated player
+# has stopped playing. Staleness runs from the last thing the player did at
+# the table (last_ts, refreshed on every play/draw/pass and on resuming), not
+# from the deal, so a long game in progress is never wiped. A player who has
+# walked away or gone offline frees the table sooner. Whoever is cleared off
+# gets their stake back (see _refund_stakes).
 STALE_TABLE_SECONDS = 20 * 60
+AWAY_GRACE_SECONDS = 2 * 60
 
 
-def _table_is_stale(table):
-    """True if the table has been running longer than STALE_TABLE_SECONDS."""
+def _touch(table):
+    """Record player activity on the table (caller persists the table)."""
+    import time as _time
+    table["last_ts"] = int(_time.time())
+
+
+def _stake_payers(table, dealer):
+    """dbref strings of the seats that actually paid a stake.
+
+    The dealer NPC never pays one. Older tables have no "paid" list, so
+    fall back to every non-dealer seat.
+    """
+    if "paid" in table:
+        return list(table.get("paid") or [])
+    dealer_id = str(dealer.id) if dealer is not None else None
+    return [pid for pid in table.get("players", []) if pid != dealer_id]
+
+
+def _refund_stakes(table, dealer, reason):
+    """Return each paying seat's stake. Returns the number refunded."""
+    stake = table.get("stake", 1)
+    refunded = 0
+    for pid in _stake_payers(table, dealer):
+        obj = _player_obj(table, pid)
+        if not obj:
+            continue
+        obj.db.silver = (obj.db.silver or 0) + stake
+        refunded += 1
+        try:
+            obj.msg(f"|x{reason} Your {stake} silver stake is returned.|n")
+        except Exception:
+            pass
+    return refunded
+
+
+def _table_is_stale(table, dealer):
+    """True if the seated player has stopped playing this table.
+
+    Idle (no play/draw/pass) for STALE_TABLE_SECONDS, or idle for
+    AWAY_GRACE_SECONDS while the seated player is offline, gone, or no
+    longer in the dealer's room.
+    """
     import time as _time
     try:
-        started = int(table.get("started_ts") or 0)
+        last = int(table.get("last_ts") or table.get("started_ts") or 0)
     except (TypeError, ValueError):
         return False
-    if not started:
+    if not last:
         return False
-    return (_time.time() - started) > STALE_TABLE_SECONDS
+    idle = _time.time() - last
+    if idle > STALE_TABLE_SECONDS:
+        return True
+    if idle < AWAY_GRACE_SECONDS:
+        return False
+    dealer_id = str(dealer.id) if dealer is not None else None
+    for pid in table.get("players", []):
+        if pid == dealer_id:
+            continue
+        obj = _player_obj(table, pid)
+        if obj is None:
+            return True
+        try:
+            online = bool(obj.sessions.count())
+        except Exception:
+            online = False
+        if not online:
+            return True
+        if dealer is not None and obj.location != dealer.location:
+            return True
+    return False
 
 
 def _spawn_card_to(player, card_type):
@@ -513,9 +575,13 @@ class CmdTavyl(Command):
 
         existing = dealer.attributes.get("tavyl_table", default=None)
         if existing and existing.get("started") and not _t.is_over(existing) \
-                and _table_is_stale(existing) \
+                and _table_is_stale(existing, dealer) \
                 and str(caller.id) not in existing.get("players", []):
-            # Abandoned by whoever was sitting here — reclaim it.
+            # Abandoned by whoever was sitting here — reclaim it, and give
+            # the seated player their stake back rather than letting it
+            # vanish with the table.
+            _refund_stakes(existing, dealer,
+                           f"Your abandoned game at {dealer.key}'s table was cleared.")
             for _pid in existing.get("players", []):
                 _obj = _player_obj(existing, _pid)
                 if _obj:
@@ -533,7 +599,10 @@ class CmdTavyl(Command):
                     f"|gYou're already at {dealer.key}'s table. "
                     f"Resuming your hand…|n"
                 )
-                _materialize_hand(caller, existing)
+                resumed = dict(existing)
+                _touch(resumed)
+                dealer.attributes.add("tavyl_table", resumed)
+                _materialize_hand(caller, resumed)
                 push_tavyl_state(caller, dealer)
                 return
             caller.msg(f"{dealer.key}'s table is already in play. Wait for the next round.")
@@ -550,6 +619,9 @@ class CmdTavyl(Command):
         players = [str(caller.id), str(dealer.id)]
         random.shuffle(players)  # random first player
         table = _t.new_table(players, stake=stake)
+        # Only the human paid in; the dealer NPC never stakes anything.
+        table["paid"] = [str(caller.id)]
+        _touch(table)
         dealer.attributes.add("tavyl_table", table)
         _materialize_hand(caller, table)
         # Dealer keeps no inventory cards (held abstractly in table["hands"]).
@@ -608,6 +680,7 @@ class CmdTavyl(Command):
         if table["current"] != str(caller.id):
             caller.msg("It's not your turn.")
             return
+        _touch(table)
 
         if not args:
             caller.msg("Play which card? `tavyl play <card name>`")
@@ -690,6 +763,7 @@ class CmdTavyl(Command):
         if table["current"] != str(caller.id):
             caller.msg("It's not your turn.")
             return
+        _touch(table)
         drawn = _t.draw_one(table, str(caller.id))
         if drawn is None:
             caller.msg("|xThe Fate deck is empty.|n")
@@ -722,6 +796,7 @@ class CmdTavyl(Command):
         if table["current"] != str(caller.id):
             caller.msg("It's not your turn.")
             return
+        _touch(table)
         _t.add_log(table, f"{caller.key} passes the turn.")
         _broadcast(seat, f"|g{caller.key}|n passes the turn.")
         _t.next_player(table)
@@ -791,19 +866,10 @@ class CmdTavyl(Command):
             except Exception:
                 pass
         else:
-            # No winner: the Fate deck ran dry. Return every stake rather
-            # than destroying the pot — the house should not collect on a
-            # game that simply could not be finished.
-            stake = table.get("stake", 1)
-            for pid in table.get("players", []):
-                obj = _player_obj(table, pid)
-                if obj:
-                    obj.db.silver = (obj.db.silver or 0) + stake
-                    try:
-                        obj.msg(f"|xThe Fate deck is spent. Your {stake} "
-                                f"silver stake is returned.|n")
-                    except Exception:
-                        pass
+            # No winner: the Fate deck ran dry. Return the stakes that were
+            # actually paid. The dealer NPC never paid one, so refunding
+            # every seat minted a stake's worth of silver on each draw.
+            _refund_stakes(table, seat, "The Fate deck is spent.")
             _broadcast(seat, "|x(The Fate deck is spent — the round is a draw.)|n")
         # Clear table state and player cards
         for pid in table.get("players", []):
