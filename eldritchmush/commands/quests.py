@@ -773,6 +773,30 @@ def quest_gather(char, item_name, qty=1):
                     _check_completion(char, key)
 
 
+def duel_is_quest_tied(npc_key):
+    """True if any quest has a 'duel' objective targeting this NPC."""
+    npc_key_lower = (npc_key or "").lower()
+    for qdef in QUESTS.values():
+        for obj in qdef.get("objectives", []) or []:
+            if obj.get("type") == "duel" and (obj.get("target") or "").lower() in npc_key_lower:
+                return True
+    return False
+
+
+def has_open_duel_step(char, npc_key):
+    """True if *char* has an active quest whose duel step against this NPC
+    is not complete yet."""
+    npc_key_lower = (npc_key or "").lower()
+    for state in (char.db.quests or {}).values():
+        if state.get("status") != "active":
+            continue
+        for obj in state.get("objectives", []):
+            if obj.get("type") == "duel" and (obj.get("target") or "").lower() in npc_key_lower \
+                    and obj.get("current", 0) < obj.get("qty", 1):
+                return True
+    return False
+
+
 def quest_duel_win(char, npc_key):
     """
     Call this when *char* wins a wagered duel against an NPC with

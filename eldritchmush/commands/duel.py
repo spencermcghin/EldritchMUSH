@@ -249,9 +249,24 @@ def resolve_duel(loser):
     # as SIGNED_OBAN_CONTRACT and LANTON_VETERAN_COIN could be duplicated
     # by beating the same NPC again (medicine heals it for a rematch).
     # Later wins still pay coin under the NPC_REWARD_COOLDOWN cap above.
+    #
+    # If the NPC's duel belongs to a quest, the reward is given only while
+    # the player has that quest active with the duel step still open, and
+    # the first win is recorded only when the reward is actually given. A
+    # win before accepting the quest therefore uses nothing up.
     first_win = True
     if player_winner and npc_loser:
-        first_win = _record_first_win(opponent, loser)
+        tied = open_step = False
+        try:
+            from commands.quests import duel_is_quest_tied, has_open_duel_step
+            tied = duel_is_quest_tied(loser.key)
+            open_step = tied and has_open_duel_step(opponent, loser.key)
+        except Exception:
+            pass
+        if tied and not open_step:
+            first_win = False
+        else:
+            first_win = _record_first_win(opponent, loser)
 
     # Quest hook (only fires if the WINNER is a player character)
     if first_win and getattr(opponent, "has_account", False):
