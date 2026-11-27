@@ -80,8 +80,8 @@ def _find_player_seat(caller, anywhere=False):
 # has stopped playing. Staleness runs from the last thing the player did at
 # the table (last_ts, refreshed on every play/draw/pass and on resuming), not
 # from the deal, so a long game in progress is never wiped. A player who has
-# walked away or gone offline frees the table sooner and forfeits the stake,
-# like `tavyl leave`; only an idle player still at the table is refunded.
+# walked away or gone offline frees the table sooner. Either way the seated
+# player forfeits the stake, like `tavyl leave`; a stale reset never refunds.
 STALE_TABLE_SECONDS = 20 * 60
 AWAY_GRACE_SECONDS = 2 * 60
 
@@ -126,12 +126,12 @@ def _table_is_stale(table, dealer):
 
     "idle":  every seated player is still online and in the dealer's room
              but nobody has played, drawn or passed for STALE_TABLE_SECONDS.
-             Nobody walked out, so their stake is refunded.
     "away":  a seated player has gone offline or left the room and the
-             table has been idle for AWAY_GRACE_SECONDS. That is the same
-             as `tavyl leave`: the stake is forfeit. Refunding it let a
-             losing player log out (or have an alt sit down) to get their
-             money back while a win still paid the full pot.
+             table has been idle for AWAY_GRACE_SECONDS.
+
+    Both reasons forfeit the stake, the same as `tavyl leave`. Refunding
+    let a losing player (or their alt) cancel a bad hand for free while a
+    win still paid the full pot.
     """
     import time as _time
     try:
@@ -584,21 +584,18 @@ class CmdTavyl(Command):
                 and str(caller.id) not in existing.get("players", []):
             stale = _table_is_stale(existing, dealer)
         if stale:
-            # Reclaim it. A player still sitting here who simply went idle
-            # gets the stake back; one who walked away or logged out
-            # forfeits it, exactly as `tavyl leave` would.
-            if stale == "idle":
-                _refund_stakes(existing, dealer,
-                               f"Your idle game at {dealer.key}'s table was cleared.")
-            else:
-                for _pid in _stake_payers(existing, dealer):
-                    _obj = _player_obj(existing, _pid)
-                    if _obj:
-                        try:
-                            _obj.msg(f"|xYou left your game at {dealer.key}'s table "
-                                     f"and it was cleared. Your stake is forfeit.|n")
-                        except Exception:
-                            pass
+            # Reclaim it. The seated player forfeits their stake, exactly as
+            # `tavyl leave` would: any refund here let a losing player (or
+            # their alt) cancel a bad hand for free while a win still paid.
+            for _pid in _stake_payers(existing, dealer):
+                _obj = _player_obj(existing, _pid)
+                if _obj:
+                    try:
+                        _obj.msg(f"|xYour game at {dealer.key}'s table went stale "
+                                 f"and was cleared. Your stake is forfeit, as if "
+                                 f"you had left the table.|n")
+                    except Exception:
+                        pass
             for _pid in existing.get("players", []):
                 _obj = _player_obj(existing, _pid)
                 if _obj:
