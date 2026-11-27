@@ -83,9 +83,10 @@ class CmdBrew(Command):
         # Recipe gating — player must know the recipe (superusers bypass)
         if not caller.is_superuser:
             proto_key = proto_data.get("prototype_key", "").upper()
-            known = caller.db.known_recipes
-            if not isinstance(known, set):
-                known = set()
+            # via recipe_book: db.known_recipes is a _SaverSet, so the old
+            # isinstance(known, set) check read every book as empty.
+            from world import recipe_book
+            known = recipe_book.known_recipes(caller)
             if proto_key not in known and substance_name.lower() not in {r.lower() for r in known}:
                 caller.msg(
                     f"|400You don't know the recipe for {substance_name}. "

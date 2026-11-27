@@ -4,7 +4,7 @@ from world.combat_loop import CombatLoop
 from commands.combat import Helper
 from evennia import utils
 from typeclasses.npc import Npc
-from commands.combatant import Combatant
+from commands.combatant import Combatant, find_combat_target
 from world.character_stats import push_character_stats
 from world import monster_abilities
 
@@ -47,7 +47,11 @@ class CmdSunder(Command):
             return
 
         # Check for and error handle designated target
-        target = self.caller.search(self.target)
+        # Search quietly: a room routinely holds several
+        # identically named enemies (3x "Rat Company Digger"), and the
+        # stock multimatch prompt made this verb unusable against them.
+        # Prefer a living match over a same-named corpse.
+        target = find_combat_target(self.caller, self.target)
 
         if not target:
             combatant.message("|430Please designate an appropriate target.|n")
@@ -57,11 +61,19 @@ class CmdSunder(Command):
             self.msg("|400You can't sunder your own gear.|n")
             return
 
-        victim = combatant.getVictim(self.target)
+        victim = combatant.getVictim(target)
+
+        if not victim:
+            combatant.message("|430Please designate an appropriate target.|n")
+            return
 
         if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutilate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
+            # Resolve the loop before bailing: if that corpse was the last
+            # standing NPC, combat has to end here, or the survivors stay
+            # flagged in_combat with their exits locked.
+            CombatLoop(combatant.caller, None).endIfNpcsDefeated()
             return
 
         loop = CombatLoop(combatant.caller, combatant.target)

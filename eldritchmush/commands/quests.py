@@ -773,6 +773,30 @@ def quest_gather(char, item_name, qty=1):
                     _check_completion(char, key)
 
 
+def duel_is_quest_tied(npc_key):
+    """True if any quest has a 'duel' objective targeting this NPC."""
+    npc_key_lower = (npc_key or "").lower()
+    for qdef in QUESTS.values():
+        for obj in qdef.get("objectives", []) or []:
+            if obj.get("type") == "duel" and (obj.get("target") or "").lower() in npc_key_lower:
+                return True
+    return False
+
+
+def has_open_duel_step(char, npc_key):
+    """True if *char* has an active quest whose duel step against this NPC
+    is not complete yet."""
+    npc_key_lower = (npc_key or "").lower()
+    for state in (char.db.quests or {}).values():
+        if state.get("status") != "active":
+            continue
+        for obj in state.get("objectives", []):
+            if obj.get("type") == "duel" and (obj.get("target") or "").lower() in npc_key_lower \
+                    and obj.get("current", 0) < obj.get("qty", 1):
+                return True
+    return False
+
+
 def quest_duel_win(char, npc_key):
     """
     Call this when *char* wins a wagered duel against an NPC with
@@ -1420,5 +1444,19 @@ class CmdQuest(Command):
             return
 
         qdef = QUESTS[found_key]
+
+        # Stop any timed-rescue deadlines armed for this quest, the same way
+        # fail_quest does. Without this the scripts outlived the state: on
+        # re-accept, _arm_deadlines saw them as already armed and skipped
+        # arming fresh ones, so the stale timers fired against the new run and
+        # marked its rescue beats failed before the player was even briefed.
+        # Repeated abandon/accept cycles also accumulated live scripts.
+        try:
+            for s in _deadline_scripts(caller):
+                if s.db.quest_key == found_key:
+                    s.stop()
+        except Exception:
+            pass
+
         del caller.db.quests[found_key]
         caller.msg(f"|yAbandoned quest: {qdef['title']}|n")

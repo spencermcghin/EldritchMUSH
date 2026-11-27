@@ -15,6 +15,7 @@ from commands import combat
 from commands.fortunestrings import FORTUNE_STRINGS
 from evennia import default_cmds, utils, search_object, spawn
 from evennia.prototypes import prototypes
+from world.prototype_values import find_prototype
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import evtable
 # Lazy-imported in CmdOpenBox.func() to avoid circular import:
@@ -242,7 +243,8 @@ class CmdGet(Command):
             qty = None
         else:
             qty = int(self.args_list[0])
-            item = self.args_list[1]
+            # "get 5" with no item name used to raise IndexError here.
+            item = self.args_list[1] if len(self.args_list) > 1 else ""
 
         self.target = self.args_list[-1]
         self.item = item
@@ -493,6 +495,14 @@ class CmdGive(Command):
             if not to_give.at_before_give(self.caller, target):
                 return
 
+            # Strip the item off any slot before it leaves. Giving away worn
+            # armor used to keep the giver's AV applied (with a stale slot
+            # reference they could no longer unequip) while the recipient
+            # equipped the same piece for a second copy of the bonus.
+            from world import equip_bonuses
+            if equip_bonuses.force_unequip(self.caller, to_give):
+                self.caller.msg(f"|430You remove {to_give.key} before handing it over.|n")
+
             # give object
             self.caller.msg("You give %s to %s." % (to_give.key, target.key))
             to_give.move_to(target, quiet=True)
@@ -644,15 +654,19 @@ class CmdEquip(Command):
 
         if item:
             # Check if the item is of armor type
-            item_lower = item.key.lower().replace(" ", "_")
-
-            try:
-                prototype = prototypes.search_prototype(item_lower, require_single=True)
-            except KeyError:
+            # Resolve the prototype via find_prototype rather than a raw
+            # key.lower().replace(" ", "_"): that derivation fails on any
+            # key with punctuation ("Chirurgeon's Kit" -> "chirurgeon's_kit",
+            # which matches nothing), and the bare `return` below meant equip
+            # silently did nothing — no message, no slot change. That alone
+            # disabled every healing command, since they all require an
+            # equipped chirurgeon's kit.
+            prototype_data = find_prototype(item, prototypes.search_prototype)
+            if prototype_data is None:
+                self.caller.msg(
+                    f"|430You can't work out how to equip {item.key}.|n")
                 return
             else:
-                # Get search response
-                prototype_data = prototype[0]
 
                 # Get item attributes and who makes it.
                 item_data = prototype_data['attrs']
@@ -660,7 +674,10 @@ class CmdEquip(Command):
                 indexOfRequired = next((i for i, v in enumerate(item_data) if v[0] == "required_skill"), None)
 
                 # Do some skill checks
-                if indexOfRequired:
+                # `is not None`: index 0 is falsy, so a prototype whose
+                # required_skill happened to sit first had its skill
+                # check skipped entirely.
+                if indexOfRequired is not None:
                     required_skill = item_data[indexOfRequired][1]
 
                     if required_skill == "gunner" and not self.caller.db.gunner:
@@ -739,25 +756,24 @@ class CmdEquip(Command):
 
                 # Equip armor
                 elif item.db.is_armor and not self.caller.db.body_slot:
-                    self.caller.db.body_slot.append(item)
-                    self.caller.db.armor = item.db.material_value
+                    from world import equip_bonuses
 
-                    # Add extra points from indomitable if armor still has material_value
-                    if item.db.material_value > 0 and self.caller.db.indomitable:
-                        self.caller.db.armor += self.caller.db.indomitable
+                    self.caller.db.body_slot.append(item)
+                    # Restore whatever absorption this piece has LEFT, not its
+                    # pristine material_value (combat drains db.armor, so a
+                    # full reset made unequip/re-equip a free refill). Indomitable
+                    # is folded into the pool while the armor has absorption
+                    # left, so it drains with the armor. See equip_bonuses.
+                    currentArmorValue = equip_bonuses.don_armor(self.caller, item)
 
                     self.msg(f"You don {item.key}.")
                     self.caller.location.msg_contents(f"|025{self.caller.key} equips their {item.key} armor.|n")
 
-                    # Get vals for armor value calc
+                    # Get vals for the armor value report
                     armor_value = self.caller.db.armor
-                    indomitable = self.caller.db.indomitable
+                    indomitable = self.caller.db.armor_indomitable or 0
                     tough = self.caller.db.tough
-                    armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-
-                    # Add them up and set the curent armor value in the database
-                    currentArmorValue = armor_value + tough + armor_specialist + indomitable
-                    self.caller.db.av = currentArmorValue
+                    armor_specialist = 1 if self.caller.db.armor_specialist else 0
 
                     # Return armor value to console.
                     self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
@@ -903,16 +919,16 @@ class CmdUnequip(Command):
 
             # Check to see if right hand is empty.
             elif self.caller.db.body_slot and item in self.caller.db.body_slot:
+                from world import equip_bonuses
+
                 self.caller.db.body_slot.remove(item)
-                # Item is armor, decrement from av
-                self.caller.db.armor = 0
-                # Get vals for armor value calc
+                # Bank the absorption this piece has left onto the item (never
+                # indomitable, never above material_value), so re-equipping
+                # restores the worn-down value. Repair or a patch kit refills it.
+                currentArmorValue = equip_bonuses.doff_armor(self.caller, item)
                 armor_value = self.caller.db.armor
                 tough = self.caller.db.tough
-                armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-                # Add them up and set the curent armor value in the database
-                currentArmorValue = armor_value + tough + armor_specialist
-                self.caller.db.av = currentArmorValue
+                armor_specialist = 1 if self.caller.db.armor_specialist else 0
                 # Return armor value to console.
                 self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor_value}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
 
@@ -1220,14 +1236,13 @@ class SetTough(Command):
             self.caller.msg("|430Your Tough was set to %i.|n" % tough)
 
             # Get armor value objects
+            from world.equip_bonuses import recompute_av
             armor = self.caller.db.armor
             tough = self.caller.db.tough
-            armor_specialist = 1 if self.caller.db.armor_specialist == True else 0
-            indomitable = self.caller.db.indomitable
+            armor_specialist = 1 if self.caller.db.armor_specialist else 0
 
-            # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + armor_specialist + indomitable
-            self.caller.db.av = currentArmorValue
+            # Same AV formula as equip/unequip (indomitable lives in db.armor).
+            currentArmorValue = recompute_av(self.caller)
 
             # Return armor value to console.
             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}|n")
@@ -1263,13 +1278,13 @@ class SetArmorSpecialist(Command):
             self.caller.db.armor_specialist = armor_specialist
 
             # Get armor value objects
+            from world.equip_bonuses import recompute_av
             armor = self.caller.db.armor
             tough = self.caller.db.tough
-            indomitable = self.caller.db.indomitable
+            indomitable = self.caller.db.armor_indomitable or 0
 
-            # Add them up and set the curent armor value in the database
-            currentArmorValue = armor + tough + armor_specialist + indomitable
-            self.caller.db.av = currentArmorValue
+            # Same AV formula as equip/unequip (indomitable lives in db.armor).
+            currentArmorValue = recompute_av(self.caller)
 
             # Return armor value to console.
             self.caller.msg(f"|430Your current Armor Value is {currentArmorValue}:\nArmor: {armor}\nTough: {tough}\nArmor Specialist: {armor_specialist}\nIndomitable: {indomitable}|n")
@@ -2108,7 +2123,11 @@ class CmdThrow(Command):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
-        h = Helper()
+        # Helper lives in commands/combat.py, was never imported here, and
+        # takes the caller — `Helper()` raised NameError every time these
+        # ran (they are live in the knife-throwing and hammer rooms).
+        from commands.combat import Helper
+        h = Helper(self.caller)
         args = self.args
 
         err_msg = "|430Usage: throw dagger|n"
@@ -2234,7 +2253,11 @@ class CmdSwing(Command):
         # Try and find caller key in fortuneStrings. If found, return fortune Value
         # Remove it from the fortuneString dict
         # If not found return a default fortune string
-        h = Helper()
+        # Helper lives in commands/combat.py, was never imported here, and
+        # takes the caller — `Helper()` raised NameError every time these
+        # ran (they are live in the knife-throwing and hammer rooms).
+        from commands.combat import Helper
+        h = Helper(self.caller)
         args = self.args
 
         err_msg = "|430Usage: swing hammer|n"
@@ -2904,12 +2927,6 @@ class CmdPatch(Command):
             self.msg(use_err_msg)
             return
 
-        # Format item for searching in prototypes.
-        # Adds underscores to make prototype search happy.
-        prototyped_string = self.item
-        if prototyped_string.find(" "):
-            prototyped_string = self.item.replace(' ', '_')
-
         # Search for item in char inventory
         inv_item = self.caller.search(self.item,
                                       location=self.caller,
@@ -2922,31 +2939,49 @@ class CmdPatch(Command):
                                        multimatch_string="|430Your search has more than one result. Please be more specific.|n")
 
         if inv_item and patch_kit:
-            # Search for designated prototypes
-            try:
-                prototype = prototypes.search_prototype(prototyped_string, require_single=True)
-            except KeyError:
+            from world import equip_bonuses
+            from world.prototype_values import proto_int
+
+            # Exact prototype lookup for the item itself (the old code read
+            # material_value from a fixed attrs[9] position, which breaks as
+            # soon as a prototype's fields are reordered).
+            prototype_data = find_prototype(inv_item, prototypes.search_prototype)
+            item_material_value = proto_int(prototype_data, "material_value", 0) if prototype_data else 0
+            if not item_material_value:
                 self.msg("This item cannot be patched or you have entered an incorrect spelling.")
+                return
+
+            # One patch per piece. The same db.patched flag covers both kinds
+            # of damage (sundered material_value and drained armor), so a
+            # patch kit can't be spammed to refill armor every fight. Only a
+            # crafter's `repair` (CmdRepair) clears the flag.
+            if inv_item.db.patched:
+                self.msg(f"{inv_item} has already been patched once. It needs a smith's repair before a patch kit will help again.")
+                return
+
+            # Damaged = sundered below its prototype material_value, or (for
+            # armor) absorption drained below material_value by hits. Both
+            # come back through a patch kit, the same as a blacksmith repair.
+            current_mv = inv_item.db.material_value or 0
+            sundered = item_material_value > current_mv
+            drained = bool(inv_item.db.is_armor) and (
+                equip_bonuses.worn_armor_remaining(self.caller, inv_item) < item_material_value)
+
+            if sundered or drained:
+                inv_item.db.material_value = item_material_value
+                inv_item.db.patched = True
+                inv_item.db.broken = False
+                # Same refill path as repair: armor_remaining back to full,
+                # and the wearer's pool refreshed if it is worn.
+                equip_bonuses.reset_armor(inv_item, wearer=self.caller)
+                patch_kit.delete()
+                self.msg(f"You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.")
+                try:
+                    push_character_stats(self.caller)
+                except Exception:
+                    pass
             else:
-                # Get prototype attributes
-                item_attrs = prototype[0]["attrs"]
-                # Check if the item has been patched already.
-                if inv_item.db.patched:
-                    self.msg(f"{inv_item} has been patched already. You will have to take it to a blacksmith to be repaired.")
-                    return
-                # Material value should always be 9th element in attrs array.
-                item_material_value = item_attrs[9][1]
-                # Check to see if target item has a lower material value, meaning it's taken damage.
-                mv_diff = item_material_value - inv_item.db.material_value
-                if mv_diff > 0:
-                    # Item has been damaged. Set back to original material_value
-                    inv_item.db.material_value = item_material_value
-                    inv_item.db.patched = True
-                    inv_item.db.broken = False
-                    patch_kit.delete()
-                    self.msg(f"You crudely repair your {inv_item}. It will need to be taken to a blacksmith should it fail again.")
-                else:
-                    self.msg(f"Your {inv_item} is not in need of repair.")
+                self.msg(f"Your {inv_item} is not in need of repair.")
         else:
             return
 
@@ -3196,6 +3231,12 @@ class CmdUnfollowForce(Command):
         else:
 
             target = caller.search(self.target, global_search=True)
+
+            # search() returns None for an unknown name and only prints its
+            # own "not found" line; without this guard the followers access
+            # below raised AttributeError on None.
+            if not target:
+                return
 
             # Try removing them from the target's followers array.
             try:

@@ -9,6 +9,33 @@ from world.character_stats import push_character_stats
 from evennia import utils as ev_utils
 
 
+def find_combat_target(caller, name):
+    """Resolve an attack verb's target name to one object, or None.
+
+    Rooms routinely hold several identically named enemies (three "Rat
+    Company Digger"), so the stock multimatch prompt is a dead end. Search
+    quietly and, when several objects share the name, prefer one that is
+    still alive (bleed_points left) and isn't the attacker, so a corpse
+    from the last fight doesn't soak up the swing. Falls back to the first
+    match, which lets the verbs report "already dead" as before.
+    """
+    found = caller.search(name, quiet=True)
+    if not isinstance(found, (list, tuple)):
+        return found
+    if not found:
+        return None
+    for obj in found:
+        if obj is caller:
+            continue
+        try:
+            alive = bool(obj.attributes.get("bleed_points", default=0))
+        except Exception:
+            alive = False
+        if alive:
+            return obj
+    return found[0]
+
+
 class Combatant:
     """
     A helper class used to ease readability and flow of combat functions
@@ -305,9 +332,16 @@ class Combatant:
         return self.isTwoHanded()
 
     def isTwoHanded(self):
-        two_handed = self.getRightHand() == self.getLeftHand()
+        # Empty slots come through as [] (combat.getMeleeCombatStats), and
+        # [] == [] is True — which made an unarmed combatant read as wielding
+        # a two-handed weapon. That let empty hands satisfy cleave's
+        # two-handed requirement and made empty-handed victims "immune" to
+        # disarm. Require a real object in the right hand first.
+        right_hand = self.getRightHand()
+        if not right_hand:
+            return False
 
-        return two_handed
+        return right_hand == self.getLeftHand()
 
     @property
     def av(self):
@@ -387,9 +421,25 @@ class Combatant:
         return
 
     def getVictim(self, target):
-        # Get target if there is one
-        self.target = self.caller.search(target)
-        return Combatant(self.target)
+        """Resolve `target` to a Combatant, or None if nothing matches.
+
+        `target` may be an already-resolved object (preferred: the attack
+        verbs resolve it once with find_combat_target and pass it in, so
+        their own checks and the victim are the same object) or the raw
+        argument string, which is resolved the same way.
+
+        Callers must handle a None return.
+        """
+        if isinstance(target, str):
+            found = find_combat_target(self.caller, target)
+        else:
+            found = target
+
+        self.target = found
+        if not found:
+            return None
+
+        return Combatant(found)
 
     def getDamage(self):
         """Return damage for this attack based on the equipped weapon's damage stat."""
@@ -494,7 +544,11 @@ class Combatant:
         return remaining_damage
 
     def updateAv(self):
-        self.caller.db.av = self.caller.db.armor + self.caller.db.tough + self.caller.db.armor_specialist
+        # Same formula as every equip/unequip path. Indomitable is folded
+        # into db.armor while armor is worn (equip_bonuses.don_armor), so it
+        # drains with the armor above and is not a separate, undrainable term.
+        from world.equip_bonuses import recompute_av
+        recompute_av(self.caller)
 
 
     def takeAvDamage(self,amount):
@@ -528,6 +582,13 @@ class Combatant:
                 pass
             return 0
         struck = amount  # pre-armor hit size, for the client hit-flash
+        # Keep an ongoing duel from lapsing (commands/duel.py DUEL_TIMEOUT).
+        try:
+            if self.caller.attributes.has("duel"):
+                from commands.duel import touch_duel
+                touch_duel(self.caller)
+        except Exception:
+            pass
         if self.av and (not skip_av):
             amount = self.takeAvDamage(amount)
 

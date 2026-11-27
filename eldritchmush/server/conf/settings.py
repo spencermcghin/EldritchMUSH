@@ -292,7 +292,18 @@ if _allauth_available:
 # is just ["world.prototypes"]; we add the bestiary so the monster
 # prototypes (WIGHT, REVENANT, …) resolve by key in-game.
 ######################################################################
-PROTOTYPE_MODULES = ["world.prototypes", "world.bestiary_prototypes"]
+# world.alchemy_prototypes was missing here, which broke two things: the text
+# `brew` command could never resolve a substance ("Substance not found" for
+# every recipe, making its kit/reagent/level gates dead code), and quest
+# rewards naming an alchemy key fell through to Evennia's SUBSTRING match —
+# so SPOTTERS_DRAUGHT quietly granted RECIPE_SPOTTERS_DRAUGHT, handing the
+# player a recipe scroll instead of the potion, with no error. The three
+# modules share no keys.
+PROTOTYPE_MODULES = [
+    "world.prototypes",
+    "world.bestiary_prototypes",
+    "world.alchemy_prototypes",
+]
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

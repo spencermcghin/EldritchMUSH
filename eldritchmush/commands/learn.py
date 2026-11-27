@@ -12,6 +12,8 @@ from evennia import Command, spawn
 from evennia.prototypes import prototypes as proto_utils
 from evennia.utils import evtable
 
+from world import recipe_book
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -72,21 +74,18 @@ class CmdLearn(Command):
             caller.msg(f"|400{item.key} is not a recipe schematic.|n")
             return
 
-        # Initialize known_recipes if needed
-        known = caller.db.known_recipes
-        if not isinstance(known, set):
-            known = set()
-
-        recipe_key_upper = recipe_key.upper()
-        if recipe_key_upper in known:
+        # Read/write through world.recipe_book: db.known_recipes comes back
+        # as a _SaverSet, which is NOT a `set` subclass, so the old
+        # isinstance(known, set) check discarded the whole book on every
+        # learn — the second scroll wiped the first.
+        if recipe_book.knows(caller, recipe_key):
             caller.msg(
                 f"|430You already know the recipe for {item.key.replace('Recipe: ', '')}.|n"
             )
             return
 
         # Learn the recipe
-        known.add(recipe_key_upper)
-        caller.db.known_recipes = known
+        recipe_book.learn(caller, recipe_key)
 
         # Remove the scroll
         scroll_name = item.key
@@ -127,8 +126,8 @@ class CmdRecipes(Command):
 
     def func(self):
         caller = self.caller
-        known = caller.db.known_recipes
-        if not isinstance(known, set) or not known:
+        known = recipe_book.known_recipes(caller)
+        if not known:
             caller.msg(
                 "|430You have not learned any recipes yet.|n\n"
                 "|xFind or buy recipe schematics and use |wlearn <scroll>|x to memorize them.|n"
@@ -441,11 +440,16 @@ class CmdBuyRecipe(Command):
             )
             return
 
-        # Spawn scroll into inventory
-        spawned = spawn(proto, location=caller)
+        # Spawn scroll into inventory. spawn() ignores a `location` kwarg
+        # (Evennia 5.0.1 takes prototypes and **kwargs, not a location), so
+        # passing it left the scroll at location=None while still charging
+        # the player. Move it explicitly, same as commands/shop.py.
+        spawned = spawn(proto)
         if not spawned:
             caller.msg("|400Something went wrong spawning the scroll. Please report this.|n")
             return
+        for obj in spawned:
+            obj.location = caller
 
         caller.db.silver -= matched_price
         caller.msg(

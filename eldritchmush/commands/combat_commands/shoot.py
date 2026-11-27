@@ -1,7 +1,7 @@
 # Local imports
 from evennia import Command
 from world.combat_loop import CombatLoop
-from commands.combatant import Combatant
+from commands.combatant import Combatant, find_combat_target
 from world.events import emit
 from world import monster_abilities
 
@@ -55,11 +55,10 @@ class CmdShoot(Command):
             combatant.message("|400You are all out of arrows.|n")
             return
 
-        # Check for and error handle designated target — take the
-        # first match quietly (identical enemy names, see strike.py).
-        target = self.caller.search(self.target, quiet=True)
-        if isinstance(target, (list, tuple)):
-            target = target[0] if target else None
+        # Check for and error handle designated target — search
+        # quietly (identical enemy names, see strike.py).
+        # Prefer a living match over a same-named corpse.
+        target = find_combat_target(self.caller, self.target)
 
         # Pass all checks now execute command.
         # Use parsed args in combat loop. Handles turn order in combat.
@@ -73,11 +72,19 @@ class CmdShoot(Command):
             self.msg("|400You can't shoot yourself.|n")
             return
 
-        victim = combatant.getVictim(self.target)
+        victim = combatant.getVictim(target)
+
+        if not victim:
+            combatant.message("|430Please designate an appropriate target.|n")
+            return
 
         if not target.db.bleed_points:
             combatant.message(f"{victim.name} |400is dead. You only further mutilate their body.|n")
             combatant.broadcast(f"{combatant.name} |025further mutilates the corpse of|n {victim.name}|025.|n")
+            # Resolve the loop before bailing: if that corpse was the last
+            # standing NPC, combat has to end here, or the survivors stay
+            # flagged in_combat with their exits locked.
+            CombatLoop(combatant.caller, None).endIfNpcsDefeated()
             return
 
         loop = CombatLoop(combatant.caller, combatant.target)

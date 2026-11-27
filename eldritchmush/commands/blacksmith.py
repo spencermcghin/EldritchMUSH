@@ -4,6 +4,7 @@ import random
 # Local imports
 from evennia import Command, CmdSet, default_cmds, spawn, utils
 from evennia.prototypes import prototypes
+from world.prototype_values import proto_int, proto_str
 from commands import command
 from evennia.utils import evmenu
 
@@ -64,8 +65,11 @@ class CmdForge(Command):
 
         prototype_data = prototype[0]
 
-        # Skill-level gating
-        item_level = prototype_data.get("level", 0)
+        # Skill-level gating. Read via proto_int: search_prototype() returns
+        # the NORMALIZED prototype, where these values live in an `attrs`
+        # list, so a plain .get() saw 0 for every field — no skill gate, a
+        # flat level-0 fee, and zero material cost on every item.
+        item_level = proto_int(prototype_data, "level", 0)
         blacksmith_level = self.caller.db.blacksmith or 0
         if blacksmith_level < item_level and not self.caller.is_superuser:
             label = LEVEL_LABELS.get(item_level, str(item_level))
@@ -93,10 +97,10 @@ class CmdForge(Command):
         }
 
         item_requirements = {
-            "iron_ingots": prototype_data.get("iron_ingots", 0),
-            "refined_wood": prototype_data.get("refined_wood", 0),
-            "leather": prototype_data.get("leather", 0),
-            "cloth": prototype_data.get("cloth", 0)
+            "iron_ingots": proto_int(prototype_data, "iron_ingots", 0),
+            "refined_wood": proto_int(prototype_data, "refined_wood", 0),
+            "leather": proto_int(prototype_data, "leather", 0),
+            "cloth": proto_int(prototype_data, "cloth", 0)
         }
 
         requirements_checker = [

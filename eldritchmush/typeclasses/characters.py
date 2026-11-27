@@ -226,6 +226,24 @@ class Character(DefaultCharacter):
         # command, and eventually merchant pricing + aggression flips.
         self.db.npc_rep = {}
 
+    def at_object_leave(self, moved_obj, target_location, move_type="move", **kwargs):
+        """An object is leaving this character's inventory.
+
+        If it is equipped, take it off first and reverse its stats. Only
+        give and sell used to do this, so the stock `drop`, `put` and the
+        quest delivery sweep left the AV applied with a stale slot
+        reference, and the new holder could equip the same piece for a
+        second copy. give/sell still call force_unequip themselves (for
+        their own message); by the time the move happens the item is out
+        of every slot, so this is a no-op and nothing is reversed twice.
+        """
+        super().at_object_leave(moved_obj, target_location, move_type=move_type, **kwargs)
+        try:
+            from world import equip_bonuses
+            equip_bonuses.release_from_holder(moved_obj)
+        except Exception:
+            pass
+
 
     def return_appearance(self, looker):
         """

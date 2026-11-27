@@ -339,7 +339,9 @@ if not ObjectDB.objects.filter(db_key="bandit", db_location=west_cabin.pk).exist
 def create_quest_giver(key, location, desc):
     tp = "typeclasses.npc.QuestGiverNpc"
     if not ObjectDB.objects.filter(db_key=key, db_typeclass_path=tp).exists():
-        npc = create_object(tp, key=key, location=location)
+        # `create_object` was never imported here — this raised NameError and
+        # aborted the whole populate run partway through.
+        npc = evennia.create_object(tp, key=key, location=location)
         npc.db.desc = desc
         npc.db.is_aggressive = False
         npc.db.is_npc = True
