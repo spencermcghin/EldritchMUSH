@@ -2,8 +2,9 @@
 Duel — wagered 1v1 combat.
 
 Two combatants each stake coin. The first to fall to 0 bleed_points
-(incapacitated / "bleeding") yields. The winner takes both stakes and
-fires quest_duel_win against the loser.
+(incapacitated / "bleeding") yields. The winner takes both stakes (an
+NPC's share at most once a day per player). A player's first win against
+a given NPC also fires quest_duel_win and hands over duel_defeat_drops.
 
 State lives on each combatant:
   char.db.duel = {
@@ -180,6 +181,20 @@ def _npc_reward_ready(winner, npc):
     return True
 
 
+def _record_first_win(winner, npc):
+    """True the first time `winner` beats `npc` in a duel, and records it.
+
+    Stored on the player as db.duel_npc_first_wins = {npc_id: timestamp}.
+    """
+    wins = dict(winner.attributes.get("duel_npc_first_wins", default=None) or {})
+    key = str(npc.id)
+    if key in wins:
+        return False
+    wins[key] = _now()
+    winner.attributes.add("duel_npc_first_wins", wins)
+    return True
+
+
 def resolve_duel(loser):
     """Called from combatant.takeDamage when a combatant's bleed_points
     hits 0. If that combatant was in a duel, pay out, fire quest hook,
@@ -229,8 +244,17 @@ def resolve_duel(loser):
     except Exception:
         pass
 
+    # Defeat drops and the quest tick come once per player per NPC: the
+    # first win only. They used to fire on every win, so quest items such
+    # as SIGNED_OBAN_CONTRACT and LANTON_VETERAN_COIN could be duplicated
+    # by beating the same NPC again (medicine heals it for a rematch).
+    # Later wins still pay coin under the NPC_REWARD_COOLDOWN cap above.
+    first_win = True
+    if player_winner and npc_loser:
+        first_win = _record_first_win(opponent, loser)
+
     # Quest hook (only fires if the WINNER is a player character)
-    if getattr(opponent, "has_account", False):
+    if first_win and getattr(opponent, "has_account", False):
         try:
             from commands.quests import quest_duel_win
             quest_duel_win(opponent, loser.key)
@@ -242,7 +266,7 @@ def resolve_duel(loser):
     # handoff visually; players should never wonder whether they
     # actually got the thing the game said they did.
     from world.npc_gifts import announce_item_drop
-    drops = loser.attributes.get("duel_defeat_drops", default=None) or []
+    drops = (loser.attributes.get("duel_defeat_drops", default=None) or []) if first_win else []
     for proto_key in drops:
         try:
             items = spawn(proto_key)
@@ -286,7 +310,9 @@ class CmdDuel(Command):
     whoever falls to bleeding first yields and the winner takes the
     pot. Then `strike <npc>` as normal to begin the fight.
 
-    Beating the same NPC again within a day returns only your own stake.
+    Only your first win against an NPC earns its surrendered items and
+    quest credit. Beating the same NPC again within a day returns only
+    your own stake.
     A duel with no fighting for 10 minutes lapses and counts as a yield.
     """
 
